@@ -1,0 +1,2643 @@
+{
+  "schema": "policyos.e02.selector_map_source_audit.v1",
+  "created_at_utc": "2026-10-06T19:47:10.805311+00:00",
+  "actual_own_head": "1f330782463d6ec69befab02bd98322296a983c7",
+  "source_target": {
+    "sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e"
+  },
+  "map_target": {
+    "sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "tree": "64686b4279b7b2d8dd037d62e9bb3b1ab9c1bc3f"
+  },
+  "old_map": {
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "git_blob": "6c21c1a371c5f37aa0ce1aeb6eac4065b570baac",
+    "bytes": 21891,
+    "sha256": "2c916a62658080fc836e3c49778e9ceb60bd60bbd0fc908b2d5bad1ebc5b9358"
+  },
+  "new_map": {
+    "source_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "git_blob": "6f468b78c851408f2dfda5e48483a2b309227742",
+    "bytes": 49833,
+    "sha256": "28cd03084e8ce77f913c5f8de1aefbfdbf99148c8702c531df900a5fe50b5863"
+  },
+  "manifest": {
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+    "bytes": 602186,
+    "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87"
+  },
+  "selector": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+    "bytes": 1116312,
+    "sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0"
+  },
+  "environment": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "scope": {
+    "keys": 15,
+    "changed_values": 14,
+    "unchanged_values": [
+      "tests/unit/foundry/methods/test_compiler_e02.py"
+    ],
+    "candidate_ids_changed_only": [
+      "B14",
+      "B148",
+      "B149",
+      "B150",
+      "B151",
+      "B153",
+      "B24",
+      "B37",
+      "B40",
+      "B51",
+      "B52",
+      "B55",
+      "B57",
+      "B58",
+      "B59",
+      "B60",
+      "B62",
+      "B67",
+      "B68",
+      "B69",
+      "B72",
+      "B73",
+      "B77",
+      "B87",
+      "B89",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B95",
+      "LA-057"
+    ],
+    "candidate_id_count_changed_only": 31,
+    "review_criteria_count_including_held_B61": 32,
+    "canonical_bundle_count": 13,
+    "candidate_rows_changed_values": 72,
+    "distinct_literal_function_bodies": 68,
+    "named_absent_changed": [
+      "tests/integration/scientist/test_async_cache_recovery.py",
+      "tests/integration/scientist/test_execution_state_replay.py",
+      "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "tests/unit/core/artifacts/test_transfer_publication.py",
+      "tests/unit/remediation/test_dur_01.py",
+      "tests/unit/remediation/test_exe_01.py",
+      "tests/unit/remediation/test_llm_02.py",
+      "tests/unit/remediation/test_net_01.py",
+      "tests/unit/remediation/test_net_02.py",
+      "tests/unit/remediation/test_run_01.py",
+      "tests/unit/remediation/test_run_02.py",
+      "tests/unit/remediation/test_sta_01.py",
+      "tests/unit/remediation/test_sta_02.py"
+    ],
+    "incidental_absent": [
+      "tests/arbitrary/test_canonical_absent.py",
+      "tests/arbitrary/test_incidental_absent.py",
+      "tests/arbitrary/test_present.py",
+      "tests/controlled/nested/test_second.py",
+      "tests/controlled/secondary_test.py",
+      "tests/controlled/test_first.py",
+      "tests/outside/test_outside.py"
+    ],
+    "all_absent": 21
+  },
+  "canonical_criteria": [
+    {
+      "id": "B14",
+      "primary_bundle": "RUN-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B14",
+          "document": "B_r19",
+          "lines": [
+            363,
+            374
+          ],
+          "sha256": "89a1ccad96f0eaf48f41dd7f793f6427dc7d0fc7b8abb9d14a592ce92008bd41",
+          "card": "RUN-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B148",
+      "primary_bundle": "CAS-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B148",
+          "document": "B_r19",
+          "lines": [
+            3917,
+            3928
+          ],
+          "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+          "card": "CAS-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B149",
+      "primary_bundle": "CAS-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B149",
+          "document": "B_r19",
+          "lines": [
+            3929,
+            3940
+          ],
+          "sha256": "77fcd9a12a06828f4ec68229fb69245c81ebe2842c53b348352a1dae01422cee",
+          "card": "CAS-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B150",
+      "primary_bundle": "CAS-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B150",
+          "document": "B_r19",
+          "lines": [
+            3941,
+            3952
+          ],
+          "sha256": "b40a162af24b14c3160e0129551e58ecfabf054df9da4e3cab413f020cde5aa4",
+          "card": "CAS-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B151",
+      "primary_bundle": "CAS-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B151",
+          "document": "B_r19",
+          "lines": [
+            3953,
+            3964
+          ],
+          "sha256": "b48507b8d9539968f2aa0e75206129e70e987c9a704aea12ae4299b944c098e7",
+          "card": "CAS-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B153",
+      "primary_bundle": "CAS-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B153",
+          "document": "B_r19",
+          "lines": [
+            3977,
+            3988
+          ],
+          "sha256": "ce457c31ae354ef0b798696a95c012edf46cc582a985d184f4081a0a55ba5566",
+          "card": "CAS-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B24",
+      "primary_bundle": "RUN-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B24",
+          "document": "B_r19",
+          "lines": [
+            489,
+            502
+          ],
+          "sha256": "ae15e81cc6f82a0cf31bfd1a4689724b00bd3fdae45748292a8735108acc9ec1",
+          "card": "RUN-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B37",
+      "primary_bundle": "DUR-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B37",
+          "document": "B_r19",
+          "lines": [
+            700,
+            717
+          ],
+          "sha256": "4cb4cba956a6535facb92240a7755afd76eabd8c50ecda00d76e607299ab9985",
+          "card": "DUR-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B40",
+      "primary_bundle": "RUN-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B40",
+          "document": "B_r19",
+          "lines": [
+            752,
+            769
+          ],
+          "sha256": "553ab08e2d38df8a86ad1a9a06e3bcb185741e630a7ea3df0c06a90faf3304f5",
+          "card": "RUN-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B51",
+      "primary_bundle": "EXE-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B51",
+          "document": "B_r19",
+          "lines": [
+            1331,
+            1346
+          ],
+          "sha256": "e9b4ac7cef4037c2a72c1e5b9ebef5401d821d718b1be3dfb7b4fd44c38004f8",
+          "card": "EXE-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B52",
+      "primary_bundle": "EXE-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B52",
+          "document": "B_r19",
+          "lines": [
+            1347,
+            1362
+          ],
+          "sha256": "1a6929c4d593f31111984bfc232aa5047093e63c0ae8b30bc8a77f988c193ab9",
+          "card": "EXE-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B55",
+      "primary_bundle": "EXE-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B55",
+          "document": "B_r19",
+          "lines": [
+            1395,
+            1408
+          ],
+          "sha256": "26067194bc63e79de6b0a05c8ec8d1baa08f15661428174ded6ddbeea336a422",
+          "card": "EXE-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B57",
+      "primary_bundle": "STA-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B57",
+          "document": "B_r19",
+          "lines": [
+            1543,
+            1558
+          ],
+          "sha256": "0d78e1d5818a8ee8e0f4ba236038d69d06c75e74da87ce22dd7327a13f2f8f06",
+          "card": "STA-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B58",
+      "primary_bundle": "STA-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B58",
+          "document": "B_r19",
+          "lines": [
+            1559,
+            1572
+          ],
+          "sha256": "1c1de2a09c78b01dcd21aff5b3b9aafb037873624e4848a2df85846e40cbe9df",
+          "card": "STA-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B59",
+      "primary_bundle": "STA-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B59",
+          "document": "B_r19",
+          "lines": [
+            1573,
+            1586
+          ],
+          "sha256": "f1be31314c74127f473589edbd1cda207e908ba5d0d1917d3cdbbb857ed306a8",
+          "card": "STA-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B60",
+      "primary_bundle": "STA-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B60",
+          "document": "B_r19",
+          "lines": [
+            1587,
+            1600
+          ],
+          "sha256": "44f69d1484c4a6336451b3c0c9645e799ad9b872941f4d068556a9c1d0cde018",
+          "card": "STA-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B61",
+      "primary_bundle": "STA-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B61",
+          "document": "B_r19",
+          "lines": [
+            1601,
+            1614
+          ],
+          "sha256": "d866142adb470420e36484ae68a71a865e730697ae87639bbef85c27ef86c32b",
+          "card": "STA-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B62",
+      "primary_bundle": "STA-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B62",
+          "document": "B_r19",
+          "lines": [
+            1615,
+            1628
+          ],
+          "sha256": "e8a018dd29129a34baf12068580586d16474c3b244341e94dc5eb6e3e5355070",
+          "card": "STA-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B67",
+      "primary_bundle": "LLM-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B67",
+          "document": "B_r19",
+          "lines": [
+            1709,
+            1728
+          ],
+          "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+          "card": "LLM-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B68",
+      "primary_bundle": "LLM-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B68",
+          "document": "B_r19",
+          "lines": [
+            1729,
+            1748
+          ],
+          "sha256": "444a26030aad6d955907fee063845e8938c8348c5c7d970d3d4da6a1c2e3da62",
+          "card": "LLM-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B69",
+      "primary_bundle": "RUN-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B69",
+          "document": "B_r19",
+          "lines": [
+            1749,
+            1768
+          ],
+          "sha256": "48c2fed9857c0f4b60e19eb34ad9325524eb75f7cef036a87c675b5c497f06f7",
+          "card": "RUN-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B72",
+      "primary_bundle": "RES-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B72",
+          "document": "B_r19",
+          "lines": [
+            1905,
+            1920
+          ],
+          "sha256": "38979cf3522b6b847946b86db0042408c08d07996d5b2f52a7c127e56c718189",
+          "card": "RES-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B73",
+      "primary_bundle": "RES-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B73",
+          "document": "B_r19",
+          "lines": [
+            1921,
+            1938
+          ],
+          "sha256": "e621748d93e6a09366084624850c95e9765196b665a628702f05054dd857bd9b",
+          "card": "RES-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B77",
+      "primary_bundle": "EXE-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B77",
+          "document": "B_r19",
+          "lines": [
+            1985,
+            1998
+          ],
+          "sha256": "9a964e072d3e3b2f8a636c8ba2d38de5e8ea300b9c7b11dbc7c5e09463fe392f",
+          "card": "EXE-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B87",
+      "primary_bundle": "NET-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B87",
+          "document": "B_r19",
+          "lines": [
+            2263,
+            2274
+          ],
+          "sha256": "6e2bbb77d53fcdc1c29b51651016758e2e2b05b5f51bec0cf69a00d20f4e8996",
+          "card": "NET-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B89",
+      "primary_bundle": "NET-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B89",
+          "document": "B_r19",
+          "lines": [
+            2405,
+            2418
+          ],
+          "sha256": "43cfad4b987c5efbb7cc52c98e8a7d84508a7d4d6e64395cc926086c91f3de1a",
+          "card": "NET-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B90",
+      "primary_bundle": "NET-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B90",
+          "document": "B_r19",
+          "lines": [
+            2419,
+            2434
+          ],
+          "sha256": "40d664e5fe4a6a8f7559b5a5faf15b49ac0b739e538d9377c00e76e8a3dd26ee",
+          "card": "NET-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B91",
+      "primary_bundle": "NET-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B91",
+          "document": "B_r19",
+          "lines": [
+            2435,
+            2448
+          ],
+          "sha256": "9635f3793b099112dd1dc8fbd0a83231afe05d27cd97e8eab1a0479a577ce6a4",
+          "card": "NET-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B92",
+      "primary_bundle": "NET-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B92",
+          "document": "B_r19",
+          "lines": [
+            2449,
+            2462
+          ],
+          "sha256": "37097e7bc91e5b288c7e2c05359674ea52fac78804c3ea54b8a928c84a95cbea",
+          "card": "NET-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B93",
+      "primary_bundle": "NET-02",
+      "criterion_refs": [
+        {
+          "criterion_id": "B93",
+          "document": "B_r19",
+          "lines": [
+            2463,
+            2476
+          ],
+          "sha256": "f07d58727fcd6d01cb3768ec794500785fa052cd388988920e2033fc198ab803",
+          "card": "NET-02"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "B95",
+      "primary_bundle": "RUN-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "B95",
+          "document": "B_r19",
+          "lines": [
+            2493,
+            2506
+          ],
+          "sha256": "b3a422c42f7435b491d1fdaa1522d1ac5d8a8692e94cbc4155d9a5c5c6650a49",
+          "card": "RUN-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    {
+      "id": "LA-057",
+      "primary_bundle": "RUN-01",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-057",
+          "document": "LA_r09",
+          "lines": [
+            4172,
+            4203
+          ],
+          "sha256": "243a6686c43da8bbb26b9bf15b8da4bfb7061771d213f90f0757c160a76e789e",
+          "card": "RUN-01"
+        }
+      ],
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "bytes": 648034,
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      }
+    }
+  ],
+  "canonical_cards": [
+    {
+      "bundle_id": "CAS-01",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md",
+        "git_blob": "36bcff0953c8b8e010f66ad7a0b355458b0f640d",
+        "bytes": 17325,
+        "sha256": "0560cbbd7ddd285fdbdd04d37201785dec5bb412310286e6e7644a933a6038c7"
+      }
+    },
+    {
+      "bundle_id": "CAS-02",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-02.md",
+        "git_blob": "592baa03d3076ad29133ad0a54267f125cc57e91",
+        "bytes": 12546,
+        "sha256": "b670f795ccedf4f6aa81124c7c0b18b52a0e0f3adc64fd1e99ae2c9ac581e3e2"
+      }
+    },
+    {
+      "bundle_id": "DUR-01",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+        "git_blob": "333b6e91afbdf22b37cabd29328dacc8e9f0619a",
+        "bytes": 9457,
+        "sha256": "4d2c05567d77dbe20306b5b6dddfb7c680befdc4063d177110c78573454746bf"
+      }
+    },
+    {
+      "bundle_id": "EXE-01",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md",
+        "git_blob": "7e694d250e1cdbb8d41dbd4208e703d36353ff23",
+        "bytes": 17854,
+        "sha256": "125712af99fd3d1ab049636a1a176351b27c96becacaa10bfeab02e44eda4e1e"
+      }
+    },
+    {
+      "bundle_id": "EXE-02",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-02.md",
+        "git_blob": "e6c5652f77c613fe74cf110a2dd4fd5735493617",
+        "bytes": 9305,
+        "sha256": "3ea1c2e18f8c4885adc4c55a7953c9109d9db83aa4d35a83a543c7307f2a674d"
+      }
+    },
+    {
+      "bundle_id": "LLM-02",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md",
+        "git_blob": "894ca6c1923470ef3ef88e9bb8910047ce3b3e26",
+        "bytes": 13613,
+        "sha256": "b4e1df5e681a96a0bbf26f0116b73cefd8737a6d84287d12427c9edd80b070bd"
+      }
+    },
+    {
+      "bundle_id": "NET-01",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md",
+        "git_blob": "eec33f3da4d2452e787269152e8ce1a56be2c85a",
+        "bytes": 17369,
+        "sha256": "3317b0e88f1b3517d0e5d6ea2fef5ad20bfa19d5a39eac4a15fe146a6d698683"
+      }
+    },
+    {
+      "bundle_id": "NET-02",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md",
+        "git_blob": "57f1cbef61fd1fa16f7da5c6b4308709056fad5e",
+        "bytes": 16805,
+        "sha256": "cacfe59ec5056d76596aeb36ea2dfa9e43925042b5bc1e77c7cbeedcbd2b240b"
+      }
+    },
+    {
+      "bundle_id": "RES-02",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-02.md",
+        "git_blob": "39cba1583696ab6380934bb6adc0e0d64c9afed7",
+        "bytes": 14099,
+        "sha256": "b95f60f43988e0d0860df2f5dedd553b456a649f4918758677caad6abfd74f97"
+      }
+    },
+    {
+      "bundle_id": "RUN-01",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+        "git_blob": "5ca4f7fed545c21ec7b7024e4e714f5759bf0cf4",
+        "bytes": 29421,
+        "sha256": "269282c72a89487148840df41204b4fb58cef3d8f030035be2a0e579db20b674"
+      }
+    },
+    {
+      "bundle_id": "RUN-02",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md",
+        "git_blob": "6b796d3bf2c3c52a1ab28cc5638cd0cdc66eeb1d",
+        "bytes": 7878,
+        "sha256": "383e4ee21a778cef4ef27a454549f9649b3a6524991a6d078cd112b00da11394"
+      }
+    },
+    {
+      "bundle_id": "STA-01",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md",
+        "git_blob": "0a2ae0d6a2cfc24884d90d907a0148d1f0813197",
+        "bytes": 20014,
+        "sha256": "d9c8797236bcd386795b4e28e352407d753eb1b80e89f3d4f599b4324b1f8a6f"
+      }
+    },
+    {
+      "bundle_id": "STA-02",
+      "source": {
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md",
+        "git_blob": "a3b121637b808222c13def656e1b69c25690e815",
+        "bytes": 18170,
+        "sha256": "2e1ea16592f6e6c38ef919fd02356ed25c85913f946121dc91f7ca64a68fea0c"
+      }
+    }
+  ],
+  "entries": [
+    {
+      "named_selector": "tests/integration/scientist/test_async_cache_recovery.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+          "finding_ids": [
+            "B52",
+            "B57"
+          ],
+          "source_property": "Cold trace/checkpoint seed loads actual CAS operations off the event loop and replays the journal onto current unrelated state without a new producer call. This is B52 IO and B57 replay, not B51 exhausted-compute admission or B55 fail-fast.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+              "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+              "bytes": 20275,
+              "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+            },
+            "line_begin": 187,
+            "line_end": 233,
+            "block_sha256": "a615e845d6d727221352259cf0728c6017cbb47decd7c69e1903de02aba1ab38",
+            "ast_function": "test_cold_seed_is_off_loop_and_replays_real_operations"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+          "finding_ids": [
+            "B52"
+          ],
+          "source_property": "After deadline/cancellation return, held physical read completes but cannot mutate executor cache.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+              "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+              "bytes": 20275,
+              "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+            },
+            "line_begin": 236,
+            "line_end": 271,
+            "block_sha256": "682492882af5080ea22058c234553f1eea4a59f63b6e15db3bdc05afd315cc9a",
+            "ast_function": "test_cold_seed_late_read_cannot_publish_cache"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget",
+          "finding_ids": [
+            "B51"
+          ],
+          "source_property": "Actual cold trace/checkpoint recovery reuses an existing result with exhausted compute budget, charges/obeys read budget, and refuses an exhausted read budget before the physical target read; producer quantity remains the initial call.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+              "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+              "bytes": 20275,
+              "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+            },
+            "line_begin": 308,
+            "line_end": 341,
+            "block_sha256": "36f22909252bc4e1a0a1381e3fc3782ee730f61d90044d8e696d445286faab09",
+            "ast_function": "test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget"
+          }
+        }
+      ],
+      "residuals": [
+        "Original integration filename is absent and UNRUN. These actual unit consumers expose the recovery criterion; remotes, a different process/backend and production input closure require their own admitted input/outcomes. Off-loop replay alone never establishes exhausted-compute admission."
+      ]
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+          "finding_ids": [
+            "B52",
+            "B57"
+          ],
+          "source_property": "Real CAS cold seed, actual off-loop read and caller context, operation replay preserves unrelated current state and null; node executes once.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+              "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+              "bytes": 20275,
+              "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+            },
+            "line_begin": 187,
+            "line_end": 233,
+            "block_sha256": "a615e845d6d727221352259cf0728c6017cbb47decd7c69e1903de02aba1ab38",
+            "ast_function": "test_cold_seed_is_off_loop_and_replays_real_operations"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+          "finding_ids": [
+            "B57"
+          ],
+          "source_property": "Canonical journal merge replays an explicit same-value write over a changed current value and preserves an unrelated current field. It does not decide skip/completed frontier B72.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+              "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+              "bytes": 15169,
+              "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648"
+            },
+            "line_begin": 174,
+            "line_end": 196,
+            "block_sha256": "5e245ba7361c52263f941200076c6b0601744d4397eefed29cfe8e1c7ab70b9f",
+            "ast_function": "test_replay_preserves_unrelated_changes_and_reapplies_same_value_write"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+          "finding_ids": [
+            "B58"
+          ],
+          "source_property": "Canonical journal merge distinguishes an allowed params deletion, explicit null and absent write; no-write retains the current value. It does not decide skip/completed frontier B72.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+              "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+              "bytes": 15169,
+              "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648"
+            },
+            "line_begin": 200,
+            "line_end": 228,
+            "block_sha256": "7066ce99e13501c36383f2ba9e4078d653acc3c19f109f2010b3b4bd825aac8d",
+            "ast_function": "test_replay_distinguishes_delete_null_and_no_write"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_skip_width_preserves_frontier_and_reopened_resume_meaning",
+          "finding_ids": [
+            "B72"
+          ],
+          "source_property": "Actual native skip alone/with a parallel neighbor preserves skip status and durable completed frontier; fresh CAS resume re-executes skipped work, preserves committed suffix/cache artifacts and their exact attempt meaning.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+              "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+              "bytes": 19724,
+              "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18"
+            },
+            "line_begin": 354,
+            "line_end": 414,
+            "block_sha256": "4f8d5c6adb74448143091cda6aff370b15ebfa1b2f3d7986a4d980f13ed59385",
+            "ast_function": "test_native_skip_width_preserves_frontier_and_reopened_resume_meaning"
+          }
+        },
+        {
+          "selector": "tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer",
+          "finding_ids": [
+            "B73"
+          ],
+          "source_property": "A deliberate logical stop immediately after actual atomic tier publication is consumed by a fresh spawned resume process: both peer effects and completed aliases agree, peers execute zero further times and only suffix executes. This fixture is not a kernel kill of the original executor.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+              "git_blob": "82a92d8923e0db8ec8717b410f74cb42591e5451",
+              "bytes": 68820,
+              "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2"
+            },
+            "line_begin": 777,
+            "line_end": 849,
+            "block_sha256": "fba900596a2ee0eb8b4717f2e57662f8a27e520b304d934a21df1146cbd4236c",
+            "ast_function": "test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer"
+          }
+        },
+        {
+          "selector": "tests/integration/scientist/test_parallel_tier_compensation_oracle.py::test_parallel_compensation_matches_committed_frontier_and_retained_output",
+          "finding_ids": [
+            "B73"
+          ],
+          "source_property": "Real A-ok/B-fail fail_fast and continue consumers compare returned state, fresh verified CAS checkpoint frontier, compensation event, retained output/cache/seed refs and resume producer counts. External effects are retained evidence, not physical rollback.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+              "git_blob": "2d8fa0276a32ae2cc956443af834fbc18ee5861e",
+              "bytes": 12237,
+              "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7"
+            },
+            "line_begin": 141,
+            "line_end": 282,
+            "block_sha256": "052d603fdd81c7a6b4599b68842f1c105063f8577b3a131d025a926bba2064bf",
+            "ast_function": "test_parallel_compensation_matches_committed_frontier_and_retained_output"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage",
+          "finding_ids": [
+            "B77"
+          ],
+          "source_property": "Event-gated real A/B/C registry nodes admit independent C after A while B waits; a real dependency on B restores waiting and overlapping read/write scope refuses unsafe admission. Actual C inputs, producer quantities, seed and manifest lineage are asserted.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+              "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+              "bytes": 19724,
+              "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18"
+            },
+            "line_begin": 245,
+            "line_end": 333,
+            "block_sha256": "8c2e41b1df0e355bbc618aa1eccc40faa735a987f201d3a2c977e580d784b050",
+            "ast_function": "test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage"
+          }
+        }
+      ],
+      "residuals": [
+        "Original planned integration filename remains UNRUN. Selected bodies cover distinct B57/B58 replay, B72 skip, B73 tier and B77 readiness quantities; their file presence/combined names do not prove runtime acceptance. B51/B55 and B59 retain their own defining consumers. The B73 stop is logical stop plus fresh-process resume, not original-process kill or external-effect exactly-once."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim",
+          "finding_ids": [
+            "B148"
+          ],
+          "source_property": "Real exact/directory/archive foreign or unbound import refuses before filesystem staging/claim and preserves receiving bytes, under the fixture-supplied exact tenant/cell owner premise. This import admission case does not establish B150 put profile identity or B151 damaged duplicate put.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+              "git_blob": "facd74807e31c44f95cd13a657a001da5438f8e9",
+              "bytes": 14387,
+              "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+            },
+            "line_begin": 55,
+            "line_end": 91,
+            "block_sha256": "df303dd4ab16409cf832ae97c5d3ee618a275e9223c6b09e308c251278e7e905",
+            "ast_function": "test_scoped_import_refuses_before_any_stage_or_claim"
+          }
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop",
+          "finding_ids": [
+            "B148"
+          ],
+          "source_property": "Same fixture-supplied exact owner reimport preserves receiving generation bytes and its readable exact view after reopen, without staging. It is an import no-op control, not a proof of every first-writer put profile.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+              "git_blob": "facd74807e31c44f95cd13a657a001da5438f8e9",
+              "bytes": 14387,
+              "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+            },
+            "line_begin": 94,
+            "line_end": 127,
+            "block_sha256": "81ddbe2bbb79f1a5d8dfb70b331d2c40fd56a66da89b7e626c6c820e28c85832",
+            "ast_function": "test_exact_same_owner_import_is_a_real_noop"
+          }
+        },
+        {
+          "selector": "tests/unit/remediation/test_cas_01.py::test_distinct_profiles_get_honest_views_of_one_blob",
+          "finding_ids": [
+            "B150"
+          ],
+          "source_property": "Actual same-byte puts with distinct kind/media/schema/producer/selected-input profiles return refs matching the exact persisted manifest view, keep the historical ID-only first-writer view, and preserve both readable byte views and repeat selected profile.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+              "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+              "bytes": 48119,
+              "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+            },
+            "line_begin": 196,
+            "line_end": 254,
+            "block_sha256": "f9b0846dab4fc94aff30b3e0a29ae47c17c7dd98c375e4589b6aa2663c6214fb",
+            "ast_function": "test_distinct_profiles_get_honest_views_of_one_blob"
+          }
+        },
+        {
+          "selector": "tests/unit/remediation/test_cas_01.py::test_reuse_with_same_profile_preserves_first_manifest_and_ref",
+          "finding_ids": [
+            "B150"
+          ],
+          "source_property": "Actual same-profile duplicate put returns the identical ref and unchanged first manifest; this is the positive compatible-reuse control.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+              "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+              "bytes": 48119,
+              "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+            },
+            "line_begin": 257,
+            "line_end": 274,
+            "block_sha256": "5f04576e0b598a1b020cc3b53481e5590fb3a4f53afd5c20d8bab9c6b55d068e",
+            "ast_function": "test_reuse_with_same_profile_preserves_first_manifest_and_ref"
+          }
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry",
+          "finding_ids": [
+            "B151"
+          ],
+          "source_property": "Actual duplicate put refuses same-size corrupt blob, short blob or wrong selected byte-size manifest before ACK and preserves damage; controlled exact retained-byte/metadata repair then permits exact-profile retry and fresh CAS readback.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+              "git_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+              "bytes": 5011,
+              "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+            },
+            "line_begin": 38,
+            "line_end": 87,
+            "block_sha256": "d71654984b553c2bff83f0e5025a456b25b21a3d29b7d45e2c9251380dff45cd",
+            "ast_function": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry"
+          }
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view",
+          "finding_ids": [
+            "B151"
+          ],
+          "source_property": "Actual duplicate put reconstructs a missing default/selected sidecar, preserves the other sidecar and exact blob, and returns the exact selected/default ref consumed after reopen.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+              "git_blob": "b334e3c6a9096672ace78aad280ae8e1877461aa",
+              "bytes": 5011,
+              "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+            },
+            "line_begin": 90,
+            "line_end": 117,
+            "block_sha256": "6680e1b9b276c2b68f7b65a52e6b4621742425fd72494f37536a6890df4f9463",
+            "ast_function": "test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view"
+          }
+        },
+        {
+          "selector": "tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters",
+          "finding_ids": [
+            "B153"
+          ],
+          "source_property": "Three thousand actual artifact_lease acquisitions on synthetic distinct IDs use only the existing finite owner lock pool while a real same-ID holder/waiter remain excluded. The live-stripe and per-ID-pool removal ports preserve marker table shape while falsifying exclusion/resident quantity; this is not 3000 CAS puts or RSS evidence.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+              "git_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+              "bytes": 48119,
+              "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+            },
+            "line_begin": 772,
+            "line_end": 944,
+            "block_sha256": "949496f59ca0463fa4a6e4b6361be1acd6d234b94eb7defe1b04541591d06b91",
+            "ast_function": "test_lock_registry_is_bounded_without_evicting_active_waiters"
+          }
+        }
+      ],
+      "residuals": [
+        "Original planned tenant-context filename remains UNRUN. B148 owner premise is supplied by the fixture; institutional permission/claim policy is still HELD and not conferred by readability, byte equality or these tests. B149 complete export inventory uses its own cases. B153 different scoped views/exceptions/colliding bytes have separate native defining cases; this one pressure case is not their runtime outcome. No authority rule or signature law is changed by this mapping."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_same_destination_retains_complete_history_and_exact_new_inventory",
+          "finding_ids": [
+            "B149"
+          ],
+          "source_property": "Actual directory/archive export reuses one destination, preserves complete prior generation and mode, emits an exact new inventory and reimports the declared content. Import readback supports export closure; it does not establish B148 institutional admission law.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+              "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+              "bytes": 23917,
+              "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+            },
+            "line_begin": 102,
+            "line_end": 123,
+            "block_sha256": "ba61c08551a5cc5b0f829e202d30657bb3f0bd008c60245374130b4b22fb8a19",
+            "ast_function": "test_same_destination_retains_complete_history_and_exact_new_inventory"
+          }
+        }
+      ],
+      "residuals": [
+        "Original path selector is absent and UNRUN. Exact final regular path/directory generation behavior is finite local-filesystem export B149; B148 corrupted-package/import admission and semantic owner decision remain separate. No power-loss or arbitrary remote filesystem law is established."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation",
+          "finding_ids": [
+            "B149"
+          ],
+          "source_property": "Actual spawned export process pauses after publication syscalls; kernel termination leaves complete readable new and prior generations with import readback. This is export B149, not every B148 package-admission predicate.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+              "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+              "bytes": 23917,
+              "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+            },
+            "line_begin": 278,
+            "line_end": 322,
+            "block_sha256": "e408422e44408ea75d26d7a1b12915a0551a772d61204d835665d72e1d10cdc5",
+            "ast_function": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation"
+          }
+        },
+        {
+          "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+          "finding_ids": [
+            "B149"
+          ],
+          "source_property": "Actual export file-fsync failure before publication preserves old generation bytes, removes staging and reimports old content without a false inventory. This is an export refusal control, not a corrupt-import acceptance test.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+              "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+              "bytes": 23917,
+              "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+            },
+            "line_begin": 126,
+            "line_end": 149,
+            "block_sha256": "c614ed14ad25a455e001f11c330ed9e5c69143fd4c069c140a2a26d43f924615",
+            "ast_function": "test_streamed_write_failure_preserves_old_generation_and_no_false_inventory"
+          }
+        }
+      ],
+      "residuals": [
+        "Original named publication file remains absent and UNRUN. Local publication interruption/failure controls do not establish successful durability after failed fsync or multihost guarantees. B148 verification-before-import, receiving-object preservation and institutional owner premise remain their separate defining inputs/HELD decision."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_dur_01.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_cold_record_spend_requires_bootstrap_across_processes",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Actual fresh ledger subprocess mutation refuses absent bootstrap; actual middleware refuses without publishing unlimited state.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+              "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+              "bytes": 16904,
+              "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+            },
+            "line_begin": 217,
+            "line_end": 224,
+            "block_sha256": "4374fb4f0e15b34db3a1cf739781965a09a7776906b055d9a90091472589833f",
+            "ast_function": "test_cold_record_spend_requires_bootstrap_across_processes"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_malformed_existing_ledger_is_not_rebootstrapped",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Malformed existing file refuses all actual mutations and preserves exact bytes.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+              "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+              "bytes": 16904,
+              "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+            },
+            "line_begin": 236,
+            "line_end": 244,
+            "block_sha256": "ddbf54ae1882037b0ea9f5db971c76d43d1e38033e109f6c496e032ab7137b35",
+            "ast_function": "test_malformed_existing_ledger_is_not_rebootstrapped"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_process_publication_fault_reopens_complete_or_requires_recovery",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Real subprocess fsync/replace/kill fault distinguishes absent cold publication from complete old/new reopened snapshot.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+              "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+              "bytes": 16904,
+              "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+            },
+            "line_begin": 316,
+            "line_end": 358,
+            "block_sha256": "205d51c360baee1266057c2b4cd54b713f3dda9cd283cc4f4af63f2b2670bd7f",
+            "ast_function": "test_process_publication_fault_reopens_complete_or_requires_recovery"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap",
+          "finding_ids": [
+            "B37"
+          ],
+          "source_property": "Four real writer processes and concurrent reader use native ledger/middleware, final spend/provider spend100 and exhausted cap.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+              "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+              "bytes": 16904,
+              "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+            },
+            "line_begin": 361,
+            "line_end": 399,
+            "block_sha256": "cb8867793dce7009234d6c9da2e033b18d2138f714add4230cb20b309681f258",
+            "ast_function": "test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename is absent and UNRUN. Real cold missing-bootstrap, malformed-file, process publication-fault and concurrent middleware cases discriminate B37; the four intentional fixture writers are not a cloud runner quota. Same-filesystem locked ledger behavior does not establish power-loss or multihost law; failed directory-fsync acknowledgement remains explicitly bounded. Emitted ledger wire fields have a separate actual consumer oracle and are not runner codec B94 merely because both are called wire."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_exe_01.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+          "finding_ids": [
+            "B55"
+          ],
+          "source_property": "Actual max-parallelism1 fail-fast executor refuses queued successor node bodies after the first actual node fails; no event-gated or outside-caller cancellation claim from this body.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+              "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+              "bytes": 30571,
+              "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b"
+            },
+            "line_begin": 716,
+            "line_end": 774,
+            "block_sha256": "23683964550c6dabd67fcf7122bdca5793eaad3b058f58b7326b42ae580a7a19",
+            "ast_function": "test_fail_fast_rechecks_cancellation_after_semaphore_acquire"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+          "finding_ids": [
+            "B52"
+          ],
+          "source_property": "Real late CAS worker after deadline/cancellation cannot publish executor cache.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+              "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+              "bytes": 20275,
+              "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+            },
+            "line_begin": 236,
+            "line_end": 271,
+            "block_sha256": "682492882af5080ea22058c234553f1eea4a59f63b6e15db3bdc05afd315cc9a",
+            "ast_function": "test_cold_seed_late_read_cannot_publish_cache"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_publication_trace_requires_completed_verified_storage",
+          "finding_ids": [
+            "B52"
+          ],
+          "source_property": "Actual completed verified CAS storage, trace and fresh reopen decide cache publication; deadline/cancellation/corruption cannot emit successful cache consumption. This is B52 storage admission, not B55 fail-fast semaphore admission.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+              "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+              "bytes": 20275,
+              "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+            },
+            "line_begin": 462,
+            "line_end": 521,
+            "block_sha256": "c0317bbafb464cbf018758810464f3046ee84a6cdab89c7a059bb2436a38fa2f",
+            "ast_function": "test_publication_trace_requires_completed_verified_storage"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not",
+          "finding_ids": [
+            "B51"
+          ],
+          "source_property": "A real previously populated cache hit succeeds with exhausted compute budget and no new producer call; exhausted read budget refuses the hit, and a miss with exhausted compute budget refuses instead of computing.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+              "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+              "bytes": 30571,
+              "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b"
+            },
+            "line_begin": 397,
+            "line_end": 466,
+            "block_sha256": "4151fe038e0e74cbddeff5ae5def0a4666bcdbc44423e218d74d3b67f2bc2fef",
+            "ast_function": "test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_queued_admission_preserves_slots_and_completed_prefix",
+          "finding_ids": [
+            "B55"
+          ],
+          "source_property": "Real occupied native semaphore has two actually observed waiters; fail_fast/caller cancellation dispatch zero queued bodies, continue dispatches both, slots/waiters settle, completed seed frontier/CAS effects remain correct even with telemetry failure.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+              "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+              "bytes": 19724,
+              "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18"
+            },
+            "line_begin": 158,
+            "line_end": 242,
+            "block_sha256": "5fec1a687bb579ec9c99acfda0e528fcc8e205ad6db49a432a9e2a6d9bc41bd7",
+            "ast_function": "test_native_queued_admission_preserves_slots_and_completed_prefix"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename remains absent and UNRUN. B51 compute/read admission, B52 off-loop cache storage and B55 fail-fast admission are separate defining quantities. Fixture max_parallelism=1 is an intentional saturation discriminator, never a cloud quota. Actual whole-file outcomes/input closure come from the separately frozen native wave; these labels confer no PASS."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_llm_02.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+          "finding_ids": [
+            "B67"
+          ],
+          "source_property": "Actual scoped CAS source and functional owner decision recheck actor/epoch/exact content before reuse.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              "git_blob": "ae5b63e1351c7314fa656a12023f239146697227",
+              "bytes": 41666,
+              "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+            },
+            "line_begin": 444,
+            "line_end": 468,
+            "block_sha256": "d5bbad17e80e56cf8528d99df64bb86581247629f59ab518ce20f316eeb1b4a6",
+            "ast_function": "test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+          "finding_ids": [
+            "B67",
+            "B68"
+          ],
+          "source_property": "Gated actual follower refuses revoked owner decision before consuming shared result.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              "git_blob": "ae5b63e1351c7314fa656a12023f239146697227",
+              "bytes": 41666,
+              "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+            },
+            "line_begin": 471,
+            "line_end": 492,
+            "block_sha256": "7ca5df77293d22c3c679fafb83c44dd530bb5309d791844bed68e5073db3f8b1",
+            "ast_function": "test_owner_revocation_while_follower_waits_prevents_shared_consumption"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+          "finding_ids": [
+            "B68"
+          ],
+          "source_property": "Real distinct persistent budget owners cannot join first owner flight; each own physical producer settles actual ledger.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              "git_blob": "ae5b63e1351c7314fa656a12023f239146697227",
+              "bytes": 41666,
+              "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+            },
+            "line_begin": 346,
+            "line_end": 364,
+            "block_sha256": "e4331abc2f8fc1bf21b7cb61a7c0438ac7f4e0c1392faacd275f8135ea2116e8",
+            "ast_function": "test_different_actual_budget_owners_cannot_join_first_owners_flight"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+          "finding_ids": [
+            "B68"
+          ],
+          "source_property": "Four actual same-owner requests enter the canonical cache; initiator cancellation leaves one physical provider, three delivered followers, one settled persistent ledger charge/no reservation, and one cache entry.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              "git_blob": "ae5b63e1351c7314fa656a12023f239146697227",
+              "bytes": 41666,
+              "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+            },
+            "line_begin": 282,
+            "line_end": 318,
+            "block_sha256": "66694d4cd558fdbd88f4709bb07f3ff4156271a176a71dbe7fd96315e386afa3",
+            "ast_function": "test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename remains absent and UNRUN. B67 reuse permission in these cases is an explicit functional owner decision over exact scoped source bytes/actor/epoch, not an inferred institutional grant. Deployment owner/atomic revocation premise stays HELD. B68 provider error, deadline, invalidation and accounting-unknown retirement remain separate native cases; unsupported custom cache contracts are not made canonical by this map."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_01.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_whole_acquisition_budget_rejects_late_handle",
+          "finding_ids": [
+            "B90"
+          ],
+          "source_property": "Real gated connect/health returns after absolute admission budget; no handle publish and actual ownership cleanup.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+              "git_blob": "477268cb87a178c6d246a750f8acdbb89ab55491",
+              "bytes": 10635,
+              "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+            },
+            "line_begin": 59,
+            "line_end": 84,
+            "block_sha256": "bde90141bc75d16eb3aa0b68d4e5952996ddf7c1698d22aac7db51deb64b98a2",
+            "ast_function": "test_whole_acquisition_budget_rejects_late_handle"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_cancelled_caller_cannot_receive_suppressed_late_handle",
+          "finding_ids": [
+            "B89",
+            "B90"
+          ],
+          "source_property": "Caller cancel before deadline plus suppressing actual connect/health cannot deliver handle; disconnect and physical permit settle exactly once.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+              "git_blob": "477268cb87a178c6d246a750f8acdbb89ab55491",
+              "bytes": 10635,
+              "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+            },
+            "line_begin": 280,
+            "line_end": 298,
+            "block_sha256": "a8e2b3933900d85a9bd581742c506ff6f435326418804a45d0994f5ea6d60990",
+            "ast_function": "test_cancelled_caller_cannot_receive_suppressed_late_handle"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_persistent_disconnect_failure_retains_exactly_one_permit",
+          "finding_ids": [
+            "B89"
+          ],
+          "source_property": "Actual failed pool disconnect retains a pending cleanup owner and one occupied permit until real retry. This pool case is B89 lifecycle support, not B87 served streaming subscribe/checkpoint/rewind/close cleanup.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+              "git_blob": "477268cb87a178c6d246a750f8acdbb89ab55491",
+              "bytes": 10635,
+              "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+            },
+            "line_begin": 193,
+            "line_end": 217,
+            "block_sha256": "45093b0eed328021c9f361948256871264efb5bde71b2f01b7fa4b5ee3ae5455",
+            "ast_function": "test_persistent_disconnect_failure_retains_exactly_one_permit"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership",
+          "finding_ids": [
+            "B87"
+          ],
+          "source_property": "Actual JSONL connector, C-created pool, CAS CursorStore and process_stream_dataset exercise healthy/subscribe/checkpoint-read/rewind/caller-cancel/startup-retry/disconnect-fault boundaries. Assertions decide whether the production registry retry clears exact pending handles before final observer rescue. A real FAIL remains a B→C consumer gap, never waived by pool PASS.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+              "git_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8",
+              "bytes": 12269,
+              "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9"
+            },
+            "line_begin": 141,
+            "line_end": 272,
+            "block_sha256": "34112389de710ebc32143a318db08f1f47cd1d6f2158ef28e167b1c893606a0a",
+            "ast_function": "test_process_file_stream_cleanup_ownership"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+          "finding_ids": [
+            "B87"
+          ],
+          "source_property": "Actual retained StreamingSourceSession retries a transient failed disconnect on second close, confirms handle cleanup and permit once, and tolerates repeated close. This retained direct-session control does not establish process consumer ownership after it drops the session.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+              "git_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8",
+              "bytes": 12269,
+              "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9"
+            },
+            "line_begin": 275,
+            "line_end": 312,
+            "block_sha256": "b111cc0dfb242472e61f06834b5a58df3d964a9da58076d64eec45182e292c0b",
+            "ast_function": "test_direct_file_session_second_close_finishes_pending_cleanup"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename remains absent and UNRUN. B87 real streaming bodies are mapped explicitly; their native actual FAIL/ERROR/PASS must be retained independently, and C owns streaming production changes. Pool B89/B90 cases alone cannot satisfy that consumer criterion. Full subscribe/checkpoint/rewind/retry behavior, parallel connects/independent release and uncooperative physical drain remain their own bounded source/runtime inputs; no hard physical cleanup wall bound is claimed."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_02.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_sub_unit_rate_accepts_unit_request_and_preserves_pacing",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Actual fractional monotonic refill eventually admits ordinary unit request with exact pacing.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 581,
+            "line_end": 611,
+            "block_sha256": "4a5c59b17f40154ea32180ff272a1ff007433ef4ac5ca1ccde2637a7a076f9b6",
+            "ast_function": "test_rate_limiter_sub_unit_rate_accepts_unit_request_and_preserves_pacing"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_late_closed_success_does_not_claim_new_half_open_generation",
+          "finding_ids": [
+            "B92"
+          ],
+          "source_property": "Late actual prior-generation producer success cannot claim current half-open generation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 695,
+            "line_end": 743,
+            "block_sha256": "1fc29755327305ec3a56450a435e306c05756cb170b8cbb38b54dbf079d48ca6",
+            "ast_function": "test_circuit_breaker_late_closed_success_does_not_claim_new_half_open_generation"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience_e02.py::test_live_provider_owns_neutral_refilled_limiter_under_pressure",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual live operation protects keyed neutral/refilled regulator through bounded registry pressure and lease removal falsifier.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+              "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4",
+              "bytes": 6312,
+              "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049"
+            },
+            "line_begin": 18,
+            "line_end": 52,
+            "block_sha256": "0a77af296cd02a15c679df97b95fabbdaee0423fbbc5ba04304b485e384a6e83",
+            "ast_function": "test_live_provider_owns_neutral_refilled_limiter_under_pressure"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_single_capacity_keeps_declared_long_term_rate",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Actual limiter with controlled monotonic clock and unit capacity admits two requests at declared rates 0.1/0.2/1/2 with exact 10/5/1/0.5 refill delay; service rate is not rounded to one.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 614,
+            "line_end": 650,
+            "block_sha256": "d76dd0007f8ac6eedd0875bbd5f69427c5a5c69dc975b272d85c8ca39d531ce1",
+            "ast_function": "test_rate_limiter_single_capacity_keeps_declared_long_term_rate"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_rejects_weight_above_capacity_without_waiting",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Actual impossible weighted request typed-refuses rather than waiting forever; this does not by itself exercise feasible weighted pacing.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 653,
+            "line_end": 659,
+            "block_sha256": "6936240bc41fb654b96230ff4216d222f503f5d479cf34d073e21aa2ab5c9cb7",
+            "ast_function": "test_rate_limiter_rejects_weight_above_capacity_without_waiting"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_cancellation_does_not_consume_unacquired_request",
+          "finding_ids": [
+            "B91"
+          ],
+          "source_property": "Cancellation of an actual throttled acquire preserves the one already successful request count and does not account an unacquired request.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 662,
+            "line_end": 692,
+            "block_sha256": "17f13707374c7f0ec36cebc388aab59c7f50219274e6b1a651b473e28ae03f3b",
+            "ast_function": "test_rate_limiter_cancellation_does_not_consume_unacquired_request"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_late_closed_failure_preserves_original_error",
+          "finding_ids": [
+            "B92"
+          ],
+          "source_property": "An Event-gated old CLOSED producer failure reaches the caller as its original OSError while the current half-open probe keeps ownership and can close its own generation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 746,
+            "line_end": 795,
+            "block_sha256": "65acd3b8b3118890717b2c39346b3f21511661a075c6ecf698d8a00988133a03",
+            "ast_function": "test_circuit_breaker_late_closed_failure_preserves_original_error"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_stale_half_open_token_does_not_steal_new_generation",
+          "finding_ids": [
+            "B92"
+          ],
+          "source_property": "Actual stale half-open token completion cannot consume a new generation; current probe alone changes that generation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 798,
+            "line_end": 843,
+            "block_sha256": "25deb2cb041d262c2e7e7d0386783e76f1935889374def885935e4e03b5ebddf",
+            "ast_function": "test_circuit_breaker_stale_half_open_token_does_not_steal_new_generation"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_pressure_preserves_rate_limit_cooldown",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual Retry-After cooldown survives registry pressure and preserves the required 300-second controlled-clock wait rather than a fresh unthrottled limiter.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 846,
+            "line_end": 880,
+            "block_sha256": "7f53d5b98cf82123efbe00ef711bf88c185d3f66056ba8e4eeb3f44950af87aa",
+            "ast_function": "test_bounded_registry_pressure_preserves_rate_limit_cooldown"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_ttl_preserves_rate_limit_cooldown",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual active Retry-After cooldown survives TTL expiry and consumes only remaining delay; cleanup cannot construct a fresh unrestricted limiter.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 883,
+            "line_end": 917,
+            "block_sha256": "b25aeca5f5e61478d8585ad1cd78f4f0b4141392a9ca673cd9a98f4deca67b7a",
+            "ast_function": "test_bounded_registry_ttl_preserves_rate_limit_cooldown"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience.py::test_bounded_registry_pressure_preserves_open_circuit_state",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual OPEN breaker remains OPEN across keyed registry pressure instead of reset to a new CLOSED breaker.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+              "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+              "bytes": 29464,
+              "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+            },
+            "line_begin": 920,
+            "line_end": 948,
+            "block_sha256": "1761f2939ded7fb7bfaddb5e29c5a2c0dbd406384d0888092bb204c9befcf4cd",
+            "ast_function": "test_bounded_registry_pressure_preserves_open_circuit_state"
+          }
+        },
+        {
+          "selector": "tests/unit/fabric/connectors/test_resilience_e02.py::test_actual_provider_cancel_or_error_releases_only_its_registry_lease",
+          "finding_ids": [
+            "B93"
+          ],
+          "source_property": "Actual decorator-owned provider cancellation/error retires its exact registry lease; retained live regulator admission is coupled to real provider lifetime.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+              "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4",
+              "bytes": 6312,
+              "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049"
+            },
+            "line_begin": 84,
+            "line_end": 107,
+            "block_sha256": "c84ede9abf2cdaf25cf1e17c05462ad1987637b065c376c0b4e94d6e4ad6dd42",
+            "ast_function": "test_actual_provider_cancel_or_error_releases_only_its_registry_lease"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename is absent and UNRUN. B93 canonical criterion is preservation of live/cooldown/half-open regulator state under local pressure/TTL, not an intrinsic protected-ledger authority decision. Earlier DD residual describing a canonical protected-state/ledger mapping mismatch is not a substitute for this criterion. The listed cases are finite local source discriminators; feasible weighted requests, adaptive cooldown and repeated finalization still require their separate native inputs/outcomes. No distributed breaker or SLO law is inferred."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_01.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/common/test_async_tools.py::test_done_callbacks_hold_physical_capacity_and_refuse_nested_work",
+          "finding_ids": [
+            "B69"
+          ],
+          "source_property": "Four actual finished futures keep four physical callback workers busy; nested work is refused before executing, real shutdown drains.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/common/test_async_tools.py",
+              "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+              "bytes": 15730,
+              "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+            },
+            "line_begin": 156,
+            "line_end": 193,
+            "block_sha256": "91b93cc111d4ecedf2f1e6d6d0014c3dcee8b30c4408e4879fd53813eda89f9c",
+            "ast_function": "test_done_callbacks_hold_physical_capacity_and_refuse_nested_work"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_queued_async_thread_attempt_never_enters_body_after_termination",
+          "finding_ids": [
+            "B14",
+            "B40"
+          ],
+          "source_property": "Actual saturated executor queued attempt cannot start physical body after caller deadline/cancellation.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 1670,
+            "line_end": 1727,
+            "block_sha256": "ebcbaf73f4fbef04d4919205831ce7757ab3f4845f96f4ff1371e7f60c96bae0",
+            "ast_function": "test_queued_async_thread_attempt_never_enters_body_after_termination"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_unconfigured_sync_bridge_has_no_implicit_timeout",
+          "finding_ids": [
+            "B40"
+          ],
+          "source_property": "Actual canonical retry async bridge with timeout None executes a synchronous node longer than the deliberately small helper default and returns success; unconfigured upper policy is not silently recapped below.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 1600,
+            "line_end": 1620,
+            "block_sha256": "2c8dcf27601b7c8aec6a59f6d5c482cdd609d96519f03e782bf19a97f09f8352",
+            "ast_function": "test_unconfigured_sync_bridge_has_no_implicit_timeout"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_canonical_retry_boundary_uses_actual_attempt_files",
+          "finding_ids": [
+            "B95"
+          ],
+          "source_property": "Actual direct, async-sync, forced thread/fork and genuine async retry routes write the captured ContextVar to physical attempt files while preserving error category and retry quantity. This marker context proves propagation, not new authority or arbitrary process-envelope semantics.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 1492,
+            "line_end": 1560,
+            "block_sha256": "61e18470062fa4cc38cac0a988aae431ae771af9ed1ec16550eb080d0109fc78",
+            "ast_function": "test_canonical_retry_boundary_uses_actual_attempt_files"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py::test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+          "finding_ids": [
+            "B40"
+          ],
+          "source_property": "Actual canonical async producer→FileSystemCAS→CASCheckpointHook delays the real atomic head replace for 35 seconds under the original 60-second workflow budget; fresh CAS frontier/value and one producer decide removal of hidden 30-second recap.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+              "git_blob": "7e9001ea39ae8e7b737b8f84ecb525a24e617a5d",
+              "bytes": 7565,
+              "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58"
+            },
+            "line_begin": 110,
+            "line_end": 170,
+            "block_sha256": "083daa4dbd85c6f852dc0fa9ee3768e26aaa015c677ff74e5bc2a9e1c1407d0e",
+            "ast_function": "test_real_atomic_head_35_seconds_fits_original_60_second_workflow"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py::test_original_budget_refuses_new_phases_and_retains_entered_io",
+          "finding_ids": [
+            "B40",
+            "B14"
+          ],
+          "source_property": "Actual artifact/head-temp-fsync/head-return/GC-read barriers distinguish owner expiry/cancellation from physical completion: no fresh expired head/GC publication, already-published valid head preserved, actual workers/reservations retire separately.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+              "git_blob": "d5552c9e1be4dc1ba28cf61df3a57ca814024241",
+              "bytes": 11173,
+              "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a"
+            },
+            "line_begin": 56,
+            "line_end": 260,
+            "block_sha256": "3ab454f1a03b3bfcd48aa91ba0ee45a92465c9563c554d8715d53d60df67c9a3",
+            "ast_function": "test_original_budget_refuses_new_phases_and_retains_entered_io"
+          }
+        },
+        {
+          "selector": "tests/unit/common/test_async_tools_installed_wheel.py::test_installed_wheel_consumers_in_isolated_child",
+          "finding_ids": [
+            "LA-057"
+          ],
+          "source_property": "One ordinary outer source-cohort case invokes the explicitly supplied installed-wheel interpreter with -I/-B and runs the whole eight-case non-testfilename child consumer with exact wheel/site/source/body pins, retaining full child stdout/XML before assertions. Outer one and child eight are distinct denominators; this is packaging/bridge/type-identity consumer input, not a normal second collection of the helper.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+              "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+              "bytes": 4870,
+              "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+            },
+            "line_begin": 28,
+            "line_end": 120,
+            "block_sha256": "f599ee236c878e2526e0d645e1b0c12957726655cc370a5c983327d4038085ed",
+            "ast_function": "test_installed_wheel_consumers_in_isolated_child"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename is absent and UNRUN. B40 effective owner budget is distinct from B14 queued/running cancellation and B69 physical callback capacity; no opaque uncooperative thread side effects are called interrupted. B95 context markers do not grant/renew rights and alternate request leak prevention has separate native inputs. LA-057 installed wheel requires seven explicit profile inputs and an actually built installed environment; source body alone is UNRUN and not packaging PASS. Non-Linux process isolation and arbitrary dynamic external consumers remain unverified."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_02.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Actual kernel child/new-session grandchild effect files and supervisor ownership, success/timeout sync/async reap all owned PIDs without mutating caller subreaper.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 1326,
+            "line_end": 1356,
+            "block_sha256": "778f906bd45489c1a1e26407c6e72fbca87219cd52e62e2abc192a7232823d2d",
+            "ast_function": "test_owned_supervisor_reaps_real_new_session_grandchild"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_tree_on_async_caller_cancellation",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Actual caller cancellation after grandchild effects owns/reaps complete process tree.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 1359,
+            "line_end": 1386,
+            "block_sha256": "2002e9af8a005dee83636a94bb7d2b1033237a5b086cc6fbabd050c42753b636",
+            "ast_function": "test_owned_supervisor_reaps_tree_on_async_caller_cancellation"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_transport_drains_small_and_large_outcomes",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Real sync/async fork result transport drains small/large payloads while the producer is alive and returns exact payload, rather than joining before pipe drain.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 998,
+            "line_end": 1014,
+            "block_sha256": "bd9289551dd0d3a9981084d4f4da9c1834734b61843426c2999e8592108bc141",
+            "ast_function": "test_fork_transport_drains_small_and_large_outcomes"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_worker_send_failure_is_fail_closed",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Actual worker result-send failure through a deliberately broken result-queue port raises explicit failure instead of a false successful ACK; native kernel channel failures remain separately qualified.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 1028,
+            "line_end": 1035,
+            "block_sha256": "260150f195f3e7d62a513c33c30ab7a552b796965928a20db99881b88998a0a4",
+            "ast_function": "test_worker_send_failure_is_fail_closed"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_serialization_failure_is_not_reported_as_success",
+          "finding_ids": [
+            "B24"
+          ],
+          "source_property": "Real process wrapper reports outcome serialization TypeError as failure rather than a successful transport receipt.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+              "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+              "bytes": 79749,
+              "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+            },
+            "line_begin": 1048,
+            "line_end": 1056,
+            "block_sha256": "9dcbd0edf3ba0229bbab005dd9e3ec1d6866b716171bbb65b49909b2bf77ef9a",
+            "ast_function": "test_serialization_failure_is_not_reported_as_success"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename is absent and UNRUN. Exact small/large outcome transport is mapped alongside Linux owned-child cleanup, so PID cleanup alone is not the B24 transport property. Queue-fault fixture is a controlled send port, not universal kernel/remote transport behavior. Arbitrary external/non-Linux process isolation remains UNRUN and no whole native result is inferred from the labels."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_01.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
+          "finding_ids": [
+            "B59"
+          ],
+          "source_property": "Mutation of nested list element under actual declared branch path does not mutate baseline.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+              "git_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+              "bytes": 8098,
+              "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65"
+            },
+            "line_begin": 106,
+            "line_end": 119,
+            "block_sha256": "f5429ae35e25aecce1bc2fd50e4088d2db75ff6f47f29a6d7a9a91d03dc7d268",
+            "ast_function": "test_branch_state_deeply_isolates_nested_elements_of_declared_leaf"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_snapshot_state_deep_clones_mutable_state_surfaces",
+          "finding_ids": [
+            "B59"
+          ],
+          "source_property": "Actual snapshot deep-clones params/causal-method nested lists and preserves baseline after mutations. This isolation supports B59; it does not decide B57 write intent or B58 delete/null/no-write semantics.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+              "git_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+              "bytes": 8098,
+              "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65"
+            },
+            "line_begin": 137,
+            "line_end": 149,
+            "block_sha256": "462d761df3effd5a517d74ea966626b82034fe0e01c9af8d642c2e6ef9cd0826",
+            "ast_function": "test_snapshot_state_deep_clones_mutable_state_surfaces"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+          "finding_ids": [
+            "B57"
+          ],
+          "source_property": "Actual canonical branch journal merge explicitly reapplies a same-value declared write over changed current state and retains unrelated current data; state deepcopy alone cannot establish this write intent.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+              "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+              "bytes": 15169,
+              "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648"
+            },
+            "line_begin": 174,
+            "line_end": 196,
+            "block_sha256": "5e245ba7361c52263f941200076c6b0601744d4397eefed29cfe8e1c7ab70b9f",
+            "ast_function": "test_replay_preserves_unrelated_changes_and_reapplies_same_value_write"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+          "finding_ids": [
+            "B58"
+          ],
+          "source_property": "Actual canonical branch/merge consumer keeps delete, null and no-write distinct instead of inferring every changed state from a shallow snapshot.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+              "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+              "bytes": 15169,
+              "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648"
+            },
+            "line_begin": 200,
+            "line_end": 228,
+            "block_sha256": "7066ce99e13501c36383f2ba9e4078d653acc3c19f109f2010b3b4bd825aac8d",
+            "ast_function": "test_replay_distinguishes_delete_null_and_no_write"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_rejects_deletion_from_protected_index",
+          "finding_ids": [
+            "B58"
+          ],
+          "source_property": "Actual branch records a protected artifacts-index deletion and canonical merge refuses it, while the separate params delete/null/no-write control establishes permitted deletion.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+              "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+              "bytes": 15169,
+              "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648"
+            },
+            "line_begin": 232,
+            "line_end": 242,
+            "block_sha256": "928745f526b360a7b0adda96af321ef391eec56ca01edd6469c4a22dea0dd91d",
+            "ast_function": "test_replay_rejects_deletion_from_protected_index"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis",
+          "finding_ids": [
+            "B59"
+          ],
+          "source_property": "Actual declared nested branch mutates list and row then fails while a live native neighbor consumes baseline; both real CAS effect artifacts survive but original/current state and durable frontier retain the correct uncommitted basis.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+              "git_blob": "4110da19c4dc012fd5033324d96e7467c0a40381",
+              "bytes": 19724,
+              "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18"
+            },
+            "line_begin": 417,
+            "line_end": 488,
+            "block_sha256": "81e3e3a037d648cb90e27f14d689279432a9a8db008847acdac3a33f5d76632b",
+            "ast_function": "test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename is absent and UNRUN. B57 intent replay, B58 deletion and B59 branch isolation now have distinct actual defining consumers. Unsupported arbitrary mutable domain types or hostile base-class bypasses are not implied supported; state isolation/compensation is not rollback of external effects. Native journals/cache/alias-lifetime consumers remain separate whole-file inputs/outcomes."
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_02.py",
+      "original_named_status": "UNRUN_absent_at_DD",
+      "candidates": [
+        {
+          "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_existing_bundle_is_revalidated_for_changed_request",
+          "finding_ids": [
+            "B60"
+          ],
+          "source_property": "Actual CAS parameter bundle used by causal node is rejected/recomputed for changed target request.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+              "git_blob": "06821330d929bc5643421745cbef58c5e3d2e838",
+              "bytes": 21415,
+              "sha256": "daaacc64978a18d4e76af2eb120b0f0146ea4779a4a3aa19683319a5a84de93c"
+            },
+            "line_begin": 161,
+            "line_end": 211,
+            "block_sha256": "a17eee28eb1717d93657e5abc3b9a2055b291ce5d5ce5e0403cc238d0b30fa91",
+            "ast_function": "test_existing_bundle_is_revalidated_for_changed_request"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_bundle_reuses_without_reinvoking_selector",
+          "finding_ids": [
+            "B60"
+          ],
+          "source_property": "Same request consumes the exact persisted CAS bundle without invoking ParameterSelector after the fixture deliberately removes live SKG path/index inputs. This explicitly admitted operational reuse premise is not actual live SKG version binding B61.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+              "git_blob": "06821330d929bc5643421745cbef58c5e3d2e838",
+              "bytes": 21415,
+              "sha256": "daaacc64978a18d4e76af2eb120b0f0146ea4779a4a3aa19683319a5a84de93c"
+            },
+            "line_begin": 214,
+            "line_end": 261,
+            "block_sha256": "be2f50c8b9319a72ca52e2c0df49a79332e0c7eb0c771918f4bcd949b155a94d",
+            "ast_function": "test_matching_bundle_reuses_without_reinvoking_selector"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_preserves_presence_and_nested_missing_semantics",
+          "finding_ids": [
+            "B62"
+          ],
+          "source_property": "Actual canonical idempotency key distinguishes absent, null and nested missing consumer input.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+              "git_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+              "bytes": 30145,
+              "sha256": "7089614efb8797b91f9d093a6839bc8f26522e732c871e7d83e4009d78c0ec51"
+            },
+            "line_begin": 154,
+            "line_end": 178,
+            "block_sha256": "92588db7dc80d5f303659a5cfbf67c3059ed0bfa727997ec0f0b894e19d8e502",
+            "ast_function": "test_idempotency_key_preserves_presence_and_nested_missing_semantics"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py::test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result",
+          "finding_ids": [
+            "B62"
+          ],
+          "source_property": "Actual native producer, cache, fresh CAS reopen and replay distinguish missing/null/zero/False/empty-list by value and type while preserving unrelated current state; each cold shape computes once and only its exact result replays.",
+          "grade": "bounded source-reviewed defining consumer; native outcome is a separate input, never established by this map",
+          "source_body": {
+            "source": {
+              "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+              "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+              "git_blob": "9da3011fd50602ec0e97c57519dd0323a6fc892b",
+              "bytes": 5301,
+              "sha256": "fba2beb39298c54788516a69fa8a5ba8bdabc47fdf6f51a772825f866110366e"
+            },
+            "line_begin": 62,
+            "line_end": 111,
+            "block_sha256": "71a5ba267ab754d7a0c52f8884e79b7077c8fa8e46cf114d965c42d3c1868f91",
+            "ast_function": "test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result"
+          }
+        }
+      ],
+      "residuals": [
+        "Original remediation filename remains absent and UNRUN. B60 changed-request bundle revalidation and explicit no-live-SKG exact-request reuse do not establish B61 external cache key/read binding to an actually consumed immutable SKG version. B61 remains HELD/missing exact source-owner input pending local G; scalar keys or arbitrary fixture-path hash are not that input. B62 full native presence consumer is distinct from the simpler direct-key control."
+      ]
+    }
+  ],
+  "claims": {
+    "metadata_read_only": true,
+    "native_execution": false,
+    "collection": false,
+    "gates": false,
+    "product_edits": false,
+    "root_changes": false,
+    "static_case_count": null,
+    "runtime_outcomes": null,
+    "closure_ids": []
+  },
+  "qualification": "Native DD source/selector uses original map2c916, reviewed map28cd is a separate immutable metadata correction. Source-only body correspondence never establishes runtime acceptance or new selector-set equality; CMP owns the finite actual SET comparison. CAS author is not independently accepting own CAS mechanics in this map review."
+}

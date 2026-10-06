@@ -89,8 +89,20 @@ def worker_execution_context(*, store: Any, source_ref: ArtifactRef) -> Iterator
 
 
 def _worker_directory() -> Path:
-    product = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
-    return product / "workers" / "dowhy-014"
+    """Resolve fixed canonical source assets or their unpacked-wheel projection."""
+    module = Path(__file__).resolve()
+    required = {"worker.py", "protocol.py", "pyproject.toml", "uv.lock", ".python-version", "README.md"}
+    packaged = module.parent / "_dowhy_profile"
+    candidates = [packaged]
+    candidates.extend(
+        parent / "workers" / "dowhy-014"
+        for parent in module.parents
+        if (parent / "pyproject.toml").is_file()
+    )
+    for candidate in candidates:
+        if all((candidate / name).is_file() for name in required):
+            return candidate
+    raise WorkerUnavailableError("selected DoWhy profile assets unavailable in this installation")
 
 
 def _reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:

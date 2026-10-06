@@ -125,6 +125,7 @@ class ParameterSpec(BaseModel):
     distribution_spec: DistributionSpecV1 | None = None
     baseline: float | None = None
     description: str = ""
+    unit: str = Field(default="unspecified", min_length=1)
     num_levels: int = Field(default=4, ge=2)
 
     @model_validator(mode="after")
@@ -165,6 +166,8 @@ class SensitivityPlan(BaseModel):
     n_trajectories: int = Field(default=10, ge=1)
     confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
     seed: int | None = None
+    input_law: Literal["unknown", "independent", "dependent"] = "unknown"
+    """Declared experimental input law; not evidence about a population law."""
 
     # Guardrails for expensive batches.
     max_estimated_runs: int = Field(default=1000, ge=1)

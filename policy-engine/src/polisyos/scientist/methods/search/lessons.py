@@ -107,6 +107,7 @@ class LessonQuery(BaseModel):
     min_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     min_tag_overlap: int = Field(default=1, ge=0, le=50)
     limit: int = Field(default=10, ge=1, le=100)
+    as_of: datetime | None = None
 
 
 class LessonIndexEntry(BaseModel):
@@ -432,14 +433,15 @@ class LessonRegistry:
         return card_ref
 
     def query(self, context: LessonQuery) -> list[LessonCard]:
+        now = self._query_time(context)
         if self._should_aggregate_local_query(context):
-            return self._query_local_aggregated(context)
+            return self._query_local_aggregated(context, now=now)
         target = resolve_transfer_context(
             task_family=context.task_family,
             domain=context.domain,
             run_id=context.source_run_id or "unknown",
             tenant_hash=context.tenant_hash,
-        )
+        ).model_copy(update={"timestamp": now})
         return self._query_local(context, target_context=target)
 
     def query_with_transfer(
@@ -454,8 +456,10 @@ class LessonRegistry:
             domain=context.domain,
             run_id=context.source_run_id or "unknown",
         )
+        now = self._query_time(context, target_context=target_context)
+        active_target = active_target.model_copy(update={"timestamp": now})
         if self._should_use_aggregated_local_transfer_lookup(context, active_target):
-            results = self._query_local_aggregated(context, policy=policy)
+            results = self._query_local_aggregated(context, now=now, policy=policy)
             return results[: context.limit]
 
         results = self._query_local(context, target_context=active_target, policy=policy)
@@ -488,6 +492,7 @@ class LessonRegistry:
         policy: TransferPolicy | None = None,
     ) -> list[LessonCard]:
         matches: list[tuple[float, datetime, LessonCard]] = []
+        self._query_time(context, target_context=target_context)
         active_policy = policy or self._transfer_policy
         target_path = self._index_path_for_context(target_context)
         for namespace_context, path in self._iter_index_paths():
@@ -504,6 +509,14 @@ class LessonRegistry:
                     tenant_hash=namespace_context.tenant_hash,
                 )
                 card = load_lesson_card(self._store, entry.artifact_ref)
+                normalized = self._aged_card(
+                    card,
+                    evidence_anchor=self._evidence_anchor(entry, card),
+                    now=target_context.timestamp,
+                    policy=active_policy,
+                )
+                if normalized is None:
+                    continue
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
@@ -514,12 +527,6 @@ class LessonRegistry:
                     continue
                 if card.task_family != target_context.task_family:
                     continue
-                normalized = self._aged_card(
-                    card,
-                    evidence_anchor=self._evidence_anchor(entry, card),
-                    now=target_context.timestamp,
-                    policy=active_policy,
-                )
                 projected = self._project_transfer(
                     normalized, target_context=target_context, weight=weight
                 )
@@ -539,6 +546,16 @@ class LessonRegistry:
         policy: TransferPolicy | None = None,
     ) -> LessonCard | None:
         active_policy = policy or self._transfer_policy
+        if query is not None:
+            self._query_time(query, target_context=target_context)
+        card = self._aged_card(
+            card,
+            evidence_anchor=card.created_at,
+            now=target_context.timestamp,
+            policy=active_policy,
+        )
+        if card is None:
+            return None
         source_context = TransferContext(
             task_family=card.task_family,
             domain=card.domain,
@@ -555,12 +572,6 @@ class LessonRegistry:
             return None
         if card.task_family != target_context.task_family:
             return None
-        card = self._aged_card(
-            card,
-            evidence_anchor=card.created_at,
-            now=target_context.timestamp,
-            policy=active_policy,
-        )
         projected = self._project_transfer(card, target_context=target_context, weight=weight)
         if query is not None and not self._matches_query(projected, query):
             return None
@@ -695,14 +706,14 @@ class LessonRegistry:
     ) -> list[LessonCard]:
         snapshot = self.index_snapshot(context=target_context)
         results: list[LessonCard] = []
-        now = datetime.now(UTC)
+        now = self._query_time(query, target_context=target_context)
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
             if not self._entry_matches(entry, query):
                 continue
             card = self._materialize_query_card(entry, now=now, policy=policy)
-            if not self._matches_query(card, query):
+            if card is None or not self._matches_query(card, query):
                 continue
             results.append(card)
             self._touch_access(entry, now=now, context=target_context)
@@ -711,9 +722,8 @@ class LessonRegistry:
         return results
 
     def _query_local_aggregated(
-        self, query: LessonQuery, *, policy: TransferPolicy | None = None
+        self, query: LessonQuery, *, now: datetime, policy: TransferPolicy | None = None
     ) -> list[LessonCard]:
-        now = datetime.now(UTC)
         candidates: list[
             tuple[
                 tuple[bool, float, int, float],
@@ -746,7 +756,7 @@ class LessonRegistry:
         results: list[LessonCard] = []
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
             card = self._materialize_query_card(entry, now=now, policy=policy)
-            if not self._matches_query(card, query):
+            if card is None or not self._matches_query(card, query):
                 continue
             results.append(card)
             self._touch_access(entry, now=now, context=namespace_context)
@@ -851,7 +861,7 @@ class LessonRegistry:
         *,
         now: datetime,
         policy: TransferPolicy | None = None,
-    ) -> LessonCard:
+    ) -> LessonCard | None:
         card = load_lesson_card(self._store, entry.artifact_ref)
         normalized = self._normalize_card(card)
         evidence_anchor = self._evidence_anchor(entry, normalized)
@@ -861,6 +871,8 @@ class LessonRegistry:
             now=now,
             policy=policy or self._transfer_policy,
         )
+        if effective is None:
+            return None
         return effective.model_copy(
             update={"last_accessed_at": now, "provenance_weight": entry.provenance_weight}
         )
@@ -868,8 +880,14 @@ class LessonRegistry:
     @staticmethod
     def _aged_card(
         card: LessonCard, *, evidence_anchor: datetime, now: datetime, policy: TransferPolicy
-    ) -> LessonCard:
-        if max(timedelta(), now - evidence_anchor) > timedelta(days=policy.ttl_days):
+    ) -> LessonCard | None:
+        # A persisted version cannot supply evidence before its occurrence.
+        # Retention access clocks are deliberately absent from this predicate.
+        if any(stamp.tzinfo is None for stamp in (card.created_at, evidence_anchor, now)):
+            return None
+        if card.created_at > now or evidence_anchor > now:
+            return None
+        if now - evidence_anchor > timedelta(days=policy.ttl_days):
             return card.model_copy(
                 update={
                     "trust_level": LessonTrustLevel.LOW_CONFIDENCE,
@@ -877,6 +895,26 @@ class LessonRegistry:
                 }
             )
         return card
+
+    @staticmethod
+    def _query_time(
+        query: LessonQuery, *, target_context: TransferContext | None = None
+    ) -> datetime:
+        """Bind one explicit as-of time across local and transfer routes."""
+        if (
+            target_context is not None
+            and query.as_of is not None
+            and query.as_of != target_context.timestamp
+        ):
+            raise ValueError("Lesson query as-of conflicts with the target context timestamp")
+        now = (
+            target_context.timestamp
+            if target_context is not None
+            else query.as_of or datetime.now(UTC)
+        )
+        if now.tzinfo is None:
+            raise ValueError("Lesson query as-of must include a timezone")
+        return now
 
     @staticmethod
     def _project_transfer(

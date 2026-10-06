@@ -1,0 +1,11 @@
+id = "2026-10-06-e02-lesson-as-of"
+title = "Bind lesson admission to the caller's evidence time"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Local and transferred lesson retrieval refuse persisted evidence versions later than the caller's as-of time before return or materialization. Retention access timestamps remain separate from evidence freshness."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/search/test_lesson_as_of.py", "tests/unit/scientist/search/test_lesson_transfer.py"]
+compatibility = "LessonQuery gains an optional serialized as_of timestamp; existing payloads retain the default current-time lookup. Explicit TransferContext.timestamp governs transfer lookup and materialization. Conflicting query/context times are refused."
+migration = "Use timezone-aware as_of values for historical local queries, and capture transfer target time after evidence that should be available to that query."
+limitations = "The registry refuses a newer current version at an earlier as-of time; it does not reconstruct older versions automatically or issue authorized revalidation evidence. No institutional source authorization or complete B137 closure is inferred."

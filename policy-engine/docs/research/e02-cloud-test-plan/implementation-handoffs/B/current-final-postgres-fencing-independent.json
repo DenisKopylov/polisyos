@@ -21,12 +21,14 @@
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/baseline-navigation.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/capture_pg.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/derive_pg.source.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/environment.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/index.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native-observer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.xml",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/origin-summary.json",
@@ -1342,5 +1344,78 @@
     ],
     "runtime_source_and_deciding_bytes_changed": false,
     "native_rerun_performed": false
+  },
+  "net_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/capture_pg.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/derive_pg.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native-observer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/origin-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/readback_pg.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/retained-schema-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-before.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-lineage.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/tool-executables.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/wrapper.json"
+  ],
+  "representation_retirements": [
+    {
+      "retired_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md",
+      "original_raw_git_ref": {
+        "commit": "a557eb0a5d60b480c5d8506f648c20263e8eb898",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md",
+        "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+        "bytes": 14763
+      },
+      "replacement_lossless_wrapper": {
+        "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md.json",
+        "sha256": "4fdb386f6125dff75fe92d390212f2ea29c286b46ffec45982dbe57c812b45f6",
+        "bytes": 36185,
+        "encoding": "lossless_utf8_json_string",
+        "decoded_sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+        "decoded_bytes": 14763
+      },
+      "retirement_kind": "current-tree transport representation changed; original immutable Git raw objects and runtime SHM originals preserved",
+      "runtime_or_source_bytes_changed": false
+    },
+    {
+      "retired_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt",
+      "original_raw_git_ref": {
+        "commit": "a557eb0a5d60b480c5d8506f648c20263e8eb898",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt",
+        "sha256": "490ccf2d188492b8d921151a06d25cc999408fa6d25f6bd5a98d7a865ef18535",
+        "bytes": 5586
+      },
+      "replacement_lossless_wrapper": {
+        "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt.json",
+        "sha256": "e71793dff18a7dd7d4bf015f2b8e808fa95067d6376713857c78a6288a5d0c78",
+        "bytes": 6115,
+        "encoding": "lossless_utf8_json_string",
+        "decoded_sha256": "490ccf2d188492b8d921151a06d25cc999408fa6d25f6bd5a98d7a865ef18535",
+        "decoded_bytes": 5586
+      },
+      "retirement_kind": "current-tree transport representation changed; original immutable Git raw objects and runtime SHM originals preserved",
+      "runtime_or_source_bytes_changed": false
+    }
+  ],
+  "footprint_correction": {
+    "prior_receipt_commit": "c9581e3699856b9a6997dfd2988fa0b72a298f5c",
+    "prior_receipt_sha256": "137aba55629e36825680b9633ef3891e576f5a04bfc0e318fce8508894dd965a",
+    "implementation_union_path_count": 20,
+    "net_base_to_candidate_path_count": 18,
+    "representation_retirement_count": 2,
+    "candidate_commit_tree_unchanged": true,
+    "runtime_source_and_deciding_outputs_unchanged": true,
+    "native_or_PG_replay_performed": false,
+    "scope": "Expose full implementation-commit path union as well as valid net footprint; no runtime/schema/archive cleanup."
   }
 }

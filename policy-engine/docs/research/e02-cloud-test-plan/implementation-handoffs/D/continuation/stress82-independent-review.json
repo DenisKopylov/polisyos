@@ -1,0 +1,1142 @@
+{
+  "schema": "e02.D.independent-source-review.v1",
+  "reviewer": "numerical_oracle",
+  "role": "independent non-author read-only source/test/evidence review",
+  "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+  "source_tree": "bf2da141d4e361ecf7f99bc97e31bd6bfce83020",
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "verdict": "HOLD: frozen82 observed finite-counter/case/retry mechanisms supported; aggregate-empty-component completeness fails on identical production bytes",
+  "closure_ids": [],
+  "original_criteria": [
+    {
+      "id": "B106@STR-01",
+      "finding_id": "B106",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2738,
+          2749
+        ],
+        "byte_offset": 614780,
+        "bytes": 2992,
+        "sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Изменение `collect_top_k` не изменяет итог той же серии. Десять проявлений одной проблемы и одно проявление не смешиваются. При нулевом количестве оценённых сценариев или непроверенных условиях score не должен выглядеть установленной устойчивостью. При адаптивном/раннем прекращении доля в обследованном наборе не является автоматически вероятностью отказа во всём пространстве.",
+        "byte_offset": 617064,
+        "bytes": 706,
+        "sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43"
+      },
+      "canonical_card_pointer": "/canonical_cards/STR-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/STR-01",
+      "missing_input_pointer": "/findings/0/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B107@STR-01",
+      "finding_id": "B107",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2750,
+          2761
+        ],
+        "byte_offset": 617772,
+        "bytes": 3238,
+        "sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Табличные контрпримеры для maximize-utility и minimize-cost, порога в обе стороны, отрицательных значений, отсутствующих/нечисленных результатов. Запись worst-case совпадает с определённым нарушением. Эта правка должна идти вместе с B106: правильный экстремум ещё не означает правильно посчитанную полноту/устойчивость.",
+        "byte_offset": 620436,
+        "bytes": 572,
+        "sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3"
+      },
+      "canonical_card_pointer": "/canonical_cards/STR-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/STR-01",
+      "missing_input_pointer": "/findings/1/unreceived_inputs_or_APIs"
+    }
+  ],
+  "full_changed_source_and_test_manifest": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-stress-scenario-consumer.toml",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "df7092bc86c35191f7d5c02c784771b533c83cc6",
+      "bytes": 3473,
+      "sha256": "b7adc31a08d3f2edd4904281dd7d9e7417e264647d8353ce8e60e5168afeae5e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "8d86fcedabe0da458aa3c9c2cac1a980062671eb",
+      "bytes": 19925,
+      "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "7372c52fb0a764a77828be0b0a4b1e9a86205ac1",
+      "bytes": 7939,
+      "sha256": "a29035b2bfcc661fceae2dd4e89c1f9ea399d37f03391ce757966afba74f92f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "de831a24d51efaa0c9c017a109e9a9912ad2c719",
+      "bytes": 14386,
+      "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "7ce33c8b11f041f3f3f1b00bcc1626c7eb3d88b3",
+      "bytes": 10081,
+      "sha256": "60ee7b938cc0f189d839d7dc3b3651d6e55fea51bcdff4e66e7f126da3c5516e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "23538253a6c49ebfee01574b02a2d4d07d4dfc5d",
+      "bytes": 37161,
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "df942e1a920e16faec7f2b5b08777baea3904a03",
+      "bytes": 101086,
+      "sha256": "d6d06d3204bba4784ace4a8e625c92bfcf792b8bb75a018b540d3c91c05d6208"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "66d6e276ab1c25b86ddce12ac49d7fc9cdf5050b",
+      "bytes": 16354,
+      "sha256": "a057c4c59e9bcac81f1892e289b8999293814ecd6d333d843d81f92a839ac87e"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "e7c0d47110b9ffd6d347e0add14e097fece90c67",
+      "bytes": 10077,
+      "sha256": "7b40725e989ec06212337f341196428e6393fb460c0bc799e361cef49e37ef35"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "7fa3a7c4a0aa6de2892e9ef855323b3b02c19dc2",
+      "bytes": 12039,
+      "sha256": "1b53543b89c294ade7e8ab921f3cab9f24defb0a7a05f3b7679878c488635690"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "fbb5c536d1164fb720d9a694567b859b704e8260",
+      "bytes": 19765,
+      "sha256": "331de9a07ab9b6e50ab0f53bf5811c89d81ad3da9de41d5ca028a7e4706962c1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "e8c38426b304742325ec38b304db58c34e542df1",
+      "bytes": 8576,
+      "sha256": "e27b7edaa3c367922abdf7f0b43d85c01cb141c4f13237cb4ac52334243c5e4f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "git_blob": "46eb13801fc5ce5f0529b4d7df20033d63c8bef5",
+      "bytes": 13248,
+      "sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0"
+    }
+  ],
+  "source_review": {
+    "full_product_diff_and_changed_tests_read": true,
+    "bounded_supported_properties": [
+      "32 finite executions /31 nonviolations publish31/32 from occurrence counters independent of top-k1/20",
+      "10 occurrences remain10 even with one retained issue example",
+      "unknown attempted results stay outside the finite denominator; empty/zero finite sets publish null rather than established robustness",
+      "case producer rejects non-bool passed before coercion; case profile uses declared case outcomes instead of inventing objective threshold units",
+      "known schema1.0/1.1 admission; legacy evidence stays unavailable; malformed threshold refused before sampling",
+      "named-suite replacement and anonymous same-content retry preserve counters; same bound identity with changed content refuses",
+      "actual typed context forwards an existing BudgetMiddleware owner; plain ExecutionContext remains unmanaged"
+    ],
+    "scientific_case_rules_and_runners": "unchanged by frozen82; provided expected_outcome/pass status is consumer_asserted, not independently authenticated or recomputed",
+    "B107_scope": "Existing objective-direction producer unchanged except strict threshold intake; new challenge_case_pass adapter does not establish a new metric sign/threshold policy or replace all original B107 direction/worst-case acceptance controls.",
+    "bounded_vs_authority": "Observed set fraction and internal budget-owner port are mechanism evidence; no population failure probability, uncertainty calibration, scientific source universe, billing authority, deployed factory adoption or empirical policy effectiveness is claimed."
+  },
+  "deciding_runtime_observations": [
+    {
+      "id": "challenge-frozen",
+      "resource": {
+        "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+          "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+          "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+          "--basetemp",
+          "/dev/shm/e02-D-challenge-frozen-bbedce8d8d7443e7b601dfa128ec91df",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/challenge-frozen-junit.xml"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 22.275484461002634,
+        "peak_rss_kib": 871952,
+        "source_sha_after": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+        "git_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+      },
+      "junit_counts": {
+        "tests": 54,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "complete_output": "stress82-independent/challenge-frozen-complete.txt",
+      "role": "author runtime independently read and source/hash reconciled; no duplicate backend execution"
+    },
+    {
+      "id": "schema-context-frozen-b",
+      "resource": {
+        "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+          "--basetemp",
+          "/dev/shm/e02-D-stress-frozen-b-4d771bb55df7459ba63cb8cfaec30d18",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/schema-context-frozen-b-junit.xml"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 23.231736792004085,
+        "peak_rss_kib": 892612,
+        "source_sha_after": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+        "git_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n",
+        "shared_memory_events_before": "low 0\nhigh 0\nmax 10393826\noom 109\noom_kill 17\noom_group_kill 0\n",
+        "shared_memory_events_after": "low 0\nhigh 0\nmax 10427306\noom 109\noom_kill 17\noom_group_kill 0\n"
+      },
+      "junit_counts": {
+        "tests": 32,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "complete_output": "stress82-independent/schema-context-frozen-b-complete.txt",
+      "role": "author runtime independently read and source/hash reconciled; no duplicate backend execution"
+    },
+    {
+      "id": "challenge-red",
+      "resource": {
+        "source_sha": "ffa66964ff091083cd6d523ee74bf0ca8e4be44c",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+          "--basetemp",
+          "/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/challenge-red-junit.xml"
+        ],
+        "exit_code": 1,
+        "wall_seconds": 24.82578121201368,
+        "peak_rss_kib": 967224,
+        "runner_sha256": "3668e4485f416a0dd1169134eefa9017ba58acbbb5f4c763d495ce2a1549a13a",
+        "source_sha_after": "ffa66964ff091083cd6d523ee74bf0ca8e4be44c",
+        "git_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+      },
+      "junit_counts": {
+        "tests": 9,
+        "failures": 9,
+        "errors": 0,
+        "skipped": 0
+      },
+      "complete_output": "stress82-independent/challenge-red-complete.txt",
+      "role": "author runtime independently read and source/hash reconciled; no duplicate backend execution"
+    },
+    {
+      "id": "challenge-intake-red",
+      "resource": {
+        "source_sha": "59e65f125df8c8c5448f6a04250792a97dd45590",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+          "-k",
+          "actual_case_intake or ten_same_issue",
+          "--basetemp",
+          "/dev/shm/e02-D-challenge-intake-red-444f90539ddb472c9e64585bcfc81e43",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/challenge-intake-red-junit.xml"
+        ],
+        "exit_code": 1,
+        "wall_seconds": 21.639052120997803,
+        "peak_rss_kib": 975336,
+        "source_sha_after": "59e65f125df8c8c5448f6a04250792a97dd45590"
+      },
+      "junit_counts": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "complete_output": "stress82-independent/challenge-intake-red-complete.txt",
+      "role": "author runtime independently read and source/hash reconciled; no duplicate backend execution"
+    },
+    {
+      "id": "projection-red",
+      "resource": {
+        "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_component_stays_incomplete_beside_a_complete_case_set",
+          "--basetemp",
+          "/dev/shm/e02-D-projection-red-eb02c61431cf4bb2880b16fc73f6c8b6",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/projection-red-junit.xml"
+        ],
+        "exit_code": 1,
+        "wall_seconds": 21.44235488200502,
+        "peak_rss_kib": 910860,
+        "source_sha_after": "6331544a406af1c50b7c32f118ac881903ca978b",
+        "git_status": "?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+      },
+      "junit_counts": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "complete_output": "stress82-independent/projection-red-complete.txt",
+      "role": "author runtime independently read and source/hash reconciled; no duplicate backend execution"
+    },
+    {
+      "id": "removal-example_fraction",
+      "resource": {
+        "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+        "oracle_sha": "5e93c25cb78714b4d8e121bdf7e401c5a1b6cc73",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+          "example_fraction",
+          "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+          "-q",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+          "-k",
+          "ten_same_issue",
+          "--basetemp",
+          "/dev/shm/e02-D-removal-example_fraction-b579b9f2c2374b81b79a04962085b0fe",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/removal-example_fraction-junit.xml"
+        ],
+        "environment": {
+          "PYTHONPATH": "src:.",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "executable": "/workspace/e02-D-locked-env/bin/python"
+        },
+        "exit_code": 1,
+        "wall_seconds": 23.816039700992405,
+        "peak_rss_kib": 835348
+      },
+      "junit_counts": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "complete_output": "stress82-independent/removal-example_fraction-complete.txt",
+      "role": "author runtime independently read and source/hash reconciled; no duplicate backend execution"
+    }
+  ],
+  "blocking_same_class_counterexample": {
+    "classification": "B106 report-level completeness cannot ignore a declared empty component",
+    "actual_runtime_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+    "production_source_diff_from_frozen82": [],
+    "test_path": "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "test_name": "test_empty_component_stays_incomplete_beside_a_complete_case_set",
+    "input": "Four complete passing cases merged with a named zero-case typed challenge suite.",
+    "actual": "total finite4, observed fraction1.0, set_adequacy_status complete",
+    "required": "Retain observed fraction but mark report partial and is_robust false because one declared component is incomplete.",
+    "mechanism": "Aggregate planned/attempted/finite sums become equal positive counts; original evidence.complete ignores per-component complete predicates.",
+    "adjacent_actual_native_red": "Same exact-production633 run also has phaseD4 CAS manifest1.0/body1.1 mismatch and three absent serializer resource/evaluation-status projections. Three serializer fixtures assert DTO projection, not executed paid billing.",
+    "test_harness_correction": "Original633 empty test has a later unreachable ten-occurrence assertion misplaced at its tail. Corrected063a4723a09e881febef2aa06ac33d210d74d1a1 moves only that assertion; the first complete-vs-partial failure is unchanged and valid. Corrected replay was SIGKILL, not a new verdict.",
+    "owner": "baseline_census",
+    "corrective_candidate": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+    "corrective_candidate_verdict": "SEPARATE REVIEW; not inferred from this frozen82 review"
+  },
+  "marker_preserving_removal": {
+    "helper_sha": "5e93c25cb78714b4d8e121bdf7e401c5a1b6cc73",
+    "helper_path": "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+    "method": "Mutates actual loaded blueprint defining function in memory before test import; original source bytes independently required; retained scenario_evidence/schema_version/score_scope/score_status.",
+    "actual_selected_counts": {
+      "tests": 2,
+      "failures": 1,
+      "passes": 1
+    },
+    "why_controls_discriminate": "Cap1 replaces ten true violated occurrences with one retained example and DTO rejects score/basis disagreement. Cap10 equals all ten occurrences and therefore passes. This is1FAIL/1PASS, not2FAIL.",
+    "raw_bool_removal": "Actual136.003s SIGKILL -9/no completed verdict; ERROR/UNRUN retained."
+  },
+  "origin_integrity": [
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.methods.backtesting.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.methods.doe.designs",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.methods.doe.stress_report",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "sha256": "60ee7b938cc0f189d839d7dc3b3651d6e55fea51bcdff4e66e7f126da3c5516e",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.methods.doe.sampling",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.methods.search.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.policy_design.adversary",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "source_path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "sha256": "a057c4c59e9bcac81f1892e289b8999293814ecd6d333d843d81f92a839ac87e",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "sha256": "d6d06d3204bba4784ace4a8e625c92bfcf792b8bb75a018b540d3c91c05d6208",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4",
+      "status": "MATCH"
+    },
+    {
+      "log": "challenge-frozen-complete.txt",
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.methods.doe.designs",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.methods.doe.stress_report",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "sha256": "06c96057208cfce3380f8db6c18374ead2d79e6d60c60866566f2336232d2cd9",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.methods.doe.sampling",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.methods.search.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.policy_design.adversary",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "source_path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "sha256": "a057c4c59e9bcac81f1892e289b8999293814ecd6d333d843d81f92a839ac87e",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "sha256": "0fb75594a07be36d29c3a5fba4057b0136946c806dffbdfe4b11075400616450",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4",
+      "status": "MATCH"
+    },
+    {
+      "log": "schema-context-frozen-b-complete.txt",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.methods.backtesting.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.methods.doe.designs",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.methods.doe.stress_report",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "sha256": "60ee7b938cc0f189d839d7dc3b3651d6e55fea51bcdff4e66e7f126da3c5516e",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.methods.doe.sampling",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.methods.search.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.policy_design.adversary",
+      "status": "UNIMPORTED"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "sha256": "d6d06d3204bba4784ace4a8e625c92bfcf792b8bb75a018b540d3c91c05d6208",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4",
+      "status": "MATCH"
+    },
+    {
+      "log": "projection-red-complete.txt",
+      "source_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff",
+      "status": "MATCH"
+    }
+  ],
+  "origin_integrity_verdict": "MATCH for every actually loaded selected origin; unimported modules are not exercised",
+  "E_D_composition_input_integrity": [
+    {
+      "path": "policy-engine/src",
+      "git_object": "914aa640456e9674b381039f562385a69c4fdae6",
+      "type": "tree",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/architecture",
+      "git_object": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+      "type": "tree",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "type": "blob",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+      "git_object": "e7c0d47110b9ffd6d347e0add14e097fece90c67",
+      "type": "blob",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+      "bytes": 14391,
+      "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "bytes": 3949,
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+      "bytes": 19279,
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "a24805e9abefb4b3826f424c0c6dfd529c2ea338",
+      "bytes": 6384,
+      "sha256": "5ceaaa52de62ed0723a522a3b500100c8571409a55d961bad3f3eb0756fba24e",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+      "bytes": 3768,
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "6ec3567995fac9550343013279d4bf12a269817a",
+      "bytes": 4628,
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631",
+      "status": "MATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+      "bytes": 3769,
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc",
+      "status": "MATCH"
+    }
+  ],
+  "E_D_composition_verdict": "Integrity MATCH only. Initial missing architecture startup ERROR plus two complete-profile actual SIGKILL -9 runs leave native composition ERROR/UNRUN; no E PASS.",
+  "unrun_attempts": [
+    {
+      "id": "schema-context-frozen",
+      "status": "ERROR/UNRUN",
+      "resource": {
+        "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+          "--basetemp",
+          "/dev/shm/e02-D-stress-frozen-3bab2b7f3b1f4242bfc383fcbee89018",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/schema-context-frozen-junit.xml"
+        ],
+        "exit_code": -9,
+        "wall_seconds": 154.26405387600244,
+        "peak_rss_kib": 771160,
+        "source_sha_after": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+        "git_status": ""
+      },
+      "complete_output": "stress82-independent/schema-context-frozen-complete.txt",
+      "no_passing_backend_verdict": true
+    },
+    {
+      "id": "empty-component-red",
+      "status": "ERROR/UNRUN",
+      "resource": {
+        "source_sha": "063a4723a09e881febef2aa06ac33d210d74d1a1",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_component_stays_incomplete_beside_a_complete_case_set",
+          "--basetemp",
+          "/dev/shm/e02-D-empty-component-red-bbe404f51aa8487cb5d6f2473d382582",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/empty-component-red-junit.xml"
+        ],
+        "exit_code": -9,
+        "wall_seconds": 104.8427057480003,
+        "peak_rss_kib": 684016,
+        "source_sha_after": "063a4723a09e881febef2aa06ac33d210d74d1a1",
+        "git_status": " M tests/integration/scientist/methods/search/stress_doe_bridge_probe.py\n?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+      },
+      "complete_output": "stress82-independent/empty-component-red-complete.txt",
+      "no_passing_backend_verdict": true
+    },
+    {
+      "id": "removal-raw_bool",
+      "status": "ERROR/UNRUN",
+      "resource": {
+        "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+        "oracle_sha": "5e93c25cb78714b4d8e121bdf7e401c5a1b6cc73",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+          "raw_bool",
+          "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+          "-q",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+          "-k",
+          "actual_case_intake",
+          "--basetemp",
+          "/dev/shm/e02-D-removal-raw_bool-0aa4ac6f02f24d29a1422a8ccb43751b",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/removal-raw_bool-junit.xml"
+        ],
+        "environment": {
+          "PYTHONPATH": "src:.",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "executable": "/workspace/e02-D-locked-env/bin/python"
+        },
+        "exit_code": -9,
+        "wall_seconds": 136.00273000300513,
+        "peak_rss_kib": 750236
+      },
+      "complete_output": "stress82-independent/removal-raw_bool-complete.txt",
+      "no_passing_backend_verdict": true
+    },
+    {
+      "id": "doe-bridge",
+      "status": "ERROR/UNRUN",
+      "resource": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/dev/shm/e02-D-E-composed-np9pjw79/bridge_probe.py"
+        ],
+        "cwd": "/dev/shm/e02-D-E-composed-np9pjw79/policy-engine",
+        "exit_code": 1,
+        "wall_seconds": 7.275048446012079,
+        "max_rss_kib": 744276,
+        "input_manifest": "doe-composition-inputs.json"
+      },
+      "complete_output": "stress82-independent/doe-bridge-complete.txt",
+      "no_passing_backend_verdict": true
+    },
+    {
+      "id": "doe-bridge-full",
+      "status": "ERROR/UNRUN",
+      "resource": {
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+        ],
+        "cwd": "/dev/shm/e02-D-E-composed-full-036mrf56/policy-engine",
+        "D_source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+        "E_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+        "exit_code": -9,
+        "wall_seconds": 38.73188172701339,
+        "peak_rss_kib": 640292,
+        "inputs_sha256": "f36b0b75a1f7a27b43f4831e8b98da555afab1fc53c2bf4aeba0e9a69479889c"
+      },
+      "complete_output": "stress82-independent/doe-bridge-full-complete.txt",
+      "no_passing_backend_verdict": true
+    },
+    {
+      "id": "doe-bridge-full-b",
+      "status": "ERROR/UNRUN",
+      "resource": {
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+        ],
+        "cwd": "/dev/shm/e02-D-E-composed-full-036mrf56/policy-engine",
+        "D_source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+        "E_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+        "exit_code": -9,
+        "wall_seconds": 76.12677923600131,
+        "peak_rss_kib": 771828,
+        "shared_memory_events_before": "low 0\nhigh 0\nmax 10456557\noom 109\noom_kill 17\noom_group_kill 0\n",
+        "shared_memory_events_after": "low 0\nhigh 0\nmax 10972516\noom 110\noom_kill 18\noom_group_kill 0\n"
+      },
+      "complete_output": "stress82-independent/doe-bridge-full-b-complete.txt",
+      "no_passing_backend_verdict": true
+    }
+  ],
+  "quality": {
+    "B04_frozen_blueprint_onefile": "Independent exact canonical AST extraction/check PASS, complete result stress82-independent/canonical-onefile-state-reads.json. No backend imports or full scan.",
+    "B04_whole_checker": "Actual9 missing-contract errors in run_causal_evaluation.py held; this one-file PASS is not a whole gate PASS.",
+    "mypy_four_paths": {
+      "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=silent",
+        "src/polisyos/scientist/methods/doe/stress_report.py",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/backtesting/adversarial.py",
+        "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "ERROR",
+      "process_exit_code": 137,
+      "signal": "SIGKILL",
+      "stdout_bytes": 0,
+      "complete_wrapper_deciding_message": "/bin/bash: line 1: 274316 Killed /workspace/e02-D-locked-env/bin/python -m mypy --follow-imports=silent src/polisyos/scientist/methods/doe/stress_report.py src/polisyos/scientist/methods/doe/designs.py src/polisyos/scientist/methods/backtesting/adversarial.py src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py > /workspace/e02-D3-receipts/stress/frozen82-mypy-four-paths.txt",
+      "measurement_scope": "Observed shell message; outer cat returned0, not the mypy process outcome. Wall/peakRSS final measurement unavailable. Cause not established. No type-check verdict."
+    },
+    "mypy_verdict": "ERROR/UNRUN: shell137/empty output; no completed type-check verdict; outer capture shell success is not type-check PASS.",
+    "B19_B23": "Earlier independently published canonical disposition remains53 validator budget+9 extraction date+15 fail-closed date errors, plus10 public link errors; no waiver/closure inferred."
+  },
+  "environment": {
+    "actual_runtime_executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "profile": "author actual locked runtime with native Polisyos imports and selected origin footers; independent reviewer uses only stdlib for metadata/hash/AST checks",
+    "new_reviewer_backend_tests": 0,
+    "new_cpu_process_worker_thread_caps": 0,
+    "new_snapshots_or_dependency_installs": 0
+  },
+  "preservation": {
+    "policy": "No cleanup/deletion performed by reviewer; only copies moderate deciding bytes to own lease.",
+    "artifact_paths": "Original resource records retain exact source/scratch/basetemp paths; no claim that every historical transient still exists.",
+    "source_writer_lane": "Never edited or imported by reviewer; source read only through immutable Git objects."
+  },
+  "lossless_copied_evidence": [
+    {
+      "path": "stress82-independent/challenge-frozen-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-frozen-complete.txt",
+      "bytes": 3194,
+      "sha256": "fc39b2b750bc475a01b440c072d486325cf0a3b8e279b5eb8b907a1fb1443451"
+    },
+    {
+      "path": "stress82-independent/challenge-frozen-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-frozen-resource.json",
+      "bytes": 898,
+      "sha256": "68e2930938374e23c3b38fcba676c5398d274803247f223394c93cfb2539174a"
+    },
+    {
+      "path": "stress82-independent/challenge-frozen-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-frozen-junit.xml",
+      "bytes": 10401,
+      "sha256": "9e576573966728a35aadd945b5fcb371d9358733073f893ee4c8e10470ad66bd"
+    },
+    {
+      "path": "stress82-independent/schema-context-frozen-b-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/schema-context-frozen-b-complete.txt",
+      "bytes": 2933,
+      "sha256": "f9544a95fe26df4955e56eaf344947b3b28c945c60681ac3929efa2585e4e2c9"
+    },
+    {
+      "path": "stress82-independent/schema-context-frozen-b-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/schema-context-frozen-b-resource.json",
+      "bytes": 950,
+      "sha256": "927b66b0f1f0fc173174f6e0a0e18f0cdad788468b8715407a6784e001a8232d"
+    },
+    {
+      "path": "stress82-independent/schema-context-frozen-b-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/schema-context-frozen-b-junit.xml",
+      "bytes": 6414,
+      "sha256": "a94863bb476e0efc900fd93900b3477e84d8dc309427c603ec6d783d8c1a6762"
+    },
+    {
+      "path": "stress82-independent/schema-context-frozen-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/schema-context-frozen-complete.txt",
+      "bytes": 1,
+      "sha256": "cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8"
+    },
+    {
+      "path": "stress82-independent/schema-context-frozen-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/schema-context-frozen-resource.json",
+      "bytes": 612,
+      "sha256": "e65724d100e8a2471ac1205fe8ac3774f4cf522354fd1962928bc3b2842c5958"
+    },
+    {
+      "path": "stress82-independent/challenge-red-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-red-complete.txt",
+      "bytes": 16124,
+      "sha256": "a5a9baf94fc6069da4f80d9eb40c99d4048dfe338a46829731210f32073d7121"
+    },
+    {
+      "path": "stress82-independent/challenge-red-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-red-resource.json",
+      "bytes": 828,
+      "sha256": "6526ffef2d08620a97c90708e4dffcd413d917fafbf47e465fa99e576b1512ce"
+    },
+    {
+      "path": "stress82-independent/challenge-red-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-red-junit.xml",
+      "bytes": 15590,
+      "sha256": "53ce2290eef4e905666017a7557a2c3ca230a0962ac39d76c3d5fca2d71ff3de"
+    },
+    {
+      "path": "stress82-independent/challenge-intake-red-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-intake-red-complete.txt",
+      "bytes": 8981,
+      "sha256": "d170adceaf39ab82f88230c6796d942110af2c6cdaaf75353e7f81ff3fe5f31a"
+    },
+    {
+      "path": "stress82-independent/challenge-intake-red-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-intake-red-resource.json",
+      "bytes": 666,
+      "sha256": "452d38d8790d255641ed60825c63610eaf861068261f8c10c41a72875f1191e6"
+    },
+    {
+      "path": "stress82-independent/challenge-intake-red-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge-intake-red-junit.xml",
+      "bytes": 7375,
+      "sha256": "0d481db84360c8d0fc6005a3d27938f23b9ae948bf605454bacc3dfe775f4165"
+    },
+    {
+      "path": "stress82-independent/projection-red-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/projection-red-complete.txt",
+      "bytes": 15955,
+      "sha256": "8ae63279dfdb0bfea3034956d2bffd309f87b17969d7da5c7e941b77ff7aae7d"
+    },
+    {
+      "path": "stress82-independent/projection-red-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/projection-red-resource.json",
+      "bytes": 868,
+      "sha256": "60f3f20886c3dc7d2f0b446017a7def8ee944e607a08826943d80ae49d441d25"
+    },
+    {
+      "path": "stress82-independent/projection-red-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/projection-red-junit.xml",
+      "bytes": 13190,
+      "sha256": "f9a438a3a07c096c4b2a9c99e8012e27eb3fe18a8e5500a00896972647eb0a5a"
+    },
+    {
+      "path": "stress82-independent/empty-component-red-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/empty-component-red-complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stress82-independent/empty-component-red-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/empty-component-red-resource.json",
+      "bytes": 880,
+      "sha256": "106f42a2208baa0ed8e1a62b506afa6489a3dbb0c931029c13bd808a7826d6dd"
+    },
+    {
+      "path": "stress82-independent/removal-example_fraction-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/removal-example_fraction-complete.txt",
+      "bytes": 5406,
+      "sha256": "bd83392ac75006f938ac4071b50d2d9cb7d53a5185e422b0afcb4c3e2c5c7a15"
+    },
+    {
+      "path": "stress82-independent/removal-example_fraction-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/removal-example_fraction-resource.json",
+      "bytes": 878,
+      "sha256": "a5095de7255895d9a14dc49a5d5832bd28c96fec1278adbb359fac153c1cdb41"
+    },
+    {
+      "path": "stress82-independent/removal-example_fraction-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/removal-example_fraction-junit.xml",
+      "bytes": 2918,
+      "sha256": "cd2a70c3555566a6acdfbd38810130761e4c6208696619754f19308334ad96b2"
+    },
+    {
+      "path": "stress82-independent/removal-raw_bool-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/removal-raw_bool-complete.txt",
+      "bytes": 1271,
+      "sha256": "002b262c2603518dd5cc4bbbddb83f622c37c9b779bb2770bbe1edabb63ecaa9"
+    },
+    {
+      "path": "stress82-independent/removal-raw_bool-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/removal-raw_bool-resource.json",
+      "bytes": 859,
+      "sha256": "41a0be95796675c91d787e56a77bb5a12c4a4e86ffa0678691707ec9185d1df2"
+    },
+    {
+      "path": "stress82-independent/doe-composition-full-inputs.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/doe-composition-full-inputs.json",
+      "bytes": 3332,
+      "sha256": "f36b0b75a1f7a27b43f4831e8b98da555afab1fc53c2bf4aeba0e9a69479889c"
+    },
+    {
+      "path": "stress82-independent/doe-bridge-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/doe-bridge-complete.txt",
+      "bytes": 2276,
+      "sha256": "f171036d1a2e80f168ba12c5075aa421322db679c124b9b33973ce0aed2237da"
+    },
+    {
+      "path": "stress82-independent/doe-bridge-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/doe-bridge-resource.json",
+      "bytes": 315,
+      "sha256": "54c7a739c82cbf4822ba1129af45327db315162053fd0f3a8e2cb1d34db369d3"
+    },
+    {
+      "path": "stress82-independent/doe-bridge-full-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/doe-bridge-full-complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stress82-independent/doe-bridge-full-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/doe-bridge-full-resource.json",
+      "bytes": 504,
+      "sha256": "cbcde905c56fdc18750b49b1f534e7f26381636014406daf6b343505454e099e"
+    },
+    {
+      "path": "stress82-independent/doe-bridge-full-b-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/doe-bridge-full-b-complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stress82-independent/doe-bridge-full-b-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/doe-bridge-full-b-resource.json",
+      "bytes": 628,
+      "sha256": "e3295401efa4d2003d2c838e73559bb203361abc69321bc2938d04911f96c84a"
+    },
+    {
+      "path": "stress82-independent/state-reads-blueprint-scope.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/state-reads-blueprint-scope.json",
+      "bytes": 822,
+      "sha256": "2fdf708d090e44e4f01fd171a298cf9bbfb33603d7c703e8a6afa2c267b55566"
+    },
+    {
+      "path": "stress82-independent/state-reads-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/state-reads-complete.txt",
+      "bytes": 1512,
+      "sha256": "fdc487c16d65c797597dca9b80fbe0580314b12a5b4d5989300766089519c54d"
+    },
+    {
+      "path": "stress82-independent/frozen82-mypy-four-paths-process-error.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/frozen82-mypy-four-paths-process-error.json",
+      "bytes": 1257,
+      "sha256": "e54191f751c61318870efc73975b0da10eacd814b98312c12871b9e650e43386"
+    },
+    {
+      "path": "stress82-independent/frozen82-mypy-four-paths.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/frozen82-mypy-four-paths.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stress82-independent/challenge_runtime_runner.py.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+      "bytes": 1228,
+      "sha256": "3668e4485f416a0dd1169134eefa9017ba58acbbb5f4c763d495ce2a1549a13a"
+    },
+    {
+      "path": "stress82-independent/runtime_runner.py.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+      "bytes": 1170,
+      "sha256": "552922cac3ebcd1c9bdb39b161a986488247e1a5f6b83ae5d16f110ee7216ab4"
+    },
+    {
+      "path": "stress82-independent/property-removal-helper.py.txt",
+      "source_sha": "5e93c25cb78714b4d8e121bdf7e401c5a1b6cc73",
+      "source_path": "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+      "bytes": 4557,
+      "sha256": "b7f3a736ab2f48cb32059798888020b0a3f055bc7e8e5145d440a19513160ecd"
+    },
+    {
+      "path": "stress82-independent/canonical-onefile-state-reads.json",
+      "role": "independent stdlib canonical AST check deciding output",
+      "bytes": 1099,
+      "sha256": "3ed731f65f1b4c89d3f2c1e59c3fe9670976dfcb3dc92724a2a258a4db64fa3d"
+    }
+  ],
+  "metadata_preparation_note": "Initial builder incorrectly asserted26 loaded origins; all actual byte checks succeeded but count assertion failed. Corrected to actual25 MATCH and1 UNIMPORTED. This was a stdlib metadata preparation failure, not a backend result; source/test/evidence unchanged."
+}

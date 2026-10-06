@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 import re
 from collections.abc import Iterable
@@ -220,8 +221,7 @@ def persist_lesson_card(
 
 def load_lesson_card(store: FileSystemCAS, ref: ArtifactRef | str) -> LessonCard:
     """Load lesson card."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-    return LessonCard.model_validate(from_canonical_bytes(store.get_bytes(artifact_id)))
+    return LessonCard.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def lesson_from_failure_card(
@@ -394,9 +394,28 @@ class LessonRegistry:
                 )
             )
         else:
-            existing.artifact_ref = card_ref
             existing.occurrence_count += 1
-            existing.last_seen = max(existing.last_seen, now)
+            if now >= existing.last_seen:
+                existing.artifact_ref = card_ref
+                existing.last_seen = now
+                for field in (
+                    "summary",
+                    "candidate_hash",
+                    "confidence",
+                    "provenance_weight",
+                    "task_family",
+                    "domain",
+                    "origin_run_id",
+                    "origin_domain",
+                    "origin_tenant_hash",
+                    "transfer_chain",
+                    "trust_level",
+                    "remediation_hint",
+                    "tags",
+                    "fidelity_level",
+                    "stage_name",
+                ):
+                    setattr(existing, field, getattr(normalized_card, field))
             existing.last_accessed_at = max(
                 [
                     stamp
@@ -404,31 +423,6 @@ class LessonRegistry:
                     if stamp is not None
                 ],
                 default=existing.last_accessed_at,
-            )
-            existing.tags = sorted(set(existing.tags) | set(normalized_card.tags))
-            existing.summary = normalized_card.summary or existing.summary
-            existing.candidate_hash = normalized_card.candidate_hash or existing.candidate_hash
-            existing.confidence = max(existing.confidence, normalized_card.confidence)
-            existing.provenance_weight = max(
-                existing.provenance_weight,
-                normalized_card.provenance_weight,
-            )
-            existing.task_family = normalized_card.task_family or existing.task_family
-            existing.domain = normalized_card.domain or existing.domain
-            existing.origin_run_id = existing.origin_run_id or normalized_card.origin_run_id
-            existing.origin_domain = existing.origin_domain or normalized_card.origin_domain
-            existing.origin_tenant_hash = (
-                existing.origin_tenant_hash or normalized_card.origin_tenant_hash
-            )
-            existing.transfer_chain = (
-                list(existing.transfer_chain)
-                if existing.transfer_chain
-                else list(normalized_card.transfer_chain)
-            )
-            if existing.trust_level is not LessonTrustLevel.LOCAL:
-                existing.trust_level = normalized_card.trust_level
-            existing.remediation_hint = (
-                normalized_card.remediation_hint or existing.remediation_hint
             )
             if card_ref not in existing.card_refs:
                 existing.card_refs.append(card_ref)
@@ -461,10 +455,10 @@ class LessonRegistry:
             run_id=context.source_run_id or "unknown",
         )
         if self._should_use_aggregated_local_transfer_lookup(context, active_target):
-            results = self._query_local_aggregated(context)
+            results = self._query_local_aggregated(context, policy=policy)
             return results[: context.limit]
 
-        results = self._query_local(context, target_context=active_target)
+        results = self._query_local(context, target_context=active_target, policy=policy)
         if len(results) >= context.limit:
             return results[: context.limit]
 
@@ -503,8 +497,6 @@ class LessonRegistry:
             for entry in self._sorted_entries(snapshot):
                 if entry.invalidated:
                     continue
-                if not self._entry_matches(entry, context):
-                    continue
                 source_context = TransferContext(
                     task_family=entry.task_family,
                     domain=entry.domain,
@@ -520,12 +512,19 @@ class LessonRegistry:
                 )
                 if weight <= 0.0:
                     continue
-                if not self._revalidate_transfer(card, context, target_context=target_context):
+                if card.task_family != target_context.task_family:
                     continue
-                normalized = self._normalize_card(
-                    card.model_copy(update={"provenance_weight": weight}),
-                    target_context=source_context,
+                normalized = self._aged_card(
+                    card,
+                    evidence_anchor=self._evidence_anchor(entry, card),
+                    now=target_context.timestamp,
+                    policy=active_policy,
                 )
+                projected = self._project_transfer(
+                    normalized, target_context=target_context, weight=weight
+                )
+                if not self._matches_query(projected, context):
+                    continue
                 matches.append((weight, entry.last_seen, normalized))
 
         matches.sort(key=lambda item: (item[0], item[1].timestamp()), reverse=True)
@@ -554,11 +553,16 @@ class LessonRegistry:
         )
         if weight <= 0.0:
             return None
-        if query is not None and not self._revalidate_transfer(
+        if card.task_family != target_context.task_family:
+            return None
+        card = self._aged_card(
             card,
-            query,
-            target_context=target_context,
-        ):
+            evidence_anchor=card.created_at,
+            now=target_context.timestamp,
+            policy=active_policy,
+        )
+        projected = self._project_transfer(card, target_context=target_context, weight=weight)
+        if query is not None and not self._matches_query(projected, query):
             return None
 
         transfer_hop = build_transfer_hop(
@@ -574,7 +578,7 @@ class LessonRegistry:
                     "domain": target_context.domain,
                     "trust_level": (
                         LessonTrustLevel.TRANSFERRED
-                        if weight >= 0.5
+                        if projected.trust_level is LessonTrustLevel.TRANSFERRED
                         else LessonTrustLevel.LOW_CONFIDENCE
                     ),
                     "provenance_weight": weight,
@@ -680,36 +684,35 @@ class LessonRegistry:
                 task_family=active_context.task_family,
                 domain=active_context.domain,
             )
-        return LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        return self._load_index_file(path)
 
     def _query_local(
         self,
         query: LessonQuery,
         *,
         target_context: TransferContext,
+        policy: TransferPolicy | None = None,
     ) -> list[LessonCard]:
         snapshot = self.index_snapshot(context=target_context)
         results: list[LessonCard] = []
         now = datetime.now(UTC)
-        mutated = False
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
             if not self._entry_matches(entry, query):
                 continue
-            card = self._materialize_query_card(entry, now=now)
+            card = self._materialize_query_card(entry, now=now, policy=policy)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
-            entry.last_accessed_at = now
-            mutated = True
+            self._touch_access(entry, now=now, context=target_context)
             if len(results) >= query.limit:
                 break
-        if mutated:
-            self._persist_index(snapshot, context=target_context)
         return results
 
-    def _query_local_aggregated(self, query: LessonQuery) -> list[LessonCard]:
+    def _query_local_aggregated(
+        self, query: LessonQuery, *, policy: TransferPolicy | None = None
+    ) -> list[LessonCard]:
         now = datetime.now(UTC)
         candidates: list[
             tuple[
@@ -741,27 +744,15 @@ class LessonRegistry:
                 )
 
         results: list[LessonCard] = []
-        mutated_snapshots: dict[
-            tuple[str, str, str], tuple[LessonIndexSnapshot, TransferContext]
-        ] = {}
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
-            card = self._materialize_query_card(entry, now=now)
+            card = self._materialize_query_card(entry, now=now, policy=policy)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
-            entry.last_accessed_at = now
-            mutated_snapshots[
-                (
-                    namespace_context.tenant_partition,
-                    namespace_context.task_family,
-                    namespace_context.domain,
-                )
-            ] = (snapshot, namespace_context)
+            self._touch_access(entry, now=now, context=namespace_context)
             if len(results) >= query.limit:
                 break
 
-        for snapshot, namespace_context in mutated_snapshots.values():
-            self._persist_index(snapshot, context=namespace_context)
         return results
 
     def _aggregate_local_snapshot(self) -> LessonIndexSnapshot:
@@ -839,8 +830,10 @@ class LessonRegistry:
         if query.source_run_id and isinstance(record, LessonCard):
             if record.source_run_id != query.source_run_id:
                 return False
-        if include_trust and query.trust_levels and record.trust_level not in set(
-            query.trust_levels
+        if (
+            include_trust
+            and query.trust_levels
+            and record.trust_level not in set(query.trust_levels)
         ):
             return False
         if float(record.confidence) < float(query.min_confidence):
@@ -857,24 +850,71 @@ class LessonRegistry:
         entry: LessonIndexEntry,
         *,
         now: datetime,
+        policy: TransferPolicy | None = None,
     ) -> LessonCard:
         card = load_lesson_card(self._store, entry.artifact_ref)
         normalized = self._normalize_card(card)
         evidence_anchor = self._evidence_anchor(entry, normalized)
-        age = max(timedelta(), now - evidence_anchor)
-        trust_level = normalized.trust_level
-        confidence = normalized.confidence
-        if age > timedelta(days=self._transfer_policy.ttl_days):
-            trust_level = LessonTrustLevel.LOW_CONFIDENCE
-            confidence = min(confidence, 0.5)
-        return normalized.model_copy(
+        effective = self._aged_card(
+            normalized,
+            evidence_anchor=evidence_anchor,
+            now=now,
+            policy=policy or self._transfer_policy,
+        )
+        return effective.model_copy(
+            update={"last_accessed_at": now, "provenance_weight": entry.provenance_weight}
+        )
+
+    @staticmethod
+    def _aged_card(
+        card: LessonCard, *, evidence_anchor: datetime, now: datetime, policy: TransferPolicy
+    ) -> LessonCard:
+        if max(timedelta(), now - evidence_anchor) > timedelta(days=policy.ttl_days):
+            return card.model_copy(
+                update={
+                    "trust_level": LessonTrustLevel.LOW_CONFIDENCE,
+                    "confidence": min(card.confidence, 0.5),
+                }
+            )
+        return card
+
+    @staticmethod
+    def _project_transfer(
+        card: LessonCard, *, target_context: TransferContext, weight: float
+    ) -> LessonCard:
+        return card.model_copy(
             update={
-                "trust_level": trust_level,
-                "confidence": confidence,
-                "last_accessed_at": now,
-                "provenance_weight": entry.provenance_weight,
+                "task_family": target_context.task_family,
+                "domain": target_context.domain,
+                "trust_level": LessonTrustLevel.TRANSFERRED
+                if weight >= 0.5 and card.trust_level is not LessonTrustLevel.LOW_CONFIDENCE
+                else LessonTrustLevel.LOW_CONFIDENCE,
+                "provenance_weight": weight,
             }
         )
+
+    def _touch_access(
+        self, entry: LessonIndexEntry, *, now: datetime, context: TransferContext
+    ) -> None:
+        """Persist tiny retention metadata at most once per UTC day, outside CAS."""
+        if entry.last_accessed_at is not None and entry.last_accessed_at.date() >= now.date():
+            return
+        path = self._access_path(self._index_path_for_context(context), entry.lesson_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with NamedTemporaryFile(
+            mode="w", delete=False, dir=path.parent, prefix=".access.", suffix=".tmp"
+        ) as stream:
+            stream.write(now.isoformat())
+            stream.flush()
+            os.fsync(stream.fileno())
+            temporary = Path(stream.name)
+        os.replace(temporary, path)
+        entry.last_accessed_at = now
+
+    @staticmethod
+    def _access_path(index_path: Path, lesson_id: str) -> Path:
+        name = hashlib.sha256(lesson_id.encode("utf-8")).hexdigest()
+        return index_path.parent / "access" / (name + ".txt")
 
     def _normalize_card(
         self,
@@ -1016,9 +1056,20 @@ class LessonRegistry:
             tmp_path = Path(tmp.name)
         os.replace(tmp_path, path)
 
-    @staticmethod
-    def _load_index_file(path: Path) -> LessonIndexSnapshot:
-        return LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+    def _load_index_file(self, path: Path) -> LessonIndexSnapshot:
+        snapshot = LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        for entry in snapshot.entries:
+            access = self._access_path(path, entry.lesson_id)
+            if access.exists():
+                try:
+                    stamp = datetime.fromisoformat(access.read_text(encoding="utf-8"))
+                    if stamp.tzinfo is not None and (
+                        entry.last_accessed_at is None or stamp > entry.last_accessed_at
+                    ):
+                        entry.last_accessed_at = stamp
+                except ValueError:
+                    pass  # Corrupt retention hints cannot create producer evidence.
+        return snapshot
 
     @classmethod
     def load_snapshot(
@@ -1026,10 +1077,7 @@ class LessonRegistry:
         store: FileSystemCAS,
         ref: ArtifactRef | str,
     ) -> LessonIndexSnapshot:
-        artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-        return LessonIndexSnapshot.model_validate(
-            from_canonical_bytes(store.get_bytes(artifact_id))
-        )
+        return LessonIndexSnapshot.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
     @staticmethod
     def _sorted_entries(snapshot: LessonIndexSnapshot) -> list[LessonIndexEntry]:

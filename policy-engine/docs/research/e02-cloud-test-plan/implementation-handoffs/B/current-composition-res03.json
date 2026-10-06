@@ -1,0 +1,263 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-composition-res03-cloud-stop",
+  "closure_ids": [],
+  "finding_ids": [
+    "B13"
+  ],
+  "criterion_ids": [
+    "B13"
+  ],
+  "bundle_ids": [
+    "RES-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+  "implementation_commits": [
+    "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f"
+  ],
+  "candidate_tree_sha": "8f1f9e1f489ddedfd336aecdc953f41369214b68",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [],
+  "production_edits": "none in this handoff; A alone owns generation_cycle.py and run_lifecycle.py; C alone owns streaming.py",
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "real_producer_verified_served_consumer_cloud_blocked",
+  "formal_e02_closure": false,
+  "producer": {
+    "target_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "canonical_test": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+    "test_sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d",
+    "whole_test_outcome": "FAIL, one real full test; producer/workflow/artifact prefix assertions passed before TestClient entry, not a whole-test PASS",
+    "deciding_complete_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.{txt,json,xml}@b2bfa4931cc91ab1781d02ac236047d4f8d0e8c1",
+    "input_closure": "Canonical test real GlobalState.empty5agents2firms, real default registry/Trinity/data snapshot/input binding ruleglobal.tax_rate0.1, actual DefaultFoundryPort and WorkflowExecutor error_policy continue. Retained raw complete CAS fixture stays ignored; selected actual deciding outputs committed here. Source-bound test rebuilds the complete producer input closure locally. This is a toy real execution, not a full production dataset validation.",
+    "runtime_path": [
+      "real RegistryBundle/Trinity/DataSnapshot and ExecPlan/InputBindings",
+      "DefaultFoundryPort real simulation",
+      "CAS SimulationResult/state/report and native workflow continue policy",
+      "earlier run_simulation OK, later failure FAIL, dependent upstream_failed SKIP, independent sibling OK"
+    ],
+    "full_input_raw_fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061-tmp/test_res_03_real_simulation_la0/cas"
+  },
+  "artifact_readback": {
+    "outcome": "PASS",
+    "target_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+    "tree_sha": "02eebccaf5fee51f2c19de3d6ab7e1c26697a354",
+    "command_argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-composition/res03_artifact_custody.py",
+      "_build/e02-B-current-composition/raw/res03-real-route-061-tmp/test_res_03_real_simulation_la0/cas",
+      "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "_build/e02-B-current-composition/raw/res03-artifact-custody-fixture"
+    ],
+    "cwd": "/workspace/e02-B-current-composition/policy-engine",
+    "environment": {
+      "PYTHONPATH": "src",
+      "POLISYOS_METRICS_PORT": "0",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "source_before": {
+      "sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "tree": "02eebccaf5fee51f2c19de3d6ab7e1c26697a354",
+      "status": "",
+      "changed_paths_sha256": {}
+    },
+    "source_after": {
+      "sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "tree": "02eebccaf5fee51f2c19de3d6ab7e1c26697a354",
+      "status": "",
+      "changed_paths_sha256": {}
+    },
+    "exit_code": 0,
+    "wall_seconds": 0.7268374710110947,
+    "max_rss_kib": 59028,
+    "resource_method": "direct wait4 child rusage; Linux KiB",
+    "meaning": "Actual guarded persisted producer fixture bytes and report/state refs independently reconciled; CAS store bytes equal producer061. This is a CAS readback, not the HTTP debug consumer.",
+    "profile_limit": "Persisted fixture ArtifactRefs omit selected manifest profile. Native default-profile guarded reads are recorded without manufacturing a selected-view authority declaration. Duplicate view/base manifest bytes are preserved once in Git; exact physical view hashes are in full readback output."
+  },
+  "cloud_stop": {
+    "candidate": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "step": "TestClient.__enter__ / test line505",
+    "exception": "ValueError catalog_fetch_source_unreadable",
+    "owner_path": "runtime/http/services/control/run_lifecycle.py:2232 -> data_forge/domains/catalog/knowledge/store.py:966",
+    "catalog_path": "policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "catalog_cloud_presence": false,
+    "acquisition_overlay_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb",
+    "overlay_schema": "polisyos.data_forge.acquisition_overlay.v2",
+    "overlay_cloud_presence": false,
+    "consumer_reached": false,
+    "no_inherited_attribution": "No claim this FAIL is inherited/disjoint or a new patch regression. Actual absent-input stop is recorded."
+  },
+  "A_G_downstream_contract": {
+    "candidate_source_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+    "producer_test_source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "test_bytes_identical_on_candidate": true,
+    "required_input_custody": [
+      "Existing G-admitted candidate must expose actual production catalog at native default path; catalog and optional configured acquisition overlay stay local read-only.",
+      "Record exact catalog/overlay resolved path, presence, content SHA256/size before and after. DuckDB catalog session source identities must remain unchanged while opening and reading.",
+      "Keep actual catalog schema and optional overlay policy; do not substitute an empty synthetic catalog merely to obtain served-route PASS.",
+      "Existing DatasetCatalogStore is read-only; coordinate any unrelated writer to the same catalog/overlay. Pytest CAS/DB fixtures/cache/JUnit use unique out directory, metrics port0; no new Git tree or A/C source mutation by B."
+    ],
+    "local_runnable_command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+      "--repo",
+      "<absolute existing G-admitted repository>",
+      "--python",
+      "<absolute supported G Python3.14 executable>",
+      "--sha",
+      "<exact admitted G source SHA containing this candidate>",
+      "--out",
+      "<unique G ignored evidence directory>"
+    ],
+    "child_exact_argv_template": [
+      "<verified absolute G Python>",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-o",
+      "cache_dir=<out>/cache",
+      "-q",
+      "tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "--basetemp=<out>/fixture",
+      "--junitxml=<out>/junit.xml"
+    ],
+    "child_cwd": "<G repo>/policy-engine",
+    "child_environment": {
+      "PYTHONPATH": "src",
+      "POLISYOS_METRICS_PORT": "0",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "positive_expectations": [
+      "Whole real route test1PASS: persisted successful SimulationResult remains a candidate reference after later workflow failure, dependent skip and independent sibling success.",
+      "Served workflow and error routes agree with original persisted report/state; debug candidate is candidate_reference_only/non_authority and content-bound.",
+      "Generic artifact manifest/content/lineage authority surfaces refuse this candidate projection; audit access entries bind actual run/node."
+    ],
+    "negative_cases_unrun_in_cloud": [
+      "simulation_result_tenant_unscoped",
+      "simulation_result_tenant_binding_mismatch",
+      "simulation_result_payload_invalid",
+      "simulation_result_schema_mismatch",
+      "simulation_result_ref_manifest_mismatch",
+      "simulation_result_binding_run_mismatch",
+      "simulation_result_binding_missing",
+      "simulation_result_binding_tenant_mismatch",
+      "simulation_result_binding_schema_mismatch",
+      "simulation_result_binding_ref_mismatch",
+      "simulation_result_node_binding_mismatch",
+      "simulation_result_node_binding_missing",
+      "simulation_result_node_not_found",
+      "simulation_result_integrity_failed",
+      "simulation_result_binding_integrity_failed"
+    ],
+    "negative_coverage": "Canonical whole test includes wrong run/node/ref, payload/report tampering, absent/unscoped/foreign tenant/cell, schema/media/kind/ref conflicts and duplicate conflicting node refs. Every negative starts after the failed startup and is UNRUN in cloud; no fabricated artifact provenance for these consumers.",
+    "A_may_need_edit": "Only if real supported local replay reveals producer/report/state binding or lifecycle consumer defect, A owns run_lifecycle.py/generation_cycle.py and must retain actual semantic/tenant/ref/integrity refusals. This handoff does not prescribe a bypass for missing production catalog.",
+    "C_may_need_edit": "none for this B13 producer/served-route contract; streaming is separate owner",
+    "B_does_not_attest": [
+      "HTTP debug service consumed the artifact, public generation lifecycle recovery, served tamper/tenant negatives or authority conflict responses",
+      "Full production dataset/source-law/evaluator validity or local catalog freshness",
+      "Full selected-manifest-profile authority for fixture refs",
+      "Exactly-once external effects or Scientist checkpoint restoration"
+    ]
+  },
+  "deciding_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03_artifact_custody.py",
+      "sha256": "cd81aec096ac118d49b5a339d2c7c9a801c6170a7c75cac09a3851ef9a3c2f50",
+      "bytes": 5344
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+      "sha256": "63349188bb1e4146c5be03228023a28f8a9e97491939bf5deaf4ed97dab2a494",
+      "bytes": 4332
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03-artifact-custody.txt",
+      "sha256": "3f2ffbcd4d970480497f12d7665d3dc624ec5b37ccf8c8e3fb85a98d031857ae",
+      "bytes": 8571
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03-artifact-custody.json",
+      "sha256": "c5ba658f125edf1a004d1c6864c434c1c34ace73f251816642e1b756fbeebf31",
+      "bytes": 1193
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/4d/4e/4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe.blob",
+      "sha256": "4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe",
+      "bytes": 8080
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/4d/4e/4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe.manifest.json",
+      "sha256": "5991e4d408d295aca969e9e3b325590a70193f8a2da3d9934a8ae62c4dab71c2",
+      "bytes": 736
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/5f/2f/5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f.blob",
+      "sha256": "5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f",
+      "bytes": 915
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/5f/2f/5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f.manifest.json",
+      "sha256": "ac3581d91d0ad525033a9790cbc11b5a53276e54870ce91782fc96782b5d67be",
+      "bytes": 1089
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/74/3e/743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae.blob",
+      "sha256": "743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae",
+      "bytes": 448
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/74/3e/743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae.manifest.json",
+      "sha256": "b83b92f87ef02ce210b9850a97dea08020153292bd78a3a1370f24e6014978af",
+      "bytes": 806
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/7c/b5/7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee.blob",
+      "sha256": "7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee",
+      "bytes": 9806
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/7c/b5/7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee.manifest.json",
+      "sha256": "c00e0c73ff87776bdb8d7370b6ac0a682a1a0e0fb3e849c058a76e6ee775d28d",
+      "bytes": 733
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/8a/bd/8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb.blob",
+      "sha256": "8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb",
+      "bytes": 828
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/8a/bd/8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb.manifest.json",
+      "sha256": "90938e17d20c77aa32b06f4d83295077d10b795b8217055f359b1274ef296b9f",
+      "bytes": 1525
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/d3/7a/d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa.blob",
+      "sha256": "d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa",
+      "bytes": 1687
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/d3/7a/d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa.manifest.json",
+      "sha256": "9f656f6d443b07dd860d7500c51b71eacd9b14f769f3cd082b2b681e72159684",
+      "bytes": 736
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/trace.jsonl",
+      "sha256": "30f1434e352e9bb6655fe0683bafd245bd354e1507564f259953e483a51da434",
+      "bytes": 20141
+    }
+  ],
+  "finding_classification": {
+    "B13": {
+      "source_status": "partial",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "real_producer_verified_served_consumer_cloud_blocked",
+      "falsifier": "After actual later failure, local served consumer loses or misbinds the earlier content-verified successful artifact, hides dependent skip, or promotes candidate to authority.",
+      "next_owner": "A owns served lifecycle/generation consumer; local G supplies exact native production catalog/overlay and replays whole canonical route test on exact integrated candidate."
+    }
+  }
+}

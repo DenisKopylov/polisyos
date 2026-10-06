@@ -355,8 +355,53 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
             assert error.response is None and obligation.event is None
             assert obligation.charge_ack is None
             assert not before.spend_receipts
+            assert before.state.reserved["run"] > Decimal("0")
+        assert before.completion_obligations
         with pytest.raises(LLMAccountingError):
             _call(enforcer, route)
+        assert len(provider.responses) == initial_calls
+        # A new constructor reopens the actual ledger with a distinct live
+        # owner epoch. It must discover the persisted obligation, even though
+        # this owner has never seen the original in-memory accounting error.
+        reopened_initial = BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}
+        )
+        reopened = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
+            budget_state=reopened_initial,
+            budget_keys=["run"],
+            budget_middleware=BudgetMiddleware(
+                reopened_initial, ledger=FileBudgetLedger(ledger_path)
+            ),
+            audit_log=audit,
+            audit_reconciler=resolver,
+            run_id="B65-owner-recovery",
+        )
+        ledger_before_reopened_call = ledger_path.read_bytes()
+        audit_before_reopened_call = audit_path.read_bytes()
+        with pytest.raises(LLMAccountingError) as reopened_error:
+            _call(reopened, route)
+        retained = reopened_error.value.event["completion_obligation"]
+        print(
+            "B65_REOPENED_PENDING "
+            + json.dumps(
+                {
+                    "route": route,
+                    "action": action,
+                    "provider_calls": len(provider.responses),
+                    "retained_completion": retained.model_dump(mode="json"),
+                    "audit_bytes_unchanged": audit_path.read_bytes() == audit_before_reopened_call,
+                    "ledger_bytes_unchanged": ledger_path.read_bytes()
+                    == ledger_before_reopened_call,
+                    "fresh_ledger": FileBudgetLedger(ledger_path)
+                    .snapshot()
+                    .model_dump(mode="json"),
+                }
+            )
+        )
+        assert retained.obligation_id in before.completion_obligations
+        assert audit_path.read_bytes() == audit_before_reopened_call
+        assert ledger_path.read_bytes() == ledger_before_reopened_call
         assert len(provider.responses) == initial_calls
         ack = enforcer.reconcile_required_audit(obligation.act_id)
         after = FileBudgetLedger(ledger_path).snapshot()
@@ -378,6 +423,8 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
         )
         assert after.state.spent == before.state.spent
         assert after.spend_receipts == before.spend_receipts
+        assert after.state.reserved.get("run", Decimal("0")) == Decimal("0")
+        assert not after.completion_obligations
         assert len(provider.responses) == initial_calls
         assert resolver.calls == resolver.writes == 1
         if obligation.charge_ack is not None:
@@ -385,7 +432,7 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
         else:
             assert ack.status == "unmanaged"
         assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
-        result = _call(enforcer, route)
+        result = _call(reopened, route)
         assert producer_settlement(result).ack.status == "committed"
         assert len(provider.responses) == initial_calls + 1
         print(

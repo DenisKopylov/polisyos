@@ -9,7 +9,7 @@ from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
 
 
-@pytest.mark.parametrize("lower,upper", [(0.2, 1.8), (-1.8, -0.2), (0.2, 0.8)])
+@pytest.mark.parametrize(("lower", "upper"), [(0.2, 1.8), (-1.8, -0.2), (0.2, 0.8)])
 def test_fractional_integer_bounds_contain_every_executed_action(lower, upper):
     if math.ceil(lower) > math.floor(upper):
         with pytest.raises(ValueError):

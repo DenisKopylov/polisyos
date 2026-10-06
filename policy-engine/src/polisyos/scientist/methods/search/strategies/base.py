@@ -15,7 +15,6 @@ from polisyos.scientist.methods.search.strategies.types import (
     StrategyState,
 )
 
-
 _PYTHON_RANDOM_CODEC = "python_random"
 _PYTHON_RANDOM_CODEC_VERSION = 1
 _PYTHON_RANDOM_STATE_VERSION = random.Random().getstate()[0]

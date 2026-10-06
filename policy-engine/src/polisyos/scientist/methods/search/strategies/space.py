@@ -170,7 +170,7 @@ class SearchSpace:
         if torch is not None:  # pragma: no cover - environment dependent
             return "torch"
         try:
-            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]  # noqa: F401
+            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]
         except Exception:
             return "python"
         return "scipy"

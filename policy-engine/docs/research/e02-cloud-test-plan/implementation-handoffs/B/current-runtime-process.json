@@ -85,6 +85,21 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/ruff.txt",
       "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
       "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.py",
+      "sha256": "5fef7f566232664e94cac68831a5adbe73277108db6cf208a50d844366ff778a",
+      "bytes": 2861
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.json",
+      "sha256": "5dd8dfd3fddc3a4e086aa8955a944eb28f3f47e3b4af94dc0d1ae7d005c3b19c",
+      "bytes": 925
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.txt",
+      "sha256": "5dd8dfd3fddc3a4e086aa8955a944eb28f3f47e3b4af94dc0d1ae7d005c3b19c",
+      "bytes": 925
     }
   ],
   "baseline_cells": [
@@ -1526,7 +1541,7 @@
     ]
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "bounded Linux owned-process candidate; independent review pending, full RUN adapter/deadline scope open",
+  "capability_state_or_finding_state": "bounded Linux owned-process candidate; independent review reproduced pre-start setup descriptor leak, full closure withheld pending follow-up",
   "finding_dispositions": [
     {
       "finding_id": "B14",
@@ -1702,7 +1717,17 @@
     "The19 actual multithreaded-fork warnings remain. This slice does not establish arbitrary lock-safe fork in every backend.",
     "Running arbitrary Python threads/coroutines remain cooperative; provider TimeoutError versus owner expiry and the absolute retry/cold-cache producer deadline contract remain next-slice work.",
     "No production dataset exported or used. Generic kernel/process/transport fixtures support this bounded claim, not data-dependent runtime acceptance.",
-    "Author runtime checks and root/G independent review are distinct; all8 dispositions are retained with no full closure_ids."
+    "Author runtime checks and root/G independent review are distinct; all8 dispositions are retained with no full closure_ids.",
+    "Independent EXE review found actual pre-start descriptor leak on EMFILE while traceback retains Pipe. current implementation does not close this setup boundary; B RUN follow-up will widen first-handle ownership, preserving all prior deciding runtime bytes."
   ],
-  "source_contract": "Only runtime-owned retry.py changes; shared fd0 Future producer and canonical runner.serialization are unchanged. Root is sole writer of engine owner README and has received the exact Linux supervisor/platform contract paragraph."
+  "source_contract": "Only runtime-owned retry.py changes; shared fd0 Future producer and canonical runner.serialization are unchanged. Root is sole writer of engine owner README and has received the exact Linux supervisor/platform contract paragraph.",
+  "independent_review_followup": {
+    "reviewer": "B EXE writer (read-only)",
+    "candidate_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+    "state": "reproduced_same_class_deeper_setup_ownership_gap",
+    "distinguishing_input": "Actual isolated RLIMIT_NOFILE=7 during mp.Event lazy import, original OSError retained with traceback; real framed Pipe FDs 5 and 6 remain open, node body never admitted. Sync and async setup share this initialization ordering.",
+    "next_owner": "B RUN writer",
+    "next_action": "Expand exception-safe ownership from first Pipe acquisition through Event/Value/Process preparation; exact same physical FD input retained for negative and candidate replay.",
+    "companion": "current-runtime-process-checks/independent-setup-probe.json"
+  }
 }

@@ -176,6 +176,12 @@ class ChainExecutionResult:
     final_state: Any
     node_results: tuple[tuple[UUID, MethodResult], ...]
     reproducibility_contract: Mapping[str, Any] = field(default_factory=dict)
+    missing_history_node_ids: tuple[UUID, ...] = ()
+
+    @property
+    def history_complete(self) -> bool:
+        """Whether every completed node has its original result record available."""
+        return not self.missing_history_node_ids
 
     @property
     def total_wall_time_ms(self) -> float:

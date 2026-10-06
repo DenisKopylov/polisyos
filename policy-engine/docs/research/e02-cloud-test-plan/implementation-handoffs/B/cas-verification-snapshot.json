@@ -28,7 +28,26 @@
     "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py"
   ],
   "baseline_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#finding_dispositions",
-  "baseline_cells": "CAS03 exact3 historicalcells F02-P052@69780761ae091d8fcc6ab8778c7f5f7227eeef0b/F08-P055@00d946c2b7d052522be092f9c70eb9902f6521c2/F13-P060@0213101b6d124e6f855b1aff7c442bb0912a61c2. Full source env/input closure remains referenced prior canonical receipt; historical results are navigation only.",
+  "baseline_cells": [
+  {
+    "cell_id": "F02-P052",
+    "canonical_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_sources_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "role": "historical navigation only; source/env/input closure previously resolved, not candidate evidence"
+  },
+  {
+    "cell_id": "F08-P055",
+    "canonical_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_sources_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "role": "historical navigation only; source/env/input closure previously resolved, not candidate evidence"
+  },
+  {
+    "cell_id": "F13-P060",
+    "canonical_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_sources_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "role": "historical navigation only; source/env/input closure previously resolved, not candidate evidence"
+  }
+],
   "checks": [
     {
       "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --tb=short --import-mode=importlib --strict-markers -ra --benchmark-storage=file://./_cache/benchmarks tests/unit/core/artifacts/test_verification_snapshot_report.py tests/unit/core/artifacts/test_cas_integrity_report.py tests/unit/remediation/test_cas_03.py tests/unit/remediation/test_cas_02.py tests/unit/core/artifacts/test_import_admission_noop.py tests/unit/core/artifacts/test_put_integrity_retry.py --basetemp=_build/e02-B-current-cas-generation/snapshot-frozen-tmp -o cache_dir=_build/e02-B-current-cas-generation/snapshot-frozen-cache --junitxml=_build/e02-B-current-cas-generation/raw/snapshot-frozen.xml",
@@ -211,7 +230,7 @@
         "sha256": "287b5c51f9d89c7861a2cd5b9131fdd09c7f043df01b6e3b82fe2dd27bc03e0d",
         "bytes": 3575
       },
-      "interpretation": "Current25 vsbase28diagnostics; generic read result type and read-only snapshot protocol remove legitimate typing gaps. Signature generic bounded runner pending, full diagnostics retained."
+      "interpretation": "Current25 vsbase27diagnostics; generic read result type and read-only snapshot protocol remove legitimate typing gaps. Signature generic bounded runner pending, full diagnostics retained."
     }
   ],
   "property": {
@@ -301,7 +320,7 @@
   ],
   "limitations_and_next_owner": [
     "B154 remains consumer_missing until A actual all-confirmations publisher consumes fresh exact full typed signature report; B155 nextslice.",
-    "Whole static gate FAIL25; base FAIL28 but changed denominator overlaps, never inherited/disjoint green.",
+    "Whole static gate FAIL25; base FAIL27 but changed denominator overlaps, never inherited/disjoint green.",
     "Single snapshot holds one blob in memory; no constant-memory, hostile parent mutation, power-loss or multihost claim.",
     "Noncooperating later filesystem writes can change stored paths; snapshot report claims only retained checked bytes, not perpetual path stability.",
     "Audit builder now requires optional verified snapshot backend capability; generic read/write protocol unchanged.",

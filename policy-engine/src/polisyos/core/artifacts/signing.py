@@ -5,11 +5,12 @@ from __future__ import annotations
 import json
 import os
 import stat
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
@@ -29,6 +30,7 @@ from polisyos.common.logger import get_logger
 from ..canon import content_hash
 from ..canon.canon_json import to_canonical_bytes
 from .ids import ArtifactID
+from .manifest import ArtifactRef, artifact_ref_identity_key, artifact_reference_parts
 
 logger = get_logger(__name__)
 
@@ -108,6 +110,7 @@ class SignatureVerificationResult(BaseModel):
 
     status: SignatureVerificationStatus
     artifact_id: str
+    artifact_ref: ArtifactRef | None = None
     key_id: str | None = None
     signer_identity: str | None = None
     expected_identity: str | None = None
@@ -120,7 +123,27 @@ class SignatureVerificationResult(BaseModel):
         return self.status == SignatureVerificationStatus.VALID
 
 
-class BulkVerificationReport(BaseModel):
+class ArtifactBatchAbortError(RuntimeError):
+    """Stop a batch when its shared admission basis or logical budget is lost."""
+
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(reason)
+
+
+class BatchCompletion(BaseModel):
+    """Disclose actual admitted results separately from the legacy total counter."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    state: Literal["complete", "aborted"] = "complete"
+    admitted: int = Field(default=0, ge=0)
+    finished: int = Field(default=0, ge=0)
+    inventory_exhausted: bool = True
+    abort_reason: str | None = None
+
+
+class BulkVerificationReport(BatchCompletion):
     """Batch verification report for CAS bulk checks."""
 
     model_config = ConfigDict(extra="forbid")
@@ -138,7 +161,59 @@ class BulkVerificationReport(BaseModel):
     @computed_field(return_type=bool)
     def ok(self) -> bool:
         """Return `True` when bulk verification has no invalid, revoked, or error results."""
-        return self.invalid == 0 and self.revoked == 0 and self.errors == 0
+        return (
+            self.state == "complete"
+            and self.invalid == 0
+            and self.revoked == 0
+            and self.errors == 0
+        )
+
+    def require_complete_valid(
+        self,
+        required: Iterable[ArtifactID | ArtifactRef | str],
+    ) -> None:
+        """Refuse unless fresh local results confirm every exact required view.
+
+        This admits the canonical producer's in-process report; it does not turn
+        an externally supplied DTO into cryptographic verification evidence.
+        Legacy ``ok`` permits unsigned/untrusted rows and is not this predicate.
+        """
+        expected = tuple(required)
+        if (
+            self.state != "complete"
+            or not self.inventory_exhausted
+            or self.abort_reason is not None
+            or self.admitted != len(expected)
+            or self.finished != len(expected)
+            or len(self.details) != len(expected)
+        ):
+            raise ValueError("signature batch is incomplete or aborted")
+        rows: dict[tuple[str, str | None], SignatureVerificationResult] = {}
+        for row in self.details:
+            selector = (
+                row.artifact_ref.manifest_profile_sha256 if row.artifact_ref is not None else None
+            )
+            key = (row.artifact_id, selector)
+            if key in rows or row.status != SignatureVerificationStatus.VALID:
+                raise ValueError("signature batch has duplicate or nonvalid confirmations")
+            if (
+                row.artifact_ref is not None
+                and str(row.artifact_ref.artifact_id) != row.artifact_id
+            ):
+                raise ValueError("signature batch reference identity mismatch")
+            rows[key] = row
+        for request in expected:
+            aid, profile, ref = artifact_reference_parts(request)
+            matched = rows.pop((str(aid), profile), None)
+            if matched is None:
+                raise ValueError("signature batch lacks one exact valid confirmation")
+            if ref is not None and (
+                matched.artifact_ref is None
+                or artifact_ref_identity_key(matched.artifact_ref) != artifact_ref_identity_key(ref)
+            ):
+                raise ValueError("signature batch does not confirm the exact typed view")
+        if rows:
+            raise ValueError("signature batch has unexpected confirmations")
 
 
 class ArtifactSigningResult(BaseModel):
@@ -152,7 +227,7 @@ class ArtifactSigningResult(BaseModel):
     message: str | None = None
 
 
-class BulkSigningReport(BaseModel):
+class BulkSigningReport(BatchCompletion):
     """Batch signing report for CAS artifacts."""
 
     model_config = ConfigDict(extra="forbid")

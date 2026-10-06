@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 
 from ..canon import content_hash
+from ._manifest_lifecycle import ManifestLifecycle
 from .manifest import ArtifactManifest
 
 if TYPE_CHECKING:
@@ -28,6 +30,8 @@ class VerificationReport(BaseModel):
     actual_sha256_hex: str | None = None
     byte_size: int | None = None
     error: str | None = None
+    manifest_sha256: str | None = None
+    manifest_profile_sha256: str | None = None
 
 
 class ArtifactIntegrityError(ValueError):
@@ -56,6 +60,8 @@ class VerifiedArtifactSnapshot:
             expected_sha256_hex=artifact_id.hex,
             actual_sha256_hex=self.actual_sha256_hex,
             byte_size=self.byte_size,
+            manifest_sha256=hashlib.sha256(self.manifest_bytes).hexdigest(),
+            manifest_profile_sha256=ManifestLifecycle.profile_sha256(self.manifest),
         )
 
 

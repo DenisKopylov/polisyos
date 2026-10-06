@@ -1,0 +1,13 @@
+id = "2026-10-06-e02-cas-batch-completion"
+title = "Retain full CAS batch results and refuse incomplete publication inputs"
+type = "fixed"
+component = "artifacts"
+owner = "team-runtime"
+summary = "Signature batches expose actual completion/abort state and exact selected views; import verification binds every typed item to the complete staged intake before publication."
+evidence = ["tests/unit/core/artifacts/test_batch_completion_admission.py", "tests/unit/remediation/test_cas_03.py", "tests/unit/remediation/test_cas_02.py"]
+compatibility = "Additive batch completion/deadline and exact-reference fields; legacy diagnostic rows, counters and unsigned behavior remain. CLI refuses aborted inventory. Nonfinite deadlines refuse before reading inventory."
+change_class = "python-public-api"
+surface_classification = "internal: polisyos.core.artifacts batch/signature APIs and core.components crypto CLI"
+migration = "Use fresh canonical verify_all_signatures results and require_complete_valid with the exact required refs for a policy requiring every signature. Legacy ok and count totals are insufficient."
+public_surface_inventory_reviewed = true
+limitations = "No new signature authority policy is introduced. A-owned all-confirmations publisher is still consumer_missing. Deadlines stop logical admission but running physical callbacks drain. Default filesystem name census and detailed report remain O(N)."

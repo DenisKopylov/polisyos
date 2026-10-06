@@ -1,0 +1,153 @@
+E702 Multiple statements on one line (semicolon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:15:27
+   |
+13 | async def main() -> None:
+14 |  root=Path('/tmp/e02-B-current-execution-state/checkpoint-deadline/entered-cancel-probe-cas')  # noqa: S108 - retained isolated oracle…
+15 |  store=FileSystemCAS(root);ctx,node,workflow,executor=_setup(store)
+   |                           ^
+16 |  executor._checkpoint_hook=checkpoint.CASCheckpointHook(store=store,run_dir=ctx.run.trace_path.parent)
+17 |  entered,release,finished=threading.Event(),threading.Event(),threading.Event()
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:20:60
+   |
+18 |  original=checkpoint.os.replace
+19 |  def held(source: str | Path, target: str | Path) -> None:
+20 |   if Path(target).name!=checkpoint.CHECKPOINT_HEAD_FILENAME:return original(source,target)
+   |                                                            ^
+21 |   entered.set()
+22 |   try:
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:25:10
+   |
+23 |    assert release.wait(5)  # noqa: S101 - executable evidence assertion
+24 |    return original(source,target)
+25 |   finally:finished.set()
+   |          ^
+26 |  checkpoint.os.replace=held
+27 |  task=asyncio.create_task(executor.execute(workflow,ExperimentState(run_id='R_deadline',params={'seed':7})))
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:31:6
+   |
+29 |   assert await asyncio.to_thread(entered.wait,5)  # noqa: S101 - executable evidence assertion
+30 |   task.cancel()
+31 |   try:await task
+   |      ^
+32 |   except asyncio.CancelledError as exc:
+33 |    print(json.dumps({'error':type(exc).__name__,'message':str(exc),'owner_operation':executor._workflow_publication_operation,'caller_…
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:35:16
+   |
+33 |    print(json.dumps({'error':type(exc).__name__,'message':str(exc),'owner_operation':executor._workflow_publication_operation,'caller_…
+34 |  finally:
+35 |   release.set();assert await asyncio.to_thread(finished.wait,5)  # noqa: S101 - executable evidence assertion
+   |                ^
+36 |   for _ in range(500):
+37 |    if (ctx.run.trace_path.parent/checkpoint.CHECKPOINT_HISTORY_FILENAME).exists():break
+   |
+
+E701 Multiple statements on one line (colon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:37:82
+   |
+35 |   release.set();assert await asyncio.to_thread(finished.wait,5)  # noqa: S101 - executable evidence assertion
+36 |   for _ in range(500):
+37 |    if (ctx.run.trace_path.parent/checkpoint.CHECKPOINT_HISTORY_FILENAME).exists():break
+   |                                                                                  ^
+38 |    await asyncio.sleep(.002)
+39 |   checkpoint.os.replace=original
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:40:30
+   |
+38 |    await asyncio.sleep(.002)
+39 |   checkpoint.os.replace=original
+40 |  reopened=FileSystemCAS(root);head,dto=checkpoint.resolve_latest_checkpoint(reopened,'R_deadline')
+   |                              ^
+41 |  print(json.dumps({'head_verified':reopened.verify(head.checkpoint_ref).ok,'history_matches':checkpoint.load_checkpoint_history(ctx.ru…
+42 | asyncio.run(main())
+   |
+
+E501 Line too long (366 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py:41:101
+   |
+39 | …
+40 | …e')
+41 | …eckpoint.load_checkpoint_history(ctx.run.trace_path.parent).entries[-1].checkpoint_ref==head.checkpoint_ref,'state':dto.state['params'],'producer':node.calls,'outputs':len(ctx.run.run_manifest.outputs),'finalized':any(e['event']=='RUN_FINALIZED' for e in _events(ctx))}))  # n…
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+42 | …
+   |
+
+E501 Line too long (111 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:21:101
+   |
+19 |     repo = Path("/workspace/e02-B-current-execution-state")
+20 |     target = "bc958e8efface67193a1347e867cc7567dbfc8bc"
+21 |     actual = subprocess.check_output(["/usr/bin/git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()  # noqa: S603 - fixed …
+   |                                                                                                     ^^^^^^^^^^^
+22 |     assert actual == target  # noqa: S101 - exact source and identity oracle
+23 |     names = ["polisyos.scientist.orchestration.engine.checkpoint", "polisyos.core.artifacts"]
+   |
+
+E501 Line too long (112 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:33:101
+   |
+31 |     identities = {
+32 |         name: getattr(checkpoint, name) is getattr(facade, name) is getattr(canonical, name)
+33 |         for name in ["AsyncArtifactStoreAdapter", "AsyncFileSystemArtifactStore", "ensure_async_artifact_store"]
+   |                                                                                                     ^^^^^^^^^^^^
+34 |     }
+35 |     assert all(identities.values())  # noqa: S101 - exact source and identity oracle
+   |
+
+E501 Line too long (109 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:40:101
+   |
+38 | …     path = Path(module.__file__).resolve()
+39 | …     relative = path.relative_to(repo).as_posix()
+40 | …     expected = subprocess.check_output(["/usr/bin/git", "-C", str(repo), "show", f"{target}:{relative}"])  # noqa: S603 - fixed read…
+   |                                                                                                   ^^^^^^^^^
+41 | …     assert expected == path.read_bytes()  # noqa: S101 - exact source and identity oracle
+42 | …     origins[module.__name__] = {"path": relative, "sha256": hashlib.sha256(expected).hexdigest()}
+   |
+
+E501 Line too long (101 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:42:101
+   |
+40 |         expected = subprocess.check_output(["/usr/bin/git", "-C", str(repo), "show", f"{target}:{relative}"])  # noqa: S603 - fixed re…
+41 |         assert expected == path.read_bytes()  # noqa: S101 - exact source and identity oracle
+42 |         origins[module.__name__] = {"path": relative, "sha256": hashlib.sha256(expected).hexdigest()}
+   |                                                                                                     ^
+43 |     annotations = get_type_hints(checkpoint.CheckpointPublicationBudget)
+44 |     assert set(annotations) == {"deadline_monotonic", "owner_is_current", "caller_cancelled"}  # noqa: S101 - exact source and identit…
+   |
+
+E501 Line too long (108 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:46:101
+   |
+44 |     assert set(annotations) == {"deadline_monotonic", "owner_is_current", "caller_cancelled"}  # noqa: S101 - exact source and identit…
+45 |     print(json.dumps({"target_sha": target, "order": args.order, "object_identity": identities,  # noqa: T201 - complete deciding stdo…
+46 |                       "origins": origins, "budget_annotations": {k: str(v) for k, v in annotations.items()},
+   |                                                                                                     ^^^^^^^^
+47 |                       "fixed_legacy_node_signature": str(inspect.signature(checkpoint.AsyncCheckpointHook.on_node_complete_async)),
+48 |                       "import_cycle_observed": False}, indent=2))
+   |
+
+E501 Line too long (131 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py:47:101
+   |
+45 | …r": args.order, "object_identity": identities,  # noqa: T201 - complete deciding stdout
+46 | …_annotations": {k: str(v) for k, v in annotations.items()},
+47 | …e": str(inspect.signature(checkpoint.AsyncCheckpointHook.on_node_complete_async)),
+   |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+48 | …lse}, indent=2))
+   |
+
+Found 16 errors (2 fixed, 14 remaining).

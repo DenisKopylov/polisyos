@@ -308,19 +308,22 @@ async def test_entered_mutable_publication_is_unacknowledged_unknown_not_rollbac
     head_release = threading.Event()
     head_finished = threading.Event()
     if operation == "checkpoint":
-        original_update = checkpoint.update_checkpoint_head
+        original_replace = checkpoint.os.replace
 
-        def held_update(*args, **kwargs):
+        def held_replace(source, target):
+            if Path(target).name != checkpoint.CHECKPOINT_HEAD_FILENAME:
+                return original_replace(source, target)
             head_entered.set()
             try:
                 assert head_release.wait(5)
-                return original_update(*args, **kwargs)
+                return original_replace(source, target)
             finally:
                 head_finished.set()
 
-        # Instrument the real filesystem boundary, then call its original
-        # atomic updater with the complete native checkpoint/ref/history.
-        monkeypatch.setattr(checkpoint, "update_checkpoint_head", held_update)
+        # The original budget fence has admitted this atomic replacement.
+        # Once this real syscall enters, expiry cannot claim rollback; required
+        # head durability and history must complete without a caller ACK.
+        monkeypatch.setattr(checkpoint.os, "replace", held_replace)
         executor._checkpoint_hook = checkpoint.CASCheckpointHook(
             store=store, run_dir=ctx.run.trace_path.parent
         )
@@ -381,10 +384,12 @@ async def test_entered_mutable_publication_is_unacknowledged_unknown_not_rollbac
 
 @pytest.mark.asyncio
 async def test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication(tmp_path):
+    from polisyos.core.canon import from_canonical_bytes
     from polisyos.scientist.orchestration.engine.checkpoint import (
         CASCheckpointHook,
         resolve_latest_checkpoint,
     )
+    from polisyos.scientist.orchestration.engine.idempotency import NodeCacheEntry, NodeResultCache
 
     store = FileSystemCAS(tmp_path / "cas")
     ctx, node, workflow, executor = _setup(store)
@@ -410,20 +415,30 @@ async def test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publica
     await asyncio.wait_for(entered.wait(), 5)
     before = _events(ctx)
     task.cancel()
-    with pytest.raises(asyncio.CancelledError, match="execution_state=unknown"):
+    with pytest.raises(asyncio.CancelledError, match="execution_state=not_admitted"):
         await task
     assert task.cancelling() == 1
-    assert completed == ["cancelled", "physically_completed"]
+    assert completed == ["cancelled"]
     assert node.calls == 1
     assert _events(ctx) == before
     assert ctx.run.run_manifest.outputs == []
     reopened = FileSystemCAS(store.root)
     resolved = resolve_latest_checkpoint(reopened, "R_deadline")
-    assert resolved is not None
-    head, dto = resolved
-    assert reopened.verify(head.checkpoint_ref).ok
-    assert dto.metadata.completed_nodes == ["compute"]
-    assert dto.state["params"] == {"seed": 7, "result": 14}
-    assert len(dto.metadata.cache_entry_refs) == 1
-    assert reopened.verify(dto.metadata.cache_entry_refs[0]).ok
+    assert resolved is None
+    assert not (ctx.run.trace_path.parent / "checkpoint_head.json").exists()
+    assert not (ctx.run.trace_path.parent / "checkpoint_history.json").exists()
+    cache_refs = [
+        ArtifactRef.model_validate(ref)
+        for row in before
+        if row["event"] == "NODE_CACHE_STORE"
+        for ref in row["refs"]["outputs"]
+    ]
+    assert len(cache_refs) == 1 and reopened.verify(cache_refs[0]).ok
+    entry = NodeCacheEntry.model_validate(from_canonical_bytes(reopened.get_bytes(cache_refs[0])))
+    assert entry.run_id == "R_deadline" and entry.node_id == str(node.spec.metadata.component_id)
+    cache = NodeResultCache(reopened, "R_deadline")
+    assert cache.load_entry(cache_refs[0])
+    cached = cache.get(entry.idempotency_key)
+    assert cached is not None and cached.state.params == {"seed": 7, "result": 14}
+    assert cached.artifacts == node.refs
     assert reopened.verify(node.refs[0]).ok

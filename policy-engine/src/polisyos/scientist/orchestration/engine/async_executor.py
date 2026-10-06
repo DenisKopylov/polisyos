@@ -32,6 +32,8 @@ from polisyos.core.canon import CanonSpec
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CheckpointError,
+    CheckpointPublicationBudget,
+    _checkpoint_publication_scope,
     compute_workflow_fingerprint,
 )
 from polisyos.scientist.orchestration.engine.condition import (
@@ -201,6 +203,15 @@ class AsyncWorkflowExecutor:
             workflow_started + self._workflow_timeout_s
             if self._workflow_timeout_s is not None
             else None
+        )
+        owner_task = self._workflow_task
+        owner_cancelling = self._workflow_cancelling
+        checkpoint_budget = CheckpointPublicationBudget(
+            deadline_monotonic=self._workflow_deadline,
+            owner_is_current=lambda: self._cache_seed_owner is seed_owner,
+            caller_cancelled=lambda: (
+                owner_task is not None and owner_task.cancelling() > owner_cancelling
+            ),
         )
 
         if self._ctx.metrics is not None:
@@ -378,6 +389,7 @@ class AsyncWorkflowExecutor:
                         workflow_fingerprint,
                         completed_nodes,
                         tier_index=tier_index,
+                        publication_budget=checkpoint_budget,
                     )
                     records.append(record)
                     if node_failed:
@@ -448,6 +460,7 @@ class AsyncWorkflowExecutor:
                             workflow=workflow,
                             workflow_fingerprint=workflow_fingerprint,
                             cache_entry_refs_by_alias=tier_cache_entry_refs,
+                            publication_budget=checkpoint_budget,
                         )
 
                 tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
@@ -1199,6 +1212,7 @@ class AsyncWorkflowExecutor:
         workflow_fingerprint: str,
         completed_nodes: list[str],
         tier_index: int = 0,
+        publication_budget: CheckpointPublicationBudget | None = None,
     ) -> tuple[NodeRunRecord, ExperimentState, bool]:
         """Execute a single node (same semantics as sync executor)."""
         outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
@@ -1221,6 +1235,7 @@ class AsyncWorkflowExecutor:
                 workflow,
                 workflow_fingerprint,
                 cache_entry_ref=cache_entry_ref,
+                publication_budget=publication_budget,
             )
 
         record = NodeRunRecord(
@@ -2067,6 +2082,7 @@ class AsyncWorkflowExecutor:
         workflow: WorkflowSpec,
         workflow_fingerprint: str,
         cache_entry_refs_by_alias: dict[str, ArtifactRef],
+        publication_budget: CheckpointPublicationBudget | None = None,
     ) -> ExperimentState:
         """Publish a merged tier frontier through the available hook contract."""
         if self._checkpoint_hook is None:
@@ -2082,28 +2098,43 @@ class AsyncWorkflowExecutor:
                 for successful_alias in aliases
                 if successful_alias in cache_entry_refs_by_alias
             ]
-            if callable(async_checkpoint):
-                result = await async_checkpoint(
-                    state=state,
-                    alias=alias,
-                    node_id=node_id,
-                    completed_nodes=list(completed_nodes),
-                    workflow_id=workflow.workflow_id,
-                    workflow_fingerprint=workflow_fingerprint,
-                    cache_entry_refs=list(cache_entry_refs),
+            with _checkpoint_publication_scope(publication_budget):
+                budgeted_checkpoint = getattr(
+                    self._checkpoint_hook, "on_tier_complete_with_budget_async", None
                 )
-            else:
-                result = await run_blocking_async(
-                    sync_checkpoint,
-                    unbounded=True,
-                    state=state,
-                    alias=alias,
-                    node_id=node_id,
-                    completed_nodes=list(completed_nodes),
-                    workflow_id=workflow.workflow_id,
-                    workflow_fingerprint=workflow_fingerprint,
-                    cache_entry_refs=list(cache_entry_refs),
-                )
+                if publication_budget is not None and callable(budgeted_checkpoint):
+                    result = await budgeted_checkpoint(
+                        publication_budget=publication_budget,
+                        state=state,
+                        alias=alias,
+                        node_id=node_id,
+                        completed_nodes=list(completed_nodes),
+                        workflow_id=workflow.workflow_id,
+                        workflow_fingerprint=workflow_fingerprint,
+                        cache_entry_refs=list(cache_entry_refs),
+                    )
+                elif callable(async_checkpoint):
+                    result = await async_checkpoint(
+                        state=state,
+                        alias=alias,
+                        node_id=node_id,
+                        completed_nodes=list(completed_nodes),
+                        workflow_id=workflow.workflow_id,
+                        workflow_fingerprint=workflow_fingerprint,
+                        cache_entry_refs=list(cache_entry_refs),
+                    )
+                else:
+                    result = await run_blocking_async(
+                        sync_checkpoint,
+                        unbounded=True,
+                        state=state,
+                        alias=alias,
+                        node_id=node_id,
+                        completed_nodes=list(completed_nodes),
+                        workflow_id=workflow.workflow_id,
+                        workflow_fingerprint=workflow_fingerprint,
+                        cache_entry_refs=list(cache_entry_refs),
+                    )
             self._guard_workflow_admission(operation="checkpoint", execution_state="unknown")
             self._workflow_publication_operation = None
             if result is not None:
@@ -2164,34 +2195,50 @@ class AsyncWorkflowExecutor:
         workflow: WorkflowSpec,
         workflow_fingerprint: str,
         cache_entry_ref: ArtifactRef | None,
+        publication_budget: CheckpointPublicationBudget | None = None,
     ) -> ExperimentState:
         if self._checkpoint_hook is None:
             return state
         self._guard_workflow_admission(operation="checkpoint", execution_state="not_admitted")
         self._workflow_publication_operation = "checkpoint"
         async_checkpoint = getattr(self._checkpoint_hook, "on_node_complete_async", None)
-        if callable(async_checkpoint):
-            result = await async_checkpoint(
-                state=state,
-                alias=alias,
-                node_id=node_id,
-                completed_nodes=completed_nodes,
-                workflow_id=workflow.workflow_id,
-                workflow_fingerprint=workflow_fingerprint,
-                cache_entry_ref=cache_entry_ref,
+        with _checkpoint_publication_scope(publication_budget):
+            budgeted_checkpoint = getattr(
+                self._checkpoint_hook, "on_node_complete_with_budget_async", None
             )
-        else:
-            result = await run_blocking_async(
-                self._checkpoint_hook.on_node_complete,
-                unbounded=True,
-                state=state,
-                alias=alias,
-                node_id=node_id,
-                completed_nodes=completed_nodes,
-                workflow_id=workflow.workflow_id,
-                workflow_fingerprint=workflow_fingerprint,
-                cache_entry_ref=cache_entry_ref,
-            )
+            if publication_budget is not None and callable(budgeted_checkpoint):
+                result = await budgeted_checkpoint(
+                    publication_budget=publication_budget,
+                    state=state,
+                    alias=alias,
+                    node_id=node_id,
+                    completed_nodes=completed_nodes,
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=workflow_fingerprint,
+                    cache_entry_ref=cache_entry_ref,
+                )
+            elif callable(async_checkpoint):
+                result = await async_checkpoint(
+                    state=state,
+                    alias=alias,
+                    node_id=node_id,
+                    completed_nodes=completed_nodes,
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=workflow_fingerprint,
+                    cache_entry_ref=cache_entry_ref,
+                )
+            else:
+                result = await run_blocking_async(
+                    self._checkpoint_hook.on_node_complete,
+                    unbounded=True,
+                    state=state,
+                    alias=alias,
+                    node_id=node_id,
+                    completed_nodes=completed_nodes,
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=workflow_fingerprint,
+                    cache_entry_ref=cache_entry_ref,
+                )
         self._guard_workflow_admission(operation="checkpoint", execution_state="unknown")
         self._workflow_publication_operation = None
         if result is not None:

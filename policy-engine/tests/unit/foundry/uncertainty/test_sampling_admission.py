@@ -543,6 +543,19 @@ def test_mean_certificate_reconciles_entire_canonical_evaluator_recipe(corruptio
         verify_mean_certificate(modified)
 
 
+@pytest.mark.parametrize("name,threshold", [("x", True), ("x", False), ("", 0.5)])
+def test_canonical_producer_and_readback_share_the_same_recipe_admission(name, threshold):
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            bounded_iid_mean=BoundedIIDMeanPlan(metric_id="y"), compute_sensitivity=False
+        )
+    ).propagate(
+        BoundedIndicatorResponse(name, "y", threshold), {name: 0.5}, {name: uniform()}, ["y"]
+    )[0]
+    assert result.envelope.metadata["failure"] == "bounded_iid_mean_law_not_admitted"
+    assert verify_mean_certificate(result.envelope) is None
+
+
 def test_draw_reconciliation_rejects_orphan_indices_codes_and_duplicate_outputs():
     from copy import deepcopy
 

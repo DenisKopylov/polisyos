@@ -144,6 +144,27 @@ class BoundedIndicatorResponse:
         return {"response": "indicator_less_than", **self.__dict__}
 
 
+def _admit_indicator_recipe(recipe: Mapping[str, Any]) -> BoundedIndicatorResponse:
+    """Use one exact recipe admission at production and persisted readback."""
+    if (
+        set(recipe) != {"response", "input_name", "metric_id", "threshold"}
+        or recipe["response"] != "indicator_less_than"
+        or not isinstance(recipe["input_name"], str)
+        or not recipe["input_name"]
+        or not isinstance(recipe["metric_id"], str)
+        or not recipe["metric_id"]
+        or type(recipe["threshold"]) not in (int, float)
+        or not math.isfinite(recipe["threshold"])
+        or not 0 <= recipe["threshold"] <= 1
+    ):
+        raise ValueError("mean estimator evaluator recipe is not canonical")
+    return BoundedIndicatorResponse(
+        input_name=recipe["input_name"],
+        metric_id=recipe["metric_id"],
+        threshold=recipe["threshold"],
+    )
+
+
 def admit_bounded_mean_response(
     response: object,
     envelopes: Mapping[str, UncertaintyEnvelope],
@@ -152,6 +173,7 @@ def admit_bounded_mean_response(
     """Admit the implemented complete response, never a callback-supplied flag."""
     if type(response) is not BoundedIndicatorResponse:
         raise ValueError("bounded mean certificate requires the canonical bounded evaluator")
+    _admit_indicator_recipe(response.recipe())
     if (
         set(envelopes) != {response.input_name}
         or response.metric_id != plan.metric_id
@@ -199,21 +221,7 @@ def verify_mean_certificate(envelope: UncertaintyEnvelope) -> BoundedIIDMeanCert
         return None
     certificate = BoundedIIDMeanCertificate.model_validate(raw)
     recipe = certificate.evaluator_recipe
-    if (
-        set(recipe) != {"response", "input_name", "metric_id", "threshold"}
-        or recipe["response"] != "indicator_less_than"
-        or not isinstance(recipe["input_name"], str)
-        or not recipe["input_name"]
-        or not isinstance(recipe["metric_id"], str)
-        or not recipe["metric_id"]
-        or type(recipe["threshold"]) not in (int, float)
-    ):
-        raise ValueError("mean estimator evaluator recipe is not canonical")
-    response = BoundedIndicatorResponse(
-        input_name=recipe["input_name"],
-        metric_id=recipe["metric_id"],
-        threshold=recipe["threshold"],
-    )
+    response = _admit_indicator_recipe(recipe)
     plan = BoundedIIDMeanPlan(
         metric_id=certificate.metric_id,
         pilot_samples=certificate.pilot_samples,

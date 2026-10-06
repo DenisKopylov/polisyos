@@ -65,8 +65,12 @@
     "lockfile_sha256_unchanged": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
   },
   "consumer_census": {
-    "basis": "Complete git ls-files walk at implementation commit; source suffix denominator is tracked .cjs, .js, .mjs, .ts, .tsx, .mts, .cts, .jsx.",
-    "tracked_paths": 13671,
+    "basis": "Complete repository-root git ls-tree -r --full-tree enumeration at exact implementation commit c21584f390ae0e53602833df34571a0d9545f13e; policy-engine source suffix denominator is tracked .cjs, .js, .mjs, .ts, .tsx, .mts, .cts, .jsx.",
+    "tracked_paths": 13699,
+    "policy_engine_tracked_paths": 13671,
+    "paths_outside_policy_engine": 28,
+    "slice_base_tracked_paths": 13698,
+    "implementation_tree_tracked_paths": 13699,
     "source_file_denominator": 1292,
     "suffix_counts": {
       ".cjs": 9,
@@ -218,6 +222,15 @@
     ]
   },
   "capability_state_or_finding_state": "Candidate verification evidence for existing package-owned generation, public exports, installed consumer behavior, and runtime-family drift. No capability ledger or finding status was changed.",
+  "independent_review": {
+    "review_target": "c21584f390ae0e53602833df34571a0d9545f13e / tree 70fbd5436efe077f046c18272e2ab64d3e178ad8",
+    "result": "GO for the bounded CLI-01 implementation evidence; not a finding-closure decision.",
+    "basis": "Read-only review of the exact base-to-implementation diff, package generator/manifest/dependency ownership, installed tarball consumer tests, and generic generated-family property-removal test. Recorded test outputs in this receipt were reviewed but not rerun.",
+    "reviewed_property": "The packed public package resolves ESM and TypeScript exports without workspace paths and preserves request serialization, exposure binding, binary response bytes, and invalid-type rejection. The real generic family gate rejects an omitted generated operation with package markers intact.",
+    "census_verdict": "PASS: complete source tree scan at the exact implementation tree confirms 13,699 repository paths, 1,292 policy-engine source files, zero committed raw output paths, and zero raw filename import specifier files.",
+    "cross_slice_final_receipt": "not_available_in_this_review; no final cross-slice integration receipt was received for this read-only review.",
+    "tests_replayed_by_reviewer": false
+  },
   "limitations_and_next_owner": [
     "LA-043 and LA-044 remain historical/current partial with closure_now=not_adjudicated; C-level adjudicator owns any status decision.",
     "The client-owned generator, pinned dependency, lock entry, and raw retirement already existed at the slice base. This commit adds tarball consumer and property-removal evidence and removes the Dashboard TypeScript path bypass; no lockfile or generated artifact is modified.",

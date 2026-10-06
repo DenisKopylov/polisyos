@@ -59,7 +59,9 @@ def _history_payload(
     return json.dumps(
         {
             "run_id": run_id,
-            "evaluations": [_stored_eval(candidate_id, score, run_id) for candidate_id, score in rows],
+            "evaluations": [
+                _stored_eval(candidate_id, score, run_id) for candidate_id, score in rows
+            ],
         }
     ).encode("utf-8")
 
@@ -119,9 +121,7 @@ class _DiscoveryIndex:
                     "units": {"score": "points"},
                     "origin": "simulator-v1",
                     "tenant_id": "tenant-a",
-                    "objective_directions": {
-                        "score": OptimizationDirection.MINIMIZE.value
-                    },
+                    "objective_directions": {"score": OptimizationDirection.MINIMIZE.value},
                     "artifact_id": str(self.history_ref.artifact_id),
                 },
             )
@@ -134,6 +134,7 @@ class _BundleStore:
         self.index_ref = index_ref
 
     def get_bytes(self, artifact_id: object) -> bytes:
+        artifact_id = getattr(artifact_id, "artifact_id", artifact_id)
         if str(artifact_id) == str(self.bundle_ref.artifact_id):
             return json.dumps(
                 {
@@ -212,13 +213,16 @@ def test_failed_native_add_does_not_publish_a_second_python_record() -> None:
 
 def test_failed_native_load_does_not_publish_partial_bundle(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
 ) -> None:
     """B134: controlled native load failure retains the prior generation."""
     pytest.importorskip("hnswlib")
     memory = VectorMemoryStore(dim=2, max_elements=2)
     memory.add("first", [1.0, 0.0], {"origin": "first"})
-    bundle_ref = _artifact_ref("d")
-    index_ref = _artifact_ref("e")
+    store = FileSystemCAS(tmp_path / "cas")
+    replacement = VectorMemoryStore(dim=2, max_elements=2)
+    replacement.add("new", [0.0, 1.0], {})
+    bundle_ref = replacement.save_to_artifact(store)
 
     class _ControlledLoadFailureIndex:
         def __init__(self, *, space: str, dim: int) -> None:
@@ -238,7 +242,7 @@ def test_failed_native_load_does_not_publish_partial_bundle(
     )
 
     with pytest.raises(RuntimeError):
-        memory.load_from_artifact(_BundleStore(bundle_ref, index_ref), bundle_ref)
+        memory.load_from_artifact(store, bundle_ref)
 
     assert len(memory) == 1
     assert [row[0] for row in memory.query([1.0, 0.0], top_k=1)] == ["first"]

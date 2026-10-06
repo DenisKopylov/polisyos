@@ -269,8 +269,14 @@
   },
   "foreign_source_review": {
     "owner": "EXE",
-    "status": "requested; separate source-only review receipt awaited",
-    "target_sha": "107a8e18f6678db837f0b95300d177405b8e960f"
+    "status": "NONBLOCKING finite source-only full module delta review; no reviewer gate/native/type/build execution",
+    "target_sha": "107a8e18f6678db837f0b95300d177405b8e960f",
+    "receipt": {
+      "source_ref": "a0868c24c97787b32c2483dbd6c7bfb4b593b4b7:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-worker-targets-review.json",
+      "git_blob": "c36db2c42891f918cc00ee7b9d079d2c702fc405",
+      "bytes": 11940,
+      "sha256": "36d57cfaadb5e84e5106c651ec6b202eab58df460c60aa404c8c8dab50251060"
+    }
   },
   "limitations_and_next_owner": [
     "Root merges this immutable instrument before selecting final source; no final source SHA assumed here",

@@ -1,0 +1,513 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-opa-ci-backend",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "530f1999d5e02123b88c481b98fb56334817f6dd",
+  "implementation_commits": [
+    "22913d6cb6f8082480171dddfbfaa912d9f74e13",
+    "06b4ea123c918b35e8161026f7095baaac3ef6fd"
+  ],
+  "candidate_tree_sha": "fb6ee503b3c11fdebc9cb2ee0b1a85e1e5c403c2",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/binary.headers.txt.sanitized.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/case-quantities.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/checksum.headers.txt.sanitized.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/executed-commands.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.headers.txt.sanitized.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/package-evidence.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/transport-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/version.txt"
+  ],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend.json",
+  "baseline_cells": [],
+  "checks": [
+    {
+      "id": "official-latest-metadata",
+      "command": "curl --fail --location --silent --show-error --dump-header /tmp/e02-B-opa-latest-preparation-1db95544/latest.headers.txt --output /tmp/e02-B-opa-latest-preparation-1db95544/latest.json https://api.github.com/repos/open-policy-agent/opa/releases/latest",
+      "argv": [
+        "curl",
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "--dump-header",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/latest.headers.txt",
+        "--output",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/latest.json",
+        "https://api.github.com/repos/open-policy-agent/opa/releases/latest"
+      ],
+      "cwd": "/workspace",
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "profile": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/profile.json",
+          "git_blob": "b8cc011004094999e6f25c94e18f584ee537b526",
+          "bytes": 3847,
+          "sha256": "f7b427ca4ae2b3a8a9b3112d2ccdc1da7e6c2131955f9f99896553663b166be8"
+        },
+        "actual_native_environment": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native-wrapper.json",
+          "git_blob": "73ec9cf502772ef06e22713b3506296af49ca1cf",
+          "bytes": 2064,
+          "sha256": "c8d5262cd8bc746884ff8102f2e5607f6e315c9adf70af5c4a7d98aba8182b2a"
+        },
+        "qualification": "Official upstream CLI setup phases use host transport; actual whole-file pytest uses supplied Python3.14.2 and literal normal root conftest, no subprocess origin plugin"
+      },
+      "input_closure": {
+        "official_metadata": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+          "git_blob": "c67a03b027c066f48d5a02922e010151fa80318e",
+          "bytes": 34877,
+          "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+        },
+        "exact_binary_asset": {
+          "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+          "bytes": 64162886,
+          "sha256": "668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031"
+        },
+        "checksum": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+          "git_blob": "69e3f3e074a4c827449652b8eeb02d55db11c8bf",
+          "bytes": 89,
+          "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+        },
+        "tracked_sources": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+          "git_blob": "ac37e9024dd0a1d5d97b354011a23e9297f41165",
+          "bytes": 35657,
+          "sha256": "d928c28bebc6b8a9289aee7d18a1b3842c905f25ddc65d5fb05eb8472433032e"
+        },
+        "executed_commands": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/executed-commands.json",
+          "git_blob": "906416fc4b98e80bfcfe094a995592a44d256174",
+          "bytes": 4220,
+          "sha256": "1fbc9475b9f2411f2ae0addf5fffd6acc5bf1c8dc2be91f9229ec71705584d29"
+        }
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "output": {
+        "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+        "git_blob": "c67a03b027c066f48d5a02922e010151fa80318e",
+        "bytes": 34877,
+        "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+      },
+      "grade": "Actual official metadata/download/checksum/version prerequisite; no finding closure",
+      "supporting_complete_runtime_xml": null
+    },
+    {
+      "id": "official-binary",
+      "command": "curl --fail --location --silent --show-error --dump-header /tmp/e02-B-opa-latest-preparation-1db95544/binary.headers.txt --output /tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static",
+      "argv": [
+        "curl",
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "--dump-header",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/binary.headers.txt",
+        "--output",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+        "https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static"
+      ],
+      "cwd": "/workspace",
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "profile": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/profile.json",
+          "git_blob": "b8cc011004094999e6f25c94e18f584ee537b526",
+          "bytes": 3847,
+          "sha256": "f7b427ca4ae2b3a8a9b3112d2ccdc1da7e6c2131955f9f99896553663b166be8"
+        },
+        "actual_native_environment": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native-wrapper.json",
+          "git_blob": "73ec9cf502772ef06e22713b3506296af49ca1cf",
+          "bytes": 2064,
+          "sha256": "c8d5262cd8bc746884ff8102f2e5607f6e315c9adf70af5c4a7d98aba8182b2a"
+        },
+        "qualification": "Official upstream CLI setup phases use host transport; actual whole-file pytest uses supplied Python3.14.2 and literal normal root conftest, no subprocess origin plugin"
+      },
+      "input_closure": {
+        "official_metadata": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+          "git_blob": "c67a03b027c066f48d5a02922e010151fa80318e",
+          "bytes": 34877,
+          "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+        },
+        "exact_binary_asset": {
+          "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+          "bytes": 64162886,
+          "sha256": "668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031"
+        },
+        "checksum": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+          "git_blob": "69e3f3e074a4c827449652b8eeb02d55db11c8bf",
+          "bytes": 89,
+          "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+        },
+        "tracked_sources": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+          "git_blob": "ac37e9024dd0a1d5d97b354011a23e9297f41165",
+          "bytes": 35657,
+          "sha256": "d928c28bebc6b8a9289aee7d18a1b3842c905f25ddc65d5fb05eb8472433032e"
+        },
+        "executed_commands": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/executed-commands.json",
+          "git_blob": "906416fc4b98e80bfcfe094a995592a44d256174",
+          "bytes": 4220,
+          "sha256": "1fbc9475b9f2411f2ae0addf5fffd6acc5bf1c8dc2be91f9229ec71705584d29"
+        }
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "output": {
+        "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+        "git_blob": "69e3f3e074a4c827449652b8eeb02d55db11c8bf",
+        "bytes": 89,
+        "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+      },
+      "grade": "Actual official metadata/download/checksum/version prerequisite; no finding closure",
+      "supporting_complete_runtime_xml": null
+    },
+    {
+      "id": "official-checksum",
+      "command": "curl --fail --location --silent --show-error --dump-header /tmp/e02-B-opa-latest-preparation-1db95544/checksum.headers.txt --output /tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static.sha256 https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static.sha256",
+      "argv": [
+        "curl",
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "--dump-header",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/checksum.headers.txt",
+        "--output",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static.sha256",
+        "https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static.sha256"
+      ],
+      "cwd": "/workspace",
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "profile": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/profile.json",
+          "git_blob": "b8cc011004094999e6f25c94e18f584ee537b526",
+          "bytes": 3847,
+          "sha256": "f7b427ca4ae2b3a8a9b3112d2ccdc1da7e6c2131955f9f99896553663b166be8"
+        },
+        "actual_native_environment": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native-wrapper.json",
+          "git_blob": "73ec9cf502772ef06e22713b3506296af49ca1cf",
+          "bytes": 2064,
+          "sha256": "c8d5262cd8bc746884ff8102f2e5607f6e315c9adf70af5c4a7d98aba8182b2a"
+        },
+        "qualification": "Official upstream CLI setup phases use host transport; actual whole-file pytest uses supplied Python3.14.2 and literal normal root conftest, no subprocess origin plugin"
+      },
+      "input_closure": {
+        "official_metadata": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+          "git_blob": "c67a03b027c066f48d5a02922e010151fa80318e",
+          "bytes": 34877,
+          "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+        },
+        "exact_binary_asset": {
+          "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+          "bytes": 64162886,
+          "sha256": "668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031"
+        },
+        "checksum": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+          "git_blob": "69e3f3e074a4c827449652b8eeb02d55db11c8bf",
+          "bytes": 89,
+          "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+        },
+        "tracked_sources": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+          "git_blob": "ac37e9024dd0a1d5d97b354011a23e9297f41165",
+          "bytes": 35657,
+          "sha256": "d928c28bebc6b8a9289aee7d18a1b3842c905f25ddc65d5fb05eb8472433032e"
+        },
+        "executed_commands": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/executed-commands.json",
+          "git_blob": "906416fc4b98e80bfcfe094a995592a44d256174",
+          "bytes": 4220,
+          "sha256": "1fbc9475b9f2411f2ae0addf5fffd6acc5bf1c8dc2be91f9229ec71705584d29"
+        }
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "output": {
+        "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+        "git_blob": "69e3f3e074a4c827449652b8eeb02d55db11c8bf",
+        "bytes": 89,
+        "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+      },
+      "grade": "Actual official metadata/download/checksum/version prerequisite; no finding closure",
+      "supporting_complete_runtime_xml": null
+    },
+    {
+      "id": "version",
+      "command": "/tmp/e02-B-opa-latest-preparation-1db95544/bin/opa version",
+      "argv": [
+        "/tmp/e02-B-opa-latest-preparation-1db95544/bin/opa",
+        "version"
+      ],
+      "cwd": "/workspace",
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "profile": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/profile.json",
+          "git_blob": "b8cc011004094999e6f25c94e18f584ee537b526",
+          "bytes": 3847,
+          "sha256": "f7b427ca4ae2b3a8a9b3112d2ccdc1da7e6c2131955f9f99896553663b166be8"
+        },
+        "actual_native_environment": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native-wrapper.json",
+          "git_blob": "73ec9cf502772ef06e22713b3506296af49ca1cf",
+          "bytes": 2064,
+          "sha256": "c8d5262cd8bc746884ff8102f2e5607f6e315c9adf70af5c4a7d98aba8182b2a"
+        },
+        "qualification": "Official upstream CLI setup phases use host transport; actual whole-file pytest uses supplied Python3.14.2 and literal normal root conftest, no subprocess origin plugin"
+      },
+      "input_closure": {
+        "official_metadata": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+          "git_blob": "c67a03b027c066f48d5a02922e010151fa80318e",
+          "bytes": 34877,
+          "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+        },
+        "exact_binary_asset": {
+          "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+          "bytes": 64162886,
+          "sha256": "668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031"
+        },
+        "checksum": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+          "git_blob": "69e3f3e074a4c827449652b8eeb02d55db11c8bf",
+          "bytes": 89,
+          "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+        },
+        "tracked_sources": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+          "git_blob": "ac37e9024dd0a1d5d97b354011a23e9297f41165",
+          "bytes": 35657,
+          "sha256": "d928c28bebc6b8a9289aee7d18a1b3842c905f25ddc65d5fb05eb8472433032e"
+        },
+        "executed_commands": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/executed-commands.json",
+          "git_blob": "906416fc4b98e80bfcfe094a995592a44d256174",
+          "bytes": 4220,
+          "sha256": "1fbc9475b9f2411f2ae0addf5fffd6acc5bf1c8dc2be91f9229ec71705584d29"
+        }
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "output": {
+        "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/version.txt",
+        "git_blob": "cac4fac88134b077de81bf985c153f2818667da3",
+        "bytes": 215,
+        "sha256": "4d416ccdfb3aad15074543067b349925406b25aca40b67b0bbc50b509109b7f8"
+      },
+      "grade": "Actual official metadata/download/checksum/version prerequisite; no finding closure",
+      "supporting_complete_runtime_xml": null
+    },
+    {
+      "id": "whole-canonical-parity-file",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B -m pytest -q tests/unit/runtime/http/test_runtime_rego_authorization_parity.py --basetemp=/tmp/e02-B-opa-parity-8142b14162f6/pytest --junitxml=/tmp/e02-B-opa-parity-8142b14162f6/native.xml",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+        "--basetemp=/tmp/e02-B-opa-parity-8142b14162f6/pytest",
+        "--junitxml=/tmp/e02-B-opa-parity-8142b14162f6/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "profile": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/profile.json",
+          "git_blob": "b8cc011004094999e6f25c94e18f584ee537b526",
+          "bytes": 3847,
+          "sha256": "f7b427ca4ae2b3a8a9b3112d2ccdc1da7e6c2131955f9f99896553663b166be8"
+        },
+        "actual_native_environment": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native-wrapper.json",
+          "git_blob": "73ec9cf502772ef06e22713b3506296af49ca1cf",
+          "bytes": 2064,
+          "sha256": "c8d5262cd8bc746884ff8102f2e5607f6e315c9adf70af5c4a7d98aba8182b2a"
+        },
+        "qualification": "Official upstream CLI setup phases use host transport; actual whole-file pytest uses supplied Python3.14.2 and literal normal root conftest, no subprocess origin plugin"
+      },
+      "input_closure": {
+        "official_metadata": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+          "git_blob": "c67a03b027c066f48d5a02922e010151fa80318e",
+          "bytes": 34877,
+          "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+        },
+        "exact_binary_asset": {
+          "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+          "bytes": 64162886,
+          "sha256": "668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031"
+        },
+        "checksum": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+          "git_blob": "69e3f3e074a4c827449652b8eeb02d55db11c8bf",
+          "bytes": 89,
+          "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+        },
+        "tracked_sources": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+          "git_blob": "ac37e9024dd0a1d5d97b354011a23e9297f41165",
+          "bytes": 35657,
+          "sha256": "d928c28bebc6b8a9289aee7d18a1b3842c905f25ddc65d5fb05eb8472433032e"
+        },
+        "executed_commands": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/executed-commands.json",
+          "git_blob": "906416fc4b98e80bfcfe094a995592a44d256174",
+          "bytes": 4220,
+          "sha256": "1fbc9475b9f2411f2ae0addf5fffd6acc5bf1c8dc2be91f9229ec71705584d29"
+        }
+      },
+      "outcome": "FAIL",
+      "observed_exit_code": 1,
+      "output": {
+        "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native.txt",
+        "git_blob": "163e132d92fa5c5746d81a1d64332b36c9fd7a56",
+        "bytes": 43592,
+        "sha256": "2da72960ec1b1779f3a58c38ed715d843b59da50691203eabf0595c437a7af91"
+      },
+      "grade": "Actual whole file24=8PASS16setupERROR exit1; oldmissingOPA7nowPASS, no full parity PASS",
+      "supporting_complete_runtime_xml": {
+        "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native.xml",
+        "git_blob": "55255472286a60bc8c951dc00dfdd20b9fe663b7",
+        "bytes": 46096,
+        "sha256": "9749a48f879ccd06383c8251e87ab6cc293d2b961fdce3018c41657ae1313ba7"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Restore the repository-supported real OPA CLI prerequisite and reconcile the exact seven historical missing-backend cases without replacing missing law/data inputs",
+    "runtime_path": [
+      "Tracked repository-hygiene setup-opa@v2/version latest",
+      "Official current release metadata v1.21.1\u2192exact Linux/amd64 asset",
+      "Full asset byte digest and independent checksum content",
+      "Actual isolated opa version",
+      "Canonical _opa_eval real CLI strict JSON/stdin policy directory",
+      "Actual canonical permission vocabulary and granted/denied request decisions"
+    ],
+    "proxy_divergence": "Successful opa version/download is not runtime parity: whole actual file remains exit1 with sixteen source-catalog setup errors; a synthetic ownership fixture is not an institutional authorization grant",
+    "negative_controls": [
+      {
+        "input": "Literal oldDD absence of OPA CLI, same seven case names/test+policy bytes",
+        "outcome": "FAIL",
+        "output": {
+          "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/interpretation.json",
+          "git_blob": "667b43f71ae19f40c703a28dcb9aa75bd337f730",
+          "bytes": 734389,
+          "sha256": "0ece56091ba5a2af9f85f1f29960a4a02a748aebfc898e1b3e49f99f1bec41b4"
+        },
+        "grade": "Historical DD actual seven call failures retained; not an inherited property waiver"
+      },
+      {
+        "input": "Actual run service request with wrong grant or disallowed path",
+        "outcome": "PASS",
+        "case_names": [
+          "test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants3-False]",
+          "test_server_service_read_expectation_matches_rego[/api/v1/control/data/secret-grants4-False]"
+        ],
+        "grade": "Real CLI returns expected denial under configured synthetic principal input"
+      },
+      {
+        "input": "Missing real catalog dataset used by runtime_api_env",
+        "outcome": "ERROR",
+        "output": {
+          "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native.xml",
+          "git_blob": "55255472286a60bc8c951dc00dfdd20b9fe663b7",
+          "bytes": 46096,
+          "sha256": "9749a48f879ccd06383c8251e87ab6cc293d2b961fdce3018c41657ae1313ba7"
+        },
+        "grade": "All sixteen native setup errors retained; body/property premise not_established"
+      }
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "actual_supported_OPA_CLI_ready; seven old missing-backend cases PASS; whole parity24=8PASS16ERROR; no finding closure",
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "root_changed_paths": [],
+  "executed_source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "executed_source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+  "counts": {
+    "PASS": 8,
+    "ERROR": 16
+  },
+  "native_cases": 24,
+  "old_seven_join": {
+    "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/case-quantities.json",
+    "git_blob": "8fa27ebf526c62155a1b3edaae124c893e1acc51",
+    "bytes": 32712,
+    "sha256": "571ddd3deef15eaa363d58effb9f6ad49f18bde9bd5cbdf71716e73a2d46c0a3"
+  },
+  "complete_evidence_index": {
+    "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/index.json",
+    "git_blob": "8dfc3c9cdf172087de26cf1366af19d3b1ed409a",
+    "bytes": 4381,
+    "sha256": "198818f28ea273bd0aa491aa9afb268aeb98187f813960c4f73268aaf49a00cc"
+  },
+  "input_identity": {
+    "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+    "git_blob": "ac37e9024dd0a1d5d97b354011a23e9297f41165",
+    "bytes": 35657,
+    "sha256": "d928c28bebc6b8a9289aee7d18a1b3842c905f25ddc65d5fb05eb8472433032e"
+  },
+  "transport_redaction_qualification": {
+    "source_ref": "06b4ea123c918b35e8161026f7095baaac3ef6fd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/transport-qualification.json",
+    "git_blob": "b5579396f3c5601ebec1b6e750fe496206b16c98",
+    "bytes": 3083,
+    "sha256": "9683807a112cd96087f809782a712f8148d0b666d47889ef2e54fb5faf46aff4"
+  },
+  "canonical_ci_selection": {
+    "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/ci/templates/workflows/repository-hygiene.yml",
+    "git_blob": "3932fedf90a452579b70ba5fa6df3576c844554f",
+    "bytes": 1810,
+    "sha256": "083dc1dc0bc33fb69c65036a1a1aa613f152802298ca7960027ca8f0c38b7f27"
+  },
+  "source_boundary_qualification": {
+    "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+    "actual_output_bytes": 2812414,
+    "actual_output_sha256": "5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3",
+    "basis": "Root generation owner reports actual output overlay; post-child git diff names observed exactly this path",
+    "qualification": "Root whole checkout is not claimed clean after check; explicit38 selected source/test/config/policy files actual bytes matched immutable8142 after child; no module-import census"
+  },
+  "authority_premises": {
+    "actual_binary_digest/version/24results": "recomputed",
+    "tracked_CI_latest_selection": "recomputed repository source; parent authorizes existing CI profile",
+    "configured_synthetic_Principal/OWNERSHIP_VERIFIED/testgrants": "consumer_asserted; institutional owner/grant/source-law not_established",
+    "release_artifact_digest": "Official metadata+checksum exact artifact identity; reproducible build/vendor signer authority not established"
+  },
+  "limitations_and_next_owner": [
+    "Root may prepend /tmp/e02-B-opa-latest-preparation-1db95544/bin to final whole cohort PATH and bind binary/profile hash; no service or port needed",
+    "Current latest resolved to concrete v1.21.1 only for this supported CI profile; no repository pin/policy change or production-version equivalence",
+    "All16 actual ERROR cases failed catalog_fetch_source_unreadable before test body; G/local data owner must replay exact same whole file with authentic source catalog on final candidate",
+    "No missing data, law, enum or authorizer fixtures invented; synthetic trusted fields do not establish actual external authorization",
+    "Exact38 selected explicit source/test/config/policy inputs matched candidate bytes after child; no runtime sys.modules/import graph census",
+    "Initial root source clean; HEAD remained8142 throughout; concurrent sole root-owned generated OpenAPI overlay explicitly qualified, no post-clean whole-tree assertion",
+    "Full moderate native/stdout/XML and metadata/checksum/version committed; binary64MB and raw signed redirect transport local at disclosed hashes, not guaranteed available to G",
+    "Git LF normalization of sanitized transport headers corrected in separate06b4 metadata commit; historical22913 precommit header index remains in Git; actual runtime and official metadata bytes unchanged",
+    "All final root quality/native/wheel gates remain future work; this one file is not a new full cohort PASS"
+  ]
+}

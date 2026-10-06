@@ -1,0 +1,107 @@
+{
+  "commands": [
+    {
+      "phase": "official-latest-metadata",
+      "argv": [
+        "curl",
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "--dump-header",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/latest.headers.txt",
+        "--output",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/latest.json",
+        "https://api.github.com/repos/open-policy-agent/opa/releases/latest"
+      ],
+      "observed_exit_code": 0
+    },
+    {
+      "phase": "official-binary",
+      "argv": [
+        "curl",
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "--dump-header",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/binary.headers.txt",
+        "--output",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+        "https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static"
+      ],
+      "observed_exit_code": 0
+    },
+    {
+      "phase": "official-checksum",
+      "argv": [
+        "curl",
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "--dump-header",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/checksum.headers.txt",
+        "--output",
+        "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static.sha256",
+        "https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static.sha256"
+      ],
+      "observed_exit_code": 0
+    },
+    {
+      "phase": "version",
+      "argv": [
+        "/tmp/e02-B-opa-latest-preparation-1db95544/bin/opa",
+        "version"
+      ],
+      "observed_exit_code": 0
+    },
+    {
+      "phase": "whole-canonical-parity-file",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+        "--basetemp=/tmp/e02-B-opa-parity-8142b14162f6/pytest",
+        "--junitxml=/tmp/e02-B-opa-parity-8142b14162f6/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "observed_exit_code": 1
+    }
+  ],
+  "curl_stdout_stderr": "Actual successful silent calls yielded no output; full HTTP transport headers retained locally at disclosed hashes, sanitized publications qualified",
+  "native_capture_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+    "--repo",
+    "/workspace/e02-B-current-coordination",
+    "--tag",
+    "opa-latest-parity-8142b14162f6",
+    "--",
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+    "--basetemp=/tmp/e02-B-opa-parity-8142b14162f6/pytest",
+    "--junitxml=/tmp/e02-B-opa-parity-8142b14162f6/native.xml"
+  ],
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": null,
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "binary_checksum_verification": "Both assets full byte SHA+length matched metadata digest and independent checksum content before executing version/native",
+  "no_other_runtime": "No OPA server/container/global install, no separate rego test suite or repeated pytest selectors"
+}

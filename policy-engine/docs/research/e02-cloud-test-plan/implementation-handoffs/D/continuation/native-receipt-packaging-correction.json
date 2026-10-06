@@ -1,0 +1,350 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "canonical-receipt-source-reference-packaging",
+  "bundle_ids": [
+    "OPT-04",
+    "SRV-01",
+    "SRV-03"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "0f8802c2bb90fe05676c2273703364c0c491ea35",
+  "implementation_commits": [
+    "f4cb360eb6dc114969e9ae90d188449fbeda1f9e"
+  ],
+  "candidate_tree_sha": "37743550c9ded844d09bfbb6764b8f22f0bb320a",
+  "branch": "codex/e02-D-published-champion",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json"
+  ],
+  "scope": "Packaging-only replacement of15 reconstructible full canonical bundle bodies; no runtime, scientific, test, fixture, complete output, original finding or acceptance-paragraph changes.",
+  "pattern_bucket": "P40 same receipt-volume/source-copy class widened once to complete changed D JSON/gzip/XZ denominator.",
+  "audit": {
+    "source_sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+    "tree": "aad7d3d9b7cc3068d2f825b94d91997ded562d43",
+    "baseline_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+    "denominator": {
+      "body_encodings": {
+        "base64": 3810,
+        "gzip": 35,
+        "raw_utf8": 1055
+      },
+      "body_members": 4900,
+      "changed_D_paths": 623,
+      "copy_candidate_members": 35,
+      "copy_candidate_transports": 9,
+      "decoded_bytes": 33888940,
+      "decoded_kind_counts": {
+        "json": 302,
+        "non_json_deciding_text_or_script": 35
+      },
+      "decoded_nested_json_members": 3102,
+      "json_string_values_inspected_including_nested_members": 267954,
+      "selected_by_extension": {
+        ".gz": 60,
+        ".json": 276,
+        ".xz": 1
+      },
+      "selected_transports": 337,
+      "transport_bytes": 10655431
+    },
+    "classification": {
+      "all_exact_body_matches": 35,
+      "retained_deciding_output_matches": 5,
+      "retained_original_red_inputs": 1,
+      "source_copy_owners": {
+        "gp_witness": 15,
+        "transfer_owner": 14
+      },
+      "tracked_source_copy_bytes": 365626,
+      "tracked_source_copy_members": 29,
+      "tracked_source_copy_transports": 4
+    },
+    "complete_exact_member_list": "/tmp/e02-D-packaging-audit-result-1ff.json@21ece169cab16c05784357e258efeef4263ace2261a0b4e5906bd4745caa52c5",
+    "compact_result_bytes": 253517,
+    "decode_errors": 0,
+    "nearest_exact_member_hash_size_mismatches": 0,
+    "scope_limit": "All337 new/changed JSON/gzip/XZ transports at immutable1ff only. Later root transports are a separate delta audit, not inherited from this result."
+  },
+  "historical_receipt_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "source_sha": "b2fefca972c4fddb8cd372a3c4cef0f0de94fca0",
+      "git_blob": "cc7320ab8ecc5466178663ad3334f7c02ffa7f33",
+      "sha256": "f30c1ed99a02549de5d695cdd45ff821f62b26de6277ce2c33f1590e946b623d",
+      "bytes": 179990,
+      "current_packaging_sha256": "4c3ff1289e8c36772ffc26025407f875b0de00367e1a8f9d325fe43b194a16f8",
+      "current_packaging_bytes": 120022,
+      "current_packaging_blob": "61f63e1202b2e08f085708adfff09c37b574db5c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "git_blob": "2dc9127326921a8da55d65df1b622fe9b6161a78",
+      "sha256": "a590b4df8c4fa93a0724b8738521f726992b2afbdcee343efee20a62a23552b1",
+      "bytes": 89116,
+      "current_packaging_sha256": "9220a2907c28229505491f0ad93a5b97aaabb2cc1f99dfb0c7a5368d9da47560",
+      "current_packaging_bytes": 29078,
+      "current_packaging_blob": "2ceaf870fdd5d9254275b968261defbd9da12ad7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "source_sha": "0f8802c2bb90fe05676c2273703364c0c491ea35",
+      "git_blob": "098eae4d17eed312b0a77e173e3688dd760848bf",
+      "sha256": "9d24b294462fbd10cd7835d4b3c72de4b91fe15691ed8cf1839ed58c50402bbd",
+      "bytes": 285895,
+      "current_packaging_sha256": "f103ac31caa046763fda31b3d62af79ccf1b4d04b4a03617ddfa537f0eb44d44",
+      "current_packaging_bytes": 143526,
+      "current_packaging_blob": "0c3b85ad03ef7742b1801b4b1ff3a6707046542e"
+    }
+  ],
+  "member_replacements": [
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "old_member": "/original_criteria/full_original_fragments_and_cards/0/canonical_card_text",
+      "new_member": "/original_criteria/full_original_fragments_and_cards/0/canonical_card_text_ref",
+      "criterion_id": "B116@OPT-04",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "old_member": "/original_criteria/full_original_fragments_and_cards/1/canonical_card_text",
+      "new_member": "/original_criteria/full_original_fragments_and_cards/1/canonical_card_text_ref",
+      "criterion_id": "B117@OPT-04",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "old_member": "/original_criteria/full_original_fragments_and_cards/2/canonical_card_text",
+      "new_member": "/original_criteria/full_original_fragments_and_cards/2/canonical_card_text_ref",
+      "criterion_id": "LA-014@SRV-01",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+        "git_blob": "d865853fc8410b64892cbb9763b651f2f55d91ad",
+        "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0",
+        "bytes": 8706,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "old_member": "/original_criteria/full_original_fragments_and_cards/3/canonical_card_text",
+      "new_member": "/original_criteria/full_original_fragments_and_cards/3/canonical_card_text_ref",
+      "criterion_id": "LA-015@CTL-01",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "git_blob": "500da588ba34cac6939898a11d5510d24d8f4aeb",
+        "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+        "bytes": 17621,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "old_member": "/original_criteria/full_original_fragments_and_cards/4/canonical_card_text",
+      "new_member": "/original_criteria/full_original_fragments_and_cards/4/canonical_card_text_ref",
+      "criterion_id": "LA-015@SRV-03",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+        "git_blob": "a65d6feeaf669dd46677abe6a7b258980da180cd",
+        "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0",
+        "bytes": 9440,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "old_member": "/full_original_fragments_and_cards/0/canonical_card_text",
+      "new_member": "/full_original_fragments_and_cards/0/canonical_card_text_ref",
+      "criterion_id": "B116@OPT-04",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "old_member": "/full_original_fragments_and_cards/1/canonical_card_text",
+      "new_member": "/full_original_fragments_and_cards/1/canonical_card_text_ref",
+      "criterion_id": "B117@OPT-04",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "old_member": "/full_original_fragments_and_cards/2/canonical_card_text",
+      "new_member": "/full_original_fragments_and_cards/2/canonical_card_text_ref",
+      "criterion_id": "LA-014@SRV-01",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+        "git_blob": "d865853fc8410b64892cbb9763b651f2f55d91ad",
+        "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0",
+        "bytes": 8706,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "old_member": "/full_original_fragments_and_cards/3/canonical_card_text",
+      "new_member": "/full_original_fragments_and_cards/3/canonical_card_text_ref",
+      "criterion_id": "LA-015@CTL-01",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "git_blob": "500da588ba34cac6939898a11d5510d24d8f4aeb",
+        "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+        "bytes": 17621,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "old_member": "/full_original_fragments_and_cards/4/canonical_card_text",
+      "new_member": "/full_original_fragments_and_cards/4/canonical_card_text_ref",
+      "criterion_id": "LA-015@SRV-03",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+        "git_blob": "a65d6feeaf669dd46677abe6a7b258980da180cd",
+        "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0",
+        "bytes": 9440,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "old_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/0/canonical_card_text",
+      "new_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/0/canonical_card_text_ref",
+      "criterion_id": "B116@OPT-04",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "old_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/1/canonical_card_text",
+      "new_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/1/canonical_card_text_ref",
+      "criterion_id": "B117@OPT-04",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "old_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/2/canonical_card_text",
+      "new_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/2/canonical_card_text_ref",
+      "criterion_id": "LA-014@SRV-01",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+        "git_blob": "d865853fc8410b64892cbb9763b651f2f55d91ad",
+        "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0",
+        "bytes": 8706,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "old_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/3/canonical_card_text",
+      "new_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/3/canonical_card_text_ref",
+      "criterion_id": "LA-015@CTL-01",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "git_blob": "500da588ba34cac6939898a11d5510d24d8f4aeb",
+        "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+        "bytes": 17621,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "old_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/4/canonical_card_text",
+      "new_member": "/original_criteria_full_preserved_in_previous_source_bound_handoff/full_original_fragments_and_cards/4/canonical_card_text_ref",
+      "criterion_id": "LA-015@SRV-03",
+      "canonical_card_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+        "git_blob": "a65d6feeaf669dd46677abe6a7b258980da180cd",
+        "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0",
+        "bytes": 9440,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "command": "stdlib JSON parse + git show original198 body + git rev-parse blob + raw SHA256/bytes + parsed old/new comparison after excluding only canonical_card_text/canonical_card_text_ref",
+      "target_sha": "f4cb360eb6dc114969e9ae90d188449fbeda1f9e",
+      "outcome": "PASS",
+      "deciding_output": "All3 current receipt JSON parse; all15 source refs resolve original198 exactblob/hash/size; all non-body parsed fields unchanged. Old receipt bytes also resolve exactly at b2f/eb5/0f historical published commits."
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "f4cb360eb6dc114969e9ae90d188449fbeda1f9e",
+      "outcome": "PASS",
+      "deciding_output": "exit0; no whitespace errors"
+    },
+    {
+      "command": "git diff 0f8802c2bb90fe05676c2273703364c0c491ea35 f4cb360eb6dc114969e9ae90d188449fbeda1f9e --name-only",
+      "target_sha": "f4cb360eb6dc114969e9ae90d188449fbeda1f9e",
+      "outcome": "PASS",
+      "deciding_output": "Exactly3 receipt JSON paths; zero production/test/input/output transports changed."
+    }
+  ],
+  "historical_binding_rule": "A prior path+hash/source binding still refers to bytes at its original published Git source SHA. Read historical receipts and payloads via git show <old-source-sha>:<path>; do not check old hashes against the new packaging at HEAD. Original b2f/eb5/0f blobs remain immutable. Current three packaging views are superseded only in the full-body representation.",
+  "criterion_preservation": "Original per-finding fragments, canonical acceptance paragraphs, byte locators, findings, roles, evidence/command/missing-input pointers and canonical_card_binding fields remain byte-for-byte in their existing lines and parsed-value identical. Complete canonical cards remain available through exact original198 refs.",
+  "retained_non_source_bodies": "Known lesson source-input archive belongs to transfer_owner. Unique pre-commit independent ask red oracle (absent on runtimef258) and five coincidentally matching deciding outputs retain original bytes. No input/output/archive deletion or rewriting.",
+  "runtime_status": "UNRUN_NO_RUNTIME_CHANGE",
+  "predicate_basis": "recomputed",
+  "review_status": "Awaiting independent review; author reference validation is not independent acceptance or runtime closure.",
+  "preparation_deviations": [
+    "First scratch parser used inherited base64 field ancestry and over-reported invalid encodings; its 94,115,198-byte identity-only output /tmp/e02-D-packaging-audit-1ff.json is retained but not deciding evidence.",
+    "Second pass corrected base64 map recognition; final pass additionally honored encoding=base64/content carriers. Nearest-field claim checks reconciled against exact nearest values so ancestor bundle hashes are not compared to nested bodies.",
+    "Scratch reports contain identity metadata only, no embedded source/fixture bodies. No output/source/test/Git deletion or backend execution."
+  ],
+  "limitations_and_next_owner": [
+    "Packaging verdict only; numerical/runtime/source-contract verdicts remain bound to original implementation/test/run receipts.",
+    "Root owns final composed delta reconciliation and final broad wave after independent freeze; no backend execution here."
+  ]
+}

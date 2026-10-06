@@ -222,7 +222,7 @@ def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
     )
 
     restarted = RunIndexService(
-        store=context.store,
+        store=_fixture_owner_scoped_store(runtime_api_env),
         core_runs_root=run_index._core_runs_root,
         refresh_ttl_seconds=run_index._refresh_ttl_seconds,
     )
@@ -1048,15 +1048,15 @@ def test_finalize_recovery_refuses_journal_without_owner_start(runtime_api_env) 
 
 
 def test_finalize_recovery_refuses_same_run_with_substituted_scope(runtime_api_env) -> None:
-    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    store = _fixture_owner_scoped_store(runtime_api_env)
     run_id = "R_terminality_journal_scope_owner"
-    registry_ref = ctx.store.put_json(
+    registry_ref = store.put_json(
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
     RunContext.start(
-        store=ctx.store,
+        store=store,
         registry_bundle=registry_ref,
         run_id=run_id,
         run_dir=run_dir,
@@ -1081,7 +1081,7 @@ def test_finalize_recovery_refuses_same_run_with_substituted_scope(runtime_api_e
         encoding="utf-8",
     )
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = run_context_module.recover_pending_run_finalize(store, run_dir)
 
     assert recovered is None
     assert journal_path.exists()
@@ -1089,15 +1089,15 @@ def test_finalize_recovery_refuses_same_run_with_substituted_scope(runtime_api_e
 
 
 def test_finalize_recovery_refuses_ambiguous_started_owner(runtime_api_env) -> None:
-    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    store = _fixture_owner_scoped_store(runtime_api_env)
     run_id = "R_terminality_journal_ambiguous_owner"
-    registry_ref = ctx.store.put_json(
+    registry_ref = store.put_json(
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
     run = RunContext.start(
-        store=ctx.store,
+        store=store,
         registry_bundle=registry_ref,
         run_id=run_id,
         run_dir=run_dir,
@@ -1130,7 +1130,7 @@ def test_finalize_recovery_refuses_ambiguous_started_owner(runtime_api_env) -> N
         encoding="utf-8",
     )
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = run_context_module.recover_pending_run_finalize(store, run_dir)
 
     assert recovered is None
     assert journal_path.exists()
@@ -1142,15 +1142,15 @@ def test_finalize_recovery_refuses_invalid_journal_envelope(
     runtime_api_env,
     journal_kind: str,
 ) -> None:
-    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    store = _fixture_owner_scoped_store(runtime_api_env)
     run_id = f"R_terminality_invalid_journal_{journal_kind}"
-    registry_ref = ctx.store.put_json(
+    registry_ref = store.put_json(
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
     run = RunContext.start(
-        store=ctx.store,
+        store=store,
         registry_bundle=registry_ref,
         run_id=run_id,
         run_dir=run_dir,
@@ -1169,7 +1169,7 @@ def test_finalize_recovery_refuses_invalid_journal_envelope(
     journal_path = run_dir / ".finalize-journal.json"
     journal_path.write_text(json.dumps(payload), encoding="utf-8")
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = run_context_module.recover_pending_run_finalize(store, run_dir)
 
     assert recovered is None
     assert journal_path.exists()
@@ -1591,7 +1591,7 @@ def test_reissue_endpoint_fails_closed_without_durable_control_plane(
 
     store = runtime_api_env["app"].state.runtime_api_ctx.store
     packet_ref = runtime_api_env["decision_packet_artifact_id"]
-    validity_state = DecisionValidityService(store)._state
+    validity_state = DecisionValidityService(_fixture_owner_scoped_store(runtime_api_env))._state
     # A fresh run index materializes read-derived validity evaluations. Exclude
     # only that known read-through artifact; every other CAS kind must be stable.
     _feedback_fields = (

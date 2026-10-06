@@ -160,7 +160,16 @@ def test_strategic_suites_emit_rotating_challenge_evaluations_for_raw_inputs() -
             is BenchmarkSplit.ROTATING_CHALLENGE
         )
         assert result.benchmark_evaluation.promotable is True
-        assert result.stress_test_report is None
+        report = result.stress_test_report
+        assert report is not None and report.scenario_evidence is not None
+        assert report.schema_version == "1.1"
+        assert report.scenario_evidence.assessment_rule == "challenge_case_pass"
+        assert report.scenario_evidence.complete is True
+        assert (
+            report.scenario_evidence.finite_evaluated
+            == result.benchmark_evaluation.sample_count(split=BenchmarkSplit.ROTATING_CHALLENGE)
+        )
+        assert report.robustness_score == 1.0 and report.is_robust is True
 
 
 def test_multiplicity_summary_audit_fails_without_explicit_disclosure() -> None:

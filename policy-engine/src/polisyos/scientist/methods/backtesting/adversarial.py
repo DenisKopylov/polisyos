@@ -24,6 +24,7 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.stress_report import (
+    StressScenarioEvidence,
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
@@ -210,11 +211,13 @@ def build_challenge_case_result(
     metadata: Mapping[str, Any] | None = None,
 ) -> ChallengeCaseResult:
     """Build challenge case result."""
+    if type(passed) is not bool:
+        raise TypeError("passed must be a strict bool before challenge outcome admission")
     resolved_status = str(status or ("passed" if passed else "failed")).strip() or "failed"
     return ChallengeCaseResult(
         case=case,
         status=resolved_status,
-        passed=bool(passed),
+        passed=passed,
         summary=str(summary).strip(),
         metrics={str(key): float(value) for key, value in (metrics or {}).items()},
         metadata=dict(metadata or {}),
@@ -234,35 +237,92 @@ def build_challenge_suite_result(
     metadata: Mapping[str, Any] | None = None,
     warnings: Sequence[str] | None = None,
 ) -> ChallengeSuiteResult:
-    """Build challenge suite result."""
-    executed = [result for result in case_results if result.status != "skipped"]
-    total_cases = len(executed)
-    failed = [result for result in executed if not result.passed]
-    pass_rate = 1.0 if total_cases == 0 else float((total_cases - len(failed)) / total_cases)
-
-    metrics = dict.fromkeys(_PHASE_D4_METRIC_NAMES, 0.0)
-    metrics["challenge_pass_rate"] = pass_rate
-    metrics[primary_failure_rate_name] = (
-        0.0 if total_cases == 0 else float(len(failed) / total_cases)
+    """Project declared named case outcomes without inventing their scientific rule."""
+    identities = [result.case.case_id for result in case_results]
+    if any(type(identity) is not str or not identity.strip() for identity in identities) or len(
+        set(identities)
+    ) != len(identities):
+        raise ValueError("challenge case identity must be nonempty and unique")
+    skipped = [
+        result
+        for result in case_results
+        if type(result.status) is str and result.status == "skipped"
+    ]
+    attempted = [
+        result
+        for result in case_results
+        if not (type(result.status) is str and result.status == "skipped")
+    ]
+    finite = [
+        result
+        for result in attempted
+        if type(result.passed) is bool
+        and type(result.status) is str
+        and type(result.case.expected_outcome) is str
+        and bool(result.case.expected_outcome.strip())
+        and result.status in {"passed", "failed"}
+        and result.passed == (result.status == "passed")
+    ]
+    finite_ids = {result.case.case_id for result in finite}
+    unknown = [result for result in attempted if result.case.case_id not in finite_ids]
+    failed = [result for result in finite if not result.passed]
+    vulnerabilities = [
+        Vulnerability(
+            vulnerability_id=f"{suite_id}:{result.case.case_id}",
+            vulnerability_type=vulnerability_type,
+            severity=result.case.severity,
+            description=result.summary,
+        )
+        for result in failed
+    ]
+    evidence = StressScenarioEvidence(
+        attempted=len(attempted),
+        finite_evaluated=len(finite),
+        violated_scenarios=len(failed),
+        unknown_or_nonfinite=len(unknown),
+        planned_scenarios=len(case_results),
+        assessment_rule="challenge_case_pass",
+        critical_occurrences=sum(item.severity == "critical" for item in vulnerabilities),
+        high_occurrences=sum(item.severity == "high" for item in vulnerabilities),
+        medium_occurrences=sum(item.severity == "medium" for item in vulnerabilities),
     )
-
+    pass_rate = evidence.observed_fraction
+    metrics = dict.fromkeys(_PHASE_D4_METRIC_NAMES, 0.0)
+    if pass_rate is None:
+        metrics.pop("challenge_pass_rate", None)
+        metrics.pop(primary_failure_rate_name, None)
+    else:
+        metrics["challenge_pass_rate"] = pass_rate
+        metrics[primary_failure_rate_name] = len(failed) / len(finite)
     disclosure_failures = [
         result.case.case_id
         for result in failed
         if bool(result.metadata.get("is_disclosure_failure"))
     ]
     aggregate_metadata = {
+        **dict(metadata or {}),
         "challenge_suite_id": suite_id,
         "challenge_family": challenge_family,
-        "challenge_case_ids": [result.case.case_id for result in case_results],
+        "challenge_case_ids": identities,
         "disclosure_failures": disclosure_failures,
         "suite_pass_rate": pass_rate,
-        **dict(metadata or {}),
+        "assessment_profile": "challenge_case_pass@1.0",
+        "assessment_unit": "declared_named_case_outcome_bool",
+        "case_rule_basis": "consumer_asserted",
+        "case_rule_scope": "Existing case producer declares expected_outcome/status/passed; this adapter does not recompute or authenticate its scientific predicate.",
+        "skipped_case_count": len(skipped),
+        "skipped_case_ids": [result.case.case_id for result in skipped],
+        "unknown_or_inconsistent_case_ids": [result.case.case_id for result in unknown],
+        **evidence.accounting_metadata(),
     }
-    promotable = pass_rate == 1.0 and all(
-        float(metrics[name]) == 0.0
-        for name in _PHASE_D4_METRIC_NAMES
-        if name != "challenge_pass_rate"
+    promotable = (
+        evidence.complete
+        and pass_rate == 1.0
+        and all(
+            float(metrics[name]) == 0.0
+            for name in _PHASE_D4_METRIC_NAMES
+            if name != "challenge_pass_rate"
+        )
     )
     benchmark_evaluation = BenchmarkEvaluation(
         loop_id=str(loop_id),
@@ -271,48 +331,39 @@ def build_challenge_suite_result(
         candidate_ref=candidate_ref,
         selection_metrics=dict(metrics),
         holdout_metrics=dict(metrics),
-        sample_counts={BenchmarkSplit.ROTATING_CHALLENGE.value: total_cases},
+        sample_counts={BenchmarkSplit.ROTATING_CHALLENGE.value: len(finite)},
         promotable=promotable,
-        status="ok" if promotable else "failed",
+        status="ok" if promotable else "failed" if failed else "partial",
         notes=[result.summary for result in case_results if result.status != "passed"],
         runtime_split_type=BenchmarkSplit.ROTATING_CHALLENGE,
         metadata=aggregate_metadata,
     )
-
-    stress_test_report: StressTestReport | None = None
-    if failed:
-        vulnerabilities = [
-            Vulnerability(
-                vulnerability_id=f"{suite_id}:{result.case.case_id}",
-                vulnerability_type=vulnerability_type,
-                severity=result.case.severity,
-                description=result.summary,
-            )
-            for result in failed
-        ]
-        stress_test_report = StressTestReport(
-            report_id=f"stress_{suite_id}_{loop_id}",
-            total_scenarios_evaluated=total_cases,
-            vulnerabilities=vulnerabilities,
-            critical_count=sum(1 for item in vulnerabilities if item.severity == "critical"),
-            high_count=sum(1 for item in vulnerabilities if item.severity == "high"),
-            medium_count=sum(1 for item in vulnerabilities if item.severity == "medium"),
-            robustness_score=pass_rate,
-            metadata={
-                "challenge_suite_id": suite_id,
-                "challenge_family_counts": {challenge_family: total_cases},
-                "blocking_failure_count": len(failed),
-                "derived_from_phase_d4": True,
-            },
-        )
-
+    stress_test_report = StressTestReport(
+        schema_version="1.1",
+        report_id=f"stress_{suite_id}_{loop_id}",
+        total_scenarios_evaluated=len(finite),
+        vulnerabilities=vulnerabilities,
+        critical_count=evidence.critical_occurrences,
+        high_count=evidence.high_occurrences,
+        medium_count=evidence.medium_occurrences,
+        robustness_score=pass_rate,
+        scenario_evidence=evidence,
+        set_adequacy_status="complete" if evidence.complete else "partial",
+        metadata={
+            **aggregate_metadata,
+            "challenge_family_counts": {challenge_family: len(finite)},
+            "blocking_failure_count": len(failed),
+            "derived_from_phase_d4": True,
+        },
+    )
     return ChallengeSuiteResult(
         suite_id=suite_id,
         suite_version=suite_version,
         runtime_split_type=BenchmarkSplit.ROTATING_CHALLENGE,
         benchmark_evaluation=benchmark_evaluation,
         stress_test_report=stress_test_report,
-        warnings=tuple(str(item) for item in (warnings or ())),
+        warnings=tuple(str(item) for item in (warnings or ()))
+        + (() if evidence.complete else ("challenge_outcomes_partial",)),
     )
 
 
@@ -328,8 +379,12 @@ def run_phase_d4_challenge_suites(
 ) -> tuple[list[ChallengeSuiteResult], tuple[str, ...]]:
     """Run D.4 strategic and abstraction suites when supporting evidence exists."""
 
-    from polisyos.scientist.methods.backtesting.abstraction_suite import run_abstraction_challenge_suite
-    from polisyos.scientist.methods.backtesting.strategic_suite import run_strategic_challenge_suites
+    from polisyos.scientist.methods.backtesting.abstraction_suite import (
+        run_abstraction_challenge_suite,
+    )
+    from polisyos.scientist.methods.backtesting.strategic_suite import (
+        run_strategic_challenge_suites,
+    )
 
     strategic_summary = _resolve_strategic_summary(
         store,

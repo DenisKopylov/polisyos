@@ -12,6 +12,12 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 
 
+@pytest.fixture(autouse=True)
+def _native_hnsw_backend() -> None:
+    """Native generation assertions require the optional HNSW backend."""
+    pytest.importorskip("hnswlib")
+
+
 @pytest.mark.parametrize("operation", ["load", "update"])
 def test_query_captures_one_generation_during_native_publication(tmp_path, monkeypatch, operation):
     """A real old HNSW answer cannot acquire the newly published metadata."""

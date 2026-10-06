@@ -18,6 +18,7 @@ def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann(
     tmp_path, monkeypatch
 ) -> None:
     """B129: ANN discovers only; exact CAS admission never performs a second ANN."""
+    pytest.importorskip("hnswlib")
     from tests.unit.scientist.methods.search.strategies.test_transfer import measured_history
 
     _, index, manager, source, target, _, _ = measured_history(tmp_path, count=2)
@@ -32,6 +33,7 @@ def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann(
 
 def test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating(tmp_path) -> None:
     """B133: local cache keys exact CAS snapshots and copies consumer metadata."""
+    pytest.importorskip("hnswlib")
     from tests.unit.scientist.methods.search.strategies.test_transfer import (
         changed_history,
         measured_history,

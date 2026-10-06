@@ -1,0 +1,59 @@
+{
+  "source_sha": "98cd71e93d8dc643c8245b6d49b0da0cad26e36a",
+  "source_tree": "d3e5562f3e610f18d2f520c6be7ba5d7da588cb2",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_expired_native_cache_lookup_cannot_refresh_provider_admission",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/input-closure.json",
+    "sha256": "66ff3a4a150e36a363762c5443bb516c7445cf51bc60233557bb5d749cbdac1a",
+    "paths": 2732,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T11:54:27.988585+00:00",
+  "end_utc": "2026-10-06T11:54:41.092558+00:00",
+  "wall_s": 13.005613998000626,
+  "max_rss_kib": 580476,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/cohort.xml",
+      "sha256": "8dcb3573efd6d552cdc4700be5e8bc7f6307a973039877dd3f2d45e983b9f7bc",
+      "bytes": 7249
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/input-closure.json",
+      "sha256": "66ff3a4a150e36a363762c5443bb516c7445cf51bc60233557bb5d749cbdac1a",
+      "bytes": 519048
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/native.txt",
+      "sha256": "4475d98bfa007b6c5567683cbf0601e6c64d987548f44a9f7b4a1747edaaa48f",
+      "bytes": 6291
+    }
+  ]
+}

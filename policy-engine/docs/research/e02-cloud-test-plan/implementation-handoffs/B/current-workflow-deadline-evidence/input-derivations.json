@@ -1,0 +1,893 @@
+[
+  {
+    "label": "native-admission-corrected",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "9bc6ce56f18ad4f4cdab1e92b3f020f116600b64",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-admission-corrected/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-admission-corrected/input-closure.json",
+      "sha256": "04b84f363d1c00d0c35bc353e80ce0ddb419e0c5fcd8156101a8571800da6054",
+      "paths": 2732,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-admission-corrected/input-closure.json",
+      "source_sha": "9bc6ce56f18ad4f4cdab1e92b3f020f116600b64",
+      "kind": "native",
+      "paths": 2732,
+      "bytes": 519049,
+      "sha256": "04b84f363d1c00d0c35bc353e80ce0ddb419e0c5fcd8156101a8571800da6054"
+    }
+  },
+  {
+    "label": "native-workflow-deadline-red",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "08b5b157564e0ff14f6a989594a1bd5efb506a88",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-workflow-deadline-red/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/input-closure.json",
+      "sha256": "65f488a190a28ded5681b191f300f53108d08b38ea5e8a724433d1674d672058",
+      "paths": 2733,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-workflow-deadline-red/input-closure.json",
+      "source_sha": "08b5b157564e0ff14f6a989594a1bd5efb506a88",
+      "kind": "native",
+      "paths": 2733,
+      "bytes": 519264,
+      "sha256": "65f488a190a28ded5681b191f300f53108d08b38ea5e8a724433d1674d672058"
+    }
+  },
+  {
+    "label": "native-bridge-cache-deadline-red",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "98cd71e93d8dc643c8245b6d49b0da0cad26e36a",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-bridge-cache-deadline-red/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-bridge-cache-deadline-red/input-closure.json",
+      "sha256": "66ff3a4a150e36a363762c5443bb516c7445cf51bc60233557bb5d749cbdac1a",
+      "paths": 2732,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-bridge-cache-deadline-red/input-closure.json",
+      "source_sha": "98cd71e93d8dc643c8245b6d49b0da0cad26e36a",
+      "kind": "native",
+      "paths": 2732,
+      "bytes": 519048,
+      "sha256": "66ff3a4a150e36a363762c5443bb516c7445cf51bc60233557bb5d749cbdac1a"
+    }
+  },
+  {
+    "label": "native-owner-deadline-candidate",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--test-file",
+      "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-owner-deadline-candidate/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-owner-deadline-candidate/input-closure.json",
+      "sha256": "6cdee9618dfa960e18cdf2693263604e1c3861ec38bdf39675eb2dcc53c1bcc3",
+      "paths": 2735,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-owner-deadline-candidate/input-closure.json",
+      "source_sha": "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+      "kind": "native",
+      "paths": 2735,
+      "bytes": 519666,
+      "sha256": "6cdee9618dfa960e18cdf2693263604e1c3861ec38bdf39675eb2dcc53c1bcc3"
+    }
+  },
+  {
+    "label": "native-frontier-state-current",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "e4feaf90105dcdd9058fc8fd5451ed0ee72fa637",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-frontier-state-current/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/input-closure.json",
+      "sha256": "27a9449ac4d01b46f531dd1a87c40c40fc154674be45014454e5477b23999c7a",
+      "paths": 2733,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-frontier-state-current/input-closure.json",
+      "source_sha": "e4feaf90105dcdd9058fc8fd5451ed0ee72fa637",
+      "kind": "native",
+      "paths": 2733,
+      "bytes": 519257,
+      "sha256": "27a9449ac4d01b46f531dd1a87c40c40fc154674be45014454e5477b23999c7a"
+    }
+  },
+  {
+    "label": "native-final-all15",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_res_01.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_res_02.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_exe_02.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+      "--test-file",
+      "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "--test-file",
+      "policy-engine/tests/unit/common/test_async_tools.py",
+      "--test-file",
+      "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-all15/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/input-closure.json",
+      "sha256": "de2dc83144e172841a0f2c6efe120caa0c441db2f8e2d9912e2e94cb5e318f05",
+      "paths": 2753,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-all15/input-closure.json",
+      "source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "kind": "native",
+      "paths": 2753,
+      "bytes": 523254,
+      "sha256": "de2dc83144e172841a0f2c6efe120caa0c441db2f8e2d9912e2e94cb5e318f05"
+    }
+  },
+  {
+    "label": "final-b73-frontier-removal",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-b73-frontier-removal/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-b73-frontier-removal/input-closure.json",
+      "sha256": "095501ff27ae97b64205ef8f711fa90dbcd0f1cd451044a75ba3718a89fb7766",
+      "paths": 2732,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-b73-frontier-removal/input-closure.json",
+      "source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "kind": "native",
+      "paths": 2732,
+      "bytes": 519027,
+      "sha256": "095501ff27ae97b64205ef8f711fa90dbcd0f1cd451044a75ba3718a89fb7766"
+    }
+  },
+  {
+    "label": "final-architecture",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-architecture/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-architecture/input-closure.json",
+      "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242",
+      "tracked_paths": 13850,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-architecture/input-closure.json",
+      "source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "kind": "full-tracked",
+      "paths": 13850,
+      "bytes": 2792137,
+      "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242"
+    }
+  },
+  {
+    "label": "final-invocation",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-invocation/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-invocation/input-closure.json",
+      "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242",
+      "tracked_paths": 13850,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-invocation/input-closure.json",
+      "source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "kind": "full-tracked",
+      "paths": 13850,
+      "bytes": 2792137,
+      "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242"
+    }
+  },
+  {
+    "label": "native-expired-cache-companion-corrected",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "d2b8873c13ab6d1a4b2f3fc519cfcd7d494f3f7d",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-expired-cache-companion-corrected/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-corrected/input-closure.json",
+      "sha256": "0d02f5880db8ca065730253c8d49f8fc67cfb00cb09f58f9e0fb4722c13b86ee",
+      "paths": 2736,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-expired-cache-companion-corrected/input-closure.json",
+      "source_sha": "d2b8873c13ab6d1a4b2f3fc519cfcd7d494f3f7d",
+      "kind": "native",
+      "paths": 2736,
+      "bytes": 519893,
+      "sha256": "0d02f5880db8ca065730253c8d49f8fc67cfb00cb09f58f9e0fb4722c13b86ee"
+    }
+  },
+  {
+    "label": "native-expired-cache-companion-final",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "b647020a9f2d04e71896b1031bc5960d293e7190",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-expired-cache-companion-final/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/input-closure.json",
+      "sha256": "1cfd57d578d295a49f86a621db0a6a36682cd90164a92236622f9caa666dbe4b",
+      "paths": 2736,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-expired-cache-companion-final/input-closure.json",
+      "source_sha": "b647020a9f2d04e71896b1031bc5960d293e7190",
+      "kind": "native",
+      "paths": 2736,
+      "bytes": 519893,
+      "sha256": "1cfd57d578d295a49f86a621db0a6a36682cd90164a92236622f9caa666dbe4b"
+    }
+  },
+  {
+    "label": "native-final-list-all15",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_res_01.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_res_02.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_exe_02.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+      "--test-file",
+      "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "--test-file",
+      "policy-engine/tests/unit/common/test_async_tools.py",
+      "--test-file",
+      "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-list-all15/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-list-all15/input-closure.json",
+      "sha256": "30cb5635ac92d36bd97e286b642ee0a4a45bc765305719075448f2c13c8efc8b",
+      "paths": 2755,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-list-all15/input-closure.json",
+      "source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "kind": "native",
+      "paths": 2755,
+      "bytes": 523680,
+      "sha256": "30cb5635ac92d36bd97e286b642ee0a4a45bc765305719075448f2c13c8efc8b"
+    }
+  },
+  {
+    "label": "final-list-architecture-native",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-list-architecture-native/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-list-architecture-native/input-closure.json",
+      "sha256": "bc1ed46c4729854fc44a82e28383cd195b0712453de5a618d47ce1a50d459ffc",
+      "tracked_paths": 13852,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-list-architecture-native/input-closure.json",
+      "source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "kind": "full-tracked",
+      "paths": 13852,
+      "bytes": 2792563,
+      "sha256": "bc1ed46c4729854fc44a82e28383cd195b0712453de5a618d47ce1a50d459ffc"
+    }
+  },
+  {
+    "label": "final-list-invocation",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-list-invocation/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-list-invocation/input-closure.json",
+      "sha256": "bc1ed46c4729854fc44a82e28383cd195b0712453de5a618d47ce1a50d459ffc",
+      "tracked_paths": 13852,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-list-invocation/input-closure.json",
+      "source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "kind": "full-tracked",
+      "paths": 13852,
+      "bytes": 2792563,
+      "sha256": "bc1ed46c4729854fc44a82e28383cd195b0712453de5a618d47ce1a50d459ffc"
+    }
+  },
+  {
+    "label": "native-final-owned-graph",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "29da3db1c351bcc1736283301fe9a2262135d449",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-owned-graph/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-owned-graph/input-closure.json",
+      "sha256": "ced47fdfae9a2bd0c3c1d76fc711b3193718ea398ede40954664f1dac2650c18",
+      "paths": 2737,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-owned-graph/input-closure.json",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "kind": "native",
+      "paths": 2737,
+      "bytes": 520073,
+      "sha256": "ced47fdfae9a2bd0c3c1d76fc711b3193718ea398ede40954664f1dac2650c18"
+    }
+  },
+  {
+    "label": "native-final-complete-graph",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-complete-graph/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/input-closure.json",
+      "sha256": "1684949f4be8f2052d3c3aac629a710b531104c208373ef60e7324bbc2e1f9f8",
+      "paths": 2738,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-complete-graph/input-closure.json",
+      "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "kind": "native",
+      "paths": 2738,
+      "bytes": 520285,
+      "sha256": "1684949f4be8f2052d3c3aac629a710b531104c208373ef60e7324bbc2e1f9f8"
+    }
+  },
+  {
+    "label": "native-final-complete-all15",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_res_01.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_res_02.py",
+      "--test-file",
+      "policy-engine/tests/unit/remediation/test_exe_02.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+      "--test-file",
+      "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "--test-file",
+      "policy-engine/tests/unit/common/test_async_tools.py",
+      "--test-file",
+      "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-complete-all15/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/input-closure.json",
+      "sha256": "6c984506e665d47c8eb96aad31e6a9521bdf085d5ecc9fa1bdd2db4fefbeda29",
+      "paths": 2756,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-complete-all15/input-closure.json",
+      "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "kind": "native",
+      "paths": 2756,
+      "bytes": 523892,
+      "sha256": "6c984506e665d47c8eb96aad31e6a9521bdf085d5ecc9fa1bdd2db4fefbeda29"
+    }
+  },
+  {
+    "label": "native-final-worker-consumers",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-worker-consumers/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-worker-consumers/input-closure.json",
+      "sha256": "c3a69cc6cc4ccd27f4adaec141612d80406684fcc2039a9f11b5f8f97b23deb9",
+      "paths": 2732,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-worker-consumers/input-closure.json",
+      "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "kind": "native",
+      "paths": 2732,
+      "bytes": 519046,
+      "sha256": "c3a69cc6cc4ccd27f4adaec141612d80406684fcc2039a9f11b5f8f97b23deb9"
+    }
+  },
+  {
+    "label": "final-complete-architecture-native",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-architecture-native/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-architecture-native/input-closure.json",
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca",
+      "tracked_paths": 13853,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-architecture-native/input-closure.json",
+      "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "kind": "full-tracked",
+      "paths": 13853,
+      "bytes": 2792775,
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca"
+    }
+  },
+  {
+    "label": "final-complete-invocation-native",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-invocation-native/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation-native/input-closure.json",
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca",
+      "tracked_paths": 13853,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-invocation-native/input-closure.json",
+      "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "kind": "full-tracked",
+      "paths": 13853,
+      "bytes": 2792775,
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca"
+    }
+  },
+  {
+    "label": "final-list-architecture",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-list-architecture/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-list-architecture/input-closure.json",
+      "sha256": "bc1ed46c4729854fc44a82e28383cd195b0712453de5a618d47ce1a50d459ffc",
+      "tracked_paths": 13852,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-list-architecture/input-closure.json",
+      "source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "kind": "full-tracked",
+      "paths": 13852,
+      "bytes": 2792563,
+      "sha256": "bc1ed46c4729854fc44a82e28383cd195b0712453de5a618d47ce1a50d459ffc"
+    }
+  },
+  {
+    "label": "final-complete-architecture",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-architecture/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-architecture/input-closure.json",
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca",
+      "tracked_paths": 13853,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-architecture/input-closure.json",
+      "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "kind": "full-tracked",
+      "paths": 13853,
+      "bytes": 2792775,
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca"
+    }
+  },
+  {
+    "label": "final-complete-invocation",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--kind",
+      "full-tracked",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-invocation/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation/input-closure.json",
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca",
+      "tracked_paths": 13853,
+      "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-invocation/input-closure.json",
+      "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "kind": "full-tracked",
+      "paths": 13853,
+      "bytes": 2792775,
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca"
+    }
+  },
+  {
+    "label": "native-final-fixture-consumers",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "--test-file",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-fixture-consumers/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-fixture-consumers/input-closure.json",
+      "sha256": "22cbda7006d7db1a3eca48cb4e66295db0aeffa804cb32d8ec2f32afa49609fc",
+      "paths": 2738,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/native-final-fixture-consumers/input-closure.json",
+      "source_sha": "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
+      "kind": "native",
+      "paths": 2738,
+      "bytes": 520316,
+      "sha256": "22cbda7006d7db1a3eca48cb4e66295db0aeffa804cb32d8ec2f32afa49609fc"
+    }
+  },
+  {
+    "label": "final-complete-b73-frontier-removal",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+      "--source-sha",
+      "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
+      "--kind",
+      "native",
+      "--test-file",
+      "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "--output",
+      "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-b73-frontier-removal/input-closure.json"
+    ],
+    "observed_manifest": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/input-closure.json",
+      "sha256": "0635426199a231b5c91988730dcb8649e95dd7fa9417b7955bedf467b52388c7",
+      "paths": 2732,
+      "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+    },
+    "rederived": {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/derived-final-inputs/final-complete-b73-frontier-removal/input-closure.json",
+      "source_sha": "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
+      "kind": "native",
+      "paths": 2732,
+      "bytes": 519027,
+      "sha256": "0635426199a231b5c91988730dcb8649e95dd7fa9417b7955bedf467b52388c7"
+    }
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "source_sha": "b647020a9f2d04e71896b1031bc5960d293e7190",
+  "source_tree": "fa9f4655e1106192b4bf23dedcb32241dff8854b",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/input-closure.json",
+    "sha256": "1cfd57d578d295a49f86a621db0a6a36682cd90164a92236622f9caa666dbe4b",
+    "paths": 2736,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T12:24:36.773100+00:00",
+  "end_utc": "2026-10-06T12:25:07.642673+00:00",
+  "wall_s": 30.76507576799486,
+  "max_rss_kib": 716580,
+  "exit": 0,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/cohort.xml",
+      "sha256": "f8000b9e8cedc8896537ed1647dff36a3f1566582692049714787af44df669fd",
+      "bytes": 9526
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/input-closure.json",
+      "sha256": "1cfd57d578d295a49f86a621db0a6a36682cd90164a92236622f9caa666dbe4b",
+      "bytes": 519893
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-expired-cache-companion-final/native.txt",
+      "sha256": "6dd786dc72d45e02d32f9a2c96fbee7f0ea69261b610e86a41d1a671dd0186ef",
+      "bytes": 80
+    }
+  ]
+}

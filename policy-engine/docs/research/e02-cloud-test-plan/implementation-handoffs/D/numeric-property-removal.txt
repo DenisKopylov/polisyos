@@ -1,0 +1,46 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_candidate_content_not_ref_markers_binds_the_physical_input ________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-174/test_candidate_content_not_ref0')
+
+    def test_candidate_content_not_ref_markers_binds_the_physical_input(tmp_path):
+        store, _, manager, source, target, _, _ = measured_history(tmp_path, count=2)
+        false_candidate = store.put_json(
+            {"x": 0.95},
+            artifacts.PutOptions(kind="search.candidate", media_type="application/json"),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+    
+        def alter(payload):
+            row = payload["evaluations"][0]
+            row["candidate_id"] = str(false_candidate.artifact_id)
+            row["metadata"]["candidate_ref"] = false_candidate.model_dump(mode="json")
+            original_ref = artifacts.ArtifactRef.model_validate(row["metadata"]["evaluation_ref"])
+            original = BenchmarkEvaluation.model_validate(
+                canon.from_canonical_bytes(store.get_bytes(original_ref))
+            )
+            changed = persist_benchmark_evaluation(
+                store, original.model_copy(update={"candidate_ref": false_candidate})
+            )
+            row["provenance_ref"] = str(changed.artifact_id)
+            row["metadata"]["evaluation_ref"] = changed.model_dump(mode="json")
+    
+        altered = changed_history(store, source, alter)
+>       assert len(manager.get_warm_start_evaluations([altered], target_fingerprint=target)) == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = len([Evaluation(candidate_id='sha256:4b758ba683d5315acd9131f2d026544d864805f70cc4eb8a2f1c6e462cfa5c2d', params={'x': 0.333..._score[minimize]', 'context_fingerprint': 'sha256:66a74db17643e73a86a1797d9d7b30074cb173620b2c41cea3c48da67616575f'}})])
+E        +    where [Evaluation(candidate_id='sha256:4b758ba683d5315acd9131f2d026544d864805f70cc4eb8a2f1c6e462cfa5c2d', params={'x': 0.333..._score[minimize]', 'context_fingerprint': 'sha256:66a74db17643e73a86a1797d9d7b30074cb173620b2c41cea3c48da67616575f'}})] = get_warm_start_evaluations([RunFingerprint(run_id='source', space_hash='51373d75cda64887c6f255d1c5ad47390d6261071c905851c62423288a81c21b', object...dcf2a612404e9380d9dab1'), kind='fixture.numeric.owner', media_type='application/json', manifest_profile_sha256=None)))], target_fingerprint=RunFingerprint(run_id='target', space_hash='51373d75cda64887c6f255d1c5ad47390d6261071c905851c62423288a81c21b', objecti...6dcf2a612404e9380d9dab1'), kind='fixture.numeric.owner', media_type='application/json', manifest_profile_sha256=None))))
+E        +      where get_warm_start_evaluations = <polisyos.scientist.methods.search.strategies.transfer.TransferLearningManager object at 0x7fe27d781a90>.get_warm_start_evaluations
+
+tests/unit/scientist/methods/search/strategies/test_transfer.py:265: AssertionError
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../../../../../dev::test_candidate_content_not_ref_markers_binds_the_physical_input
+1 failed, 37 deselected, 2 warnings in 9.61s

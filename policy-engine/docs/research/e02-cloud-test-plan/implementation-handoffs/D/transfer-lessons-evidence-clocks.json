@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-lessons-evidence-clocks",
+  "closure_ids": [],
+  "finding_ids": [
+    "B135",
+    "B136",
+    "B137"
+  ],
+  "bundle_ids": [
+    "TRN-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "5e05721f2e1ec3fab25f8c0c881b7d7d3315ae6d"
+  ],
+  "candidate_tree_sha": "d7d6c2b1df39244846eedbbcda96a363b8c189a1",
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-origins.txt",
+      "sha256": "6a99e71179dd01b417a8dd6a2ce47c84db80b88d5a493cf6f7d7140e9ac1338c"
+    }
+  },
+  "classifications": {
+    "B135": {
+      "mechanism": "Already-correct typed/JSON nested task_family/domain preserved through actual controller lesson consumer",
+      "oracle": "SearchController._build_lesson_hints calls real CAS registry and emits discovery/source hints for both envelope shapes",
+      "input": "Explicit TransferContext and stored LessonCard",
+      "owner": "D transfer lessons, transfer_context.py read-only; context resolution needed no repair"
+    },
+    "B136": {
+      "mechanism": "One effective query predicate after shared evidence-age demotion and destination projection; active per-query TTL applies local and transferred",
+      "oracle": "complete destination/scope/stage/fidelity/source/trust/confidence/tag/candidate filter controls and equal45day demotion under30day TTL",
+      "input": "Real CAS lesson producer/ref and configured TransferPolicy",
+      "owner": "D lessons; new evidence/scientific revalidation external"
+    },
+    "B137": {
+      "mechanism": "Separate daily retention sidecar, no full CAS snapshot per read; newest producer artifact preserved across older arrivals; original evidence timestamp never access clock",
+      "oracle": "index bytes and snapshot ref unchanged after reads, access file unchanged on same-day second read, restart retention/GC preserves activity without confidence refresh, old arrival cannot clobber newest ref",
+      "input": "Real filesystem index/CAS cards and tiny access timestamp sidecar",
+      "owner": "D lessons; local throttle only, no distributed write bound"
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tests/unit -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "source": "immutable git archive src/tools/architecture/tests/pyproject",
+      "target_sha": "5e05721f2e1ec3fab25f8c0c881b7d7d3315ae6d",
+      "outcome": "PASS",
+      "result": "17 passed, 2 warnings in 10.46s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-immutable.txt",
+        "sha256": "f78cfee177ead536c3321365bc206778e21cc61b8c6804f2391f5a522b8b3408"
+      }
+    },
+    {
+      "command": "same unchanged new file over immutable198; pytest new lesson file",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "EXPECTED_FAIL",
+      "result": "4 failed, 2 passed, 2 warnings in 10.60s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-base.txt",
+        "sha256": "0a6a92fd2de104c04578682c7a5628bb4dbc96a1aba0b628cfdabbf9b26aab64"
+      }
+    },
+    {
+      "command": "isolated archive5e057; change evidence anchor to access timestamp while keeping timestamps/policy/filters/ref markers; pytest -k access",
+      "target_sha": "5e05721f2e1ec3fab25f8c0c881b7d7d3315ae6d",
+      "outcome": "EXPECTED_FAIL",
+      "result": "1 failed, 5 deselected, 2 warnings in 10.34s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-property-removal.txt",
+        "sha256": "e5e5c12b451349d474ef1681c52ca93c22695c0b450a1171cfc62b36f37544e8"
+      }
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded effective-filter/freshness/retention mechanism; no finding closure adjudication",
+  "proxy_divergence": "A marker-preserving change from producer evidence to access anchor makes a repeated read restore stale confidence and the unchanged oracle fails.",
+  "limitations_and_next_owner": [
+    "Existing transfer-context producer metadata remains caller-owned and conditional, not an institutional authorization decision.",
+    "Age demotion/predicate consistency does not scientifically revalidate the lesson.",
+    "Access sidecars are retention hints. Daily throttle is local; filesystem atomic replace is not a distributed multiwriter bound.",
+    "G independent acceptance and final combined-tree replay remain pending."
+  ]
+}

@@ -1,0 +1,81 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____ test_original_benchmark_physical_input_cannot_coerce_boolean_to_number ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-214/test_original_benchmark_physic0')
+
+    def test_original_benchmark_physical_input_cannot_coerce_boolean_to_number(tmp_path):
+        store, _, manager, source, target, _, _ = measured_history(tmp_path, count=2)
+        candidate = store.put_json(
+            {"x": 1.0},
+            artifacts.PutOptions(kind="search.candidate", media_type="application/json"),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+    
+        def mutate(payload):
+            row = payload["evaluations"][0]
+            row.update(
+                candidate_id=str(candidate.artifact_id), params={"x": 1.0}, params_normalized=[1.0]
+            )
+            original_ref = artifacts.ArtifactRef.model_validate(row["metadata"]["evaluation_ref"])
+            original = BenchmarkEvaluation.model_validate(
+                canon.from_canonical_bytes(store.get_bytes(original_ref))
+            )
+            ref = persist_benchmark_evaluation(
+                store,
+                original.model_copy(
+                    update={
+                        "candidate_ref": candidate,
+                        "metadata": {**original.metadata, "params": {"x": True}},
+                    }
+                ),
+            )
+            row["metadata"].update(
+                candidate_ref=candidate.model_dump(mode="json"),
+                evaluation_ref=ref.model_dump(mode="json"),
+                params={"x": 1.0},
+            )
+            row["provenance_ref"] = str(ref.artifact_id)
+    
+        altered = changed_history(store, source, mutate)
+>       assert len(manager.get_warm_start_evaluations([altered], target_fingerprint=target)) == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = len([Evaluation(candidate_id='sha256:e88a219a6f4e930bd9c6b3a621ef0f46b6960058a1f7b4bdfe90fcc0779f955b', params={'x': 1.0},..._score[minimize]', 'context_fingerprint': 'sha256:66a74db17643e73a86a1797d9d7b30074cb173620b2c41cea3c48da67616575f'}})])
+E        +    where [Evaluation(candidate_id='sha256:e88a219a6f4e930bd9c6b3a621ef0f46b6960058a1f7b4bdfe90fcc0779f955b', params={'x': 1.0},..._score[minimize]', 'context_fingerprint': 'sha256:66a74db17643e73a86a1797d9d7b30074cb173620b2c41cea3c48da67616575f'}})] = get_warm_start_evaluations([RunFingerprint(run_id='source', space_hash='51373d75cda64887c6f255d1c5ad47390d6261071c905851c62423288a81c21b', object...dcf2a612404e9380d9dab1'), kind='fixture.numeric.owner', media_type='application/json', manifest_profile_sha256=None)))], target_fingerprint=RunFingerprint(run_id='target', space_hash='51373d75cda64887c6f255d1c5ad47390d6261071c905851c62423288a81c21b', objecti...6dcf2a612404e9380d9dab1'), kind='fixture.numeric.owner', media_type='application/json', manifest_profile_sha256=None))))
+E        +      where get_warm_start_evaluations = <polisyos.scientist.methods.search.strategies.transfer.TransferLearningManager object at 0x7fcf240b9fd0>.get_warm_start_evaluations
+
+tests/unit/scientist/methods/search/strategies/test_transfer.py:438: AssertionError
+___ test_malformed_source_refusal_remains_visible_after_receiving_admission ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-214/test_malformed_source_refusal_0')
+
+    def test_malformed_source_refusal_remains_visible_after_receiving_admission(tmp_path):
+        store, index, manager, source, target, _, basis = measured_history(tmp_path, count=2)
+        source = changed_history(
+            store, source, lambda payload: payload["evaluations"][0].update(stage_a_passed="false")
+        )
+        metadata = source.model_dump(mode="json", exclude={"history_ref", "embedding"})
+        metadata["history_ref"] = source.history_ref.model_dump(mode="json")
+        index.add(source.run_id, source.embedding, metadata)
+        bridge = WarmStartBridge(manager)
+        rows = bridge.load_warm_start(target)
+        assert len(rows) == 1
+        assert bridge.admit_warm_start(rows, basis) == rows
+        assert bridge.last_admission_report["loaded"] == 1
+        assert bridge.last_admission_report["rejected"] == 0
+>       assert bridge.last_load_report["loaded"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'WarmStartBridge' object has no attribute 'last_load_report'
+
+tests/unit/scientist/methods/autotune/test_warm_start.py:95: AttributeError
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../../../../../dev::test_original_benchmark_physical_input_cannot_coerce_boolean_to_number
+FAILED ../../../../../dev::test_malformed_source_refusal_remains_visible_after_receiving_admission
+2 failed, 43 deselected, 2 warnings in 11.82s

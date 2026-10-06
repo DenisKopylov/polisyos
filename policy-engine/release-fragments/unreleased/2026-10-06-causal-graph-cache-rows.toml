@@ -1,0 +1,15 @@
+id = "2026-10-06-causal-graph-cache-rows"
+title = "Isolate causal graph export rows from caller mutations"
+type = "fixed"
+component = "ir"
+owner = "team-ir"
+summary = "Cache immutable row preparations and return detached ordinary node and edge dictionaries so caller mutation cannot corrupt later graph exports."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.ir"
+compatibility = "The public tuple-of-dictionaries value ABI and graph schema 1.0 are unchanged. Row mutations affect only the caller's detached values."
+migration = "Keep mutations in the returned row values; use model_copy(update=...) to create a new published graph version."
+generated_client_compatibility = "not_required"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
+runbook_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
+evidence = ["tests/unit/ir/test_causal_graph_cache_rows.py", "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py"]

@@ -1,0 +1,115 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/economics",
+  "source_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+  "outcome": "PASS",
+  "numeric_byte_freeze": [
+    {
+      "field": "propensity",
+      "all_ndarray_bases_readonly": true,
+      "terminal_backing": "bytes",
+      "reader_dtype_shape_isolated": true,
+      "chain": [
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "float64",
+          "writeable": false,
+          "own_data": false
+        },
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "float64",
+          "writeable": false,
+          "own_data": false
+        }
+      ]
+    },
+    {
+      "field": "mu1",
+      "all_ndarray_bases_readonly": true,
+      "terminal_backing": "bytes",
+      "reader_dtype_shape_isolated": true,
+      "chain": [
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "float64",
+          "writeable": false,
+          "own_data": false
+        },
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "float64",
+          "writeable": false,
+          "own_data": false
+        }
+      ]
+    },
+    {
+      "field": "mu0",
+      "all_ndarray_bases_readonly": true,
+      "terminal_backing": "bytes",
+      "reader_dtype_shape_isolated": true,
+      "chain": [
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "float64",
+          "writeable": false,
+          "own_data": false
+        },
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "float64",
+          "writeable": false,
+          "own_data": false
+        }
+      ]
+    },
+    {
+      "field": "trim_mask",
+      "all_ndarray_bases_readonly": true,
+      "terminal_backing": "bytes",
+      "reader_dtype_shape_isolated": true,
+      "chain": [
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "bool",
+          "writeable": false,
+          "own_data": false
+        },
+        {
+          "shape": [
+            160
+          ],
+          "dtype": "bool",
+          "writeable": false,
+          "own_data": false
+        }
+      ]
+    }
+  ],
+  "key_controls": [
+    "column-order_changed_miss",
+    "shape_changed_miss",
+    "equivalent_layout_hit",
+    "same_label_Y_changed_independent_fit"
+  ],
+  "consumer_abi": {
+    "native_AIPW_ate": 2.028785118410191,
+    "same_label_treatment_effect_shift": 0.75
+  },
+  "scope": "known synthetic native sklearn AIPW; no real data/calibration/aggregate resource admission"
+}

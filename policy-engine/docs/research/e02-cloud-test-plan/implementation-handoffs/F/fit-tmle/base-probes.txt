@@ -1,0 +1,120 @@
+..F.F.FF                                                                 [100%]
+=================================== FAILURES ===================================
+_ test_full_data_identity_is_required_even_with_an_explicit_namespace[X-same-declared-source] _
+
+namespace = 'same-declared-source', dimension = 'X'
+observed_native_fits = [ATENuisanceContract(nuisance_model_family='competitive', propensity_backend='logistic_regression', propensity_backend..._only', overlap_guard=0.1, parallel_folds=False, max_parallel_folds=1, max_targeting_iter=3, targeting_step_limit=5.0)]
+
+    @pytest.mark.parametrize("namespace", [None, "same-declared-source"])
+    @pytest.mark.parametrize("dimension", ["X", "T", "Y"])
+    def test_full_data_identity_is_required_even_with_an_explicit_namespace(
+        namespace: str | None,
+        dimension: str,
+        observed_native_fits: list[tmle_core.ATENuisanceContract],
+    ) -> None:
+        """B54 negative: a matching caller label cannot stand in for source bytes."""
+        x, t, y = _data()
+        arrays = {"X": x, "T": t, "Y": y}
+        params = {} if namespace is None else {"__shared_nuisance_key": namespace}
+        cold = tmle_core.fit_crossfit_nuisance_bundle(x, t, y, _contract(), params)
+        changed = {name: value.copy() for name, value in arrays.items()}
+        if dimension == "T":
+            changed[dimension][0] = 1.0 - changed[dimension][0]
+        else:
+            changed[dimension].flat[0] += 10.0
+        warm = tmle_core.fit_crossfit_nuisance_bundle(
+            changed["X"], changed["T"], changed["Y"], _contract(), params
+        )
+>       assert len(observed_native_fits) == 2
+E       AssertionError: assert 1 == 2
+E        +  where 1 = len([ATENuisanceContract(nuisance_model_family='competitive', propensity_backend='logistic_regression', propensity_backend..._only', overlap_guard=0.1, parallel_folds=False, max_parallel_folds=1, max_targeting_iter=3, targeting_step_limit=5.0)])
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:165: AssertionError
+_ test_full_data_identity_is_required_even_with_an_explicit_namespace[T-same-declared-source] _
+
+namespace = 'same-declared-source', dimension = 'T'
+observed_native_fits = [ATENuisanceContract(nuisance_model_family='competitive', propensity_backend='logistic_regression', propensity_backend..._only', overlap_guard=0.1, parallel_folds=False, max_parallel_folds=1, max_targeting_iter=3, targeting_step_limit=5.0)]
+
+    @pytest.mark.parametrize("namespace", [None, "same-declared-source"])
+    @pytest.mark.parametrize("dimension", ["X", "T", "Y"])
+    def test_full_data_identity_is_required_even_with_an_explicit_namespace(
+        namespace: str | None,
+        dimension: str,
+        observed_native_fits: list[tmle_core.ATENuisanceContract],
+    ) -> None:
+        """B54 negative: a matching caller label cannot stand in for source bytes."""
+        x, t, y = _data()
+        arrays = {"X": x, "T": t, "Y": y}
+        params = {} if namespace is None else {"__shared_nuisance_key": namespace}
+        cold = tmle_core.fit_crossfit_nuisance_bundle(x, t, y, _contract(), params)
+        changed = {name: value.copy() for name, value in arrays.items()}
+        if dimension == "T":
+            changed[dimension][0] = 1.0 - changed[dimension][0]
+        else:
+            changed[dimension].flat[0] += 10.0
+        warm = tmle_core.fit_crossfit_nuisance_bundle(
+            changed["X"], changed["T"], changed["Y"], _contract(), params
+        )
+>       assert len(observed_native_fits) == 2
+E       AssertionError: assert 1 == 2
+E        +  where 1 = len([ATENuisanceContract(nuisance_model_family='competitive', propensity_backend='logistic_regression', propensity_backend..._only', overlap_guard=0.1, parallel_folds=False, max_parallel_folds=1, max_targeting_iter=3, targeting_step_limit=5.0)])
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:165: AssertionError
+_ test_full_data_identity_is_required_even_with_an_explicit_namespace[Y-same-declared-source] _
+
+namespace = 'same-declared-source', dimension = 'Y'
+observed_native_fits = [ATENuisanceContract(nuisance_model_family='competitive', propensity_backend='logistic_regression', propensity_backend..._only', overlap_guard=0.1, parallel_folds=False, max_parallel_folds=1, max_targeting_iter=3, targeting_step_limit=5.0)]
+
+    @pytest.mark.parametrize("namespace", [None, "same-declared-source"])
+    @pytest.mark.parametrize("dimension", ["X", "T", "Y"])
+    def test_full_data_identity_is_required_even_with_an_explicit_namespace(
+        namespace: str | None,
+        dimension: str,
+        observed_native_fits: list[tmle_core.ATENuisanceContract],
+    ) -> None:
+        """B54 negative: a matching caller label cannot stand in for source bytes."""
+        x, t, y = _data()
+        arrays = {"X": x, "T": t, "Y": y}
+        params = {} if namespace is None else {"__shared_nuisance_key": namespace}
+        cold = tmle_core.fit_crossfit_nuisance_bundle(x, t, y, _contract(), params)
+        changed = {name: value.copy() for name, value in arrays.items()}
+        if dimension == "T":
+            changed[dimension][0] = 1.0 - changed[dimension][0]
+        else:
+            changed[dimension].flat[0] += 10.0
+        warm = tmle_core.fit_crossfit_nuisance_bundle(
+            changed["X"], changed["T"], changed["Y"], _contract(), params
+        )
+>       assert len(observed_native_fits) == 2
+E       AssertionError: assert 1 == 2
+E        +  where 1 = len([ATENuisanceContract(nuisance_model_family='competitive', propensity_backend='logistic_regression', propensity_backend..._only', overlap_guard=0.1, parallel_folds=False, max_parallel_folds=1, max_targeting_iter=3, targeting_step_limit=5.0)])
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:165: AssertionError
+____ test_current_diagnostics_reuse_immutable_fit_and_isolate_every_reader _____
+
+observed_native_fits = [ATENuisanceContract(nuisance_model_family='competitive', propensity_backend='logistic_regression', propensity_backend..._only', overlap_guard=0.1, parallel_folds=False, max_parallel_folds=1, max_targeting_iter=3, targeting_step_limit=5.0)]
+
+    def test_current_diagnostics_reuse_immutable_fit_and_isolate_every_reader(
+        observed_native_fits: list[tmle_core.ATENuisanceContract],
+    ) -> None:
+        """B54: native predictions are shared without mutable cache ownership."""
+        x, t, y = _data()
+        original = _contract()
+        cold = tmle_core.fit_crossfit_nuisance_bundle(x, t, y, original)
+        expected_manifest = deepcopy(cold.selection_manifest)
+        changed = replace(original, **VIEW_CHANGES)
+        warm = tmle_core.fit_crossfit_nuisance_bundle(x, t, y, changed)
+        assert observed_native_fits == [original]
+        assert warm.contract is changed
+        assert warm.diagnostics()["min_effective_sample_size"] == 100.0
+        assert warm.diagnostics()["coverage_guard"] == "off"
+>       assert all(r["split_policy"] == "current-ess-policy" for r in warm.selection_manifest)
+E       assert False
+E        +  where False = all(<generator object test_current_diagnostics_reuse_immutable_fit_and_isolate_every_reader.<locals>.<genexpr> at 0x7fbe81416f60>)
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:183: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_full_data_identity_is_required_even_with_an_explicit_namespace[X-same-declared-source]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_full_data_identity_is_required_even_with_an_explicit_namespace[T-same-declared-source]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_full_data_identity_is_required_even_with_an_explicit_namespace[Y-same-declared-source]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_current_diagnostics_reuse_immutable_fit_and_isolate_every_reader

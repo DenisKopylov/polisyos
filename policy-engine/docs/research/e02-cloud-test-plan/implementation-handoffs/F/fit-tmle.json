@@ -1,0 +1,462 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "fit-tmle",
+  "closure_ids": [
+    "B54",
+    "B56"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "b57708fcc95a778d7ff88c4001e4ac8ca74b7889"
+  ],
+  "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+  "branch": "codex/e02-F-fit-tmle",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/*",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P016",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "state": "PASS",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "133"
+    },
+    {
+      "id": "F01-P109",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_fit_01.py",
+      "state": "PASS",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "226"
+    },
+    {
+      "id": "F06-P031",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "215"
+    },
+    {
+      "id": "F09-P024",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "140"
+    },
+    {
+      "id": "F09-P111",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_fit_01.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "227"
+    },
+    {
+      "id": "F12-P023",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "608"
+    },
+    {
+      "id": "F14-P128",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_fit_01.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "478"
+    },
+    {
+      "id": "F15-P021",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "176"
+    }
+  ],
+  "baseline_grade": "source_reported_compact_text_only; raw archives0; 8 unique routed cells for each B54/B56 are context, not finding closure or candidate PASS",
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py -k 'explicit_namespace or current_diagnostics or all_contract' -q",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "source_overlay": "only new test definitions copied onto slice-base before source edits; ruff layout subsequently changed without semantic delta",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "known 256-row binary-treatment DGP; actual sklearn fitting, cache observer calls original uncached implementation",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "interpretation": "Expected defining-property falsifier: same explicit namespace gives stale hit for changed X/T/Y and cached nested diagnostic policy remains stale; auto-key positive controls pass. No test/backend skip or error.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.txt"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -ra tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/remediation/test_fit_01.py",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "complete 30-field ATENuisanceContract denominator classified by real fit/current analysis roles; 256-row DGP seed81 effect1.75; all parameterized tests and existing six FIT witnesses",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "tests_passed": 33,
+      "wall_s": 23.519015,
+      "max_rss_kib": 494572,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.txt"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -ra tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/remediation/test_fit_01.py tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py tests/unit/foundry/methods/catalog/causal/test_nuisance_layer.py tests/unit/foundry/methods/catalog/causal/test_nuisance_resolver_wiring.py tests/unit/foundry/hygiene/test_purity_boundaries.py",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "new native property tests plus actual registered AIPW/TMLE pure_step consumers and nuisance/hygiene/importer tests; source identical before/after implementation commit during this run",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "tests_passed": 63,
+      "wall_s": 596.144795,
+      "max_rss_kib": 502060,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.txt"
+    },
+    {
+      "command": "Execute removal_probe_replay_python below once for source_identity, current_diagnostic_policy, immutable_bytes in separate Python processes with PYTHONPATH=src:. from policy-engine",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "in-memory source mutants executed in canonical tmle_core module; real sklearn fitting retained; tracked checkout/history unchanged; one exact native discriminator selected per variant",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "assertion": "All three mutants produce pytest exit1 at the intended semantic assertion; normal exact target passes. Marker/docstrings/field names retained.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.txt"
+    },
+    {
+      "command": "Independent reviewer argv and complete native stdout in independent-native.json; real AIPW adversaries in independent-adversarial.json",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "independent F/economics execution; 33 native tests and independent 160-row DGP effect2 with shift0.75; all four ndarray base chains, dtype/shape, array shape/column order and Fortran-layout controls",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json"
+      ],
+      "predicate_basis": "independently_reconciled",
+      "review_disposition": "GO; no blocking findings; same synthetic evidence family, not independent scientific coverage evidence"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/catalog/causal/tmle_core.py tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "exact three changed Python files",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "All checks passed!"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/methods/catalog/causal/tmle_core.py tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "exact three changed Python files",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "3 files already formatted"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt /workspace/e02-F-receipts/fit-tmle-production-invocation.json",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only"
+      },
+      "input_closure": "complete source-derived tracked Python scan; candidate source bytes identical to implementation; utility cannot establish deferred/runtime dispatch",
+      "outcome": "ERROR",
+      "exit_code": 137,
+      "output": "No stdout and no receipt file produced; process ended with exit137. Last sampled own process RSS4357684KiB at elapsed2:28. No product-defect or inherited-red attribution."
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "environment": {
+        "python": "3.14.2",
+        "numpy": "2.3.5",
+        "scikit_learn": "1.8.0",
+        "pytest": "9.0.2",
+        "platform": "Linux x86_64",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd_at_run": "/workspace/e02-F-fit-tmle/policy-engine",
+        "PYTHONPATH": "src:.",
+        "affinity_cpus_observed": 5,
+        "dowhy": "ABSENT; pyproject marker requires Python <3.13",
+        "econml": "ABSENT; pyproject marker requires Python <3.14",
+        "optional_backend_verdict": "UNRUN; absence is not a positive backend witness",
+        "production_data": "not transferred or used; known synthetic fixtures only",
+        "node": "24.19.0 (requires22.x)",
+        "node_modules": "missing in generated-freshness source",
+        "pnpm": "10.33.2"
+      },
+      "input_closure": "whole architecture input denominator; required client/dashboard generator measurements unavailable",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "output": "Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict. runtime-api-client/runtime-dashboard-api-types generation exit254: openapi-typescript missing. Partial completed findings report deep-import baseline drift and runtime-openapi/trust-posture generated drift. These are not a complete verdict and ownership is not_established.",
+      "raw_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
+        "sha256": "b9b2738bae8ba398b3a29bdc899ee7f160f891d959eb04e87e72c0da4b39e764",
+        "bytes": 118089,
+        "git_transfer": "complete moderate deciding output committed in receipt companion; UTF-8/LF bytes identical to retained original local raw log; G receives via fetch/PR"
+      },
+      "P41": "not_established; no exact full-gate base replay or zero intersection proof; changed canonical source belongs to full gate input denominator"
+    }
+  ],
+  "property": {
+    "statement": "Ordinary auto/explicit-namespace nuisance-cache hits remain content-bound to full X/T/Y and scientific fit/split settings, reuse immutable fit bytes, and materialize isolated current-analysis diagnostics without retraining for diagnostic-only policy changes. B56 witness proves bounded explicit external-cap composition only.",
+    "runtime_path": [
+      "X/T/Y + ATENuisanceContract.from_params",
+      "_fit_crossfit_nuisance_bundle_uncached -> real sklearn model.fit per held-out fold",
+      "_ATENuisanceFitCore.from_bundle -> process-local _cache_put/_cache_get memory artifact",
+      "_ATENuisanceFitCore.materialize(current contract) -> fit_aipw_ate / fit_tmle_ate",
+      "result_payload -> registered AIPWEstimator/TMLEEstimator.pure_step returned JSON-compatible result"
+    ],
+    "artifact_persistence": "process-local immutable cached numeric arrays; no persistent study/custody artifact introduced or claimed",
+    "surface": "existing registered AIPW/TMLE returned result payload; no public facade or signature added",
+    "proxy_divergence": "Same __shared_nuisance_key label + same contract previously returned old fit after X/T/Y changed; current contract metadata previously coexisted with stale nested selection split_policy. Merely read-only ndarray flags do not establish immutable underlying storage. Native negative controls and marker-preserving source removals distinguish each property.",
+    "negative_controls": [
+      "Same explicit namespace after independent X/T/Y byte changes must refit",
+      "Every one of16 nuisance fit/split configuration axes must refit; all14 current-analysis axes jointly reuse real fit",
+      "Array write permission/data mutation plus nested metadata mutation cannot change later hits; independent reviewer attacks base ndarray chains, dtype/shape and column order; Fortran layout with same values is a cache hit",
+      "Known constant-additive DGP effect1.75; outcome treatment shift0.6 changes real consumer effect exactly0.6; shuffled treatment yields bounded near-null negative",
+      "Serial vs internal-cap2 vs two studies with external-executor-cap1/internal-cap1 preserve every fold/repeat/seed, every held-out observation, native predictions and nonzero measured EIF uncertainty",
+      "Source-hash binding, current nested policy and immutable-byte property removals each fail the actual native discriminator"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "authority_purpose": "bounded numerical cache/diagnostic and consumer ABI correctness; no admitted-data causal validity, confidence coverage or policy authority",
+  "rule_or_schema_version": "existing ATENuisanceContract/result payload ABI unchanged; handoff schema v1",
+  "provenance_and_time_roles": "all checks point to fixed implementation source/tree and synthetic input seeds; cache remains process-local rather than a persistent validity/transaction-time record",
+  "capability_state_or_finding_state": {
+    "B54": "implemented_bounded and finding-specific native verification established for auto/explicit cache; precomputed-bundle admission excluded and not_established",
+    "B56": "partial; bounded external-cap/native parallelism metamorphism established, real production aggregate study admission/producer not established"
+  },
+  "residual_classification": {
+    "B54": {
+      "code_mechanism": "source-binding namespace and stale nested diagnostic report repaired; immutable-byte sharing replaces unconditional per-hit array copies",
+      "verification_or_oracle": "generic native cache/reader/current-payload property demonstrated; no coverage or real-data oracle claimed",
+      "missing_input": "full production data not needed for this generic property; no admitted real-study input/provenance used",
+      "semantic_owner_decision": "__shared_nuisance_bundle still bypasses content-bound cache and current-contract projection; source-bound precomputed admission requires F/canonical causal producer decision and caller trace before widening closure"
+    },
+    "B56": {
+      "code_mechanism": "existing max_parallel_folds and scientific fold plan unchanged; no new scheduler or global pool fabricated",
+      "verification_or_oracle": "native explicit external cap test preserves scientific plan/results/uncertainty; not a production admission witness",
+      "missing_input": "actual study executor/resource carrier and its admitted aggregate budget absent from established production trace",
+      "semantic_owner_decision": "F retains causal scientific owner; B consults actual shared resource capability and owning outer caller; monetary BudgetMiddleware is not a CPU/fold resource API"
+    }
+  },
+  "review": {
+    "reviewer": "F/economics",
+    "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+    "disposition": "GO",
+    "evidence": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json"
+    ],
+    "P40": "No blocking escape found; precomputed admission and production aggregate-resource classes remain named limitations, not local ladder patches"
+  },
+  "literal_source_trace": {
+    "executing_party": "F/fit_tmle",
+    "predicate_basis": "recomputed",
+    "path_denominator": "complete git ls-files src/**/*.py at implementation",
+    "file_type_denominator": ".py",
+    "files": 2697,
+    "operations": "Read every tracked source .py; locate literal tmle_core imports and literal private parameter keys; canonical producer/consumer sources cited at implementation, no copied derived source inventory committed",
+    "consumer_paths": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/advanced_designs.py"
+    ],
+    "unresolved_by_construction": [
+      "computed parameter key/producer addresses",
+      "external plugins/callers",
+      "served runtime registration dispatch and persisted real-study custody",
+      "production aggregate resource admission"
+    ],
+    "absence_verdict": "No complete producer or production-resource absence claim; literal source observations cannot settle dynamic/external routes"
+  },
+  "limitations_and_next_owner": [
+    "F/G: precomputed __shared_nuisance_bundle path and advanced_designs direct read do not have established source-bound/current-contract admission; they are outside this cache-specific bounded closure. Do not promote a supplied bundle to authority.",
+    "B consultation + F canonical owner: appoint/trace actual outer study resource carrier before production B56 closure; do not transfer scientific owner or mistake monetary BudgetMiddleware for a CPU budget.",
+    "G/C: architecture full verdict not_established; use supported Node22, run corepack pnpm install --frozen-lockfile in fresh checkout before TS/generated measurements, then rerun the exact architecture command. Raw deciding bytes must be retained locally; no inherited-red label without P41.",
+    "G: production_invocation ended exit137 without receipt; rerun exact diagnostic with usable host resources. This is diagnostic coverage debt, not a failed native cache/consumer property.",
+    "DoWhy/EconML markers are not bypassed and their absence is no positive backend witness. No real-data inference/coverage claim, production input transfer or public causal facade change is included."
+  ],
+  "G_exact_candidate_rerun": {
+    "candidate_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+    "checkout": "fetch origin codex/e02-F-fit-tmle; read immutable implementation commit/tree and separate handoff commit before integration",
+    "command": "PYTHONPATH=src:. <supported Python3.14.2 env>/bin/python -m pytest -o addopts= -q -ra tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/remediation/test_fit_01.py",
+    "consumer_command": "PYTHONPATH=src:. <supported Python3.14.2 env>/bin/python -m pytest -o addopts= -q -ra tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/remediation/test_fit_01.py tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py tests/unit/foundry/methods/catalog/causal/test_nuisance_layer.py tests/unit/foundry/methods/catalog/causal/test_nuisance_resolver_wiring.py tests/unit/foundry/hygiene/test_purity_boundaries.py",
+    "production_inputs": "none required for the demonstrated generic synthetic cache property; full admitted production inputs stay local. A real-study/precomputed-bundle run is held until actual caller/input authority is identified, rather than inventing a command or producer."
+  },
+  "pattern_pass": [
+    "P01/P02: existing registered producer -> memory artifact -> materializer -> actual consumers tested; served persistent study chain not claimed",
+    "P27/P31: canonical tmle_core only; no parallel estimator shim",
+    "P29/P33: real native behavior plus three semantic removal controls",
+    "P35/P37/P38: complete contract/source denominators and explicit proxy divergences; baseline PASS cannot close findings",
+    "P40/P41: named bounded admission/resource residuals; architecture and invocation provenance not_established"
+  ],
+  "removal_probe_replay_python": "from __future__ import annotations\n\nimport sys\nfrom pathlib import Path\n\nimport pytest\n\nfrom polisyos.foundry.methods.catalog.causal import tmle_core\n\nsource = Path(tmle_core.__file__).read_text()\nmutation = sys.argv[1]\nif mutation == 'source_identity':\n    mutated = source\n    for name in ('X', 'T', 'Y'):\n        old = f'_hash_array(np.asarray({name}, dtype=float)),'\n        assert old in mutated\n        mutated = mutated.replace(old, f'\"{name}-marker\",')\n    selector = 'test_full_data_identity_is_required_even_with_an_explicit_namespace[X-same-declared-source]'\nelif mutation == 'current_diagnostic_policy':\n    old = 'record[\"split_policy\"] = contract.overlap_diagnostic_policy'\n    assert old in source\n    mutated = source.replace(old, 'record[\"split_policy\"] = record.get(\"split_policy\")')\n    selector = 'test_current_diagnostics_reuse_immutable_fit_and_isolate_every_reader'\nelif mutation == 'immutable_bytes':\n    old = 'return np.frombuffer(array.tobytes(), dtype=array.dtype).reshape(array.shape)'\n    assert old in source\n    mutated = source.replace(old, 'return np.array(array, copy=True)')\n    selector = 'test_current_diagnostics_reuse_immutable_fit_and_isolate_every_reader'\nelse:\n    raise AssertionError(mutation)\n\nassert mutated != source\n# Compile an isolated in-memory mutant into the imported canonical module;\n# no checkout/source/history is edited. All native fitting code is retained.\nexec(compile(mutated, str(Path(tmle_core.__file__).with_suffix('.mutant.py')), 'exec'), tmle_core.__dict__)\nprint('target=b57708fcc95a778d7ff88c4001e4ac8ca74b7889 mutation=' + mutation)\ncode = pytest.main(['-o', 'addopts=', '-q', '-ra', 'tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::' + selector])\nprint('expected_behavioral_rejection=1 observed_pytest_exit=' + str(code))\nsys.exit(0 if code == 1 else 1)\n",
+  "equivalent_vs_intended_delta": {
+    "equivalent": "For stable inputs and scientific fit contract, fitted predictions, fold/repeat/seed plan, AIPW/TMLE point estimate and measured uncertainty remain identical across current-view reuse and allowed execution parallelism. Immutable numeric bytes are frozen once and shared via isolated ndarray views.",
+    "intended_fix": "An explicit key is a namespace, never an input identity: changed X/T/Y bytes refit. Current diagnostic split_policy now refreshes inside nested selection records without refit. Publicly returned read-only arrays cannot restore write permission to shared backing storage."
+  },
+  "input_stability_scope": "Controlled fixture arrays are stable throughout a fit. This witness does not admit concurrently mutable or unverified real-source/precomputed input snapshots to policy authority.",
+  "receipt_corrections": [
+    {
+      "kind": "complete_moderate_architecture_output_transfer",
+      "prior_receipt_head": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+      "implementation_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+      "original_local_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/raw/architecture.log",
+      "transferred_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
+      "sha256": "b9b2738bae8ba398b3a29bdc899ee7f160f891d959eb04e87e72c0da4b39e764",
+      "bytes": 118089,
+      "lines": 2020,
+      "normalization": "already UTF-8 with LF; no transformations or omitted lines; transferred TXT byte-identical to original output",
+      "inspection": "native gate diagnostics, complete deep-import source inventory diff and generated-artifact diagnostic lines; strict UTF-8, no NUL/ANSI/CR, no credential/private-key/token/URL markers in complete text",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "explanation": "The earlier receipt incorrectly classified this 118KB deciding log as oversized and left its bytes ignored. This append-only receipt correction transfers the complete moderate log without changing or rerunning implementation, tests, or gate verdict.",
+      "limits": "No complete architecture verdict or inherited-red attribution; Node22 and installed generator dependencies still required for G/C rerun."
+    }
+  ]
+}

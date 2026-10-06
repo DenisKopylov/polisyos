@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "domain-plugin-discovery-and-bounded-training",
+  "closure_ids": [],
+  "bundle_ids": ["PLG-01", "PLG-02", "PLG-03"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "preexisting_accepted_commits": [
+    "a22450e2ce5f4c213229682df17a428294f6f015",
+    "697150269ea0aad4632c5826b8c39073f4eb1276",
+    "b3071ad323151643737c1b1abfcd1b4928a40e7c",
+    "694ef845e3aaa5642156012451fcee149ab9cb40",
+    "c953f263aef43b27b7675ff11e0c998f7c06d53c",
+    "acb1f8ea9ac4f73df6317e1830b7e1277b497ed3",
+    "d782e7ea104f1ed1d81968d6b7c2f43902fc0756",
+    "ac3796b6be48e127c4a1a287d9a241511d9e59f6"
+  ],
+  "implementation_commits": [
+    "26950e5f12344d3bebef90f2743af362683a2667",
+    "84fb31635011d9df35d7ce6ac587b47f1d21c507",
+    "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2"
+  ],
+  "candidate_tree_sha": "186bdd07869015c703e8850acc1c29af125761e2",
+  "branch": "codex/e02-C-plugins-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-domain-plugin-training-cli.toml",
+    "policy-engine/src/polisyos/foundry/plugins/README.md",
+    "policy-engine/src/polisyos/foundry/plugins/cli.py",
+    "policy-engine/src/polisyos/foundry/plugins/core.py",
+    "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+    "policy-engine/tests/unit/foundry/plugins/test_discovery.py",
+    "policy-engine/tests/unit/remediation/test_plg_02.py",
+    "policy-engine/tests/unit/remediation/test_plg_03.py"
+  ],
+  "baseline_cells": ["Q03", "Q04", "Q05"],
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -o addopts='' -q -c pytest.ini tests/unit/foundry/plugins/test_discovery.py tests/unit/foundry/plugins/test_plugin_system.py tests/unit/remediation/test_plg_01.py tests/unit/remediation/test_plg_02.py",
+      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+      "environment": "macOS; original policy-engine .venv Python 3.14; candidate source via PYTHONPATH; CPU JAX and one-thread BLAS controls",
+      "input_closure": "Focused plugin fixtures and existing unit tests only; no production data or package installation.",
+      "outcome": "PASS",
+      "output": ".............\n.............\n.....                                          [100%]\n=============================== warnings summary ===============================\nPytestConfigWarning: Unknown config option: cache_dir\ntests/unit/foundry/plugins/test_discovery.py: 4 warnings\ntests/unit/remediation/test_plg_01.py: 11 warnings\nDeprecationWarning: sha1 content hashing is deprecated and must be requested explicitly; use sha256 for canonical CAS paths.\n31 passed, 16 warnings in 98.36s (0:01:38)"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q -c pytest.ini tests/unit/remediation/test_plg_03.py tests/unit/foundry/agent_sim/test_training.py",
+      "target_sha": "26950e5f12344d3bebef90f2743af362683a2667",
+      "environment": "macOS; original policy-engine .venv Python 3.14; candidate source via PYTHONPATH; CPU JAX and one-thread BLAS controls; exclusive numeric slot",
+      "input_closure": "Eight bounded PLG-03 tests and four existing native trainer tests; tiny Economics configuration (one episode, two steps, one PPO epoch); temporary tenant-scoped CAS; no production data or GPU.",
+      "outcome": "PASS",
+      "output": "Exit 0; 12 tests passed. Pytest progress was streamed in chunks (7 dots, then 4, then 1 with [100%]); elapsed wall time was approximately 126.6 seconds summed across polling results. Warnings included Equinox LayerNorm(elementwise_affine=...) deprecation, pytest's existing unknown cache_dir option, and an expected duplicate Economics registration warning in the CLI test. The detailed final warning-summary text was not retained in the streamed tool result.",
+      "coverage": [
+        "real one-call PolisySimulator.train -> EconomicsTrainingAdapter -> train_actor_critic_with_artifact",
+        "parameter movement and changed deterministic action from independently loaded saved policy",
+        "tenant-owned CAS write and fresh readback; foreign tenant cannot read",
+        "optimizer-removal negative control preserves trained status, loss, artifact, and CAS markers while the saved-action oracle fails",
+        "unsupported composite remains bridge_pending",
+        "existing native train_actor_critic tests"
+      ]
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/plugins/core.py src/polisyos/foundry/plugins/discovery.py src/polisyos/foundry/plugins/cli.py tests/unit/foundry/plugins/test_discovery.py tests/unit/remediation/test_plg_02.py tests/unit/remediation/test_plg_03.py",
+      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+      "environment": "macOS; original policy-engine .venv Python 3.14",
+      "input_closure": "All six changed Python paths.",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/plugins/core.py src/polisyos/foundry/plugins/discovery.py src/polisyos/foundry/plugins/cli.py tests/unit/foundry/plugins/test_discovery.py tests/unit/remediation/test_plg_02.py tests/unit/remediation/test_plg_03.py",
+      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+      "environment": "macOS; original policy-engine .venv Python 3.14",
+      "input_closure": "All six changed Python paths.",
+      "outcome": "PASS",
+      "output": "6 files already formatted"
+    },
+    {
+      "command": "git diff --check 198076863e143dea9f89f02734b13d50dae3eed5..HEAD",
+      "target_sha": "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
+      "environment": "Git worktree",
+      "input_closure": "Candidate diff against the admitted slice base.",
+      "outcome": "PASS",
+      "output": "No output; exit 0."
+    }
+  ],
+  "property": {
+    "statement": "Legacy DomainPlugin discovery uses Core's shared collector with stable source ordering and rejects non-DomainPlugin or malformed-metadata candidates. For the supported Economics profile, one actual call through PolisySimulator.train invokes the existing native actor-critic trainer, persists the resulting policy through the selected tenant CAS, reloads it, and changes the same-observation action. Unsupported composite training stays bridge_pending. Rollout evaluation remains a SimulationResult over trajectory; its [2,2,2] per-agent rewards are never presented as PPO loss.",
+    "runtime_path": [
+      "polisyos.foundry.plugins.discovery.discover_plugins -> polisyos.core.discovery.BaseDiscovery -> DomainPlugin registry",
+      "polisyos.foundry.plugins.api.PolisySimulator.train -> polisyos.foundry.plugins.training_adapter.EconomicsTrainingAdapter -> polisyos.foundry.agent_sim.training.train_actor_critic_with_artifact",
+      "native result -> tenant-scoped CAS via store_policy_artifact -> load_policy_artifact readback -> independent deterministic action oracle and simulator policy consumption",
+      "unsupported profile -> TrainingResult(status=bridge_pending) -> CLI reason and nonzero process status"
+    ],
+    "proxy_divergence": "A trained status, finite loss, artifact reference, CAS persistence, or a plugin-supplied .verified=True flag can remain present when the actual policy effect or an owner-issued verification is absent. The optimizer-removal probe keeps the success markers and replaces the native optimizer result with the unchanged actor; the independently loaded saved-action assertion fails. Discovery exposes no registry verification/admission artifact or verifier-provenance consumer; a candidate's arbitrary Python attribute remains an untrusted attribute, not a verification result.",
+    "negative_controls": [
+      "reverse entry-point sequence and filesystem child order; stable duplicate winner is alpha and entry-point names sort",
+      "malformed metadata returning None and factory returning object() are rejected; direct registry calls reject non-DomainPlugin and absent metadata",
+      "candidate-added verified=True does not create registry verification state or an owner-issued admission artifact",
+      "unsupported Economics composite and controlled reward-evaluation fixture cannot enter the native optimizer and return bridge_pending with no policy, artifact, or loss",
+      "optimizer-removal control retains trained/loss/artifact/CAS/readback markers but the true saved-action oracle fails",
+      "foreign tenant cannot read the persisted policy manifest"
+    ],
+    "reward_characterization": "Real PolisySimulator.run(3) returns a four-state trajectory. The controlled plugin supplies per-agent rewards [2,2,2] on each of three transitions. CompositeReward.total is the mean across agents (2 per transition); summing three evaluations yields 6. SimulationResult has no reward_history field, so this records the existing trajectory/reward consumer and does not add a history DTO or assert durable historical reward storage."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "PLG-01/LA-022 is limited; the discovery behavior is tested, but verification_missing remains for owner-issued admission and verifier provenance. PLG-02/PLG-03 provide a bounded real Economics one-call trainer-to-tenant-CAS readback path and honest bridge_pending for unsupported profiles. LA-023 remains partial/semantic_test_missing overall; this receipt does not close either finding or ratify a broader public training promise.",
+  "pattern_pass": {
+    "ids": ["P01", "P02", "P04", "P05", "P06", "P10", "P14", "P27", "P29", "P32", "P33", "P37", "P38"],
+    "existing_failure_modes": "Discovery had separate source paths and candidate validation gaps; legacy training reported rollout rewards as if they were optimizer losses and could return an unchanged policy as trained.",
+    "target_pattern": "Reuse Core's collector and preserve the legacy DomainPlugin ABI; route only the supported Economics profile through the existing trainer; use typed bridge_pending for unsupported profiles; verify training with independent persisted-policy action readback and an optimizer-removal negative control.",
+    "missing_capability_labels": ["verification_missing", "semantic_test_missing"],
+    "acceptance_signal": "Focused source and native-trainer tests pass; independent review plus named owner decisions and missing semantic controls remain before any LA closure."
+  },
+  "limitations_and_next_owner": [
+    "The PLG-01 entry-point test uses a monkeypatched importlib.metadata EntryPoint and temporary modules, not a genuinely installed distribution. Prefix discovery is ordered after builtins, declared entry points, and explicit dev roots, but the full installed-package packaging/install path was not exercised.",
+    "Dependency/load/unload behavior is covered by the existing plugin-system tests, but an aggregate source/error-order acceptance across real installed distributions, entry points, and development roots is not established. LA-022 remains partial/verification_missing.",
+    "A candidate can attach an arbitrary .verified=True attribute and the registry retains the Python object. No verifier, owner-admission contract, provenance artifact, or downstream admission consumer exists in this plugin path; that flag must not be treated as verification. Named owner and typed evidence contract/consumer are missing inputs.",
+    "PLG-03's bounded actual one-call positive and optimizer-removal tests ran. The full card's separate zero-gradient control and bridge-level train/eval, RNG/reset, and cross-call continuation criteria remain unverified. No typed checkpoint profile exists for RNG state, optimizer state, domain schema, or artifact identity; do not claim cross-call resume.",
+    "No supported historical TrainingResult reader/deserializer was found. Historical result provenance/compatibility is unverified rather than declared absent from all possible external callers.",
+    "The reward fixture proves current live trajectory and CompositeReward evaluation semantics, but SimulationResult does not persist or expose reward_history; durable historical reward readback is not implemented by this change.",
+    "Product owner must ratify the public .train promise as Economics one-call support, typed bridge_pending for other profiles, and the checkpoint/resume boundary before LA-023 can be closed. Reviewers must independently inspect the frozen implementation; no self-review or closure-ledger update is claimed.",
+    "No pyproject/lockfile or backend service change was needed. Tests used the existing Python 3.14/JAX CPU environment. No package installation, GPU, shared database, production dataset, or full backend suite was used.",
+    "The repository pre-commit hook could not run because its configured runtime-dashboard lefthook executable is absent in this worktree. Installs were prohibited; implementation commits therefore used a one-command git -c core.hooksPath=/dev/null override after recording the failed hook condition."
+  ]
+}

@@ -26,7 +26,7 @@
   "candidate_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
   "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
   "branch": "codex/e02-F-cau-20261006",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/57",
   "changed_paths": [
     "policy-engine/benchmarks/interference/policy_did_interference.py",
     "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
@@ -1551,7 +1551,8 @@
         "test_cau_01_standard_did_rejects_zero_pre_period",
         "test_insufficient_pretrend_is_not_testable_never_passed",
         "test_zero_pretrend_nonrejection_does_not_identify_parallel_trends",
-        "test_differential_pretrend_is_evidence_of_violation"
+        "test_differential_pretrend_is_evidence_of_violation",
+        "test_did_standard_known_att"
       ],
       "checks": [
         "published-native",
@@ -1572,16 +1573,58 @@
         }
       ],
       "method_decision": "F-M3",
-      "native_outcome": "PASS_BOUNDED",
-      "finding_state": "limited_pending_G_replay_and_real_input_authority",
-      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+      "native_outcome": "PASS",
+      "finding_state": "closed",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5094,
+          5105
+        ],
+        "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+        "exact_acceptance_text": "**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.",
+        "full_card_text": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн\n\n**Приоритет:** высокий на стандартном DiD-маршруте; небольшой адресный ремонт. **Основание:** PanelObservationalData, _run_standard_did и _parallel_trend_diagnostic; ID01–ID04. [C20.R02, R04]\n\n**Проблема.** Общий panel-контракт допускает time_treatment=0. Стандартный оцениватель не добавляет требование ненулевого pre-периода. Все значения Post равны единице, а столбцы Post×Treat и Treat совпадают. np.linalg.lstsq возвращает решение недоопределённой регрессии, и вызывается build_success_report. При t0<3 диагностика параллельности возвращает passed=True с причиной insufficient_pre_periods. Это полезное указание причины, но не проведённая проверка предпосылки.\n\n**Воспроизведение.** Четыре единицы с рядами [10,12], [14,16], [2,4], [6,8]; первые две treated, t0=0. Настоящий перенесённый panel-валидатор принимает вход. Ранг матрицы равен 2 при четырёх столбцах; численно возвращается ATT=4 и запрашивается SUCCESS-report, pre_periods=0. Это лишь часть межгруппового различия, а не идентифицированная разность изменений. ReportFixture регистрирует конструирование; нативные IR-сертификаты и downstream-gates не исполнялись.\n\n**Рекомендуемое исправление.** На входе именно standard-DiD проверить наличие пригодных pre/post наблюдений и обоих сравниваемых режимов, затем определить оценимый контраст. При отсутствии pre сохранить описательные межгрупповые различия либо маршрутизировать на другой обоснованный дизайн. Не запрещать t0=0 в общей модели PanelObservationalData, если такой объект нужен другим методам. Для pre-trend различать невычислимость, неотвержение и найденное нарушение; не назначать «доказано» на основании одного p-value.\n\n**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "closed",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Closed for the original standard-DiD estimability/diagnostic predicate: zero-pre is refused only at the estimator boundary; native known ATT3 survives; insufficient pretrend is not_testable and nonrejection has no identification authority. Real parallel trends are an identifying assumption, not a missing test of this generic criterion.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-no-pre",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [],
+      "closure_is_product_approval": false
     },
     "B205": {
       "property": "Requested HC1/large-independent-unit CR0 are actual numerical covariance procedures with real Statsmodels parity; duplicated same-unit periods cannot become new cluster information.",
       "selectors": [
         "test_independent_statsmodels_covariance_on_group_labelled_design",
         "test_cau_01_cluster_covariance_stable_under_duplicate_periods",
-        "test_cau_01_statsmodels_cluster_reference"
+        "test_cau_01_statsmodels_cluster_reference",
+        "test_cau_01_cluster_covariance_uses_unit_ids",
+        "test_cau_01_rejects_unknown_covariance_profile",
+        "test_cau_01_cluster_covariance_requires_unit_identity"
       ],
       "checks": [
         "published-native",
@@ -1602,16 +1645,57 @@
         }
       ],
       "method_decision": "F-M3",
-      "native_outcome": "PASS_BOUNDED",
-      "finding_state": "limited_pending_G_replay_and_real_input_authority",
-      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+      "native_outcome": "PASS",
+      "finding_state": "closed",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5106,
+          5119
+        ],
+        "sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+        "exact_acceptance_text": "**Приёмка.** Совпадение точечного ATT; совпадение действительного HC1 с statsmodels — уже положительный локальный контроль. Для исправления нужны unit-cluster эталон, перестановка строк, неизменность при чистом техническом повторении и честный ответ на неизвестную cluster-переменную. Маловыборочные поправки могут менять значения: контроль использовал CR0 именно для отделения их от повторной информации.",
+        "full_card_text": "## B205. Запрошенная covariance не исполняется: HC1 считает повторные периоды новой информацией\n\n**Приоритет:** высокий для панельной неопределённости; малый/средний ремонт существующей оценки. **Основание:** _ols_hc1, _run_standard_did и сигнатура зарегистрированного standard-метода; SE01–SE03. [C20.R02, C20.E02]\n\n**Проблема.** Метод декларирует cov_type и cluster_var, но всегда вызывает _ols_hc1. В отчёт записывается предоставленная строка cov_type, не фактически применённый estimator covariance. HC1 учитывает неодинаковые дисперсии строк, но не воспроизводит кластерную зависимость одной единицы во времени.\n\n**Воспроизведение.** Для 40 единиц и двух периодов параметр HC1 и параметр cluster дали один standard_error=0,713261564323; во втором отчёте записано cluster. Десятикратное повторение тех же столбцов времени без новых единиц сохранило ATT=3,357319184071, но уменьшило HC1-SE до 0,220393653335. Независимый контроль statsmodels cov_cluster по единицам с отключённой маловыборочной поправкой дал 0,647984177731 до и после повторения. Это не оценка реального покрытия интервалов, а различающий пример единицы информации.\n\n**Рекомендуемое исправление.** Разрешать фактическую covariance-стратегию по объявленному дизайну и кластерным идентификаторам. Группировать score-вклады по независимой единице, сохранять эффективный метод, число кластеров и выбранную поправку. При слишком малом числе кластеров — ограниченная диагностика и подходящая процедура, а не автоматическое признание асимптотики. Неподдержанный cov_type должен приводить к точному ограничению, не к переименованию HC1. HC1 остаётся допустимым в обоснованном независимом режиме.\n\n**Производительность.** Существующую линейную точечную оценку можно сохранить. Sandwich-meat собирается из заранее рассчитанных score-вкладов; покомпонентный Python-цикл по каждой строке заменяем матричным накоплением без построения N×N. Это не требует нового универсального estimator или повторного обучения на каждом типе интервала.\n\n**Приёмка.** Совпадение точечного ATT; совпадение действительного HC1 с statsmodels — уже положительный локальный контроль. Для исправления нужны unit-cluster эталон, перестановка строк, неизменность при чистом техническом повторении и честный ответ на неизвестную cluster-переменную. Маловыборочные поправки могут менять значения: контроль использовал CR0 именно для отделения их от повторной информации.\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "closed",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Closed for actual covariance execution on the declared HC1 iid-row and unit-cluster CR0 profiles: independently constructed Statsmodels covariance matches; same-unit period duplication preserves cluster information; unsupported profiles/identities refuse. This is covariance algebra, not finite-small-cluster coverage or real-data identification.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-cluster",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [],
+      "closure_is_product_approval": false
     },
     "B206": {
       "property": "Standard native requested normal quantile changes actual CI width, preserves95% computation and refuses invalid confidence.",
       "selectors": [
         "test_cau_01_confidence_level_changes_did_interval",
         "test_cau_01_did_95_interval_matches_normal_critical_value_and_preserves_point",
-        "test_cau_01_invalid_did_confidence_level_fails_closed"
+        "test_cau_01_invalid_did_confidence_level_fails_closed",
+        "test_cau_01_confidence_level_changes_rdd_interval",
+        "test_cau_01_invalid_rdd_confidence_level_fails_closed"
       ],
       "checks": [
         "published-native",
@@ -1632,9 +1716,48 @@
         }
       ],
       "method_decision": "F-M3",
-      "native_outcome": "PASS_BOUNDED",
-      "finding_state": "limited_pending_G_replay_and_real_input_authority",
-      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+      "native_outcome": "PASS",
+      "finding_state": "closed",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5120,
+          5131
+        ],
+        "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+        "exact_acceptance_text": "**Приёмка и граница.** 95% сохраняет прежний результат; повышение уровня при том же положительном SE расширяет интервал; недопустимый уровень отвергается адресно. Эта правка не исправляет неправильный SE из B205 или отсутствие bias correction из B210. Её нельзя представить как доказательство покрытия всей семейной реализации.",
+        "full_card_text": "## B206. В DiD и RDD уровень интервала меняет подпись, но не границы\n\n**Приоритет:** высокий и локальный. **Основание:** _run_standard_did и RegressionDiscontinuity.pure_step; CL01–CL03. [C20.R02–R03]\n\n**Проблема.** Обе функции читают confidence_level, но используют константу z_critical=1,959963984540054. Новое значение уровня передаётся в report без изменения границ.\n\n**Воспроизведение.** Standard DiD при 0,80 и 0,99 вернул один интервал [1,959352206441; 4,755286161700]. RDD также сохранил одинаковые границы для двух уровней. Для того же DiD-SE контроль с NormalDist дал ширину 1,828162948802 для 80% и 3,674480076956 для 99%, тогда как исходный путь использует 95%-квантиль.\n\n**Рекомендуемое исправление.** Один раз разрешать критическое значение из фактического уровня и распределения выбранной процедуры. Для оправданной нормальной асимптотики достаточно соответствующего NormalDist; кластерные/маловыборочные процедуры могут требовать иных степеней свободы или bootstrap. Валидация уровня должна предшествовать дорогому вычислению, а результат хранить одновременно запрошенную и эффективную процедуру.\n\n**Приёмка и граница.** 95% сохраняет прежний результат; повышение уровня при том же положительном SE расширяет интервал; недопустимый уровень отвергается адресно. Эта правка не исправляет неправильный SE из B205 или отсутствие bias correction из B210. Её нельзя представить как доказательство покрытия всей семейной реализации.\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "closed",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Closed for requested critical-value execution: published-native actually exercised both DiD and RDD 80/95/99 levels and invalid levels on the exact slice runtime, with the unchanged source RDD profile. This does not close RBC inference, new RDD scientific compatibility, or family-wide nominal coverage.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-critical",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [],
+      "closure_is_product_approval": false
     },
     "B207": {
       "property": "Selected participation theta_sel has fixed within-cohort averages and estimated share ratio IF; shared iid Mammen draws apply once per independent panel unit across all cells.",
@@ -1664,9 +1787,68 @@
         }
       ],
       "method_decision": "F-M5",
-      "native_outcome": "PASS_BOUNDED",
-      "finding_state": "limited_pending_G_replay_and_real_input_authority",
-      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+      "native_outcome": "PASS",
+      "finding_state": "limited",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5132,
+          5145
+        ],
+        "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+        "exact_acceptance_text": "**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]",
+        "full_card_text": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений\n\n**Приоритет:** высокий; содержательная замена уровня повторной выборки, не увеличение n_bootstrap. **Основание:** _cohort_time_att и _run_staggered_did; SB01–SB05. [C20.R02, C20.E01]\n\n**Проблема.** После расчёта ATT по когортам и времени повторно выбираются индексы этих уже агрегированных ячеек. Исходные единицы, их внутрипанельная зависимость и общие контрольные наблюдения в bootstrap не участвуют. Поэтому получаемый разброс относится не к принятой процедуре наблюдения данных.\n\n**Воспроизведение.** Одна когорта, один post-период, treated-изменения [2,4,6,8], control-изменения 0. ATT=5, но любая повторная выборка единственной ячейки даёт 5. При 200 и 2000 повторениях интервал [5,5]. Эффект сохраняется при 80 единицах и 160 панельных строках. Полный перебор 256 стратифицированных повторных выборок четырёх treated-единиц даёт разброс средних, SD=1,118033988750 и процентильный интервал [3,7]. Это контроль механизма, не утверждение о номинальном покрытии на этой малой выборке.\n\n**Рекомендуемое исправление.** Сохранять влияние каждой независимой единицы на набор ATT(g,t), затем повторно выбирать единицы/кластеры либо применять совместный multiplier-bootstrap к этим вкладам. Один draw должен согласованно действовать на все ячейки, имеющие общие наблюдения. Агрегируемый estimand, веса когорт и горизонтов объявляются отдельно: нынешнее взвешивание размера когорты по ячейкам не названо универсально ошибочным.\n\n**Экономный путь.** Один подготовленный panel-view, заранее рассчитанные допустимые группы, исходные разности и score-вклады; далее пакетная линейная алгебра. Это может быть значительно дешевле повторной сборки и подгонки всех моделей на каждом bootstrap. Поисковые проходы с point-only результатом остаются возможными, но не получают выдуманный интервал.\n\n**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Original scientific discriminator is closed for the selected iid-unit profile: the single-cell interval is nondegenerate with varying units, shared unit multipliers and estimated-share influence are real, and independently replayed serial/multi-cohort null and alternative coverage are inside declared binomial bounds. Overall continuation outcome remains limited until the separately required F-M5 whole Scientist-node input/target binding is composed and independently received on the final root SHA; no blanket real-data prerequisite is imposed on the scientific predicate.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-dgp",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-cell-oracle",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-share",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [
+        {
+          "owner": "F root/G integration",
+          "check": "UNRUN",
+          "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+        }
+      ],
+      "closure_is_product_approval": false
     },
     "B208": {
       "property": "One centered studentized scalar law drives +1 p and finite-B closed CI inversion, with canonical integer tail decision at endpoints.",
@@ -1695,9 +1877,61 @@
         }
       ],
       "method_decision": "F-M5",
-      "native_outcome": "PASS_BOUNDED",
-      "finding_state": "limited_pending_G_replay_and_real_input_authority",
-      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+      "native_outcome": "PASS",
+      "finding_state": "limited",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5146,
+          5157
+        ],
+        "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+        "exact_acceptance_text": "**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.",
+        "full_card_text": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой\n\n**Приоритет:** высокий вместе с B207; не ремонтировать отдельно косметическим сдвигом. **Основание:** _run_staggered_did; PV01–PV02. [C20.R02]\n\n**Проблема.** p-value вычисляется как доля |boot|≥|att| с поправкой +1. Нецентрированный bootstrap обычно расположен вокруг наблюдаемой оценки; такая доля сама по себе не является хвостовой вероятностью статистики при нулевом эффекте.\n\n**Воспроизведение.** В одной шумной ячейке из B207 одновременно получены ATT=5, CI=[5,5], p=1. На иллюстративных draws [4,9;5;5,1] исходный счётчик с +1 даёт 0,75, а счётчик отклонений boot−att относительно нуля — 0,25. Последний показан только как различение объектов сравнения, не как универсально корректная bootstrap-процедура.\n\n**Рекомендуемое исправление.** Задать H0, тестовую статистику, её масштабирование и допустимый способ получения нулевого распределения совместно с уровнем повторной выборки. Использовать согласованную инверсию интервала/теста или проверенный центрированный/studentized/bootstrap-тест согласно дизайну. Если такой вывод не вычислен, сохранить ATT и имеющуюся диагностику, указав p-value как отсутствующий.\n\n**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Original scientific discriminator is closed for one centered/studentized null test and matching finite-B closed CI inversion, including the repaired integer-tail endpoint decision, null size, power and alternative coverage on the same units. Overall continuation outcome remains limited only for the separate F-M5 final whole-node binding receipt, not for absent real-world identification.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-dgp",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-uncentered",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [
+        {
+          "owner": "F root/G integration",
+          "check": "UNRUN",
+          "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+        }
+      ],
+      "closure_is_product_approval": false
     },
     "B209": {
       "property": "Control support obeys timing>t+anticipation, strict integer timing/anticipation and complete fixed eligible cell target; no silent dropped cohort/cell.",
@@ -1727,9 +1961,54 @@
         }
       ],
       "method_decision": "F-M5",
-      "native_outcome": "PASS_BOUNDED",
-      "finding_state": "limited_pending_G_replay_and_real_input_authority",
-      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+      "native_outcome": "PASS",
+      "finding_state": "limited",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5158,
+          5169
+        ],
+        "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+        "exact_acceptance_text": "**Производительность и приёмка.** Подготовить cohort-time eligibility один раз и использовать также при повторных выборках. Не запрещать not-yet-treated или anticipation вообще: они полезны при корректных условиях. Контроль должен охватить границу g=t+a, никогда не treated, недостаточный baseline и case a=0. Внешняя документация определяет anticipation как период возможного влияния до назначения; это не подтверждение любой эмпирической гипотезы о его длине. [C20.E01]",
+        "full_card_text": "## B209. Anticipation учитывается в baseline treated-группы, но не при выборе not-yet-treated controls\n\n**Приоритет:** высокий для ненулевого anticipation, локальное расширение определения группы. **Основание:** _cohort_time_att; AN01–AN03. [C20.R02, C20.E01]\n\n**Проблема.** Baseline сдвигается на group_start−1−anticipation, но control_mask допускает любую группу с timing>t. Группа, в которой уже действует разрешённый эффект предвосхищения, продолжает считаться нетронутым контролем.\n\n**Воспроизведение.** Когорта g=2 имеет истинный эффект 2. Когорта g=3 уже в t=2 меняется на 10, поскольку anticipation=1; ещё одна единица никогда не treated. Для ATT(2,2) текущий not-yet-control даёт −3, тогда как never-treated и контроль timing>t+anticipation дают 2. При anticipation=0 и фактически отсутствующем раннем эффекте исходный выбор правильно даёт 2.\n\n**Рекомендуемое исправление.** Формировать admissible-control по полной временной области воздействия, включая anticipation и необходимые baseline-окна. Сохранять идентификаторы использованных ячеек/когорт и правило контроля. Если пригодных controls нет, сохранить пробел конкретной ячейки и изменить область агрегирования только явно.\n\n**Производительность и приёмка.** Подготовить cohort-time eligibility один раз и использовать также при повторных выборках. Не запрещать not-yet-treated или anticipation вообще: они полезны при корректных условиях. Контроль должен охватить границу g=t+a, никогда не treated, недостаточный baseline и case a=0. Внешняя документация определяет anticipation как период возможного влияния до назначения; это не подтверждение любой эмпирической гипотезы о его длине. [C20.E01]\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Original eligibility discriminator is closed: g=t+a controls are excluded, never-treated/a=0 are supported controls, missing baseline/support refuses the whole fixed requested target, and explicit eligible horizons change target/binding. Overall continuation outcome remains limited for the separate F-M5 final whole-node binding receipt; the chosen synthetic anticipation window does not establish any empirical window.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-cell-oracle",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "native_property_measurement"
+        }
+      ],
+      "required_remaining_checks": [
+        {
+          "owner": "F root/G integration",
+          "check": "UNRUN",
+          "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+        }
+      ],
+      "closure_is_product_approval": false
     },
     "LA-016": {
       "property": "Independent dedicated metadata, default-registry retirement and exact old-slot historical replay; maintained two real benchmark callers migrated to dedicated standard owner.",
@@ -1770,9 +2049,68 @@
         }
       ],
       "method_decision": "F-M4",
-      "native_outcome": "PASS_BOUNDED",
-      "finding_state": "limited_pending_G_replay_and_real_input_authority",
-      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+      "native_outcome": "PASS",
+      "finding_state": "limited",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          513,
+          539
+        ],
+        "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+        "exact_acceptance_text": "**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.",
+        "full_card_text": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов\n\n**Слияние / разделение ответственности**\n\n**Статус.** Deprecated агрегатор подтверждён; новые классы всё ещё зависят от него.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/did.py#DifferenceInDifferences`\n\n**Что установлено и почему это legacy-кандидат.** DifferenceInDifferences выбирает standard/staggered по флагу и переводит старые slot names outcome_panel/treatment_indicator. Уже есть StandardDifferenceInDifferences и StaggeredDifferenceInDifferences, но они читают metadata старого класса; общие _run_* helpers тоже берут assumptions из него. Удаление «только deprecated класса» сломает живые пути.\n\n**Что сохранить.** Оба numerical helpers, общий контракт панели, assumptions/citations/equations и alias-mapping старых slots для объявленного перехода. Dedicated methods — более точная интерфейсная декомпозиция, не доказательство исправленной статистики.\n\n**Куда перенести / с чем объединить.** Существующие dedicated classes в том же did.py. Общие определения поднять в независимые module constants либо маленький adjacent shared module только при оправданном размере. Legacy class оставить временным адаптером, затем снять регистрацию.\n\n**Порядок миграции.** Сначала отвязать metadata от deprecated class; мигрировать old FQN, флаг staggered и имена slots в явный dedicated request. Сохранить старое чтение frozen plans по утверждённой версии. Не менять численный estimator в той же relocation-правке.\n\n**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.\n\n**Приоритет.** Высокая отдача при средней цене; хороший ограниченный consolidation-пакет.\n\n**Граница вывода.** Это не основание удалять did.py целиком. Переход к dedicated class не исправляет сам собой ранее замеченные inferential-дефекты.\n\n**Основания:** E29.\n\n<!-- PAGEBREAK -->\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "source_criterion_outcome": "limited",
+      "decision_reason": "Limited: actual dedicated metadata/default-registry retirement/old-slot replay and both enumerated maintained benchmark caller cutovers pass, but the full original supported import/FQN/frozen-plan migration denominator is not admitted. The historical direct-import adapter remains intentionally readable; no class-name proxy or numerical PASS establishes full migration.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-caller-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-caller-census",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "published-benchmark-removal",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [
+        {
+          "owner": "G/public import and versioned plan owners",
+          "check": "UNRUN",
+          "scope": "Complete supported external frozen-plan/import/FQN migration and actual consumers; current tracked maintained callers are measured, outside-cloud production callers not admitted."
+        }
+      ],
+      "closure_is_product_approval": false
     }
   },
   "property": {
@@ -1793,7 +2131,7 @@
     ]
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "scientific_profile_verified_bounded; original full finding closure limited/held pending G replay, authority/input admission and root whole-node composition",
+  "capability_state_or_finding_state": "Original scientific predicates B204-B209 verified on declared native/synthetic profiles; B204-B206 closed; B207-B209 continuation limited pending exact final root whole-node composition; LA-016 limited full migration. Broad gates and real-data authority remain separate.",
   "source_equivalence_for_retained_checks": [
     {
       "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
@@ -3180,5 +3518,45 @@
       "encoding": "identity",
       "category": "independent_review"
     }
+  ],
+  "receipt_fidelity_adjudication": {
+    "owner": "F/cau",
+    "time_utc": "2026-10-06T10:55:01.619374+00:00",
+    "previous_publication_head": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+    "changed_runtime_or_tests": false,
+    "retests": "UNRUN; no new runtime measurement needed for this receipt-only classification",
+    "canonical_check_enum": [
+      "PASS",
+      "FAIL",
+      "ERROR",
+      "SKIP",
+      "UNRUN"
+    ],
+    "canonical_outcome_enum": [
+      "closed",
+      "limited",
+      "held",
+      "open"
+    ],
+    "decision_basis": "Exact original source-card acceptance text, retained actual positive/negative/removal outputs and independent source-bound review; finding closure is distinct from broad gates, product approval and empirical identification. Opaque earlier blanket labels are retained as explicitly superseded history."
+  },
+  "closed_finding_ids": [
+    "B204",
+    "B205",
+    "B206"
+  ],
+  "source_criterion_closed_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209"
+  ],
+  "limited_finding_ids": [
+    "B207",
+    "B208",
+    "B209",
+    "LA-016"
   ]
 }

@@ -1,0 +1,373 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit-view-removal-a2/child.source.txt",
+      "bytes": 1610,
+      "sha256": "3557b35f0fb3dd46a7339293133b72e93fe28790902a8b4e9e9464a816ee0c76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit-view-removal-a2/native.json",
+      "bytes": 4327,
+      "sha256": "85ef0806e81d473e2167d6d8e6fbe55c230921f06c23b5ef12d8c635c37eeefe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit-view-removal-a2/native.txt",
+      "bytes": 155514,
+      "sha256": "b9861ec8b21e7883c5cc77e807c4289a860d7f3a935c2b8bd6a14b4abab82b84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit-view-removal-a2/native.xml",
+      "bytes": 8972,
+      "sha256": "5fc78b129572ac52ce4c39d3bc31825b1d054a9451f98025c89a88ad405d6cfe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit-view-removal-a2/run-native.source.txt",
+      "bytes": 4202,
+      "sha256": "e1719436f7a56bb6f6bf0ed421462edcb1072a3a980519ff6cec736e219945d6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit-view-removal-a2/source-context.json",
+      "bytes": 26993,
+      "sha256": "ea0f03b587d67499c8bd6e70d1dc4a4c918847d33c2101696408dd20a8395435"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-31d613/child.source.txt",
+      "bytes": 2502,
+      "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-31d613/native.json",
+      "bytes": 5978,
+      "sha256": "afbc734f3794e11c13a280dcb14be0e96cd88ecb29f0791c9f46affd0bef7db0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-31d613/native.txt",
+      "bytes": 516158,
+      "sha256": "143228226b7662e5cf18e06bd4c72fd4dac735fb172ed1309232f35cd293ab05"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-31d613/native.xml",
+      "bytes": 2614,
+      "sha256": "fe0ef93d204a6b4c871f7d116b22f88715ec6bfe0ba3a0b2bbf26ed96eafbef1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-31d613/run-native.source.txt",
+      "bytes": 4057,
+      "sha256": "e1930c06dd090a7df043a09c034f5648fb2dfc6f2d677ffd5d9961a157eaf218"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-31d613/selectors.json",
+      "bytes": 398,
+      "sha256": "ae5cc58247d7983cd63a5c1dec8b8fc279147793131f2e48d0144797c5143611"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-31d613/source-context.json",
+      "bytes": 51820,
+      "sha256": "053d9741feb59c3362a0e64e96659312f2de777ef17db98cd3901976d269c5da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-source-not-established/child.source.txt",
+      "bytes": 1171,
+      "sha256": "c07ee0a84f8146765a6844050cb74068a91186c1aec67846b9c88f64a5bd6b16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-source-not-established/native.json",
+      "bytes": 3080,
+      "sha256": "f599943226fab3cdfe9b79dd03f50432dab31c1800d3898fc5e2bc701962f11e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-source-not-established/native.txt",
+      "bytes": 1882,
+      "sha256": "e5634edf8765fa3d9f06fcc2abea18a26b5552e6d0fa68b8b350247273b71e2d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-source-not-established/native.xml",
+      "bytes": 943,
+      "sha256": "ba8661ff9e561d3be06457981a6cc379eaceb5e400d63b422803f423fde74163"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-source-not-established/run-native.source.txt",
+      "bytes": 4251,
+      "sha256": "2919ec970ec204f7b75d5afa7fe948be6dc4d0f1b5a0efd9e2cae47dd91babe4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/audit17-source-not-established/selectors.json",
+      "bytes": 398,
+      "sha256": "ae5cc58247d7983cd63a5c1dec8b8fc279147793131f2e48d0144797c5143611"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/environment.json",
+      "bytes": 907,
+      "sha256": "963730becada0f3182d777a65912675565d71f95c3a09b912df16af05da64b9f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/final-source-bindings.json",
+      "bytes": 5211,
+      "sha256": "3e56d6aee07000fac8483677a9b34c6812a61bef7a01e16370da5cc04a25301d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-defining-b138-red/child.source.txt",
+      "bytes": 1171,
+      "sha256": "c07ee0a84f8146765a6844050cb74068a91186c1aec67846b9c88f64a5bd6b16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-defining-b138-red/native.json",
+      "bytes": 6862,
+      "sha256": "b820a50bb50c8846048520094e602c47df50549e521bc6c303a2f448e7624410"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-defining-b138-red/native.txt",
+      "bytes": 1741,
+      "sha256": "d1f2614bf13482c700fe929b596ea434171454a193f22fe373bed2f5347801f5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-defining-b138-red/native.xml",
+      "bytes": 2582,
+      "sha256": "6b7cf8f40135b2085517e629ad696a4d625a7e25776b7b0e6fae117b17e01eb2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-defining-b138-red/run-native.source.txt",
+      "bytes": 4154,
+      "sha256": "5c556ca2f6869fabb03d1ba908c6f660ece83301790042b360fdac34f227aefa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-defining-b138-red/selectors.json",
+      "bytes": 1086,
+      "sha256": "ac3fb35f626195279c8d89fadcd2c3634eadbf81abb51dbaae1f9d8db3ce0ddf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-defining-b138-red/source-context.json",
+      "bytes": 27691,
+      "sha256": "6af5e57134bae0e0abcd0b53f0ecee8c8802802b5b3d663a3b3687c9126afe29"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-removal-31d613/child.source.txt",
+      "bytes": 1981,
+      "sha256": "bda7ab45ba14b85864086945e4b13092a0575952bb5c55d94519c0e7b7fb0387"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-removal-31d613/native.json",
+      "bytes": 4153,
+      "sha256": "d9a852c8fa3fc4c6624d05c1ea985864795d125870e42a9c9591eb2fa67226a6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-removal-31d613/native.txt",
+      "bytes": 10115,
+      "sha256": "9860c6d6bd3b691e48c8fe76f90a83b9a8a65100c584a087b08448c40f462ede"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-removal-31d613/native.xml",
+      "bytes": 1917,
+      "sha256": "69eb0a0ddf05332a1d91aaa9e25bb10a06a677166abfe79346f486f798510b58"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-removal-31d613/run-native.source.txt",
+      "bytes": 4155,
+      "sha256": "1521474949ccde5d2d8cbdd399b3ab3852019fed58c9008e557ed86cdc864825"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-removal-31d613/selectors.json",
+      "bytes": 637,
+      "sha256": "0307348d01e87078aab95ec02fc065fc30792083bfab4c9cd30599eb8d60ec1f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/flight-removal-31d613/source-context.json",
+      "bytes": 27691,
+      "sha256": "aa97d6524217de8521f21bf351d30c0bf6ae7b3631cf784cfb90f0e66517ea5e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/full34-31d613/child.source.txt",
+      "bytes": 1171,
+      "sha256": "c07ee0a84f8146765a6844050cb74068a91186c1aec67846b9c88f64a5bd6b16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/full34-31d613/native.json",
+      "bytes": 141340,
+      "sha256": "f2620dcc8728f62a13fcd09c4bc3586b613b159cfe8727ac80f2254fb350d264"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/full34-31d613/native.txt",
+      "bytes": 823027,
+      "sha256": "f32c35a948ac3294726d6973c7733472675e1a8ce001abe29dc5e26b859122fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/full34-31d613/native.xml",
+      "bytes": 111916,
+      "sha256": "e300dfef5d81f537645955a9bd1d62e1d2ab10a0662f0c45066de32b9e27b9fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/full34-31d613/run-native.source.txt",
+      "bytes": 4148,
+      "sha256": "b48ee8f5f3329581f87a4dc50f62f364a27cc4122a5058c0196cdaa0f2d05d68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/full34-31d613/selectors.json",
+      "bytes": 2585,
+      "sha256": "cfe5868a32a6655d919a68a5a5b46a5dc9f7928220eda0470a90e7c013b7b9f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-a697/child.source.txt",
+      "bytes": 1171,
+      "sha256": "c07ee0a84f8146765a6844050cb74068a91186c1aec67846b9c88f64a5bd6b16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-a697/native.json",
+      "bytes": 33051,
+      "sha256": "4260fffaf0329585f9177cfbd3757828afdccea0b6636c28fa5830af5e3351b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-a697/native.txt",
+      "bytes": 651467,
+      "sha256": "653cd27deccd0ca49e270a73f7e6e8b214363393bd0d9d391fcf99aacaf8e7ef"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-a697/native.xml",
+      "bytes": 26066,
+      "sha256": "39296f961b34ae6c703f93e09926f4a64da5a28b8f2fa9c518a50ac5c0bc46d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-a697/run-native.source.txt",
+      "bytes": 4151,
+      "sha256": "d75d592b10e2e3554cbe1a5502f63266a709963aadbc3a78f7c4d3c969fe2e10"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-a697/selectors.json",
+      "bytes": 332,
+      "sha256": "74bdbbbd9c3084d68fe94f438eb6252b944d3f272aefaff0f72e97209f1339aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-a697/source-context.json",
+      "bytes": 27708,
+      "sha256": "1312acd0d7c5118aa49b4a7c0cccc94fdad0419ab40908fd6073397d29288bb9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-selector-not-established/child.source.txt",
+      "bytes": 1171,
+      "sha256": "c07ee0a84f8146765a6844050cb74068a91186c1aec67846b9c88f64a5bd6b16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-selector-not-established/native.json",
+      "bytes": 3112,
+      "sha256": "88b39679689d5d60008aeb81321b1493159179ffba2dea5bb6d086b8ac738aaa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-selector-not-established/native.txt",
+      "bytes": 695,
+      "sha256": "e7f4f9ee437ddf20e0c54b04d0f55fa71073e9f3028920d6e2ac85fd618bcc88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-selector-not-established/native.xml",
+      "bytes": 238,
+      "sha256": "0927695ae4cc639745537ea6f06e5def3d34ea2340f5864542ccaaef28131c9d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-selector-not-established/run-native.source.txt",
+      "bytes": 4141,
+      "sha256": "d8bf5558a08432c009cdfe70cee017fab6ece7404eb60e0ea5ae2a8ff306adc2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-selector-not-established/selectors.json",
+      "bytes": 326,
+      "sha256": "75816adf9cfaa6d9323f90a786d0537b2cfe7226822a245c82531bcad51c76fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/gateway-selector-not-established/source-context.json",
+      "bytes": 19079,
+      "sha256": "90b6026a2f8a536e5a034d7800984f9859b2ed7a59a9a57ab228afa443bba826"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/input-and-capture-qualifications.json",
+      "bytes": 25605,
+      "sha256": "012419924553aff356bf074d1bb34ece5248dec599e0dcd21d2e9accf331ddea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/source-footprint.json",
+      "bytes": 12794,
+      "sha256": "596c329358cb5ef2986bb5459157aa75c52a75745fe506fcc1c1d570a6913353"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/check-0.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/check-1.txt",
+      "bytes": 26,
+      "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/check-2.txt",
+      "bytes": 233,
+      "sha256": "02e7ddbd5309052ff5d05c4dcd56bddce6f269591b90abe613abed49d86c532c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/checks.json",
+      "bytes": 3384,
+      "sha256": "e3b1b3e91f75b16fd4530a0fc92cd036fbab20aaa142a698f9684b11a6369757"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/mypy-a697-check.json",
+      "bytes": 1570,
+      "sha256": "60cd55fb0587eaed5169f5dec144ad0bed2d408db3aed5ebe1d6fc7bf33dfd20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/mypy-a697.txt",
+      "bytes": 43,
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/pre-freeze-mypy-successor.txt",
+      "bytes": 43,
+      "sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/static/pre-freeze-mypy.txt",
+      "bytes": 171,
+      "sha256": "15b60a634d18e21982e27bc5db16a8871a402a4aecb2e661c1d9960cedff8e51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/unknown-amount-removal-a2/child.source.txt",
+      "bytes": 1837,
+      "sha256": "0518850abb7c0533687c736ee39190eb47466bb83537a7212242f03ba803066f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/unknown-amount-removal-a2/native.json",
+      "bytes": 8940,
+      "sha256": "bca00ca4486a32a5f25f474fa8ee18a795c523ff6dd1a2253a0c28e212e45146"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/unknown-amount-removal-a2/native.txt",
+      "bytes": 278887,
+      "sha256": "75d1a878be590d8efa3bd5cca0a640b288d0084b7a2dc9593e054cf14b9f3a55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/unknown-amount-removal-a2/native.xml",
+      "bytes": 39088,
+      "sha256": "83df48aa8ce7c620272d0895d3af18527b4472c025000a0e876ed4bdcfd03b62"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/unknown-amount-removal-a2/run-native.source.txt",
+      "bytes": 4075,
+      "sha256": "9fd0ca3d4ac27bc795321151376ad7704d0f9ea4f7ba45e036c81c3d04eca4fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair-evidence/unknown-amount-removal-a2/source-context.json",
+      "bytes": 15072,
+      "sha256": "52a747cf372f9bb431c9979bb18a95392fbc812eb5333a124c5dfdd069ac31d6"
+    }
+  ],
+  "indexed_bytes": 3138415,
+  "raw_only": [
+    {
+      "path": "/dev/shm/e02-B-llm-affected-31d613/source-context.json",
+      "sha256": "cd924ee6140b2c07c31f9902c3bb468c409c72964522b2326d5fd62fadae7fa7",
+      "bytes": 483134,
+      "availability_to_G": "not_established",
+      "replay": "Exact committed driver, selector catalog, target Git source and same declared environment; source census is file-backed polisyos modules at pytest.main return, not universal imports/resources."
+    }
+  ],
+  "boundary": "Complete moderate deciding outputs copied byte-for-byte; large full34 origin census remains raw with exact path/hash and explicit G availability limit. No fixture trees/env/datasets copied.",
+  "file_count": 71,
+  "total_bytes": 3147606
+}

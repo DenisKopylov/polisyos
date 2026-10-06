@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.160" timestamp="2026-10-06T21:37:23.147472+00:00" hostname="b878f4efbdfc"><testcase classname="" name="tests.unit.scientist.orchestration.llm.test_required_audit_settlement_e02" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:17: in &lt;module&gt;
+    from polisyos.core.llm.settlement import producer_settlement
+E   ModuleNotFoundError: No module named 'polisyos.core.llm.settlement'</error></testcase></testsuite></testsuites>

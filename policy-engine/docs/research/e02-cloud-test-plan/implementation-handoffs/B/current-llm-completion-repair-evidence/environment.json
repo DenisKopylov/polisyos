@@ -1,0 +1,19 @@
+{
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "python_version": "Python 3.14.2",
+  "versions": {
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "mypy": "1.19.1",
+    "tiktoken": "0.12.0",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2"
+  },
+  "uv": "uv 0.9.21",
+  "node": "v22.22.0",
+  "tokenizer_cache_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+  "environment_boundary": "Tool observations at packaging time, not retroactive runtime version/origin claims. Each native child stores Python/pytest identity and explicit context. No secret/environment dump or universal dependency read-set claim.",
+  "tokenizer_bytes": 1681126,
+  "tokenizer_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+}

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="32" time="14.801" timestamp="2026-10-06T15:48:34.787105+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[1]" time="0.015" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[20]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_absent_threshold_does_not_assess_robustness" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-True]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-False]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-0]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-nan]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-inf]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-True]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-False]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-0]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-nan]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-inf]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_unknown_or_empty_finite_basis_remains_partial[values0-1.0]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_unknown_or_empty_finite_basis_remains_partial[values1-None]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_suite_replacement_keeps_count_basis_separate_from_issue_groups" time="0.002" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_legacy_issue_counts_cannot_supply_missing_scenario_evidence" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_known_complete_nonviolating_stream_is_robust" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_report_reader_refuses_corrupted_count_basis[attempted-True]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_report_reader_refuses_corrupted_count_basis[violated_scenarios-3]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_reader_refuses_score_independent_of_retained_basis" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_actual_blueprint_existing_report_path_requires_scenario_basis[False]" time="0.034" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_actual_blueprint_existing_report_path_requires_scenario_basis[True]" time="0.032"><failure message="AssertionError: assert 1.0 == None&#10; +  where 1.0 = StressTestReport(schema_version='1.0', report_id='historical', total_scenarios_evaluated=32, adversarial_plan_ref=None...e_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={}).robustness_score">tmp_path = PosixPath('/dev/shm/e02-D-stress-red-fdc2c23c76dd4967936362214bacbf4b/test_actual_blueprint_existing1')
+legacy = True
+
+    @pytest.mark.parametrize("legacy", [False, True])
+    def test_actual_blueprint_existing_report_path_requires_scenario_basis(
+        tmp_path: Path, legacy: bool
+    ) -&gt; None:
+        report = (
+            StressTestReport(report_id="historical", total_scenarios_evaluated=32, robustness_score=1.0)
+            if legacy
+            else _run([1.0] * 31 + [3.0])
+        )
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store=store, registry_bundle=registry, run_id="blueprint-counts")
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("blueprint-counts"))
+        ref = store.put_json(
+            report.model_dump(mode="json"),
+            PutOptions(
+                kind="scientist.stress_test_report",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.StressTestReport", version=report.schema_version
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        original = store.get_bytes(ref.artifact_id)
+        state = ExperimentState(
+            run_id="blueprint-counts", artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: ref}
+        )
+        published_ref = _ensure_stress_test_report(
+            ctx, state, evaluation_vector=PolicyEvaluationVector(candidate_id="c")
+        )
+        restored = StressTestReport.model_validate(
+            from_canonical_bytes(FileSystemCAS(tmp_path / "cas").get_bytes(published_ref.artifact_id))
+        )
+&gt;       assert restored.robustness_score == (None if legacy else 31 / 32)
+E       AssertionError: assert 1.0 == None
+E        +  where 1.0 = StressTestReport(schema_version='1.0', report_id='historical', total_scenarios_evaluated=32, adversarial_plan_ref=None...e_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={}).robustness_score
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:213: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_typed_basis_requires_exact_supported_schema[2.0]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;">schema = '2.0'
+
+    @pytest.mark.parametrize("schema", ["2.0", "1.1-dev", "1.0"])
+    def test_typed_basis_requires_exact_supported_schema(schema: str) -&gt; None:
+        payload = _run([1.0, 3.0]).model_dump(mode="json")
+        payload["schema_version"] = schema
+&gt;       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:222: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_typed_basis_requires_exact_supported_schema[1.1-dev]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;">schema = '1.1-dev'
+
+    @pytest.mark.parametrize("schema", ["2.0", "1.1-dev", "1.0"])
+    def test_typed_basis_requires_exact_supported_schema(schema: str) -&gt; None:
+        payload = _run([1.0, 3.0]).model_dump(mode="json")
+        payload["schema_version"] = schema
+&gt;       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:222: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_typed_basis_requires_exact_supported_schema[1.0]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;">schema = '1.0'
+
+    @pytest.mark.parametrize("schema", ["2.0", "1.1-dev", "1.0"])
+    def test_typed_basis_requires_exact_supported_schema(schema: str) -&gt; None:
+        payload = _run([1.0, 3.0]).model_dump(mode="json")
+        payload["schema_version"] = schema
+&gt;       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:222: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_new_schema_cannot_claim_score_without_typed_basis" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;">def test_new_schema_cannot_claim_score_without_typed_basis() -&gt; None:
+&gt;       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'pydantic_core._pydantic_core.ValidationError'&gt;
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:227: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_anonymous_report_retry_is_counted_once_at_actual_cas_path" time="0.028"><failure message="TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'">tmp_path = PosixPath('/dev/shm/e02-D-stress-red-fdc2c23c76dd4967936362214bacbf4b/test_anonymous_report_retry_is0')
+
+    def test_anonymous_report_retry_is_counted_once_at_actual_cas_path(tmp_path: Path) -&gt; None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store=store, registry_bundle=registry, run_id="retry-counts")
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retry-counts"))
+        base = _run([1.0, 3.0])
+        child = _run([1.0, 1.0])
+        ref = store.put_json(
+            base.model_dump(mode="json"),
+&gt;           PutOptions(kind="scientist.stress_test_report"),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:240: TypeError</failure></testcase><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_same_anonymous_report_as_base_is_not_an_extra_attempt" time="0.001"><failure message="AssertionError: assert 4 == 2&#10; +  where 4 = StressScenarioEvidence(attempted=4, finite_evaluated=4, violated_scenarios=2, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None).attempted&#10; +    where StressScenarioEvidence(attempted=4, finite_evaluated=4, violated_scenarios=2, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None) = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...ite_scenarios', 'score_formula': '(finite_evaluated-violated_scenarios)/finite_evaluated', 'score_status': 'observed'}).scenario_evidence">def test_same_anonymous_report_as_base_is_not_an_extra_attempt() -&gt; None:
+        base = _run([1.0, 3.0])
+        merged = _recompute_stress_test_report(_merge_stress_test_reports(base, [base]))
+&gt;       assert merged.scenario_evidence.attempted == 2
+E       AssertionError: assert 4 == 2
+E        +  where 4 = StressScenarioEvidence(attempted=4, finite_evaluated=4, violated_scenarios=2, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None).attempted
+E        +    where StressScenarioEvidence(attempted=4, finite_evaluated=4, violated_scenarios=2, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None) = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...ite_scenarios', 'score_formula': '(finite_evaluated-violated_scenarios)/finite_evaluated', 'score_status': 'observed'}).scenario_evidence
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:286: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_budget_port_uses_ordinary_typed_context_not_json_state" time="0.001"><failure message="AssertionError: ordinary blueprint context port is missing&#10;assert None is not None">tmp_path = PosixPath('/dev/shm/e02-D-stress-red-fdc2c23c76dd4967936362214bacbf4b/test_budget_port_uses_ordinary0')
+
+    def test_budget_port_uses_ordinary_typed_context_not_json_state(tmp_path: Path) -&gt; None:
+        from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
+        from polisyos.scientist.orchestration.engine import BudgetMiddleware, BudgetState
+    
+        context_type = getattr(runtime, "PolicyBudgetExecutionContext", None)
+&gt;       assert context_type is not None, "ordinary blueprint context port is missing"
+E       AssertionError: ordinary blueprint context port is missing
+E       assert None is not None
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:295: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,13 @@
+# D stress continuation deciding payloads
+
+These are captured outputs and verifier source, not domain inputs. Resource records pin each execution separately. The full final composed wave at40220c6 was142 tests with139PASS/3FAIL; three ordinary state fixtures used ArtifactRef-only reports_index incorrectly after their serializer assertions passed. The test-only c920 companion uses actual params.funnel_outcome and its whole4-test path passed. This does not claim a new full142-test execution.
+
+Original82 native54PASS andc2 native32PASS cover earlier source scopes. New633 five-red output exposes real missing projection fields, phaseD4 manifest mismatch and empty-component completeness. Its unused trailing occurrence assertion was moved back to its original control in063a; the unchanged first completeness assertion had already failed. The corrected063a isolated replay andee6 green attempt were SIGKILL without verdict. The later402 fullwave executed the corrected empty-component test and actual manifest test successfully.
+
+Actual source count-removal at82 kept report/schema markers: capped-example1 failed while full-example10 passed. Rawbool pytest removal was killed before verdict. The small cf358 native actual-helper probe retains a strictFalse positive control and four identical malformed inputs: exact helper refuses them; removal accepts them and exitsFAIL. It is a bounded helper execution, not a blueprint/backend substitute.
+
+Earlier baseline-b uses an invalid direct-objective fixture; baseline-c is development before a frozen oracle. Retry schema red includes one missingmedia_type fixture error; retry-fixture-red first lacks pytest_helpers, while retry-fixture-red-full supplies the full Git profile and genuinely fails anonymous retry counts. Development and fixture failures are not attributed as inherited product defects.
+
+Initial Ecomposition lacked tracked architecture input and returnedERROR. Corrected full E/D source profiles were killed twice with empty stdout and no stage verdict. Both remainERROR/UNRUN; no sampler, round, direction or bridgePASS is claimed from those attempts. Four-path mypy was killed at82 and again atc920 before producing a type verdict. Two-path earlier mypyPASS has its narrower source scope. Global state-read9FAIL belongs to the other node; the complete canonical tool output and actual owned blueprint declaration/reads are recorded separately, with no checker waiver.
+
+All pytest invocations use new nonexisting basetemp directories; framework automatic retention is limited to each specified test scratch. No global preservation claim is made. No cleanup/deletion, history rewrite or source-limit waiver is part of this slice.

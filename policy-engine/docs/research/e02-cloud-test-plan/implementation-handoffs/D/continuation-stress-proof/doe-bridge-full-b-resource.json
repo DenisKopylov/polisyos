@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+  ],
+  "cwd": "/dev/shm/e02-D-E-composed-full-036mrf56/policy-engine",
+  "D_source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+  "E_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "exit_code": -9,
+  "wall_seconds": 76.12677923600131,
+  "peak_rss_kib": 771828,
+  "shared_memory_events_before": "low 0\nhigh 0\nmax 10456557\noom 109\noom_kill 17\noom_group_kill 0\n",
+  "shared_memory_events_after": "low 0\nhigh 0\nmax 10972516\noom 110\noom_kill 18\noom_group_kill 0\n"
+}

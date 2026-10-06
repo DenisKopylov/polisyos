@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/dev/shm/e02-D-E-composed-np9pjw79/bridge_probe.py"
+  ],
+  "cwd": "/dev/shm/e02-D-E-composed-np9pjw79/policy-engine",
+  "exit_code": 1,
+  "wall_seconds": 7.275048446012079,
+  "max_rss_kib": 744276,
+  "input_manifest": "doe-composition-inputs.json"
+}

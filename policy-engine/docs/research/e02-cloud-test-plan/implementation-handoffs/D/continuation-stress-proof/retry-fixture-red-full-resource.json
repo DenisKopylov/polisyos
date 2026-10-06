@@ -1,0 +1,24 @@
+{
+  "source_sha": "f59fe9f3c76799f9590c391f3812e237a6aad84f",
+  "export_dir": "/dev/shm/e02-D-schema-red-full-hx_wf3to",
+  "git_input_selectors": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests"
+  ],
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py::test_anonymous_report_retry_is_counted_once_at_actual_cas_path",
+    "--basetemp",
+    "/dev/shm/e02-D-retry-red-full-da110845438f4f98a28e8603c3993b81",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/retry-fixture-red-full-junit.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 21.99008501500066,
+  "peak_rss_kib": 979008
+}

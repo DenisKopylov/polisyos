@@ -1,0 +1,56 @@
+{
+  "D_source_sha": "71c913bb04754f61c6dd0b45f6454a0ec6bce2e1",
+  "D_src_tree": "0006a6c02ecc55e893eeb875ae80a4b94ec5190c",
+  "E_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "composition_dir": "/dev/shm/e02-D-E-composed-np9pjw79",
+  "E_overlays": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+      "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "a24805e9abefb4b3826f424c0c6dfd529c2ea338",
+      "sha256": "5ceaaa52de62ed0723a522a3b500100c8571409a55d961bad3f3eb0756fba24e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "6ec3567995fac9550343013279d4bf12a269817a",
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "git_blob": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc"
+    }
+  ],
+  "scope": "specific configured exploratory bridge only; E designs exact bytes do not yet include D threshold before-validator",
+  "probe": {
+    "source_sha": "71c913bb04754f61c6dd0b45f6454a0ec6bce2e1",
+    "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+    "sha256": "7b40725e989ec06212337f341196428e6393fb460c0bc799e361cef49e37ef35"
+  }
+}

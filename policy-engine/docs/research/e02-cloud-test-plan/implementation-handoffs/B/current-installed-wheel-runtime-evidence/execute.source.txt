@@ -1,0 +1,33 @@
+from pathlib import Path
+import subprocess,os,json,time,hashlib,sys
+from datetime import datetime,UTC
+ROOT=Path('/workspace/e02-B-current-coordination')
+TASK=Path('/tmp/e02-B-la057-final-dd9584728bd9')
+DRIVER=Path(__file__).parent
+SHA='dd9584728bd96f204983615216efdbc58117e713'
+PY=ROOT/'.polisyos/e02-B-current/environment/bin/python'
+LAUNCHER=ROOT/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py'
+def snapshot():
+ def git(*args): return subprocess.check_output(['git',*args],cwd=ROOT,text=True).strip()
+ return {'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'branch':git('symbolic-ref','--short','HEAD'),'status':git('status','--porcelain','--untracked-files=all')}
+before=snapshot()
+assert before['head']==SHA and before['status']=='' and not TASK.exists()
+ARGV=[str(PY),'-I','-B',str(LAUNCHER),'--source-root',str(ROOT/'policy-engine'),'--source-sha',SHA,'--test-path',str(ROOT/'policy-engine/tests/unit/common/test_async_tools_installed_wheel.py'),'--test-sha256','eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702','--consumer-sha256','9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09','--task-root',str(TASK),'--python',str(PY),'--uv',str(ROOT/'.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv')]
+env=dict(os.environ)
+CAPS=('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS')
+removed={name:env.pop(name) for name in CAPS if name in env}
+# Preserve the full actual environment locally; exported receipt discloses safe relevant values.
+localenv=DRIVER/'actual-environment-local.json'
+localenv.write_text(json.dumps(env,indent=2,sort_keys=True)+'\n')
+profile={'source_before':before,'command':ARGV,'cwd':str(ROOT),'launcher_sha256':hashlib.sha256(LAUNCHER.read_bytes()).hexdigest(),'numeric_cap_names_removed':list(removed),'numeric_cap_names_absent_in_actual_child':[x for x in CAPS if x not in env],'actual_environment_names':sorted(env),'environment_profile':{k:v for k,v in env.items() if k in ('PATH','LANG','LC_ALL','TZ','PYTHONPATH','PYTHONHOME','VIRTUAL_ENV') or k.startswith(('E02_','POLISYOS_'))},'actual_environment_local_path':str(localenv),'actual_environment_local_sha256':hashlib.sha256(localenv.read_bytes()).hexdigest(),'environment_custody':'Complete actual env retained locally; no credential values exported into Git companions. Actual launcher subsequently clears Python injection and sets task cache/autoload profile.'}
+(DRIVER/'input-profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+t0=time.monotonic();started=datetime.now(UTC).isoformat();output=DRIVER/'launcher.txt'
+with output.open('wb') as stream:
+ proc=subprocess.Popen(ARGV,cwd=ROOT,env=env,stdout=stream,stderr=subprocess.STDOUT)
+ _,status,usage=os.wait4(proc.pid,0);proc.returncode=os.waitstatus_to_exitcode(status)
+raw=output.read_bytes();after=snapshot()
+result={'command':ARGV,'cwd':str(ROOT),'start_utc':started,'end_utc':datetime.now(UTC).isoformat(),'exit':proc.returncode,'wall_s':time.monotonic()-t0,'maxrss_kib_linux':usage.ru_maxrss,'source_before':before,'source_after':after,'output':str(output),'output_bytes':len(raw),'output_sha256':hashlib.sha256(raw).hexdigest(),'task_root':str(TASK),'driver_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+(DRIVER/'wrapper.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))
+assert before==after,('source mutated during exact frozen wheel operation',before,after)
+sys.exit(proc.returncode)

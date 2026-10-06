@@ -68,7 +68,8 @@ typed discovery, versioning, dispatch, and evidence.
 
 Import `causal_worker_execution_context`, `validate_source_bound_gcm_spec`,
 `validate_source_bound_causal_estimator_interval`, and
-`validate_source_bound_causal_worker_response` from `polisyos.foundry.methods`.
+`validate_source_bound_causal_worker_response` from `polisyos.foundry` for
+cross-package use; the method package retains the same canonical aliases.
 These lazy exports resolve to the existing canonical provider functions; they
 introduce no second validator, artifact store or scheduler. The execution context
 requires an actual CAS and source reference. The validators reopen source bytes

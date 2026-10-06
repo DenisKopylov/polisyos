@@ -88,13 +88,13 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 284 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 288 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 41 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 27 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
@@ -1181,7 +1181,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 284 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 288 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `module_doc_only` | 0 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
 
@@ -1191,7 +1191,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (284)</summary>
+<details><summary>Entrypoint exports (288)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1241,6 +1241,8 @@ CausalModelEnsembleRef
 CausalPanelBundleManifest
 CausalQuery
 CausalQueryResult
+CausalResultKind
+CausalEstimatorInterval
 CausalQueryResultRef
 CausalRegime
 CausalReadinessBundle
@@ -1431,6 +1433,8 @@ StakeholderSpec
 StrategicResponseChannel
 StrategicResponseSpecsBundle
 StructuralCausalModelSpec
+SCMTrainingRows
+SCMFitProvenance
 SubgroupEffect
 SuccessCriterion
 SurveyAssumptionComponent
@@ -1512,7 +1516,7 @@ resolve_lazy_export
 
 </details>
 
-<details><summary>Supported exports (284)</summary>
+<details><summary>Supported exports (288)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1562,6 +1566,8 @@ CausalModelEnsembleRef
 CausalPanelBundleManifest
 CausalQuery
 CausalQueryResult
+CausalResultKind
+CausalEstimatorInterval
 CausalQueryResultRef
 CausalRegime
 CausalReadinessBundle
@@ -1752,6 +1758,8 @@ StakeholderSpec
 StrategicResponseChannel
 StrategicResponseSpecsBundle
 StructuralCausalModelSpec
+SCMTrainingRows
+SCMFitProvenance
 SubgroupEffect
 SuccessCriterion
 SurveyAssumptionComponent
@@ -2305,7 +2313,7 @@ world
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 27 |
+| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 31 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
@@ -2317,7 +2325,7 @@ world
 - Facade: `lazy_facade`
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
-<details><summary>Entrypoint exports (27)</summary>
+<details><summary>Entrypoint exports (31)</summary>
 
 ```text
 DependencyProfileResolutionFailure
@@ -2337,6 +2345,7 @@ TFIDFEmbedder
 bind_legal_subject_annotations
 build_method_catalog_provenance_manifest
 build_method_catalog_runtime_identity
+causal_worker_execution_context
 compile
 compile_program
 execute
@@ -2347,6 +2356,9 @@ persist_legal_subject_membership_source
 produce_legal_subject_spine
 recognize_legal_correspondence
 select_method_candidates_for_requirements
+validate_source_bound_causal_estimator_interval
+validate_source_bound_causal_worker_response
+validate_source_bound_gcm_spec
 ```
 
 </details>
@@ -2422,7 +2434,7 @@ fabric_uncertainty_context_from_decision_data
 
 </details>
 
-<details><summary>Supported exports (27)</summary>
+<details><summary>Supported exports (31)</summary>
 
 ```text
 DependencyProfileResolutionFailure
@@ -2442,6 +2454,7 @@ TFIDFEmbedder
 bind_legal_subject_annotations
 build_method_catalog_provenance_manifest
 build_method_catalog_runtime_identity
+causal_worker_execution_context
 compile
 compile_program
 execute
@@ -2452,6 +2465,9 @@ persist_legal_subject_membership_source
 produce_legal_subject_spine
 recognize_legal_correspondence
 select_method_candidates_for_requirements
+validate_source_bound_causal_estimator_interval
+validate_source_bound_causal_worker_response
+validate_source_bound_gcm_spec
 ```
 
 </details>

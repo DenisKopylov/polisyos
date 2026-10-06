@@ -1,0 +1,103 @@
+{
+  "schema": "e02.independent.current142_binding.v1",
+  "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "source_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "actual_junit_counts": {
+    "tests": 142,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "passed": 142,
+  "unchanged_test_bindings": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+      "original_proof_commit": "966772c181e8cbf90b8fdf6632315555082ef6d0",
+      "target_commit": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+      "bytes": 3352,
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "original_proof_commit": "57d5ae63bb1c4fec25a0451ef40402db922e84c8",
+      "target_commit": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+      "bytes": 7968,
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "original_proof_commit": "678a8bdb06103009d0547e55e00022061dfca4c3",
+      "target_commit": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6",
+      "bytes": 6919,
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "original_proof_commit": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+      "target_commit": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "sha256": "7071b401d3c4bca91da5e7fe1f02a23f1de0d8c8cce2411cb60ed429b404726c",
+      "bytes": 1118,
+      "equal": true
+    }
+  ],
+  "old425_to_current_named_source_comparison": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "original425_sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+      "actual_current_sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "original425_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "actual_current_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "original425_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "actual_current_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "original425_sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+      "actual_current_sha256": "eb42bb8709756ba14f7e5ecdbaf4b7e30d204b3bb776fc545f9c50a641d9e8c3",
+      "equal": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "original425_sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+      "actual_current_sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "equal": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "original425_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "actual_current_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "equal": true
+    }
+  ],
+  "actual11origin_match": true,
+  "source_before_after_equal_and_clean": true,
+  "complete_output_summary": [
+    "PASSED tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[amount3]",
+    "142 passed, 2 warnings in 8.82s"
+  ],
+  "runtime_argv_file": "command.json",
+  "original_scratch": "/dev/shm/e02-oracle-final3f38-native142-0ab3369db8354882986a1e6979b1c818",
+  "no_new_snapshots_archives_or_production_writes": true,
+  "no_cpu_process_worker_caps": true,
+  "no_backend_import_in_parent": true,
+  "preservation": "Actual basetemp exists after; fixtures and output retained. No cleanup/deletion.",
+  "supersession": "Current joined caller gap in historical exact42540PASS is resolved only for unchanged10legacy+30fiscal cases. Current98rawcost+4underflow cases join actual Gateway/enforcer/FileLedger; provider HTTP payloads remain fixture supplied, no independent invoice or full deployment authority.",
+  "per_file_actual_classname_counts": {
+    "tests.unit.scientist.methods.search.test_legacy_frontier_independent_oracle": 10,
+    "tests.unit.scientist.methods.search.test_budget_deficit_independent_oracle": 30,
+    "tests.integration.core.llm.test_native_gateway_cost_intake": 98,
+    "tests.integration.core.llm.test_native_gateway_cost_range": 4
+  }
+}

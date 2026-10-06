@@ -1,0 +1,878 @@
+E501 Line too long (103 > 100)
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:20:101
+   |
+18 | ROOT = "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+19 | REFS = {
+20 |     "gp": ("a474ff675264e2264d24e49814f29d873320b1ee", "root-243-gp-transfer-independent-review.json"),
+   |                                                                                                     ^^^
+21 |     "quality": ("56708f9e38b44352e4e38ffe8808f1797764f3dc", "champion-backend-extension-243.json"),
+22 |     "frontend": ("7c04c45bbc8b7f63f544cc49ec6686c5a65b45da", "champion-frontend-ci-243.json"),
+   |
+
+E501 Line too long (108 > 100)
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:23:101
+   |
+21 |     "quality": ("56708f9e38b44352e4e38ffe8808f1797764f3dc", "champion-backend-extension-243.json"),
+22 |     "frontend": ("7c04c45bbc8b7f63f544cc49ec6686c5a65b45da", "champion-frontend-ci-243.json"),
+23 |     "accounting": ("fed62e39b486827f18bdfd5a9d7fc916ea58ecee", "published-criterion-accounting-delta.json"),
+   |                                                                                                     ^^^^^^^^
+24 |     "fun": ("128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d", "published-fun03-fixture-migration.json"),
+25 |     "search": ("262749db1965726ee02c1e7618db99493eceb1fe", "search-canonical-243.json"),
+   |
+
+S603 `subprocess` call: check for execution of untrusted input
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:35:12
+   |
+34 | def git(*args: str) -> bytes:
+35 |     return subprocess.check_output(["git", "--no-optional-locks", *args], cwd=REPO)
+   |            ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+S607 Starting a process with a partial executable path
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:35:36
+   |
+34 | def git(*args: str) -> bytes:
+35 |     return subprocess.check_output(["git", "--no-optional-locks", *args], cwd=REPO)
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:66:23
+   |
+66 | def path_cells(value: Any, publisher: str, at: str = "") -> list[dict[str, Any]]:
+   |                       ^^^
+67 |     cells: list[dict[str, Any]] = []
+68 |     if isinstance(value, dict):
+   |
+
+S314 Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:93:12
+   |
+92 | def junit(raw: bytes) -> dict[str, Any]:
+93 |     tree = ET.fromstring(raw)
+   |            ^^^^^^^^^^^^^^^^^^
+94 |     tests = list(tree.iter("testcase"))
+95 |     failed = [t.get("name") for t in tests if t.find("failure") is not None]
+   |
+
+E501 Line too long (107 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:98:101
+    |
+ 96 |     errors = [t.get("name") for t in tests if t.find("error") is not None]
+ 97 |     skipped = [t.get("name") for t in tests if t.find("skipped") is not None]
+ 98 |     counts = {"tests": len(tests), "failures": len(failed), "errors": len(errors), "skipped": len(skipped)}
+    |                                                                                                     ^^^^^^^
+ 99 |     suites = list(tree.iter("testsuite"))
+100 |     declared = {k: sum(int(s.get(k, "0")) for s in suites) for k in counts}
+    |
+
+E501 Line too long (110 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:102:101
+    |
+100 |     declared = {k: sum(int(s.get(k, "0")) for s in suites) for k in counts}
+101 |     require(declared == counts, "JUnit declared/case counts disagree")
+102 |     return {**counts, "passed": len(tests) - len(failed) - len(errors) - len(skipped), "failed_names": failed}
+    |                                                                                                     ^^^^^^^^^^
+    |
+
+E501 Line too long (111 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:105:101
+    |
+105 | def encoded_bundle(sha: str, output: dict[str, Any], path_key: str) -> tuple[dict[str, Any], dict[str, bytes]]:
+    |                                                                                                     ^^^^^^^^^^^
+106 |     path = normalize(output[path_key])
+107 |     packed = blob(sha, path)
+    |
+
+E501 Line too long (126 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:108:101
+    |
+106 |     path = normalize(output[path_key])
+107 |     packed = blob(sha, path)
+108 |     require(digest(packed) == output.get("compressed_rawfile_sha256", output.get("rawfile_sha256")), "bundle compressed hash")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+109 |     require(len(packed) == output["compressed_bytes"], "bundle compressed length")
+110 |     raw = gzip.decompress(packed)
+    |
+
+E501 Line too long (105 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:115:101
+    |
+113 |     payload = json.loads(raw)
+114 |     entries = payload["complete_raw_files"]
+115 |     require(len(entries) == output.get("file_count", output.get("full_raw_files")), "bundle denominator")
+    |                                                                                                     ^^^^^
+116 |     files: dict[str, bytes] = {}
+117 |     cells = []
+    |
+
+E501 Line too long (179 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:126:101
+    |
+124 | …
+125 | …})
+126 | …), "decoded": describe(raw), "file_count": len(files), "unique_paths": len(files), "files": cells}, files
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+E501 Line too long (101 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:134:101
+    |
+132 | …     "schema": "e02.independent.final_git_payload_binding.v1",
+133 | …     "reviewer_lane_head_before": git("rev-parse", "HEAD").decode().strip(),
+134 | …     "runtime_source": {"sha": ROOT, "tree": git("rev-parse", ROOT + "^{tree}").decode().strip()},
+    |                                                                                                   ^
+135 | …     "method": "Read exact Git blobs; validate SHA256/byte counts, strict base64/gzip roundtrips, unique full pathsets, actual XML c…
+136 | …     "receipts": {},
+    |
+
+E501 Line too long (271 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:135:101
+    |
+133 | …
+134 | …ip()},
+135 | …rips, unique full pathsets, actual XML case totals, JSONL session completion, declared recorded source bindings. No backend import/re-execution, new snapshot, cap or cleanup.",
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+136 | …
+137 | …
+    |
+
+E501 Line too long (223 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:143:101
+    |
+141 | …
+142 | …
+143 | …a + "^{tree}").decode().strip(), "path": PREFIX + filename, **describe(raw), "direct_path_hash_cells": path_cells(receipt, sha)}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+144 | …
+145 | …
+    |
+
+RUF059 Unpacked variable `extension_files` is never used
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:150:16
+    |
+148 |     backend, backend_files = encoded_bundle(quality_sha, prior["outputs"], "lossless_bundle")
+149 |     extension_receipt = receipts["quality"]
+150 |     extension, extension_files = encoded_bundle(quality_sha, extension_receipt["output_bundle"], "path")
+    |                ^^^^^^^^^^^^^^^
+151 |     report["encoded_backend"] = backend
+152 |     report["encoded_extension"] = extension
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+E501 Line too long (104 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:150:101
+    |
+148 |     backend, backend_files = encoded_bundle(quality_sha, prior["outputs"], "lossless_bundle")
+149 |     extension_receipt = receipts["quality"]
+150 |     extension, extension_files = encoded_bundle(quality_sha, extension_receipt["output_bundle"], "path")
+    |                                                                                                     ^^^^
+151 |     report["encoded_backend"] = backend
+152 |     report["encoded_extension"] = extension
+    |
+
+E501 Line too long (141 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:153:101
+    |
+151 | …
+152 | …
+153 | …ality_sha, "path": PREFIX + "champion-backend-parity-243.json", **describe(prior_raw)}
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+154 | …
+155 | …eipt"]
+    |
+
+E501 Line too long (106 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:156:101
+    |
+154 |     extension_refs = []
+155 |     prior_ref = extension_receipt["prior_first_wave_receipt"]
+156 |     extension_refs.append(checked(prior_ref["sha"], prior_ref["path"], prior_ref["rawfile_sha256"], None))
+    |                                                                                                     ^^^^^^
+157 |     browser_ref = extension_receipt["doctor_browser_successor"]
+158 |     extension_refs.append(checked(browser_ref["receipt_sha"], browser_ref["receipt_path"], browser_ref["receipt_rawfile_sha256"], Non…
+    |
+
+E501 Line too long (136 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:158:101
+    |
+156 | …prior_ref["path"], prior_ref["rawfile_sha256"], None))
+157 | …successor"]
+158 | …pt_sha"], browser_ref["receipt_path"], browser_ref["receipt_rawfile_sha256"], None))
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+159 | …out"]
+160 | …sion_stdout["path"], extension_stdout["rawfile_sha256"], extension_stdout["bytes"]))
+    |
+
+E501 Line too long (136 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:160:101
+    |
+158 | …pt_sha"], browser_ref["receipt_path"], browser_ref["receipt_rawfile_sha256"], None))
+159 | …out"]
+160 | …sion_stdout["path"], extension_stdout["rawfile_sha256"], extension_stdout["bytes"]))
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+161 | …
+162 | …ent"]["installed_actual_entrypoints"]:
+    |
+
+E501 Line too long (258 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:165:101
+    |
+163 | …
+164 | …
+165 | …d_entrypoint_files": entrypoint_cells, "B21": extension_receipt["B21"], "final_backend_denominator": extension_receipt["source_derived_final_backend_denominator"]}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+166 | …
+167 | …
+    |
+
+E501 Line too long (101 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:177:101
+    |
+175 |         folder = gate["record_relative_path"].rsplit("/", 1)[0]
+176 |         stdout = backend_files[folder + "/complete.txt"]
+177 |         require(digest(stdout) == gate["stdout"]["rawfile_sha256"], f"gate stdout hash {gate['id']}")
+    |                                                                                                     ^
+178 |         require(len(stdout) == gate["stdout"]["bytes"], f"gate stdout length {gate['id']}")
+179 |         require(record["exit_code"] == gate["actual_exit_code"], f"gate exit {gate['id']}")
+    |
+
+E501 Line too long (149 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:181:101
+    |
+179 | …de"], f"gate exit {gate['id']}")
+180 | …
+181 | …["tracked_status"] == "" and gate[key]["tracked_diff"] == "", f"gate source {gate['id']}")
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+182 | …
+183 | …l": gate["label"], "exit_code": gate["actual_exit_code"], "full_stdout_bundle_path": folder + "/complete.txt", **describe(stdout), "…
+    |
+
+E501 Line too long (226 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:183:101
+    |
+181 | …y]["tracked_diff"] == "", f"gate source {gate['id']}")
+182 | …
+183 | …["actual_exit_code"], "full_stdout_bundle_path": folder + "/complete.txt", **describe(stdout), "complete_output": stdout.decode()})
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 | …ts")
+185 | …
+    |
+
+E501 Line too long (127 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:187:101
+    |
+185 |     module_path = "results-v2/B19/artifacts/_build/.tmp/last-mile/module-size.json"
+186 |     module_artifact = json.loads(backend_files[module_path])
+187 |     require(module_artifact["contract_error_count"] == len(module_artifact["contract_errors"]) == 77, "module contract errors")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+188 |     require(module_artifact["finding_count"] == len(module_artifact["findings"]) == 6, "module report-only findings")
+189 |     report["semantic_backend"] = {"overall": prior["overall_status"], "first_wave_backend_counts": dict(backend_counter), "completed_…
+    |
+
+E501 Line too long (117 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:188:101
+    |
+186 |     module_artifact = json.loads(backend_files[module_path])
+187 |     require(module_artifact["contract_error_count"] == len(module_artifact["contract_errors"]) == 77, "module contract errors")
+188 |     require(module_artifact["finding_count"] == len(module_artifact["findings"]) == 6, "module report-only findings")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^
+189 |     report["semantic_backend"] = {"overall": prior["overall_status"], "first_wave_backend_counts": dict(backend_counter), "completed_…
+    |
+
+E501 Line too long (513 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:189:101
+    |
+187 | …== 77, "module contract errors")
+188 | …report-only findings")
+189 | …s": dict(backend_counter), "completed_contract_failures": failure_records, "full_B19_artifact": {"bundle_path": module_path, **describe(backend_files[module_path]), "complete_deciding_artifact": module_artifact}, "extension_successor": extension_receipt["overall_status"], "P41": "No inherited-red waiver; no exact base/input-intersection replay performed by reviewer. Complete error/UNRUN outputs remain nonpassing."}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+190 | …
+191 | …
+    |
+
+E501 Line too long (103 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:194:101
+    |
+192 |     manifest_path = PREFIX + "frontend-ci-243-payload/manifest.json"
+193 |     front_manifest = json.loads(blob(front_sha, manifest_path))
+194 |     require(len(front_manifest["files"]) == front_manifest["file_count"] == 44, "frontend denominator")
+    |                                                                                                     ^^^
+195 |     front_files = {}
+196 |     front_cells = []
+    |
+
+E501 Line too long (120 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:201:101
+    |
+199 |         require(path not in front_files, "duplicate frontend path")
+200 |         packed = blob(front_sha, path)
+201 |         require(digest(packed) == cell["gzip_sha256"] and len(packed) == cell["gzip_bytes"], "frontend compressed cell")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^
+202 |         raw = gzip.decompress(packed)
+203 |         require(digest(raw) == cell["original_sha256"] and len(raw) == cell["original_bytes"], "frontend raw cell")
+    |
+
+E501 Line too long (115 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:203:101
+    |
+201 |         require(digest(packed) == cell["gzip_sha256"] and len(packed) == cell["gzip_bytes"], "frontend compressed cell")
+202 |         raw = gzip.decompress(packed)
+203 |         require(digest(raw) == cell["original_sha256"] and len(raw) == cell["original_bytes"], "frontend raw cell")
+    |                                                                                                     ^^^^^^^^^^^^^^^
+204 |         front_files[path] = raw
+205 |         front_cells.append({"path": path, "compressed": describe(packed), "decoded": describe(raw), "status": "MATCH"})
+    |
+
+E501 Line too long (119 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:205:101
+    |
+203 |         require(digest(raw) == cell["original_sha256"] and len(raw) == cell["original_bytes"], "frontend raw cell")
+204 |         front_files[path] = raw
+205 |         front_cells.append({"path": path, "compressed": describe(packed), "decoded": describe(raw), "status": "MATCH"})
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^
+206 |     require(sum(c["decoded"]["bytes"] for c in front_cells) == front_manifest["original_bytes"], "frontend total raw bytes")
+207 |     require(sum(c["compressed"]["bytes"] for c in front_cells) == front_manifest["compressed_bytes"], "frontend total compressed byte…
+    |
+
+E501 Line too long (124 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:206:101
+    |
+204 |         front_files[path] = raw
+205 |         front_cells.append({"path": path, "compressed": describe(packed), "decoded": describe(raw), "status": "MATCH"})
+206 |     require(sum(c["decoded"]["bytes"] for c in front_cells) == front_manifest["original_bytes"], "frontend total raw bytes")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+207 |     require(sum(c["compressed"]["bytes"] for c in front_cells) == front_manifest["compressed_bytes"], "frontend total compressed byte…
+208 |     report["encoded_frontend"] = {"publisher_sha": front_sha, "manifest_path": manifest_path, **describe(blob(front_sha, manifest_pat…
+    |
+
+E501 Line too long (136 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:207:101
+    |
+205 | …d": describe(packed), "decoded": describe(raw), "status": "MATCH"})
+206 | …_cells) == front_manifest["original_bytes"], "frontend total raw bytes")
+207 | …ont_cells) == front_manifest["compressed_bytes"], "frontend total compressed bytes")
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+208 | …ront_sha, "manifest_path": manifest_path, **describe(blob(front_sha, manifest_path)), "file_count": len(front_files), "files": front…
+209 | …"frontend-ci-243-payload/source-plan.json.gz"])
+    |
+
+E501 Line too long (519 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:208:101
+    |
+206 | …, "frontend total raw bytes")
+207 | …tes"], "frontend total compressed bytes")
+208 | …*describe(blob(front_sha, manifest_path)), "file_count": len(front_files), "files": front_cells, "overall": receipts["frontend"]["overall"], "gates": receipts["frontend"]["gates"], "readiness_scope": "Genuine bounded doctor/Chromium/CDP/DOM readiness, not whole frontend gate or backend acceptance. External294 browser assets are recorded dependency bytes, not embedded in this44-file payload; not recensed by this review."}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+209 | …z"])
+210 | …
+    |
+
+E501 Line too long (130 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:215:101
+    |
+213 |     search_prefix = PREFIX + "checks/search-canonical-243/"
+214 |     search_manifest = json.loads(blob(search_sha, search_prefix + "manifest.json"))
+215 |     manifest_cells = [checked(search_sha, path, cell["sha256"], cell["bytes"]) for path, cell in search_manifest["files"].items()]
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+216 |     command_results = []
+217 |     total = collections.Counter()
+    |
+
+E501 Line too long (135 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:225:101
+    |
+223 | …
+224 | …unit.xml"))
+225 | …rors", "failures", "skipped")} == result["junit"]["counts"], "result/XML mismatch")
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+226 | …ipped", "passed"):
+227 | …
+    |
+
+E501 Line too long (107 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:228:101
+    |
+226 |         for k in ("tests", "errors", "failures", "skipped", "passed"):
+227 |             total[k] += counts[k]
+228 |         events = [json.loads(line) for line in blob(search_sha, folder + "/events.jsonl.txt").splitlines()]
+    |                                                                                                     ^^^^^^^
+229 |         require(events[0]["kind"] == "session_start" and events[-1]["kind"] == "session_finish", "incomplete event session")
+230 |         require(events[-1]["exitstatus"] == result["exit_code"], "event/result exit mismatch")
+    |
+
+E501 Line too long (124 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:229:101
+    |
+227 |             total[k] += counts[k]
+228 |         events = [json.loads(line) for line in blob(search_sha, folder + "/events.jsonl.txt").splitlines()]
+229 |         require(events[0]["kind"] == "session_start" and events[-1]["kind"] == "session_finish", "incomplete event session")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+230 |         require(events[-1]["exitstatus"] == result["exit_code"], "event/result exit mismatch")
+231 |         for key in ("source_before", "source_after"):
+    |
+
+E501 Line too long (158 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:232:101
+    |
+230 | …, "event/result exit mismatch")
+231 | …
+232 | …["tracked_status"] == "" and result[key]["full_tracked_diff"] == "", "command source mismatch")
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+233 | …es():
+234 | …
+    |
+
+E501 Line too long (344 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:240:101
+    |
+238 | …
+239 | …
+240 | …lt_path": path, "actual_exit_code": result["exit_code"], "outcome": result["outcome"], "counts": counts, "events": len(events), "source_before_after_match": True, "full_failure_output_path": folder + "/complete.txt" if counts["failures"] else None})
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+241 | …
+242 | …t["actual_junit_counts"], "aggregate XML counts")
+    |
+
+E501 Line too long (144 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:242:101
+    |
+240 | …al"], "bundle": result["bundle"], "result_path": path, "actual_exit_code": result["exit_code"], "outcome": result["outcome"], "count…
+241 | …ator")
+242 | …ailures", "skipped")} == search_manifest["actual_junit_counts"], "aggregate XML counts")
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+243 | …xecution_occurrences"], "aggregate pass counts")
+244 | …ment-helper-ruff.txt")
+    |
+
+E501 Line too long (104 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:243:101
+    |
+241 |     require(len(command_results) == 17, "command denominator")
+242 |     require({k: total[k] for k in ("tests", "errors", "failures", "skipped")} == search_manifest["actual_junit_counts"], "aggregate X…
+243 |     require(total["passed"] == search_manifest["passed_execution_occurrences"], "aggregate pass counts")
+    |                                                                                                     ^^^^
+244 |     ruff_raw = blob(search_sha, search_prefix + "measurement-helper-ruff.txt")
+245 |     report["search_canonical"] = {"manifest_files": len(manifest_cells), "file_cells": manifest_cells, "complete_commands": sorted(co…
+    |
+
+E501 Line too long (647 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:245:101
+    |
+243 | … counts")
+244 | …
+245 | …_cells, "complete_commands": sorted(command_results, key=lambda c: c["ordinal"]), "actual_execution_occurrences": dict(total), "unique_observed_native_Git_source_files": len(source_cells), "native_source_cells": list(source_cells.values()), "helper_quality": {**describe(ruff_raw), "status": "FAIL", "tail": ruff_raw.decode().splitlines()[-3:]}, "semantic_status": "15PASS2FAIL commands;7FAIL/737PASS execution occurrences. These are repeated literal command occurrences, not distinct test IDs; no incomplete wide run promoted to complete acceptance."}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+246 | …
+247 | …
+    |
+
+E501 Line too long (113 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:253:101
+    |
+251 |     require(fun_green["tests"] == fun_green["passed"] == 52, "FUN52 actual XML")
+252 |     target = fun["checks"][0]["target_sha"]
+253 |     require(git("diff", "--name-only", ROOT, target, "--", "policy-engine/src") == b"", "FUN production changed")
+    |                                                                                                     ^^^^^^^^^^^^^
+254 |     fun_metadata = json.loads(blob(REFS["fun"][0], fun["checks"][0]["raw_metadata"]["path"]))
+255 |     report["fun_fixture_migration"] = {"target_sha": target, "source_tree": git("rev-parse", target + "^{tree}").decode().strip(), "p…
+    |
+
+E501 Line too long (493 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:255:101
+    |
+253 | …oduction changed")
+254 | …
+255 | …rget + "^{tree}").decode().strip(), "production_src_equal_root243": True, "cases": fun_green, "native_source_provenance": "Receipt/source identity is author recomputation, not observed imported module origins; no current final-root runtime inferred.", "recorded_metadata": fun_metadata, "guard_removal": fun["checks"][1]["property_signal"], "remaining_authority": fun["limitations_and_next_owner"]}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+256 | …
+257 | …
+    |
+
+E501 Line too long (112 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:260:101
+    |
+258 |     ids = [row["id"] for row in accounting["findings"]]
+259 |     require(len(ids) == len(set(ids)) == 45, "accounting45 distinct IDs")
+260 |     disposition = dict(collections.Counter(row["accounting_disposition_now"] for row in accounting["findings"]))
+    |                                                                                                     ^^^^^^^^^^^^
+261 |     require(disposition == accounting["denominator"]["accounting_dispositions_now"], "accounting disposition counts")
+262 |     source_docs = {}
+    |
+
+E501 Line too long (117 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:261:101
+    |
+259 |     require(len(ids) == len(set(ids)) == 45, "accounting45 distinct IDs")
+260 |     disposition = dict(collections.Counter(row["accounting_disposition_now"] for row in accounting["findings"]))
+261 |     require(disposition == accounting["denominator"]["accounting_dispositions_now"], "accounting disposition counts")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^
+262 |     source_docs = {}
+263 |     for key, cell in accounting["canonical_inputs"]["original_documents"].items():
+    |
+
+E501 Line too long (121 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:272:101
+    |
+270 |     prior_accounting = json.loads(blob(prior_cell["source_sha"], prior_cell["path"]))
+271 |     for row in accounting["findings"]:
+272 |         require(coverage["findings"][int(row["coverage_pointer"].split("/")[-1])]["id"] == row["id"], "coverage pointer")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^
+273 |         require(prior_accounting["findings"][int(row["prior_row_pointer"].split("/")[-1])]["id"] == row["id"], "prior pointer")
+274 |         for block in row["original_source_blocks"]:
+    |
+
+E501 Line too long (127 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:273:101
+    |
+271 |     for row in accounting["findings"]:
+272 |         require(coverage["findings"][int(row["coverage_pointer"].split("/")[-1])]["id"] == row["id"], "coverage pointer")
+273 |         require(prior_accounting["findings"][int(row["prior_row_pointer"].split("/")[-1])]["id"] == row["id"], "prior pointer")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+274 |         for block in row["original_source_blocks"]:
+275 |             first, last = block["lines"]
+    |
+
+E501 Line too long (131 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:278:101
+    |
+276 |             raw = "".join(source_docs[block["document_key"]][first - 1:last]).encode()
+277 |             require(digest(raw) == block["fragment_sha256"], f"criterion fragment {row['id']}")
+278 |             require(raw in blob(coverage_cell["source_sha"], card_paths[block["card"]]), f"full criterion containment {row['id']}")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+279 |             fragments.append({"id": row["id"], "document": block["document_key"], "lines": block["lines"], **describe(raw)})
+280 |     require(len(fragments) == 46, "criterion occurrences")
+    |
+
+E501 Line too long (124 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:279:101
+    |
+277 |             require(digest(raw) == block["fragment_sha256"], f"criterion fragment {row['id']}")
+278 |             require(raw in blob(coverage_cell["source_sha"], card_paths[block["card"]]), f"full criterion containment {row['id']}")
+279 |             fragments.append({"id": row["id"], "document": block["document_key"], "lines": block["lines"], **describe(raw)})
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+280 |     require(len(fragments) == 46, "criterion occurrences")
+281 |     report["accounting_scope"] = {"distinct_findings": len(ids), "criterion_fragment_occurrences": len(fragments), "fragment_bindings…
+    |
+
+E501 Line too long (438 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:281:101
+    |
+279 | …k["lines"], **describe(raw)})
+280 | …
+281 | …s": len(fragments), "fragment_bindings": fragments, "dispositions": disposition, "closed": 0, "current_runtime_claim": "Historical exact425 frontier40 is not243 runtime: controller/service differ; current joined caller remains verification_missing until authorized bounded replay. Accounting status is not institutional finding adjudication."}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+282 | …: "425c90e8a698edf40f345baf1395d11545bb01d1", "Gateway": "1ca25193d10787cbc545490c4a954b15b8a6b227"}
+283 | …
+    |
+
+E501 Line too long (195 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:282:101
+    |
+280 | …
+281 | …nt_occurrences": len(fragments), "fragment_bindings": fragments, "dispositions": disposition, "closed": 0, "current_runtime_claim": …
+282 | …acy_frontier": "425c90e8a698edf40f345baf1395d11545bb01d1", "Gateway": "1ca25193d10787cbc545490c4a954b15b8a6b227"}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+283 | …
+284 | …
+    |
+
+E501 Line too long (101 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:285:101
+    |
+283 |     equivalence = []
+284 |     for cell in accounting["named_execution_module_equivalence"]:
+285 |         previous = checked(source_replays[cell["role"]], cell["path"], cell["executed_sha256"], None)
+    |                                                                                                     ^
+286 |         current = checked(ROOT, cell["path"], cell["freeze_sha256"], None)
+287 |         equal = previous["sha256"] == current["sha256"]
+    |
+
+E501 Line too long (108 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:289:101
+    |
+287 |         equal = previous["sha256"] == current["sha256"]
+288 |         require(equal == cell["equal"], "named equivalence claim")
+289 |         equivalence.append({"role": cell["role"], "previous": previous, "root243": current, "equal": equal})
+    |                                                                                                     ^^^^^^^^
+290 |     report["accounting_named_source_equivalence"] = equivalence
+291 |     report["preparation_corrections"] = ["Initial generic path traversal tried to read nativeCAS test from oracle publisher; the file…
+    |
+
+E501 Line too long (838 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:291:101
+    |
+289 | …ual": equal})
+290 | …
+291 | …S test from oracle publisher; the file exists only in explicitly declared runtime source243. Corrected traversal to use source_commit for unchanged_tests, not an arbitrary matching commit.", "Initial extension receipt parser expected outputs/file_count/compressed_rawfile_sha256; actual schema uses output_bundle/full_raw_files/rawfile_sha256. Corrected schema mapping without changing any expected hash, bytes or denominator.", "Initial criterion-containment preparation checked summary taskcard D.md instead of the criterion_card path declared by coverage for each bundle. Corrected the target card, retaining all46 original exact fragment hash/byte expectations. Initial verifier startup failures were not backend or product test results."]
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+292 | …nd426 decoded files; not a quality/runtime/closure verdict."
+293 | …SS; failures and signal/resource-blocked checks retained.", "External environment/browser/provider dependencies were not whole-byte recensed; captured native source binding is limited to recorded origin cells.", "Parent's own root decode and deciding receipts are not input to this independent verifier; Git objects above are inputs.", "Future final test-only candidate and current joined fiscal/frontier40 plus native102 runtime remain pending; no source-equivalence proxy substitutes for that execution."]
+    |
+
+E501 Line too long (155 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:292:101
+    |
+290 | …e
+291 | … traversal tried to read nativeCAS test from oracle publisher; the file exists only in explicitly declared runtime source243. Correc…
+292 | …merated Git payloads/hash cells and426 decoded files; not a quality/runtime/closure verdict."
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+293 | …l doctored/backend/frontend/CI PASS; failures and signal/resource-blocked checks retained.", "External environment/browser/provider …
+294 | …
+    |
+
+E501 Line too long (602 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:293:101
+    |
+291 | …S test from oracle publisher; the file exists only in explicitly declared runtime source243. Corrected traversal to use source_commit for unchanged_tests, not an arbitrary matching commit.", "Initial extension receipt parser expected outputs/file_count/compressed_rawfile_sha256; actual schema uses output_bundle/full_raw_files/rawfile_sha256. Corrected schema mapping without changing any expected hash, bytes or denominator.", "Initial criterion-containment preparation checked summary taskcard D.md instead of…
+292 | …nd426 decoded files; not a quality/runtime/closure verdict."
+293 | …SS; failures and signal/resource-blocked checks retained.", "External environment/browser/provider dependencies were not whole-byte recensed; captured native source binding is limited to recorded origin cells.", "Parent's own root decode and deciding receipts are not input to this independent verifier; Git objects above are inputs.", "Future final test-only candidate and current joined fiscal/frontier40 plus native102 runtime remain pending; no source-equivalence proxy substitutes for that execution."]
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+294 | …
+    |
+
+E501 Line too long (426 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt:300:101
+    |
+298 | …
+299 | …
+300 | …(result[k]["file_count"] for k in ("encoded_backend", "encoded_extension", "encoded_frontend")), "search": result["search_canonical"]["actual_execution_occurrences"], "receipts": list(result["receipts"]), "backend_completed_failures": [r["id"] for r in result["semantic_backend"]["completed_contract_failures"]]}, indent=2) + "\n")
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+S603 `subprocess` call: check for execution of untrusted input
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:50:12
+   |
+49 | def git(*args: str) -> bytes:
+50 |     return subprocess.check_output(["git", "--no-optional-locks", *args], cwd=ROOT)
+   |            ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+S607 Starting a process with a partial executable path
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:50:36
+   |
+49 | def git(*args: str) -> bytes:
+50 |     return subprocess.check_output(["git", "--no-optional-locks", *args], cwd=ROOT)
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:71:29
+   |
+71 | def save(path: Path, value: Any) -> None:
+   |                             ^^^
+72 |     path.write_text(json.dumps(value, indent=2) + "\n")
+   |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `session`
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:80:43
+   |
+78 |     class Observer:
+79 |         @staticmethod
+80 |         def pytest_sessionfinish(session: Any, exitstatus: int) -> None:
+   |                                           ^^^
+81 |             cells = []
+82 |             failures = []
+   |
+
+E501 Line too long (185 > 100)
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:93:101
+   |
+91 | …
+92 | …
+93 | …path": relative, "bytes": len(raw), "sha256": sha(raw), "expected_sha256": sha(expected), "status": "MATCH"})
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+94 | …as error:
+95 | …
+   |
+
+E501 Line too long (605 > 100)
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:96:101
+   |
+94 | …
+95 | …
+96 | …ion, "exitstatus_before_origin_guard": exitstatus, "source_cells": cells, "origin_failures": failures, "backend_modules_actually_loaded": {name: str(getattr(sys.modules[name], "__file__", None)) for name in ("torch", "botorch", "gpytorch", "numpy", "scipy") if name in sys.modules}, "environment": {k: os.environ.get(k) for k in CAP_NAMES}, "origin_guard": "Every one of11 named actual loaded native modules must be within frozen root and byte-equal to exact Git source; no replacement import/model/consumer."}
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+97 | …
+98 | …
+   |
+
+E501 Line too long (138 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:106:101
+    |
+104 | …
+105 | …
+106 | …ked_status"] == "" and before["diff"] == "", "root source is not exact clean freeze")
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+107 | …P_NAMES), "ambient numeric/worker override present; do not silently alter it")
+108 | …38-native142-" + uuid.uuid4().hex)
+    |
+
+E501 Line too long (131 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:107:101
+    |
+105 | …
+106 | …racked_status"] == "" and before["diff"] == "", "root source is not exact clean freeze")
+107 | … CAP_NAMES), "ambient numeric/worker override present; do not silently alter it")
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+108 | …l3f38-native142-" + uuid.uuid4().hex)
+109 | …
+    |
+
+S108 Probable insecure usage of temporary file or directory: "/dev/shm"
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:108:20
+    |
+106 |     require(before["head"] == FROZEN and before["tracked_status"] == "" and before["diff"] == "", "root source is not exact clean fre…
+107 |     require(all(os.environ.get(k) is None for k in CAP_NAMES), "ambient numeric/worker override present; do not silently alter it")
+108 |     scratch = Path("/dev/shm") / ("e02-oracle-final3f38-native142-" + uuid.uuid4().hex)
+    |                    ^^^^^^^^^^
+109 |     scratch.mkdir()
+110 |     basetemp = scratch / "new-fixtures"
+    |
+
+E501 Line too long (104 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:117:101
+    |
+115 |         frozen_raw = git("show", f"{FROZEN}:policy-engine/{selector}")
+116 |         require(raw == frozen_raw, "test input differs from Git")
+117 |         input_cells.append({"path": "policy-engine/" + selector, "bytes": len(raw), "sha256": sha(raw)})
+    |                                                                                                     ^^^^
+118 |     environment = dict(os.environ)
+119 |     environment.update(PYTHONPATH="src:.", PYTHONDONTWRITEBYTECODE="1", TIKTOKEN_CACHE_DIR="/workspace/e02-D2-receipts/tokenizer")
+    |
+
+E501 Line too long (130 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:119:101
+    |
+117 | …e/" + selector, "bytes": len(raw), "sha256": sha(raw)})
+118 | …
+119 | …DONTWRITEBYTECODE="1", TIKTOKEN_CACHE_DIR="/workspace/e02-D2-receipts/tokenizer")
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 | …basetemp), "-o", "addopts=", "--import-mode=importlib", "--strict-markers", "-q", "-s", "-rA", "--junitxml=" + str(scratch / "junit.…
+121 | …lve()), "--child", str(scratch / "actual-origins.json"), *arguments]
+    |
+
+E501 Line too long (187 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:120:101
+    |
+118 | …
+119 | …EN_CACHE_DIR="/workspace/e02-D2-receipts/tokenizer")
+120 | …"--import-mode=importlib", "--strict-markers", "-q", "-s", "-rA", "--junitxml=" + str(scratch / "junit.xml")]
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+121 | …h / "actual-origins.json"), *arguments]
+122 | … str(PRODUCT), "argv": argv, "equivalent_pytest_argv": [PYTHON, "-B", "-m", "pytest", *arguments], "test_inputs": input_cells, "no_h…
+    |
+
+E501 Line too long (117 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:121:101
+    |
+119 |     environment.update(PYTHONPATH="src:.", PYTHONDONTWRITEBYTECODE="1", TIKTOKEN_CACHE_DIR="/workspace/e02-D2-receipts/tokenizer")
+120 |     arguments = [*SELECTORS, "--basetemp=" + str(basetemp), "-o", "addopts=", "--import-mode=importlib", "--strict-markers", "-q", "-…
+121 |     argv = [PYTHON, "-B", str(Path(__file__).resolve()), "--child", str(scratch / "actual-origins.json"), *arguments]
+    |                                                                                                     ^^^^^^^^^^^^^^^^^
+122 |     record = {"source_before": before, "source_sha": FROZEN, "actual_product": str(PRODUCT), "argv": argv, "equivalent_pytest_argv": …
+123 |     save(scratch / "command.json", record)
+    |
+
+E501 Line too long (518 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:122:101
+    |
+120 | …portlib", "--strict-markers", "-q", "-s", "-rA", "--junitxml=" + str(scratch / "junit.xml")]
+121 | …ns.json"), *arguments]
+122 | …rgv": argv, "equivalent_pytest_argv": [PYTHON, "-B", "-m", "pytest", *arguments], "test_inputs": input_cells, "no_held_Torch_parent": "torch" not in sys.modules, "environment": {k: environment.get(k) for k in [*CAP_NAMES, "PYTHONPATH", "PYTHONDONTWRITEBYTECODE", "TIKTOKEN_CACHE_DIR"]}, "fresh_basetemp_before_exists": False, "scratch": str(scratch), "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+123 | …
+124 | …ORS}) + "\n")
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:122:484
+    |
+120 | …
+121 | …
+122 | …h": str(scratch), "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^
+123 | …
+124 | …
+    |
+help: Convert to `datetime.UTC` alias
+
+E501 Line too long (108 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:124:101
+    |
+122 |     record = {"source_before": before, "source_sha": FROZEN, "actual_product": str(PRODUCT), "argv": argv, "equivalent_pytest_argv": …
+123 |     save(scratch / "command.json", record)
+124 |     sys.stdout.write(json.dumps({"scratch": str(scratch), "source": FROZEN, "selectors": SELECTORS}) + "\n")
+    |                                                                                                     ^^^^^^^^
+125 |     sys.stdout.flush()
+126 |     start = time.monotonic()
+    |
+
+S603 `subprocess` call: check for execution of untrusted input
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:128:19
+    |
+126 |     start = time.monotonic()
+127 |     with (scratch / "complete.txt").open("wb") as stdout:
+128 |         process = subprocess.Popen(argv, cwd=PRODUCT, env=environment, stdout=stdout, stderr=subprocess.STDOUT)
+    |                   ^^^^^^^^^^^^^^^^
+129 |         record["child_pid"] = process.pid
+130 |         save(scratch / "command.json", record)
+    |
+
+E501 Line too long (111 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:128:101
+    |
+126 |     start = time.monotonic()
+127 |     with (scratch / "complete.txt").open("wb") as stdout:
+128 |         process = subprocess.Popen(argv, cwd=PRODUCT, env=environment, stdout=stdout, stderr=subprocess.STDOUT)
+    |                                                                                                     ^^^^^^^^^^^
+129 |         record["child_pid"] = process.pid
+130 |         save(scratch / "command.json", record)
+    |
+
+E501 Line too long (289 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:132:101
+    |
+130 | …
+131 | …
+132 | …etime.now(datetime.timezone.utc).isoformat(), source_after=state(), basetemp_after_exists=basetemp.exists(), preservation="No cleanup or deletion; actual fixtures and complete output retained.")
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+133 | …fter"]
+134 | …
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:132:106
+    |
+130 |         save(scratch / "command.json", record)
+131 |         code = process.wait()
+132 |     record.update(exit_code=code, wall_seconds=time.monotonic() - start, ended_utc=datetime.datetime.now(datetime.timezone.utc).isofo…
+    |                                                                                                          ^^^^^^^^^^^^^^^^^^^^^
+133 |     record["source_before_after_equal_and_clean"] = record["source_before"] == record["source_after"]
+134 |     save(scratch / "command.json", record)
+    |
+help: Convert to `datetime.UTC` alias
+
+E501 Line too long (101 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:133:101
+    |
+131 |         code = process.wait()
+132 |     record.update(exit_code=code, wall_seconds=time.monotonic() - start, ended_utc=datetime.datetime.now(datetime.timezone.utc).isofo…
+133 |     record["source_before_after_equal_and_clean"] = record["source_before"] == record["source_after"]
+    |                                                                                                     ^
+134 |     save(scratch / "command.json", record)
+135 |     require(record["source_before_after_equal_and_clean"], "source changed during execution")
+    |
+
+E501 Line too long (170 > 100)
+   --> docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt:136:101
+    |
+134 | …
+135 | …anged during execution")
+136 | …: code, "wall_seconds": record["wall_seconds"], "source_before_after_equal_and_clean": True}) + "\n")
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+137 | …
+    |
+
+Found 82 errors.
+[*] 2 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

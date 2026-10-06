@@ -1,0 +1,225 @@
+{
+  "schema_version": "e02.D.independent-gp-analytic-oracle.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commit": "538f354484d0c71d5de2c7d3be60f4cdc9a6da26",
+  "implementation_tree": "688c8cc3ca9bbdc7ac22ad9e9b01a960d5748e7f",
+  "source_target": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "production_source_unchanged": true,
+    "cells": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "git_blob": "1d2caa299380afacabf3cb6c1e09d3ce3a6443d1",
+        "sha256": "084bbf4f441340f3f19e203d727bcb7a6a80f75881c3fdc3cbb2bac3566b6de4",
+        "bytes": 27730
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "git_blob": "c1b7c1582efe6acdfd5cc830f04f1f03e8f175bc",
+        "sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+        "bytes": 20691
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+        "git_blob": "8f82b4759f3f9aab8eb6213644e4c8b3b511148f",
+        "sha256": "2ff5734c38a7c1e43ddf42f0ceecc90330f2aeabc4628695d20f1b9e5adf261e",
+        "bytes": 5659
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "git_blob": "058cb5388de7ebb1f63cea32cb17b23c98b94eec",
+        "sha256": "2ffb9791c104bcc8921180837af087137afaae00ec47b655f429639b3e4e35e9",
+        "bytes": 3226
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "git_blob": "1d3c79f0305210ad6af1eef07fdb9489275f7e2d",
+        "sha256": "b8f599678d5e57b39276eedd2b6334edeb9d2b389128b67d0ee50e8a7b27cb0c",
+        "bytes": 9649
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+        "git_blob": "746683625e218c5b1cd644a56001c2d61f013ba8",
+        "sha256": "684e870d554072f15aef7fae25a39ea166bbab6d10cd1d874b5d268d4e62d91f",
+        "bytes": 4162
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+        "git_blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+        "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+        "bytes": 1068
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "git_blob": "d27c9e2570a5b3c02f8cc4433b4c24f71aa167d3",
+        "sha256": "1fe6bd289de0ba9582628442111f984bb7928184250d1de9464e94b3e57d8290",
+        "bytes": 9995
+      }
+    ]
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-initial-probe.txt",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py"
+  ],
+  "author_lease": {
+    "branch": "codex/e02-D-published-oracle",
+    "worktree": "/workspace/e02-D-published-oracle",
+    "sole_test": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "production_writes": false,
+    "children": false
+  },
+  "admission": [
+    {
+      "mode": "create",
+      "requested_branch": "codex/e02-D-published-oracle",
+      "requested_path": "/workspace/e02-D-published-oracle",
+      "status": "admitted",
+      "sha256": "2d72ff4515fe68bdad1eb53dee8e68c6466c5f20c7f4e5647a17a1f43eb9ab76",
+      "raw_complete_receipt": "/workspace/e02-D2-receipts/admission/oracle-create.json"
+    },
+    {
+      "mode": "resume",
+      "requested_branch": "codex/e02-D-published-oracle",
+      "requested_path": "/workspace/e02-D-published-oracle",
+      "status": "admitted",
+      "sha256": "0de34bb12ad092d67f8f7a9453d1f5bc01fc4050a811aec5e86a9da5ee2df358",
+      "raw_complete_receipt": "/workspace/e02-D2-receipts/admission/oracle-resume.json"
+    }
+  ],
+  "environment": {
+    "python_executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "backend": "actual CPU float64 SingleTaskGP",
+    "module_origin": "/workspace/e02-D-published-oracle/policy-engine/src/polisyos",
+    "backend_missing_status": "UNRUN, never PASS"
+  },
+  "inputs": {
+    "kind": "synthetic analytic mechanism observations, no production-history/CAS-authority claim",
+    "seed": 31,
+    "objective": "50 + 9*sin(5*x) + 6*x",
+    "unit": "analytic_cost_units",
+    "metric": "analytic_cost",
+    "direction": "minimize",
+    "warm_points": [0.08, 0.16, 0.23, 0.35, 0.42, 0.5, 0.61, 0.7],
+    "current_points": [0.82, 0.93],
+    "append_point": 0.975,
+    "queries": [0.015, 0.12, 0.29, 0.465, 0.655, 0.885, 0.99],
+    "timestamp": "2026-10-06T09:00:00+00:00",
+    "configured_target_basis": {
+      "profile": "synthetic_scalar_gp.v1",
+      "context_fingerprint": "synthetic-analytic-cost/oracle-v1",
+      "search_space_fingerprint": "recomputed by canonical SearchSpace for explicit x=[0,1]",
+      "metric": "analytic_cost",
+      "unit": "analytic_cost_units",
+      "direction": "minimize"
+    },
+    "predecessor_absent_interface": "Legacy constructor is used only to retain numerical baseline; explicit required-interface test remains FAIL"
+  },
+  "independent_oracle": {
+    "profile": "ConstantMean + unit-amplitude RBF + inferred scalar Gaussian noise + Normalize + Standardize",
+    "expected_calculation": "Decode saved scalar state; explicit arithmetic transforms; Kij=exp(-0.5*((xi-xj)/ell)^2); C=K+noise_variance*I; independent NumPy Cholesky triangular solves for mean and full covariance; reverse BO mean sign and multiply covariance by saved outcome_std^2 into original cost units. No model.posterior/kernel/transform methods compute expectations.",
+    "rtol": 2e-7,
+    "atol": 2e-8,
+    "initial_transform_buffers_independently_checked_against_raw_data": true,
+    "latent_and_observed_covariance": true,
+    "real_mll_initial_calls": 1,
+    "real_mll_append_calls": 0,
+    "real_conditioning_calls": 1,
+    "fitted_parameters_and_transforms_frozen_without_overwriting_learned_values": true
+  },
+  "runtime_property": "Ten-point actual initial model and eleven-point actual condition_on_observations agree with independent original-unit mean/full covariance. Persisted conditioned transforms also agree through supported BoTorch keep_transforms load. Continuation/warm/RNG/strict-state/input-exclusion predecessor gaps remain red.",
+  "consumer": "Native BayesianOptimizer.warm_start -> suggest -> real MLL / real acquisition; real condition_on_observations; StrategyState JSON file/readback/from_artifact -> fresh optimizer.set_state -> posterior / next native ask. Synthetic target is local numerical test only.",
+  "divergent_proxy": "Same marker equality, same-backend posterior comparison, serialized labels, or fit counters alone do not establish numerical state/continuation.",
+  "negative_controls": [
+    "saved fitted lengthscale mutation",
+    "saved outcome mean mutation",
+    "saved input coefficient scale mutation",
+    "saved actual warm scalar row mutation",
+    "valid saved Python RNG mutation -> native random candidate",
+    "valid saved Torch RNG mutation -> actual acquisition RNG consumer",
+    "ambient global Torch RNG independence",
+    "strict bool mutations of iteration/model-state/python-codec/sobol-algorithm/Torch byte",
+    "omitted fitted-state load with original markers -> independent oracle catches mismatch",
+    "invalid and missing outcomes must not create synthetic worst-plus-penalty GP rows",
+    "explicit due cadence and changed existing outcome must execute real MLL"
+  ],
+  "deciding_cell": {
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py -o addopts='' -q -s -rA",
+    "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+    "exit_code": 1,
+    "status": "FAIL",
+    "passed": 9,
+    "failed": 12,
+    "skipped": 0,
+    "unrun": 0,
+    "summary": "12 failed, 9 passed, 2 warnings in 10.83s",
+    "complete_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-baseline.txt",
+      "git_blob": "3dcb0daa5626c95a0f8ea73f78e059b2dd31fe50",
+      "sha256": "5e29e6e34c6d6b2c402330101ec154de8f92065935cde0f5032b1a5a2889437b",
+      "bytes": 25496
+    },
+    "test_input": {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "git_blob": "672308a58b1d37df511fc05c9f962a25b40d3f60",
+      "sha256": "1ce2a8444dbcd5cf77c33652c3dfed00112f7125fcb23c8040d2f4b320805694",
+      "bytes": 28541
+    },
+    "passing_assertions": [
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_real_initial_fit_matches_independent_original_unit_full_covariance",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_actual_append_conditions_without_refit_and_matches_eleven_row_oracle",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_conditioned_checkpoint_restores_saved_transform_basis_before_targets",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_fitted_parameter_or_transform_changes_prediction_or_refuses[covar_module.raw_lengthscale]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_fitted_parameter_or_transform_changes_prediction_or_refuses[outcome_transform.means]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_fitted_parameter_or_transform_changes_prediction_or_refuses[input_transform._coefficient]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_valid_saved_python_rng_mutation_changes_native_random_proposal_or_refuses",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[iteration-bool]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_omitting_fitted_state_load_is_detected_by_independent_oracle"
+    ],
+    "failing_assertions": [
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_warm_target_basis_is_explicitly_configurable",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_restored_warm_corpus_noop_and_append_do_not_refit",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_changed_existing_outcome_requires_real_refit",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_explicit_due_cadence_performs_real_refit_after_restore",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_checkpoint_acquisition_is_independent_of_ambient_torch_rng",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_warm_row_changes_corpus_or_refuses_atomically",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_saved_torch_rng_mutation_reaches_actual_acquisition_or_refuses",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[model-state-bool]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[python-codec-bool]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[sobol-algorithm-bool]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[torch-byte-bool]",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_invalid_outcomes_are_excluded_instead_of_fabricated_penalties"
+    ]
+  },
+  "prototype_log": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-initial-probe.txt",
+    "deciding": false,
+    "limitation": "Exploratory uncommitted prototype. Its input-offset mutation was corrected to coefficient scaling because a uniform translation preserves a stationary RBF kernel; do not count that prototype failure as a source defect."
+  },
+  "checks": {
+    "ruff_check": "PASS",
+    "ruff_format": "PASS",
+    "normal_precommit": "PASS (no matched JS/TS files)",
+    "normal_pnpm_frozen_install": "PASS"
+  },
+  "predicate_basis": "independently_reconciled for bounded numerical cells; overall continuation FAIL on predecessor",
+  "candidate_review_status": "UNRUN; awaiting immutable production candidate",
+  "closure_ids": [],
+  "limitations": [
+    "No production source corpus, actual transfer CAS provenance, origin/tenant authority, scientific calibration, production improvement, statistical history equivalence, cross-backend bit identity, or served caller proof.",
+    "Warm/RNG/cadence assertions blocked by dropped warm corpus are distinct from a demonstrated posterior error; do not treat blocked assertions as independently localized RNG defects.",
+    "The original-unit analytic values pass on the predecessor. Their purpose is an independent falsifier for candidate state restoration, not a claim of a pre-existing numerical restore bug."
+  ],
+  "cleanup_candidates": [
+    "Fresh pytest-created gp-independent-analytic directories; preserve unique Git-tracked deciding outputs. Cloud Trash unavailable: do not permanently delete."
+  ]
+}

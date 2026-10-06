@@ -1,0 +1,150 @@
+{
+  "schema_version": "e02.D.independent-resource-correction-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "fd7ecbaf6237966ae46a116af3d1a3a877ebf424",
+  "proof_tree": "52039c1869736d941c4cf6ce3e96d9d6a4864453",
+  "production_writes": false,
+  "own_test": "policy-engine/tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+  "previous_review_commit": "21c05c056d043f37b7346863f004f3e9bce0c485",
+  "previous_source": "d80bfc2bb6775ddad69ecdcc1271528db182af21",
+  "previous_result": "FAIL 2 failed /14 passed, preserved in resource-settlement-d80-independent-review.json",
+  "source_target": {
+    "commit": "dcb203fdff6b0b8747e55bc3bc53a29f66db953b",
+    "tree": "de38c56d611b52893827703a73cb7f016b778b72",
+    "archive": "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive",
+    "full_tracked_git_archive": true,
+    "delta_paths_from_d80": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-provider-cost-intake.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-search-owner.toml",
+      "policy-engine/src/polisyos/core/llm/response.py",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/core/llm/test_response.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py"
+    ]
+  },
+  "environment": {
+    "source_commit": "dcb203fdff6b0b8747e55bc3bc53a29f66db953b",
+    "source_tree": "de38c56d611b52893827703a73cb7f016b778b72",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "modules": [
+      {
+        "name": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "80f68d9574cdf0c8fa51543b21c72e5aa48ab1b12c52c62d42221f7646b06fe2"
+      },
+      {
+        "name": "polisyos.scientist.orchestration.engine.budget_middleware",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7"
+      },
+      {
+        "name": "polisyos.scientist.orchestration.llm.budget_enforcer",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b"
+      },
+      {
+        "name": "polisyos.core.llm.response",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive/policy-engine/src/polisyos/core/llm/response.py",
+        "sha256": "2d96e6aaacfa2e23bfd166ca6a380086e39320c28a66057b89802acd002d5357"
+      }
+    ]
+  },
+  "source_cells": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-source-cells.txt",
+    "sha256": "b66a963a4fc9ec6682f33bea8f2b71c84fa5f8259053a075de9c55e994e80f24",
+    "bytes": 1487
+  },
+  "source_review": "Full eleven-path source/test/release delta from d80 read. Known receipt settlement moved before latency metrics. Present cost fields validated across every alternate mapping/object location; bool/negative/nonfinite/malformed refused rather than zero or tariff. Existing response-wide metadata exception still clears independently valid amount/provider/request. Additional controller detached evaluator, acceptance owner and persisted snapshot consumer were read but not independently executed in this bounded settlement review.",
+  "inputs": {
+    "consumer": "Actual LLMBudgetEnforcer.invoke -> BudgetMiddleware -> FileBudgetLedger -> independent fresh reopen",
+    "run_id": "independent-run",
+    "candidate_ids": ["candidate-1", "candidate-2"],
+    "physical_request_ids": ["physical-1", "physical-2"],
+    "provider": "independent-provider-fixture",
+    "budget_keys": ["run", "unlimited"],
+    "run_limit_usd": "5",
+    "amounts_usd": ["1.1", "2.2"],
+    "expected_sum_usd": "3.3",
+    "expected_remaining_usd": "1.7",
+    "malformed_costs_with_valid_alternate": [
+      "-1",
+      "NaN",
+      "Inf",
+      "True",
+      "False",
+      "malformed string"
+    ],
+    "alternate_locations": ["usage", "payload"],
+    "new_failure": "Valid reported amount1/provider/request with prompt_tokens=\"not-a-token-count\""
+  },
+  "deciding_cell": {
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/orchestration/engine/test_budget_ledger.py tests/integration/scientist/orchestration/llm/test_budget_enforcer.py tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py -o addopts='' -q -s -rA",
+    "cwd": "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive/policy-engine",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-independent-review.txt",
+      "sha256": "a13c04a9a111cda8d24fe8c293ad9a43370858490fd4bac121b6464bade76434",
+      "bytes": 8131
+    },
+    "summary": "1 failed, 34 passed in 0.36s",
+    "exit_code": 1,
+    "passed": 34,
+    "failed": 1,
+    "owner_cases": 17,
+    "independent_cases": 18,
+    "result": "FAIL",
+    "failure_name": "test_known_paid_receipt_is_not_erased_by_malformed_token_metadata"
+  },
+  "passing_scope": [
+    "Former paid-latency-metric failure now settles known1 before RuntimeError, zero reserved",
+    "Former negative raw cost now refuses and keeps unresolved reservation without false zero event",
+    "All12 native caller malformed-cost+validalternate cases refuse without settlement or tariff",
+    "Reservation ownership, measured actual above estimate/unlimited, physical ID replay and journal eviction",
+    "Native cache reuse zero new charge; actual retry request new charge",
+    "Missing amount/provider/request pending and paid downstream consumer failure retains charge",
+    "Full/split fresh reopen exact Decimal state and event map parity",
+    "Different-content duplicate refusal",
+    "Tracecost1 and displayed new-charge1/no-settlement falsifier catches missing persisted debit"
+  ],
+  "findings": [
+    {
+      "classification": "P40 same known-paid-accounting/normalization invariant; not a new authority contract",
+      "severity": "P1",
+      "confidence": "confirmed",
+      "source_location": "core/llm/response.py extract_llm_response_data generic except resets cost/provider/request after token parsing failure",
+      "trigger": "Actual response provider/request and usage.cost_usd=1 are valid; usage.prompt_tokens=\"not-a-token-count\"",
+      "observed": "One provider call, spent{}, resource_events{}, run reserved0.00004, reconciliation_required",
+      "required": "Token metadata failure must not erase independent valid paid receipt amount/identity; settle that known report despite later metadata failure, while retaining genuine unknown billing distinction.",
+      "owner": "funnel_owner",
+      "status": "FAIL awaiting immutable correction"
+    }
+  ],
+  "nondeciding_initial_fixture": {
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-initial-metrics-fixture.txt",
+      "sha256": "4fb26a7f80c439419a0be23bbb8c4574a196e5df4db1ee01c6c66ce5ce43b191",
+      "bytes": 7942
+    },
+    "summary": "1 failed,33 passed in0.34s",
+    "status": "Fixture ERROR, not production verdict",
+    "reason": "My earlier latency-only SimpleNamespace omitted cost metric attributes now consumed before latency after correct ordering. Complete existing metric interface in own test, preserve initial output, rerun. Original d80 known-paid failure remains valid on its original earlier latency call order."
+  },
+  "predicate_basis": "independently reconciled bounded reported resource mechanism; overall FAIL on known-paid token metadata control",
+  "external_billing_authority": "not_established; deterministic local provider reports are not authenticated external invoices",
+  "closure_ids": [],
+  "limitations": [
+    "No acceptance for additional controller/blueprint consumer, translator/adversary owner ports, promotion permission or full/split search lifecycle from this settlement-only run.",
+    "No production deployment, distributed filesystem guarantee, objective resource billing equivalence or finding closure claimed.",
+    "Root aggregate and candidate admission must retain the confirmed FAIL until correction replay."
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive",
+    "Fresh pytest temporary directories; cloud Trash unavailable; no permanent deletion."
+  ]
+}

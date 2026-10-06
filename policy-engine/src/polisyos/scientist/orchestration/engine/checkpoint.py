@@ -1265,8 +1265,27 @@ def _build_resume_workflow_spec(
     return workflow.model_copy(update={"nodes": resumed_nodes})
 
 
-def _state_path_present(state: ExperimentState, path: str) -> bool:
-    """Return whether a dotted state path has a non-null value."""
+def _state_value_artifacts_available(value: Any, store: ArtifactStore) -> bool:
+    """Check actual typed references without interpreting arbitrary JSON shapes."""
+    if isinstance(value, ArtifactRef):
+        try:
+            if not store.verify(value).ok:
+                return False
+            # Verification and reading may have different protected-store
+            # capabilities. Keep the complete selected reference for both.
+            store.get_bytes(value)
+        except (OSError, PolicyOSError, ValueError):
+            return False
+        return True
+    if isinstance(value, dict):
+        return all(_state_value_artifacts_available(item, store) for item in value.values())
+    if isinstance(value, (list, tuple)):
+        return all(_state_value_artifacts_available(item, store) for item in value)
+    return True
+
+
+def _state_path_available(state: ExperimentState, path: str, store: ArtifactStore) -> bool:
+    """Check existing required state and the typed artifact refs it resolves."""
     current: Any = state
     for part in path.split("."):
         if isinstance(current, BaseModel):
@@ -1279,7 +1298,7 @@ def _state_path_present(state: ExperimentState, path: str) -> bool:
             current = current[part]
         else:
             return False
-    return current is not None
+    return current is not None and _state_value_artifacts_available(current, store)
 
 
 def _state_paths_overlap(read_path: str, write_path: str) -> bool:
@@ -1298,8 +1317,9 @@ def _missing_completed_state_paths(
     completed_nodes: list[str],
     state: ExperimentState,
     registry: CheckpointRegistry,
+    store: ArtifactStore,
 ) -> tuple[str, ...]:
-    """Find remaining reads whose producer was marked complete but is absent."""
+    """Find required remaining reads missing state or available producer artifacts."""
     completed_set = set(completed_nodes)
     completed_writes: list[str] = []
     for invocation in workflow.nodes:
@@ -1315,9 +1335,9 @@ def _missing_completed_state_paths(
     for invocation in resumed_workflow.nodes:
         node = registry.get(invocation.node_id)
         for read_path in getattr(node.spec, "state_reads", ()):
-            if _state_path_present(state, read_path):
+            if not any(_state_paths_overlap(read_path, write) for write in completed_writes):
                 continue
-            if any(_state_paths_overlap(read_path, write) for write in completed_writes):
+            if not _state_path_available(state, read_path, store):
                 missing.add(read_path)
     return tuple(sorted(missing))
 
@@ -2163,6 +2183,7 @@ def resume_from_checkpoint(
                 completed_nodes=checkpoint.metadata.completed_nodes,
                 state=restored_state,
                 registry=resolved_registry,
+                store=store,
             )
         execution_workflow = resumed_workflow
         if missing_state_paths:

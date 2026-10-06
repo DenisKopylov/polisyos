@@ -1,0 +1,85 @@
+{
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-cohort.xml",
+      "sha256": "292fee136cd9669e68b90d0d6a6ad8f55486007928b405e27ec5f38523ea52d9",
+      "bytes": 12030
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-native.txt",
+      "sha256": "6a00e1b2e9ace4873f3d67e0a25fdb31a0a36af6c181448e25e5e6b2d763e72b",
+      "bytes": 33062
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-wrapper.json",
+      "sha256": "1f5164a5d6137f7b670e4b068eb1db0a89b899ccbc2bc3390db14b6d09369f55",
+      "bytes": 3084
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-cohort.xml",
+      "sha256": "c4da716db00f9ea7f39cb5a221a78bbfd4e0c76f4ac6c0c9a1391a44250a09c3",
+      "bytes": 12279
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-native.txt",
+      "sha256": "302c481d0476715670506a6664542c2cdca3bcb6f6be63ec67b5ba0dde493cf4",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-wrapper.json",
+      "sha256": "b6d9fc9222eba4d75cabcfb89322456d05340e87d1cec6b185b07302d2fb42c0",
+      "bytes": 3251
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-cohort.xml",
+      "sha256": "7856d02d5d4d4953e1cf6cffed9d16325c10bf155c3a584b2c1e6071608556ee",
+      "bytes": 3031
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-native.txt",
+      "sha256": "65a6d694b30045ae1f55f50192240ecde5b63ffd24d48c0134a2e01d890ccd4e",
+      "bytes": 59018
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-wrapper.json",
+      "sha256": "b1dbb73d3eb178a7d13d20d48244f4c22133a23601585b0247cc965f1d4c6b8c",
+      "bytes": 3022
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/replay-previous-production.py",
+      "sha256": "93d45427ca402c9807a38dd49c31c446166c839cf230bc8f489fbc67b26c9e76",
+      "bytes": 1620
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/run_native.py",
+      "sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+      "bytes": 4192
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/same-input-base.txt",
+      "sha256": "70ff49449a2dbf7125b18dc65216f9afcb03c28f28be59c47be22745f7543f8e",
+      "bytes": 129197
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/same-input-base.xml",
+      "sha256": "8cdba192832fbae72cb8671f9c357f5eb0211c1ec24cf395abb05165e0da2567",
+      "bytes": 14181
+    }
+  ],
+  "large_derived_manifest_policy": "Ignored source/file hash manifests are reproducible from pinned Git objects and exact command; full genuine stdout/JUnit/driver retained."
+}

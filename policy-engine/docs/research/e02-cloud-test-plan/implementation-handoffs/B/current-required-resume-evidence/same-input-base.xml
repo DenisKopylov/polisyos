@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="8" time="11.156" timestamp="2026-10-06T11:27:26.110790+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_native_resume_reads_available_required_artifact_without_producer_reexecution" time="0.625" /><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect[missing]" time="0.477"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/b71-current-input-base-tmp/test_unavailable_required_ref_0')
+fault = 'missing'
+
+    @pytest.mark.parametrize("fault", ["missing", "corrupt", "foreign_selected_profile"])
+    def test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect(tmp_path, fault):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        if fault == "missing":
+            store._paths(required.artifact_id)[0].unlink()
+        elif fault == "corrupt":
+            store._paths(required.artifact_id)[0].write_bytes(b"corrupt required blob")
+        else:
+            alternate = store.put_bytes(
+                b"B71 required producer bytes",
+                PutOptions(
+                    kind=required.kind,
+                    media_type=required.media_type,
+                    producer=ProducerInfo(component="foreign.producer", version="1.0.0"),
+                ),
+            )
+            assert alternate.artifact_id == required.artifact_id
+            assert alternate.manifest_profile_sha256 != required.manifest_profile_sha256
+            assert store.verify(alternate).ok
+            # The other view remains valid. Replacing the selected view with its
+            # bytes cannot authorize the producer's original complete reference.
+            original_path = store._manifest_path_for_ref(
+                required.artifact_id, required.manifest_profile_sha256
+            )
+            alternate_path = store._manifest_path_for_ref(
+                alternate.artifact_id, alternate.manifest_profile_sha256
+            )
+            original_path.write_bytes(alternate_path.read_bytes())
+        reopened = FileSystemCAS(store.root)
+        assert not reopened.verify(required).ok
+        if fault == "foreign_selected_profile":
+            assert reopened.verify(alternate).ok
+        registry, producer, reader = _registry()
+&gt;       with pytest.raises(CheckpointCorruptedError, match=r"inputs\.required_ref"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:246: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect[corrupt]" time="0.499"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/b71-current-input-base-tmp/test_unavailable_required_ref_1')
+fault = 'corrupt'
+
+    @pytest.mark.parametrize("fault", ["missing", "corrupt", "foreign_selected_profile"])
+    def test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect(tmp_path, fault):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        if fault == "missing":
+            store._paths(required.artifact_id)[0].unlink()
+        elif fault == "corrupt":
+            store._paths(required.artifact_id)[0].write_bytes(b"corrupt required blob")
+        else:
+            alternate = store.put_bytes(
+                b"B71 required producer bytes",
+                PutOptions(
+                    kind=required.kind,
+                    media_type=required.media_type,
+                    producer=ProducerInfo(component="foreign.producer", version="1.0.0"),
+                ),
+            )
+            assert alternate.artifact_id == required.artifact_id
+            assert alternate.manifest_profile_sha256 != required.manifest_profile_sha256
+            assert store.verify(alternate).ok
+            # The other view remains valid. Replacing the selected view with its
+            # bytes cannot authorize the producer's original complete reference.
+            original_path = store._manifest_path_for_ref(
+                required.artifact_id, required.manifest_profile_sha256
+            )
+            alternate_path = store._manifest_path_for_ref(
+                alternate.artifact_id, alternate.manifest_profile_sha256
+            )
+            original_path.write_bytes(alternate_path.read_bytes())
+        reopened = FileSystemCAS(store.root)
+        assert not reopened.verify(required).ok
+        if fault == "foreign_selected_profile":
+            assert reopened.verify(alternate).ok
+        registry, producer, reader = _registry()
+&gt;       with pytest.raises(CheckpointCorruptedError, match=r"inputs\.required_ref"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:246: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect[foreign_selected_profile]" time="0.478"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/b71-current-input-base-tmp/test_unavailable_required_ref_2')
+fault = 'foreign_selected_profile'
+
+    @pytest.mark.parametrize("fault", ["missing", "corrupt", "foreign_selected_profile"])
+    def test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect(tmp_path, fault):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        if fault == "missing":
+            store._paths(required.artifact_id)[0].unlink()
+        elif fault == "corrupt":
+            store._paths(required.artifact_id)[0].write_bytes(b"corrupt required blob")
+        else:
+            alternate = store.put_bytes(
+                b"B71 required producer bytes",
+                PutOptions(
+                    kind=required.kind,
+                    media_type=required.media_type,
+                    producer=ProducerInfo(component="foreign.producer", version="1.0.0"),
+                ),
+            )
+            assert alternate.artifact_id == required.artifact_id
+            assert alternate.manifest_profile_sha256 != required.manifest_profile_sha256
+            assert store.verify(alternate).ok
+            # The other view remains valid. Replacing the selected view with its
+            # bytes cannot authorize the producer's original complete reference.
+            original_path = store._manifest_path_for_ref(
+                required.artifact_id, required.manifest_profile_sha256
+            )
+            alternate_path = store._manifest_path_for_ref(
+                alternate.artifact_id, alternate.manifest_profile_sha256
+            )
+            original_path.write_bytes(alternate_path.read_bytes())
+        reopened = FileSystemCAS(store.root)
+        assert not reopened.verify(required).ok
+        if fault == "foreign_selected_profile":
+            assert reopened.verify(alternate).ok
+        registry, producer, reader = _registry()
+&gt;       with pytest.raises(CheckpointCorruptedError, match=r"inputs\.required_ref"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.checkpoint.CheckpointCorruptedError'&gt;
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:246: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_optional_absent_read_without_completed_writer_does_not_block_resume" time="0.574" /><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_allow_replay_repairs_required_blob_before_real_consumer_read" time="0.485"><failure message="AssertionError: assert 'fail' == 'ok'&#10;  &#10;  - ok&#10;  + fail">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/b71-current-input-base-tmp/test_allow_replay_repairs_requ0')
+
+    def test_allow_replay_repairs_required_blob_before_real_consumer_read(tmp_path):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        store._paths(required.artifact_id)[0].unlink()
+        reopened = FileSystemCAS(store.root)
+        assert not reopened.verify(required).ok
+        registry, producer, reader = _registry()
+        result = resume_from_checkpoint(
+            reopened,
+            run_id,
+            workflow=_workflow(),
+            registry=registry,
+            registry_bundle_ref=bundle,
+            resume_strategy="allow_replay",
+        )
+&gt;       assert result.report.status == "ok"
+E       AssertionError: assert 'fail' == 'ok'
+E         
+E         - ok
+E         + fail
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:284: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_full_native_execution_revalidates_cached_required_output[True]" time="0.477"><failure message="AssertionError: assert [] == [(ArtifactRef...0fc8'), True)]&#10;  &#10;  Right contains one more item: (ArtifactRef(artifact_id=ArtifactID(root='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106'), k...ctet-stream', manifest_profile_sha256='sha256:996a27c53df76f5cbc7196255f4be6eeab55d45e2edd5899de8a175ba4d80fc8'), True)&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/b71-current-input-base-tmp/test_full_native_execution_rev0')
+available = True
+
+    @pytest.mark.parametrize("available", [True, False])
+    def test_full_native_execution_revalidates_cached_required_output(tmp_path, available):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        if not available:
+            store._paths(required.artifact_id)[0].unlink()
+        reopened = FileSystemCAS(store.root)
+        resolved = resolve_latest_checkpoint(reopened, run_id)
+        assert resolved is not None
+        refs = resolved[1].metadata.cache_entry_refs
+        assert refs
+        registry, producer, reader = _registry()
+        run = RunContext.start(store=reopened, registry_bundle=bundle, run_id=run_id)
+        ctx = ExecutionContext(store=reopened, run=run, logger=logging.getLogger("b71-cache"))
+        result = asyncio.run(
+            AsyncWorkflowExecutor(ctx, registry, checkpoint_cache_seed_refs=refs).execute(
+                _workflow(), ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle})
+            )
+        )
+        assert result.report.status == "ok"
+&gt;       assert producer.validation_refs == [(required, available)]
+E       AssertionError: assert [] == [(ArtifactRef...0fc8'), True)]
+E         
+E         Right contains one more item: (ArtifactRef(artifact_id=ArtifactID(root='sha256:d30eb287212e7b27396c4c6cad3f75b657a386afbe7b21d50d00bdfbcf46d106'), k...ctet-stream', manifest_profile_sha256='sha256:996a27c53df76f5cbc7196255f4be6eeab55d45e2edd5899de8a175ba4d80fc8'), True)
+E         Use -v to get more diff
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:314: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_resume_artifact_requirements" name="test_full_native_execution_revalidates_cached_required_output[False]" time="0.462"><failure message="AssertionError: assert 'fail' == 'ok'&#10;  &#10;  - ok&#10;  + fail">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/b71-current-input-base-tmp/test_full_native_execution_rev1')
+available = False
+
+    @pytest.mark.parametrize("available", [True, False])
+    def test_full_native_execution_revalidates_cached_required_output(tmp_path, available):
+        store, run_id, bundle, required = _native_checkpoint(tmp_path)
+        if not available:
+            store._paths(required.artifact_id)[0].unlink()
+        reopened = FileSystemCAS(store.root)
+        resolved = resolve_latest_checkpoint(reopened, run_id)
+        assert resolved is not None
+        refs = resolved[1].metadata.cache_entry_refs
+        assert refs
+        registry, producer, reader = _registry()
+        run = RunContext.start(store=reopened, registry_bundle=bundle, run_id=run_id)
+        ctx = ExecutionContext(store=reopened, run=run, logger=logging.getLogger("b71-cache"))
+        result = asyncio.run(
+            AsyncWorkflowExecutor(ctx, registry, checkpoint_cache_seed_refs=refs).execute(
+                _workflow(), ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle})
+            )
+        )
+&gt;       assert result.report.status == "ok"
+E       AssertionError: assert 'fail' == 'ok'
+E         
+E         - ok
+E         + fail
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py:313: AssertionError</failure></testcase></testsuite></testsuites>

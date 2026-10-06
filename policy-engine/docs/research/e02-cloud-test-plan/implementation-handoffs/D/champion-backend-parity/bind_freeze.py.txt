@@ -1,0 +1,42 @@
+import json,subprocess,uuid
+from pathlib import Path
+scratch=Path('/dev/shm/e02-D-backend-parity-review')
+plan=json.loads((scratch/'gates-derived-provisional.json').read_text())
+sha='243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3'
+tree='f3763c0911f1f80d8c5ee049667045a594fb55c2'
+assert plan['source_sha']==sha and plan['tree']==tree
+root=Path('/workspace/e02-D-published-root')
+product=root/'policy-engine'
+python='/dev/shm/e02-D-parity-env/bin/python'
+execution=[]
+for idx,row in enumerate(plan['commands'],1):
+ key=f'B{idx:02d}'
+ argv=list(row['direct_argv'])
+ locks=[['overlay-entry-point-metadata','shared']]
+ entry={'id':key,'label':row['label'],'canonical_argv':row['canonical_argv'],'argv':argv,'cwd':str(product),'resource_locks':locks,'output_paths':[],'required_extra_profiles':row['required_extra_profiles'],'removed_only_wrapper_numeric_caps':row['removed_only_wrapper_numeric_caps']}
+ for flag in ['--json-output','--markdown-output','--output']:
+  if flag in argv:entry['output_paths'].append(argv[argv.index(flag)+1])
+ if key in {'B14','B15'}:
+  base=Path('/dev/shm')/('e02-D-parity-'+key+'-'+uuid.uuid4().hex)
+  assert not base.exists()
+  argv.append('--basetemp='+str(base))
+  entry['fresh_basetemp']=str(base)
+  locks.append(['root-pytest-cache-benchmarks','exclusive'])
+ if key=='B10':entry['output_paths'].extend(['_build/honest-diagnostics/coverage/coverage.json','_build/honest-diagnostics/coverage/coverage.md'])
+ if key=='B13':entry['output_paths'].append('_build/.tmp/last-mile/schemas-python-residue.txt')
+ if key=='B21':
+  base=Path('/dev/shm')/('e02-D-parity-extension-child-'+uuid.uuid4().hex)
+  assert not base.exists()
+  entry['child_pytest_basetemp']=str(base)
+  entry['resource_locks']=[['overlay-entry-point-metadata','exclusive'],['root-pytest-cache-benchmarks','exclusive']]
+  entry['execution_precondition']='Wait parent root pytest release AND all overlay consumers, including frontend. Canonical installer only writable overlay.'
+ if key=='B24':entry['preserve_absent_site']=True
+ execution.append(entry)
+doctor=plan['doctor']
+baseline="from dataclasses import asdict; import json; from tools.devx.workspace import doctor; results=[doctor._check_python(),doctor._check_node(),doctor._check_uv(),*doctor._check_optional_surfaces([])]; print(json.dumps({'source':doctor.__file__,'results':[asdict(x) for x in results]},indent=2)); raise SystemExit(int(any(not x.ok for x in results)))"
+extra=[('doctor baseline versions and default optional surfaces',[python,'-c',baseline],str(product)),('doctor Chromium launch',doctor['chromium_argv'],doctor['chromium_cwd']),('doctor uv lock freshness',doctor['uv_lock_argv'],str(product)),('doctor pnpm lock freshness',doctor['pnpm_lock_argv'],str(product)),('doctor frontend generated contracts',doctor['frontend_contract_argv'],doctor['frontend_contract_cwd'])]
+for idx,(label,argv,cwd) in enumerate(extra,1):
+ execution.append({'id':f'D{idx:02d}','label':label,'argv':argv,'cwd':cwd,'resource_locks':[['overlay-entry-point-metadata','shared']],'output_paths':[]})
+plan.update(status='FROZEN_READY',frozen_sha=sha,frozen_tree=tree,repo_root=str(root),execution_gates=execution,canonical_backend_gate_count=25,expanded_doctor_additional_command_count=5,doctor_contract_reuse={'schemas':'B07 identical source argv/profile/environment','runtime-openapi':'B08 identical source argv/profile/environment'},root_pytest_resource_state='HELD_BY_ROOT until explicit parent release',literal_wrapper_status='UNRUN/incompatible six forced numeric caps; no wrapper PASS',source_configuration_retained='pytest.ini complete addopts/import-mode/strict-markers/benchmark-storage/cache_dir/testpaths, source default markers and ignore only; no worker override')
+(scratch/'gates-frozen-243.json').write_text(json.dumps(plan,indent=2)+'\n')
+print(json.dumps({'freeze':sha,'tree':tree,'backend':25,'additional_doctor_commands':5,'blocked_shared_pytest':['B14','B15','B21'],'ready_now':[x['id'] for x in execution if x['id'] not in {'B14','B15','B21'}]},indent=2))

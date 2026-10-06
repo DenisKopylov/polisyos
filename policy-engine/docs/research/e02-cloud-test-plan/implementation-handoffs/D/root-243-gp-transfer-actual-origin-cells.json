@@ -1,0 +1,103 @@
+{
+  "source_commit": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "module_cells": [
+    {
+      "module": "polisyos.scientist.methods.search.strategies.bayesian",
+      "loaded": true,
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "bytes": 48512,
+      "matches_pinned_source": true
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies.transfer",
+      "loaded": true,
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3",
+      "bytes": 32366,
+      "matches_pinned_source": true
+    },
+    {
+      "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "loaded": true,
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "bytes": 21632,
+      "matches_pinned_source": true
+    },
+    {
+      "module": "polisyos.scientist.methods.autotune.models",
+      "loaded": true,
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "bytes": 27900,
+      "matches_pinned_source": true
+    },
+    {
+      "module": "polisyos.scientist.methods.autotune.registry",
+      "loaded": true,
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+      "bytes": 26820,
+      "matches_pinned_source": true
+    },
+    {
+      "module": "polisyos.scientist.methods.autotune.warm_start",
+      "loaded": true,
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7",
+      "bytes": 4727,
+      "matches_pinned_source": true
+    }
+  ],
+  "backend": {
+    "torch": {
+      "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+      "loaded": true,
+      "version": "2.10.0"
+    },
+    "botorch": {
+      "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+      "loaded": true,
+      "version": "0.16.1"
+    },
+    "gpytorch": {
+      "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+      "loaded": true,
+      "version": "1.15.1"
+    },
+    "numpy": {
+      "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+      "loaded": true,
+      "version": "2.3.5"
+    },
+    "scipy": {
+      "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+      "loaded": true,
+      "version": "1.16.3"
+    },
+    "hnswlib": {
+      "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+      "loaded": true,
+      "version": "0.8.0"
+    }
+  },
+  "collected": 26,
+  "failed": 0,
+  "exitstatus": 0,
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "POLISYOS_PYTEST_WORKERS": null,
+    "PYTEST_ADDOPTS": null
+  }
+}

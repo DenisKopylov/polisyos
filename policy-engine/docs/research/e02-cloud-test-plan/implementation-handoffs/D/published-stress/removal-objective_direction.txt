@@ -1,0 +1,102 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_______ test_typed_adaptive_extremum_and_best_feedback_survive_cas[gdp] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-156/test_typed_adaptive_extremum_a0')
+kind = 'gdp'
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    def test_typed_adaptive_extremum_and_best_feedback_survive_cas(tmp_path: Path, kind: str) -> None:
+        class PhysicalProposal:
+            def __init__(self) -> None:
+                self.values = iter([-2.0, -3.0, 0.0] if kind == "gdp" else [2.0, 3.0, 0.0])
+                self.bests = []
+    
+            def generate(self, history: list, current_best: dict | None, context: dict) -> dict:
+                self.bests.append(current_best)
+                return {"p": next(self.values)}
+    
+        proposal = PhysicalProposal()
+        store = FileSystemCAS(tmp_path / "cas")
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.SEARCH_LOOP,
+                max_iterations=35,
+                vulnerability_threshold=1.5 if kind == "gdp" else 3.5,
+                stop_on_first_vulnerability=False,
+                seed=7,
+            ),
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {
+                    "gdp_change" if kind == "gdp" else "budget_deficit": (
+                        candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+                    )
+                }
+            },
+            candidate_generator=proposal,
+            cas=store,
+        )
+        sign = -1.0 if kind == "gdp" else 1.0
+>       assert proposal.bests == [None, {"p": 2.0 * sign}, {"p": 3.0 * sign}]
+E       AssertionError: assert [None, {'p': ..., {'p': -2.0}] == [None, {'p': ..., {'p': -3.0}]
+E         
+E         At index 2 diff: {'p': -2.0} != {'p': -3.0}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/test_adversarial_streaming.py:173: AssertionError
+_______ test_typed_adaptive_extremum_and_best_feedback_survive_cas[cost] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-156/test_typed_adaptive_extremum_a1')
+kind = 'cost'
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    def test_typed_adaptive_extremum_and_best_feedback_survive_cas(tmp_path: Path, kind: str) -> None:
+        class PhysicalProposal:
+            def __init__(self) -> None:
+                self.values = iter([-2.0, -3.0, 0.0] if kind == "gdp" else [2.0, 3.0, 0.0])
+                self.bests = []
+    
+            def generate(self, history: list, current_best: dict | None, context: dict) -> dict:
+                self.bests.append(current_best)
+                return {"p": next(self.values)}
+    
+        proposal = PhysicalProposal()
+        store = FileSystemCAS(tmp_path / "cas")
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.SEARCH_LOOP,
+                max_iterations=35,
+                vulnerability_threshold=1.5 if kind == "gdp" else 3.5,
+                stop_on_first_vulnerability=False,
+                seed=7,
+            ),
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {
+                    "gdp_change" if kind == "gdp" else "budget_deficit": (
+                        candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+                    )
+                }
+            },
+            candidate_generator=proposal,
+            cas=store,
+        )
+        sign = -1.0 if kind == "gdp" else 1.0
+>       assert proposal.bests == [None, {"p": 2.0 * sign}, {"p": 3.0 * sign}]
+E       AssertionError: assert [None, {'p': 2.0}, {'p': 2.0}] == [None, {'p': 2.0}, {'p': 3.0}]
+E         
+E         At index 2 diff: {'p': 2.0} != {'p': 3.0}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/test_adversarial_streaming.py:173: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_typed_adaptive_extremum_and_best_feedback_survive_cas[gdp]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_typed_adaptive_extremum_and_best_feedback_survive_cas[cost]
+2 failed in 0.10s

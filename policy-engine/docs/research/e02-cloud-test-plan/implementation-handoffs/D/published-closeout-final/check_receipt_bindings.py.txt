@@ -1,0 +1,67 @@
+"""Read Git-bound receipt references without trusting working-copy output."""
+
+from __future__ import annotations
+
+import gzip
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-D-published-root')
+OUT = Path('/dev/shm/e02-D-root-closeout')
+
+
+def blob(commit: str, path: str) -> bytes:
+    return subprocess.check_output(['git', 'show', f'{commit}:{path}'], cwd=ROOT, stderr=subprocess.PIPE)
+
+
+def main() -> None:
+    commit, receipt_path = sys.argv[1:]
+    raw = blob(commit, receipt_path)
+    receipt = json.loads(raw)
+    checked, unavailable = [], []
+
+    def visit(node, pointer='', inherited_commit=commit):
+        if isinstance(node, dict):
+            selected = next((node[k] for k in ('source_sha', 'source_commit', 'sha', 'commit', 'target_sha', 'git_sha', 'publisher_commit', 'receipt_commit') if isinstance(node.get(k), str) and len(node[k]) == 40), inherited_commit)
+            path = node.get('path')
+            expected = node.get('sha256', node.get('rawfile_sha256'))
+            if isinstance(path, str) and path.startswith('policy-engine/') and isinstance(expected, str):
+                candidates = list(dict.fromkeys([v for v in node.values() if isinstance(v,str) and len(v)==40] + [selected, commit]))
+                matches = []
+                errors = []
+                for candidate in candidates:
+                    try:
+                        data = blob(candidate, path)
+                    except subprocess.CalledProcessError:
+                        errors.append(candidate)
+                        continue
+                    digest = hashlib.sha256(data).hexdigest()
+                    if digest == expected:
+                        assert len(data) == node.get('bytes', node.get('byte_size',len(data))), f'{pointer} byte count'
+                        if 'decoded_sha256' in node:
+                            decoded = gzip.decompress(data)
+                            assert hashlib.sha256(decoded).hexdigest() == node['decoded_sha256']
+                            assert len(decoded) == node['decoded_bytes']
+                        matches.append(candidate)
+                assert matches, f'{pointer} hash binding failed: {path}, candidates={candidates}'
+                checked.append({'pointer': pointer, 'path': path, 'sha256': expected, 'matching_git_sources': matches})
+            elif isinstance(path, str) and path.startswith('/') and isinstance(expected, str):
+                unavailable.append({'pointer': pointer, 'path': path, 'scope': 'External path not counted as Git binding'})
+            for key, value in node.items():
+                visit(value, pointer + '/' + key, selected)
+        elif isinstance(node, list):
+            for index, value in enumerate(node):
+                visit(value, pointer + '/' + str(index), inherited_commit)
+
+    visit(receipt)
+    output = {'receipt_commit': commit, 'receipt_path': receipt_path, 'receipt_sha256': hashlib.sha256(raw).hexdigest(), 'checked_git_bindings': checked, 'external_path_scope': unavailable, 'result': 'PASS metadata hashes/bytes only; no runtime or finding verdict'}
+    name = Path(receipt_path).stem + '-root-binding.json'
+    (OUT / name).write_text(json.dumps(output, indent=2) + '\n')
+    print(json.dumps({'receipt': receipt_path, 'bindings': len(checked), 'result': 'PASS'}))
+
+
+if __name__ == '__main__':
+    main()

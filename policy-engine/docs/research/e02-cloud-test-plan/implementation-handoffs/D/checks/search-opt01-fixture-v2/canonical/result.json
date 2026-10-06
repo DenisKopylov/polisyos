@@ -1,0 +1,90 @@
+{
+  "mode": "canonical",
+  "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-c",
+    "import hashlib,json,runpy,subprocess,sys\nfrom pathlib import Path\nimport pytest\nroot,source,observer,event,mode,*arguments=sys.argv[1:]\nObserver=runpy.run_path(observer)['Observer']\nclass Measurement(Observer):\n def pytest_sessionfinish(self,session,exitstatus):\n  origins={}\n  for name in ['polisyos.scientist.methods.autotune.pareto','polisyos.scientist.methods.autotune.models','polisyos.core.artifacts.store','polisyos.core.canon.canon_json']:\n   path=Path(sys.modules[name].__file__).resolve()\n   relative=path.relative_to(root).as_posix()\n   data=subprocess.check_output(['git','show',source+':'+relative],cwd=root)\n   origins[name]={'path':str(path),'git_path':relative,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'git_match':data==path.read_bytes()}\n   assert origins[name]['git_match']\n  self.emit('session_finish',exitstatus=int(exitstatus),native_origins=origins)\nif mode=='remove_property':\n from polisyos.scientist.methods.autotune.pareto import ParetoPromoter\n original=ParetoPromoter._assess_objective_vector\n def replace_unusable_with_zero(self,evaluation):\n  vector,missing,nonfinite=original(self,evaluation)\n  return (tuple(0.0 for _ in self._policies),[],[]) if vector is None else (vector,missing,nonfinite)\n ParetoPromoter._assess_objective_vector=replace_unusable_with_zero\n print('PROPERTY_REMOVAL: unusable required coordinates become zero; metadata, strict CAS reader and tests unchanged',flush=True)\nraise SystemExit(pytest.main(arguments,plugins=[Measurement(event)]))\n",
+    "/workspace/e02-D-published-search",
+    "c3fe956011df8185c226155b86488294fe16143e",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py.txt",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/events.jsonl.txt",
+    "canonical",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-opt01-v2-canonical-3b74da5279184b3db0d8d27787f4689a",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/junit.xml",
+    "-rA"
+  ],
+  "equivalent_pytest_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-opt01-v2-canonical-3b74da5279184b3db0d8d27787f4689a",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/junit.xml",
+    "-rA"
+  ],
+  "basetemp": "/dev/shm/search-opt01-v2-canonical-3b74da5279184b3db0d8d27787f4689a",
+  "basetemp_existed_before": false,
+  "exit_code": 0,
+  "wall_seconds": 14.773083886990207,
+  "source_before": {
+    "head": "c3fe956011df8185c226155b86488294fe16143e",
+    "tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+    "branch": "codex/e02-D-published-search",
+    "tracked_status": "",
+    "product_delta_from_base": "",
+    "utc": "2026-10-06T12:48:57.717562+00:00"
+  },
+  "source_after": {
+    "head": "c3fe956011df8185c226155b86488294fe16143e",
+    "tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+    "branch": "codex/e02-D-published-search",
+    "tracked_status": "",
+    "product_delta_from_base": "",
+    "utc": "2026-10-06T12:49:12.490641+00:00"
+  },
+  "junit_counts": {
+    "tests": 75,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 75
+  },
+  "outputs": {
+    "complete.txt": {
+      "bytes": 27252,
+      "sha256": "dc37eedef7a3e454db7b375ad7f427b4778a85ac508d05ce50b0551c8bebadf6"
+    },
+    "events.jsonl.txt": {
+      "bytes": 141700,
+      "sha256": "94c6ac41d5eeb183d490c3406688aa54b7a54ec1e1f507b8cfd1ebc188d907d2"
+    },
+    "junit.xml": {
+      "bytes": 14009,
+      "sha256": "7cf25e6f665d9047c0f8a3cf0cc6f52a584274c1be3d94fbf7c5e48468ee88b9"
+    }
+  }
+}

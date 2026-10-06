@@ -1,0 +1,214 @@
+PRODUCTION_SOURCE 653ba2ac07b9bb67310175f428c9433c22d427ae
+TEST_INPUT_SHA256 cf78bd437629e1df2b1baa868fb415b686d33fbb1e0201630ff7027f5772ff70
+COMMAND ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "-vv", "tests/integration/scientist/methods/search/funnel/test_orchestrator.py", "-k", "actual_native_cost_identity"]
+PYTHONPATH src:. TIKTOKEN_CACHE_DIR /workspace/e02-D2-receipts/tokenizer
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-D-published-funnel/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-D-published-funnel/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 12 items / 8 deselected / 4 selected
+
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-False] FAILED [ 25%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-True] FAILED [ 50%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-False] FAILED [ 75%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-True] FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-False] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-244/test_actual_native_cost_identi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1a622ec3e0>
+routing_reject = False, cost = 0.0
+
+    @pytest.mark.parametrize("routing_reject", [False, True])
+    @pytest.mark.parametrize("cost", [0.0, 1.0])
+    def test_actual_native_cost_identity_survives_routing_and_compatibility_projections(
+        tmp_path, monkeypatch, routing_reject, cost
+    ):
+        path, _, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch, cost=cost)
+        if routing_reject:
+            stage = funnel._stages_by_level[3]
+            native_evaluate = stage.evaluate
+    
+            def route_paid_native_result(candidate, context):
+                return replace(
+                    native_evaluate(candidate, context),
+                    cheap_signal=CheapSignalVector(structural_validity=0.0),
+                )
+    
+            monkeypatch.setattr(stage, "evaluate", route_paid_native_result)
+    
+        candidate = {"candidate_id": "candidate-1"}
+        ticket = funnel.submit(candidate, context)
+        outcome = funnel.advance(ticket, policy="full")
+        expected_calls = ["adversary"] if routing_reject else ["adversary", "translator"]
+        assert calls == expected_calls
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert snapshot.state.spent["run"] == Decimal(str(cost)) * len(expected_calls)
+        assert len(snapshot.resource_events) == len(expected_calls)
+        assert outcome.final_action == ("reject" if routing_reject else "complete")
+        assert outcome.provider_spend_usd == snapshot.state.spent["run"]
+        assert set(outcome.resource_event_ids) == set(snapshot.resource_events)
+        final_stage = outcome.final_result
+        assert final_stage.provider_spend_usd == Decimal(str(cost))
+        assert final_stage.compute_cost_source == "provider_reported_only"
+        assert set(final_stage.resource_event_ids) == set(outcome.trace[-1].resource_event_ids)
+        assert final_stage.provider_spend_usd == outcome.trace[-1].provider_spend_usd
+    
+        compatibility = funnel.evaluate(candidate, context)
+        assert compatibility.is_promising is (not routing_reject)
+        assert compatibility.feedback["verdict"] == ("REJECT" if routing_reject else "APPROVE")
+>       assert compatibility.compute_cost_source == final_stage.compute_cost_source
+E       AssertionError: assert 'estimated' == 'provider_reported_only'
+E         
+E         - provider_reported_only
+E         + estimated
+
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py:401: AssertionError
+_ test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-244/test_actual_native_cost_identi1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1a622eeb10>
+routing_reject = True, cost = 0.0
+
+    @pytest.mark.parametrize("routing_reject", [False, True])
+    @pytest.mark.parametrize("cost", [0.0, 1.0])
+    def test_actual_native_cost_identity_survives_routing_and_compatibility_projections(
+        tmp_path, monkeypatch, routing_reject, cost
+    ):
+        path, _, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch, cost=cost)
+        if routing_reject:
+            stage = funnel._stages_by_level[3]
+            native_evaluate = stage.evaluate
+    
+            def route_paid_native_result(candidate, context):
+                return replace(
+                    native_evaluate(candidate, context),
+                    cheap_signal=CheapSignalVector(structural_validity=0.0),
+                )
+    
+            monkeypatch.setattr(stage, "evaluate", route_paid_native_result)
+    
+        candidate = {"candidate_id": "candidate-1"}
+        ticket = funnel.submit(candidate, context)
+        outcome = funnel.advance(ticket, policy="full")
+        expected_calls = ["adversary"] if routing_reject else ["adversary", "translator"]
+        assert calls == expected_calls
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert snapshot.state.spent["run"] == Decimal(str(cost)) * len(expected_calls)
+        assert len(snapshot.resource_events) == len(expected_calls)
+        assert outcome.final_action == ("reject" if routing_reject else "complete")
+>       assert outcome.provider_spend_usd == snapshot.state.spent["run"]
+E       AssertionError: assert None == Decimal('0.0')
+E        +  where None = FunnelOutcome(ticket_id='19ed6485-69df-45f1-884e-6684e86bfe82', candidate_hash='633815792375c910', trace=[FunnelTraceStep(fidelity_level=3, stage_name='funnel_L3_medium', objective_value=-10.5, is_promising=False, duration_seconds=0.001837, compute_actual_usd=0.0, routing_decision='reject', voi_action=None, voi_priority=None, failure_count=0, blocker_count=0, compute_cost_source='provider_reported_only', provider_spend_usd=Decimal('0.0'), resource_event_ids=('f5e6fd258674501c77c9e4564e8156270bbaa59e7c804b500975ff814a876c3d',))], stage_results={3: FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=-10.5, is_promising=False, stage_name='funnel_L3_medium', duration_seconds=0.001837, timestamp=datetime.datetime(2026, 10, 6, 10, 53, 37, 761345, tzinfo=datetime.timezone.utc), simulation_results={'gdp_change': 10.5, 'ate': 10.5, 'bootstrap': {'ci_width': 4.026249999999997}}, feedback={'verdict': 'APPROVE', 'level3_disclaimer': 'routing_signal_only', 'forbidden_for_pruning': ['ci_width', 'hte_heterogeneity', 'subgroup_harm_magnitude', 'bootstrap_stability'], 'fidelity_config': {'subsample_fraction': 0.2, 'bootstrap_draws': 20, 'estimator_tier': 'linear', ... <UncertaintyType.TRANSPORT: 'transport'>: UncertaintyEstimate(level=1.0, source='L3 medium fidelity', quantification_method='not_assessed', is_reducible=True, recommended_action=None), <UncertaintyType.MEASUREMENT: 'measurement'>: UncertaintyEstimate(level=1.0, source='L3 medium fidelity', quantification_method='not_assessed', is_reducible=True, recommended_action=None), <UncertaintyType.MODEL: 'model'>: UncertaintyEstimate(level=0.7, source='estimator tier: linear', quantification_method='estimator_complexity_proxy', is_reducible=True, recommended_action='Advance to L4 for flagship estimators.'), <UncertaintyType.OPTIMIZATION: 'optimization'>: UncertaintyEstimate(level=1.0, source='L3 medium fidelity', quantification_method='not_assessed', is_reducible=True, recommended_action=None)}), compute_actual_usd=0.0, degradation_mode='normal', final_action='reject', completed=True, last_scheduling_decision=None, lesson_refs=[], audit_refs=[], actionable_side_information_refs=[], parent_ticket_id=None, lineage=('19ed6485-69df-45f1-884e-6684e86bfe82',), continuation_reason=None, evaluation_status='evaluated', compute_cost_source='estimated', provider_spend_usd=None, resource_event_ids=()).provider_spend_usd
+
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py:390: AssertionError
+_ test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-False] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-244/test_actual_native_cost_identi2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1a62060b90>
+routing_reject = False, cost = 1.0
+
+    @pytest.mark.parametrize("routing_reject", [False, True])
+    @pytest.mark.parametrize("cost", [0.0, 1.0])
+    def test_actual_native_cost_identity_survives_routing_and_compatibility_projections(
+        tmp_path, monkeypatch, routing_reject, cost
+    ):
+        path, _, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch, cost=cost)
+        if routing_reject:
+            stage = funnel._stages_by_level[3]
+            native_evaluate = stage.evaluate
+    
+            def route_paid_native_result(candidate, context):
+                return replace(
+                    native_evaluate(candidate, context),
+                    cheap_signal=CheapSignalVector(structural_validity=0.0),
+                )
+    
+            monkeypatch.setattr(stage, "evaluate", route_paid_native_result)
+    
+        candidate = {"candidate_id": "candidate-1"}
+        ticket = funnel.submit(candidate, context)
+        outcome = funnel.advance(ticket, policy="full")
+        expected_calls = ["adversary"] if routing_reject else ["adversary", "translator"]
+        assert calls == expected_calls
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert snapshot.state.spent["run"] == Decimal(str(cost)) * len(expected_calls)
+        assert len(snapshot.resource_events) == len(expected_calls)
+        assert outcome.final_action == ("reject" if routing_reject else "complete")
+        assert outcome.provider_spend_usd == snapshot.state.spent["run"]
+        assert set(outcome.resource_event_ids) == set(snapshot.resource_events)
+        final_stage = outcome.final_result
+        assert final_stage.provider_spend_usd == Decimal(str(cost))
+        assert final_stage.compute_cost_source == "provider_reported_only"
+        assert set(final_stage.resource_event_ids) == set(outcome.trace[-1].resource_event_ids)
+        assert final_stage.provider_spend_usd == outcome.trace[-1].provider_spend_usd
+    
+        compatibility = funnel.evaluate(candidate, context)
+        assert compatibility.is_promising is (not routing_reject)
+        assert compatibility.feedback["verdict"] == ("REJECT" if routing_reject else "APPROVE")
+>       assert compatibility.compute_cost_source == final_stage.compute_cost_source
+E       AssertionError: assert 'estimated' == 'provider_reported_only'
+E         
+E         - provider_reported_only
+E         + estimated
+
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py:401: AssertionError
+_ test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-244/test_actual_native_cost_identi3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1a61889370>
+routing_reject = True, cost = 1.0
+
+    @pytest.mark.parametrize("routing_reject", [False, True])
+    @pytest.mark.parametrize("cost", [0.0, 1.0])
+    def test_actual_native_cost_identity_survives_routing_and_compatibility_projections(
+        tmp_path, monkeypatch, routing_reject, cost
+    ):
+        path, _, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch, cost=cost)
+        if routing_reject:
+            stage = funnel._stages_by_level[3]
+            native_evaluate = stage.evaluate
+    
+            def route_paid_native_result(candidate, context):
+                return replace(
+                    native_evaluate(candidate, context),
+                    cheap_signal=CheapSignalVector(structural_validity=0.0),
+                )
+    
+            monkeypatch.setattr(stage, "evaluate", route_paid_native_result)
+    
+        candidate = {"candidate_id": "candidate-1"}
+        ticket = funnel.submit(candidate, context)
+        outcome = funnel.advance(ticket, policy="full")
+        expected_calls = ["adversary"] if routing_reject else ["adversary", "translator"]
+        assert calls == expected_calls
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert snapshot.state.spent["run"] == Decimal(str(cost)) * len(expected_calls)
+        assert len(snapshot.resource_events) == len(expected_calls)
+        assert outcome.final_action == ("reject" if routing_reject else "complete")
+>       assert outcome.provider_spend_usd == snapshot.state.spent["run"]
+E       AssertionError: assert None == Decimal('1.0')
+E        +  where None = FunnelOutcome(ticket_id='15a7d1d2-5bb3-4e23-8725-fd96e70a5067', candidate_hash='633815792375c910', trace=[FunnelTraceStep(fidelity_level=3, stage_name='funnel_L3_medium', objective_value=-10.5, is_promising=False, duration_seconds=0.001751, compute_actual_usd=1.0, routing_decision='reject', voi_action=None, voi_priority=None, failure_count=0, blocker_count=0, compute_cost_source='provider_reported_only', provider_spend_usd=Decimal('1.0'), resource_event_ids=('f5e6fd258674501c77c9e4564e8156270bbaa59e7c804b500975ff814a876c3d',))], stage_results={3: FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=-10.5, is_promising=False, stage_name='funnel_L3_medium', duration_seconds=0.001751, timestamp=datetime.datetime(2026, 10, 6, 10, 53, 37, 801567, tzinfo=datetime.timezone.utc), simulation_results={'gdp_change': 10.5, 'ate': 10.5, 'bootstrap': {'ci_width': 4.026249999999997}}, feedback={'verdict': 'APPROVE', 'level3_disclaimer': 'routing_signal_only', 'forbidden_for_pruning': ['ci_width', 'hte_heterogeneity', 'subgroup_harm_magnitude', 'bootstrap_stability'], 'fidelity_config': {'subsample_fraction': 0.2, 'bootstrap_draws': 20, 'estimator_tier': 'linear', ... <UncertaintyType.TRANSPORT: 'transport'>: UncertaintyEstimate(level=1.0, source='L3 medium fidelity', quantification_method='not_assessed', is_reducible=True, recommended_action=None), <UncertaintyType.MEASUREMENT: 'measurement'>: UncertaintyEstimate(level=1.0, source='L3 medium fidelity', quantification_method='not_assessed', is_reducible=True, recommended_action=None), <UncertaintyType.MODEL: 'model'>: UncertaintyEstimate(level=0.7, source='estimator tier: linear', quantification_method='estimator_complexity_proxy', is_reducible=True, recommended_action='Advance to L4 for flagship estimators.'), <UncertaintyType.OPTIMIZATION: 'optimization'>: UncertaintyEstimate(level=1.0, source='L3 medium fidelity', quantification_method='not_assessed', is_reducible=True, recommended_action=None)}), compute_actual_usd=1.0, degradation_mode='normal', final_action='reject', completed=True, last_scheduling_decision=None, lesson_refs=[], audit_refs=[], actionable_side_information_refs=[], parent_ticket_id=None, lineage=('15a7d1d2-5bb3-4e23-8725-fd96e70a5067',), continuation_reason=None, evaluation_status='evaluated', compute_cost_source='estimated', provider_spend_usd=None, resource_event_ids=()).provider_spend_usd
+
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py:390: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-False]
+FAILED tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-True]
+FAILED tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-False]
+FAILED tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-True]
+================= 4 failed, 8 deselected, 2 warnings in 9.90s ==================
+EXIT 1 WALL_SECONDS 15.115938771996298 MAXRSS_KIB 1299196

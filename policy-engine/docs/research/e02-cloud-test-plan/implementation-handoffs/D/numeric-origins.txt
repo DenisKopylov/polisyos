@@ -1,0 +1,9 @@
+python /workspace/e02-D-locked-env/bin/python 3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]
+hnswlib 0.8.0
+torch 2.10.0
+botorch 0.16.1
+gpytorch 1.15.1
+ruff 0.14.10
+polisyos.scientist.methods.search.strategies.transfer /workspace/e02-D2-receipts/transfer/numeric-healthy/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py
+polisyos.scientist.methods.autotune.warm_start /workspace/e02-D2-receipts/transfer/numeric-healthy/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py
+polisyos.scientist.agent.vector_memory /workspace/e02-D2-receipts/transfer/numeric-healthy/policy-engine/src/polisyos/scientist/agent/vector_memory.py

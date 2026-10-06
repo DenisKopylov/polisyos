@@ -1,0 +1,524 @@
+{
+  "schema": "policyos.e02.canonical_command_capture.v1",
+  "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "source_before": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:15:41.541215+00:00"
+  },
+  "plan": {
+    "git_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+    "bytes": 110393,
+    "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d"
+  },
+  "definitions": [
+    {
+      "ordinal": 1,
+      "bundle": "CTL-01",
+      "canonical_line": 98,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_controller_api.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_controller_api.py"
+      ]
+    },
+    {
+      "ordinal": 2,
+      "bundle": "CTL-02",
+      "canonical_line": 122,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+        "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+        "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"
+      ]
+    },
+    {
+      "ordinal": 3,
+      "bundle": "CTL-03",
+      "canonical_line": 144,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+      ]
+    },
+    {
+      "ordinal": 4,
+      "bundle": "FUN-01",
+      "canonical_line": 168,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+      ]
+    },
+    {
+      "ordinal": 5,
+      "bundle": "FUN-02",
+      "canonical_line": 194,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/remediation/test_fun_02.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/remediation/test_fun_02.py"
+      ]
+    },
+    {
+      "ordinal": 6,
+      "bundle": "FUN-03",
+      "canonical_line": 216,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "tests/unit/remediation/test_fun_03.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "tests/unit/remediation/test_fun_03.py"
+      ]
+    },
+    {
+      "ordinal": 7,
+      "bundle": "OPT-01",
+      "canonical_line": 240,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_pareto.py",
+        "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_pareto.py",
+        "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+      ]
+    },
+    {
+      "ordinal": 8,
+      "bundle": "OPT-02",
+      "canonical_line": 265,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+      ]
+    },
+    {
+      "ordinal": 9,
+      "bundle": "OPT-03",
+      "canonical_line": 290,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+      ]
+    },
+    {
+      "ordinal": 10,
+      "bundle": "OPT-04",
+      "canonical_line": 315,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_frontier.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_frontier.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+      ]
+    },
+    {
+      "ordinal": 11,
+      "bundle": "SRV-01",
+      "canonical_line": 340,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/search/test_search_loop.py"
+      ]
+    },
+    {
+      "ordinal": 12,
+      "bundle": "SRV-03",
+      "canonical_line": 365,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+      ]
+    },
+    {
+      "ordinal": 13,
+      "bundle": "STP-01",
+      "canonical_line": 387,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py"
+      ]
+    },
+    {
+      "ordinal": 14,
+      "bundle": "STR-01",
+      "canonical_line": 409,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+      ]
+    },
+    {
+      "ordinal": 15,
+      "bundle": "TRN-01",
+      "canonical_line": 433,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+      ]
+    },
+    {
+      "ordinal": 16,
+      "bundle": "TRN-02",
+      "canonical_line": 457,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py"
+      ]
+    },
+    {
+      "ordinal": 17,
+      "bundle": "TRN-03",
+      "canonical_line": 481,
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "canonical_pytest_arguments": [
+        "-q",
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "tests/unit/scientist/search/test_lessons.py",
+        "tests/unit/scientist/search/test_lesson_transfer.py",
+        "-ra"
+      ],
+      "selectors": [
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "tests/unit/scientist/search/test_lessons.py",
+        "tests/unit/scientist/search/test_lesson_transfer.py"
+      ]
+    }
+  ],
+  "selector_occurrences": 53,
+  "distinct_python_files": 38,
+  "input_files": {
+    "tests/unit/remediation/test_fun_02.py": {
+      "bytes": 6434,
+      "sha256": "c90d5b94053d38ae5ca17c4520f4db98b7af214bbc43a7bdded3c4bdf4c3d311"
+    },
+    "tests/unit/remediation/test_fun_03.py": {
+      "bytes": 24835,
+      "sha256": "6a85585b3dc9c9c99eee7e18f7a3e96e8c23da6991bb4c94fbd35ff89be8e096"
+    },
+    "tests/unit/remediation/test_trn_02.py": {
+      "bytes": 4648,
+      "sha256": "108ccd62281295cb4e03455f9f1c491d22140ab9f00e5970b8ae506f039808dc"
+    },
+    "tests/unit/scientist/agent/test_vector_memory.py": {
+      "bytes": 7515,
+      "sha256": "5e1592f5644b33957fa26ac71462ebe5f64b9502ddcbed158f5dc646c16d6cb0"
+    },
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py": {
+      "bytes": 14993,
+      "sha256": "a802505e0b79fa1e156b130b26ebda1a920ff4d0679c37fd9052bd9aa7d39d64"
+    },
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": {
+      "bytes": 7556,
+      "sha256": "f01ca0ca71da13bc5a0fdfeff8274ab6e58ac5f6467f995536a490fbab5929f5"
+    },
+    "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py": {
+      "bytes": 11363,
+      "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f"
+    },
+    "tests/unit/scientist/methods/autotune/test_pareto.py": {
+      "bytes": 31589,
+      "sha256": "0a4d3ac2e6559cc898f74833852e6c094cc4d6335e87fffb75c97391b2c1963e"
+    },
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py": {
+      "bytes": 2935,
+      "sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4"
+    },
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py": {
+      "bytes": 28236,
+      "sha256": "d2b7e85f839c1a57694e41cbd8c7a5fd6729808a51187667137481838167a390"
+    },
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py": {
+      "bytes": 7616,
+      "sha256": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885"
+    },
+    "tests/unit/scientist/methods/autotune/test_warm_start.py": {
+      "bytes": 4604,
+      "sha256": "5f760489d73b675d014ed01a8f82a5e609b02d9a94f5c974b9387c79877ec9bd"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_effective_actions.py": {
+      "bytes": 5546,
+      "sha256": "c98484f2d9bf920d8ed8e185bccfb96f97bf9fc658267c63a4b473be2c2c0ded"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py": {
+      "bytes": 2030,
+      "sha256": "004369b6fdcddf5d5adda03f0ba5f453ed036e10b1a1f0e4b22f7a6d678b37ef"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py": {
+      "bytes": 5645,
+      "sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py": {
+      "bytes": 1886,
+      "sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_strategy_state.py": {
+      "bytes": 2684,
+      "sha256": "fcdf153d70253388a62083839eb7bf16450748a9227e352569d49f8b96ce9e39"
+    },
+    "tests/unit/scientist/methods/search/strategies/test_transfer.py": {
+      "bytes": 18497,
+      "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884"
+    },
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py": {
+      "bytes": 6320,
+      "sha256": "584e2bc08032040c9535302d0d2e093dde4fad76e2850098c2f5fe18842b3c62"
+    },
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py": {
+      "bytes": 7419,
+      "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a"
+    },
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py": {
+      "bytes": 1248,
+      "sha256": "50be760cd99772cab25a0613494e264d468182b3507cdda7ea3f7ebda2b5664d"
+    },
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py": {
+      "bytes": 5129,
+      "sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget.py": {
+      "bytes": 5297,
+      "sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py": {
+      "bytes": 4433,
+      "sha256": "bace2c7ad3bdda33856bb07b2a456e8e882fba388e9d39f0fd12c406b86b4654"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": {
+      "bytes": 17339,
+      "sha256": "56e684f7fc8de07da14f228d05db70915f70543f641276ff0747d8e06850aa4d"
+    },
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py": {
+      "bytes": 2076,
+      "sha256": "a7b7c7bfd7d0e83f6e2306484c42b78eeb0f8fe16afffc90c749b4b0621a8dce"
+    },
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py": {
+      "bytes": 11914,
+      "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5"
+    },
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py": {
+      "bytes": 2541,
+      "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f"
+    },
+    "tests/unit/scientist/search/funnel/test_orchestrator.py": {
+      "bytes": 26876,
+      "sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2"
+    },
+    "tests/unit/scientist/search/test_adversarial.py": {
+      "bytes": 19728,
+      "sha256": "4afd6424485fcbaeb9a4b6e9f468d5d0f297bc95596a278e6d8bd34af1cfe9fa"
+    },
+    "tests/unit/scientist/search/test_adversarial_streaming.py": {
+      "bytes": 10766,
+      "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5"
+    },
+    "tests/unit/scientist/search/test_contracts.py": {
+      "bytes": 3419,
+      "sha256": "25657a74d27506f49e337c92ee1b66f74a9563ab486ee4cf8b1110d98b7183ab"
+    },
+    "tests/unit/scientist/search/test_controller_api.py": {
+      "bytes": 1710,
+      "sha256": "c09a00d0692c525ec2e592f3fd853743484d9569ba05364ca7a9db33ba2b8447"
+    },
+    "tests/unit/scientist/search/test_cost_stopping.py": {
+      "bytes": 4730,
+      "sha256": "5be71426a16abb77d196a1a9bd82371266368fb3baa559a1a8cdc166ab519a5f"
+    },
+    "tests/unit/scientist/search/test_frontier.py": {
+      "bytes": 3179,
+      "sha256": "db452e942e98827005997942d1bf7a5fa4002a87e4dbf8e8f5bf35888b3d7b51"
+    },
+    "tests/unit/scientist/search/test_lesson_transfer.py": {
+      "bytes": 9200,
+      "sha256": "e872ca78bca4ff0cbc141fe1602e6577fd213d3331702f0ba3c266b12cc13e11"
+    },
+    "tests/unit/scientist/search/test_lessons.py": {
+      "bytes": 4342,
+      "sha256": "dbc96fb574339da46c578215a33b1027523ade804e494afec49bbab9194f2bcc"
+    },
+    "tests/unit/scientist/search/test_search_loop.py": {
+      "bytes": 36072,
+      "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818"
+    }
+  },
+  "source_closure": "Exact whole Git tree; per-command selected file bytes plus repository pytest.ini and ancestor conftests remain unmodified. No alternative source/archive/worktree.",
+  "config": {
+    "bytes": 1021,
+    "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+  },
+  "helpers": {
+    "capture_commands.py": {
+      "bytes": 11054,
+      "sha256": "28862a4cf0f53d57d8449777d19845894e3dbfb3434e6a10294278ff1f916588"
+    },
+    "capture_plugin.py": {
+      "bytes": 4783,
+      "sha256": "98622492a87103142a00fee9e654da54841764c6abe2a1f02126b42a71e4c53f"
+    },
+    "capture_metadata.py": {
+      "bytes": 2595,
+      "sha256": "2be225d70160903d319e316294b8c6cbfc67e17ebdde40ff9d0cac80955f15ed"
+    }
+  },
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "limits_added": false,
+  "writer_serialization": "The literal commands share root _cache/pytest and benchmark storage. Run after transfer B14/B15 release; one child at a time, without compute/thread/process quota.",
+  "runner_added_arguments": [
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "fresh nonexistent UUID path",
+    "--junitxml",
+    "fresh output file",
+    "-rA"
+  ],
+  "measurement_bootstrap": "pytest.main(original arguments plus stated capture/config overrides, plugins=[external measurement observer]); both actual child argv and equivalent python -m pytest argv retained."
+}

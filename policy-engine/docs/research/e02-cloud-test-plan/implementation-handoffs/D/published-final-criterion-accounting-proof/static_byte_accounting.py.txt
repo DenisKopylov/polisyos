@@ -1,0 +1,382 @@
+"""Static Git-byte accounting. No product imports, evaluator or backend invocation."""
+import argparse
+import base64
+import collections
+import csv
+import hashlib
+import gzip
+import io
+import json
+from pathlib import Path
+import re
+import shlex
+import subprocess
+import xml.etree.ElementTree as ET
+
+REPO = Path('/workspace/e02-D-published-stress')
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+OLD = '243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3'
+FINAL = '3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/'
+D = PREFIX + 'implementation-handoffs/D/'
+AUDIT = []
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=REPO)
+
+def blob(sha, path):
+    assert git('cat-file', '-t', f'{sha}:{path}').strip() == b'blob', (sha, path)
+    return git('show', f'{sha}:{path}')
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def ref(sha, path):
+    raw = blob(sha, path)
+    q = dict(source_sha=sha, path=path, bytes=len(raw), sha256=digest(raw))
+    AUDIT.append(q)
+    return q
+
+def document(sha, path):
+    return json.loads(blob(sha, path))
+
+def supplied_ref(sha, q):
+    actual = ref(sha, q['path'])
+    assert actual['bytes'] == q['bytes'], (actual, q)
+    assert actual['sha256'] == q['sha256'], (actual, q)
+    return actual
+
+def counts(raw):
+    root = ET.fromstring(raw)
+    suites = list(root.iter('testsuite'))
+    result = {k: sum(int(s.get(k, 0)) for s in suites) for k in ('tests', 'failures', 'errors', 'skipped')}
+    result['passed'] = result['tests'] - result['failures'] - result['errors'] - result['skipped']
+    return result
+
+def byte_locator(raw, start, end):
+    lines = raw.splitlines(keepends=True)
+    offset = sum(map(len, lines[:start - 1]))
+    selected = b''.join(lines[start - 1:end])
+    return offset, selected
+
+MISSING = {
+ 'B41': ['live_iteration_input_model_profile_ref', 'served_N6_detector_call_ref'],
+ 'B106': ['empirical_scenario_profile_ref', 'full_empirical_attempt_series_ref'],
+ 'B107': ['production_objective_direction_profile_ref', 'empirical_stress_search_backend_ref'],
+ 'B108': ['signed_fiscal_unit_profile_ref', 'served_fiscal_metric_source_ref'],
+ 'B109': ['A_frontier_provider_minref', 'A_frontier_export_API'],
+ 'B110': ['appointed_coordinate_unit_profile_ref', 'historical_selector_reconciliation_ref'],
+ 'B111': ['A_assessment_eligibility_denominator_ref', 'A_scientific_basis_appointment_ref'],
+ 'B112': ['all_supported_strategy_checkpoint_profiles_ref', 'deployed_strategy_factory_ref'],
+ 'B113': ['live_observation_issuer_ref', 'complete_empirical_coordinate_profile_ref'],
+ 'B114': ['live_history_issuer_ref', 'unreceived_empirical_training_corpus_ref'],
+ 'B115': ['unsupported_legacy_GP_RL_profile_ref', 'empirical_optimization_quality_input_ref'],
+ 'B116': ['institutional_source_split_rights_ref', 'scientific_evaluator_appointment_ref'],
+ 'B117': ['distributed_lock_persistence_profile_ref', 'real_process_kill_power_loss_receipt_ref'],
+ 'B118': ['deployed_factory_caller_census_ref'],
+ 'B119': ['future_empty_supplier_contract_ref'],
+ 'B120': ['external_billing_reconciliation_ref', 'numerical_resource_charge_profile_ref', 'deployed_native_factory_ref'],
+ 'B121': ['served_budget_counter_profile_ref', 'complete_deployed_counter_caller_census_ref'],
+ 'B122': ['live_objective_declared_unit_ref', 'live_plateau_coefficient_profile_ref'],
+ 'B123': ['unsupported_typed_result_schema_ref', 'downstream_publication_consumer_ref'],
+ 'B124': ['deployed_candidate_canonicalization_profile_ref'],
+ 'B125': ['external_RNG_checkpoint_profile_ref', 'unsupported_RL_checkpoint_profile_ref'],
+ 'B126': ['unreceived_versioned_backend_checkpoint_input_ref'],
+ 'B127': ['complete_MO_NN_checkpoint_profile_ref', 'deployed_discrete_execution_adapter_ref'],
+ 'B128': ['live_history_issuer_ref'],
+ 'B129': ['live_history_availability_ref', 'second_process_pinned_snapshot_receipt_ref'],
+ 'B130': ['empirical_transfer_optimization_quality_ref'],
+ 'B131': ['institutional_tenant_source_access_ref', 'authorized_split_owner_ref'],
+ 'B132': ['live_benchmark_issuer_ref', 'authorized_holdout_input_ref'],
+ 'B133': ['distributed_latest_history_pointer_contract_ref', 'owner_authorized_live_history_ref'],
+ 'B134': ['live_generation_metadata_issuer_ref', 'second_process_generation_receipt_ref'],
+ 'B135': ['authorized_task_context_profile_ref', 'arbitrary_invalid_override_profile_ref'],
+ 'B136': ['institutional_access_authority_ref'],
+ 'B137': ['authorized_revalidation_event_ref', 'revalidation_grounds_time_issuer_API'],
+ 'B156': ['deployed_context_caller_profile_ref'],
+ 'B157': ['native_raw_sample_estimand_provider_API', 'actual_native_sample_input_refs'],
+ 'B158': ['deployed_L2_scheduler_factory_contract_ref'],
+ 'B159': ['stage_owned_reevaluable_prerequisite_contract_ref'],
+ 'B160': ['external_empty_stage_projection_contract_ref'],
+ 'B161': ['permitted_same_subject_basis_update_ref', 'uncertainty_supersession_rule_ref'],
+ 'B162': ['native_interval_source_provenance_ref', 'declared_empirical_interval_profile_ref'],
+ 'B163': ['authorized_calibration_corpus_ref', 'calibration_provider_profile_ref'],
+ 'B164': ['typed_permit_issuer_API', 'current_permit_verifier_API', 'revoke_serialized_writer_API', 'valid_owner_issued_positive_ref'],
+ 'B165': ['downstream_publication_authority_ref'],
+ 'LA-014': ['served_hierarchical_factory_cutover_API', 'admitted_live_search_factory_input_ref'],
+ 'LA-015': ['persisted_SearchService_restore_resume_API', 'legacy_history_import_retirement_contract_ref', 'rollback_characterization_ref'],
+}
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--root-receipt-sha')
+parser.add_argument('--oracle-receipt-sha')
+parser.add_argument('--oracle-receipt-path')
+args = parser.parse_args()
+scratch = Path('/workspace/e02-D2-receipts/criterion-accounting-final')
+coverage = document(BASE, PREFIX + 'closure-decisions/coverage.json')
+canonical = [x for x in coverage['findings'] if x['unit'] == 'D']
+bundles = [x for x in coverage['bundles'] if x['unit'] == 'D']
+assert len(canonical) == 45 and len(bundles) == 17
+assert len({x['id'] for x in canonical}) == 45
+assert set(MISSING) == {x['id'] for x in canonical}
+norm_paths = [PREFIX + 'closure-decisions/coverage.json', PREFIX + 'execution-organization/finding-owners.tsv', PREFIX + 'execution-organization/bundle-owners.tsv', PREFIX + 'closure-decisions/D.md']
+norm = {p: ref(BASE, p) for p in norm_paths}
+for p in norm_paths:
+    assert blob(BASE, p) == blob(FINAL, p), p
+for name in ['finding', 'bundle']:
+    p = PREFIX + f'execution-organization/{name}-owners.tsv'
+    rows = list(csv.DictReader(io.StringIO(blob(BASE, p).decode()), delimiter='\t'))
+    own = [x for x in rows if x['unit'] == 'D']
+    assert len(own) == (45 if name == 'finding' else 17)
+    assert {x[f'{name}_id'] for x in own} == {x['id'] for x in (canonical if name == 'finding' else bundles)}
+    if name == 'finding':
+        canonical_by_id = {x['id']:x for x in canonical}
+        for row in own:
+            q = canonical_by_id[row['finding_id']]
+            assert row['source_closure_owner'] == q['source_closure_owner_literal'] == q['primary_bundle']
+            assert set(re.findall(r'(?:CTL|FUN|OPT|SRV|STP|STR|TRN)-\d+',row['source_bundle_ids'])) == set(q['companion_bundles'])
+            assert row['source_status'] == 'partial'
+    else:
+        canonical_by_id = {x['id']:x for x in bundles}
+        for row in own:
+            assert row['initial_writer_family'] == canonical_by_id[row['bundle_id']]['writer']
+
+prior_sha = 'fed62e39b486827f18bdfd5a9d7fc916ea58ecee'
+prior = document(prior_sha, D + 'published-criterion-accounting-delta.json')
+snapshot_sha = '42e37092fca0badd334784f498418e3132ccdfbc'
+snapshot = document(snapshot_sha, D + 'published-criterion-accounting.json')
+references = {
+ 'original_243_delta': ref(prior_sha, D + 'published-criterion-accounting-delta.json'),
+ 'original_8cd_snapshot': ref(snapshot_sha, D + 'published-criterion-accounting.json'),
+ 'canonical_17': ref('262749db1965726ee02c1e7618db99493eceb1fe', D + 'search-canonical-243.json'),
+ 'GP26': ref('a474ff675264e2264d24e49814f29d873320b1ee', D + 'root-243-gp-transfer-independent-review.json'),
+ 'backend_first': ref('35ae64f34805395e29899898da79c769f31d336e', D + 'champion-backend-parity-243.json'),
+ 'backend_extension': ref('56708f9e38b44352e4e38ffe8808f1797764f3dc', D + 'champion-backend-extension-243.json'),
+ 'frontend': ref('7c04c45bbc8b7f63f544cc49ec6686c5a65b45da', D + 'champion-frontend-ci-243.json'),
+ 'production_invocation': ref('9465c74a4bc4bdc12b2901104c2d4478cec415a1', D + 'published-production-invocation-final.json'),
+ 'FUN03_fixture': ref('128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d', D + 'published-fun03-fixture-migration.json'),
+}
+canonical_documents = {key: ref(BASE,q['path']) for key,q in coverage['criterion_documents'].items()}
+canonical_cards = {q['id']: ref(BASE,q['criterion_card']) for q in bundles}
+for q in snapshot['receipts'].values():
+    supplied_ref(q['source_sha'], q)
+for q in prior['delta_receipts'].values():
+    supplied_ref(q['source_sha'], q)
+
+commands_doc = document(references['canonical_17']['source_sha'], references['canonical_17']['path'])
+command_outcomes = {}
+lineage = []
+all_counts = collections.Counter()
+for check in commands_doc['checks']:
+    key = check['bundle']
+    refs = {}
+    for field in ['command_environment_source_input_result', 'complete_output', 'full_junit']:
+        q = check[field]
+        refs[field] = supplied_ref(q['sha'], q)
+    c = counts(blob(refs['full_junit']['source_sha'], refs['full_junit']['path']))
+    all_counts.update(c)
+    paths = [w.split('::')[0] for w in shlex.split(check['canonical_command']) if w.startswith('tests/')]
+    changed = []
+    for p in paths:
+        path = 'policy-engine/' + p
+        previous = blob(OLD, path)
+        current = blob(FINAL, path)
+        lineage.append(dict(bundle=key, path=path, original_sha256=digest(previous), final_sha256=digest(current), equal=previous == current))
+        if previous != current:
+            changed.append(path)
+    assert check['canonical_command'] in blob(FINAL, PREFIX + 'closure-decisions/D.md').decode()
+    command_outcomes[key] = dict(executed_source_sha=OLD, canonical_command=check['canonical_command'], outcome=check['outcome'], actual_JUnit_counts=c, artifacts=refs, final_source_lineage='changed_fixture_requires_exact_final_replay' if changed else 'lineage_checked_only_no_new_execution', changed_test_inputs=changed)
+assert dict(all_counts) == dict(tests=744, failures=7, errors=0, skipped=0, passed=737), all_counts
+assert len(lineage) == 53 and len({q['path'] for q in lineage}) == 38
+assert {k for k,v in command_outcomes.items() if v['changed_test_inputs']} == {'FUN-03','OPT-01'}
+configuration = {}
+for p in ['policy-engine/pytest.ini', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock']:
+    assert blob(OLD, p) == blob(FINAL, p), p
+    configuration[p] = ref(FINAL, p)
+src_tree = git('rev-parse', f'{FINAL}:policy-engine/src').decode().strip()
+assert src_tree == git('rev-parse', f'{OLD}:policy-engine/src').decode().strip() == 'ecb33f5d109f3c30ab5e9e59f1447d25cc8f5778'
+src_paths = git('ls-tree', '-r', '--name-only', FINAL, 'policy-engine/src').splitlines()
+assert len(src_paths) == 2910
+
+GP = document(references['GP26']['source_sha'], references['GP26']['path'])
+GP_artifacts = {k: supplied_ref(GP['proof_commit'], GP[k]) for k in ['input_command','complete_output','actual_JUnit','actual_runtime_origins','exact_child_observation_source']}
+assert counts(blob(GP_artifacts['actual_JUnit']['source_sha'], GP_artifacts['actual_JUnit']['path'])) == dict(tests=26, failures=0, errors=0, skipped=0, passed=26)
+FUN = document(references['FUN03_fixture']['source_sha'], references['FUN03_fixture']['path'])
+FUN_artifacts = {k: supplied_ref(references['FUN03_fixture']['source_sha'], q) for k,q in FUN['outputs'].items()}
+assert counts(blob(references['FUN03_fixture']['source_sha'], FUN['outputs']['canonical-a935.xml']['path'])) == dict(tests=52, failures=0, errors=0, skipped=0, passed=52)
+
+root_replays = None
+lossless = {}
+if args.root_receipt_sha:
+    references['root_final_two'] = ref(args.root_receipt_sha, D + 'published-final-root-replay.json')
+    rr = document(args.root_receipt_sha, D + 'published-final-root-replay.json')
+    assert rr['candidate_sha'] == FINAL
+    manifest_ref = rr['complete_deciding_output_manifest']
+    root_manifest = supplied_ref(manifest_ref['sha'],manifest_ref)
+    manifest = document(manifest_ref['sha'],manifest_ref['path'])
+    actual_files = {q['path']:supplied_ref(manifest_ref['sha'],q) for q in manifest['files']}
+    checks = []
+    for q in rr['checks']:
+        assert q['target_sha'] == FINAL and q['outcome'] == 'PASS'
+        assert q['junit_counts']['failed'] == q['junit_counts']['errors'] == q['junit_counts']['skipped'] == 0
+        name = q['bundle']
+        expected = 52 if name == 'FUN-03' else 75
+        assert q['junit_counts']['passed'] == expected
+        xml_path = D + 'published-final-root/' + name + '-final.xml'
+        text_path = D + 'published-final-root/' + name + '-final.txt'
+        assert actual_files[xml_path]['sha256'] == q['junit']['sha256']
+        assert actual_files[text_path]['sha256'] == q['complete_output']['sha256']
+        assert counts(blob(manifest_ref['sha'],xml_path)) == dict(tests=expected,failures=0,errors=0,skipped=0,passed=expected)
+        for path,info in q['input_paths'].items():
+            raw = blob(FINAL,'policy-engine/'+path)
+            assert digest(raw) == info['sha256'] and len(raw) == info['bytes']
+        checks.append(dict(bundle=name,outcome='PASS',passed=expected,failed=0,errors=0,skipped=0,source_sha=FINAL,complete_output=actual_files[text_path],full_JUnit=actual_files[xml_path]))
+    root_replays = dict(source_sha=FINAL,checks=checks,PASS=127,FAIL=0,ERROR=0,SKIP=0,manifest=root_manifest,scope=rr['predicate_scope'],fifteen_lineage=supplied_ref(rr['canonical_15_unchanged_input_lineage']['sha'],rr['canonical_15_unchanged_input_lineage']),Ruff108='Actual final108path ruffcheck/format PASS; remaining architecture/backend/frontend errors and fails remain unaccepted.')
+    lossless['root_final_payload'] = dict(files=len(actual_files),all_actual_bytes_verified=True)
+oracle = None
+if args.oracle_receipt_sha:
+    assert args.oracle_receipt_path
+    references['current_142'] = ref(args.oracle_receipt_sha,args.oracle_receipt_path)
+    oracle = document(args.oracle_receipt_sha,args.oracle_receipt_path)
+    assert oracle['source_sha'] == FINAL and oracle['actual_verdict']['passed'] == 142
+    assert oracle['actual_verdict']['failures'] == oracle['actual_verdict']['errors'] == oracle['actual_verdict']['skipped'] == 0
+    oracle_artifacts = {k:supplied_ref(q['source_sha'],q) for k,q in oracle['complete_actual_inputs_and_outputs'].items()}
+    assert counts(blob(oracle_artifacts['junit.xml']['source_sha'],oracle_artifacts['junit.xml']['path'])) == dict(tests=142,failures=0,errors=0,skipped=0,passed=142)
+    for q in oracle['actual_runtime']['source_cells']:
+        raw = blob(FINAL,q['git_path'])
+        assert digest(raw) == q['sha256'] == q['expected_sha256'] and len(raw) == q['bytes'] and q['status'] == 'MATCH'
+    assert len(oracle['actual_runtime']['source_cells']) == 11
+    for q in oracle['unchanged_test_binding']:
+        current = blob(FINAL,q['path'])
+        assert current == blob(q['original_proof_commit'],q['path'])
+        assert digest(current) == q['sha256'] and len(current) == q['bytes']
+    oracle = dict(source_sha=FINAL,PASS=142,FAIL=0,ERROR=0,SKIP=0,subsets=dict(native_controller_frontier=10,fiscal_objective_intake=30,native_Gateway_ledger=98,native_nonzero_underflow=4),artifacts=oracle_artifacts,actual_native_Git_origin_matches=11,scope='Actual current-source joined controller/service10+fiscal30 resolves the older425 source gap only for these exact inputs. Native98+range4 actual Gateway/parser/enforcer/middleware/ledger inputs remain fixture provider inputs, not external invoice or production deployment truth.',helper_quality='FAIL82 archived helper Ruff diagnostics retained; runtime/JUnit/Git matching is not lint acceptance.')
+    references['independent_final_payload_binding'] = ref('ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2',D+'final-git-payload-binding-independent-review.json')
+    references['independent_final_fixtures'] = ref('4b9f7513aad779bef0bf895337bcd09c8d820e04',D+'final-fixture-migration-independent.json')
+
+for key,f in [('backend_first','champion-backend-parity-243-complete.json.gz'),('backend_extension','champion-backend-extension-243-complete.json.gz')]:
+    sha = references[key]['source_sha']
+    binding = ref(sha,D+f)
+    raw = gzip.decompress(blob(sha,D+f))
+    bundle = json.loads(raw)
+    entries = bundle.get('complete_raw_files',bundle.get('files'))
+    assert entries is not None
+    for q in entries:
+        data = base64.b64decode(q['content_base64'],validate=True)
+        assert len(data) == q['bytes']
+        assert digest(data) == q['rawfile_sha256']
+    lossless[key] = dict(artifact=binding,decoded_bytes=len(raw),decoded_sha256=digest(raw),complete_raw_files=len(entries),all_decoded_raw_file_hashes_verified=True)
+front_manifest_ref = ref('fc53f483f032e12afeeea5dbd59a5f2c68431fee',D+'frontend-ci-243-payload/manifest.json')
+front_manifest = document(front_manifest_ref['source_sha'],front_manifest_ref['path'])
+for q in front_manifest['files']:
+    raw = blob(front_manifest_ref['source_sha'],q['path'])
+    assert len(raw) == q['gzip_bytes'] and digest(raw) == q['gzip_sha256']
+    data = gzip.decompress(raw)
+    assert len(data) == q['original_bytes'] and digest(data) == q['original_sha256']
+lossless['frontend_payload'] = dict(manifest=front_manifest_ref,files=len(front_manifest['files']),all_compressed_and_original_bytes_verified=True)
+graph = document(references['production_invocation']['source_sha'],references['production_invocation']['path'])
+for q in graph['checks']:
+    for field in ['command_ref','environment_ref','complete_stdout_stderr','full_execution_result','caller_proof']:
+        supplied_ref(q[field]['sha'],q[field])
+lossless['production_invocation'] = dict(complete_payload_refs_verified=True,outcome='ERROR',exit_code=-9,completed_analyzer_verdict=False)
+
+oldrows = {x['id']: (i,x) for i,x in enumerate(prior['findings'])}
+occurrences = []
+finding_rows = []
+GP_ids = {'B112','B113','B114','B115','B128','B129','B130','B131','B132'}
+updates = {
+ 'B108': 'Signed fiscal units and served owner input remain absent. Current3f38 native-controller10+fiscal30 execution resolves the older425 joined-source gap for exactly those unchanged controls; finalOPT01 independently receives75PASS. Neither appoints units, source-universe law or unreceived empirical input.',
+ 'B111': 'FinalOPT01 receives75PASS including raw-CAS malformed/nonfinite consumer fixtures. Current3f38 native-controller10+fiscal30 independently receives40PASS; former425 controller/service differences are resolved by actual current execution for these inputs. A assessment eligibility/denominator/scientific basis remains unreceived.',
+ 'B113': 'Current243 GP26 now includes independent physical-coordinate/posterior controls and genuine nativeCAS positive8/7-row workflow; malformed stage primitive refusal remains received. Live observation truth and unreceived complete empirical profile remain separate.',
+ 'B114': 'Current243 nativeCAS workflow actually fits8 ordinary or7 legitimate-false-outcome-excluded rows, reopens native strategy-state CAS and verifies posterior parity; malformed whole-corpus negative retains zero-fit evidence. Live history issuer and unreceived full empirical corpus remain absent.',
+ 'B115': 'Current243 independent analytic/nativeCAS26 now verifies genuine fitted transforms, conditioning/refit cadence and content-bound restore; no empirical optimization-quality benefit or unsupported legacy profile equivalence is inferred.',
+ 'B128': 'Current243 actual HNSW/CAS to SearchLoopRunner/BGC to genuineGP positive8/7 rows is received, with malformed primitive whole-corpus refusal separately retained. Live history issuer remains absent.',
+ 'B116': 'Preserved-basis raw metric/count/guard primitive controls refuse atc812. CanonicalOPT04 actually28PASS at243 with final unchanged-input lineage; active-context paired comparison and predecessor/race proofs remain individually pinned. Conditional analytic descriptors do not appoint institutional source/split rights or a scientific evaluator.',
+ 'B120': 'Current3f38 actual Gateway/parser/enforcer/middleware/ledger98+nonzero-underflow4 controls receive102PASS; prior90FAIL8PASS and range4FAIL remain historical red. Provider-reported fixture receipts do not establish external invoice truth, numerical-resource costs or deployed factory scope.',
+ 'B164': 'Final FUN03 receives52PASS and owner retained-marker effective guard removal gives2FAIL. Generic callbacks produce zero effects; typed issuer/current verifier/revoke-serialized writer APIs remain absent and valid owner-issued typed positive remains UNRUN/bridge_missing.',
+}
+for x in canonical:
+    identifier = x['id']
+    old_index, oldrow = oldrows[identifier]
+    keys = ['original_243_delta', 'canonical_17']
+    if identifier in GP_ids:
+        keys.append('GP26')
+    if args.oracle_receipt_sha and identifier in {'B108','B111','B120','B158','B159'}:
+        keys.append('current_142')
+    if 'FUN-03' in oldrow['canonical_cards']:
+        keys.append('FUN03_fixture')
+    if args.root_receipt_sha and any(c in ('FUN-03','OPT-01') for c in oldrow['canonical_cards']):
+        keys.append('root_final_two')
+    occurrence_ids = []
+    for q in x['criterion_refs']:
+        original_path = coverage['criterion_documents'][q['document']]['path']
+        raw = blob(BASE, original_path)
+        assert raw == blob(FINAL, original_path)
+        offset, selected = byte_locator(raw, *q['lines'])
+        assert digest(selected) == q['sha256']
+        card_path = next(z['criterion_card'] for z in bundles if z['id'] == q['card'])
+        if isinstance(card_path, dict):
+            card_path = card_path['path']
+        assert selected in blob(BASE, card_path), (identifier, card_path)
+        paragraphs = selected.split(b'\n\n')
+        if identifier == 'B41':
+            acceptance = next(p for p in paragraphs if p.startswith('**Проверка:**'.encode()))
+        elif identifier == 'B123':
+            acceptance = next(p for p in paragraphs if 'Приёмка связывает'.encode() in p)
+        else:
+            acceptance = next(p for p in paragraphs if re.match(r'^\*\*Приём(?:ка|очная проверка)', p.decode()))
+        acceptance_offset = offset + selected.index(acceptance)
+        occurrence_id = identifier + '@' + q['card']
+        occurrence_ids.append(occurrence_id)
+        card = q['card']
+        assert card in command_outcomes
+        occurrences.append(dict(id=occurrence_id, finding_id=identifier, criterion_card=card, canonical_closure_owner=x['primary_bundle'], role='canonical_owner' if card == x['primary_bundle'] else 'supplier_companion_only', task_anchor='D.md#bundle-' + card.lower(), original_fragment=dict(document_key=q['document'],lines=q['lines'],byte_offset=offset,bytes=len(selected),sha256=digest(selected)), canonical_content=dict(text=acceptance.decode(),byte_offset=acceptance_offset,bytes=len(acceptance),sha256=digest(acceptance)), canonical_card_pointer='/canonical_cards/' + card, evidence_keys=keys, command_outcome_pointer='/canonical_command_outcomes/' + card, missing_input_pointer='/findings/' + str(len(finding_rows)) + '/unreceived_inputs_or_APIs'))
+    finding_rows.append(dict(id=identifier, queue=oldrow['queue'], canonical_closure_owner=x['primary_bundle'], criterion_occurrences=occurrence_ids, accounting_disposition=oldrow['accounting_disposition_now'], canonical_closure_now=x['closure_now'], prior_243_row_pointer='/findings/' + str(old_index), historical_owner_mechanism_keys=oldrow['prior_evidence_keys'], historical_corrective_keys=oldrow['delta_evidence_keys'], received_supplement_keys=keys, remaining_input_or_consumer=updates.get(identifier, oldrow['remaining_input_or_consumer']).replace('current-root caller verification remains pending.', 'unreceived live caller input remains separate.'), unreceived_inputs_or_APIs={k:None for k in MISSING[identifier]}, next_owner=oldrow['next_owner'], finding_closed=False))
+    finding_rows[-1]['canonical_selected_route_pointer'] = '/findings/' + str(coverage['findings'].index(x)) + '/selected_plan_not_executed'
+assert len(occurrences) == 46
+assert len(set(q['id'] for q in occurrences)) == 46
+assert {q['criterion_card'] for q in occurrences if q['finding_id'] == 'LA-015'} == {'SRV-03','CTL-01'}
+dispositions = dict(collections.Counter(q['accounting_disposition'] for q in finding_rows))
+assert dispositions == {'limited':35,'held':7,'open':3}, dispositions
+
+back = document(references['backend_first']['source_sha'], references['backend_first']['path'])
+extension = document(references['backend_extension']['source_sha'], references['backend_extension']['path'])
+backend_gates = [{k:q[k] for k in ('id','label','status') } for q in back['gates'] if q['id'].startswith('B')]
+for q in backend_gates:
+    if q['id'] == 'B21':
+        q['status'] = 'PASS'
+        q['successor_receipt_key'] = 'backend_extension'
+assert len(backend_gates) == 25
+counts_backend = dict(collections.Counter(q['status'] for q in backend_gates))
+assert counts_backend == dict(PASS=7, FAIL_COMPLETED_CONTRACT=3, ERROR_INCOMPLETE_SIGNAL=4, ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE=11)
+result = dict(schema='policyos.e02.D.final-criterion-accounting-supplement.v1', unit='D', slice='published-final-criterion-accounting', closure_ids=[], finding_ids=[q['id'] for q in finding_rows], role='Independent criterion/owner/input/evidence accounting only. Reviewer authoredQ5; no independent self-review ofQ5 mechanism. No new backend/runtime execution.', final_freeze=dict(source_sha=FINAL,tree_sha=git('rev-parse',FINAL+'^{tree}').decode().strip(),original_243_source_sha=OLD,production_source_tree=src_tree,complete_production_path_count=2910,production_bytes_unchanged=True,test_delta_paths=['policy-engine/tests/unit/remediation/test_fun_03.py','policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py']), preservation='Append-only supplement. original243delta and original8cdsnapshot remain unchanged; their FAIL/ERROR/UNRUN and exact source/input scopes remain historical evidence.', canonical_inputs=norm, references=references, denominator=dict(findings=45,bundles=17,criterion_occurrences=46,accounting_dispositions=dispositions,closed=0,canonical_statuses_not_rewritten=True,LA015='Onefinding, two criterion occurrences. ClosureownerSRV-03; CTL-01 is supplier companion only.'), criterion_occurrences=occurrences, findings=finding_rows, canonical_command_outcomes=command_outcomes, final_lineage=dict(selector_occurrences=53,distinct_test_files=38,configs=configuration,test_input_lineage=lineage,fifteen_unmodified_commands='Original243 executions plus final lineage_checked only. No new execution claim.',two_changed_commands='Exact final independent root replays resolve through root_final_two; historical243 failures are preserved.'), received_outcome_subsets=dict(original_243_canonical17=dict(commands=17,command_PASS=15,command_FAIL=2,executions=744,PASS=737,FAIL=7,ERROR=0,SKIP=0,count_scope='Repeated execution occurrences, not unique test IDs; not the incomplete80-file union.'),current_243_independent_GP=dict(PASS=26,analytic=23,native_CAS=3,ERROR=0,SKIP=0,artifacts=GP_artifacts,scope='Genuine GP independent analytic conditional model, nativeCAS8/7-row binding/restore and incompatible-basis refusal; source2910bytes unchanged final. No empirical benefit/history issuer or scientific authority.'),FUN03_owner_fixture=dict(source_sha='a9356a5a9240384d890bc42e7c529b687be2e6c3',PASS=52,effective_guard_removal_FAIL=2,typed_authorized_positive='UNRUN/bridge_missing',artifacts=FUN_artifacts),final_two_independent_root_receipt=root_replays,backend=dict(gates=backend_gates,counts=counts_backend,incomplete=15,literal_wrappers='UNRUN incompatible capped profile',completed_FAIL_details=back['completed_failures'],scope='Actual243 gates only; no identical full-input pinned-base waiver. B21 successor completes documented7examples.'),frontend=dict(gates=8,PASS=1,incomplete=6,UNRUN=1,complete_PASS='contracts:verify',native_readiness='Separate pinned native Chromium launch/CDP/DOM and doctor successors receivedPASS; not served dashboard/Storybook/e2e/visual acceptance.',scope='Source243; blocked producers and conditional ratchet remain incomplete/UNRUN.'),production_invocation=dict(status='ERROR',source_sha=OLD,exit_code=-9,stdout_bytes=0,completed_diagnostic_verdict=False,runtime_invocation_established=False,scope='Mandatory complete attempted static denominator did not finish. No runtime call graph, absence or scientific/authority verdict.'),original_80_file_attempt=dict(status='ERROR',exit_code=-9,complete_JUnit=False,remaining_cells='UNRUN',cause=None)), authority_boundary=dict(institutional_issuer=None,scientific_truth=False,signature_authority_from_hashes=False,G_combined_acceptance=None,main_publication_authorization=None), local_preservation=dict(production_or_root_writes=False,new_backend_or_product_imports=False,new_archives=False,manual_deletion_cleanup=False,scope='Static tracked Git bytes + committed deciding outputs only. Prior receipts retain framework-transient/deletion deviations; no global preservation claim.'), pattern_pass=['P14','P29','P31','P35','P37','P38','P40','P41'])
+
+output = REPO / D / 'published-final-criterion-accounting.json'
+result['canonical_original_documents'] = canonical_documents
+result['canonical_cards'] = canonical_cards
+result['canonical_content_quantity'] = 'Exact acceptance paragraph from each original canonical block. Complete criterion is the full pinned original fragment, verified verbatim in its canonical card; no criterion rewrite.'
+result['history_resolver'] = 'Original8cd mechanism keys resolve /receipts in original_8cd_snapshot. Original243 corrective keys resolve /delta_receipts in original_243_delta. Both receipts and every referenced original payload are byte-verified; old executions remain source-bound history.'
+result['unreceived_input_quantity'] = 'Nulls name precise unreceived owner inputs, APIs or profile extensions in the recorded residual scope. They do not create new mandatory inputs or amend canonical criteria; limited engineering results stay received within their actual inputs.'
+result['received_outcome_subsets']['original_243_unmodified15'] = dict(commands=15,PASS=617,FAIL=0,ERROR=0,SKIP=0,final_status='lineage_checked_only_no_new_execution',source_sha=OLD)
+result['received_outcome_subsets']['current_3f38_independent_142'] = oracle
+result['received_outcome_subsets']['quality_scope'] = 'Final existing108path Ruffcheck/format PASS is received in root_final_two. Original search helper65FAIL and independent archived helper82FAIL remain. Backend3completedFAIL/15incomplete, frontend6incomplete/1UNRUN and productiongraphERROR remain unaccepted.'
+result['final_lineage'].pop('test_input_lineage')
+result['final_lineage']['complete_actual_input_lineage_ref'] = None if root_replays is None else root_replays['fifteen_lineage']
+result['deciding_payload_integrity'] = lossless
+for i,q in enumerate(commands_doc['checks']):
+    result['canonical_command_outcomes'][q['bundle']].pop('artifacts')
+    result['canonical_command_outcomes'][q['bundle']]['complete_artifact_ref_pointer'] = '/checks/' + str(i)
+output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+g = dict(schema='policyos.e02.D.G-local-contract-skeleton.v1',unit='D',slice='published-G-local-contract-skeleton',closure_ids=[],proposal=True,local_only=True,final_D_source=dict(source_sha=FINAL,tree_sha=result['final_freeze']['tree_sha'],production_source_tree=src_tree),appointed_minrefs=dict(A=None,B=None,C=None,D=FINAL,E=None,F=None,G=None),combined_source_sha=None,combined_tree_sha=None,combined_acceptance=None,source_contracts=ref(BASE,PREFIX+'closure-decisions/cross-unit-contracts.md'),G_instructions=ref(BASE,PREFIX+'execution-prompts/G.md'),criterion_accounting_local_path=D+'published-final-criterion-accounting.json',criterion_accounting_sha256=digest(output.read_bytes()),finding_and_criterion_accounting=dict(findings=45,bundles=17,occurrences=46,limited=35,held=7,open=3,closed=0),local_D_received_checks=dict(original17='744occurrences737PASS7FAIL at243;15unchangedcommands lineage_checked final only.',GP26='Actual243 independent23analytic+3nativeCAS PASS; unchanged final source2910.',final_two='Exact3f38 root FUN03/OPT01 outputs pending committedref' if not args.root_receipt_sha else references['root_final_two'],backend='7PASS3completedFAIL15incomplete, no literal-wrapperPASS',frontend='1PASS6incomplete1UNRUN; native doctor/CDP readiness separate',production_invocation='ERROR/-9; no completed diagnostic/runtime invocation verdict'),downstream_contracts=[dict(edge='CAS-01(B)->OPT-04(D)',canonical_writer='B/Core CAS',producer_minref=None,producer_receipt_ref=None,local_D_consumer='ChampionRegistry/BenchmarkSuite/SearchLoopRunner',predicate='Actual candidate/evaluation content refs and comparison basis must match; current pointer rechecked under lock, stale predecessor never overwrites winner.',declared_selector='tests/unit/remediation/test_opt_04.py',local_D_evidence='Original243 OPT04 canonical28PASS plus pinned independent champion callback/race proof in original8cdsnapshot; not a current combined B->D runtime.',combined_runtime_ref=None,next_owner='B CAS writer / D OPT04 owner / G'),dict(edge='CAS-01(B)->TRN-02(D)',canonical_writer='B/Core CAS',producer_minref=None,producer_receipt_ref=None,local_D_consumer='VectorMemory exact-reference and generation-snapshot readers',predicate='Dimensions, generation keys and exactcontent identity read atomically from the same admitted snapshot; name/vector cannot replace reference.',declared_selector='tests/unit/remediation/test_trn_02.py',local_D_evidence='Original243 TRN02 canonical59PASS; current243 nativeCAS3 actually HNSW->CAS->BGC->GP/restore. Live owner-issued generation and second-process scope unreceived.',combined_runtime_ref=None,next_owner='B CAS writer / D TRN02 owner / generation metadata issuer / G'),dict(edge='STR-01(D)->DOE-01(E)',canonical_writer='D stress producer; E DOE consumer',producer_minref=FINAL,consumer_minref=None,consumer_receipt_ref=None,predicate='DOE refuses oversized plans before exponential candidate materialization and preserves roundcount/actual metricdirection; partial finite observed fraction never becomes complete probability/model uncertainty.',declared_selector='tests/unit/remediation/test_doe_01.py',local_D_evidence='Original243 STR01 canonical38PASS; Q5authorreceipt+independentroot mechanism controls separately pinned. No actual current E DOE consumer invocation received.',combined_runtime_ref=None,next_owner='D STR01 / E DOE01 / G')],unreceived_served_contracts=[dict(finding_id=q['id'],canonical_closure_owner=q['canonical_closure_owner'],inputs_or_APIs=q['unreceived_inputs_or_APIs'],next_owner=q['next_owner']) for q in finding_rows if q['accounting_disposition'] in ('held','open')],institutional_contract=dict(source_truth_rights_issuer=None,measurement_population_split_issuer=None,permit_issuer_API=None,current_verifier_API=None,revoke_serialized_writer_API=None,valid_permit_positive_ref=None,rule='Content hashes, declared profiles and conditional analytic execution do not appoint external source rights or typed promotion authority.'),publication_contract=dict(D_topic_publication='Authorized own admitted topic only.',G_integration_publisher='G sole publisher, separate review and exact combined freeze required.',G_branch_minref=None,main_publication_authorization=None),limitations=['Local proposal only; no upstream minref guessed from old topics or source prose.','No combined A-F runtime/compatibility or G acceptance.','Backend/frontend/global diagnostics remain scoped FAIL/ERROR/UNRUN; no inferred inherited waiver.','No source, metadata, criterion or appointment rewrite; no new backend execution.'])
+(REPO / D / 'published-G-local-contract-skeleton.json').write_text(json.dumps(g,ensure_ascii=False,indent=2)+'\n')
+if oracle:
+    g['local_D_received_checks']['current142'] = references['current_142']
+    g['local_D_received_checks']['current40_scope'] = 'Current3f38 joined native controller10+fiscal30 receivedPASS; no units/source law appointment. Native102 fixture Gateway/ledger checks separate external-billing boundary.'
+    (REPO / D / 'published-G-local-contract-skeleton.json').write_text(json.dumps(g,ensure_ascii=False,indent=2)+'\n')
+report = dict(schema='e02.D.final.accounting.static-audit.v1',source_sha=FINAL,source_tree=result['final_freeze']['tree_sha'],normative_source_sha=BASE,findings=45,bundles=17,occurrences=46,dispositions=dispositions,closed=0,verified_reference_observations=len(AUDIT),unique_git_refs=len({(q['source_sha'],q['path']) for q in AUDIT}),all_source_and_reference_bytes_verified=True,full_original_fragments_hash_and_card_containment=True,exact_acceptance_content_UTF8_locators=True,canonical_17_JUnit_counts=dict(all_counts),final_source_paths=2910,src_tree=src_tree,selector_occurrences=53,distinct_files=38,changed_fixture_bundles=['FUN-03','OPT-01'],root_final_receipt_received=bool(args.root_receipt_sha),new_product_imports=False,new_backend_execution=False,actual_reference_observations=AUDIT)
+(scratch / 'static-audit.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({k:v for k,v in report.items() if k!='actual_reference_observations'},ensure_ascii=False,indent=2))
+print('deciding_lossless_payloads',json.dumps({k:{z:v for z,v in q.items() if z not in ['artifact','manifest']} for k,q in lossless.items()},sort_keys=True))
+print('current_142_received',bool(oracle),'all11_native_module_bytes_verified',bool(oracle))
+print('supplement_bytes',output.stat().st_size,'sha256',digest(output.read_bytes()))
+print('G_skeleton_bytes',(REPO/D/'published-G-local-contract-skeleton.json').stat().st_size)

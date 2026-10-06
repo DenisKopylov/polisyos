@@ -1,0 +1,173 @@
+{
+  "schema": "policyos.e02.D.G_local_input_contract.v1",
+  "implementation_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "implementation_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "publisher": "G integration only; main publication requires separate explicit human authorization for exact publication",
+  "delivery": "Git topic codex/e02-D-published-root and draftPR47; no other-chat messages",
+  "production_data_boundary": "Local read-only exact candidate and minimum required refs only; no production/history data transferred to cloud",
+  "local_commands": null,
+  "command_status": "UNRUN: exact production workflow command depends on existing local owner/API/input; no fabricated command or cheaper-history surrogate",
+  "rows": [
+    {
+      "finding_ids": [
+        "B108"
+      ],
+      "owner_required": "fiscal metric/source owner",
+      "minimum_local_input": "Existing exact production data/evaluator/split/metric ArtifactRefs and owner-issued physical unit+direction/profile declaration",
+      "minimum_ref": null,
+      "blocked_property": "source unit law and served metric route"
+    },
+    {
+      "finding_ids": [
+        "B109",
+        "B111"
+      ],
+      "owner_required": "A frontier assessment/export provider",
+      "minimum_local_input": "Existing production frontier assessment ArtifactRef; independent eligibility/feasible/unknown denominator and declared source universe with actual consumer exporter route",
+      "minimum_ref": null,
+      "blocked_property": "A current consumer2FAIL; export patch UNAPPLIED; provider ABSENT"
+    },
+    {
+      "finding_ids": [
+        "B113",
+        "B114",
+        "B115",
+        "B128",
+        "B130",
+        "B132"
+      ],
+      "owner_required": "production evaluator/history issuer and G",
+      "minimum_local_input": "Minimum authorized historical Evaluation/Candidate/Suite/Data/Model/Evaluator/Split ArtifactRefs needed by one actual SearchService/transfer\u2192GP run, resolved locally read-only with exact metric/unit/direction/owner bindings",
+      "minimum_ref": null,
+      "blocked_property": "real production/history accuracy or benefit; native synthetic8-row fit and saved state cannot establish it"
+    },
+    {
+      "finding_ids": [
+        "B131",
+        "B134",
+        "B137"
+      ],
+      "owner_required": "institutional source-access/split owner; live index-generation owner; authorized lesson revalidation issuer",
+      "minimum_local_input": "Current access appointment, exact immutable generation metadata/ref/version and authorized revalidation event with grounds and producer evidence time",
+      "minimum_ref": null,
+      "blocked_property": "technical refs/filters/access clocks cannot appoint authority or update evidence freshness"
+    },
+    {
+      "finding_ids": [
+        "LA-014",
+        "LA-015"
+      ],
+      "owner_required": "served SearchService/cutover owner and G",
+      "minimum_local_input": "Actual production ask/tell caller inventory and served cutover/rollback boundary; existing persisted failure/resume API or named owner task, plus legacy-reader retirement",
+      "minimum_ref": null,
+      "blocked_property": "same-instance actual workflow is verified; persisted service continuation and deployed cutover missing"
+    },
+    {
+      "finding_ids": [
+        "B157"
+      ],
+      "owner_required": "B runtime/factory and scientific estimand/input supplier",
+      "minimum_local_input": "Actual native effective config connected to the existing raw numerical sample/estimand provider port",
+      "minimum_ref": null,
+      "blocked_property": "Foundry real20/80 sample law does not make native64/500 projection labels actual samples"
+    },
+    {
+      "finding_ids": [
+        "B161"
+      ],
+      "owner_required": "scientific uncertainty update/supersession rule owner",
+      "minimum_local_input": "Authorized same-subject/value/input/rule/time update relation with exact versioned source and downstream consumer",
+      "minimum_ref": null,
+      "blocked_property": "historical max/current stage and observed fraction are not an authorized confidence update law"
+    },
+    {
+      "finding_ids": [
+        "B164"
+      ],
+      "owner_required": "appointed typed promotion issuer; current independent verifier; existing write-owner boundary",
+      "minimum_local_input": "Owner-issued typed permit binding candidate, run/ticket generation, purpose, schema/policy, provenance, validity and revocation epoch; verifier and write/revoke serialization at one existing commit linearization boundary",
+      "minimum_ref": null,
+      "blocked_property": "bridge_missing: valid typed positive UNRUN; bool=true retains0 effects, legacy-marker revoke is not typed-permit revocation",
+      "required_falsifier": "Revoke after preflight, retainbool=true; effectcount0. Valid currentpermit producesone write. Both run on actual existing owner API; no replacement permission subsystem."
+    }
+  ],
+  "closure_ids": [],
+  "predicate_basis": "not_established",
+  "remote_receipts": {
+    "criterion_accounting": {
+      "source_sha": "300119d268bea0bcff0fb55dd5f447250589e2a1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "bytes": 176452,
+      "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
+    },
+    "G_cross_unit_proposal": {
+      "source_sha": "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-G-local-contract-skeleton.json",
+      "bytes": 11605,
+      "sha256": "b69b9e5e95b0ed950ec845d8870d2ecf27074f1429fd9a5508b1fa1ffed60214"
+    },
+    "canonical17": {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+      "bytes": 47439,
+      "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+    },
+    "GP26": {
+      "source_sha": "a474ff675264e2264d24e49814f29d873320b1ee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+      "bytes": 9183,
+      "sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb"
+    },
+    "current142": {
+      "source_sha": "668df4bc66eede8ca285bb8bce231d5e94f8626a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+      "bytes": 18548,
+      "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9"
+    },
+    "current127": {
+      "source_sha": "7602e3e259f6efdaa65104a90b77b6704c4326dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+      "bytes": 137229,
+      "sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27"
+    },
+    "fixture_review": {
+      "source_sha": "4b9f7513aad779bef0bf895337bcd09c8d820e04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent.json",
+      "bytes": 12935,
+      "sha256": "1cea6585ad6ec2ecf9a0b77392e7060b85fd525598410a0e4eab722e0845e0f8"
+    },
+    "payload_review": {
+      "source_sha": "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-git-payload-binding-independent-review.json",
+      "bytes": 9309,
+      "sha256": "c979be8fa1402c2c8c0ddcbc56b6a9cb13e6acc27bf1530678ca8b4aeb16c12f"
+    },
+    "backend": {
+      "source_sha": "35ae64f34805395e29899898da79c769f31d336e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243.json",
+      "bytes": 65619,
+      "sha256": "feda42d12b265eaa18676f1f9d6427a8efc2169a170264a01751e962c91dd33b"
+    },
+    "backend_extension": {
+      "source_sha": "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243.json",
+      "bytes": 17075,
+      "sha256": "c3fe8929022d3d3be87f8bd28bab0c1a6d2e6e4cb5338fbec3616b7b3a8295ab"
+    },
+    "frontend": {
+      "source_sha": "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-frontend-ci-243.json",
+      "bytes": 13225,
+      "sha256": "89eab51d784d1a124a47f6a98d2f029d2f4d9752a0d320ed0206796cea5395e8"
+    },
+    "production_invocation": {
+      "source_sha": "9465c74a4bc4bdc12b2901104c2d4478cec415a1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-final.json",
+      "bytes": 13981,
+      "sha256": "ba8e137bb4b38b66e3348a2145b028e7e3153435e251a4e486d1a3d221d71f0a"
+    }
+  },
+  "optional_profile_extension_scope": "Additional population/history/profile extensions are not new mandatory canonical criteria. Exact canonical criteria/selected routes and remaining engineering consumer/API requirements are in the 46-occurrence accounting. No cryptographic fiscal signature requirement.",
+  "main_publication_authorization": null
+}

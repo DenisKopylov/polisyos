@@ -1,0 +1,207 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "published-final-production-invocation-and-G-boundary-review",
+  "closure_ids": [],
+  "finding_ids": [],
+  "bundle_ids": [],
+  "review_role": "Exact mandatory diagnostic execution plus source-only G integration/closure boundary review. FUN implementation author; no independent verdict on own FUN mechanism or whole D runtime acceptance.",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+  ],
+  "candidate_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "candidate_tree_sha": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "branch": "codex/e02-D-published-funnel",
+  "pull_request": null,
+  "changed_paths": "Only this proof/receipt documentation in the funnel topic branch. The root candidate production tree was read-only and clean before/after the exact attempt.",
+  "payload_commit": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+  "payload_tree": "75494c3ea4d8e8d9e4a36be97fc05a1db84e9804",
+  "payload": {
+    "invocation-input.json": {
+      "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/invocation-input.json",
+      "bytes": 2699,
+      "sha256": "a4ffa4f94ee97055fd52f8fddde2611b22b873dac0fe556824d38c0f5d622afb"
+    },
+    "invocation-result.json": {
+      "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/invocation-result.json",
+      "bytes": 4570,
+      "sha256": "aad9705f27b40eb863373421e5d21cfae45d79a7b16dde5dec5c9ba7a22e6c41"
+    },
+    "stdout-stderr.txt": {
+      "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/stdout-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run_production_invocation.py.txt": {
+      "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/run_production_invocation.py.txt",
+      "bytes": 3667,
+      "sha256": "e33fa40b39b3f98161d31abce0c93c7ca04e910a81d575790f2b4f9226e69169"
+    }
+  },
+  "checks": [
+    {
+      "command_ref": {
+        "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/invocation-input.json",
+        "bytes": 2699,
+        "sha256": "a4ffa4f94ee97055fd52f8fddde2611b22b873dac0fe556824d38c0f5d622afb",
+        "pointer": "/command"
+      },
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "environment_ref": {
+        "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/invocation-input.json",
+        "bytes": 2699,
+        "sha256": "a4ffa4f94ee97055fd52f8fddde2611b22b873dac0fe556824d38c0f5d622afb",
+        "pointer": "/environment"
+      },
+      "python_executable": "/workspace/e02-D-locked-env/bin/python",
+      "python_version": "3.14.7",
+      "added_cpu_process_worker_limits": false,
+      "configured_receipt_ignored_before_run": true,
+      "input_closure": "Actual production_invocation main on the frozen root checkout with mandatory slice base. Source design selects all tracked Python under src/tools/tests and both pyproject entry-point manifests; no completed read/AST graph denominator was admitted for this attempt. No lexical statistic replaces it.",
+      "outcome": "ERROR",
+      "process_exit_code": -9,
+      "wall_seconds": 29.284434333996614,
+      "peak_rss_kib": 1257652,
+      "complete_stdout_stderr": {
+        "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/stdout-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "configured_analyzer_receipt_exists": false,
+      "runtime_or_absence_verdict": "UNRUN: no completed analyzer graph/receipt, no complete invocation absence or real-consumer closure.",
+      "cause": "not_established: SIGKILL is observed; no OOM/product/input attribution is inferred. Host and cgroup snapshots are retained as execution context in the raw result.",
+      "full_execution_result": {
+        "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/invocation-result.json",
+        "bytes": 4570,
+        "sha256": "aad9705f27b40eb863373421e5d21cfae45d79a7b16dde5dec5c9ba7a22e6c41"
+      },
+      "caller_proof": {
+        "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/run_production_invocation.py.txt",
+        "bytes": 3667,
+        "sha256": "e33fa40b39b3f98161d31abce0c93c7ca04e910a81d575790f2b4f9226e69169"
+      }
+    }
+  ],
+  "source_review": {
+    "scope": "Read-only review of the named G/receipt/instrument boundaries, not a semantic source review of all mechanisms or independent acceptance of own code.",
+    "reviewed_inputs": [
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/G.md"
+      },
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md"
+      },
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/how-to/author-measurement-instruments.md"
+      },
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py"
+      },
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/tools/quality/validation/check_production_invocation.py"
+      },
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting.json"
+      },
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/published-funnel-native-cost-corrective-root-binding.json"
+      },
+      {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/resource-979-independent-source-review-root-binding.json"
+      }
+    ],
+    "code_acceptance_vs_closure": {
+      "observation": "G/HANDOFF explicitly require exact immutable candidate, independent review, affected consumer/property/negative evidence, and separate criterion-specific closure; cloud package PASS and hash/ancestry do not establish production-dependent findings. No new discrepancy was found within these reviewed named boundaries.",
+      "admission_predicate": "Independent evidence/property must be independently_reconciled or recomputed; authority/input/profile gaps stay not_established rather than being supplied by an author fixture."
+    },
+    "root_binding_scope": {
+      "observation": "The named root binding receipts label PASS as metadata hashes/bytes only and explicitly disclaim runtime/finding verdict. Canonical criterion accounting declares point-in-time taskboard/receipt bookkeeping, not adjudication; its later raw-cost receipt is an append-only accounting supplement.",
+      "criterion_ref": {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting.json",
+        "pointer": "/authority_boundary"
+      },
+      "later_update_ref": {
+        "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting.json",
+        "pointer": "/post_snapshot_owner_update"
+      },
+      "limit": "This source review does not turn those declared scopes into an independent runtime acceptance or validate every owner mechanism."
+    },
+    "instrument_scope": {
+      "observation": "production_invocation selects tracked src/tools/tests Python and manifest entrypoints, builds AST call scopes and traverses resolved direct calls from script/main roots. It deliberately stops at deferred bodies and discloses callback/HTTP/DI/event-bus/reflection/dynamic receiver and runtime/persisted-receipt boundaries. Even a completed passing diagnostic sets runtime_invocation_established=false. Its only configured persistent write is --receipt, with parent mkdir/readback; the selected final output was verified ignored and fresh.",
+      "counterexample": "A registered callback or deferred coroutine can execute through an actual dispatcher despite no resolved static direct path; a static path can exist without runtime execution or persisted business receipt. Therefore static_path/uninvoked status or analyzer exit cannot close real-consumer findings.",
+      "failure_boundary": "The signal-terminated attempt emitted no ordinary finding or admitted receipt. No fallback graph/count/absence was fabricated."
+    },
+    "authority_and_missing_inputs": {
+      "observation": "Canonical accounting/linked supplier receipts preserve promotion issuer/verifier/revoke-serialized positive UNRUN, actual native policy sample/draw bridge, billing attestation/factory integration and criterion-specific local input boundaries. Metadata binding or a bool marker does not supply them.",
+      "scope": "Boundary accounting only; own FUN implementation is not independently reviewed by its author here."
+    }
+  },
+  "property": {
+    "statement": "Run the mandatory source-derived invocation diagnostic on the exact frozen root candidate and preserve its actual verdict; keep code acceptance, source diagnostics and finding closure separate.",
+    "runtime_path": [
+      "locked Python -m production_invocation",
+      "complete tracked source/base AST inputs attempted",
+      "configured ignored analyzer receipt",
+      "root/G diagnostic/criterion review"
+    ],
+    "proxy_divergence": "Passing source/hash/constructor/marker checks cannot establish an executed persisted consumer chain; incomplete AST analysis cannot be replaced by lexical statistics or attributed as inherited red.",
+    "negative_controls": [
+      "Exact final attempt ends -9 with no stdout or receipt: report ERROR/UNRUN, not PASS or measured absence. Earlier mandatory198-based SIGKILL attempt remains a separate no-waiver input."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "verification_missing: mandatory diagnostic attempted; complete graph/verdict UNRUN",
+  "limitations_and_next_owner": [
+    "Root/G: actual final root union and quality gates remain their own exact-source receipts; this diagnostic ERROR is not a broad runtime verdict, inherited waiver or code-defect attribution.",
+    "Root/G: if invocation diagnostics are required for acceptance, rerun the same full AST command on a host that can complete it. Preserve exact source/base/inputs; no cheap lexical substitute.",
+    "G plus appropriate local/source-law/evaluator/input owners: independently adjudicate findings using actual criterion-dependent producer/persisted artifact/bridge/consumer/property evidence; typed promotion permit, numerical/resource/profile/deployment/billing boundaries remain explicit.",
+    "No cleanup, permanent deletion, history rewrite, production tracked writes, children or duplicate broad production wave was performed in this final task."
+  ],
+  "previous_attempt_ref": {
+    "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/production-invocation-attempt.json"
+  },
+  "execution_integrity": {
+    "tracked_root_clean_before_after": true,
+    "root_head_before_after": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "stdout_stderr_lossless_git": true,
+    "configured_output_path_ref": {
+      "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/invocation-input.json",
+      "bytes": 2699,
+      "sha256": "a4ffa4f94ee97055fd52f8fddde2611b22b873dac0fe556824d38c0f5d622afb",
+      "pointer": "/output_path"
+    },
+    "host_context_ref": {
+      "sha": "c239f30b82c8bd3d528488553f96a1b11e2df208",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-243/invocation-result.json",
+      "bytes": 4570,
+      "sha256": "aad9705f27b40eb863373421e5d21cfae45d79a7b16dde5dec5c9ba7a22e6c41",
+      "pointer": "/memory_before"
+    },
+    "cleanup": "All scratch paths/output retained; analyzer receipt dirname exists but file was never emitted. Absence is not deletion."
+  },
+  "publication": "Payload committed first, this receipt separately; exact receipt SHA/remote readback supplied after ordinary normal-hook commit/push. No own future commit SHA is invented."
+}

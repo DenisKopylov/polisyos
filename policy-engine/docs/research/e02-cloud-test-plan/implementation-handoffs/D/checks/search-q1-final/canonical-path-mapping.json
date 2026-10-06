@@ -1,0 +1,109 @@
+{
+  "schema": "policyos.e02.defining_path_mapping.v1",
+  "implementation_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+  "test_checkpoint_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "test_checkpoint_tree": "87804edd3be6bcefb0de06e509e7c73e88934aaa",
+  "product_source_equal_to_implementation": true,
+  "moves_and_consolidations": [
+    {
+      "previous_path": "policy-engine/tests/unit/remediation/test_ctl_02.py",
+      "previous_source_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "previous_git_blob": "5a7445390c1d404835d656ebbead554cab03de78",
+      "canonical_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py"
+      ],
+      "preserved_test_function_count": 5,
+      "test_AST_preserved": true,
+      "owner": "search_owner sole author; no independent oracle moved"
+    },
+    {
+      "previous_path": "policy-engine/tests/unit/remediation/test_ctl_03_nested.py",
+      "previous_source_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "previous_git_blob": "ca6ed8b63d195dbb76b4d084fc628fe3f7e68436",
+      "canonical_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py"
+      ],
+      "preserved_test_function_count": 2,
+      "test_AST_preserved": true,
+      "owner": "search_owner sole author; no independent oracle moved"
+    },
+    {
+      "previous_path": "policy-engine/tests/unit/remediation/test_opt_01_hypervolume_consumers.py",
+      "previous_source_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "previous_git_blob": "1f937b3a42ff5fe7185b710da603a3a44faa07a6",
+      "canonical_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+      ],
+      "preserved_test_function_count": 5,
+      "test_AST_preserved": true,
+      "owner": "search_owner sole author; no independent oracle moved"
+    },
+    {
+      "previous_path": "policy-engine/tests/unit/remediation/test_opt_01_mo_vectors.py",
+      "previous_source_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "previous_git_blob": "c3836884473984eb2514d20dc339926d7427deda",
+      "canonical_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py"
+      ],
+      "preserved_test_function_count": 3,
+      "test_AST_preserved": true,
+      "owner": "search_owner sole author; no independent oracle moved"
+    },
+    {
+      "previous_path": "policy-engine/tests/unit/remediation/test_opt_02.py",
+      "previous_source_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "previous_git_blob": "26eb78578500307394efc1dfae26d7c4259ee8f6",
+      "canonical_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+      ],
+      "preserved_test_function_count": 4,
+      "test_AST_preserved": true,
+      "owner": "search_owner sole author; no independent oracle moved"
+    },
+    {
+      "previous_path": "policy-engine/tests/unit/remediation/test_opt_02_strategy_consumers.py",
+      "previous_source_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "previous_git_blob": "00a6533b6fa47ca155147a48f37433d35e1d7b1d",
+      "canonical_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+      ],
+      "preserved_test_function_count": 4,
+      "test_AST_preserved": true,
+      "owner": "search_owner sole author; no independent oracle moved"
+    },
+    {
+      "previous_path": "policy-engine/tests/unit/remediation/test_opt_03_continuation.py",
+      "previous_source_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "previous_git_blob": "19d8def9a10d7170bb6729559594ec27e7516d0c",
+      "canonical_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "policy-engine/tests/unit/scientist/methods/search/strategies/_continuation_fixture.py"
+      ],
+      "preserved_test_function_count": 5,
+      "test_AST_preserved": true,
+      "owner": "search_owner sole author; no independent oracle moved"
+    }
+  ],
+  "new_defining_files": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "owner": "search_owner",
+      "git_blob": "fa96e8fdabd876d965561a0ab0609872fcf3439f",
+      "sha256": "9454e920416fba1595bb7fa672ca20eebcbbb0a36e6f27bfb740e1e64c7302fb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "owner": "search_owner",
+      "git_blob": "c0ec395deab6507d7ef1809d1b2e64963ad47969",
+      "sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4"
+    }
+  ],
+  "consolidation_source_retained_as_noncollected_text": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/retired-source/test_opt_02_strategy_consumers.py.txt",
+  "independent_files_unmodified": [
+    "test_gp_analytic_continuation.py",
+    "test_gp_coordinate_consumers_independent_oracle.py",
+    "test_budget_deficit_independent_oracle.py"
+  ],
+  "scope": "Exact eight planned defining paths now meaningful, plus separate fiscal and MO admission controls. No alias wrappers, duplicate collected test bodies, or empty placeholder tests."
+}

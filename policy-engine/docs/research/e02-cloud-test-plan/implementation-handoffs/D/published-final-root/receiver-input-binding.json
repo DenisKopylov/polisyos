@@ -1,0 +1,16 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-actual-inputs.json",
+    "sha256": "c093bc732c9c1a85ad2cb7d6f1878b8bc4beff462dd337864059934dd177ae7e",
+    "files": 176,
+    "decoded_total_bytes": 147224,
+    "result": "PASS exact retained synthetic fixture byte integrity only; not runtime/verdict"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-actual-inputs.json",
+    "sha256": "7cbbef70454bf4969420b8487901c3e742c98c6a9cd139f5c42002ff30321e4e",
+    "files": 248,
+    "decoded_total_bytes": 180641,
+    "result": "PASS exact retained synthetic fixture byte integrity only; not runtime/verdict"
+  }
+]

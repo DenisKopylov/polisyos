@@ -1,0 +1,53 @@
+"""Audit declared source bytes and complete D criteria; never adjudicate closure."""
+from collections import Counter
+import csv,gzip,hashlib,io,json,subprocess,sys
+repo,target=sys.argv[1:3]
+base='198076863e143dea9f89f02734b13d50dae3eed5'
+old='42e37092fca0badd334784f498418e3132ccdfbc'
+p='policy-engine/docs/research/e02-cloud-test-plan/'
+d=p+'implementation-handoffs/D/'
+def raw(s,path):return subprocess.check_output(['git','-C',repo,'show',s+':'+path])
+def load(s,path):return json.loads(raw(s,path))
+def digest(b):return hashlib.sha256(b).hexdigest()
+prior=load(old,d+'published-criterion-accounting.json')
+coverage=load(base,p+'closure-decisions/coverage.json')
+owner=list(csv.DictReader(io.StringIO(raw(base,p+'execution-organization/finding-owners.tsv').decode()),delimiter='\t'))
+bundles=list(csv.DictReader(io.StringIO(raw(base,p+'execution-organization/bundle-owners.tsv').decode()),delimiter='\t'))
+allD=[a for a in coverage['findings'] if a['unit']=='D']
+assert {a['id'] for a in allD}=={a['finding_id'] for a in owner if a['unit']=='D'}=={a['id'] for a in prior['findings']}
+paths=[p+'closure-decisions/coverage.json',p+'closure-decisions/D.md',p+'execution-organization/finding-owners.tsv',p+'execution-organization/bundle-owners.tsv']+[a['path'] for a in coverage['criterion_documents'].values()]
+assert all(raw(base,path)==raw(target,path) for path in paths)
+occurrences=[]
+for a in allD:
+ row=next(x for x in owner if x['finding_id']==a['id'])
+ assert row['source_closure_owner']==a['primary_bundle']
+ for c in a['criterion_refs']:
+  document=coverage['criterion_documents'][c['document']]
+  assert subprocess.check_output(['git','-C',repo,'rev-parse',target+':'+document['path']],text=True).strip()==document['blob']
+  start,end=c['lines'];fragment=b''.join(raw(target,document['path']).splitlines(keepends=True)[start-1:end])
+  assert digest(fragment)==c['sha256']
+  card=next(x['criterion_card'] for x in coverage['bundles'] if x['id']==c['card'])
+  assert fragment in raw(target,card)
+  occurrences.append([a['id'],c['card'],c['sha256']])
+tr=load('9b48e6878d7384b6144c7d1430f52e6cffcf4800',d+'transfer-receiver-successor-c812.json')
+oracle=load('e2a884e5321799728739c6c9677c85cbd9451251',d+'legacy-frontier-425-independent-review.json')
+source_checks=[]
+for role,rows in [('receiver',tr['source_identities']),('legacy_frontier',oracle['actual_runtime']['module_cells'])]:
+ for a in rows:
+  path=a['path'] if role=='receiver' else a['git_path']
+  expected=a['rawfile_sha256'] if role=='receiver' else a['sha256']
+  current=digest(raw(target,path))
+  source_checks.append({'role':role,'path':path,'executed_sha256':expected,'freeze_sha256':current,'equal':current==expected})
+gateway=[]
+for label in ['red','green']:
+ receipt=load(target,d+'published-closeout/gateway-'+label+'-receipt.json')
+ output=raw(target,d+'published-closeout/gateway-'+label+('.txt.gz' if label=='red' else '.txt'))
+ decoded=gzip.decompress(output) if label=='red' else output
+ assert digest(decoded)==receipt['complete_output']['sha256'] and len(decoded)==receipt['complete_output']['bytes']
+ assert digest(raw(receipt['test_commit'],receipt['test_path']))==receipt['test_sha256']
+ for name,a in receipt['modules'].items():
+  path='policy-engine/'+a['origin'].split('/policy-engine/',1)[1]
+  assert digest(raw(receipt['source_sha'],path))==a['sha256']
+  if label=='green':assert raw(target,path)==raw(receipt['source_sha'],path)
+ gateway.append({'role':label,'executed_source':receipt['source_sha'],'cases':receipt['cases'],'complete_decoded_output_sha256':digest(decoded),'complete_decoded_output_bytes':len(decoded)})
+print(json.dumps({'freeze':target,'canonical_source':base,'all45_original_owner_criterion_join':True,'distinct_D_findings':len(allD),'D_bundles':len([x for x in bundles if x['unit']=='D']),'source_block_occurrences':len(occurrences),'criterion_and_owner_source_bytes_unchanged':paths,'original_fragment_hashes_verified':len(occurrences),'historical_status':dict(Counter(x['source_status'] for x in owner if x['unit']=='D')),'LA015_owner':next(x['primary_bundle'] for x in allD if x['id']=='LA-015'),'LA015_occurrences':[x[:2] for x in occurrences if x[0]=='LA-015'],'named_execution_module_checks':source_checks,'gateway_complete_output_binding':gateway,'verdict_scope':'Static byte/owner/criterion receipt accounting only; no runtime backend replay, no all-transitive dependency equality, no closure or global gate verdict.'}))

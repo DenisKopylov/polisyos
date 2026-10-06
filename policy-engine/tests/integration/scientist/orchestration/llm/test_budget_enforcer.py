@@ -5,6 +5,7 @@ No tariff or duration is used as the expected measured amount.
 """
 
 from decimal import Decimal
+from types import SimpleNamespace
 
 import pytest
 
@@ -123,3 +124,52 @@ def test_paid_call_remains_settled_when_later_consumer_fails(tmp_path):
         consume_then_fail()
     assert FileBudgetLedger(path).load().spent["run"] == Decimal("1")
     assert FileBudgetLedger(path).load().reserved["run"] == 0
+
+
+def test_known_receipt_settles_before_fallible_latency_metrics(tmp_path):
+    class LatencyMetric:
+        def record(self, value, attrs):
+            raise RuntimeError("metrics failure")
+
+    path, _, enforcer = build(tmp_path, ProviderTransport())
+    enforcer._metrics = SimpleNamespace(
+        llm_latency_ms=LatencyMetric(),
+        llm_cost_usd=None,
+        llm_calls_total=None,
+        llm_tokens_total=None,
+        scientist_llm_budget_utilization=None,
+        scientist_llm_cost_anomalies_total=None,
+    )
+    with pytest.raises(RuntimeError, match="metrics failure"):
+        enforcer.invoke("hello", _prompt_tokens_estimate=1, max_tokens=1)
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent["run"] == Decimal("1")
+    assert snapshot.state.reserved["run"] == 0
+    assert next(iter(snapshot.resource_reservations.values())).status == "settled"
+
+
+@pytest.mark.parametrize("cost", [-1, float("nan"), float("inf"), True, "malformed"])
+def test_invalid_present_receipt_never_becomes_zero_or_tariff(tmp_path, cost):
+    path, _, enforcer = build(tmp_path, ProviderTransport(cost))
+    with pytest.raises(ValueError, match="provider cost"):
+        enforcer.invoke("hello", _prompt_tokens_estimate=1, max_tokens=1)
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent == {}
+    assert snapshot.state.reserved["run"] > 0
+    assert snapshot.resource_events == {}
+    assert next(iter(snapshot.resource_reservations.values())).status == "reconciliation_required"
+
+
+def test_known_paid_receipt_survives_malformed_token_metadata(tmp_path):
+    class MalformedMetadataTransport(ProviderTransport):
+        def invoke(self, prompt, **kwargs):
+            response = super().invoke(prompt, **kwargs)
+            response.usage.prompt_tokens = "not-a-token-count"
+            return response
+
+    path, _, enforcer = build(tmp_path, MalformedMetadataTransport())
+    enforcer.invoke("hello", _prompt_tokens_estimate=1, max_tokens=1)
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent["run"] == Decimal("1")
+    assert snapshot.state.reserved["run"] == 0
+    assert next(iter(snapshot.resource_events.values())).amount_usd == Decimal("1")

@@ -1,0 +1,29 @@
+..................                                                       [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_real_controller_keeps_typed_nested_context_in_lesson_consumer[False]
+PASSED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_real_controller_keeps_typed_nested_context_in_lesson_consumer[True]
+PASSED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_destination_projection_uses_all_effective_query_filters
+PASSED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_active_policy_demotes_local_and_transferred_confidence_equally
+PASSED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence
+PASSED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_older_arrival_cannot_replace_newest_actual_evidence_ref
+PASSED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_fresh_producer_observation_survives_older_access_retention_hint
+PASSED tests/unit/scientist/search/test_lessons.py::test_lesson_registry_dedupes_and_tracks_occurrences
+PASSED tests/unit/scientist/search/test_lessons.py::test_lesson_registry_invalidate_and_gc
+PASSED tests/unit/scientist/search/test_lessons.py::test_lesson_from_failure_card_preserves_failure_metadata
+PASSED tests/unit/scientist/search/test_lessons.py::test_repeated_reads_do_not_restore_confidence_without_new_evidence
+PASSED tests/unit/scientist/search/test_lesson_transfer.py::test_resolve_transfer_context_preserves_typed_base_until_explicit_override
+PASSED tests/unit/scientist/search/test_lesson_transfer.py::test_query_with_transfer_reapplies_source_trust_and_confidence_filters
+PASSED tests/unit/scientist/search/test_lesson_transfer.py::test_query_with_transfer_materializes_cross_domain_same_tenant
+PASSED tests/unit/scientist/search/test_lesson_transfer.py::test_same_domain_same_tenant_reuse_stays_local
+PASSED tests/unit/scientist/search/test_lesson_transfer.py::test_cross_tenant_transfer_denied_by_default
+PASSED tests/unit/scientist/search/test_lesson_transfer.py::test_ttl_demotes_old_lessons_before_archive
+PASSED tests/unit/scientist/search/test_lesson_transfer.py::test_invalidation_beats_transfer_materialization
+18 passed, 2 warnings in 7.68s

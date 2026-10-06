@@ -1,0 +1,16 @@
+from pathlib import Path
+import hashlib,json,os,resource,subprocess,sys,time
+scratch=Path('/workspace/e02-D2-receipts/criterion-accounting')
+label,working,source_sha=sys.argv[1:4]
+argv=sys.argv[4:]
+env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1','PYTHONPATH':'src:.'}
+basetemp=next((v.split('=',1)[1] for v in argv if v.startswith('--basetemp=')),None)
+if '-m' in argv and 'pytest' in argv and (basetemp is None or Path(basetemp).exists()):
+    raise RuntimeError('explicit fresh nonexistent basetemp required')
+start=time.monotonic()
+with (scratch/(label+'.txt')).open('wb') as out:
+    result=subprocess.run(argv,cwd=working,env=env,stdout=out,stderr=subprocess.STDOUT)
+record={'source_sha':source_sha,'cwd':working,'argv':argv,'env':{k:env[k] for k in ['PYTHONDONTWRITEBYTECODE','PYTHONPATH']},'basetemp':basetemp,'basetemp_precondition':'explicit nonexistent path checked for pytest invocations','exit_code':result.returncode,'wall_seconds':time.monotonic()-start,'max_rss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,'rss_scope':'completed-child cumulative high-water in this capture process','log_sha256':hashlib.sha256((scratch/(label+'.txt')).read_bytes()).hexdigest()}
+(scratch/(label+'.json')).write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps(record))
+raise SystemExit(result.returncode)

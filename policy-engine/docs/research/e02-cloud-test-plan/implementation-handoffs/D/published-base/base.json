@@ -1,0 +1,10 @@
+{
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "anchor_ancestor": true,
+  "working_source_sha": "0a4b9cd48068454bb8ce95b5ae69bf5c323ee924",
+  "initial_status": "## work\n",
+  "old_D_candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "old_candidate_ancestor_of_base": false
+}

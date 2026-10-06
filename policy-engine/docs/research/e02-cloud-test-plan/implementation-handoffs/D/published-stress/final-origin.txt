@@ -1,0 +1,5 @@
+3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]
+/workspace/e02-D-locked-env/bin/python
+/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine/src/polisyos/scientist/methods/search/stopping.py
+/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine/src/polisyos/scientist/methods/search/adversarial.py
+/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py

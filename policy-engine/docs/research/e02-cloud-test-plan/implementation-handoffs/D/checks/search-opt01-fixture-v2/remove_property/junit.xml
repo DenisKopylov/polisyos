@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="5" time="0.878" timestamp="2026-10-06T12:49:34.687750+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_unassessed_candidate_cannot_be_reported_as_not_dominated" time="0.114"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">self = &lt;tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529e388a0&gt;
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_unassessed_candidate_cann0')
+
+    def test_unassessed_candidate_cannot_be_reported_as_not_dominated(self, tmp_path):
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        front = promoter.compute_front([_cas_eval(tmp_path, acc=0.9, speed=0.8)])
+    
+        for candidate in (
+            _cas_eval(tmp_path, acc=0.5),
+            _cas_eval(tmp_path, acc=0.5, speed=math.inf),
+        ):
+&gt;           with pytest.raises(ValueError, match="candidate is unassessed"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_pareto.py:213: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_empty_and_invalid_front_preserves_schema_as_incomplete" time="0.076"><failure message="AssertionError: assert 'complete' == 'incomplete'&#10;  &#10;  - incomplete&#10;  ? --&#10;  + complete">self = &lt;tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529a34450&gt;
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_empty_and_invalid_front_p0')
+
+    def test_empty_and_invalid_front_preserves_schema_as_incomplete(self, tmp_path):
+        """Empty producer output retains known coordinates with an incomplete state."""
+        # Catches the production mutation that returns a fresh empty schema and
+        # discards the promoter's known coordinate contract for no valid rows.
+        promoter = ParetoPromoter(_policies("score"))
+        complete = promoter.compute_front([_cas_eval(tmp_path, score=1.0)]).model_dump(mode="json")
+        expected_coordinates = complete["coordinate_schema"]["coordinates"]
+    
+        for evaluations in ([], [_cas_eval(tmp_path, score=math.nan)]):
+            payload = promoter.compute_front(evaluations).model_dump(mode="json")
+            assert payload["coordinate_schema"]["version"] == "pareto-coordinate.v1"
+&gt;           assert payload["coordinate_schema"]["status"] == "incomplete"
+E           AssertionError: assert 'complete' == 'incomplete'
+E             
+E             - incomplete
+E             ? --
+E             + complete
+
+tests/unit/scientist/methods/autotune/test_pareto.py:613: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_non_finite_and_missing_metrics_are_excluded_from_numeric_front" time="0.144" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_mixed_objective_coverage_is_typed_and_keeps_finite_front" time="0.125"><failure message="AssertionError: assert 'complete' == 'partial'&#10;  &#10;  - partial&#10;  + complete">self = &lt;tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529fe9670&gt;
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_mixed_objective_coverage_0')
+
+    def test_mixed_objective_coverage_is_typed_and_keeps_finite_front(self, tmp_path):
+        """Omitted inputs retain provenance while complete rows still form a front."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        best = _cas_eval(tmp_path, acc=0.9, speed=0.8)
+        dominated = _cas_eval(tmp_path, acc=0.8, speed=0.7)
+        missing = _cas_eval(tmp_path, acc=0.7)
+        non_finite = _cas_eval(tmp_path, acc=0.8, speed=math.inf)
+    
+        front = promoter.compute_front([best, missing, non_finite, dominated])
+        assessment = front.input_assessment
+    
+&gt;       assert assessment.status == "partial"
+E       AssertionError: assert 'complete' == 'partial'
+E         
+E         - partial
+E         + complete
+
+tests/unit/scientist/methods/autotune/test_pareto.py:680: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_duplicate_invalid_candidate_refs_keep_distinct_input_positions" time="0.073"><failure message="assert () == (1, 2)&#10;  &#10;  Right contains 2 more items, first extra item: 1&#10;  Use -v to get more diff">self = &lt;tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529aa68a0&gt;
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_duplicate_invalid_candida0')
+
+    def test_duplicate_invalid_candidate_refs_keep_distinct_input_positions(self, tmp_path) -&gt; None:
+        """Repeated evaluation identity is legal when positions are distinct."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        finite = _cas_eval(tmp_path, acc=0.9, speed=0.8)
+        invalid = _cas_eval(tmp_path, acc=math.nan, speed=0.7)
+    
+        front = promoter.compute_front([finite, invalid, invalid])
+        assessment = front.input_assessment
+    
+        assert [member.candidate_ref_id for member in front.members] == [
+            str(finite.candidate_ref.artifact_id)
+        ]
+&gt;       assert tuple(item.input_index for item in assessment.unassessed_evaluations) == (1, 2)
+E       assert () == (1, 2)
+E         
+E         Right contains 2 more items, first extra item: 1
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_pareto.py:763: AssertionError</failure></testcase></testsuite></testsuites>

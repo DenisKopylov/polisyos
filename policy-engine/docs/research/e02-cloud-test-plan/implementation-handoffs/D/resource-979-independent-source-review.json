@@ -1,0 +1,80 @@
+{
+  "schema_version": "e02.D.independent-native-raw-cost-source-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "c9a353110ee27a46cfdbe7fce2f1d8b029763eb5",
+  "proof_tree": "41b5d3d0f85a0f9a6ad9b00434af71933c5c8c05",
+  "source_commit": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+  "source_tree": "23b8421a276ca45ad80df29568afc2596c585e37",
+  "delta_parent": "678a8bdb06103009d0547e55e00022061dfca4c3",
+  "source_inputs": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-source-review-inputs.json",
+    "bytes": 2043,
+    "sha256": "d17ecdbc4907a1aba0cce78004d738c415e5e673bd8d9e5d4e8b6962b817c452"
+  },
+  "full_delta_complete_core_and_defining_tests_actual_caller_excerpts": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-source-review-inputs.txt",
+    "bytes": 32746,
+    "sha256": "11cf399c3d47d71de217cd22f37ba41b8e4b0ce3f3a187201764cb769175ac6f"
+  },
+  "production_writes": false,
+  "runtime_imports": false,
+  "additional_archives": false,
+  "reviewed_contract": {
+    "actual_caller": "GatewayLLMClient.generate -> actual _parse_completion_payload retaining raw original report -> LLMBudgetEnforcer.generate/_post_record -> extract_llm_response_data -> BudgetMiddleware/FileBudgetLedger. Only HTTP decoded report bytes are fixture-supplied in defining tests.",
+    "raw_preservation": "Gateway retains original raw payload even when normalized cost clamps negative to zero or skips a falsy zero. New core sources begin with raw usage then raw root and retain normalized usage/payload afterward.",
+    "present_invalid": "Every declared total_cost_usd/cost_usd/cost/base_cost_usd/platform_fee_usd field across raw and normalized sources is validated before selecting a receipt; malformed/nonfinite/boolean/negative alternate cannot become absent.",
+    "first_present_zero": "Explicit finite original zero wins under existing first-present field order even when the unchanged Gateway falsy-normalizer emits another finite amount. This is the declared mechanism, not a new authoritative interpretation of arbitrary conflicting billing fields.",
+    "underflow": "For a parsed float zero, Decimal(str(original)) must also be zero. Nonzero strings and Decimal values that float-normalize to zero are visibly refused instead of settling a fabricated zero.",
+    "components": "Validate components individually and validate their summed value, preventing derived infinite sum from reaching a valid normalized marker fallback.",
+    "actual_settlement": "Measured branch requires owned reservation, provider/request identity and an admitted cost before constructing BudgetResourceEvent. Invalid raw receipt propagates to generate finally and owned reconciliation; it cannot reach a zero settlement event."
+  },
+  "defining_tests_reviewed": {
+    "test_native_gateway_cost_intake.py": {
+      "commit": "678a8bdb06103009d0547e55e00022061dfca4c3",
+      "cases": 98,
+      "controls": [
+        "original negative clamped normalized zero",
+        "90 invalid alternates across2raw source locations/5cost fields/9invalid forms",
+        "component overflow at both raw locations",
+        "actual finite zero and one paid receipt",
+        "first-present raw zero surviving normalized four",
+        "missing raw with missing vs admitted normalized receipt"
+      ],
+      "assertions": "Real Gateway parser is called and raw/normalized discrepancy retained, actual request count is one, fresh FileBudgetLedger reopens and validates no event/spend with pending reconciliation on refusal or exact event/spend/reserve on admission."
+    },
+    "test_native_gateway_cost_range.py": {
+      "cases": 4,
+      "amounts": [
+        "-1e-1000",
+        "1e-1000",
+        "Decimal(-1e-1000)",
+        "Decimal(1e-1000)"
+      ],
+      "assertions": "Actual native Gateway emits normalized zero while retaining nonzero original; core refuses and reopened ledger has no event/spend and pending reconciliation."
+    }
+  },
+  "independent_result": {
+    "source_review": "PASS for bounded correction mechanism; no new actionable discrepancy found",
+    "runtime": "UNRUN by this independent reviewer on979; root independently replays owner tests, duplicate backend run avoided under host OOM pressure.",
+    "runtime_previous_source": {
+      "source": "c8aafea4540b7d2a2873a73456d6c1d396dce552",
+      "own_receipt_commit": "a516b04756138a2b2b4da19fb4e442a8486d3f29",
+      "own_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.json",
+        "bytes": 8987,
+        "sha256": "549b8385944e6106663cc3f3e71f91a9627d07f88b40ef07470e6caffd80f433"
+      },
+      "result": "36PASS on exact prior source; not extrapolated to979"
+    },
+    "author_report": "Owner reports323PASS on979 and prior native98 90FAIL8PASS plus range4FAIL; these remain separately owned runtime evidence, not independently executed results in this receipt."
+  },
+  "classification": {
+    "bucket": "P40 existing resource report-intake/false-zero class, one actual native normalization caller deeper",
+    "owner": "funnel_owner",
+    "bounded": "Provider-reported finite-cost mechanism plus persisted measured ledger reconciliation",
+    "authority": "External invoice/billing truth, tenant authority, cache provenance strength and full supported monetary precision law remain outside this bounded source review."
+  },
+  "closure_ids": [],
+  "verdict": "PASS_SOURCE_REVIEW; independent979runtime UNRUN; external billing authority not established.",
+  "cleanup_candidates": []
+}

@@ -1,0 +1,13 @@
+{"mutation": "remove_population_boundary", "mechanism": "partial observed fraction mapped into model uncertainty", "retained": "real producer counters/CAS, L5 assessment, scope/source/method markers", "expected_result": "actual consumer AssertionError"}
+2026-10-06 10:53:15.851 | DEBUG    | polisyos.common.logger:_call:120 - Funnel stopped at funnel_L5_refutation_governance: 1 blocker(s)
+Traceback (most recent call last):
+  File "/dev/shm/e02-D-funnel-independent-8eb99fc1/policy-engine/tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py", line 51, in <module>
+    main()
+    ~~~~^^
+  File "/dev/shm/e02-D-funnel-independent-8eb99fc1/policy-engine/tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py", line 47, in main
+    probe["run_case"]("partial")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py", line 92, in run_case
+    assert outcome.final_result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL].level == 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

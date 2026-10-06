@@ -1,0 +1,282 @@
+{
+  "schema": "e02.backend_extension_successor.v1",
+  "captured_at": "2026-10-06T12:35:50.670630+00:00",
+  "closure_ids": [],
+  "overall_status": "Full7-example canonical extension gate PASS; full backend/CI parity remains NOT_ACCEPTED due separate completed contract failures and unmeasured blocked checks.",
+  "runtime_source": {
+    "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "actual_root": "/workspace/e02-D-published-root",
+    "tracked_source_before_after_clean": true,
+    "production_and_test_mutations": false
+  },
+  "prior_source_input_checkpoint": "a13fbae958014fa3673d507817382c45c3bb1bae",
+  "prior_first_wave_receipt": {
+    "sha": "35ae64f34805395e29899898da79c769f31d336e",
+    "path": "implementation-handoffs/D/champion-backend-parity-243.json",
+    "rawfile_sha256": "feda42d12b265eaa18676f1f9d6427a8efc2169a170264a01751e962c91dd33b",
+    "interpretation": "Immutable first wave records B21UNRUN before its safe writer window. This companion records actual later invocation, with no retry of killed/blocked gates."
+  },
+  "B21": {
+    "status": "PASS",
+    "actual_argv": [
+      "/dev/shm/e02-D-parity-env/bin/python",
+      "tools/quality/validation/check_extension_examples.py"
+    ],
+    "cwd": "/workspace/e02-D-published-root/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 17.14960382100253,
+    "full_example_denominator": 7,
+    "all_phases_enabled": true,
+    "installed_editables": 7,
+    "semantic_component_discoveries": 6,
+    "semantic_governance_discoveries": 1,
+    "actual_pytest_pass_indicators": 8,
+    "actual_test_nodeids_observed_after": [
+      "examples/extensions/data_forge_domain/tests/test_smoke.py::test_city_budget_domain_component_materializes_fixture",
+      "examples/extensions/fabric_connector/tests/test_smoke.py::test_local_rows_connector_component_creates_offline_connector",
+      "examples/extensions/foundry_method/tests/test_smoke.py::test_weighted_average_plugin_registers_and_runs",
+      "examples/extensions/lex_normpack/tests/test_smoke.py::test_minimum_wage_normpack_component_returns_static_pack",
+      "examples/extensions/runtime_middleware/tests/test_smoke.py::test_response_header_middleware_component_wraps_asgi_app",
+      "examples/extensions/scientist_governance_pass/tests/test_smoke.py::test_audit_marker_pass_accepts_approved_context",
+      "examples/extensions/scientist_governance_pass/tests/test_smoke.py::test_audit_marker_pass_factory_returns_validator_pass",
+      "examples/extensions/scientist_node/tests/test_smoke.py::test_annotate_state_node_component_runs_node"
+    ],
+    "pytest_count_scope": "Canonical double-quiet invocation emits8 pass indicators, with8 corresponding after-observed shared-cache nodeids. No numeric summary/JUnit was requested; exact helper invokes one child including all7example testdirectories, preserving pytest.ini. Shared cache alone is not fresh-run proof.",
+    "fresh_child_basetemp": "/dev/shm/e02-D-parity-extension-c991c193aee94a9d9be60469af70c213",
+    "child_basetemp_was_previously_nonexistent": true,
+    "child_basetemp_exists_after": false,
+    "numeric_and_worker_env": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null,
+      "POLISYOS_PYTEST_DIST": null,
+      "POLISYOS_TORCH_NUM_THREADS": null,
+      "POLISYOS_TORCH_INTEROP_THREADS": null,
+      "XLA_FLAGS": null
+    },
+    "stdout": {
+      "bytes": 4662,
+      "rawfile_sha256": "e81dae4956a718ffef56cd62ac6c13600fc077969f66d9363141f0572ff2537b",
+      "path": "implementation-handoffs/D/champion-backend-parity/actual-complete-logs/B21.txt"
+    },
+    "scope": "Actual installation and semantic execution of documented examples. No scientific transfer benefit, live source issuer, institutional authorization, default search factory, dashboard/browser application or full CI parity inference."
+  },
+  "runtime_environment": {
+    "python": "/dev/shm/e02-D-parity-env/bin/python",
+    "prefix": "/dev/shm/e02-D-parity-env",
+    "install_target": "Writable parity overlay only; actual uv pip install --python active overlay --no-deps -e7 existing rootexample packages; shared locked environment has no installer writes.",
+    "installed_actual_entrypoints": [
+      {
+        "slug": "fabric_connector",
+        "group": "polisyos.fabric_connectors",
+        "entry_point": "example.local_rows",
+        "value": "polisyos_fabric_connector_example:local_rows_connector_component",
+        "distribution_name": "polisyos-fabric-connector-example",
+        "version": "0.1.0",
+        "distribution_metadata_path": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages/polisyos_fabric_connector_example-0.1.0.dist-info",
+        "direct_url": {
+          "url": "file:///workspace/e02-D-published-root/policy-engine/examples/extensions/fabric_connector",
+          "dir_info": {
+            "editable": true
+          }
+        },
+        "actual_entrypoint_module": "polisyos_fabric_connector_example",
+        "actual_entrypoint_file": "/workspace/e02-D-published-root/policy-engine/examples/extensions/fabric_connector/src/polisyos_fabric_connector_example/__init__.py",
+        "entrypoint_rawfile_sha256": "3f1ef056625182013769be6f6fbb29591465bd017c7b3a6a7bbc8c1472571917",
+        "returned_object_type": "polisyos_fabric_connector_example.connector.FabricConnectorExampleComponent",
+        "returned_object_declared_module": "polisyos_fabric_connector_example.connector"
+      },
+      {
+        "slug": "foundry_method",
+        "group": "polisyos.foundry_methods",
+        "entry_point": "example.weighted_average",
+        "value": "polisyos_foundry_method_example:weighted_average_plugin",
+        "distribution_name": "polisyos-foundry-method-example",
+        "version": "0.1.0",
+        "distribution_metadata_path": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages/polisyos_foundry_method_example-0.1.0.dist-info",
+        "direct_url": {
+          "url": "file:///workspace/e02-D-published-root/policy-engine/examples/extensions/foundry_method",
+          "dir_info": {
+            "editable": true
+          }
+        },
+        "actual_entrypoint_module": "polisyos_foundry_method_example",
+        "actual_entrypoint_file": "/workspace/e02-D-published-root/policy-engine/examples/extensions/foundry_method/src/polisyos_foundry_method_example/__init__.py",
+        "entrypoint_rawfile_sha256": "5d148afb7aec6a40e9e663c277b5c2e1b18c71a4b5688c2238a34caee017f060",
+        "returned_object_type": "polisyos.foundry.extensions.api.FoundryMethodComponent",
+        "returned_object_declared_module": "polisyos.foundry.extensions.api"
+      },
+      {
+        "slug": "scientist_governance_pass",
+        "group": "polisyos.scientist_governance_passes",
+        "entry_point": "example.audit_marker",
+        "value": "polisyos_scientist_governance_pass_example:audit_marker_pass_factory",
+        "distribution_name": "polisyos-scientist-governance-pass-example",
+        "version": "0.1.0",
+        "distribution_metadata_path": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages/polisyos_scientist_governance_pass_example-0.1.0.dist-info",
+        "direct_url": {
+          "url": "file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_governance_pass",
+          "dir_info": {
+            "editable": true
+          }
+        },
+        "actual_entrypoint_module": "polisyos_scientist_governance_pass_example",
+        "actual_entrypoint_file": "/workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/__init__.py",
+        "entrypoint_rawfile_sha256": "f49b649e4a8422d51bfeb5e36638ddcd9296d29e1255eb4c8738c9762f949d99",
+        "returned_object_type": "builtins.function",
+        "returned_object_declared_module": "polisyos_scientist_governance_pass_example.governance"
+      },
+      {
+        "slug": "scientist_node",
+        "group": "polisyos.scientist_nodes",
+        "entry_point": "example.annotate_state",
+        "value": "polisyos_scientist_node_example:annotate_state_node_component",
+        "distribution_name": "polisyos-scientist-node-example",
+        "version": "0.1.0",
+        "distribution_metadata_path": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages/polisyos_scientist_node_example-0.1.0.dist-info",
+        "direct_url": {
+          "url": "file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_node",
+          "dir_info": {
+            "editable": true
+          }
+        },
+        "actual_entrypoint_module": "polisyos_scientist_node_example",
+        "actual_entrypoint_file": "/workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_node/src/polisyos_scientist_node_example/__init__.py",
+        "entrypoint_rawfile_sha256": "f3aa37d55d968724dc25ed8b527636a47bf9101ab84a7722cbe51aaca2587f0a",
+        "returned_object_type": "polisyos_scientist_node_example.node.ScientistNodeExampleComponent",
+        "returned_object_declared_module": "polisyos_scientist_node_example.node"
+      },
+      {
+        "slug": "data_forge_domain",
+        "group": "polisyos.data_forge_domains",
+        "entry_point": "example.city_budget",
+        "value": "polisyos_data_forge_domain_example:city_budget_domain_component",
+        "distribution_name": "polisyos-data-forge-domain-example",
+        "version": "0.1.0",
+        "distribution_metadata_path": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages/polisyos_data_forge_domain_example-0.1.0.dist-info",
+        "direct_url": {
+          "url": "file:///workspace/e02-D-published-root/policy-engine/examples/extensions/data_forge_domain",
+          "dir_info": {
+            "editable": true
+          }
+        },
+        "actual_entrypoint_module": "polisyos_data_forge_domain_example",
+        "actual_entrypoint_file": "/workspace/e02-D-published-root/policy-engine/examples/extensions/data_forge_domain/src/polisyos_data_forge_domain_example/__init__.py",
+        "entrypoint_rawfile_sha256": "618bb3a1a85ed990eb3e1557ca25b0f520cfbba178d63c6a8f8fb2eb960e3e53",
+        "returned_object_type": "polisyos_data_forge_domain_example.domain.DataForgeDomainExampleComponent",
+        "returned_object_declared_module": "polisyos_data_forge_domain_example.domain"
+      },
+      {
+        "slug": "lex_normpack",
+        "group": "polisyos.lex_normpacks",
+        "entry_point": "example.minimum_wage",
+        "value": "polisyos_lex_normpack_example:minimum_wage_normpack_component",
+        "distribution_name": "polisyos-lex-normpack-example",
+        "version": "0.1.0",
+        "distribution_metadata_path": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages/polisyos_lex_normpack_example-0.1.0.dist-info",
+        "direct_url": {
+          "url": "file:///workspace/e02-D-published-root/policy-engine/examples/extensions/lex_normpack",
+          "dir_info": {
+            "editable": true
+          }
+        },
+        "actual_entrypoint_module": "polisyos_lex_normpack_example",
+        "actual_entrypoint_file": "/workspace/e02-D-published-root/policy-engine/examples/extensions/lex_normpack/src/polisyos_lex_normpack_example/__init__.py",
+        "entrypoint_rawfile_sha256": "f0d89f64eca2a8e977df2b7edce602c954587bfa68cc2c1dd94e2adfe8b7143e",
+        "returned_object_type": "polisyos_lex_normpack_example.provider.LexNormPackExampleComponent",
+        "returned_object_declared_module": "polisyos_lex_normpack_example.provider"
+      },
+      {
+        "slug": "runtime_middleware",
+        "group": "polisyos.runtime_middlewares",
+        "entry_point": "example.response_header",
+        "value": "polisyos_runtime_middleware_example:response_header_middleware_component",
+        "distribution_name": "polisyos-runtime-middleware-example",
+        "version": "0.1.0",
+        "distribution_metadata_path": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages/polisyos_runtime_middleware_example-0.1.0.dist-info",
+        "direct_url": {
+          "url": "file:///workspace/e02-D-published-root/policy-engine/examples/extensions/runtime_middleware",
+          "dir_info": {
+            "editable": true
+          }
+        },
+        "actual_entrypoint_module": "polisyos_runtime_middleware_example",
+        "actual_entrypoint_file": "/workspace/e02-D-published-root/policy-engine/examples/extensions/runtime_middleware/src/polisyos_runtime_middleware_example/__init__.py",
+        "entrypoint_rawfile_sha256": "223b1a0ce8dae75ee4b8fd9241ed21d85017213163aee303b523db06b827743f",
+        "returned_object_type": "polisyos_runtime_middleware_example.middleware.RuntimeMiddlewareExampleComponent",
+        "returned_object_declared_module": "polisyos_runtime_middleware_example.middleware"
+      }
+    ],
+    "all_entrypoint_source_hashes_equal_runtime243_tree": true,
+    "locked_metadata_after": {
+      "scope": "Shared locked dist-info files and pyvenv.cfg raw bytes/pathset only; not whole environment or .pyc census",
+      "count_before": 1417,
+      "count_after": 1417,
+      "changed": [],
+      "added_paths": [],
+      "removed_paths": [],
+      "observed_at": "2026-10-06T12:34:31.104125+00:00"
+    },
+    "scope_limit": "1417dist-info+pyvenv.cfg byte/pathset integrity does not claim whole env immutability or .pyc census."
+  },
+  "source_derived_final_backend_denominator": {
+    "gates": 25,
+    "PASS": 7,
+    "FAIL_COMPLETED_CONTRACT": 3,
+    "ERROR_INCOMPLETE_SIGNAL": 4,
+    "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE": 11,
+    "unstarted_backend_gates": 0,
+    "fullfast": "Actual single invocation SIGKILL before collection/verdict, remains incomplete.",
+    "runtime_http": "Actual separate invocation parent-authorized resource-blocked SIGTERM before collection/verdict, remains incomplete.",
+    "literal_wrappers": "UNRUN/incompatible numeric caps; no wrapper parity PASS.",
+    "base_waivers": "None."
+  },
+  "doctor_browser_successor": {
+    "status": "PASS only within actual canonical doctor._check_playwright +nativeCDP/DOM readiness scope, executed by independent gp_witness",
+    "receipt_sha": "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+    "receipt_path": "implementation-handoffs/D/champion-frontend-ci-243.json",
+    "receipt_rawfile_sha256": "89eab51d784d1a124a47f6a98d2f029d2f4d9752a0d320ed0206796cea5395e8",
+    "payload_sha": "fc53f483f032e12afeeea5dbd59a5f2c68431fee",
+    "same_runtime_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "new_profile_env": {
+      "PLAYWRIGHT_BROWSERS_PATH": "/workspace/e02-D2-receipts/browser-chromium-243"
+    },
+    "actual_browser_engine_rawfile_sha256": "22d72b589f908111fa29ff4e61ead8a0601e925177f59c70e2e851c22e9b1886",
+    "actual_used_playwright_and_nested_core": "1.59.1",
+    "actual_native_chrome": "147.0.7727.15",
+    "interpretation": "Original missing-browser D02ERROR retained. Separate source243 actual four-helper doctor/nativeCDP producer completed successfully under new disk engine profile; no duplicate launch here, no full doctor wrapper/frontend/backend acceptance."
+  },
+  "resource_serialization": {
+    "overlay": "Exclusive metadata window after explicit gp+own consumer release",
+    "root_pytest_cache": "Exclusive full helper/child window after explicit search17/native26 queue release. Actual helper ended naturally0 and released before publication.",
+    "process_or_worker_quota": "None."
+  },
+  "observer_correction": "Initial metadata probe mistook a legitimate returned API descriptor class module for entrypoint producer module; it asserted on foundry/extensions/api.py before writing metadata output. This v2 records actual ep.module and returned type separately; full canonical helper already passed and was not rerun.",
+  "output_bundle": {
+    "path": "implementation-handoffs/D/champion-backend-extension-243-complete.json.gz",
+    "rawfile_sha256": "6a1a5257aea16f1c1d3be9db045292624bd1f6ea830651d6be5a6301c6ee9640",
+    "compressed_bytes": 9345,
+    "uncompressed_rawfile_sha256": "95c427cdcb7ea294ebaefba6328efb726d73926d30b59463b92412cf9cd46df2",
+    "uncompressed_bytes": 33429,
+    "full_raw_files": 11,
+    "encoding": "Deterministicgzip JSON/base64, all complete actual bytes individuallyhashed; no truncation."
+  },
+  "preservation": {
+    "manual_delete_or_cleanup": "None; scratch/outputs/newchildbasetemp retained. Canonical installers may manage their own buildtransients, scope not globallymeasured.",
+    "retained_cleanup_candidates": [
+      "/dev/shm/e02-D-backend-parity-review"
+    ],
+    "native_trash": "Unavailable; candidates only, no cleanup performed.",
+    "old_deviation": "Prior historical deletion report remains separately tracked, unchanged.",
+    "intended_child_basetemp": {
+      "path": "/dev/shm/e02-D-parity-extension-c991c193aee94a9d9be60469af70c213",
+      "exists_after": false,
+      "cleanup_candidate_only_if_exists": true
+    }
+  }
+}

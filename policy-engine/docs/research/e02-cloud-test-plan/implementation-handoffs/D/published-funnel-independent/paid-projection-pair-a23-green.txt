@@ -1,0 +1,11 @@
+{"calls": ["adversary"], "final_action": "reject", "ledger_event_ids": ["f5e6fd258674501c77c9e4564e8156270bbaa59e7c804b500975ff814a876c3d"], "outcome_cost_source": "provider_reported_only", "outcome_event_ids": ["f5e6fd258674501c77c9e4564e8156270bbaa59e7c804b500975ff814a876c3d"], "outcome_provider_spend": "1.0", "spent": "1.0", "stage_cost_source": "provider_reported_only", "stage_event_ids": ["f5e6fd258674501c77c9e4564e8156270bbaa59e7c804b500975ff814a876c3d"], "stage_provider_spend": "1.0", "trace_cost_source": "provider_reported_only", "trace_provider_spend": "1.0"}
+.{"calls": ["adversary"], "compatibility_cost_source": "provider_reported_only", "compatibility_event_ids": ["f5e6fd258674501c77c9e4564e8156270bbaa59e7c804b500975ff814a876c3d"], "compatibility_provider_spend": "1.0", "ledger_spent": "1.0", "outcome_cost_source": "provider_reported_only", "outcome_provider_spend": "1.0"}
+.
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 2 warnings in 12.31s

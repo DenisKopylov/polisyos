@@ -1,0 +1,15 @@
+{
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fetched_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fetched_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "anchor_is_ancestor": true,
+  "status": "## codex/e02-D-published-root",
+  "source_candidate": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "delivery_parent": "9a1ecdb30c4bfc0d907507c5a02fa36ed42b8e15",
+  "main_mutations_by_D": false,
+  "actual_main_fetch": "git fetch origin refs/heads/main:refs/remotes/origin/main",
+  "FETCH_HEAD": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "remote_main_readback": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "initial_fetch_note": "Bare origin invocation output named topic FETCH_HEAD; explicit main fetch/three-way remote readback required and completed without source or remote mutation."
+}

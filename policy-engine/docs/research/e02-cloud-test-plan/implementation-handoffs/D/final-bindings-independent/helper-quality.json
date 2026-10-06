@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt"
+  ],
+  "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+  "exit_code": 1,
+  "diagnostics": 82,
+  "complete_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/helper-ruff-complete.txt",
+    "bytes": 58330,
+    "sha256": "cda9e233fb2172bf9a231d3eedac6c1d3cadef4abc0ee3b9a04d1df877403d0e"
+  },
+  "semantic_scope": "Actual complete helper quality FAIL, not waived. Archived executed bytes remain unchanged. Integrity MATCH and unchanged142 PASS do not imply helper style/whole gate PASS."
+}

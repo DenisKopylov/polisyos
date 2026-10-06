@@ -1,0 +1,33 @@
+{
+  "receipt_commit": "0cce140ab777442504a5bb5be823d6714e2b4662",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-independent-source-review.json",
+  "receipt_sha256": "6708102ac4a46605b28d1974b67742e52964e39f755958259a99ab7ec0a52318",
+  "checked_git_bindings": [
+    {
+      "pointer": "/source_inputs",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-source-review-inputs.json",
+      "sha256": "d17ecdbc4907a1aba0cce78004d738c415e5e673bd8d9e5d4e8b6962b817c452",
+      "matching_git_sources": [
+        "0cce140ab777442504a5bb5be823d6714e2b4662"
+      ]
+    },
+    {
+      "pointer": "/full_delta_complete_core_and_defining_tests_actual_caller_excerpts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-source-review-inputs.txt",
+      "sha256": "11cf399c3d47d71de217cd22f37ba41b8e4b0ce3f3a187201764cb769175ac6f",
+      "matching_git_sources": [
+        "0cce140ab777442504a5bb5be823d6714e2b4662"
+      ]
+    },
+    {
+      "pointer": "/independent_result/runtime_previous_source/own_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.json",
+      "sha256": "549b8385944e6106663cc3f3e71f91a9627d07f88b40ef07470e6caffd80f433",
+      "matching_git_sources": [
+        "0cce140ab777442504a5bb5be823d6714e2b4662"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

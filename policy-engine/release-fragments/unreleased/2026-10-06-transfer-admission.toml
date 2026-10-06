@@ -1,0 +1,11 @@
+id = "2026-10-06-transfer-admission"
+title = "Bind transferred numerical observations to exact original artifacts"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "The supported numeric_transfer_basis.v1 profile requires an explicit receiving basis, complete source and role references, original candidate physical input, and an original typed successful selection benchmark. Initial admission and checkpoint replay resolve the same guarded CAS inputs. History cache occupancy is locally bounded by exact full reference and codec, returns copies, and rechecks bytes on hits. Reverse replay preserves original measurements and remains non-promoting."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/methods/search/strategies/test_transfer.py", "tests/unit/scientist/methods/autotune/test_warm_start.py", "tests/unit/remediation/test_trn_02.py"]
+compatibility = "Histories without an explicit supported numerical basis and original measured artifact inputs receive a visible refusal. ANN can still discover related histories as ideas. The receiving target is configured independently of source rows."
+migration = "Configure the WarmStartBridge and target fingerprint together, including all exact basis references and ordered typed parameter bounds. Use the bridge admission reader for checkpoint restoration."
+limitations = "The supported profile proves conditional content and numerical-configuration consistency. It does not certify scientific truth, institutional source authorization, production history advantage, or a distributed cache."

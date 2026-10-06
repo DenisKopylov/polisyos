@@ -1,0 +1,61 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-D-published-funnel/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-D-published-funnel/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 2 items
+
+tests/unit/remediation/test_fun_03.py::test_level6_normal_path_bool_preflight_cannot_admit_runner_effects PASSED [ 50%]
+tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit FAILED [100%]
+
+=================================== FAILURES ===================================
+__________ test_run_policy_blueprint_execute_rechecks_owner_at_commit __________
+
+tmp_path = PosixPath('/dev/shm/e02-D-FUN03-native-intermediate-37d8091ebd5649f1a58f5794cbb7678d/test_run_policy_blueprint_exec0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1da9929a70>
+
+    def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
+        tmp_path,
+        monkeypatch,
+    ) -> None:
+        harness = _install_actual_runtime_node_dependencies(
+            monkeypatch,
+            tmp_path,
+            mode="normal",
+            revoke_permission_at_commit=True,
+        )
+    
+        outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+            harness["ctx"],
+            harness["state"],
+        )
+    
+        assert outcome.status == "ok"
+        assert harness["backend_calls"] == ["full"]
+>       assert harness["runner_calls"] == ["runner"]
+E       AssertionError: assert [] == ['runner']
+E         
+E         Right contains one more item: 'runner'
+E         
+E         Full diff:
+E         + []
+E         - [
+E         -     'runner',
+E         - ]
+
+tests/unit/remediation/test_fun_03.py:672: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit
+=================== 1 failed, 1 passed, 2 warnings in 10.36s ===================

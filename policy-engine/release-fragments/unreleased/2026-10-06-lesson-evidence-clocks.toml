@@ -1,0 +1,11 @@
+id = "2026-10-06-lesson-evidence-clocks"
+title = "Keep lesson evidence freshness separate from retrieval activity"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Local and transferred lessons apply the same effective age, confidence, trust and query filters under the active policy. Transfers project destination scope before filtering. Repeated reads update small daily retention sidecars without persisting full CAS snapshots, and older arrivals preserve the newest producer artifact. Exact stored lesson references retain their selected manifest view."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/methods/search/test_lesson_query_persistence.py", "tests/unit/scientist/search/test_lessons.py", "tests/unit/scientist/search/test_lesson_transfer.py"]
+compatibility = "Existing index snapshots remain readable. Their persisted access timestamps remain retention hints; new read activity is stored separately. Typed and JSON transfer contexts retain the existing consumer behavior."
+migration = "No migration is required for existing snapshots. Keep producer timestamps for evidence freshness and access metadata for retention only."
+limitations = "This change does not provide scientific revalidation or cross-tenant source authorization. The retention throttle is local and does not claim a distributed writer bound."

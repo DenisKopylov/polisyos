@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-transfer-use-reader",
+  "finding_ids": [
+    "B114",
+    "B115"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "OPT-03"
+  ],
+  "slice_base_sha": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+  "implementation_commits": [
+    "2cd7c4016c31514a67f7d176d2b87c083ead2a0f"
+  ],
+  "candidate_tree_sha": "5363ffe7efbd4892ce229c4fb5f86f987c6537a5",
+  "branch": "codex/e02-D-published-search",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-reader-before-fit.txt",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/tests/unit/remediation/test_opt_03_continuation.py"
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Required configured admission reader before numerical use; this own cell is a missing-reader refusal and does not establish CAS custody itself",
+  "environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "PYTHONPATH": "src:."
+  },
+  "checks": [
+    {
+      "target_sha": "2cd7c4016c31514a67f7d176d2b87c083ead2a0f",
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_opt_03_continuation.py -k transferred_current tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "outcome": "PASS",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-reader-before-fit.txt",
+      "sha256": "1a4f584224d1f473057d16b063e7e8f7818066064248f009cec26f3aafbdf134",
+      "bytes": 679,
+      "deciding_output": "1 passed, 23 deselected, 2 warnings in 7.06s"
+    }
+  ],
+  "property": {
+    "statement": "Every numeric_transfer_basis-tagged warm/current row invokes the same configured admission reader before effective corpus selection; omitted or changed serialized content refuses before numerical fitting. Generator configured metric/direction/split must equal the target.",
+    "runtime_path": [
+      "configured bridge target/load/admit",
+      "GP warm/current typed rows",
+      "canonical admission callable immediately before effective corpus",
+      "actual fit/conditioning only after exact admitted row comparison"
+    ],
+    "negative_controls": [
+      "tagged current rows without configured reader ->ValueError, actualMLLcall0, modelNone"
+    ]
+  },
+  "capability_state_or_finding_state": "partial; actual composed CAS workflow UNRUN in publisher",
+  "limitations_and_next_owner": [
+    "Own source does not contain transfer-owner ab660; sourcebound real CAS workflow ea629 is provided separately for root composition. It covers real initial fit, persisted state restore and same-ref original measurement mutation refusal at restore and suggest.",
+    "The source-only constructor metric/split/direction binding is not claimed exercised by this filtered1-cell run; actual configured consumer proof remains root composition.",
+    "Independent analytic23PASS applies to87 untagged synthetic profile, not an asserted composed transfer PASS.",
+    "Callable supports configured technical identity/CAS custody; no institutional authorization is issued."
+  ]
+}

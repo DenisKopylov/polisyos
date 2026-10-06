@@ -1,0 +1,147 @@
+{
+  "receipt_commit": "e2a884e5321799728739c6c9677c85cbd9451251",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+  "receipt_sha256": "39a4256226c52bc41422e431587f031393d8aac1c8bb03de4741df6ceb3f4639",
+  "checked_git_bindings": [
+    {
+      "pointer": "/selected_manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-input-manifest.json",
+      "sha256": "9306315616f466ebdddb267f1e9d63c6f1fbd46cacd963ad8aa344996eb2f356",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/source_cells",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-replay-source-cells.json",
+      "sha256": "b02fb096bb8d284ba9381730ed87c91678780d3167ea522cdbb5430406552b4a",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/source_origins",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-source-origin-cells.txt",
+      "sha256": "1851f83ca0576d9ae6ddc3e75ce99e4aa08df072a71983cd452e1bb3311242a3",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/tests_and_original_cli_overlays/0",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+      "matching_git_sources": [
+        "57d5ae63bb1c4fec25a0451ef40402db922e84c8",
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/tests_and_original_cli_overlays/1",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+      "sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+      "matching_git_sources": [
+        "966772c181e8cbf90b8fdf6632315555082ef6d0",
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/tests_and_original_cli_overlays/2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+      "sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+      "matching_git_sources": [
+        "9221a2591a44a978ba105da1fc85379690f24be8"
+      ]
+    },
+    {
+      "pointer": "/tests_and_original_cli_overlays/3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+      "sha256": "b8dc514a33b73c5c08a1740db9babaca5df7676d773a9a1c93ddea6601e6e1ce",
+      "matching_git_sources": [
+        "258200631ba7831321437955cb357515eecac5bd"
+      ]
+    },
+    {
+      "pointer": "/deciding_native_cell/command/log",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-native40.txt",
+      "sha256": "82ff823027db7469575ce9f192b49e2e49f78a095b34d6a598aa0f1c584832fb",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/deciding_native_cell/input",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-native40-command.json",
+      "sha256": "f146c8b23954cb84c6134bce1639696e18413b6ea9269a502365a8056a88d67e",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/deciding_native_cell/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-native40.txt",
+      "sha256": "82ff823027db7469575ce9f192b49e2e49f78a095b34d6a598aa0f1c584832fb",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/historical_cli_replay/commands/0/log",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli27.txt",
+      "sha256": "93fac373289dfa028be74e7e263a5249cbce746005a362ae2d18029e35765b41",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/historical_cli_replay/commands/1/log",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli-single.txt",
+      "sha256": "613ba272fd3d0ee67b1600a805dfe34c560b91f7546294fa01c4f6c92fbb63b0",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/historical_cli_replay/CLI27/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli27.txt",
+      "sha256": "93fac373289dfa028be74e7e263a5249cbce746005a362ae2d18029e35765b41",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/historical_cli_replay/single_front/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli-single.txt",
+      "sha256": "613ba272fd3d0ee67b1600a805dfe34c560b91f7546294fa01c4f6c92fbb63b0",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/original_red/receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-review.json",
+      "sha256": "ec98b761fd330e468927ccafaebd4c42d5eb389ba48b8bf12732d52e3d6c1724",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/original_red/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-red.txt",
+      "sha256": "9c008186c535c47f1008e5d62d39338bbd89a5e459c42a413e71b7823282fef0",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    },
+    {
+      "pointer": "/production_delta_review/full_diff",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-production-review.diff",
+      "sha256": "e9033a9dc0968faabad9843484d26124b0fe9e2a0d76d9eac919c528d9663b4a",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

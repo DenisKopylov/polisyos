@@ -1,0 +1,136 @@
+{
+  "schema": "e02.independent.final_binding_review_checkpoint.v1",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "reviewer_prior_sha": "a474ff675264e2264d24e49814f29d873320b1ee",
+  "proof_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+  "proof_tree": "c3f965043ec30112e06a02a1ef421ca24761e5c0",
+  "branch": "codex/e02-D-published-oracle",
+  "scope": "Independent read-only Git object payload/hash/source binding and complete recorded output reconciliation. No backend-wide rerun or production write. Own earlier GP proof was authored by this reviewer; independent integrity checking does not create a second independent GP execution.",
+  "deciding_observations": {
+    "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/observations.json",
+    "bytes": 285747,
+    "sha256": "fae597eec5648055cbf26387503142c8e8f1d25d8cf07bdccde9932f3c028f6d"
+  },
+  "exact_verifier_source": {
+    "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt",
+    "bytes": 22217,
+    "sha256": "0c1d9a4f7a925e0487bcb94418446e7b8acae9b894d01301a6e86ec4c4e0112e"
+  },
+  "complete_manifest": {
+    "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-independent-binding-and-current142-manifest.json",
+    "bytes": 3253,
+    "sha256": "14cb2e57292ead7aa462431269fca0201ff52c7335a387bf21d659e8df3d4add"
+  },
+  "reviewed_receipts": {
+    "gp": {
+      "publisher_sha": "a474ff675264e2264d24e49814f29d873320b1ee",
+      "publisher_tree": "f92d894e7565144a37fac6e7d7e1808d934bbc0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+      "bytes": 9183,
+      "sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb"
+    },
+    "quality": {
+      "publisher_sha": "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+      "publisher_tree": "411bec3fe214d26816e3ea4682f1bdd7c35f46e1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243.json",
+      "bytes": 17075,
+      "sha256": "c3fe8929022d3d3be87f8bd28bab0c1a6d2e6e4cb5338fbec3616b7b3a8295ab"
+    },
+    "frontend": {
+      "publisher_sha": "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+      "publisher_tree": "6f902eed160262da213e5e9a555adfa8eeaa7f19",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-frontend-ci-243.json",
+      "bytes": 13225,
+      "sha256": "89eab51d784d1a124a47f6a98d2f029d2f4d9752a0d320ed0206796cea5395e8"
+    },
+    "accounting": {
+      "publisher_sha": "fed62e39b486827f18bdfd5a9d7fc916ea58ecee",
+      "publisher_tree": "71de73cf04f17f5cbc5b402a993a5a6b87e4335a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting-delta.json",
+      "bytes": 71430,
+      "sha256": "1ee7e78810b9e79a7c352e87b1bad27d64c478d019f9069463df7af641c96ca1"
+    },
+    "fun": {
+      "publisher_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "publisher_tree": "5d8a2ae92072ff0f855dc98b1f1b11332706529c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration.json",
+      "bytes": 15992,
+      "sha256": "c5e96eb747dfcc9a8966ac3c90295c53ebb9530d2ead0046272c5fcd2f259180"
+    },
+    "search": {
+      "publisher_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "publisher_tree": "9466898dde508b1384f242aced9c41dd476ca079",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+      "bytes": 47439,
+      "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+    }
+  },
+  "integrity": {
+    "status": "PASS bounded enumerated Git hash/byte binding",
+    "six_top_level_receipts": 6,
+    "direct_receipt_path_hash_cells": 127,
+    "decoded_unique_payload_file_counts": {
+      "backend": 371,
+      "extension": 11,
+      "frontend": 44,
+      "total": 426
+    },
+    "search_manifest_files": 108,
+    "search_finished_XML_JSONL_sessions": 17,
+    "source_prefix_and_Git_bindings": {
+      "search_observed_unique_native_source_files": 12,
+      "extension_actual_declared_entrypoint_files": 7,
+      "frontend_declared_source_input_cells": 12
+    },
+    "accounting": {
+      "distinct_findings": 45,
+      "original_hash_bound_fragments_and_complete_card_containment": 46,
+      "coverage_and_prior_row_ID_pointers": 45,
+      "closed_findings": 0
+    }
+  },
+  "semantic_results_retained": {
+    "backend": "NOT_ACCEPTED: final25 backend gates7PASS/3FAIL_COMPLETED_CONTRACT/4ERROR_INCOMPLETE_SIGNAL/11ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE. B04 nine missing state-read declarations, B19 77 contract errors+6 report-only findings, B23 10 docs accuracy violations. Complete full outputs/artifact are bound and read.",
+    "frontend": "ERROR_UNRUN:1of8 gate PASS; five interrupted gates, killed typecheck, StorybookUNRUN. Native Chromium/doctor/CDP/DOM readiness bounded PASS does not confer application/wholeCI acceptance.",
+    "search243": "17 completed literal commands15PASS2FAIL;744 repeated execution occurrences=737PASS7FAIL/0ERROR/0SKIP. OPT01 five fixture-intake failures and FUN03 two stale fixture/caller failures remain exact243FAIL. No exclusion/xfail/base-waiver.",
+    "FUN_successor": "Actual immutable a935 canonical52PASS and two callback-guard-removal expectedFAIL controls bound. Source identity in owner metadata is recomputation, not observation of imported runtime origins; no arbitrarybool authority or final aggregate pass inferred.",
+    "GP_prior": "Earlier actualroot24326PASS proof complete XML/log/test hashes bound; analytical/CAS bounded scope only.",
+    "accounting": "45 findings remain unclosed; limited35/held7/open3 are bookkeeping, not adjudication. Historic42540PASS has actual controller/service differences; the separate final-current142 receipt carries the current joined execution instead of an equality proxy."
+  },
+  "helper_quality": {
+    "status": "FAIL",
+    "original_search_measurement_helper_Ruff_diagnostics": 65,
+    "own_archived_executed_helper_Ruff_diagnostics": 82,
+    "complete_own_quality_observation": {
+      "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/helper-quality.json",
+      "bytes": 905,
+      "sha256": "f5f5f91817cf189de2013b6d77927ecbdb316e2eefa9c2e9eecfb6464f98d4f5"
+    },
+    "complete_own_quality_log": {
+      "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/helper-ruff-complete.txt",
+      "bytes": 58330,
+      "sha256": "cda9e233fb2172bf9a231d3eedac6c1d3cadef4abc0ee3b9a04d1df877403d0e"
+    },
+    "no_waiver": "Executed helper bytes remain exact. No helper Ruff PASS or whole quality acceptance claimed."
+  },
+  "preparation_corrections": [
+    "Initial generic path traversal tried to read nativeCAS test from oracle publisher; the file exists only in explicitly declared runtime source243. Corrected traversal to use source_commit for unchanged_tests, not an arbitrary matching commit.",
+    "Initial extension receipt parser expected outputs/file_count/compressed_rawfile_sha256; actual schema uses output_bundle/full_raw_files/rawfile_sha256. Corrected schema mapping without changing any expected hash, bytes or denominator.",
+    "Initial criterion-containment preparation checked summary taskcard D.md instead of the criterion_card path declared by coverage for each bundle. Corrected the target card, retaining all46 original exact fragment hash/byte expectations. Initial verifier startup failures were not backend or product test results."
+  ],
+  "limitations": [
+    "No new backend execution, no full doctored/backend/frontend/CI PASS; failures and signal/resource-blocked checks retained.",
+    "External environment/browser/provider dependencies were not whole-byte recensed; captured native source binding is limited to recorded origin cells.",
+    "Parent's own root decode and deciding receipts are not input to this independent verifier; Git objects above are inputs.",
+    "Future final test-only candidate and current joined fiscal/frontier40 plus native102 runtime remain pending; no source-equivalence proxy substitutes for that execution."
+  ],
+  "P41": "No pinned-base full-input replay, inherited-red designation, denominator exclusion or zero input-intersection claim.",
+  "authority": "Git integrity does not appoint scientific metric units, issuer/signature/promotion authority, external provider invoice truth or all production deployments.",
+  "closure_ids": [],
+  "publication": "Normal append-only proof commit first; this separate review receipt is published with normal hooks and topic push; exact receipt SHA/remote readback supplied after publication."
+}

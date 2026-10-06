@@ -1,0 +1,23 @@
+{
+  "sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "tree": "dccf1ce0f5c3c6107b78b60bc2a73bba30327e64",
+  "input_pathspecs": [
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/schemas",
+    "policy-engine/data",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/ruff.toml",
+    "policy-engine/mypy.ini",
+    "policy-engine/hatch.toml",
+    "policy-engine/uv.toml",
+    "policy-engine/uv.lock"
+  ],
+  "archive_bytes": 171069440,
+  "archive_sha256": "a0f8866eb00d60f2c6064805eba61948afed7226d23b1a33f9f47aaf133dc3e8",
+  "extraction": "/dev/shm/e02-D2-transfer-composed-8eb",
+  "files": 7661
+}

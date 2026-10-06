@@ -1,0 +1,155 @@
+.............................................F.....F                     [100%]
+=================================== FAILURES ===================================
+___________ test_level6_normal_path_calls_runner_after_owner_recheck ___________
+
+    def test_level6_normal_path_calls_runner_after_owner_recheck() -> None:
+        calls: list[str] = []
+    
+        def recheck(_candidate: dict[str, Any], _context: dict[str, Any]) -> bool:
+            calls.append("recheck")
+            return True
+    
+        def runner(_candidate: dict[str, Any], _context: dict[str, Any]) -> dict[str, str]:
+            calls.append("runner")
+            return {"decision": "complete"}
+    
+        result = Level6PromotionStage(
+            promotion_runner=runner,
+            promotion_owner_recheck=recheck,
+        ).evaluate({"candidate_id": "fun-03"}, {"funnel_degradation_mode": "normal"})
+    
+>       assert calls == ["recheck", "runner"]
+E       AssertionError: assert [] == ['recheck', 'runner']
+E         
+E         Right contains 2 more items, first extra item: 'recheck'
+E         Use -v to get more diff
+
+tests/unit/remediation/test_fun_03.py:278: AssertionError
+__________ test_run_policy_blueprint_execute_rechecks_owner_at_commit __________
+
+tmp_path = PosixPath('/dev/shm/search-canonical-243-06-FUN-03-a60850379358496aa22e786bc36423c9/test_run_policy_blueprint_exec3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f13ac7db020>
+
+    def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
+        tmp_path,
+        monkeypatch,
+    ) -> None:
+        harness = _install_actual_runtime_node_dependencies(
+            monkeypatch,
+            tmp_path,
+            mode="normal",
+            revoke_permission_at_commit=True,
+        )
+    
+>       outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+            harness["ctx"],
+            harness["state"],
+        )
+
+tests/unit/remediation/test_fun_03.py:668: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:773: in execute
+    outcome = orchestrator.advance(ticket, policy="full")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:545: in advance
+    scheduling_action = self._maybe_schedule_transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator object at 0x7f13ac683ba0>
+ticket = FunnelTicket(ticket_id='f305645b-b2bb-4747-b3ac-ec2f3e61a007', candidate_hash='bc3d99444c89789d', candidate={'candidat...61a007',), continuation_reason=None, terminal_basis=None, terminal_budget_remaining={}, terminal_degradation_mode=None)
+
+    def _maybe_schedule_transition(
+        self,
+        ticket: FunnelTicket,
+        *,
+        execution_target: int,
+        policy: AdvancePolicy | None,
+        trace_step: FunnelTraceStep | None,
+    ) -> Literal["advance", "defer", "reject", "retry_cheaper"] | None:
+        if (
+            policy == "burn_in"
+            or ticket.degradation_mode != "normal"
+            or ticket.current_level not in (2, 3)
+            or ticket.next_level is None
+            or ticket.next_level > execution_target
+            or ticket.last_result is None
+            or (
+                ticket.last_scheduling_decision is not None
+                and ticket.last_scheduling_decision.next_level == ticket.next_level
+            )
+        ):
+            return None
+    
+        self._maybe_update_voi_calibration_state()
+        self._refresh_resource_budget()
+>       scheduling = self._voi_scheduler.prioritize(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [ticket],
+            self._budget_state,
+            self._frontier,
+        )
+E       AttributeError: '_VOIScheduler' object has no attribute 'prioritize'
+
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:929: AttributeError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_runs_all_stages_on_passing_candidate
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stops_on_blocker
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stops_on_not_promising
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_respects_max_level
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_fast_track_skips_to_final
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_reject_routing_stops_funnel
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stages_sorted_by_fidelity
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_empty_stages_returns_not_evaluated_result
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_context_enriched_with_level_results
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_as_stage_a_callable
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_as_stage_b_callable
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_b_reuses_cached_stage_a_progress
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_b_cache_miss_falls_back_to_full_execution
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_freeze_mode_continuation_preserves_partial_progress
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_retry_cheaper_spend_only_does_not_resume
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_defer_without_discriminator_does_not_resume
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_interleaved_context_continuation_uses_exact_context_predecessor
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_burn_in_policy_bypasses_cheap_rejection_until_level4
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_records_failure_lessons_on_terminal_reject
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_records_success_lesson_on_level4_success
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_predictive_scheduler_receives_stage_observations
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_and_level6_runtime_generalization_collects_audit_refs
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level6_respects_no_promotion_degraded_mode
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_blocks_runtime_split_type_mismatch
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[None]
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[False]
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight2]
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[allow]
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[1]
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight5]
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[True]
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_revoke_after_true_preflight_barrier_has_zero_effects
+PASSED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_prepared_payload_is_read_only_interpretation_without_callback_effects
+PASSED tests/unit/remediation/test_fun_03.py::test_same_scope_refinement_is_current_while_history_keeps_unknown_risk
+PASSED tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[subject_id]
+PASSED tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[value_slot]
+PASSED tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[input_signature]
+PASSED tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[procedure_id]
+PASSED tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[population_scope]
+PASSED tests/unit/remediation/test_fun_03.py::test_empty_tracker_has_one_explicit_not_established_routing_state
+PASSED tests/unit/remediation/test_fun_03.py::test_persisted_empty_report_fails_closed_over_stale_normal_mode
+PASSED tests/unit/remediation/test_fun_03.py::test_statistically_bad_tracker_is_observed_drift_not_empty_state
+PASSED tests/unit/remediation/test_fun_03.py::test_level6_degradation_preflight_reads_existing_payload_without_runner
+PASSED tests/unit/remediation/test_fun_03.py::test_level6_owner_recheck_happens_before_effectful_runner
+PASSED tests/unit/remediation/test_fun_03.py::test_production_owner_recheck_requires_explicit_write_permission
+PASSED tests/unit/remediation/test_fun_03.py::test_orchestrator_honors_persisted_no_promotion_projection_without_tracker
+PASSED tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[no_promotion]
+PASSED tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[reduced_judge]
+PASSED tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[auto_cap]
+FAILED tests/unit/remediation/test_fun_03.py::test_level6_normal_path_calls_runner_after_owner_recheck
+FAILED tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit
+2 failed, 50 passed, 2 warnings in 11.01s

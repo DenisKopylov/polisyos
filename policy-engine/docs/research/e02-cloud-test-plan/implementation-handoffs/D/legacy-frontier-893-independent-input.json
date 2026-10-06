@@ -1,0 +1,24 @@
+{
+  "source_commit": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+  "source_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa",
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+  "test_sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+    "--basetemp=/dev/shm/e02-oracle-legacy-front-893-red-5c505874d36546b4abc80bd5fac3623d",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "-rA"
+  ],
+  "cwd": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine",
+  "basetemp": "/dev/shm/e02-oracle-legacy-front-893-red-5c505874d36546b4abc80bd5fac3623d",
+  "nonexisting_before_pytest": true,
+  "PYTHONPATH": "src:.",
+  "PYTHONDONTWRITEBYTECODE": "1",
+  "no_reviewer_CPU_process_worker_caps": true
+}

@@ -1,0 +1,67 @@
+{
+  "receipt_commit": "cbe90a83a93d01aa5b2da112c43f027a214e3a0d",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-cost-corrective.json",
+  "receipt_sha256": "9a402d81af4ecf3503dca51f46390d419f50d426796bc1330774b1d5d795a06e",
+  "checked_git_bindings": [
+    {
+      "pointer": "/proof_inputs/native98",
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6",
+      "matching_git_sources": [
+        "678a8bdb06103009d0547e55e00022061dfca4c3",
+        "cbe90a83a93d01aa5b2da112c43f027a214e3a0d"
+      ]
+    },
+    {
+      "pointer": "/proof_inputs/range4",
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "sha256": "7071b401d3c4bca91da5e7fe1f02a23f1de0d8c8cce2411cb60ed429b404726c",
+      "matching_git_sources": [
+        "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+        "cbe90a83a93d01aa5b2da112c43f027a214e3a0d"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/original_native_red",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-raw-cost-red.txt",
+      "sha256": "e3f28c1a17b36a697a59acaf713bee93604085ce9fbbbc68fa7f74b04255383b",
+      "matching_git_sources": [
+        "cbe90a83a93d01aa5b2da112c43f027a214e3a0d"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/range_collection_error",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-range-red.txt",
+      "sha256": "5d332e1e09878712caa721952aff5bf13f488138a6c143d256c3ffd301c115ac",
+      "matching_git_sources": [
+        "cbe90a83a93d01aa5b2da112c43f027a214e3a0d"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/range_deciding_red",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-range-red-deciding.txt",
+      "sha256": "7bbeeee5bb1bc5d676e05aa1e2387629803e661bb272755d9b2926c049c3e9ea",
+      "matching_git_sources": [
+        "cbe90a83a93d01aa5b2da112c43f027a214e3a0d"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/mixed_consumer_execution_error",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-raw-cost-green.txt",
+      "sha256": "f0e3a9bfc191b75f2c910854c3b258e288e97df4585385cd8ffb8a1d0a2a8c47",
+      "matching_git_sources": [
+        "cbe90a83a93d01aa5b2da112c43f027a214e3a0d"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/focused_corrective_green",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-green-focused.txt",
+      "sha256": "2dacefef6c183817110193a15a06cf4dca66e1e485203f7b9a550b28cf8dc526",
+      "matching_git_sources": [
+        "cbe90a83a93d01aa5b2da112c43f027a214e3a0d"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

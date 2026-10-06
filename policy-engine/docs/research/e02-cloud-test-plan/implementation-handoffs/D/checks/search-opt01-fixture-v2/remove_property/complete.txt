@@ -1,0 +1,118 @@
+PROPERTY_REMOVAL: unusable required coordinates become zero; metadata, strict CAS reader and tests unchanged
+FF.FF                                                                    [100%]
+=================================== FAILURES ===================================
+_ TestParetoFront.test_unassessed_candidate_cannot_be_reported_as_not_dominated _
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529e388a0>
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_unassessed_candidate_cann0')
+
+    def test_unassessed_candidate_cannot_be_reported_as_not_dominated(self, tmp_path):
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        front = promoter.compute_front([_cas_eval(tmp_path, acc=0.9, speed=0.8)])
+    
+        for candidate in (
+            _cas_eval(tmp_path, acc=0.5),
+            _cas_eval(tmp_path, acc=0.5, speed=math.inf),
+        ):
+>           with pytest.raises(ValueError, match="candidate is unassessed"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/autotune/test_pareto.py:213: Failed
+----------------------------- Captured stdout call -----------------------------
+{"scope": "post_validation_mutable_input_stress", "healthy_ref": {"artifact_id": "sha256:a3752c4af07292c5d920d7e7a6a7bfcafdefcf1f16e4965418c89d77a0d46481", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "malformed_ref": {"artifact_id": "sha256:7500b4f565dc26595f686e4277cc51c43bc28dc81d4792f664767a3b39d3fc1b", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "raw_payload": {"candidate_ref": {"artifact_id": "sha256:dd4957c24a61809d58fb9375ec7aebd8ec3fc4b6acfca0e461a8799d6548c335", "kind": "scientist.autotune.loop1.candidate", "media_type": "application/json"}, "comparison_basis": {"data_basis": "candidate_only", "evaluator_profile": {"name": "fixture.pareto.numeric", "version": "1.0"}, "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5", "schema_version": "benchmark-comparison.v1", "suite_ref": {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "kind": "scientist.autotune.generic.suite", "media_type": "application/json"}}, "guardrails": {}, "holdout_metrics": {"acc": 0.5, "speed": Infinity}, "loop_id": "loop1", "metadata": {}, "notes": [], "promotable": true, "runtime_split_type": "holdout", "sample_counts": {}, "selection_metrics": {}, "status": "ok", "suite_id": "suite1", "suite_version": "1.0"}, "manifest": {"manifest_schema_version": "v3", "artifact_id": "sha256:7500b4f565dc26595f686e4277cc51c43bc28dc81d4792f664767a3b39d3fc1b", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json", "byte_size": 859, "created_at": "2026-10-06T12:49:34Z", "artifact_schema": {"name": "polisyos.scientist.methods.autotune.BenchmarkEvaluation", "version": "1.0"}, "canon": null, "inputs": [{"artifact_id": "sha256:dd4957c24a61809d58fb9375ec7aebd8ec3fc4b6acfca0e461a8799d6548c335", "role": "candidate"}, {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "role": "benchmark_suite"}], "producer": {"component": "polisyos.scientist.methods.autotune.benchmark_evaluator", "version": "1.0", "git": null}, "env": null, "governance": null, "tenant_context": null, "same_input_closure": null, "authority": null, "integrity": {"sha256": "7500b4f565dc26595f686e4277cc51c43bc28dc81d4792f664767a3b39d3fc1b", "optional": null}, "warnings": []}, "native_reader": "refused"}
+_ TestParetoFront.test_empty_and_invalid_front_preserves_schema_as_incomplete __
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529a34450>
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_empty_and_invalid_front_p0')
+
+    def test_empty_and_invalid_front_preserves_schema_as_incomplete(self, tmp_path):
+        """Empty producer output retains known coordinates with an incomplete state."""
+        # Catches the production mutation that returns a fresh empty schema and
+        # discards the promoter's known coordinate contract for no valid rows.
+        promoter = ParetoPromoter(_policies("score"))
+        complete = promoter.compute_front([_cas_eval(tmp_path, score=1.0)]).model_dump(mode="json")
+        expected_coordinates = complete["coordinate_schema"]["coordinates"]
+    
+        for evaluations in ([], [_cas_eval(tmp_path, score=math.nan)]):
+            payload = promoter.compute_front(evaluations).model_dump(mode="json")
+            assert payload["coordinate_schema"]["version"] == "pareto-coordinate.v1"
+>           assert payload["coordinate_schema"]["status"] == "incomplete"
+E           AssertionError: assert 'complete' == 'incomplete'
+E             
+E             - incomplete
+E             ? --
+E             + complete
+
+tests/unit/scientist/methods/autotune/test_pareto.py:613: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"scope": "post_validation_mutable_input_stress", "healthy_ref": {"artifact_id": "sha256:91dcc196e1e6c432a8be33f1d5bafed573346889fec4891709ee1fff4cc467c6", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "malformed_ref": {"artifact_id": "sha256:877ff46195932632a6db9a1c4f88b12af6380fe59eef54032ca6841fe46a4642", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "raw_payload": {"candidate_ref": {"artifact_id": "sha256:87a43cb574e41cef9395b0af2402c9bd851c4178b4396445efe1083deb95f1cb", "kind": "scientist.autotune.loop1.candidate", "media_type": "application/json"}, "comparison_basis": {"data_basis": "candidate_only", "evaluator_profile": {"name": "fixture.pareto.numeric", "version": "1.0"}, "policy_sha256": "e9b8c5c70e08c568fc180ca351135f631273a4852834e3db1754f28b5d1fb1ad", "schema_version": "benchmark-comparison.v1", "suite_ref": {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "kind": "scientist.autotune.generic.suite", "media_type": "application/json"}}, "guardrails": {}, "holdout_metrics": {"score": NaN}, "loop_id": "loop1", "metadata": {}, "notes": [], "promotable": true, "runtime_split_type": "holdout", "sample_counts": {}, "selection_metrics": {}, "status": "ok", "suite_id": "suite1", "suite_version": "1.0"}, "manifest": {"manifest_schema_version": "v3", "artifact_id": "sha256:877ff46195932632a6db9a1c4f88b12af6380fe59eef54032ca6841fe46a4642", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json", "byte_size": 844, "created_at": "2026-10-06T12:49:35Z", "artifact_schema": {"name": "polisyos.scientist.methods.autotune.BenchmarkEvaluation", "version": "1.0"}, "canon": null, "inputs": [{"artifact_id": "sha256:87a43cb574e41cef9395b0af2402c9bd851c4178b4396445efe1083deb95f1cb", "role": "candidate"}, {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "role": "benchmark_suite"}], "producer": {"component": "polisyos.scientist.methods.autotune.benchmark_evaluator", "version": "1.0", "git": null}, "env": null, "governance": null, "tenant_context": null, "same_input_closure": null, "authority": null, "integrity": {"sha256": "877ff46195932632a6db9a1c4f88b12af6380fe59eef54032ca6841fe46a4642", "optional": null}, "warnings": []}, "native_reader": "refused"}
+_ TestParetoFront.test_mixed_objective_coverage_is_typed_and_keeps_finite_front _
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529fe9670>
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_mixed_objective_coverage_0')
+
+    def test_mixed_objective_coverage_is_typed_and_keeps_finite_front(self, tmp_path):
+        """Omitted inputs retain provenance while complete rows still form a front."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        best = _cas_eval(tmp_path, acc=0.9, speed=0.8)
+        dominated = _cas_eval(tmp_path, acc=0.8, speed=0.7)
+        missing = _cas_eval(tmp_path, acc=0.7)
+        non_finite = _cas_eval(tmp_path, acc=0.8, speed=math.inf)
+    
+        front = promoter.compute_front([best, missing, non_finite, dominated])
+        assessment = front.input_assessment
+    
+>       assert assessment.status == "partial"
+E       AssertionError: assert 'complete' == 'partial'
+E         
+E         - partial
+E         + complete
+
+tests/unit/scientist/methods/autotune/test_pareto.py:680: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"scope": "post_validation_mutable_input_stress", "healthy_ref": {"artifact_id": "sha256:4098c7cd8bd0ca2193a3e1e2b630ac8c85c1a8c693ab04e2457a5608c00e1f30", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "malformed_ref": {"artifact_id": "sha256:d246e8ea394eff5c25b3454c20e0b2447baa16200cc65f7991d96abb46f23f47", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "raw_payload": {"candidate_ref": {"artifact_id": "sha256:410f808069d54f3239cff98575246add161245659355ecc63c6686a2be27f032", "kind": "scientist.autotune.loop1.candidate", "media_type": "application/json"}, "comparison_basis": {"data_basis": "candidate_only", "evaluator_profile": {"name": "fixture.pareto.numeric", "version": "1.0"}, "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5", "schema_version": "benchmark-comparison.v1", "suite_ref": {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "kind": "scientist.autotune.generic.suite", "media_type": "application/json"}}, "guardrails": {}, "holdout_metrics": {"acc": 0.8, "speed": Infinity}, "loop_id": "loop1", "metadata": {}, "notes": [], "promotable": true, "runtime_split_type": "holdout", "sample_counts": {}, "selection_metrics": {}, "status": "ok", "suite_id": "suite1", "suite_version": "1.0"}, "manifest": {"manifest_schema_version": "v3", "artifact_id": "sha256:d246e8ea394eff5c25b3454c20e0b2447baa16200cc65f7991d96abb46f23f47", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json", "byte_size": 859, "created_at": "2026-10-06T12:49:35Z", "artifact_schema": {"name": "polisyos.scientist.methods.autotune.BenchmarkEvaluation", "version": "1.0"}, "canon": null, "inputs": [{"artifact_id": "sha256:410f808069d54f3239cff98575246add161245659355ecc63c6686a2be27f032", "role": "candidate"}, {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "role": "benchmark_suite"}], "producer": {"component": "polisyos.scientist.methods.autotune.benchmark_evaluator", "version": "1.0", "git": null}, "env": null, "governance": null, "tenant_context": null, "same_input_closure": null, "authority": null, "integrity": {"sha256": "d246e8ea394eff5c25b3454c20e0b2447baa16200cc65f7991d96abb46f23f47", "optional": null}, "warnings": []}, "native_reader": "refused"}
+_ TestParetoFront.test_duplicate_invalid_candidate_refs_keep_distinct_input_positions _
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f9529aa68a0>
+tmp_path = PosixPath('/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690/test_duplicate_invalid_candida0')
+
+    def test_duplicate_invalid_candidate_refs_keep_distinct_input_positions(self, tmp_path) -> None:
+        """Repeated evaluation identity is legal when positions are distinct."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        finite = _cas_eval(tmp_path, acc=0.9, speed=0.8)
+        invalid = _cas_eval(tmp_path, acc=math.nan, speed=0.7)
+    
+        front = promoter.compute_front([finite, invalid, invalid])
+        assessment = front.input_assessment
+    
+        assert [member.candidate_ref_id for member in front.members] == [
+            str(finite.candidate_ref.artifact_id)
+        ]
+>       assert tuple(item.input_index for item in assessment.unassessed_evaluations) == (1, 2)
+E       assert () == (1, 2)
+E         
+E         Right contains 2 more items, first extra item: 1
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_pareto.py:763: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"scope": "post_validation_mutable_input_stress", "healthy_ref": {"artifact_id": "sha256:4c81a9d56f86e31fe82e5243792bb4ca4f5ae2e9774165717910f6e46801e691", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "malformed_ref": {"artifact_id": "sha256:f4000536a96e76b1df9e5e6eb2327b772b4b21addf12a17f9b1a7ef9240bb79b", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "raw_payload": {"candidate_ref": {"artifact_id": "sha256:d22a7522f7962e84da302004cb92d7ed35302c414b5ffb2f87035d4ba1a0b3d5", "kind": "scientist.autotune.loop1.candidate", "media_type": "application/json"}, "comparison_basis": {"data_basis": "candidate_only", "evaluator_profile": {"name": "fixture.pareto.numeric", "version": "1.0"}, "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5", "schema_version": "benchmark-comparison.v1", "suite_ref": {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "kind": "scientist.autotune.generic.suite", "media_type": "application/json"}}, "guardrails": {}, "holdout_metrics": {"acc": NaN, "speed": 0.7}, "loop_id": "loop1", "metadata": {}, "notes": [], "promotable": true, "runtime_split_type": "holdout", "sample_counts": {}, "selection_metrics": {}, "status": "ok", "suite_id": "suite1", "suite_version": "1.0"}, "manifest": {"manifest_schema_version": "v3", "artifact_id": "sha256:f4000536a96e76b1df9e5e6eb2327b772b4b21addf12a17f9b1a7ef9240bb79b", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json", "byte_size": 854, "created_at": "2026-10-06T12:49:35Z", "artifact_schema": {"name": "polisyos.scientist.methods.autotune.BenchmarkEvaluation", "version": "1.0"}, "canon": null, "inputs": [{"artifact_id": "sha256:d22a7522f7962e84da302004cb92d7ed35302c414b5ffb2f87035d4ba1a0b3d5", "role": "candidate"}, {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "role": "benchmark_suite"}], "producer": {"component": "polisyos.scientist.methods.autotune.benchmark_evaluator", "version": "1.0", "git": null}, "env": null, "governance": null, "tenant_context": null, "same_input_closure": null, "authority": null, "integrity": {"sha256": "f4000536a96e76b1df9e5e6eb2327b772b4b21addf12a17f9b1a7ef9240bb79b", "optional": null}, "warnings": []}, "native_reader": "refused"}
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+_ TestParetoFront.test_non_finite_and_missing_metrics_are_excluded_from_numeric_front _
+----------------------------- Captured stdout call -----------------------------
+{"scope": "post_validation_mutable_input_stress", "healthy_ref": {"artifact_id": "sha256:b44f5a4e7c0b39f5228bc854900185c591361b0349472031aece6b8ffec403c9", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "malformed_ref": {"artifact_id": "sha256:7a065d6f453a54f818c1091994a6d0e66c1fb2d5e6357481c19a323fff245d21", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "raw_payload": {"candidate_ref": {"artifact_id": "sha256:95e4c499c8103c6d95047f7811405128b04e100915812550374483d68995157e", "kind": "scientist.autotune.loop1.candidate", "media_type": "application/json"}, "comparison_basis": {"data_basis": "candidate_only", "evaluator_profile": {"name": "fixture.pareto.numeric", "version": "1.0"}, "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5", "schema_version": "benchmark-comparison.v1", "suite_ref": {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "kind": "scientist.autotune.generic.suite", "media_type": "application/json"}}, "guardrails": {}, "holdout_metrics": {"acc": NaN, "speed": 0.9}, "loop_id": "loop1", "metadata": {}, "notes": [], "promotable": true, "runtime_split_type": "holdout", "sample_counts": {}, "selection_metrics": {}, "status": "ok", "suite_id": "suite1", "suite_version": "1.0"}, "manifest": {"manifest_schema_version": "v3", "artifact_id": "sha256:7a065d6f453a54f818c1091994a6d0e66c1fb2d5e6357481c19a323fff245d21", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json", "byte_size": 854, "created_at": "2026-10-06T12:49:35Z", "artifact_schema": {"name": "polisyos.scientist.methods.autotune.BenchmarkEvaluation", "version": "1.0"}, "canon": null, "inputs": [{"artifact_id": "sha256:95e4c499c8103c6d95047f7811405128b04e100915812550374483d68995157e", "role": "candidate"}, {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "role": "benchmark_suite"}], "producer": {"component": "polisyos.scientist.methods.autotune.benchmark_evaluator", "version": "1.0", "git": null}, "env": null, "governance": null, "tenant_context": null, "same_input_closure": null, "authority": null, "integrity": {"sha256": "7a065d6f453a54f818c1091994a6d0e66c1fb2d5e6357481c19a323fff245d21", "optional": null}, "warnings": []}, "native_reader": "refused"}
+{"scope": "post_validation_mutable_input_stress", "healthy_ref": {"artifact_id": "sha256:6ce2617a0b22f34b2a802ab0a4e0842d605a5a2afb1485e11744f207e18686f6", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "malformed_ref": {"artifact_id": "sha256:ae0a4ba611c530e7b12d5e60c7b873615eb4501a830a01934ef9698df226a304", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json"}, "raw_payload": {"candidate_ref": {"artifact_id": "sha256:25e7c07129b34c36e8a8c3a08c73bd783a26e8d7dab4f0b4d54f3dfc85d44238", "kind": "scientist.autotune.loop1.candidate", "media_type": "application/json"}, "comparison_basis": {"data_basis": "candidate_only", "evaluator_profile": {"name": "fixture.pareto.numeric", "version": "1.0"}, "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5", "schema_version": "benchmark-comparison.v1", "suite_ref": {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "kind": "scientist.autotune.generic.suite", "media_type": "application/json"}}, "guardrails": {}, "holdout_metrics": {"acc": Infinity, "speed": 0.7}, "loop_id": "loop1", "metadata": {}, "notes": [], "promotable": true, "runtime_split_type": "holdout", "sample_counts": {}, "selection_metrics": {}, "status": "ok", "suite_id": "suite1", "suite_version": "1.0"}, "manifest": {"manifest_schema_version": "v3", "artifact_id": "sha256:ae0a4ba611c530e7b12d5e60c7b873615eb4501a830a01934ef9698df226a304", "kind": "scientist.autotune.loop1.evaluation", "media_type": "application/json", "byte_size": 859, "created_at": "2026-10-06T12:49:35Z", "artifact_schema": {"name": "polisyos.scientist.methods.autotune.BenchmarkEvaluation", "version": "1.0"}, "canon": null, "inputs": [{"artifact_id": "sha256:25e7c07129b34c36e8a8c3a08c73bd783a26e8d7dab4f0b4d54f3dfc85d44238", "role": "candidate"}, {"artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1", "role": "benchmark_suite"}], "producer": {"component": "polisyos.scientist.methods.autotune.benchmark_evaluator", "version": "1.0", "git": null}, "env": null, "governance": null, "tenant_context": null, "same_input_closure": null, "authority": null, "integrity": {"sha256": "ae0a4ba611c530e7b12d5e60c7b873615eb4501a830a01934ef9698df226a304", "optional": null}, "warnings": []}, "native_reader": "refused"}
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_non_finite_and_missing_metrics_are_excluded_from_numeric_front
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_unassessed_candidate_cannot_be_reported_as_not_dominated
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_empty_and_invalid_front_preserves_schema_as_incomplete
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_mixed_objective_coverage_is_typed_and_keeps_finite_front
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_duplicate_invalid_candidate_refs_keep_distinct_input_positions
+4 failed, 1 passed, 1 warning in 0.89s

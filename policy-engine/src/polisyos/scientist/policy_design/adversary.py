@@ -26,6 +26,7 @@ from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.objective import CompositeObjective
 from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.prompts import (
@@ -104,8 +105,14 @@ class AdversaryExecutionResult(BaseModel):
 class ScenarioAdversaryWorker:
     """LLM-assisted scenario proposer with deterministic execution."""
 
-    def __init__(self, config: ScenarioAdversaryConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: ScenarioAdversaryConfig | None = None,
+        *,
+        budget_middleware: BudgetMiddleware | None = None,
+    ) -> None:
         self._config = config or ScenarioAdversaryConfig()
+        self._budget_middleware = budget_middleware
 
     async def propose_async(
         self,
@@ -113,6 +120,7 @@ class ScenarioAdversaryWorker:
         *,
         run_id: str = "policy_adversary",
         budget_state: BudgetState | None = None,
+        evaluation_id: str | None = None,
     ) -> AdversarialScenarioBundle:
         client = create_traced_gateway_client(
             model_name=self._config.model_name,
@@ -123,10 +131,16 @@ class ScenarioAdversaryWorker:
             return self._fallback_bundle(surface)
 
         llm_client: Any = client
-        if budget_state is not None:
+        configured_budget = (
+            self._budget_middleware.budget_state
+            if self._budget_middleware is not None
+            else budget_state
+        )
+        if configured_budget is not None:
             llm_client = LLMBudgetEnforcer(
                 client=client,
-                budget_state=budget_state,
+                budget_state=configured_budget,
+                budget_middleware=self._budget_middleware,
                 budget_keys=list(self._config.budget_keys),
                 model_name=self._config.model_name,
                 run_id=run_id,
@@ -152,6 +166,9 @@ class ScenarioAdversaryWorker:
                 max_tokens=self._config.max_tokens,
                 temperature=0.1,
                 _run_id=run_id,
+                **(
+                    {"_evaluation_id": evaluation_id} if self._budget_middleware is not None else {}
+                ),
             )
             payload = _parse_json_object(getattr(response, "content", response))
             proposals = [
@@ -173,12 +190,15 @@ class ScenarioAdversaryWorker:
         *,
         run_id: str = "policy_adversary",
         budget_state: BudgetState | None = None,
+        evaluation_id: str | None = None,
     ) -> AdversarialScenarioBundle:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
             return asyncio.run(
-                self.propose_async(surface, run_id=run_id, budget_state=budget_state)
+                self.propose_async(
+                    surface, run_id=run_id, budget_state=budget_state, evaluation_id=evaluation_id
+                )
             )
         return self._fallback_bundle(surface)
 
@@ -219,8 +239,11 @@ class ScenarioAdversaryWorker:
         run_id: str = "policy_adversary",
         budget_state: BudgetState | None = None,
         decision_packet_ref: str | None = None,
+        evaluation_id: str | None = None,
     ) -> AdversaryExecutionResult:
-        bundle = self.propose(surface, run_id=run_id, budget_state=budget_state)
+        bundle = self.propose(
+            surface, run_id=run_id, budget_state=budget_state, evaluation_id=evaluation_id
+        )
         plan = self.compile_plan(surface, bundle)
         stress_report = run_stress_test(
             adversarial_plan=plan,

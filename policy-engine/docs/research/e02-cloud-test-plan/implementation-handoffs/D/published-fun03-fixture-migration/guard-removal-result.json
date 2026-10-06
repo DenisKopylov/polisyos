@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D2-receipts/funnel/fun03-fixture-migration/fun03_guard_removal.py"
+  ],
+  "exit": 1,
+  "wall_seconds": 16.15457320299174,
+  "peak_rss_kib": 1185140,
+  "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+  "output_sha256": "d34e3ddd3f44661ca8cdef7ddd45f98af2ca944c251b2f6a50b991b891a7563f"
+}

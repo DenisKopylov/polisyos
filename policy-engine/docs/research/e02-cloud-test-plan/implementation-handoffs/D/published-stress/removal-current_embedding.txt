@@ -1,0 +1,112 @@
+F.FFF.                                                                   [100%]
+=================================== FAILURES ===================================
+_ test_current_measurement_is_required_despite_two_equal_old_vectors[failure] __
+
+changed = 'failure'
+
+    @pytest.mark.parametrize("changed", ["failure", "dimension", "model", "version", "missing"])
+    def test_current_measurement_is_required_despite_two_equal_old_vectors(changed: str) -> None:
+        last = RuntimeError("current measurement unavailable") if changed == "failure" else [1.0, 0.0]
+        if changed == "dimension":
+            last = [1.0, 0.0, 0.0]
+        embedder = MeasurementStream(last)
+        detector = ConvergenceDetector(
+            ConvergenceConfig(strategy=ConvergenceStrategy.EMBEDDING_COSINE, min_iterations=3),
+            embedder=embedder,
+        )
+        for value in [10.0, 20.0]:
+            assert not detector.check_with_text(value, "same").converged
+        if changed == "model":
+            embedder.model_id = "different-model"
+        if changed == "version":
+            embedder.model_version = "2.0"
+        result = detector.check_with_text(30.0, None if changed == "missing" else "same")
+>       assert not result.converged
+E       AssertionError: assert not True
+E        +  where True = ConvergenceState(iteration=3, history=[10.0, 20.0, 30.0], converged=True, reason='converged_embedding_cosine').converged
+
+tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py:47: AssertionError
+__ test_current_measurement_is_required_despite_two_equal_old_vectors[model] ___
+
+changed = 'model'
+
+    @pytest.mark.parametrize("changed", ["failure", "dimension", "model", "version", "missing"])
+    def test_current_measurement_is_required_despite_two_equal_old_vectors(changed: str) -> None:
+        last = RuntimeError("current measurement unavailable") if changed == "failure" else [1.0, 0.0]
+        if changed == "dimension":
+            last = [1.0, 0.0, 0.0]
+        embedder = MeasurementStream(last)
+        detector = ConvergenceDetector(
+            ConvergenceConfig(strategy=ConvergenceStrategy.EMBEDDING_COSINE, min_iterations=3),
+            embedder=embedder,
+        )
+        for value in [10.0, 20.0]:
+            assert not detector.check_with_text(value, "same").converged
+        if changed == "model":
+            embedder.model_id = "different-model"
+        if changed == "version":
+            embedder.model_version = "2.0"
+        result = detector.check_with_text(30.0, None if changed == "missing" else "same")
+>       assert not result.converged
+E       AssertionError: assert not True
+E        +  where True = ConvergenceState(iteration=3, history=[10.0, 20.0, 30.0], converged=True, reason='converged_embedding_cosine').converged
+
+tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py:47: AssertionError
+_ test_current_measurement_is_required_despite_two_equal_old_vectors[version] __
+
+changed = 'version'
+
+    @pytest.mark.parametrize("changed", ["failure", "dimension", "model", "version", "missing"])
+    def test_current_measurement_is_required_despite_two_equal_old_vectors(changed: str) -> None:
+        last = RuntimeError("current measurement unavailable") if changed == "failure" else [1.0, 0.0]
+        if changed == "dimension":
+            last = [1.0, 0.0, 0.0]
+        embedder = MeasurementStream(last)
+        detector = ConvergenceDetector(
+            ConvergenceConfig(strategy=ConvergenceStrategy.EMBEDDING_COSINE, min_iterations=3),
+            embedder=embedder,
+        )
+        for value in [10.0, 20.0]:
+            assert not detector.check_with_text(value, "same").converged
+        if changed == "model":
+            embedder.model_id = "different-model"
+        if changed == "version":
+            embedder.model_version = "2.0"
+        result = detector.check_with_text(30.0, None if changed == "missing" else "same")
+>       assert not result.converged
+E       AssertionError: assert not True
+E        +  where True = ConvergenceState(iteration=3, history=[10.0, 20.0, 30.0], converged=True, reason='converged_embedding_cosine').converged
+
+tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py:47: AssertionError
+_ test_current_measurement_is_required_despite_two_equal_old_vectors[missing] __
+
+changed = 'missing'
+
+    @pytest.mark.parametrize("changed", ["failure", "dimension", "model", "version", "missing"])
+    def test_current_measurement_is_required_despite_two_equal_old_vectors(changed: str) -> None:
+        last = RuntimeError("current measurement unavailable") if changed == "failure" else [1.0, 0.0]
+        if changed == "dimension":
+            last = [1.0, 0.0, 0.0]
+        embedder = MeasurementStream(last)
+        detector = ConvergenceDetector(
+            ConvergenceConfig(strategy=ConvergenceStrategy.EMBEDDING_COSINE, min_iterations=3),
+            embedder=embedder,
+        )
+        for value in [10.0, 20.0]:
+            assert not detector.check_with_text(value, "same").converged
+        if changed == "model":
+            embedder.model_id = "different-model"
+        if changed == "version":
+            embedder.model_version = "2.0"
+        result = detector.check_with_text(30.0, None if changed == "missing" else "same")
+>       assert not result.converged
+E       AssertionError: assert not True
+E        +  where True = ConvergenceState(iteration=3, history=[10.0, 20.0, 30.0], converged=True, reason='converged_embedding_cosine').converged
+
+tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py:47: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[failure]
+FAILED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[model]
+FAILED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[version]
+FAILED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[missing]
+4 failed, 2 passed in 0.08s

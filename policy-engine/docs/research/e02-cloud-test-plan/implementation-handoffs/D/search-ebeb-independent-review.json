@@ -1,0 +1,228 @@
+{
+  "schema_version": "e02.D.independent-search-correction-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "104f7123d351d73f14014f59fb26a55f63f6317b",
+  "proof_tree": "d9d9f4676dab96532fd1e56334fa5a59547dc412",
+  "production_writes": false,
+  "source_target": {
+    "commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+    "tree": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc",
+    "snapshot_root": "/dev/shm/e02-oracle-search-ebeb/archive",
+    "selected_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-input-manifest.json",
+      "sha256": "a39e7484afe5672b82f94437f065acad85f5b238f50269cf389e3624eab8e9b5",
+      "bytes": 1741926
+    },
+    "tracked_input_count": 7632,
+    "unique_overlays": [
+      {
+        "commit": "ed84bcda1aecaa9a73f5f95fbaa95bbcd9de03a8",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+        "sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265"
+      },
+      {
+        "commit": "eb401c24e6cd65bf6c57ae8ea223a83a7ad23f48",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+        "sha256": "bdfe1321d6b167f570792974a0d0a9f79800784c75de4825eb184275f7c72731"
+      }
+    ],
+    "omitted_scope": "Docs/apps/data/examples/vendor/release omitted; no claim for tests requiring these inputs"
+  },
+  "environment": {
+    "source_commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+    "source_tree": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "modules": [
+      {
+        "name": "polisyos.scientist.methods.search.strategies.bayesian",
+        "origin": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.types",
+        "origin": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+        "sha256": "a639dffa9612eea5f26aee6a4f17434e2d319c5a51672bf7a4704998da367d26"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.space",
+        "origin": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "sha256": "9dbafe98111b04b926b4473beb76eda8b6241f8ce84f5beee09a814ad96e0a0e"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.multi_objective",
+        "origin": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+        "sha256": "2bea94e7ac03fde9faf2710540d322d6e47f5bd4ca57d7a35f79e78fb35c6f58"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.neural",
+        "origin": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "sha256": "967537bae0621de234920c9eee941fb7bf1364cf6272443337f55290f374bec6"
+      },
+      {
+        "name": "polisyos.scientist.methods.autotune.bayesian_generator",
+        "origin": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "sha256": "a2a8df9800a7bd173c5930deeaa22fc0b5a453bf2d842fef162d36886218f48f"
+      }
+    ]
+  },
+  "source_cells": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-source-cells.txt",
+    "sha256": "c3528ae0a7a901175d488268ecb348431b170974203f79ef41d4cac7f61cdfb1",
+    "bytes": 2114
+  },
+  "source_review": {
+    "full_production_diff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-production-review.diff",
+      "sha256": "c4522b0b37d122cc71cce9502708de6302cae85687cb2756bf254d01e89ed891",
+      "bytes": 118438
+    },
+    "compared_from": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "changed_production_paths": 12,
+    "scope": "Full 12-path production delta independently read; corrective 12ee3c730f6ac9b6cff292e70eef4437f8c37b22 to ebeb7040 changes only multi_objective.py. GP state, warm admission and before-use CAS port; transforms/raw/full-refit tensors and counter reconciliation; local consumed restart RNG; canonical spaces, base/RL state codecs; MO/NN actual executed-coordinate consumers; Pareto typed indicator and registry profiles reviewed.",
+    "correction": "All declared objective coordinates must exist exactly once, be finite real int/float excluding bool, and match declared direction. Shared admission applies to frontier, hypervolume, subset/training and cold start. It preserves original input index, candidate identity and rejection reason with input/assessed counts. Real training X is canonical physical normalization; suggestions retain original coverage report across nested subset calls. ModelListGP and EHVI mechanism unchanged.",
+    "bounded_result": "No additional actionable defect in reviewed corrective class. This source review does not execute the RL, registry export or external consumer paths not selected below."
+  },
+  "tests": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "commit": "ed84bcda1aecaa9a73f5f95fbaa95bbcd9de03a8",
+      "git_blob": "f29e46b40a6e7c3cf93649bad72c450fdb1edb19",
+      "sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265",
+      "bytes": 31836
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+      "commit": "eb401c24e6cd65bf6c57ae8ea223a83a7ad23f48",
+      "git_blob": "6ad30d52d5a4d5e941a23820742111a4dd8714d1",
+      "sha256": "bdfe1321d6b167f570792974a0d0a9f79800784c75de4825eb184275f7c72731",
+      "bytes": 9708
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_opt_01_mo_vectors.py",
+      "commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "git_blob": "c3836884473984eb2514d20dc339926d7427deda",
+      "sha256": "7fb941f3f8e0540a8ad9df06432a47e82ebef17e7a10e949c32bb825144cbb3d",
+      "bytes": 4551
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_opt_02.py",
+      "commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "git_blob": "26eb78578500307394efc1dfae26d7c4259ee8f6",
+      "sha256": "6247736db8294af3c152baa0f7f6a21c4f0e05da65abbd66c0244fcb2afe733d",
+      "bytes": 2292
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_opt_02_strategy_consumers.py",
+      "commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "git_blob": "00a6533b6fa47ca155147a48f37433d35e1d7b1d",
+      "sha256": "0e27c22e3822fee058abc58b85ab24b120e5733a2c9da7df7154c79fec807a79",
+      "bytes": 3620
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py",
+      "commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "git_blob": "c8ae7ef9ca904957c4a90286bc638c6b1346a278",
+      "sha256": "81e27c1141ad873375f9d7a1d39c404f29f5977e099a8821475c5700b0d5fdef",
+      "bytes": 3351
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural.py",
+      "commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "git_blob": "eb3494f2a85b4d3277bcd40ec84191a9c30f35a7",
+      "sha256": "fb3c1778173fe5d1d452424635f4cd727f179cc90ce62f5991fe64db7ae78fee",
+      "bytes": 4231
+    }
+  ],
+  "deciding_cell": {
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py tests/unit/remediation/test_opt_01_mo_vectors.py tests/unit/remediation/test_opt_02.py tests/unit/remediation/test_opt_02_strategy_consumers.py tests/unit/scientist/search/strategies/test_multi_objective.py tests/unit/scientist/search/strategies/test_neural.py -o addopts='' -q -s -rA",
+    "cwd": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.txt",
+      "sha256": "c7f15c690d9071b41ef169f3f8ff44401a210219608884b787212c5431cb734c",
+      "bytes": 15619
+    },
+    "exit_code": 0,
+    "result": "PASS",
+    "summary": "66 passed, 8 warnings in 6.05s",
+    "denominator": {
+      "unchanged_independent_GP": 23,
+      "unchanged_independent_coordinates_and_vectors": 7,
+      "source_owner_declared_vector_controls": 14,
+      "affected_native_coordinates_MO_neural": 22
+    }
+  },
+  "analytic_oracle": {
+    "design": "Ten unique independently declared points and eleven-point actual conditioning; positive analytic cost 50+9*sin(5*x)+6*x, minimize. Expected mean and dense full covariance use explicit NumPy RBF matrices C=K+noise*I, Cholesky solves and persisted Normalize/Standardize scalars in original cost units; no backend posterior/kernel/transform used as expected calculation.",
+    "tolerance": "rtol=2e-7, atol=2e-8",
+    "measured_MLL": "Initial real MLL1; same-basis restored no-op and actual append0; explicit due cadence and changed existing outcome real refit>0.",
+    "negative_controls": "Unchanged markers with fitted parameter/input/output transform/warm scalar/warm coordinates/local RNG/checkpoint type mutation produce immediate relevant change or atomic refusal; actual consumed restart tensors discriminate uninterrupted versus restored replay and local RNG alteration; ambient global Torch RNG remains preserved.",
+    "output": "Full initial and conditioned original-unit mean/covariance matrices and learned scalar buffers are in deciding output."
+  },
+  "coordinate_oracle": {
+    "supported_domain": "Explicit unsupported nonfinite affine span refuses at admission. Original4c affine midpoint red is preserved separately; no rewritten midpoint acceptance. Supported log endpoints exact and midpoint geometric1; fractional integer singleton1 and bool categorical one-hot independently enumerated.",
+    "real_MO": "Actual ModelListGP with two SingleTaskGPs, SumMarginalLogLikelihood fit1 and EHVI optimizer1; independently enumerated normalized X and [-cost,+benefit] Y. Canonical executed action and explicit scalar predictor unavailability asserted.",
+    "real_neural": "Actual SingleTaskGP MLL1 and EI/optimizer delegate, then deliberate unattainable latent vector plus false acquisition proxy at final mapper; real posterior/EI observed consuming canonical executed action and recomputed finite values.",
+    "numerical_boundary": "MO/NN posterior numerical equality is not claimed by these geometric observers; full mathematical mean/covariance belongs to scalar GP oracle."
+  },
+  "red_to_green": {
+    "baseline_source": "cb47af447e3d9dd73bdf95bb7a211f2110995248",
+    "baseline_proof": "eb401c24e6cd65bf6c57ae8ea223a83a7ad23f48",
+    "baseline_review": "ec004a517985f7272907d711295103b76d208ece",
+    "baseline_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-independent-coordinate-consumers.txt",
+      "sha256": "5937fd9325c0365cccdaea5508248c41bd21a2f05a745b3b71c9bf800603f6d4",
+      "bytes": 4591
+    },
+    "baseline_result": "1 failed,6 passed,3 warnings in10.29s",
+    "specific_case": "test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[missing]",
+    "baseline_observation": "Missing declared cost was imputed0 and invalid row displaced complete row on Pareto front.",
+    "candidate_observation": "Same unchanged test passes; source shared admission excludes missing declared coordinate with visible reason and original denominator. NaN companion and actual models also pass.",
+    "classification": "P40 existing OPT01 complete objective coordinate invariant; no new-delta or inherited denominator claim",
+    "owner": "search_owner",
+    "status": "PASS for this bounded property at exact ebeb source"
+  },
+  "nondeciding_attempts": [
+    {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-coordinate-initial-fixtures.txt",
+        "sha256": "9a3e711c9f5373027bd6da0ec96cddc4541144cb115e4b19bbab0caaf6403e48",
+        "bytes": 13099
+      },
+      "summary": "3 failed4 passed10.29s",
+      "reason": "Two own harness errors: categorical fixture2D instead of canonical3D one-hot, and posterior observer missing keywordX. Corrected independently using canonical representation/API; these two failures establish no source defect."
+    },
+    {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-coordinate-before-format.txt",
+        "sha256": "1e8db26192042a43f905fece889276954c5fa8e6684715f0accaf214e97a8eb5",
+        "bytes": 4521
+      },
+      "summary": "1 failed6 passed10.97s",
+      "reason": "Before final formatting/observer convention; final deciding baseline uses exact committed unchanged test."
+    },
+    {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-87f22-initial-collection.txt",
+        "sha256": "3f58efa8718dc47284f89a3e54ae40d8e81bda756443becbb94ba9836fd0b8f7",
+        "bytes": 140
+      },
+      "reason": "Prior snapshot parent directory for unique overlay missing; preparation error, not backend or production defect. Corrected directory creation only and reran all23."
+    }
+  ],
+  "test_temporary_state": {
+    "this_cell": "Started before fresh-basetemp instruction and used default pytest basetemp. Framework default retention may remove prior captured fixtures even without explicit deletion; no global preservation claim. Logs/manifests remain Git-tracked.",
+    "next_cells": "Use fresh NONEXISTING --basetemp=/dev/shm/unique...; never existing basetemp because pytest deletes it.",
+    "manual_cleanup": "No permanent deletion performed by this reviewer; native Trash unavailable."
+  },
+  "closure_ids": [],
+  "verdict": "PASS for immutable scalar GP analytic continuation and the selected executed-coordinate/complete-vector mechanisms. Transfer composed checkpoint, external resource billing authority, promotion permission, statistical history equivalence and whole five-queue aggregate remain separate pending/UNRUN.",
+  "cleanup_candidates": [
+    "/dev/shm/e02-oracle-search-ebeb/archive",
+    "/dev/shm/e02-oracle-search-cb47/archive",
+    "Remaining pytest default temporary state only; previously retained default state may already have been framework-pruned."
+  ]
+}

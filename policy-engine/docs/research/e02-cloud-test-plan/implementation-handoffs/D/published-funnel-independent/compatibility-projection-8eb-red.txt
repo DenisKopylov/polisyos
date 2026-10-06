@@ -1,0 +1,53 @@
+{"calls": ["adversary"], "compatibility_cost_source": "estimated", "compatibility_event_ids": [], "compatibility_provider_spend": "None", "ledger_spent": "1.0", "outcome_cost_source": "provider_reported_only", "outcome_provider_spend": "1.0"}
+F
+=================================== FAILURES ===================================
+__________ test_native_paid_public_evaluate_preserves_measured_fields __________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-242/test_native_paid_public_evalua0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff97cc55810>
+
+    def test_native_paid_public_evaluate_preserves_measured_fields(tmp_path, monkeypatch):
+        fixture = runpy.run_path(
+            str(Path("tests/integration/scientist/methods/search/funnel/test_orchestrator.py"))
+        )
+        path, _, funnel, calls, _, context = fixture["configured_workflow"](
+            tmp_path, monkeypatch, levels=(3,)
+        )
+        candidate = {"candidate_id": "candidate-1"}
+        result = funnel.evaluate(candidate, context)
+        outcome = funnel.get_outcome(funnel.submit(candidate, context))
+        snapshot = FileBudgetLedger(path).snapshot()
+        print(
+            json.dumps(
+                {
+                    "calls": calls,
+                    "ledger_spent": str(snapshot.state.spent["run"]),
+                    "outcome_cost_source": outcome.compute_cost_source,
+                    "outcome_provider_spend": str(outcome.provider_spend_usd),
+                    "compatibility_cost_source": result.compute_cost_source,
+                    "compatibility_provider_spend": str(result.provider_spend_usd),
+                    "compatibility_event_ids": result.resource_event_ids,
+                },
+                sort_keys=True,
+            )
+        )
+        assert calls == ["adversary"]
+        assert snapshot.state.spent["run"] == Decimal("1")
+        assert outcome.provider_spend_usd == Decimal("1")
+>       assert result.compute_cost_source == "provider_reported_only"
+E       AssertionError: assert 'estimated' == 'provider_reported_only'
+E         
+E         - provider_reported_only
+E         + estimated
+
+tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py:41: AssertionError
+=============================== warnings summary ===============================
+tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py::test_native_paid_public_evaluate_preserves_measured_fields
+tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py::test_native_paid_public_evaluate_preserves_measured_fields
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py::test_native_paid_public_evaluate_preserves_measured_fields
+1 failed, 2 warnings in 12.50s

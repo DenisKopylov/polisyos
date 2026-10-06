@@ -1,0 +1,8 @@
+{
+  "production_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+  "test_commit": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+  "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+  "test_raw_sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+  "production_changes": [],
+  "fixture_correction": "Candidate manifest now carries required exact benchmark_suite input; producer marker copied in malformed raw artifact."
+}

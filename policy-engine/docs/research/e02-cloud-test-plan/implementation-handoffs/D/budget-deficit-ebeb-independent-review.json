@@ -1,0 +1,108 @@
+{
+  "schema_version": "e02.D.independent-B108-effective-presence-audit.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "9221a2591a44a978ba105da1fc85379690f24be8",
+  "proof_tree": "7974e04970f25e59fa74596e58c017677f3414e0",
+  "production_writes": false,
+  "source_commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+  "source_tree": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc",
+  "source_root": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine",
+  "source_inputs": [
+    {
+      "path": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "sha256": "1fe6bd289de0ba9582628442111f984bb7928184250d1de9464e94b3e57d8290",
+      "bytes": 9995
+    },
+    {
+      "path": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+      "bytes": 50528
+    },
+    {
+      "path": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+      "bytes": 11909
+    }
+  ],
+  "selected_snapshot_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-input-manifest.json",
+    "bytes": 1741926,
+    "sha256": "a39e7484afe5672b82f94437f065acad85f5b238f50269cf389e3624eab8e9b5"
+  },
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "CPython": "3.14.7",
+    "PYTHONPATH": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src:/dev/shm/e02-oracle-search-ebeb/archive/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "no_reviewer_thread_process_worker_cap": true,
+    "optional_GP": "Not required by direct objective and native controller witness"
+  },
+  "probe": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+    "bytes": 8551,
+    "sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5"
+  },
+  "deciding_cell": {
+    "command": "PYTHONPATH=/dev/shm/e02-oracle-search-ebeb/archive/policy-engine/src:/dev/shm/e02-oracle-search-ebeb/archive/policy-engine PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py --source-root /dev/shm/e02-oracle-search-ebeb/archive/policy-engine --source-sha ebeb7040dd66250752a1ccb10a28c939d201fb30",
+    "cwd": "/workspace/e02-D-published-oracle",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-independent-audit.txt",
+      "bytes": 9562,
+      "sha256": "7741d8956cffb1a5f0b87a165bbda77f339665e63809ebd015b6350b48a739d6"
+    },
+    "exit_code": 1,
+    "deciding_cases": 27,
+    "passed": 19,
+    "failed": 8,
+    "observations_only": 3,
+    "result": "FAIL"
+  },
+  "independent_expected": "Use documented existing balance precedence and sign law: finite balance maps max(-balance,0), absent/null balance permits documented deficit aliases with abs(deficit). Explicit numerical zero is present. Within alias groups malformed, conflicting, bool and unrepresentable numeric input must remain unusable, and missing measurements must not fabricate favorable zero. No alternate fiscal unit or currency/percent scale is selected.",
+  "controls": "18 component presence/null/zero/balance/deficit/sign/equal-or-conflicting-alias/malformed/NaN/Inf controls PASS plus native missing-challenger PASS. Explicit zero takes precedence over valid alternate as existing documented behavior.",
+  "findings": [
+    {
+      "classification": "P40 existing objective numeric-admission class",
+      "owner": "search_owner",
+      "property": "Boolean is not a fiscal measurement and must not receive favorable zero",
+      "direct_failures": 5,
+      "input": {
+        "gov_balance": false,
+        "budget_deficit": 99.0
+      },
+      "observed": "_read_metric_aliases uses float(False)=0; BudgetDeficitObjective returns raw-0.0/is_satisfiedTrue. True primary also favorable0; government_balanceFalse and budget_deficitFalse likewise0; deficitTrue1.",
+      "native_consumer": "Public SearchController.run invokes _NativeSearchServiceDriver then _evaluate_candidate\u2192CompositeObjective. A valid seed balance-10/deficit10 is replaced by malformed bool challenger cost0. Two actual Stage B calls recorded; no evaluator/model mock.",
+      "status": "FAIL"
+    },
+    {
+      "classification": "P40 existing malformed/nonrepresentable numeric-admission class",
+      "owner": "search_owner",
+      "property": "Failed float conversion must not escape as an untyped runtime error",
+      "input": "gov_balance=10**400 (finite Python integer, 401digits)",
+      "observed": "OverflowError int too large to convert to float escapes direct objective and actual native controller after seed/challenger Stage B calls. _read_metric_aliases catches TypeError/ValueError only.",
+      "direct_failures": 1,
+      "native_failures": 1,
+      "status": "FAIL"
+    }
+  ],
+  "raw_unit_and_authority_boundary": {
+    "representation": "ObjectiveValue has name/raw_value/direction/weight/is_satisfied/threshold; no typed fiscal unit field. Raw numeric magnitude remains unchanged except documented sign/clamp/absolute law.",
+    "served_caller": "Selected full src Python search finds concrete BudgetDeficitObjective construction only inside ObjectivePresets.balanced_growth/growth_focused. Actual legacy controller runtime is independently exercised via an explicitly configured local fixture; it is not evidence of a served source-owner fiscal input binding.",
+    "numeric_strings": "gov_balance=\"0\" and budget_deficit=\"12.5\" are float-coerced and reported OBSERVED_ONLY; no undocumented strict numeric-string codec chosen.",
+    "primary_and_alternative": "gov_balance-5 plus budget_deficit99 returns5 under existing primary precedence. Without typed units this audit does not invent a cross-family consistency conversion or claim comparable measurement identity.",
+    "unit": "not_established",
+    "authority": "consumer_missing"
+  },
+  "earlier_execution": {
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-initial-audit.txt",
+      "bytes": 9562,
+      "sha256": "d1e4203d8c6c4b33951e26499506fd2375b6d4a45a7e4e40a564df6ddbe95d10"
+    },
+    "result": "Same27-case19PASS8FAIL red; before source-root/SHA CLI and formatting only. Not a separate semantic source denominator."
+  },
+  "closure_ids": [],
+  "verdict": "FAIL for boolean and nonrepresentable numeric objective admission, with actual native ranking/exception witnesses. Existing documented alias/presence/sign mechanism PASS bounded; full B108 remains partial because typed fiscal unit and served input owner are absent.",
+  "next_step": "Owner correction only; rerun this unchanged probe on exact immutable corrective source. Do not choose new fiscal scale/unit to close absence.",
+  "cleanup_candidates": ["/dev/shm/e02-oracle-search-ebeb/archive"],
+  "manual_deletion": false
+}

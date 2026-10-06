@@ -486,13 +486,13 @@ class LLMBudgetEnforcer:
         committed = False
         try:
             response = await self._client.generate(**_stripped)
-            self._record_latency(time.perf_counter() - t0)
             self._post_record(
                 response,
                 reservation=reservation,
                 run_id=run_id,
             )
             committed = True
+            self._record_latency(time.perf_counter() - t0)
             return response
         finally:
             if not committed and reservation.has_outstanding():
@@ -512,13 +512,13 @@ class LLMBudgetEnforcer:
             response = self._client.invoke(
                 prompt, **{key: value for key, value in kwargs.items() if not key.startswith("_")}
             )
-            self._record_latency(time.perf_counter() - t0)
             self._post_record(
                 response,
                 reservation=reservation,
                 run_id=run_id,
             )
             committed = True
+            self._record_latency(time.perf_counter() - t0)
             return response
         finally:
             if not committed and reservation.has_outstanding():

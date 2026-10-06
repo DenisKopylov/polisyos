@@ -1,0 +1,53 @@
+{
+  "source_sha": "0f889f645b81e805fc7767f6c154d8bfedaef271",
+  "source_tree": "566223030efbece75bba0fb0c4fb70dc5bf599cf",
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-q",
+    "tests/unit/core/llm/test_response.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+    "tests/unit/scientist/methods/search/test_controller.py",
+    "-rA"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 12.68658169300761,
+  "origin_probe_exit": 0,
+  "tests": [
+    {
+      "path": "tests/unit/core/llm/test_response.py",
+      "sha256": "83855488302fde0a0db444491f5085daea4851eab65090b16855d520012a5801"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "sha256": "bace2c7ad3bdda33856bb07b2a456e8e882fba388e9d39f0fd12c406b86b4654"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "sha256": "42ac71db2df4c0b830e6d4753aa0b565f02e0dc50b55ff4a126758bd306e55cd"
+    },
+    {
+      "path": "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+      "sha256": "de957db08418413534ff31f6f98022801e35c394d4cdc08b855cf8ed48ae27c7"
+    },
+    {
+      "path": "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+      "sha256": "69bda1a6d8be607344ef1dc8eb9cc523a4e365810aa8f9dafcf9e4705597ad70"
+    },
+    {
+      "path": "tests/unit/scientist/methods/search/test_controller.py",
+      "sha256": "137479e8726630d8cd3377fbaa0ef0d13d39b242185d235ff725977bb757d90b"
+    }
+  ],
+  "source_unchanged": true,
+  "output_sha256": "52f85378d95619c49bfd1cae7a295a0e6b57bd689416ee82e83fc3a55adb768e",
+  "backend": "native FileBudgetLedger and LLMBudgetEnforcer; local provider reports, not billing-service authority"
+}

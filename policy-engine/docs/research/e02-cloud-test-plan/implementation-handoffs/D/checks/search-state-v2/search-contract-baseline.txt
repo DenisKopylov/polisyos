@@ -1,0 +1,380 @@
+FFFFFFFFFFFFF.FFFFFFF                                                    [100%]
+=================================== FAILURES ===================================
+______ test_schema_integers_refuse_boolean_and_float[codec_version-True] _______
+
+field = 'codec_version', bad = True
+
+    @pytest.mark.parametrize("bad", [True, 1.0])
+    @pytest.mark.parametrize("field", ["codec_version", "algorithm_version", "dimension"])
+    def test_schema_integers_refuse_boolean_and_float(field, bad):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]))
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        before = strategy.get_state().to_artifact()
+        state.rng_state["sobol"][field] = bad
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_02.py:20: Failed
+_______ test_schema_integers_refuse_boolean_and_float[codec_version-1.0] _______
+
+field = 'codec_version', bad = 1.0
+
+    @pytest.mark.parametrize("bad", [True, 1.0])
+    @pytest.mark.parametrize("field", ["codec_version", "algorithm_version", "dimension"])
+    def test_schema_integers_refuse_boolean_and_float(field, bad):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]))
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        before = strategy.get_state().to_artifact()
+        state.rng_state["sobol"][field] = bad
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_02.py:20: Failed
+____ test_schema_integers_refuse_boolean_and_float[algorithm_version-True] _____
+
+field = 'algorithm_version', bad = True
+
+    @pytest.mark.parametrize("bad", [True, 1.0])
+    @pytest.mark.parametrize("field", ["codec_version", "algorithm_version", "dimension"])
+    def test_schema_integers_refuse_boolean_and_float(field, bad):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]))
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        before = strategy.get_state().to_artifact()
+        state.rng_state["sobol"][field] = bad
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_02.py:20: Failed
+_____ test_schema_integers_refuse_boolean_and_float[algorithm_version-1.0] _____
+
+field = 'algorithm_version', bad = 1.0
+
+    @pytest.mark.parametrize("bad", [True, 1.0])
+    @pytest.mark.parametrize("field", ["codec_version", "algorithm_version", "dimension"])
+    def test_schema_integers_refuse_boolean_and_float(field, bad):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]))
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        before = strategy.get_state().to_artifact()
+        state.rng_state["sobol"][field] = bad
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_02.py:20: Failed
+________ test_schema_integers_refuse_boolean_and_float[dimension-True] _________
+
+field = 'dimension', bad = True
+
+    @pytest.mark.parametrize("bad", [True, 1.0])
+    @pytest.mark.parametrize("field", ["codec_version", "algorithm_version", "dimension"])
+    def test_schema_integers_refuse_boolean_and_float(field, bad):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]))
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        before = strategy.get_state().to_artifact()
+        state.rng_state["sobol"][field] = bad
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_02.py:20: Failed
+_________ test_schema_integers_refuse_boolean_and_float[dimension-1.0] _________
+
+field = 'dimension', bad = 1.0
+
+    @pytest.mark.parametrize("bad", [True, 1.0])
+    @pytest.mark.parametrize("field", ["codec_version", "algorithm_version", "dimension"])
+    def test_schema_integers_refuse_boolean_and_float(field, bad):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]))
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        before = strategy.get_state().to_artifact()
+        state.rng_state["sobol"][field] = bad
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_02.py:20: Failed
+_____________ test_malformed_artifact_has_controlled_refusal[None] _____________
+
+payload = None
+
+    @pytest.mark.parametrize("payload", [None, [], 1, True, {}, {"strategy_name": "x"}])
+    def test_malformed_artifact_has_controlled_refusal(payload):
+        with pytest.raises(ValueError):
+>           StrategyState.from_artifact(json.dumps(payload).encode())
+
+tests/unit/remediation/test_ctl_02.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'polisyos.scientist.methods.search.strategies.types.StrategyState'>
+data = b'null'
+
+    @classmethod
+    def from_artifact(cls, data: bytes) -> StrategyState:
+        payload = json.loads(data.decode("utf-8"))
+>       model_state = payload.get("model_state")
+                      ^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'get'
+
+src/polisyos/scientist/methods/search/strategies/types.py:170: AttributeError
+___________ test_malformed_artifact_has_controlled_refusal[payload1] ___________
+
+payload = []
+
+    @pytest.mark.parametrize("payload", [None, [], 1, True, {}, {"strategy_name": "x"}])
+    def test_malformed_artifact_has_controlled_refusal(payload):
+        with pytest.raises(ValueError):
+>           StrategyState.from_artifact(json.dumps(payload).encode())
+
+tests/unit/remediation/test_ctl_02.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'polisyos.scientist.methods.search.strategies.types.StrategyState'>
+data = b'[]'
+
+    @classmethod
+    def from_artifact(cls, data: bytes) -> StrategyState:
+        payload = json.loads(data.decode("utf-8"))
+>       model_state = payload.get("model_state")
+                      ^^^^^^^^^^^
+E       AttributeError: 'list' object has no attribute 'get'
+
+src/polisyos/scientist/methods/search/strategies/types.py:170: AttributeError
+______________ test_malformed_artifact_has_controlled_refusal[1] _______________
+
+payload = 1
+
+    @pytest.mark.parametrize("payload", [None, [], 1, True, {}, {"strategy_name": "x"}])
+    def test_malformed_artifact_has_controlled_refusal(payload):
+        with pytest.raises(ValueError):
+>           StrategyState.from_artifact(json.dumps(payload).encode())
+
+tests/unit/remediation/test_ctl_02.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'polisyos.scientist.methods.search.strategies.types.StrategyState'>
+data = b'1'
+
+    @classmethod
+    def from_artifact(cls, data: bytes) -> StrategyState:
+        payload = json.loads(data.decode("utf-8"))
+>       model_state = payload.get("model_state")
+                      ^^^^^^^^^^^
+E       AttributeError: 'int' object has no attribute 'get'
+
+src/polisyos/scientist/methods/search/strategies/types.py:170: AttributeError
+_____________ test_malformed_artifact_has_controlled_refusal[True] _____________
+
+payload = True
+
+    @pytest.mark.parametrize("payload", [None, [], 1, True, {}, {"strategy_name": "x"}])
+    def test_malformed_artifact_has_controlled_refusal(payload):
+        with pytest.raises(ValueError):
+>           StrategyState.from_artifact(json.dumps(payload).encode())
+
+tests/unit/remediation/test_ctl_02.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'polisyos.scientist.methods.search.strategies.types.StrategyState'>
+data = b'true'
+
+    @classmethod
+    def from_artifact(cls, data: bytes) -> StrategyState:
+        payload = json.loads(data.decode("utf-8"))
+>       model_state = payload.get("model_state")
+                      ^^^^^^^^^^^
+E       AttributeError: 'bool' object has no attribute 'get'
+
+src/polisyos/scientist/methods/search/strategies/types.py:170: AttributeError
+___________ test_malformed_artifact_has_controlled_refusal[payload4] ___________
+
+payload = {}
+
+    @pytest.mark.parametrize("payload", [None, [], 1, True, {}, {"strategy_name": "x"}])
+    def test_malformed_artifact_has_controlled_refusal(payload):
+        with pytest.raises(ValueError):
+>           StrategyState.from_artifact(json.dumps(payload).encode())
+
+tests/unit/remediation/test_ctl_02.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'polisyos.scientist.methods.search.strategies.types.StrategyState'>
+data = b'{}'
+
+    @classmethod
+    def from_artifact(cls, data: bytes) -> StrategyState:
+        payload = json.loads(data.decode("utf-8"))
+        model_state = payload.get("model_state")
+        payload["model_state"] = bytes.fromhex(model_state) if model_state else None
+>       return cls(**payload)
+               ^^^^^^^^^^^^^^
+E       TypeError: StrategyState.__init__() missing 3 required positional arguments: 'strategy_name', 'iteration', and 'rng_state'
+
+src/polisyos/scientist/methods/search/strategies/types.py:172: TypeError
+___________ test_malformed_artifact_has_controlled_refusal[payload5] ___________
+
+payload = {'strategy_name': 'x'}
+
+    @pytest.mark.parametrize("payload", [None, [], 1, True, {}, {"strategy_name": "x"}])
+    def test_malformed_artifact_has_controlled_refusal(payload):
+        with pytest.raises(ValueError):
+>           StrategyState.from_artifact(json.dumps(payload).encode())
+
+tests/unit/remediation/test_ctl_02.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'polisyos.scientist.methods.search.strategies.types.StrategyState'>
+data = b'{"strategy_name": "x"}'
+
+    @classmethod
+    def from_artifact(cls, data: bytes) -> StrategyState:
+        payload = json.loads(data.decode("utf-8"))
+        model_state = payload.get("model_state")
+        payload["model_state"] = bytes.fromhex(model_state) if model_state else None
+>       return cls(**payload)
+               ^^^^^^^^^^^^^^
+E       TypeError: StrategyState.__init__() missing 2 required positional arguments: 'iteration' and 'rng_state'
+
+src/polisyos/scientist/methods/search/strategies/types.py:172: TypeError
+________________ test_nested_semantic_metadata_date_is_identity ________________
+
+    def test_nested_semantic_metadata_date_is_identity():
+        first = {"semantic": {"metadata": {"starts_at": "2026-01-01"}}}
+        second = {"semantic": {"metadata": {"starts_at": "2026-02-01"}}}
+>       assert policy_candidate_hash(first) != policy_candidate_hash(second)
+E       AssertionError: assert 'sha256:f77103a81545aa594aa9c6db9290c1f4a16928185b6ce251bbf1b3568095a720' != 'sha256:f77103a81545aa594aa9c6db9290c1f4a16928185b6ce251bbf1b3568095a720'
+E        +  where 'sha256:f77103a81545aa594aa9c6db9290c1f4a16928185b6ce251bbf1b3568095a720' = policy_candidate_hash({'semantic': {'metadata': {'starts_at': '2026-01-01'}}})
+E        +  and   'sha256:f77103a81545aa594aa9c6db9290c1f4a16928185b6ce251bbf1b3568095a720' = policy_candidate_hash({'semantic': {'metadata': {'starts_at': '2026-02-01'}}})
+
+tests/unit/remediation/test_ctl_02.py:34: AssertionError
+____ test_fractional_integer_bounds_contain_every_executed_action[0.2-1.8] _____
+
+lower = 0.2, upper = 1.8
+
+    @pytest.mark.parametrize("lower,upper", [(0.2, 1.8), (-1.8, -0.2), (0.2, 0.8)])
+    def test_fractional_integer_bounds_contain_every_executed_action(lower, upper):
+        if math.ceil(lower) > math.floor(upper):
+            with pytest.raises(ValueError):
+                SearchSpace([ParameterBounds("n", lower, upper, ParameterType.INTEGER)])
+            return
+        space = SearchSpace([ParameterBounds("n", lower, upper, ParameterType.INTEGER)])
+        strategy = RandomSearchStrategy(space)
+        for _ in range(12):
+            candidate = strategy.suggest([])
+            assert lower <= candidate.params["n"] <= upper
+>           assert candidate.params_normalized == space.normalize(candidate.params)
+E           assert (0.6394267984578837,) == (0.5,)
+E             
+E             At index 0 diff: 0.6394267984578837 != 0.5
+E             Use -v to get more diff
+
+tests/unit/remediation/test_opt_02.py:23: AssertionError
+___ test_fractional_integer_bounds_contain_every_executed_action[-1.8--0.2] ____
+
+lower = -1.8, upper = -0.2
+
+    @pytest.mark.parametrize("lower,upper", [(0.2, 1.8), (-1.8, -0.2), (0.2, 0.8)])
+    def test_fractional_integer_bounds_contain_every_executed_action(lower, upper):
+        if math.ceil(lower) > math.floor(upper):
+            with pytest.raises(ValueError):
+                SearchSpace([ParameterBounds("n", lower, upper, ParameterType.INTEGER)])
+            return
+        space = SearchSpace([ParameterBounds("n", lower, upper, ParameterType.INTEGER)])
+        strategy = RandomSearchStrategy(space)
+        for _ in range(12):
+            candidate = strategy.suggest([])
+            assert lower <= candidate.params["n"] <= upper
+>           assert candidate.params_normalized == space.normalize(candidate.params)
+E           assert (0.6394267984578837,) == (0.5,)
+E             
+E             At index 0 diff: 0.6394267984578837 != 0.5
+E             Use -v to get more diff
+
+tests/unit/remediation/test_opt_02.py:23: AssertionError
+____ test_fractional_integer_bounds_contain_every_executed_action[0.2-0.8] _____
+
+lower = 0.2, upper = 0.8
+
+    @pytest.mark.parametrize("lower,upper", [(0.2, 1.8), (-1.8, -0.2), (0.2, 0.8)])
+    def test_fractional_integer_bounds_contain_every_executed_action(lower, upper):
+        if math.ceil(lower) > math.floor(upper):
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_02.py:15: Failed
+_________ test_categorical_boolean_and_integer_have_distinct_encoding __________
+
+    def test_categorical_boolean_and_integer_have_distinct_encoding():
+        space = SearchSpace([ParameterBounds("c", dtype=ParameterType.CATEGORICAL, categories=(True, 1))])
+>       assert space.normalize({"c": True}) == (1.0, 0.0)
+E       assert (1.0, 1.0) == (1.0, 0.0)
+E         
+E         At index 1 diff: 1.0 != 0.0
+E         Use -v to get more diff
+
+tests/unit/remediation/test_opt_02.py:28: AssertionError
+_______________ test_invalid_normalized_coordinate_refuses[nan] ________________
+
+bad = nan
+
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), True])
+    def test_invalid_normalized_coordinate_refuses(bad):
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_02.py:34: Failed
+_______________ test_invalid_normalized_coordinate_refuses[inf] ________________
+
+bad = inf
+
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), True])
+    def test_invalid_normalized_coordinate_refuses(bad):
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_02.py:34: Failed
+_______________ test_invalid_normalized_coordinate_refuses[True] _______________
+
+bad = True
+
+    @pytest.mark.parametrize("bad", [float("nan"), float("inf"), True])
+    def test_invalid_normalized_coordinate_refuses(bad):
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_02.py:34: Failed
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_ctl_02.py::test_schema_integers_refuse_boolean_and_float[codec_version-True]
+FAILED tests/unit/remediation/test_ctl_02.py::test_schema_integers_refuse_boolean_and_float[codec_version-1.0]
+FAILED tests/unit/remediation/test_ctl_02.py::test_schema_integers_refuse_boolean_and_float[algorithm_version-True]
+FAILED tests/unit/remediation/test_ctl_02.py::test_schema_integers_refuse_boolean_and_float[algorithm_version-1.0]
+FAILED tests/unit/remediation/test_ctl_02.py::test_schema_integers_refuse_boolean_and_float[dimension-True]
+FAILED tests/unit/remediation/test_ctl_02.py::test_schema_integers_refuse_boolean_and_float[dimension-1.0]
+FAILED tests/unit/remediation/test_ctl_02.py::test_malformed_artifact_has_controlled_refusal[None]
+FAILED tests/unit/remediation/test_ctl_02.py::test_malformed_artifact_has_controlled_refusal[payload1]
+FAILED tests/unit/remediation/test_ctl_02.py::test_malformed_artifact_has_controlled_refusal[1]
+FAILED tests/unit/remediation/test_ctl_02.py::test_malformed_artifact_has_controlled_refusal[True]
+FAILED tests/unit/remediation/test_ctl_02.py::test_malformed_artifact_has_controlled_refusal[payload4]
+FAILED tests/unit/remediation/test_ctl_02.py::test_malformed_artifact_has_controlled_refusal[payload5]
+FAILED tests/unit/remediation/test_ctl_02.py::test_nested_semantic_metadata_date_is_identity
+FAILED tests/unit/remediation/test_opt_02.py::test_fractional_integer_bounds_contain_every_executed_action[0.2-1.8]
+FAILED tests/unit/remediation/test_opt_02.py::test_fractional_integer_bounds_contain_every_executed_action[-1.8--0.2]
+FAILED tests/unit/remediation/test_opt_02.py::test_fractional_integer_bounds_contain_every_executed_action[0.2-0.8]
+FAILED tests/unit/remediation/test_opt_02.py::test_categorical_boolean_and_integer_have_distinct_encoding
+FAILED tests/unit/remediation/test_opt_02.py::test_invalid_normalized_coordinate_refuses[nan]
+FAILED tests/unit/remediation/test_opt_02.py::test_invalid_normalized_coordinate_refuses[inf]
+FAILED tests/unit/remediation/test_opt_02.py::test_invalid_normalized_coordinate_refuses[True]
+20 failed, 1 passed, 2 warnings in 7.03s

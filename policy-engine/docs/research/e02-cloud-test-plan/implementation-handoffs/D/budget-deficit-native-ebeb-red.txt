@@ -1,0 +1,969 @@
+{"source_sha": "ebeb7040dd66250752a1ccb10a28c939d201fb30", "source_tree": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc", "test_path": "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py", "test_sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641", "command": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py", "--basetemp=/dev/shm/e02-oracle-b108-native-red-508f33444f8e4f6597f2b3ca07bb8dc8", "-o", "addopts=", "-q", "-s", "-rA"], "cwd": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine", "basetemp": "/dev/shm/e02-oracle-b108-native-red-508f33444f8e4f6597f2b3ca07bb8dc8", "nonexisting_before_pytest": true, "PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1", "no_reviewer_CPU_process_worker_caps": true}
+..................FFFFFFF.FFFF
+=================================== FAILURES ===================================
+_ test_raw_deficit_presence_sign_and_unavailable_values[bool-false-primary-no-favorable-zero] _
+
+metrics = {'budget_deficit': 99.0, 'gov_balance': False}, expected = None
+
+    @pytest.mark.parametrize(
+        ("metrics", "expected"),
+        [
+            pytest.param({}, None, id="absent-all"),
+            pytest.param(
+                {
+                    "gov_balance": None,
+                    "government_balance": None,
+                    "budget_deficit": None,
+                    "deficit": None,
+                },
+                None,
+                id="null-all",
+            ),
+            pytest.param({"budget_deficit": 17.25}, 17.25, id="absent-primary-valid-deficit"),
+            pytest.param(
+                {"gov_balance": None, "budget_deficit": 17.25},
+                17.25,
+                id="null-primary-valid-deficit",
+            ),
+            pytest.param(
+                {"gov_balance": None, "government_balance": -12.5},
+                12.5,
+                id="null-primary-valid-balance-alias",
+            ),
+            pytest.param({"gov_balance": 0.0, "budget_deficit": 99.0}, 0.0, id="zero-primary-wins"),
+            pytest.param(
+                {"government_balance": 0.0, "deficit": 99.0},
+                0.0,
+                id="zero-balance-alias-wins",
+            ),
+            pytest.param({"gov_balance": -12.5}, 12.5, id="negative-balance-deficit"),
+            pytest.param({"gov_balance": 12.5}, 0.0, id="positive-balance-surplus"),
+            pytest.param({"deficit": -12.5}, 12.5, id="negative-deficit-absolute"),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": -12.5},
+                12.5,
+                id="equal-balance-aliases",
+            ),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": 12.5},
+                None,
+                id="conflicting-balance-aliases",
+            ),
+            pytest.param({"budget_deficit": 12.5, "deficit": 12.5}, 12.5, id="equal-deficit-aliases"),
+            pytest.param(
+                {"budget_deficit": 12.5, "deficit": 15.0}, None, id="conflicting-deficit-aliases"
+            ),
+            pytest.param(
+                {"gov_balance": "bad", "budget_deficit": 99.0},
+                None,
+                id="present-malformed-primary-no-fallback",
+            ),
+            pytest.param(
+                {"budget_deficit": "bad", "deficit": 99.0},
+                None,
+                id="present-malformed-deficit-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.nan, "budget_deficit": 99.0},
+                None,
+                id="present-nan-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.inf, "budget_deficit": 99.0},
+                None,
+                id="present-inf-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": False, "budget_deficit": 99.0},
+                None,
+                id="bool-false-primary-no-favorable-zero",
+            ),
+            pytest.param({"gov_balance": True}, None, id="bool-true-primary-no-favorable-zero"),
+            pytest.param({"government_balance": False}, None, id="bool-false-alias-no-favorable-zero"),
+            pytest.param({"budget_deficit": False}, None, id="bool-false-deficit-no-favorable-zero"),
+            pytest.param({"deficit": True}, None, id="bool-true-deficit-not-measurement"),
+            pytest.param(
+                {"gov_balance": 10**400, "deficit": 99.0},
+                None,
+                id="overflow-integer-primary-unavailable",
+            ),
+        ],
+    )
+    def test_raw_deficit_presence_sign_and_unavailable_values(metrics, expected):
+        value = BudgetDeficitObjective().evaluate(metrics)
+        assert value.direction is OptimizationDirection.MINIMIZE
+        if expected is None:
+>           assert math.isnan(value.raw_value)
+E           AssertionError: assert False
+E            +  where False = <built-in function isnan>(-0.0)
+E            +    where <built-in function isnan> = math.isnan
+E            +    and   -0.0 = ObjectiveValue(name='budget_deficit', raw_value=-0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:116: AssertionError
+_ test_raw_deficit_presence_sign_and_unavailable_values[bool-true-primary-no-favorable-zero] _
+
+metrics = {'gov_balance': True}, expected = None
+
+    @pytest.mark.parametrize(
+        ("metrics", "expected"),
+        [
+            pytest.param({}, None, id="absent-all"),
+            pytest.param(
+                {
+                    "gov_balance": None,
+                    "government_balance": None,
+                    "budget_deficit": None,
+                    "deficit": None,
+                },
+                None,
+                id="null-all",
+            ),
+            pytest.param({"budget_deficit": 17.25}, 17.25, id="absent-primary-valid-deficit"),
+            pytest.param(
+                {"gov_balance": None, "budget_deficit": 17.25},
+                17.25,
+                id="null-primary-valid-deficit",
+            ),
+            pytest.param(
+                {"gov_balance": None, "government_balance": -12.5},
+                12.5,
+                id="null-primary-valid-balance-alias",
+            ),
+            pytest.param({"gov_balance": 0.0, "budget_deficit": 99.0}, 0.0, id="zero-primary-wins"),
+            pytest.param(
+                {"government_balance": 0.0, "deficit": 99.0},
+                0.0,
+                id="zero-balance-alias-wins",
+            ),
+            pytest.param({"gov_balance": -12.5}, 12.5, id="negative-balance-deficit"),
+            pytest.param({"gov_balance": 12.5}, 0.0, id="positive-balance-surplus"),
+            pytest.param({"deficit": -12.5}, 12.5, id="negative-deficit-absolute"),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": -12.5},
+                12.5,
+                id="equal-balance-aliases",
+            ),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": 12.5},
+                None,
+                id="conflicting-balance-aliases",
+            ),
+            pytest.param({"budget_deficit": 12.5, "deficit": 12.5}, 12.5, id="equal-deficit-aliases"),
+            pytest.param(
+                {"budget_deficit": 12.5, "deficit": 15.0}, None, id="conflicting-deficit-aliases"
+            ),
+            pytest.param(
+                {"gov_balance": "bad", "budget_deficit": 99.0},
+                None,
+                id="present-malformed-primary-no-fallback",
+            ),
+            pytest.param(
+                {"budget_deficit": "bad", "deficit": 99.0},
+                None,
+                id="present-malformed-deficit-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.nan, "budget_deficit": 99.0},
+                None,
+                id="present-nan-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.inf, "budget_deficit": 99.0},
+                None,
+                id="present-inf-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": False, "budget_deficit": 99.0},
+                None,
+                id="bool-false-primary-no-favorable-zero",
+            ),
+            pytest.param({"gov_balance": True}, None, id="bool-true-primary-no-favorable-zero"),
+            pytest.param({"government_balance": False}, None, id="bool-false-alias-no-favorable-zero"),
+            pytest.param({"budget_deficit": False}, None, id="bool-false-deficit-no-favorable-zero"),
+            pytest.param({"deficit": True}, None, id="bool-true-deficit-not-measurement"),
+            pytest.param(
+                {"gov_balance": 10**400, "deficit": 99.0},
+                None,
+                id="overflow-integer-primary-unavailable",
+            ),
+        ],
+    )
+    def test_raw_deficit_presence_sign_and_unavailable_values(metrics, expected):
+        value = BudgetDeficitObjective().evaluate(metrics)
+        assert value.direction is OptimizationDirection.MINIMIZE
+        if expected is None:
+>           assert math.isnan(value.raw_value)
+E           AssertionError: assert False
+E            +  where False = <built-in function isnan>(0.0)
+E            +    where <built-in function isnan> = math.isnan
+E            +    and   0.0 = ObjectiveValue(name='budget_deficit', raw_value=0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:116: AssertionError
+_ test_raw_deficit_presence_sign_and_unavailable_values[bool-false-alias-no-favorable-zero] _
+
+metrics = {'government_balance': False}, expected = None
+
+    @pytest.mark.parametrize(
+        ("metrics", "expected"),
+        [
+            pytest.param({}, None, id="absent-all"),
+            pytest.param(
+                {
+                    "gov_balance": None,
+                    "government_balance": None,
+                    "budget_deficit": None,
+                    "deficit": None,
+                },
+                None,
+                id="null-all",
+            ),
+            pytest.param({"budget_deficit": 17.25}, 17.25, id="absent-primary-valid-deficit"),
+            pytest.param(
+                {"gov_balance": None, "budget_deficit": 17.25},
+                17.25,
+                id="null-primary-valid-deficit",
+            ),
+            pytest.param(
+                {"gov_balance": None, "government_balance": -12.5},
+                12.5,
+                id="null-primary-valid-balance-alias",
+            ),
+            pytest.param({"gov_balance": 0.0, "budget_deficit": 99.0}, 0.0, id="zero-primary-wins"),
+            pytest.param(
+                {"government_balance": 0.0, "deficit": 99.0},
+                0.0,
+                id="zero-balance-alias-wins",
+            ),
+            pytest.param({"gov_balance": -12.5}, 12.5, id="negative-balance-deficit"),
+            pytest.param({"gov_balance": 12.5}, 0.0, id="positive-balance-surplus"),
+            pytest.param({"deficit": -12.5}, 12.5, id="negative-deficit-absolute"),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": -12.5},
+                12.5,
+                id="equal-balance-aliases",
+            ),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": 12.5},
+                None,
+                id="conflicting-balance-aliases",
+            ),
+            pytest.param({"budget_deficit": 12.5, "deficit": 12.5}, 12.5, id="equal-deficit-aliases"),
+            pytest.param(
+                {"budget_deficit": 12.5, "deficit": 15.0}, None, id="conflicting-deficit-aliases"
+            ),
+            pytest.param(
+                {"gov_balance": "bad", "budget_deficit": 99.0},
+                None,
+                id="present-malformed-primary-no-fallback",
+            ),
+            pytest.param(
+                {"budget_deficit": "bad", "deficit": 99.0},
+                None,
+                id="present-malformed-deficit-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.nan, "budget_deficit": 99.0},
+                None,
+                id="present-nan-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.inf, "budget_deficit": 99.0},
+                None,
+                id="present-inf-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": False, "budget_deficit": 99.0},
+                None,
+                id="bool-false-primary-no-favorable-zero",
+            ),
+            pytest.param({"gov_balance": True}, None, id="bool-true-primary-no-favorable-zero"),
+            pytest.param({"government_balance": False}, None, id="bool-false-alias-no-favorable-zero"),
+            pytest.param({"budget_deficit": False}, None, id="bool-false-deficit-no-favorable-zero"),
+            pytest.param({"deficit": True}, None, id="bool-true-deficit-not-measurement"),
+            pytest.param(
+                {"gov_balance": 10**400, "deficit": 99.0},
+                None,
+                id="overflow-integer-primary-unavailable",
+            ),
+        ],
+    )
+    def test_raw_deficit_presence_sign_and_unavailable_values(metrics, expected):
+        value = BudgetDeficitObjective().evaluate(metrics)
+        assert value.direction is OptimizationDirection.MINIMIZE
+        if expected is None:
+>           assert math.isnan(value.raw_value)
+E           AssertionError: assert False
+E            +  where False = <built-in function isnan>(-0.0)
+E            +    where <built-in function isnan> = math.isnan
+E            +    and   -0.0 = ObjectiveValue(name='budget_deficit', raw_value=-0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:116: AssertionError
+_ test_raw_deficit_presence_sign_and_unavailable_values[bool-false-deficit-no-favorable-zero] _
+
+metrics = {'budget_deficit': False}, expected = None
+
+    @pytest.mark.parametrize(
+        ("metrics", "expected"),
+        [
+            pytest.param({}, None, id="absent-all"),
+            pytest.param(
+                {
+                    "gov_balance": None,
+                    "government_balance": None,
+                    "budget_deficit": None,
+                    "deficit": None,
+                },
+                None,
+                id="null-all",
+            ),
+            pytest.param({"budget_deficit": 17.25}, 17.25, id="absent-primary-valid-deficit"),
+            pytest.param(
+                {"gov_balance": None, "budget_deficit": 17.25},
+                17.25,
+                id="null-primary-valid-deficit",
+            ),
+            pytest.param(
+                {"gov_balance": None, "government_balance": -12.5},
+                12.5,
+                id="null-primary-valid-balance-alias",
+            ),
+            pytest.param({"gov_balance": 0.0, "budget_deficit": 99.0}, 0.0, id="zero-primary-wins"),
+            pytest.param(
+                {"government_balance": 0.0, "deficit": 99.0},
+                0.0,
+                id="zero-balance-alias-wins",
+            ),
+            pytest.param({"gov_balance": -12.5}, 12.5, id="negative-balance-deficit"),
+            pytest.param({"gov_balance": 12.5}, 0.0, id="positive-balance-surplus"),
+            pytest.param({"deficit": -12.5}, 12.5, id="negative-deficit-absolute"),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": -12.5},
+                12.5,
+                id="equal-balance-aliases",
+            ),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": 12.5},
+                None,
+                id="conflicting-balance-aliases",
+            ),
+            pytest.param({"budget_deficit": 12.5, "deficit": 12.5}, 12.5, id="equal-deficit-aliases"),
+            pytest.param(
+                {"budget_deficit": 12.5, "deficit": 15.0}, None, id="conflicting-deficit-aliases"
+            ),
+            pytest.param(
+                {"gov_balance": "bad", "budget_deficit": 99.0},
+                None,
+                id="present-malformed-primary-no-fallback",
+            ),
+            pytest.param(
+                {"budget_deficit": "bad", "deficit": 99.0},
+                None,
+                id="present-malformed-deficit-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.nan, "budget_deficit": 99.0},
+                None,
+                id="present-nan-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.inf, "budget_deficit": 99.0},
+                None,
+                id="present-inf-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": False, "budget_deficit": 99.0},
+                None,
+                id="bool-false-primary-no-favorable-zero",
+            ),
+            pytest.param({"gov_balance": True}, None, id="bool-true-primary-no-favorable-zero"),
+            pytest.param({"government_balance": False}, None, id="bool-false-alias-no-favorable-zero"),
+            pytest.param({"budget_deficit": False}, None, id="bool-false-deficit-no-favorable-zero"),
+            pytest.param({"deficit": True}, None, id="bool-true-deficit-not-measurement"),
+            pytest.param(
+                {"gov_balance": 10**400, "deficit": 99.0},
+                None,
+                id="overflow-integer-primary-unavailable",
+            ),
+        ],
+    )
+    def test_raw_deficit_presence_sign_and_unavailable_values(metrics, expected):
+        value = BudgetDeficitObjective().evaluate(metrics)
+        assert value.direction is OptimizationDirection.MINIMIZE
+        if expected is None:
+>           assert math.isnan(value.raw_value)
+E           AssertionError: assert False
+E            +  where False = <built-in function isnan>(0.0)
+E            +    where <built-in function isnan> = math.isnan
+E            +    and   0.0 = ObjectiveValue(name='budget_deficit', raw_value=0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:116: AssertionError
+_ test_raw_deficit_presence_sign_and_unavailable_values[bool-true-deficit-not-measurement] _
+
+metrics = {'deficit': True}, expected = None
+
+    @pytest.mark.parametrize(
+        ("metrics", "expected"),
+        [
+            pytest.param({}, None, id="absent-all"),
+            pytest.param(
+                {
+                    "gov_balance": None,
+                    "government_balance": None,
+                    "budget_deficit": None,
+                    "deficit": None,
+                },
+                None,
+                id="null-all",
+            ),
+            pytest.param({"budget_deficit": 17.25}, 17.25, id="absent-primary-valid-deficit"),
+            pytest.param(
+                {"gov_balance": None, "budget_deficit": 17.25},
+                17.25,
+                id="null-primary-valid-deficit",
+            ),
+            pytest.param(
+                {"gov_balance": None, "government_balance": -12.5},
+                12.5,
+                id="null-primary-valid-balance-alias",
+            ),
+            pytest.param({"gov_balance": 0.0, "budget_deficit": 99.0}, 0.0, id="zero-primary-wins"),
+            pytest.param(
+                {"government_balance": 0.0, "deficit": 99.0},
+                0.0,
+                id="zero-balance-alias-wins",
+            ),
+            pytest.param({"gov_balance": -12.5}, 12.5, id="negative-balance-deficit"),
+            pytest.param({"gov_balance": 12.5}, 0.0, id="positive-balance-surplus"),
+            pytest.param({"deficit": -12.5}, 12.5, id="negative-deficit-absolute"),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": -12.5},
+                12.5,
+                id="equal-balance-aliases",
+            ),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": 12.5},
+                None,
+                id="conflicting-balance-aliases",
+            ),
+            pytest.param({"budget_deficit": 12.5, "deficit": 12.5}, 12.5, id="equal-deficit-aliases"),
+            pytest.param(
+                {"budget_deficit": 12.5, "deficit": 15.0}, None, id="conflicting-deficit-aliases"
+            ),
+            pytest.param(
+                {"gov_balance": "bad", "budget_deficit": 99.0},
+                None,
+                id="present-malformed-primary-no-fallback",
+            ),
+            pytest.param(
+                {"budget_deficit": "bad", "deficit": 99.0},
+                None,
+                id="present-malformed-deficit-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.nan, "budget_deficit": 99.0},
+                None,
+                id="present-nan-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.inf, "budget_deficit": 99.0},
+                None,
+                id="present-inf-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": False, "budget_deficit": 99.0},
+                None,
+                id="bool-false-primary-no-favorable-zero",
+            ),
+            pytest.param({"gov_balance": True}, None, id="bool-true-primary-no-favorable-zero"),
+            pytest.param({"government_balance": False}, None, id="bool-false-alias-no-favorable-zero"),
+            pytest.param({"budget_deficit": False}, None, id="bool-false-deficit-no-favorable-zero"),
+            pytest.param({"deficit": True}, None, id="bool-true-deficit-not-measurement"),
+            pytest.param(
+                {"gov_balance": 10**400, "deficit": 99.0},
+                None,
+                id="overflow-integer-primary-unavailable",
+            ),
+        ],
+    )
+    def test_raw_deficit_presence_sign_and_unavailable_values(metrics, expected):
+        value = BudgetDeficitObjective().evaluate(metrics)
+        assert value.direction is OptimizationDirection.MINIMIZE
+        if expected is None:
+>           assert math.isnan(value.raw_value)
+E           AssertionError: assert False
+E            +  where False = <built-in function isnan>(1.0)
+E            +    where <built-in function isnan> = math.isnan
+E            +    and   1.0 = ObjectiveValue(name='budget_deficit', raw_value=1.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:116: AssertionError
+_ test_raw_deficit_presence_sign_and_unavailable_values[overflow-integer-primary-unavailable] _
+
+metrics = {'deficit': 99.0, 'gov_balance': 100000000000000000...0000000000000000000}
+expected = None
+
+    @pytest.mark.parametrize(
+        ("metrics", "expected"),
+        [
+            pytest.param({}, None, id="absent-all"),
+            pytest.param(
+                {
+                    "gov_balance": None,
+                    "government_balance": None,
+                    "budget_deficit": None,
+                    "deficit": None,
+                },
+                None,
+                id="null-all",
+            ),
+            pytest.param({"budget_deficit": 17.25}, 17.25, id="absent-primary-valid-deficit"),
+            pytest.param(
+                {"gov_balance": None, "budget_deficit": 17.25},
+                17.25,
+                id="null-primary-valid-deficit",
+            ),
+            pytest.param(
+                {"gov_balance": None, "government_balance": -12.5},
+                12.5,
+                id="null-primary-valid-balance-alias",
+            ),
+            pytest.param({"gov_balance": 0.0, "budget_deficit": 99.0}, 0.0, id="zero-primary-wins"),
+            pytest.param(
+                {"government_balance": 0.0, "deficit": 99.0},
+                0.0,
+                id="zero-balance-alias-wins",
+            ),
+            pytest.param({"gov_balance": -12.5}, 12.5, id="negative-balance-deficit"),
+            pytest.param({"gov_balance": 12.5}, 0.0, id="positive-balance-surplus"),
+            pytest.param({"deficit": -12.5}, 12.5, id="negative-deficit-absolute"),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": -12.5},
+                12.5,
+                id="equal-balance-aliases",
+            ),
+            pytest.param(
+                {"gov_balance": -12.5, "government_balance": 12.5},
+                None,
+                id="conflicting-balance-aliases",
+            ),
+            pytest.param({"budget_deficit": 12.5, "deficit": 12.5}, 12.5, id="equal-deficit-aliases"),
+            pytest.param(
+                {"budget_deficit": 12.5, "deficit": 15.0}, None, id="conflicting-deficit-aliases"
+            ),
+            pytest.param(
+                {"gov_balance": "bad", "budget_deficit": 99.0},
+                None,
+                id="present-malformed-primary-no-fallback",
+            ),
+            pytest.param(
+                {"budget_deficit": "bad", "deficit": 99.0},
+                None,
+                id="present-malformed-deficit-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.nan, "budget_deficit": 99.0},
+                None,
+                id="present-nan-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": math.inf, "budget_deficit": 99.0},
+                None,
+                id="present-inf-primary-no-fallback",
+            ),
+            pytest.param(
+                {"gov_balance": False, "budget_deficit": 99.0},
+                None,
+                id="bool-false-primary-no-favorable-zero",
+            ),
+            pytest.param({"gov_balance": True}, None, id="bool-true-primary-no-favorable-zero"),
+            pytest.param({"government_balance": False}, None, id="bool-false-alias-no-favorable-zero"),
+            pytest.param({"budget_deficit": False}, None, id="bool-false-deficit-no-favorable-zero"),
+            pytest.param({"deficit": True}, None, id="bool-true-deficit-not-measurement"),
+            pytest.param(
+                {"gov_balance": 10**400, "deficit": 99.0},
+                None,
+                id="overflow-integer-primary-unavailable",
+            ),
+        ],
+    )
+    def test_raw_deficit_presence_sign_and_unavailable_values(metrics, expected):
+>       value = BudgetDeficitObjective().evaluate(metrics)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/objective.py:131: in evaluate
+    raw = self._extract_value(results)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:182: in _extract_value
+    balance = _read_metric_aliases(results, _BALANCE_ALIASES)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+results = {'deficit': 99.0, 'gov_balance': 100000000000000000...0000000000000000000}
+aliases = ('gov_balance', 'government_balance')
+
+    def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:
+        """Read one numeric metric from aliases without hiding conflicts or invalid values."""
+        values: list[float] = []
+        for alias in aliases:
+            raw_value = results.get(alias, _MISSING)
+            if raw_value is _MISSING or raw_value is None:
+                continue
+            try:
+>               value = float(raw_value)
+                        ^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/objective.py:25: OverflowError
+_ test_public_native_controller_keeps_valid_seed_for_unusable_challenger[bool-false] _
+
+challenger = {'budget_deficit': 99.0, 'gov_balance': False}
+
+    @pytest.mark.parametrize(
+        "challenger",
+        [
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": 10**400}, id="overflow-int"),
+        ],
+    )
+    def test_public_native_controller_keeps_valid_seed_for_unusable_challenger(challenger):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = {"gov_balance": -10.0} if candidate["candidate_id"] == "seed" else challenger
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "seed"})
+        assert calls == ["seed", "challenger"]
+>       assert result.best_candidate == {"candidate_id": "seed"}
+E       AssertionError: assert {'candidate_id': 'challenger'} == {'candidate_id': 'seed'}
+E         
+E         Differing items:
+E         {'candidate_id': 'challenger'} != {'candidate_id': 'seed'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:161: AssertionError
+_ test_public_native_controller_keeps_valid_seed_for_unusable_challenger[overflow-int] _
+
+challenger = {'gov_balance': 100000000000000000...0000000000000000000}
+
+    @pytest.mark.parametrize(
+        "challenger",
+        [
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": 10**400}, id="overflow-int"),
+        ],
+    )
+    def test_public_native_controller_keeps_valid_seed_for_unusable_challenger(challenger):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = {"gov_balance": -10.0} if candidate["candidate_id"] == "seed" else challenger
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+>       result = controller.run({}, {"candidate_id": "seed"})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/controller.py:600: in run
+    return _NativeSearchServiceDriver(self).run_search(
+src/polisyos/scientist/methods/search/service.py:173: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:215: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:286: in _evaluate_batch
+    transition = self.controller._evaluate_candidate(
+src/polisyos/scientist/methods/search/controller.py:756: in _evaluate_candidate
+    obj_eval = self._config.objective.evaluate(sim_results)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:264: in evaluate
+    val = obj.evaluate(results)
+          ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:131: in evaluate
+    raw = self._extract_value(results)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:182: in _extract_value
+    balance = _read_metric_aliases(results, _BALANCE_ALIASES)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+results = {'gov_balance': 100000000000000000...0000000000000000000}
+aliases = ('gov_balance', 'government_balance')
+
+    def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:
+        """Read one numeric metric from aliases without hiding conflicts or invalid values."""
+        values: list[float] = []
+        for alias in aliases:
+            raw_value = results.get(alias, _MISSING)
+            if raw_value is _MISSING or raw_value is None:
+                continue
+            try:
+>               value = float(raw_value)
+                        ^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/objective.py:25: OverflowError
+_ test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-false] _
+
+raw_bad = False
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4d14e90640>
+
+    @pytest.mark.parametrize(
+        "raw_bad",
+        [
+            pytest.param(False, id="bool-false"),
+            pytest.param(True, id="bool-true"),
+            pytest.param(10**400, id="overflow-int"),
+        ],
+    )
+    def test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit(
+        raw_bad, monkeypatch
+    ):
+        generator = BayesianCandidateGenerator(
+            search_space=SearchSpace([{"name": "x", "lower": 0.0, "upper": 1.0}]),
+            primary_metric="budget_deficit",
+            direction=MetricDirection.MINIMIZE,
+            n_initial=100,
+            seed=31,
+        )
+        if not generator.botorch_available:
+            pytest.skip("UNRUN: actual optional Bayesian receiver backend unavailable")
+        optimizer = generator._optimizer
+        assert optimizer is not None
+        assert optimizer._model is None
+        consumed_corpora = []
+        real_corpus = optimizer._effective_training_corpus
+    
+        def actual_corpus(evaluations):
+            corpus = real_corpus(evaluations)
+            consumed_corpora.append([row.candidate_id for row in corpus])
+            return corpus
+    
+        def forbidden_fit(*args, **kwargs):
+            pytest.fail("Declared cold-start receiver must not fit a GP on these two history rows")
+    
+        monkeypatch.setattr(optimizer, "_effective_training_corpus", actual_corpus)
+        monkeypatch.setattr(bayesian, "fit_gpytorch_mll", forbidden_fit)
+        history = [
+            {
+                "candidate": {"candidate_id": "measured", "params": {"x": 0.2}},
+                "stage_b_result": {"simulation_results": {"budget_deficit": 5.0}},
+            },
+            {
+                "candidate": {"candidate_id": "unmeasured", "params": {"x": 0.8}},
+                "stage_b_result": {"simulation_results": {"budget_deficit": raw_bad}},
+            },
+        ]
+        candidate = generator.generate(history, None, {})
+>       assert consumed_corpora == [["measured"]]
+E       AssertionError: assert [['measured', 'unmeasured']] == [['measured']]
+E         
+E         At index 0 diff: ['measured', 'unmeasured'] != ['measured']
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:215: AssertionError
+_ test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-true] _
+
+raw_bad = True
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4d14e908a0>
+
+    @pytest.mark.parametrize(
+        "raw_bad",
+        [
+            pytest.param(False, id="bool-false"),
+            pytest.param(True, id="bool-true"),
+            pytest.param(10**400, id="overflow-int"),
+        ],
+    )
+    def test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit(
+        raw_bad, monkeypatch
+    ):
+        generator = BayesianCandidateGenerator(
+            search_space=SearchSpace([{"name": "x", "lower": 0.0, "upper": 1.0}]),
+            primary_metric="budget_deficit",
+            direction=MetricDirection.MINIMIZE,
+            n_initial=100,
+            seed=31,
+        )
+        if not generator.botorch_available:
+            pytest.skip("UNRUN: actual optional Bayesian receiver backend unavailable")
+        optimizer = generator._optimizer
+        assert optimizer is not None
+        assert optimizer._model is None
+        consumed_corpora = []
+        real_corpus = optimizer._effective_training_corpus
+    
+        def actual_corpus(evaluations):
+            corpus = real_corpus(evaluations)
+            consumed_corpora.append([row.candidate_id for row in corpus])
+            return corpus
+    
+        def forbidden_fit(*args, **kwargs):
+            pytest.fail("Declared cold-start receiver must not fit a GP on these two history rows")
+    
+        monkeypatch.setattr(optimizer, "_effective_training_corpus", actual_corpus)
+        monkeypatch.setattr(bayesian, "fit_gpytorch_mll", forbidden_fit)
+        history = [
+            {
+                "candidate": {"candidate_id": "measured", "params": {"x": 0.2}},
+                "stage_b_result": {"simulation_results": {"budget_deficit": 5.0}},
+            },
+            {
+                "candidate": {"candidate_id": "unmeasured", "params": {"x": 0.8}},
+                "stage_b_result": {"simulation_results": {"budget_deficit": raw_bad}},
+            },
+        ]
+        candidate = generator.generate(history, None, {})
+>       assert consumed_corpora == [["measured"]]
+E       AssertionError: assert [['measured', 'unmeasured']] == [['measured']]
+E         
+E         At index 0 diff: ['measured', 'unmeasured'] != ['measured']
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:215: AssertionError
+_ test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[overflow-int] _
+
+raw_bad = 100000000000000000...0000000000000000000
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4d150efd10>
+
+    @pytest.mark.parametrize(
+        "raw_bad",
+        [
+            pytest.param(False, id="bool-false"),
+            pytest.param(True, id="bool-true"),
+            pytest.param(10**400, id="overflow-int"),
+        ],
+    )
+    def test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit(
+        raw_bad, monkeypatch
+    ):
+        generator = BayesianCandidateGenerator(
+            search_space=SearchSpace([{"name": "x", "lower": 0.0, "upper": 1.0}]),
+            primary_metric="budget_deficit",
+            direction=MetricDirection.MINIMIZE,
+            n_initial=100,
+            seed=31,
+        )
+        if not generator.botorch_available:
+            pytest.skip("UNRUN: actual optional Bayesian receiver backend unavailable")
+        optimizer = generator._optimizer
+        assert optimizer is not None
+        assert optimizer._model is None
+        consumed_corpora = []
+        real_corpus = optimizer._effective_training_corpus
+    
+        def actual_corpus(evaluations):
+            corpus = real_corpus(evaluations)
+            consumed_corpora.append([row.candidate_id for row in corpus])
+            return corpus
+    
+        def forbidden_fit(*args, **kwargs):
+            pytest.fail("Declared cold-start receiver must not fit a GP on these two history rows")
+    
+        monkeypatch.setattr(optimizer, "_effective_training_corpus", actual_corpus)
+        monkeypatch.setattr(bayesian, "fit_gpytorch_mll", forbidden_fit)
+        history = [
+            {
+                "candidate": {"candidate_id": "measured", "params": {"x": 0.2}},
+                "stage_b_result": {"simulation_results": {"budget_deficit": 5.0}},
+            },
+            {
+                "candidate": {"candidate_id": "unmeasured", "params": {"x": 0.8}},
+                "stage_b_result": {"simulation_results": {"budget_deficit": raw_bad}},
+            },
+        ]
+>       candidate = generator.generate(history, None, {})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py:214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:233: in generate
+    evals = self._history_to_evaluations(history)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:411: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:325: in _history_score
+    value = _finite_float(source[self._primary_metric])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = 100000000000000000...0000000000000000000
+
+    def _finite_float(value: Any) -> float | object:
+        try:
+>           result = float(value)
+                     ^^^^^^^^^^^^
+E           OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:76: OverflowError
+=============================== warnings summary ===============================
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[absent-all]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-all]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[absent-primary-valid-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-primary-valid-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-primary-valid-balance-alias]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[zero-primary-wins]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[zero-balance-alias-wins]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[negative-balance-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[positive-balance-surplus]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[negative-deficit-absolute]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[equal-balance-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[conflicting-balance-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[equal-deficit-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[conflicting-deficit-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-malformed-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-malformed-deficit-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-nan-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-inf-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[missing]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-primary-no-favorable-zero]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-true-primary-no-favorable-zero]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-alias-no-favorable-zero]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-deficit-no-favorable-zero]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-true-deficit-not-measurement]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[overflow-integer-primary-unavailable]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[bool-false]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[overflow-int]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-false]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-true]
+FAILED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[overflow-int]
+11 failed, 19 passed, 2 warnings in 9.71s
+
+{"exit_code": 1}

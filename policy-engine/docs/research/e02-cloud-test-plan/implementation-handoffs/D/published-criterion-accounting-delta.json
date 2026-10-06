@@ -1,0 +1,1954 @@
+{
+  "schema": "policyos.e02.D.independent-criterion-accounting-delta.v1",
+  "unit": "D",
+  "slice": "published-criterion-accounting-delta",
+  "closure_ids": [],
+  "finding_ids": [
+    "B106",
+    "B107",
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B116",
+    "B117",
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B122",
+    "B123",
+    "B124",
+    "B125",
+    "B126",
+    "B127",
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165",
+    "B41",
+    "LA-014",
+    "LA-015"
+  ],
+  "role": "Independent complete criterion/owner/input/evidence accounting. This supplement does not author mechanisms or replay a backend; Q5 remains accounting only because reviewer authored Q5.",
+  "prior_snapshot": {
+    "receipt": {
+      "source_sha": "42e37092fca0badd334784f498418e3132ccdfbc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting.json",
+      "sha256": "fd584877e971bbf1d64c348bbab7ac9f5da202737fe679fb4eedcfa81cd3e941",
+      "bytes": 65594
+    },
+    "root_source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+    "preservation": "Original8cd limited/held/open state and unbound pending controls remain historical, unchanged. This append-only supplement reconciles subsequently received bounded exact replays.",
+    "pointer_rule": "Every prior_row_pointer resolves complete original baseline navigation, receipt/input/hash and bounded evidence scope. Prior evidence keys below refer to that pinned receipt, not a current-root execution."
+  },
+  "freeze": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree_sha": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "scope": "Exact final source/test acceptance freeze. Receipt membership in this tree does not turn old exact source executions into current-root runtime. Root broad/quality remains incomplete/pending."
+  },
+  "canonical_inputs": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "coverage": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "bytes": 549568
+    },
+    "finding_owners": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504
+    },
+    "bundle_owners": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "bytes": 12413
+    },
+    "D_task_card": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+      "bytes": 110393
+    },
+    "original_documents": {
+      "B_r19": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "bytes": 1336380
+      },
+      "LA_r09": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "bytes": 648034
+      }
+    },
+    "criterion_and_owner_bytes_equal_freeze": true,
+    "all_original_fragment_hashes_and_full_card_containment_verified": true,
+    "baseline_cell_environment_navigation": "Pinned prior snapshot baseline_navigation and each prior row baseline_pointer remain historical exact source refs. No historical raw/backend refresh or reclassification."
+  },
+  "denominator": {
+    "complete_finding_owner_rows": 282,
+    "complete_bundle_owner_rows": 127,
+    "D_distinct_findings": 45,
+    "D_bundles": 17,
+    "D_criterion_source_block_occurrences": 46,
+    "sampled": false,
+    "historical_source_status": {
+      "partial": 45
+    },
+    "canonical_closure_now": {
+      "not_adjudicated": 45
+    },
+    "accounting_dispositions_now": {
+      "limited": 35,
+      "held": 7,
+      "open": 3
+    },
+    "closed": 0,
+    "definition": "Limited/held/open are review bookkeeping for remaining scope, not check results, canonical adjudication or closure. Source/receipt hashes and passing checks do not appoint scientific or signature authority.",
+    "LA015": {
+      "distinct_finding": 1,
+      "source_occurrences": 2,
+      "closure_owner": "SRV-03",
+      "supplier_companion": "CTL-01",
+      "primary_queue": 3,
+      "supplier_queue": 4
+    }
+  },
+  "delta_receipts": {
+    "receiver": {
+      "source_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+      "sha256": "33cfeab4bf1610b827c9b43a7bcd833d7f35661f1aa9800805430a66d7adaabb",
+      "bytes": 11385
+    },
+    "receiver_complete": {
+      "source_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-complete.txt",
+      "sha256": "c6e7edcabac87e4396a9fabd24945b60308d8958518f039b27c12d6173a404d0",
+      "bytes": 11485
+    },
+    "receiver_observation": {
+      "source_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-native-observation.json",
+      "sha256": "a5865faeb086cef8465991830c29b2f878d70626401c91312bc533e7fd0e3f0f",
+      "bytes": 6297
+    },
+    "receiver_actual_inputs": {
+      "source_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-actual-inputs.json",
+      "sha256": "c093bc732c9c1a85ad2cb7d6f1878b8bc4beff462dd337864059934dd177ae7e",
+      "bytes": 266387
+    },
+    "receiver_historical_red": {
+      "source_sha": "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+      "sha256": "5c81bcafe1a8bc478cae556396cee79dd1d24cc91152d2cf7d60bb84e7f9ec2d",
+      "bytes": 17907
+    },
+    "oracle": {
+      "source_sha": "e2a884e5321799728739c6c9677c85cbd9451251",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+      "sha256": "39a4256226c52bc41422e431587f031393d8aac1c8bb03de4741df6ceb3f4639",
+      "bytes": 17656
+    },
+    "oracle_complete": {
+      "source_sha": "e2a884e5321799728739c6c9677c85cbd9451251",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-native40.txt",
+      "sha256": "82ff823027db7469575ce9f192b49e2e49f78a095b34d6a598aa0f1c584832fb",
+      "bytes": 7654
+    },
+    "oracle_original_red": {
+      "source_sha": "155476663aa455bffb5ea70efe11d1d94cf307b2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-review.json",
+      "sha256": "ec98b761fd330e468927ccafaebd4c42d5eb389ba48b8bf12732d52e3d6c1724",
+      "bytes": 7262
+    },
+    "Gateway_red": {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-red-receipt.json",
+      "sha256": "d39f556e9fcd941b515734707b7303b5f60bc67a4a48563fcb1879e96a96b599",
+      "bytes": 4124
+    },
+    "Gateway_red_complete": {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-red.txt.gz",
+      "sha256": "5f8f13ff357d0e5ee5a4833d49f407bffba73ab2cde073519436883c1bdadbaa",
+      "bytes": 3669,
+      "encoding": "gzip",
+      "decoded_sha256": "e5354cda1d73d2e807f71f4be23a9f32ea968846788a0fc88058f5f65f6288d9",
+      "decoded_bytes": 128843
+    },
+    "Gateway_green": {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-green-receipt.json",
+      "sha256": "cf281b4ceef7c858987e18338a2db4e1369707d8a872398a6fc48c967a7885a2",
+      "bytes": 4134
+    },
+    "Gateway_green_complete": {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-green.txt",
+      "sha256": "21820877b801ddfaa580e90ce16c69a628773f5efd65d4209a601d4ec9418c36",
+      "bytes": 10446
+    },
+    "Gateway_owner_corrective": {
+      "source_sha": "cbe90a83a93d01aa5b2da112c43f027a214e3a0d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-cost-corrective.json",
+      "sha256": "9a402d81af4ecf3503dca51f46390d419f50d426796bc1330774b1d5d795a06e",
+      "bytes": 23353
+    },
+    "root_payload_manifest": {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/payload-manifest.json",
+      "sha256": "9fad54c4145bc514e2f251799ab0dd10667283f38e9c833fd52ac850aaedb666",
+      "bytes": 13501
+    },
+    "audit_command": {
+      "source_sha": "82576a606bd9a746b41a4c553af97988b6d0d177",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting-delta/audit-command.json",
+      "sha256": "bcaad1e4d9ebefc2dbf9c16f9d3a285602bf252d12e580751bf72d572846aed9",
+      "bytes": 618
+    },
+    "audit_complete": {
+      "source_sha": "82576a606bd9a746b41a4c553af97988b6d0d177",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting-delta/audit-complete.txt",
+      "sha256": "5faf01a1ba9455a5cd0acdfa3262fc913d69ec80e5870fee7add89ca79a70ae5",
+      "bytes": 5396
+    },
+    "audit_script": {
+      "source_sha": "82576a606bd9a746b41a4c553af97988b6d0d177",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting-delta/audit_delta.py.txt",
+      "sha256": "0e0a3515b6dd51125cacbeb80cc93715ff6da97ae3fe600c2d11168a13d24d5a",
+      "bytes": 4443
+    }
+  },
+  "bounded_corrective_evidence": {
+    "receiver": {
+      "executed_source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "publisher_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "unchanged_test_sha": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+      "result": "4PASS,0skip/0deselected",
+      "scope": "Three cold registry wrong primitive negatives and one configured native BGC malformed stage-flag negative, with all actual CAS refs/basis/producer/input markers retained.",
+      "actual_positive_controls": "Legitimate baseline registry promotions execute for the three controls; all eight legitimate bridge rows pass baseline admission before caller mutation.",
+      "native_observation": "Whole-corpus controlled refusal/model None; native fit/MLL/SingleTaskGP constructor observed0. No current seven-row healthy fit or acceleration is established.",
+      "freeze_named_module_equivalence": "6/6 exact source byte matches; all-transitive inputs and current-root runtime are not inferred.",
+      "historical_failure": "Prior actual fac5 malformed eight-row fit and three raw primitive promotions remain FAIL; initial Q3 fixture setup ERROR remains separate."
+    },
+    "legacy_frontier": {
+      "executed_source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "publisher_sha": "e2a884e5321799728739c6c9677c85cbd9451251",
+      "result": "40PASS:10 actual legacy frontier and30 fiscal/native receiver; original CLI27 and single frontier replay separately PASS",
+      "scope": "Unavailable required fiscal coordinate cannot establish Pareto dominance; keep sole measured seed, retain unavailable challenger history. No zero imputation or scalar fallback.",
+      "historical_failure": "Exact89310FAIL unchanged frontier cases retained.",
+      "freeze_named_module_equivalence": "4/6 exact source byte matches. Controller/service are different in joined native route;40PASS is not a243 runtime replay.",
+      "current_root_followup": "Final joined caller verification_missing; root exact frozen acceptance wave must resolve it.",
+      "input_boundaries": "Typed fiscal units, served input appointment and global scientific/frontier authority remain not_established."
+    },
+    "Gateway": {
+      "red_executed_source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "green_executed_source_sha": "1ca25193d10787cbc545490c4a954b15b8a6b227",
+      "unchanged_test_commit": "678a8bdb06103009d0547e55e00022061dfca4c3",
+      "red": "90FAIL8PASS,98total,0error/0skip",
+      "green": "98PASS,0FAIL/0error/0skip",
+      "actual_path": "Gateway.generate/parser -> strict known original raw cost intake -> LLMBudgetEnforcer -> BudgetMiddleware -> freshly reopened FileBudgetLedger.",
+      "effective_preserved_normalized_markers": "Invalid raw negative/nonfinite/bool/container/component overflow still retains apparently valid normalized amount/marker, yet corrected intake refuses and leaves reconciliation reservation with no resource event/spend. Valid finite zero and paid amounts settle exact declared amounts.",
+      "freeze_named_module_equivalence": "All5 green executed modules match243 byte-for-byte; no all-transitive current-root or wider workflow verdict follows.",
+      "complete_output_binding": "Root commits original full red losslessly gzip and full green bytes in243; audit verifies decoded hashes/lengths. No duplicate deciding corpus or backend replay here.",
+      "remaining_scope": "Conditional HTTP payload and provider-reported SDK/raw costs, not independent external billing truth or all numerical/deployed resources."
+    }
+  },
+  "named_execution_module_equivalence": [
+    {
+      "role": "receiver",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "executed_sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "freeze_sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "equal": true
+    },
+    {
+      "role": "receiver",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "executed_sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+      "freeze_sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+      "equal": true
+    },
+    {
+      "role": "receiver",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "executed_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "freeze_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "equal": true
+    },
+    {
+      "role": "receiver",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "executed_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "freeze_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "equal": true
+    },
+    {
+      "role": "receiver",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "executed_sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3",
+      "freeze_sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3",
+      "equal": true
+    },
+    {
+      "role": "receiver",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "executed_sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7",
+      "freeze_sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7",
+      "equal": true
+    },
+    {
+      "role": "legacy_frontier",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "executed_sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+      "freeze_sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+      "equal": true
+    },
+    {
+      "role": "legacy_frontier",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "executed_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "freeze_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "equal": true
+    },
+    {
+      "role": "legacy_frontier",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "executed_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "freeze_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "equal": true
+    },
+    {
+      "role": "legacy_frontier",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "executed_sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+      "freeze_sha256": "eb42bb8709756ba14f7e5ecdbaf4b7e30d204b3bb776fc545f9c50a641d9e8c3",
+      "equal": false
+    },
+    {
+      "role": "legacy_frontier",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "executed_sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+      "freeze_sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "equal": false
+    },
+    {
+      "role": "legacy_frontier",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "executed_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "freeze_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "equal": true
+    }
+  ],
+  "source_match_guard": "Preparation blanketall-modules-equal assumption failed; complete audit retains the actual two joined-caller differences. They are not waived or treated as inherited.",
+  "global_verification_state": {
+    "current_root_per_finding": "verification_missing for all45 until criterion-specific/frozen union checks received; no automatic closure from bounded receipt PASS.",
+    "root_reported_wide_attempt": {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "state": "ERROR/incomplete",
+      "exit": "SIGKILL-9",
+      "wall_seconds": 149.4405,
+      "observation": "Approximately49% progress with7F; no JUnit, no completion, no per-test names. No passing case count or finding attribution is established.",
+      "uncompleted_cells": "UNRUN",
+      "product_or_infrastructure_cause": "not_established",
+      "deciding_output_git_binding": "not_established in this supplement",
+      "next_action": "Root continues required exact17 scopes in separate pytest children as the same frozen acceptance wave; subsequent result binding remains pending."
+    },
+    "quality_gates": "pending; no counts or all-gate verdict received/adjudicated by this accounting supplement",
+    "existing_historical_fail_error_unrun": "Original A dependency/provider and earlier architecture/import/release/analyzer states remain scoped historical evidence, without inherited-red waiver.",
+    "next_owner": "Root/G binds complete frozen union/quality outputs and any actual discovered failures; criterion owners resolve remaining inputs/consumers."
+  },
+  "findings": [
+    {
+      "id": "B106",
+      "queue": 5,
+      "canonical_closure_owner": "STR-01",
+      "canonical_cards": [
+        "STR-01"
+      ],
+      "prior_row_pointer": "/findings/0",
+      "coverage_pointer": "/findings/16",
+      "task_anchors": [
+        "D.md#bundle-str-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2738,
+            2749
+          ],
+          "card": "STR-01",
+          "fragment_sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Observed finite sample fraction is not population probability or model uncertainty; empirical completeness requires its declared scenario/profile input.",
+      "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
+      "prior_evidence_keys": [
+        "q5_owner",
+        "q4_independent"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B107",
+      "queue": 5,
+      "canonical_closure_owner": "STR-01",
+      "canonical_cards": [
+        "STR-01"
+      ],
+      "prior_row_pointer": "/findings/1",
+      "coverage_pointer": "/findings/17",
+      "task_anchors": [
+        "D.md#bundle-str-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2750,
+            2761
+          ],
+          "card": "STR-01",
+          "fragment_sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "No runtime for unreceived production/historical backend inputs or empirical stress-search quality is inferred.",
+      "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
+      "prior_evidence_keys": [
+        "q5_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B108",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "prior_row_pointer": "/findings/2",
+      "coverage_pointer": "/findings/18",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2897,
+            2910
+          ],
+          "card": "OPT-01",
+          "fragment_sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+        }
+      ],
+      "accounting_disposition_before": "held",
+      "accounting_disposition_now": "held",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Typed fiscal units and served owner input remain not_established. Exact425 finite-frontier/fiscal regression is bounded; joined current-root caller verification remains pending.",
+      "next_owner": "Fiscal metric/input owner / search_owner / G",
+      "prior_evidence_keys": [
+        "q1_scalar_correction"
+      ],
+      "delta_evidence_keys": [
+        "oracle"
+      ]
+    },
+    {
+      "id": "B109",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "prior_row_pointer": "/findings/3",
+      "coverage_pointer": "/findings/19",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2911,
+            2924
+          ],
+          "card": "OPT-01",
+          "fragment_sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "open",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "A-owned frontier export patch is UNAPPLIED, provider ABSENT and dependency runtime FAIL in q1_pareto. Resolve the actual provider/export route before declaring that route accepted.",
+      "next_owner": "A frontier provider/export owner / search_owner / G",
+      "prior_evidence_keys": [
+        "q1_pareto"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B110",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "prior_row_pointer": "/findings/4",
+      "coverage_pointer": "/findings/21",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2925,
+            2938
+          ],
+          "card": "OPT-01",
+          "fragment_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Historical selector reconciliation and appointed coordinate conventions remain separate; high-dimensional approximation is not exact hypervolume.",
+      "next_owner": "OPT-01 verification owner / coordinate-profile owner / G",
+      "prior_evidence_keys": [
+        "q1_pareto"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B111",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "canonical_cards": [
+        "OPT-01"
+      ],
+      "prior_row_pointer": "/findings/5",
+      "coverage_pointer": "/findings/22",
+      "task_anchors": [
+        "D.md#bundle-opt-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2939,
+            2954
+          ],
+          "card": "OPT-01",
+          "fragment_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "A builder origin/eligibility/assessment denominator and declared scientific basis remain separate. Exact425 corrected frontier/fiscal40PASS is bounded; joined controller/service bytes differ and final frozen caller acceptance is verification_missing.",
+      "next_owner": "search_owner / gp_witness / A assessment producer / G",
+      "prior_evidence_keys": [
+        "q1_pareto",
+        "q3_owner"
+      ],
+      "delta_evidence_keys": [
+        "oracle"
+      ]
+    },
+    {
+      "id": "B112",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "canonical_cards": [
+        "OPT-02"
+      ],
+      "prior_row_pointer": "/findings/6",
+      "coverage_pointer": "/findings/23",
+      "task_anchors": [
+        "D.md#bundle-opt-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2955,
+            2968
+          ],
+          "card": "OPT-02",
+          "fragment_sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "All-strategy/deployed caller identity and unsupported legacy GP/RL profiles are not established by this state slice.",
+      "next_owner": "OPT-02 verification owner / strategy-profile owners / G",
+      "prior_evidence_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B113",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "canonical_cards": [
+        "OPT-02"
+      ],
+      "prior_row_pointer": "/findings/7",
+      "coverage_pointer": "/findings/24",
+      "task_anchors": [
+        "D.md#bundle-opt-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2969,
+            2982
+          ],
+          "card": "OPT-02",
+          "fragment_sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Malformed present stage flag is refused in actual configured BGC negative, with whole-corpus refusal/model None and no native fit. Live observation truth and complete declared numerical/profile inputs remain separate; final frozen positive workflow verification is missing.",
+      "next_owner": "search_owner / transfer_owner / G",
+      "prior_evidence_keys": [
+        "q1_continuation",
+        "q1_executed"
+      ],
+      "delta_evidence_keys": [
+        "receiver"
+      ]
+    },
+    {
+      "id": "B114",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-03",
+      "canonical_cards": [
+        "OPT-03"
+      ],
+      "prior_row_pointer": "/findings/8",
+      "coverage_pointer": "/findings/25",
+      "task_anchors": [
+        "D.md#bundle-opt-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2983,
+            2996
+          ],
+          "card": "OPT-03",
+          "fragment_sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Known-role historical CAS corpus usage has prior positive evidence. Fresh malformed stage-flag negative refuses the whole corpus with zero observed GP/MLL calls; it establishes no seven-row healthy fit. Live history issuer and final corrected-source positive workflow remain separate.",
+      "next_owner": "search_owner / transfer_owner / G",
+      "prior_evidence_keys": [
+        "q1_warm_content",
+        "q1_reader",
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": [
+        "receiver"
+      ]
+    },
+    {
+      "id": "B115",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-03",
+      "canonical_cards": [
+        "OPT-03"
+      ],
+      "prior_row_pointer": "/findings/9",
+      "coverage_pointer": "/findings/26",
+      "task_anchors": [
+        "D.md#bundle-opt-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            2997,
+            3010
+          ],
+          "card": "OPT-03",
+          "fragment_sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Declared restore profile/content/bounds must match; no acceleration/optimization-quality or unreceived legacy profile equivalence is inferred.",
+      "next_owner": "OPT-03 verification owner / search_owner / G",
+      "prior_evidence_keys": [
+        "q1_continuation",
+        "q1_warm_content",
+        "q1_gp_independent",
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B116",
+      "queue": 3,
+      "canonical_closure_owner": "OPT-04",
+      "canonical_cards": [
+        "OPT-04"
+      ],
+      "prior_row_pointer": "/findings/10",
+      "coverage_pointer": "/findings/27",
+      "task_anchors": [
+        "D.md#bundle-opt-04"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3011,
+            3024
+          ],
+          "card": "OPT-04",
+          "fragment_sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Three preserved-basis raw metric/count/guard primitive controls now refuse after legitimate baseline promotion. Conditional analytic producer/source descriptors do not establish institutional scientific/input rights appointment; full final-source workflow verification remains missing.",
+      "next_owner": "gp_witness / G",
+      "prior_evidence_keys": [
+        "q3_owner",
+        "q3_independent"
+      ],
+      "delta_evidence_keys": [
+        "receiver"
+      ]
+    },
+    {
+      "id": "B117",
+      "queue": 3,
+      "canonical_closure_owner": "OPT-04",
+      "canonical_cards": [
+        "OPT-04"
+      ],
+      "prior_row_pointer": "/findings/11",
+      "coverage_pointer": "/findings/28",
+      "task_anchors": [
+        "D.md#bundle-opt-04"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3025,
+            3038
+          ],
+          "card": "OPT-04",
+          "fragment_sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Evidence is bounded to local POSIX concurrency/fault injection/fresh reader; real process-kill/power-loss or distributed guarantees are not established.",
+      "next_owner": "OPT-04 verification owner / registry boundary owner / G",
+      "prior_evidence_keys": [
+        "q3_owner",
+        "q3_independent"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B118",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-01",
+      "canonical_cards": [
+        "CTL-01"
+      ],
+      "prior_row_pointer": "/findings/12",
+      "coverage_pointer": "/findings/29",
+      "task_anchors": [
+        "D.md#bundle-ctl-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3164,
+            3177
+          ],
+          "card": "CTL-01",
+          "fragment_sha256": "c92cdd35554b9006c3632ceb0314c7378ad6ab123b9abf3ce040c25f5ba12b90"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Deployed caller census and finding-level lifecycle acceptance remain separate from repeated-run fixtures.",
+      "next_owner": "SRV lifecycle owner / G",
+      "prior_evidence_keys": [
+        "q4_owner",
+        "q3_lifecycle"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B119",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-01",
+      "canonical_cards": [
+        "CTL-01"
+      ],
+      "prior_row_pointer": "/findings/13",
+      "coverage_pointer": "/findings/30",
+      "task_anchors": [
+        "D.md#bundle-ctl-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3178,
+            3191
+          ],
+          "card": "CTL-01",
+          "fragment_sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Finite empty-supplier mechanisms are bounded controls, not exhaustive future supplier behavior.",
+      "next_owner": "CTL-01 verification owner / native supplier owners / G",
+      "prior_evidence_keys": [
+        "q4_owner",
+        "q3_lifecycle"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B120",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "canonical_cards": [
+        "CTL-03"
+      ],
+      "prior_row_pointer": "/findings/14",
+      "coverage_pointer": "/findings/32",
+      "task_anchors": [
+        "D.md#bundle-ctl-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3192,
+            3205
+          ],
+          "card": "CTL-03",
+          "fragment_sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Actual raw invalid Gateway cost now refuses without settled event/charge while retaining reconciliation reservation; explicit finite zero and paid amounts settle exactly. Provider-reported receipt is not external billing truth, and numerical-resource/deployed-factory scope remains missing.",
+      "next_owner": "funnel_owner / resource cost-intake owner / G",
+      "prior_evidence_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "delta_evidence_keys": [
+        "Gateway_red",
+        "Gateway_green",
+        "Gateway_owner_corrective"
+      ]
+    },
+    {
+      "id": "B121",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "canonical_cards": [
+        "CTL-03"
+      ],
+      "prior_row_pointer": "/findings/15",
+      "coverage_pointer": "/findings/33",
+      "task_anchors": [
+        "D.md#bundle-ctl-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3206,
+            3221
+          ],
+          "card": "CTL-03",
+          "fragment_sha256": "b47c247722c53867b98ba5f11bf37fa25f5a904284cf2cabf99661c5347c5203"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Caller/profile-specific counting and transfer admission remain bounded; no whole deployed execution census is inferred.",
+      "next_owner": "CTL-03 verification owner / native caller-profile owners / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B122",
+      "queue": 5,
+      "canonical_closure_owner": "STP-01",
+      "canonical_cards": [
+        "STP-01"
+      ],
+      "prior_row_pointer": "/findings/16",
+      "coverage_pointer": "/findings/34",
+      "task_anchors": [
+        "D.md#bundle-stp-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3222,
+            3235
+          ],
+          "card": "STP-01",
+          "fragment_sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Absent units do not establish convergence; converted/custom coefficients are not canonical1.0 equivalence without that declared profile.",
+      "next_owner": "STP-01 verification owner / objective-unit/profile supplier / G",
+      "prior_evidence_keys": [
+        "q5_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B123",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "canonical_cards": [
+        "CTL-03"
+      ],
+      "prior_row_pointer": "/findings/17",
+      "coverage_pointer": "/findings/35",
+      "task_anchors": [
+        "D.md#bundle-ctl-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3236,
+            3249
+          ],
+          "card": "CTL-03",
+          "fragment_sha256": "a36f027f31c7f0f4b9ff333811b9ecc4bb6a480853a13d7d026d2543593d9a95"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "An unsupported schema/profile must be supplied explicitly; no fabricated typed schema or universal legacy removal is asserted.",
+      "next_owner": "CTL-03 verification owner / typed result producer / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B124",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "canonical_cards": [
+        "CTL-02"
+      ],
+      "prior_row_pointer": "/findings/18",
+      "coverage_pointer": "/findings/36",
+      "task_anchors": [
+        "D.md#bundle-ctl-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3250,
+            3263
+          ],
+          "card": "CTL-02",
+          "fragment_sha256": "77a12566a323c32df2df5d2440997a01226630d79ef6fd1d1f5b939a3b1fa3c5"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Full candidate-profile/deployed canonicalization acceptance remains separate from bounded nested-date cases.",
+      "next_owner": "CTL-02 verification owner / candidate-schema owner / G",
+      "prior_evidence_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B125",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "canonical_cards": [
+        "CTL-02"
+      ],
+      "prior_row_pointer": "/findings/19",
+      "coverage_pointer": "/findings/37",
+      "task_anchors": [
+        "D.md#bundle-ctl-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3264,
+            3277
+          ],
+          "card": "CTL-02",
+          "fragment_sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Unsupported RL profiles are refused; no arbitrary external RNG/backend checkpoint equivalence is claimed.",
+      "next_owner": "CTL-02 verification owner / strategy-profile owner / G",
+      "prior_evidence_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B126",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "canonical_cards": [
+        "CTL-02"
+      ],
+      "prior_row_pointer": "/findings/20",
+      "coverage_pointer": "/findings/38",
+      "task_anchors": [
+        "D.md#bundle-ctl-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3278,
+            3291
+          ],
+          "card": "CTL-02",
+          "fragment_sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Unreceived backend/profile variants require their own exact checkpoint inputs; no cross-version equivalence is inferred.",
+      "next_owner": "CTL-02 verification owner / backend-profile owner / G",
+      "prior_evidence_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B127",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "canonical_cards": [
+        "OPT-02"
+      ],
+      "prior_row_pointer": "/findings/21",
+      "coverage_pointer": "/findings/39",
+      "task_anchors": [
+        "D.md#bundle-opt-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3292,
+            3305
+          ],
+          "card": "OPT-02",
+          "fragment_sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Complete MO/NN checkpoint replay and deployed adapters are not established by the executed-coordinate slice.",
+      "next_owner": "OPT-02 verification owner / MO/NN adapter owners / G",
+      "prior_evidence_keys": [
+        "q1_executed",
+        "q1_continuation"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B128",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "prior_row_pointer": "/findings/22",
+      "coverage_pointer": "/findings/40",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3417,
+            3430
+          ],
+          "card": "TRN-01",
+          "fragment_sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Live history issuer remains missing. Linked public BGC malformed-outcome negative now refuses the corpus, with no native fit in that negative; the earlier native positive transfer workflow remains separately pinned, not relabeled a current-root fit.",
+      "next_owner": "transfer_owner / search_owner / live history issuer / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": [
+        "receiver"
+      ]
+    },
+    {
+      "id": "B129",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "canonical_cards": [
+        "TRN-02"
+      ],
+      "prior_row_pointer": "/findings/23",
+      "coverage_pointer": "/findings/41",
+      "task_anchors": [
+        "D.md#bundle-trn-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3431,
+            3444
+          ],
+          "card": "TRN-02",
+          "fragment_sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Second-process pinned snapshot and live history availability are not asserted by local exact-ref controls.",
+      "next_owner": "TRN-02 verification owner / history availability owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B130",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "prior_row_pointer": "/findings/24",
+      "coverage_pointer": "/findings/43",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3445,
+            3458
+          ],
+          "card": "TRN-01",
+          "fragment_sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "No acceleration or optimization-quality benefit follows from transfer ordering alone.",
+      "next_owner": "TRN-01 verification owner / numerical-profile owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B131",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "prior_row_pointer": "/findings/25",
+      "coverage_pointer": "/findings/44",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3459,
+            3472
+          ],
+          "card": "TRN-01",
+          "fragment_sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c"
+        }
+      ],
+      "accounting_disposition_before": "held",
+      "accounting_disposition_now": "held",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Institutional tenant, split and source-access owner authorization is absent; technical labels do not appoint it.",
+      "next_owner": "Institutional source-access/split owner / transfer_owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": [
+        "receiver"
+      ]
+    },
+    {
+      "id": "B132",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "canonical_cards": [
+        "TRN-01"
+      ],
+      "prior_row_pointer": "/findings/26",
+      "coverage_pointer": "/findings/45",
+      "task_anchors": [
+        "D.md#bundle-trn-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3473,
+            3486
+          ],
+          "card": "TRN-01",
+          "fragment_sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Live benchmark issuer is missing; no fabricated holdout or promotion authority is created.",
+      "next_owner": "Benchmark/input issuer / transfer_owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B133",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "canonical_cards": [
+        "TRN-02"
+      ],
+      "prior_row_pointer": "/findings/27",
+      "coverage_pointer": "/findings/46",
+      "task_anchors": [
+        "D.md#bundle-trn-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3487,
+            3500
+          ],
+          "card": "TRN-02",
+          "fragment_sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Local history cache is not a principal/latest distributed pointer; owner-authorized live history remains separate.",
+      "next_owner": "TRN-02 verification owner / history issuer / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B134",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "canonical_cards": [
+        "TRN-02"
+      ],
+      "prior_row_pointer": "/findings/28",
+      "coverage_pointer": "/findings/47",
+      "task_anchors": [
+        "D.md#bundle-trn-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3501,
+            3514
+          ],
+          "card": "TRN-02",
+          "fragment_sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e"
+        }
+      ],
+      "accounting_disposition_before": "held",
+      "accounting_disposition_now": "held",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Live owner-issued generation metadata and second-process scope remain unestablished.",
+      "next_owner": "Index-generation metadata owner / transfer_owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B135",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "canonical_cards": [
+        "TRN-03"
+      ],
+      "prior_row_pointer": "/findings/29",
+      "coverage_pointer": "/findings/48",
+      "task_anchors": [
+        "D.md#bundle-trn-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3515,
+            3528
+          ],
+          "card": "TRN-03",
+          "fragment_sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Task-family/domain labels do not establish authorization or arbitrary invalid-base/override profile behavior.",
+      "next_owner": "TRN-03 verification owner / context-profile owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B136",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "canonical_cards": [
+        "TRN-03"
+      ],
+      "prior_row_pointer": "/findings/30",
+      "coverage_pointer": "/findings/49",
+      "task_anchors": [
+        "D.md#bundle-trn-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3529,
+            3542
+          ],
+          "card": "TRN-03",
+          "fragment_sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Tenant labels and shared filtering are not institutional access authority.",
+      "next_owner": "Access/filter-profile owner / transfer_owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B137",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "canonical_cards": [
+        "TRN-03"
+      ],
+      "prior_row_pointer": "/findings/31",
+      "coverage_pointer": "/findings/50",
+      "task_anchors": [
+        "D.md#bundle-trn-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            3543,
+            3556
+          ],
+          "card": "TRN-03",
+          "fragment_sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961"
+        }
+      ],
+      "accounting_disposition_before": "held",
+      "accounting_disposition_now": "held",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Genuine authorized revalidation event, grounds and time issuer are absent; no empirical confidence truth is inferred.",
+      "next_owner": "Revalidation-event issuer / lesson lifecycle owner / G",
+      "prior_evidence_keys": [
+        "q2_matrix"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B156",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "canonical_cards": [
+        "FUN-01"
+      ],
+      "prior_row_pointer": "/findings/32",
+      "coverage_pointer": "/findings/71",
+      "task_anchors": [
+        "D.md#bundle-fun-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4105,
+            4116
+          ],
+          "card": "FUN-01",
+          "fragment_sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Deployed context/caller profile coverage is not established by fixture identity controls.",
+      "next_owner": "FUN-01 verification owner / caller/context owner / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B157",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "prior_row_pointer": "/findings/33",
+      "coverage_pointer": "/findings/72",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4117,
+            4128
+          ],
+          "card": "FUN-02",
+          "fragment_sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284"
+        }
+      ],
+      "accounting_disposition_before": "held",
+      "accounting_disposition_now": "held",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Native policy runtime lacks the required raw-sample/estimand provider port; fixed500/64/32 labels are not actual sample counts.",
+      "next_owner": "B runtime/factory owner / F or E estimand/input supplier / funnel_owner / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B158",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "canonical_cards": [
+        "FUN-01"
+      ],
+      "prior_row_pointer": "/findings/34",
+      "coverage_pointer": "/findings/73",
+      "task_anchors": [
+        "D.md#bundle-fun-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4129,
+            4140
+          ],
+          "card": "FUN-01",
+          "fragment_sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "L2 scheduler path and deployed factory/profile remain distinct from recorded L3/L4 split caller controls.",
+      "next_owner": "FUN-01 verification owner / L2 scheduler/factory owner / G",
+      "prior_evidence_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "delta_evidence_keys": [
+        "Gateway_red",
+        "Gateway_green",
+        "Gateway_owner_corrective"
+      ]
+    },
+    {
+      "id": "B159",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "canonical_cards": [
+        "FUN-01"
+      ],
+      "prior_row_pointer": "/findings/35",
+      "coverage_pointer": "/findings/74",
+      "task_anchors": [
+        "D.md#bundle-fun-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4141,
+            4152
+          ],
+          "card": "FUN-01",
+          "fragment_sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Stage-owned blockers without an actual reevaluable prerequisite remain unsupported; no blanket resume permission is inferred.",
+      "next_owner": "FUN-01 verification owner / blocker prerequisite owner / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": [
+        "Gateway_red",
+        "Gateway_green",
+        "Gateway_owner_corrective"
+      ]
+    },
+    {
+      "id": "B160",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "prior_row_pointer": "/findings/36",
+      "coverage_pointer": "/findings/76",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4153,
+            4164
+          ],
+          "card": "FUN-02",
+          "fragment_sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "External projection/finding acceptance remains separate from bounded empty-stage outcomes.",
+      "next_owner": "FUN-02 verification owner / projection consumer owner / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B161",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "canonical_cards": [
+        "FUN-03"
+      ],
+      "prior_row_pointer": "/findings/37",
+      "coverage_pointer": "/findings/77",
+      "task_anchors": [
+        "D.md#bundle-fun-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4165,
+            4176
+          ],
+          "card": "FUN-03",
+          "fragment_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a"
+        }
+      ],
+      "accounting_disposition_before": "held",
+      "accounting_disposition_now": "held",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Permitted same-subject/value/input/rule/time update and supersession relation is missing; do not appoint global-minimum or last-write semantics.",
+      "next_owner": "Uncertainty update/supersession rule owner / funnel_owner / G",
+      "prior_evidence_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B162",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "prior_row_pointer": "/findings/38",
+      "coverage_pointer": "/findings/78",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4177,
+            4188
+          ],
+          "card": "FUN-02",
+          "fragment_sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Native scientific interval provenance and declared profile validity remain supplied-input boundaries.",
+      "next_owner": "FUN-02 verification owner / scientific interval supplier / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B163",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "canonical_cards": [
+        "FUN-03"
+      ],
+      "prior_row_pointer": "/findings/39",
+      "coverage_pointer": "/findings/79",
+      "task_anchors": [
+        "D.md#bundle-fun-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4189,
+            4200
+          ],
+          "card": "FUN-03",
+          "fragment_sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Calibration corpus/provider/profile validity is not appointed by tracker labels.",
+      "next_owner": "Calibration corpus/profile owner / funnel_owner / G",
+      "prior_evidence_keys": [
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B164",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "canonical_cards": [
+        "FUN-03"
+      ],
+      "prior_row_pointer": "/findings/40",
+      "coverage_pointer": "/findings/80",
+      "task_anchors": [
+        "D.md#bundle-fun-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4201,
+            4212
+          ],
+          "card": "FUN-03",
+          "fragment_sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+        }
+      ],
+      "accounting_disposition_before": "held",
+      "accounting_disposition_now": "held",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Typed issuer/current verifier/revoke-serialized writer API is absent; valid owner-issued positive is UNRUN/bridge_missing. Legacy-marker barrier is not typed permit revocation.",
+      "next_owner": "Typed promotion issuer/verifier/writer boundary owner / G",
+      "prior_evidence_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B165",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "canonical_cards": [
+        "FUN-02"
+      ],
+      "prior_row_pointer": "/findings/41",
+      "coverage_pointer": "/findings/81",
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            4213,
+            4224
+          ],
+          "card": "FUN-02",
+          "fragment_sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "No downstream publication or promotion authority follows from the compatibility verdict alone.",
+      "next_owner": "FUN-02 verification owner / downstream publisher / G",
+      "prior_evidence_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "B41",
+      "queue": 5,
+      "canonical_closure_owner": "STP-01",
+      "canonical_cards": [
+        "STP-01"
+      ],
+      "prior_row_pointer": "/findings/42",
+      "coverage_pointer": "/findings/166",
+      "task_anchors": [
+        "D.md#bundle-stp-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "B_r19",
+          "lines": [
+            770,
+            783
+          ],
+          "card": "STP-01",
+          "fragment_sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a"
+        }
+      ],
+      "accounting_disposition_before": "limited",
+      "accounting_disposition_now": "limited",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Historical/live profile equivalence and finding-level acceptance are not inferred from fresh controls.",
+      "next_owner": "STP-01 verification owner / G",
+      "prior_evidence_keys": [
+        "q5_owner"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "LA-014",
+      "queue": 3,
+      "canonical_closure_owner": "SRV-01",
+      "canonical_cards": [
+        "SRV-01"
+      ],
+      "prior_row_pointer": "/findings/43",
+      "coverage_pointer": "/findings/238",
+      "task_anchors": [
+        "D.md#bundle-srv-01"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "LA_r09",
+          "lines": [
+            455,
+            481
+          ],
+          "card": "SRV-01",
+          "fragment_sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "open",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Served hierarchical factory/cutover consumer remains missing; global architecture/import/release failures/errors are not waived.",
+      "next_owner": "SRV-01 served factory/cutover owner / gp_witness / G",
+      "prior_evidence_keys": [
+        "q3_owner",
+        "q3_lifecycle"
+      ],
+      "delta_evidence_keys": []
+    },
+    {
+      "id": "LA-015",
+      "queue": 3,
+      "canonical_closure_owner": "SRV-03",
+      "canonical_cards": [
+        "CTL-01",
+        "SRV-03"
+      ],
+      "prior_row_pointer": "/findings/44",
+      "coverage_pointer": "/findings/239",
+      "task_anchors": [
+        "D.md#bundle-srv-03"
+      ],
+      "original_source_blocks": [
+        {
+          "document_key": "LA_r09",
+          "lines": [
+            482,
+            512
+          ],
+          "card": "CTL-01",
+          "fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+        },
+        {
+          "document_key": "LA_r09",
+          "lines": [
+            482,
+            512
+          ],
+          "card": "SRV-03",
+          "fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+        }
+      ],
+      "accounting_disposition_before": "open",
+      "accounting_disposition_now": "open",
+      "current_root_verification": "verification_missing",
+      "remaining_input_or_consumer": "Persisted SearchService restore/public resume, reader-window history/import retirement and rollback characterization remain missing. CTL-01 supplier evidence does not transfer SRV-03 closure ownership.",
+      "next_owner": "SRV-03 persistence/cutover/retirement owner / gp_witness / G",
+      "prior_evidence_keys": [
+        "q3_owner",
+        "q3_lifecycle",
+        "q4_owner"
+      ],
+      "delta_evidence_keys": []
+    }
+  ],
+  "authority_and_preservation": [
+    "No closed findings or canonical criteria/status rewrites.",
+    "All45 per-finding original fragments, closure owners, inputs/evidence and next owners retained; LA-015 companion does not create a46th finding.",
+    "Q5 accounting only; root independent mechanism review remains distinct.",
+    "No backend replay/mutation, production edits, children, reviewer cap, deletion/Trash or history rewrite.",
+    "Earlier snapshot/red/error outputs preserved; final broad incompleteness not converted into product-cause or inherited-green claim."
+  ],
+  "pattern_pass": [
+    "P14",
+    "P29",
+    "P31",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ]
+}

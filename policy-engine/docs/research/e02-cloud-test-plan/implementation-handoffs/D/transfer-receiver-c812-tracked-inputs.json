@@ -1,0 +1,27 @@
+{
+  "sha": "c812510541c898d7118004661ce07335823d2209",
+  "tree": "40fbf8a3a53949eacc1c0bed58f90f0aac141382",
+  "input_pathspecs": [
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/schemas",
+    "policy-engine/data",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/ruff.toml",
+    "policy-engine/mypy.ini",
+    "policy-engine/hatch.toml",
+    "policy-engine/uv.toml",
+    "policy-engine/uv.lock"
+  ],
+  "archive_bytes": 171171840,
+  "archive_sha256": "f3224a94534f14ce1129b7f679c434832d6dbe1b609a582bdecde5e9688e322f",
+  "extraction": "/dev/shm/e02-D2-receiver-review-c812",
+  "files": 7676,
+  "unchanged_test_commit": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+  "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+  "test_rawfile_sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+  "test_git_blob": "720e2fb78a4f67cdd125c19f587680ca9bab7d8d"
+}

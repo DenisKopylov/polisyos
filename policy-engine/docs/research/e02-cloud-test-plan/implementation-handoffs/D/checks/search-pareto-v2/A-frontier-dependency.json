@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.cross_unit_dependency.v1",
+  "unit": "D",
+  "finding_ids": [
+    "B109",
+    "B111"
+  ],
+  "closure_ids": [],
+  "owner": "A producer/export and G shared acceptance",
+  "source_bound_base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "consumer_path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+    "consumer_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+    "live_consumer_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e"
+  },
+  "capability_state": "independent runtime supplier absent; two actual native consumer failures are retained",
+  "native_falsifier": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py",
+    "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py",
+    "actual_path": [
+      "ParetoRegistry.update/get_snapshot",
+      "PolicyArtifactBuildInput",
+      "PolicyArtifactBuilder._build_frontier_report",
+      "FileSystemCAS _persist_model",
+      "load_policy_frontier_report"
+    ],
+    "deciding_output": "2 failed; missing hypervolume_assessments metadata and source-feasible denominator copied from the same registry eligible IDs",
+    "output": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency.txt",
+    "source_binding": "uncommitted D indicator delta; A consumer blob pinned unchanged; final immutable D rerun is required in slice receipt"
+  },
+  "required_boundary": {
+    "producer": "configured A runtime composition must provide a separately reconciled complete candidate universe and eligibility/unknown disposition with exact source, run, tenant and cell basis; no denominator can be inferred from observed registry entries or the ranked set itself",
+    "basis": "objective coordinates/directions/units/splits and supported profile must be explicitly configured; an opaque basis_ref string does not prove producer semantics or authority",
+    "consumer": "ranked publication must consume and reconcile that independent supplier; absent, unknown or inconsistent coverage remains unassessed and cannot become eligible/feasible by comparator output",
+    "indicator": "typed nullable hypervolume and limitation assessment survive persisted PolicyFrontierReport/CAS read without fake zero; membership and rank/input assessment remain separate",
+    "authority": "technical finite membership or content custody is not institutional authorization, source truth, appointment, production completeness or readiness"
+  },
+  "proposed_export_patch": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-unapplied-hypervolume-export.patch",
+    "sha256": "5cdf3b7cdbb2f1cebe365eda4e4a56e5f6af0090d7c3cd6606828fed2d51918a",
+    "destination": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+    "status": "UNAPPLIED; applies only typed indicator metadata export, does not implement absent independent denominator provider",
+    "apply_check": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-patch-apply-check.txt",
+    "apply_check_exit": 0
+  },
+  "next_owner_actions": [
+    "A reviews/applies the metadata export companion against its canonical source and executes the real CAS reader recipe.",
+    "A supplies/configures the independent eligibility and unknown-coverage provider, then runs the native denominator falsifier with missing and complete actual producer inputs.",
+    "G accepts the source/owner profile and cross-unit integration; D does not treat this proposed artifact or an arbitrary True marker as an executed consumer or closure."
+  ],
+  "final_source_evidence": {
+    "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+    "tree": "2229e35bd74f80baffee0a63da4d38a76f062dff",
+    "native_deciding_output": "2 failed, 2 warnings in 9.65s",
+    "outcome": "FAIL_DECLARED_DEPENDENCY",
+    "log": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency-12ee.txt",
+      "sha256": "9b07286b3bee5d65cfe0911e7f8d6ab2691cd10588d9758d4fa98428191ac977",
+      "bytes": 4231
+    },
+    "A_consumer_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+    "scope": "actual unchanged A builder plus CAS reader; neither foreign source was edited nor proposed patch applied"
+  }
+}

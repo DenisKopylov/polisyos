@@ -1,0 +1,49 @@
+......................................                                   [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[-0.5-gdp]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[-0.5-cost]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.0-gdp]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.0-cost]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.5-gdp]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.5-cost]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_unknown_outcomes_are_separate_from_finite_fraction[1]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_unknown_outcomes_are_separate_from_finite_fraction[2]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_first_violation_does_not_claim_complete_observed_stream
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_typed_adaptive_extremum_and_best_feedback_survive_cas[gdp]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_typed_adaptive_extremum_and_best_feedback_survive_cas[cost]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_repeated_scenarios_are_not_unique_issue_denominator[1]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_repeated_scenarios_are_not_unique_issue_denominator[10]
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_search_loop_without_adaptive_producer_remains_partial
+PASSED tests/unit/scientist/search/test_adversarial_streaming.py::test_full_vulnerability_payloads_are_bounded_during_real_run
+PASSED tests/unit/scientist/search/test_adversarial.py::test_negated_objective_inverts_sign
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_grid_extreme_reports_worst_case
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_top_k_does_not_change_ten_violation_score
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_lower_tail_selects_negative_worst_case
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_tracks_lower_tail_through_adaptive_step
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_stops_on_first_lower_tail_vulnerability
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_reverses_order_for_minimize_cost
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing]
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric]
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan]
+PASSED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf]
+PASSED tests/unit/scientist/search/test_adversarial.py::test_platform_meta_evaluator_passes_healthy_sentinel_injection
+PASSED tests/unit/scientist/search/test_adversarial.py::test_platform_meta_evaluator_detects_holdout_rotation_failure
+PASSED tests/unit/scientist/search/test_adversarial.py::test_platform_meta_evaluator_rejects_mistyped_rotations
+PASSED tests/unit/scientist/search/test_adversarial.py::test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades
+PASSED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_translator_falls_back_deterministically_without_gateway
+PASSED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_translator_gateway_parses_think_prefixed_json
+PASSED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_translator_surfaces_degraded_evidence_channels
+PASSED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_translator_compliance_flags_all_anti_spin_invariants
+PASSED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_constraint_critic_surfaces_budget_and_not_assessed_findings
+PASSED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution
+PASSED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_gateway_parses_think_prefixed_json
+38 passed, 2 warnings in 29.77s

@@ -1,0 +1,51 @@
+........................................
+=============================== warnings summary ===============================
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[missing]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[null]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-false]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-true]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[malformed]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[nan]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[inf]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[negative-inf]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conversion-overflow]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conflicting-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[absent-all]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-all]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[absent-primary-valid-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-primary-valid-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-primary-valid-balance-alias]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[zero-primary-wins]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[zero-balance-alias-wins]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[negative-balance-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[positive-balance-surplus]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[negative-deficit-absolute]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[equal-balance-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[conflicting-balance-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[equal-deficit-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[conflicting-deficit-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-malformed-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-malformed-deficit-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-nan-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-inf-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-primary-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-true-primary-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-alias-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-deficit-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-true-deficit-not-measurement]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[overflow-integer-primary-unavailable]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[bool-false]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[missing]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[overflow-int]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-false]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-true]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[overflow-int]
+40 passed, 2 warnings in 10.71s

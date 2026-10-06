@@ -1,0 +1,516 @@
+command: ['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'pytest', 'tests/unit/remediation/test_res_01.py', 'tests/unit/remediation/test_res_02.py', 'tests/unit/remediation/test_exe_02.py', 'tests/unit/scientist/orchestration/engine/test_async_executor.py', 'tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py', 'tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py', 'tests/unit/scientist/orchestration/engine/test_idempotency.py', 'tests/unit/scientist/orchestration/engine/test_state_branching.py', 'tests/unit/scientist/orchestration/engine/test_state_merge.py', 'tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py', '-q']
+.....FFFF............................................................... [ 57%]
+......................................................                   [100%]
+=================================== FAILURES ===================================
+_________ test_full_valid_state_resumes_without_unnecessary_cache_seed _________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-3/test_full_valid_state_resumes_0')
+
+    def test_full_valid_state_resumes_without_unnecessary_cache_seed(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+        run_id = "R_res_01_full_state"
+        state = ExperimentState(
+            run_id=run_id,
+            params={"a": 1, "b": 2},
+        )
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        ctx, bundle_ref = _context(store, run_id)
+        del ctx
+>       resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+        )
+
+tests/unit/remediation/test_res_01.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fe333f3fd10>
+run_id = 'R_res_01_full_state'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+_________ test_resume_rejects_missing_state_written_by_completed_node __________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-3/test_resume_rejects_missing_st0')
+
+    def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        run_id = "R_res_01_missing_state"
+        state = ExperimentState(run_id=run_id, params={"a": 1})
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        with pytest.raises(CheckpointCorruptedError, match="params.b"):
+>           resume_from_checkpoint(
+                store,
+                run_id,
+                workflow=workflow,
+                registry=registry,
+            )
+
+tests/unit/remediation/test_res_01.py:372: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fe3333867a0>
+run_id = 'R_res_01_missing_state'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+_________ test_allow_replay_rebuilds_completed_nodes_for_missing_state _________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-3/test_allow_replay_rebuilds_com0')
+
+    def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        registry.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
+        registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+        run_id = "R_res_01_allow_replay"
+        state = ExperimentState(run_id=run_id, params={"a": 1})
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        ctx, bundle_ref = _context(store, run_id)
+        del ctx
+>       resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+            resume_strategy="allow_replay",
+        )
+
+tests/unit/remediation/test_res_01.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fe333387570>
+run_id = 'R_res_01_allow_replay'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+______ test_changed_functional_input_remains_incompatible_with_checkpoint ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-3/test_changed_functional_input_0')
+
+    def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow().model_copy(
+            update={
+                "nodes": [
+                    _resume_workflow().nodes[0].model_copy(update={"params": {"mode": "v1"}}),
+                    *_resume_workflow().nodes[1:],
+                ]
+            }
+        )
+        run_id = "R_res_01_changed_input"
+        state = ExperimentState(run_id=run_id)
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=0,
+            completed_node_alias="a",
+            completed_node_id="scientist.node_res_a@1.0.0",
+            completed_nodes=["a"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=0,
+            node_alias="a",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+        changed = workflow.model_copy(
+            update={
+                "nodes": [
+                    workflow.nodes[0].model_copy(update={"params": {"mode": "v2"}}),
+                    *workflow.nodes[1:],
+                ]
+            }
+        )
+        with pytest.raises(WorkflowMismatchError):
+>           resume_from_checkpoint(store, run_id, workflow=changed, registry=_resume_registry())
+
+tests/unit/remediation/test_res_01.py:470: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fe33327d050>
+run_id = 'R_res_01_changed_input'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_workflow_timeout_raises
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=2352) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_res_01.py::test_full_valid_state_resumes_without_unnecessary_cache_seed
+FAILED tests/unit/remediation/test_res_01.py::test_resume_rejects_missing_state_written_by_completed_node
+FAILED tests/unit/remediation/test_res_01.py::test_allow_replay_rebuilds_completed_nodes_for_missing_state
+FAILED tests/unit/remediation/test_res_01.py::test_changed_functional_input_remains_incompatible_with_checkpoint
+
+exit=1 wall_s=20.800 max_rss_kib=764740

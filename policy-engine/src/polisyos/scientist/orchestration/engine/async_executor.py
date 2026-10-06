@@ -150,6 +150,7 @@ class AsyncWorkflowExecutor:
         self._async_store = ensure_async_artifact_store(ctx.store)
         self._registry = registry
         self._cache: NodeResultCache | None = None
+        self._cache_seed_owner: object | None = None
         self._checkpoint_hook = checkpoint_hook
         self._checkpoint_cache_seed_refs = list(checkpoint_cache_seed_refs or [])
         self._max_parallelism = max(1, max_parallelism)
@@ -198,17 +199,7 @@ class AsyncWorkflowExecutor:
         state_input_ref = await self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
 
-        self._cache = NodeResultCache(
-            self._ctx.store,
-            run_id=state.run_id,
-            tenant_context=self._run_tenant_context(),
-        )
-        restored = self._cache.seed_from_trace(self._ctx.run.trace_path)
-        restored_cp = self._cache.seed_from_entry_refs(self._checkpoint_cache_seed_refs)
-        if restored:
-            self._ctx.logger.info("Recovered %s cached node outcomes", restored)
-        if restored_cp:
-            self._ctx.logger.info("Recovered %s cached outcomes from checkpoint", restored_cp)
+        await self._seed_cache(run_id=state.run_id, workflow_id=workflow.workflow_id)
 
         records: list[NodeRunRecord] = []
         failed: set[str] = set()
@@ -683,7 +674,7 @@ class AsyncWorkflowExecutor:
             try:
                 await asyncio.wait_for(
                     execution_body(),
-                    timeout=self._workflow_timeout_s,
+                    timeout=self._remaining_deadline_seconds(self._workflow_deadline),
                 )
             except TimeoutError as exc:
                 raise WorkflowTimeoutError(
@@ -1445,6 +1436,55 @@ class AsyncWorkflowExecutor:
             return None
         return ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
 
+    async def _seed_cache(self, *, run_id: str, workflow_id: str) -> None:
+        """Recover off-loop into a private cache before admitting it to this attempt."""
+        owner = object()
+        self._cache_seed_owner = owner
+        self._cache = None
+        store = self._ctx.store
+        tenant_context = self._run_tenant_context()
+        trace_path = self._ctx.run.trace_path
+        refs = tuple(ref.model_copy(deep=True) for ref in self._checkpoint_cache_seed_refs)
+        deadline = self._workflow_deadline
+
+        def recover() -> tuple[NodeResultCache, int, int]:
+            cache = NodeResultCache(store, run_id=run_id, tenant_context=tenant_context)
+            restored = cache.seed_from_trace(trace_path, deadline_monotonic=deadline)
+            restored_cp = cache.seed_from_entry_refs(refs, deadline_monotonic=deadline)
+            return cache, restored, restored_cp
+
+        restored = restored_cp = 0
+        try:
+            NodeResultCache._check_deadline(deadline)
+            self._check_budget("cache_recovery", budget_key="read")
+            cache, restored, restored_cp = await run_blocking_async(
+                recover,
+                timeout_seconds=self._remaining_deadline_seconds(deadline),
+            )
+            NodeResultCache._check_deadline(deadline)
+        except (BudgetExhaustedError, *_EXECUTOR_DEGRADED_ERRORS) as exc:
+            if deadline is not None and time.perf_counter() >= deadline:
+                raise WorkflowTimeoutError(
+                    f"Workflow {workflow_id} exceeded timeout of {self._workflow_timeout_s}s",
+                ) from exc
+            _executor_degraded(
+                operation="seed_cache",
+                reason="cache_bypass",
+                exc=exc,
+                details={"workflow_id": workflow_id, "run_id": run_id},
+            )
+            # A timed-out/cancelled await cannot stop a synchronous worker.
+            # That worker only owns its private cache; never reuse it here.
+            cache = NodeResultCache(store, run_id=run_id, tenant_context=tenant_context)
+
+        if self._cache_seed_owner is not owner:
+            raise RuntimeError("cache recovery was superseded by another execution")
+        self._cache = cache
+        if restored:
+            self._ctx.logger.info("Recovered %s cached node outcomes", restored)
+        if restored_cp:
+            self._ctx.logger.info("Recovered %s cached outcomes from checkpoint", restored_cp)
+
     def _cache_deadline(
         self,
         inv: NodeInvocation,
@@ -1811,6 +1851,15 @@ class AsyncWorkflowExecutor:
                         outcome=outcome,
                         timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
                         deadline_monotonic=cache_deadline,
+                    )
+                    self._ctx.run.emit(
+                        f"scientist.node.{alias}",
+                        "NODE_CACHE_STORE",
+                        outputs=[cache_entry_ref],
+                        metrics={
+                            "duration_ms": int((time.perf_counter() - started) * 1000),
+                            "cache_store": 1,
+                        },
                     )
                 except _EXECUTOR_DEGRADED_ERRORS as exc:
                     self._cache.discard(cache_key)

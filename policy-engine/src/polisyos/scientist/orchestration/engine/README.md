@@ -24,6 +24,23 @@ orchestration stack.
 - Idempotency/cache helpers in [`idempotency.py`](idempotency.py)
 - Runner backends and configuration in [`runner/`](runner/): `WorkflowRunnerConfig`, `WorkflowRunnerBackend`, and `build_workflow_runner(...)`
 
+Both executors publish `NODE_CACHE_STORE` after a successful cache-entry write.
+A fresh executor in the same run restores exact entry refs from this trace or
+checkpoint refs, then verifies the stored replay operations before applying
+them to current state. An underlying CAS write that finishes after cancellation
+is not admitted to the trace as a successful cached attempt.
+
+Async cold recovery reads both trace and checkpoint entry refs through the same
+bounded shared worker as ordinary cache I/O, with the caller's context and one
+absolute workflow deadline. Recovery checks the read budget first and admits
+its private cache only after a successful, unexpired await. Cancellation or a
+bounded read timeout can leave a physical read running, but that worker cannot
+publish into the executor's current cache. Without a configured workflow
+deadline the shared helper's default 30-second read wait remains a cache bypass
+limit, not a workflow deadline. Workflow execution receives the time remaining
+after startup. Synchronous stores must support the existing shared-worker
+ownership model; this path does not add support for thread-affine connections.
+
 ## Depends On / Depended On By
 
 - Depends on: core artifacts, observability, tenant/security helpers, and node contracts consumed by workflow execution

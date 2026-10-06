@@ -1,0 +1,27 @@
+{
+  "source_sha": "94f378200d8684d61737f0561eccafea6eaa843f",
+  "source_tree": "97ce175cf2b05527da710ffa3c2fdeb991dce86b",
+  "production_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "-v",
+    "-s",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "--basetemp",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed/selection-positive-final-pytest",
+    "--junitxml=/workspace/polisyos/.polisyos/e02-B-cold-seed/selection-positive.xml"
+  ],
+  "cwd": "/workspace/e02-B-exe-state/policy-engine",
+  "PYTHONPATH": "/workspace/e02-B-exe-state/policy-engine/src:/workspace/e02-B-exe-state/policy-engine",
+  "exit_code": 0,
+  "wall_s": 12.9968250109996,
+  "rss_kib": 587148,
+  "stdout_sha256": "fdb75267190a3a21b66b2621dc6e6a3f8aa124df3ec20ddb11a147511b294527",
+  "xml_sha256": "5e380237c163fbe09a132fe2b5133ff735f277cb87909285b182756f290c233a",
+  "input_closure": "realtempDuckDB/CAS/configuredsource selector/directproducer; validv1artifactretained while currentDB physicallyrenamed =>skip/noextrasel; changedcontext/domain/missinginput controls; over1second betweenmatchinginputs fullDTOequalityexceptboundedfreshselectiontime +typedmanifestgraphinputs +bothCASverified"
+}

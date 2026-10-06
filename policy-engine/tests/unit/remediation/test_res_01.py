@@ -244,7 +244,73 @@ def _resume_registry() -> NodeRegistry:
 def _context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, object]:
     bundle = build_default_registry_bundle(store)
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
-    return ExecutionContext(store=store, run=run, logger=logging.getLogger("res_01")), bundle.bundle_ref
+    return ExecutionContext(
+        store=store, run=run, logger=logging.getLogger("res_01")
+    ), bundle.bundle_ref
+
+
+def _publish_checkpoint_without_cache_seed(
+    store: FileSystemCAS,
+    workflow: WorkflowSpec,
+    run_id: str,
+    *,
+    remove_state_path: str | None = None,
+) -> None:
+    """Produce native completion evidence, then remove only the optional cache seed.
+
+    Negative sufficiency cases remove one output from that produced snapshot.
+    The status/origin binding comes from the executor, rather than a fixture
+    asserting that an arbitrary list of aliases completed successfully.
+    """
+    ctx, bundle_ref = _context(store, run_id)
+    registry = _resume_registry()
+    registry.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
+    hook = CASCheckpointHook(store=store, run_dir=store.root / "runs" / run_id)
+    result = WorkflowExecutor(ctx, registry, checkpoint_hook=hook).execute(
+        workflow,
+        ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle_ref}),
+    )
+    assert result.report.status == "fail"
+    assert [(record.alias, record.status) for record in result.report.nodes] == [
+        ("a", "ok"),
+        ("b", "ok"),
+        ("c", "fail"),
+    ]
+    resolved = resolve_latest_checkpoint(store, run_id)
+    assert resolved is not None
+    metadata = resolved[1].metadata
+    assert metadata.completed_nodes == ["a", "b"]
+    state_payload = resolved[1].state
+    if remove_state_path is not None:
+        del state_payload["params"][remove_state_path]
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state_payload,
+        sequence_number=metadata.sequence_number + 1,
+        completed_node_alias=metadata.completed_node_alias,
+        completed_node_id=metadata.completed_node_id,
+        completed_nodes=metadata.completed_nodes,
+        completed_node_status_contract=metadata.completed_node_status_contract,
+        workflow_id=metadata.workflow_id,
+        workflow_fingerprint=metadata.workflow_fingerprint,
+        origin_workflow_fingerprint=metadata.origin_workflow_fingerprint,
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    update_checkpoint_head(
+        store.root / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=created.checkpoint_ref,
+        sequence_number=metadata.sequence_number + 1,
+        node_alias=metadata.completed_node_alias,
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+    # Keep the immutable producer trace in CAS, but remove the optional local
+    # recovery index too: sufficiency must come from the checkpoint state.
+    assert ctx.run.trace_path is not None
+    ctx.run.trace_path.write_text("", encoding="utf-8")
 
 
 def test_resume_preserves_origin_fingerprint_across_two_stops(tmp_path: Path) -> None:
@@ -298,32 +364,7 @@ def test_full_valid_state_resumes_without_unnecessary_cache_seed(tmp_path: Path)
     registry = _resume_registry()
     registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
     run_id = "R_res_01_full_state"
-    state = ExperimentState(
-        run_id=run_id,
-        params={"a": 1, "b": 2},
-    )
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
-        completed_node_alias="b",
-        completed_node_id="scientist.node_res_b@1.0.0",
-        completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
+    _publish_checkpoint_without_cache_seed(store, workflow, run_id)
 
     ctx, bundle_ref = _context(store, run_id)
     del ctx
@@ -344,31 +385,9 @@ def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) 
     workflow = _resume_workflow()
     registry = _resume_registry()
     run_id = "R_res_01_missing_state"
-    state = ExperimentState(run_id=run_id, params={"a": 1})
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
-        completed_node_alias="b",
-        completed_node_id="scientist.node_res_b@1.0.0",
-        completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
+    _publish_checkpoint_without_cache_seed(store, workflow, run_id, remove_state_path="b")
 
-    with pytest.raises(CheckpointCorruptedError, match="params.b"):
+    with pytest.raises(CheckpointCorruptedError, match=r"params\.b"):
         resume_from_checkpoint(
             store,
             run_id,
@@ -385,29 +404,7 @@ def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path)
     registry.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
     registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
     run_id = "R_res_01_allow_replay"
-    state = ExperimentState(run_id=run_id, params={"a": 1})
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
-        completed_node_alias="b",
-        completed_node_id="scientist.node_res_b@1.0.0",
-        completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
+    _publish_checkpoint_without_cache_seed(store, workflow, run_id, remove_state_path="b")
 
     ctx, bundle_ref = _context(store, run_id)
     del ctx
@@ -435,29 +432,7 @@ def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path:
         }
     )
     run_id = "R_res_01_changed_input"
-    state = ExperimentState(run_id=run_id)
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=0,
-        completed_node_alias="a",
-        completed_node_id="scientist.node_res_a@1.0.0",
-        completed_nodes=["a"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=0,
-        node_alias="a",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
+    _publish_checkpoint_without_cache_seed(store, workflow, run_id)
     changed = workflow.model_copy(
         update={
             "nodes": [

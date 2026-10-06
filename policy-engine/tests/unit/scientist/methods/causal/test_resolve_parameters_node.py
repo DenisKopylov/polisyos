@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import logging
+import time
+from datetime import UTC, datetime
 
 import duckdb
 
@@ -207,8 +209,8 @@ def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
     assert second_bundle.simulation_domain == "fiscal"
 
 
-def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatch) -> None:
-    """A valid same-request CAS bundle is reused without selecting again."""
+def test_matching_source_unbound_bundle_reselects_configured_source(tmp_path, monkeypatch) -> None:
+    """A v1 bundle without a selector-read binding cannot bypass a current source."""
     ctx = _build_ctx(tmp_path, run_id="R_phase15_reuse")
     db_path = tmp_path / "skg.duckdb"
     _seed_skg(db_path)
@@ -234,22 +236,61 @@ def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatc
     )
 
     node = ResolveParametersNode()
+    first_started = datetime.now(UTC).replace(microsecond=0)
     first = node.execute(ctx, state)
+    first_finished = datetime.now(UTC).replace(microsecond=0)
     assert first.status == "ok"
     first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
 
-    def fail_if_selected(*args, **kwargs):
-        del args, kwargs
-        raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+    from polisyos.scientist.nodes.builtins.causal import resolve_parameters
+
+    original_selector = resolve_parameters.ParameterSelector
+    selections = 0
+
+    def counted_selector(*args, **kwargs):
+        nonlocal selections
+        selections += 1
+        return original_selector(*args, **kwargs)
 
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
-        fail_if_selected,
+        counted_selector,
     )
+    # A fresh selection has its own producer timestamp, and therefore may have
+    # another immutable CAS identity despite equivalent selected parameters.
+    time.sleep(1.01)
+    replay_started = datetime.now(UTC).replace(microsecond=0)
     replay = node.execute(ctx, first.state.model_copy(deep=True))
+    replay_finished = datetime.now(UTC).replace(microsecond=0)
 
     assert replay.status == "ok"
-    assert replay.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == first_ref
+    assert selections == 1
+    replay_ref = replay.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    assert ctx.store.verify(first_ref.artifact_id).ok
+    assert ctx.store.verify(replay_ref.artifact_id).ok
+    first_bundle = load_context_adaptive_parameter_bundle(ctx.store, first_ref)
+    replay_bundle = load_context_adaptive_parameter_bundle(ctx.store, replay_ref)
+    assert replay_bundle.model_dump(exclude={"selection_timestamp"}) == first_bundle.model_dump(
+        exclude={"selection_timestamp"}
+    )
+    first_time = datetime.fromisoformat(first_bundle.selection_timestamp)
+    replay_time = datetime.fromisoformat(replay_bundle.selection_timestamp)
+    assert first_time.utcoffset() == replay_time.utcoffset() == UTC.utcoffset(None)
+    assert first_started <= first_time <= first_finished
+    assert replay_started <= replay_time <= replay_finished
+    assert first_time < replay_time
+    assert first_ref != replay_ref
+    for ref in (first_ref, replay_ref):
+        manifest = ctx.store.get_manifest(ref.artifact_id)
+        assert [(item.role, str(item.artifact_id)) for item in manifest.inputs] == [
+            ("causal_graph", str(graph_ref.artifact_id))
+        ]
+    assert replay.state.params == first.state.params
+    # Keeping the valid v1 artifact cannot authorize a missing current source.
+    db_path.rename(tmp_path / "unavailable.duckdb")
+    unavailable = node.execute(ctx, replay.state.model_copy(deep=True))
+    assert unavailable.status == "skip"
+    assert selections == 1
 
 
 def test_changed_domain_invalidates_bundle_and_idempotency_key(tmp_path) -> None:

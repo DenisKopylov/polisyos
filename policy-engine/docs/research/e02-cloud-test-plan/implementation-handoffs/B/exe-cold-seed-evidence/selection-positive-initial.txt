@@ -1,0 +1,36 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-exe-state/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-exe-state/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_resolve_parameters_node_persists_bundle_and_bridge_payload PASSED
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_existing_bundle_is_revalidated_for_changed_request PASSED
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_source_unbound_bundle_reselects_configured_source FAILED
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_changed_domain_invalidates_bundle_and_idempotency_key PASSED
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_resolve_parameters_node_skips_on_missing_inputs PASSED
+
+=================================== FAILURES ===================================
+_______ test_matching_source_unbound_bundle_reselects_configured_source ________
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:285: in test_matching_source_unbound_bundle_reselects_configured_source
+    assert [(item.role, item.artifact_id) for item in manifest.inputs] == [
+E   AssertionError: assert [('causal_gra...14c23621b8'))] == [('causal_gra...f14c23621b8')]
+E     
+E     At index 0 diff: ('causal_graph', ArtifactID(root='sha256:87c1fa8f0a4a162eaa8a0641db4ffdd10c05a178ab74f0215e1b2f14c23621b8')) != ('causal_graph', 'sha256:87c1fa8f0a4a162eaa8a0641db4ffdd10c05a178ab74f0215e1b2f14c23621b8')
+E     
+E     Full diff:
+E       [
+E           (
+E               'causal_graph',...
+E     
+E     ...Full output truncated (5 lines hidden), use '-vv' to show
+- generated xml file: /workspace/polisyos/.polisyos/e02-B-cold-seed/selection-positive.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_source_unbound_bundle_reselects_configured_source
+========================= 1 failed, 4 passed in 9.28s ==========================

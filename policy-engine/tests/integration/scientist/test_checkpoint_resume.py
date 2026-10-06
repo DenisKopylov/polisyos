@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -1143,7 +1144,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
     )
     ast.fix_missing_locations(compiled_module)
     namespace = dict(executor_module.__dict__)
-    exec(
+    exec(  # noqa: S102 - execute the isolated AST removal probe, never untrusted input
         compile(compiled_module, filename=str(module_path), mode="exec"),
         namespace,
     )
@@ -1346,6 +1347,25 @@ def _b73_fresh_reader_then_resume(
         "workflow_fingerprint": checkpoint.metadata.workflow_fingerprint,
         "origin_workflow_fingerprint": checkpoint.metadata.origin_workflow_fingerprint,
     }
+    trace_path = store.root / "runs" / run_id / "trace.jsonl"
+    before_trace = trace_path.read_text(encoding="utf-8").splitlines()
+    trace_cache_refs = [
+        ArtifactRef.model_validate(ref)
+        for line in before_trace
+        if (event := json.loads(line))["event"] == "NODE_CACHE_STORE"
+        and event["phase"] in {"scientist.node.left", "scientist.node.right"}
+        for ref in event["refs"]["outputs"]
+    ]
+    # Compute outputs may survive before their state frontier commits. Verify
+    # their bytes/key/journal independently from checkpoint completion metadata.
+    trace_cache_aliases = _assert_tier_cache_entries_bind_node_identity_and_content(
+        store,
+        run_id=run_id,
+        workflow=workflow,
+        completed_nodes=["left", "right"],
+        checkpoint_state=checkpoint.state,
+        cache_entry_refs=trace_cache_refs,
+    )
 
     resumed = resume_from_checkpoint(
         store,
@@ -1362,6 +1382,12 @@ def _b73_fresh_reader_then_resume(
             "report_status": resumed.report.status,
             "resumed_params": dict(resumed.state.params),
             "peer_calls": [ParallelLeftNode.calls, ParallelRightNode.calls],
+            "trace_cache_aliases": list(trace_cache_aliases),
+            "cache_hit_aliases": [
+                event["phase"].removeprefix("scientist.node.")
+                for line in trace_path.read_text(encoding="utf-8").splitlines()[len(before_trace) :]
+                if (event := json.loads(line))["event"] == "NODE_CACHE_HIT"
+            ],
             "final_calls": FlakyAfterParallelNode.calls,
         }
     )
@@ -1469,7 +1495,7 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
                 )
                 assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
                 expected_before_resume = ["seed"]
-                expected_peer_calls = [1, 1]
+                expected_peer_calls = [0, 0]
             else:
                 current_head = load_checkpoint_head(run_dir)
                 assert current_head is not None
@@ -1544,6 +1570,10 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             "final": True,
         }
         assert result["peer_calls"] == expected_peer_calls
+        assert result["trace_cache_aliases"] == ["left", "right"]
+        assert set(result["cache_hit_aliases"]) == (
+            {"left", "right"} if cut == "after_artifact_before_head" else set()
+        )
         assert result["final_calls"] == 1
 
 
@@ -1644,6 +1674,24 @@ def _b73_failure_policy_fresh_reader(
             "reopened checkpoint residual workflow fingerprint changed"
         )
 
+    trace_path = store.root / "runs" / run_id / "trace.jsonl"
+    before_trace = trace_path.read_text(encoding="utf-8").splitlines()
+    left_trace_refs = [
+        ArtifactRef.model_validate(ref)
+        for line in before_trace
+        if (event := json.loads(line))["event"] == "NODE_CACHE_STORE"
+        and event["phase"] == "scientist.node.left"
+        for ref in event["refs"]["outputs"]
+    ]
+    assert _assert_tier_cache_entries_bind_node_identity_and_content(
+        store,
+        run_id=run_id,
+        workflow=workflow,
+        completed_nodes=["left"],
+        checkpoint_state=checkpoint.state,
+        cache_entry_refs=left_trace_refs,
+    ) == ("left",)
+
     resumed = resume_from_checkpoint(
         store,
         run_id,
@@ -1665,13 +1713,16 @@ def _b73_failure_policy_fresh_reader(
                 ],
                 "cache_aliases": list(cache_aliases),
                 "workflow_fingerprint": current_fingerprint,
-                "origin_workflow_fingerprint": (
-                    checkpoint.metadata.origin_workflow_fingerprint
-                ),
+                "origin_workflow_fingerprint": (checkpoint.metadata.origin_workflow_fingerprint),
             },
             "report_status": resumed.report.status,
             "resumed_params": dict(resumed.state.params),
             "peer_calls": [ParallelLeftNode.calls, FailOnceParallelRightNode.calls],
+            "cache_hit_aliases": [
+                event["phase"].removeprefix("scientist.node.")
+                for line in trace_path.read_text(encoding="utf-8").splitlines()[len(before_trace) :]
+                if (event := json.loads(line))["event"] == "NODE_CACHE_HIT"
+            ],
             "final_calls": FlakyAfterParallelNode.calls,
         }
     )
@@ -1779,8 +1830,9 @@ def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successf
             "right": 2,
             "final": True,
         }
-        assert retried["peer_calls"] == (
-            [1, 1] if error_policy == "fail_fast" else [0, 1]
+        assert retried["peer_calls"] == [0, 1]
+        assert set(retried["cache_hit_aliases"]) == (
+            {"left"} if error_policy == "fail_fast" else set()
         )
         assert retried["final_calls"] == 1
         if error_policy == "fail_fast":

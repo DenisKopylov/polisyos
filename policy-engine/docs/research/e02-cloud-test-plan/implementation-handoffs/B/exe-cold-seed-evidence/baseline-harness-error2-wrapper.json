@@ -1,0 +1,22 @@
+{
+  "source_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "candidate_tests": "new test file only; production source exact slice base",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/integration/scientist/test_async_cache_recovery.py",
+    "-v",
+    "-s",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "--basetemp",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed/baseline-corrected-pytest"
+  ],
+  "cwd": "/workspace/e02-B-exe-state/policy-engine",
+  "PYTHONPATH": "/workspace/e02-B-exe-state/policy-engine/src:/workspace/e02-B-exe-state/policy-engine",
+  "exit_code": 1,
+  "wall_s": 15.19038423099937,
+  "rss_kib": 593328
+}

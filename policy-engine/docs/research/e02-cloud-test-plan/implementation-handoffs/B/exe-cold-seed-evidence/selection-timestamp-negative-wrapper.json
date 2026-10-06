@@ -1,0 +1,20 @@
+{
+  "source_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed/selection-timestamp-negative.py"
+  ],
+  "cwd": "/workspace/e02-B-b52-oracle/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-b52-oracle/policy-engine/src:/workspace/e02-B-b52-oracle/policy-engine/product",
+    "E02_SELECTION_SOURCE_ROOT": "/workspace/e02-B-b52-oracle",
+    "python": "Python3.14.2"
+  },
+  "exit_code": 0,
+  "wall_s": null,
+  "measurement_limit": "Elapsedwall/RSSnot measured for this cheapstandalonenegative; fullactualJSON/stdout and stderr retained. Exit0 asserts prior testfails onlybecausefreshdeclaredtimechanges identity, notproductPASS.",
+  "input_closure": "native source+fixtureexact0f24, realtempDuckDB/CAS/node/selector; secondselector actual1.01s pause; twoactualfullpayloads comparewithONLYselection_timestamp separated",
+  "script_sha256": "c805f845a49e73c1f9e046b07924feb89a07a4b2583b59f48864c3d5659e7cec",
+  "stdout_sha256": "a0ddf7eae75d84023be0aa93ab4c3212d1b47dd01fb3dc6b11260f47a41e6493",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

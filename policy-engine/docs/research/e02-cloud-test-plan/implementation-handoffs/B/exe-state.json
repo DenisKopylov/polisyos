@@ -1,0 +1,571 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "exe-state",
+  "closure_ids": [],
+  "finding_ids": [
+    "B51",
+    "B52",
+    "B55",
+    "B57",
+    "B58",
+    "B59",
+    "B60",
+    "B61",
+    "B62",
+    "B63",
+    "B70",
+    "B71",
+    "B72",
+    "B73",
+    "B77"
+  ],
+  "bundle_ids": [
+    "EXE-01",
+    "EXE-02",
+    "RES-01",
+    "RES-02",
+    "STA-01",
+    "STA-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "1d87e30c6859d945dd84310aafeb64905be529ae",
+    "a33898206b4b7421fa06f3444d8d53fb5e1bd174"
+  ],
+  "candidate_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+  "candidate_tree_sha": "d92cd6b5872325949a3cadb7917b10792b68b1ea",
+  "branch": "codex/e02-B-exe-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/27",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-async-cache-recovery.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+    "policy-engine/tests/integration/scientist/test_execution_state_replay.py",
+    "policy-engine/tests/unit/remediation/test_res_01.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py"
+  ],
+  "handoff_only_paths": "This separate handoff commit adds the receipt, bounded oracle harness, and complete deciding logs; it does not change frozen runtime/test candidate bytes.",
+  "lease": "B-W07 confirmed by root for canonical mechanism/tests; only async_executor.py production owner changed. No A generation_cycle/run_lifecycle or C streaming edits.",
+  "baseline_cells": [
+    {
+      "id": "F13-P098",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+      "state": "FAILED",
+      "grade": "source-reported compact text; raw archive absent",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:225@c40d4acae1ce58b597267255026d9356565828fd",
+      "transferred_source_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@c40d4acae1ce58b597267255026d9356565828fd (complete opening job metadata, profile/config/source identity and declared overlays); query.py --cell F13-P098 --details --job-context resolves exact failure locator",
+      "claim": "Baseline navigation only; no attribution of candidate failure or finding closure from this cell."
+    },
+    {
+      "id": "F02-P085",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+      "state": "FAILED",
+      "grade": "source-reported compact text; raw archive absent",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt:213@c40d4acae1ce58b597267255026d9356565828fd",
+      "transferred_source_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@c40d4acae1ce58b597267255026d9356565828fd (complete opening job metadata, profile/config/source identity and declared overlays); query.py --cell F02-P085 --details --job-context resolves exact failure locator",
+      "claim": "Baseline navigation only; no attribution of candidate failure or finding closure from this cell."
+    },
+    {
+      "id": "F13-P133",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "state": "FAILED",
+      "grade": "source-reported compact text; raw archive absent",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:260@c40d4acae1ce58b597267255026d9356565828fd",
+      "transferred_source_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@c40d4acae1ce58b597267255026d9356565828fd (complete opening job metadata, profile/config/source identity and declared overlays); query.py --cell F13-P133 --details --job-context resolves exact failure locator",
+      "claim": "Baseline navigation only; no attribution of candidate failure or finding closure from this cell."
+    }
+  ],
+  "baseline_denominator": {
+    "query_commands": [
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit B --failures-only --limit 30",
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding <each of the 15 finding_ids> --details --job-context --limit 1000",
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --cell <selected baseline cell> --details --job-context --limit 1000"
+    ],
+    "complete_unique_routed_cells_resolved": 64,
+    "source_refs": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+    "source_sha_and_environment_refs": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@c40d4acae1ce58b597267255026d9356565828fd and received/F01..F15.txt@c40d4acae1ce58b597267255026d9356565828fd",
+    "raw_archives_received": 0,
+    "role": "Complete routed denominator is navigation; no baseline package PASS used as evidence of new fix or full finding closure."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--override-ini",
+        "addopts=",
+        "-v",
+        "tests/integration/scientist/test_execution_state_replay.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_02.py",
+        "tests/unit/remediation/test_exe_02.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+      ],
+      "cwd": "/workspace/e02-B-exe-state/policy-engine",
+      "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": "19 enumerated native/importer files in exact command; tracked runtime source at candidate; local isolated synthetic CAS/DB fixtures; pytest default project profile; no production dataset or live services",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-targeted.txt",
+      "result": "257 passed, 3 warnings; exit0, wall122.716s, maxrss948076KiB"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-controls.py",
+      "cwd": "policy-engine",
+      "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": {
+        "harness_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-controls.py",
+        "harness_sha256": "e3616deb4472f29f9acec887863af2230a58868b505af4f562afc096104e702f",
+        "oracle_path_at_sha": "policy-engine/tests/integration/scientist/test_execution_state_replay.py@a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+        "base_defining_module": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py@c40d4acae1ce58b597267255026d9356565828fd",
+        "other_production_defining_modules": "unchanged between base and candidate; base control is defining-module substitution, not whole-base rerun",
+        "removal": "only NODE_CACHE_STORE emission suppressed; native outcome, mutation journal proof, CAS entry and NODE_OK retained"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-controls.txt",
+      "result": "Two expected native oracle failures at calls2 !=1; actual CAS entries retain journal proof and native status/state are independently checked. Control wrapper exits0."
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest (10 exact files listed in log) -q",
+      "cwd": "policy-engine",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": "Exact 10-file base command in committed log, run before slice edits",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-base-targeted.txt",
+      "result": "4 statusless manual RES01 fixture failures; native fixtures fixed in first implementation. This is characterization, not inherited-red exception for candidate gates."
+    },
+    {
+      "command": "18-file pytest command in committed log",
+      "cwd": "policy-engine",
+      "target_sha": "1d87e30c6859d945dd84310aafeb64905be529ae",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": "Exact enumerated native/importer files, original B73 recomputation count assertions",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-pre-followup.txt",
+      "result": "229 passed, 2 failed. These two B73 assertions were own-delta fallout of truthful persisted output reuse, not inherited failures; follow-up independently validates CAS contents and preserves original state/frontier assertions."
+    },
+    {
+      "command": "Changed Python Ruff checks and bounded production range format checks; exact 3 commands in log",
+      "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": "Changed source and four test files; handoff harness bound by hash above. Whole-source/checkpoint-file formatting not claimed",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-lint.txt"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/integration/scientist/test_execution_state_replay.py --junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/exe-review.xml",
+      "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+      "executor": "independent root B",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": "Frozen nine new real-path tests; root source review separately found no blockers",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-independent-review.txt",
+      "result": "9 passed in26.93s, exit0, wall31.937s"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python tools/quality/validation/check_production_invocation.py --repo-root . --base c40d4acae1ce58b597267255026d9356565828fd --receipt /workspace/polisyos/.polisyos/e02-B-exe-state/candidate-production-invocation.json",
+      "target_sha": "1d87e30c6859d945dd84310aafeb64905be529ae",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": "All tracked src/tools/tests Python denominator; static direct-call model only",
+      "outcome": "ERROR",
+      "output": "Observed runner exit137. Later short output at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-unverified-static-output.txt and 163MB JSON exist without retained wrapper completion; unverified, not PASS. Named high-memory scanner resource caused actual memory contention; root runs independent frozen follow-up.",
+      "unverified_raw_path_at_sha": "/workspace/polisyos/.polisyos/e02-B-exe-state/candidate-production-invocation.json@sha256:c6c089f121f79343d65a42b58d13a91523bbca9a5d3ff5af799b50ee8a79c6f7",
+      "predicate_basis": "not_established for this attempt; no product defect or runtime invocation proof attributed"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "--receipt",
+        "/workspace/e02-B-coordination/.polisyos/e02-B/raw/exe-acceptance-invocation.json"
+      ],
+      "cwd": "/workspace/e02-B-acceptance/policy-engine",
+      "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+      "target_tree": "d92cd6b5872325949a3cadb7917b10792b68b1ea",
+      "executor": "independent root B, clean attached acceptance worktree; separately completed attempt",
+      "environment": {
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "duckdb": "1.4.3",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "temporalio": "not installed",
+        "ray": "not installed",
+        "thread_process_policy": "no artificial cloud process/worker/numeric-thread quota; isolated pytest temporary CAS/DB paths; new wire probe uses spawn"
+      },
+      "input_closure": "Exact a338 tracked Python src/tools/tests static denominator vs slice base; one named high-memory scanner process; all source immutable during attempt",
+      "outcome": "PASS",
+      "coverage": "partial static diagnostic only",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-independent-static.txt",
+      "result": "exit0; wall202.709720833s RSS8360224KiB; no static regressions or new unresolved construction; runtime_invocation_established=false",
+      "raw_untransferred": {
+        "path": ".polisyos/e02-B/raw/exe-acceptance-invocation.json",
+        "sha256": "a023e0cf811ee26297c804b047ed7aeee28cd176637a9d848ea9f26035f2d775",
+        "bytes": 170857261,
+        "transfer": "not_transferred; rerun exact command for full evidence"
+      },
+      "predicate_basis": "recomputed by independent root; complete compact stdout/wrapper transferred; full raw unavailable to receiver, which reruns exact command for full diagnostic evidence",
+      "independent_git_evidence": {
+        "commit": "b09e634d0c2b0c522e50a69f161ed373a2b3bed6",
+        "full_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation.txt",
+        "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation-wrapper.json",
+        "summary_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation-summary.json",
+        "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/evidence-index.json",
+        "stdout_sha256": "9bea5cddc75736db76129158aa37a8b066a2c08b538048d53813154ca3f5d989",
+        "readback": "Committed root stdout bytes exactly match the copy delivered in this leaf receipt."
+      }
+    }
+  ],
+  "property": {
+    "statement": "A successfully persisted async node output becomes discoverable by a fresh same-run trace reader, which resolves native CAS content and replays declared assignment/delete operations into current state without duplicate producer effect or rollback of unrelated current fields. Cancelled/failed persistence is not admitted by successful recovery publication. Compute artifact survival and checkpoint committed frontier remain distinct.",
+    "runtime_path": [
+      "AsyncWorkflowExecutor native successful node and awaited NodeResultCache.put via async boundary",
+      "FileSystemCAS NodeCacheEntry schema2.0 / replayepoch2.1 with embedded outcome and typed journal proof",
+      "RunContext NODE_CACHE_STORE outputs and actual trace.jsonl; fresh NodeResultCache.seed_from_trace validates scoped identity/content",
+      "Native cache consumer merge_cached_outcome onto current state; CASCheckpointHook and fresh spawned reader independently validate accepted frontier; actual _activity_worker serialize_outcome→spawned filesystem wire→merge_tier_outcomes"
+    ],
+    "proxy_divergence": "Persisted artifact/native NODE_OK/correct returned state can coexist with producer rerun after reopening when recovery event is absent. Native wire status/payload can coexist with unrelated-field rollback when operation journal is removed. Those semantic failures are detected by the same positive state/count oracle.",
+    "negative_controls": [
+      "Exact base defining module loaded from Git with unchanged imported production dependencies: actual reopen producer count2 instead of1.",
+      "Suppress only recovery publication event while retaining actual CAS bytes/journal/status: same native oracle fails count2 instead of1.",
+      "Remove only mutation journal before actual spawned worker serialization: native ok/payload decode remains, but current unrelated state rolls back and state oracle detects it.",
+      "Cancel await while synchronous underlying FileSystemCAS write is blocked: late complete artifact survives, recovery event absent, reopened consumer executes producer again.",
+      "B73 marker-retaining completed-frontier removal retains cache refs, native state/head/history; independent frontier assertion detects omitted peer.",
+      "Missing persisted completed-node output rejected; allow_replay rebuilds; changed functional input still rejected."
+    ],
+    "authority_purpose": "Runtime recovery evidence only. No source/institutional authority or production scientific conclusion emitted.",
+    "time_roles": "Store success precedes recovery publication; computation artifact may survive before durable state commit; cancellation does not assert physical write erasure; source epoch remains consumer-owned."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bridge_fixed_bounded; all source finding statuses retained; no new full closure asserted",
+  "finding_dispositions": [
+    {
+      "id": "B51",
+      "source_bundle": "EXE-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1331",
+      "disposition": "bounded_native_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not"
+      ],
+      "scope_and_remaining_work": "Native hit does not rerun producer with exhausted compute budget; read budget gates hit, miss still fails. Complete card permission-change/corruption and four-base acceptance remain with G.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B52",
+      "source_bundle": "EXE-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1347",
+      "disposition": "bridge_fixed_bounded",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_io_does_not_block_independent_coroutine",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_put_does_not_block_and_failed_entry_is_not_published",
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_cancelled_async_cache_write_finishes_without_recovery_admission",
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state[async]"
+      ],
+      "scope_and_remaining_work": "Awaited off-loop get/put, independent ready coroutine, failed publication, real late cancelled filesystem writer and reopened consumer exercised. Cold trace seeding at AsyncWorkflowExecutor.execute remains synchronous and outside these responsiveness witnesses; no disk throughput or full closure claim.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B55",
+      "source_bundle": "EXE-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1395",
+      "disposition": "bounded_real_cas_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_real_cas_fail_fast_rechecks_queued_work_and_continue_commits_peers",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_metric_failure_after_semaphore_acquire_releases_slot"
+      ],
+      "scope_and_remaining_work": "Four native queued nodes at max_parallelism=1: fail_fast producer counts 1/0/0/0 with empty returned/durable state; continue 1/1/1/1 and durable successful b/c/d. Slot/error controls passed. No broad distributed guarantee.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B57",
+      "source_bundle": "STA-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1543",
+      "disposition": "bounded_real_cas_and_process_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state",
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_spawned_worker_wire_rebases_operations_and_detects_removed_journal"
+      ],
+      "scope_and_remaining_work": "Reopened cold index replays equal assignments/null/deletion onto current unrelated state; cold invocation has same state. Actual spawned worker uses production serialization and merge. Status/payload survive journal removal while current unrelated value rolls back, so semantic oracle detects the removal.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B58",
+      "source_bundle": "STA-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1559",
+      "disposition": "bounded_real_cas_and_process_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state",
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_spawned_worker_wire_rebases_operations_and_detects_removed_journal"
+      ],
+      "scope_and_remaining_work": "Declared deletion survives native cache and actual spawned worker transport. Current wire implementation already carries typed mutation sidecar; historic omission is not treated as a new current bug. No operated Temporal/Ray or arbitrary custom mutable graph claim.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B59",
+      "source_bundle": "STA-01",
+      "source_status_retained": "closed",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1573",
+      "disposition": "existing_bounded_closed_scope_regression",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "policy-engine/tests/unit/remediation/test_exe_02.py::test_readiness_launch_pair_isolates_nested_mutable_state"
+      ],
+      "scope_and_remaining_work": "Retain original closed status only for declared-leaf dict/list/Pydantic nested isolation. Existing native branch/merge and readiness tests passed; do not extend to arbitrary cycles/custom mutables or all failed-sibling worlds.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B60",
+      "source_bundle": "STA-02",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1587",
+      "disposition": "bounded_native_source_recomputation_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_cache_hit_replays_b60_bundle_request_and_graph_binding",
+        "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_source_unbound_bundle_reselects_configured_source",
+        "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_source"
+      ],
+      "scope_and_remaining_work": "Request/context/graph and configured source are actually consumed. Legacy unbound v1 bundle cannot prove selector-read binding, so reselecting configured source is preserved and obsolete assertion updated. No production-history or served/full-data closure claim.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B61",
+      "source_bundle": "STA-02",
+      "source_status_retained": "held",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1601",
+      "disposition": "held_data_record_owner_decision",
+      "deciding_selectors": [
+        "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+      ],
+      "scope_and_remaining_work": "Technical prepared-read witnesses bind source digest/transaction identity. They do not supply the SKG owner immutable/versioned data_record, authority, provenance/custody and exact consumed bytes/query/run scope. Preserve held/data_record; SKG owner and local G must provide that contract before semantic closure.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B62",
+      "source_bundle": "STA-02",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1615",
+      "disposition": "bounded_native_presence_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_preserves_presence_and_nested_missing_semantics",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_applies_only_declared_consumer_default"
+      ],
+      "scope_and_remaining_work": "Canonical key tests distinguish absent/null/nested presence and declared consumer defaults. No specific production wrong-result history or complete four-base claim.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B63",
+      "source_bundle": "RES-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1629",
+      "disposition": "bounded_local_recovery_witness_external_backend_not_established",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_seed_from_trace",
+        "policy-engine/tests/unit/remediation/test_res_01.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state"
+      ],
+      "scope_and_remaining_work": "Real trace-to-CAS reopen bridge now recovers async outputs; native cache index and checkpoint recovery tests passed. Operated Temporal/Ray seed lifecycle and large-history throughput/memory remain not_established.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B70",
+      "source_bundle": "RES-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1873",
+      "disposition": "bounded_local_double_resume_witness_external_backend_not_established",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_01.py::test_resume_preserves_origin_fingerprint_across_two_stops",
+        "policy-engine/tests/unit/remediation/test_res_01.py",
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+      ],
+      "scope_and_remaining_work": "Native A/B/C double resume and persisted origin workflow fingerprint tested; fresh-reader publication and completed-workflow cases pass. Operated Temporal/Ray and arbitrary custom-hook recovery remain not_established.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B71",
+      "source_bundle": "RES-01",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1889",
+      "disposition": "bounded_native_checkpoint_witness_external_backend_not_established",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_01.py::test_full_valid_state_resumes_without_unnecessary_cache_seed",
+        "policy-engine/tests/unit/remediation/test_res_01.py::test_resume_rejects_missing_state_written_by_completed_node",
+        "policy-engine/tests/unit/remediation/test_res_01.py::test_allow_replay_rebuilds_completed_nodes_for_missing_state",
+        "policy-engine/tests/unit/remediation/test_res_01.py::test_changed_functional_input_remains_incompatible_with_checkpoint"
+      ],
+      "scope_and_remaining_work": "Actual WorkflowExecutor/CASCheckpointHook emits completion evidence; fixture strips only optional recovery refs/local seed trace, keeps real origin/status and immutable original trace. Sufficient state resumes C without cache seed; missing output rejected, explicit replay rebuilds, changed functional input rejected. Operated Temporal/Ray external state sufficiency not_established.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B72",
+      "source_bundle": "RES-02",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1905",
+      "disposition": "bounded_native_skip_width_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_native_skip_has_same_persisted_completion_and_resume_semantics_at_each_width",
+        "policy-engine/tests/unit/remediation/test_res_02.py"
+      ],
+      "scope_and_remaining_work": "Native skip at widths one/two never becomes completed producer; actual persisted completed set and resumed producer counts checked. Condition stability and generic skip replay policy not newly decided.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B73",
+      "source_bundle": "RES-02",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1921",
+      "disposition": "bounded_reopened_cas_frontier_and_cache_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier",
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer",
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_rejects_node_only_hook_before_any_side_effect"
+      ],
+      "scope_and_remaining_work": "Fresh processes independently read old/complete durable head, history, state and frontier; marker-retaining frontier removal still detected. Both peer CAS entry bytes/node/key/journal are independently resolved. Successful output is reusable before state commit, so producer counts reflect new truthful trace bridge while original frontier and exact increment/state/compensation assertions stay. Live distributed/external exactly-once and kill-during-filesystem-publication remain not_established.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    },
+    {
+      "id": "B77",
+      "source_bundle": "EXE-02",
+      "source_status_retained": "partial",
+      "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1985",
+      "disposition": "bounded_native_readiness_witness",
+      "deciding_selectors": [
+        "policy-engine/tests/unit/remediation/test_exe_02.py::test_independent_successor_starts_before_slow_sibling",
+        "policy-engine/tests/unit/remediation/test_exe_02.py::test_unordered_read_write_overlap_keeps_tier_barrier",
+        "policy-engine/tests/unit/remediation/test_exe_02.py::test_declared_dependency_keeps_successor_after_b_and_overlap"
+      ],
+      "scope_and_remaining_work": "Actual readiness scheduler starts C after A before unrelated B; dependency and read/write conflict controls retain barrier. Other readiness tests preserve snapshot/journal isolation. No general scientific-repeat/seed/artifact production data acceptance claim.",
+      "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+    }
+  ],
+  "source_semantic_basis": {
+    "B73": "Canonical RES-02 card, B_r19 L1921-L1938: no policy erases successfully saved computation artifact; presence of artifact and inclusion in working state are different facts. Acceptance explicitly requires compensation, output cache and seed refs. Original durable state/frontier tests retained.",
+    "B61": "Held data_record decision and source-owner requirement remain unchanged; no test-motivated semantic contract relaxation."
+  },
+  "limitations_and_next_owner": [
+    "G independently fetches remote head and receipt; source candidate a33898206b4b7421fa06f3444d8d53fb5e1bd174 is the exact local acceptance candidate. Finding closure is a separate decision from integration/PR acceptance.",
+    "All four-base full-file reconciliation and final combined architecture/broad gates are outside this leaf receipt. Leaf scanner ERROR137 and unverified later artifact are retained. A separate clean exact-a338 root attempt completed exit0 with partial static coverage; compact full stdout/wrapper is committed here, full170857261byte diagnostic raw is not transferred. Runtime/served production admission remains unestablished by that scanner.",
+    "Whole async_executor.py and existing checkpoint integration file formatting are not claimed clean; inherited formatting drift not given a P41 inherited-red exception. Changed source range and all changed Python lint pass.",
+    "No operated Temporal/Ray, arbitrary custom hook, crash inside filesystem publication or external exactly-once proof. Parent/native worker subprocess witness uses real spawn and filesystem wire.",
+    "B52 cold recovery seed is currently synchronous before async tiers. Independently ready coroutine responsiveness for that cold-seed path remains unmeasured; exact candidate above available for a focused G follow-up.",
+    "B61 SKG source owner must provide data_record/immutable consumed read contract; technical snapshot digest/transaction binding alone does not close institutional/source authority.",
+    "Full production dataset stays local. Generic CAS/state/cancellation tests need no production data; any history/evaluator/full-data served criterion must be rerun by local G on exact candidate. A owns served generation_cycle/run_lifecycle consumer edits; contract is successful output reuse independent from committed state frontier, negative is marker/payload-without-journal or uncommitted-frontier admission.",
+    "Legacy traces without NODE_CACHE_STORE remain readable and may recompute unreferenced old outputs; no unsafe filesystem sweep-based cache admission added."
+  ]
+}

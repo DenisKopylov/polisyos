@@ -688,8 +688,14 @@ class NodeResultCache:
                 self.prune(self._max_entries)
             return entry_ref
 
-    def load_entry(self, entry_ref: ArtifactRef) -> bool:
+    def load_entry(
+        self,
+        entry_ref: ArtifactRef,
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> bool:
         with self._lock:
+            self._check_deadline(deadline_monotonic)
             ref_identity = _cache_ref_identity(entry_ref)
             verified_key = self._verified_entry_keys.get(ref_identity)
             if verified_key is not None:
@@ -700,7 +706,9 @@ class NodeResultCache:
                 # The reference is eligible for one fresh verification.
                 self._verified_entry_keys.pop(ref_identity, None)
 
-            entry, _decoded, proof_valid = self._read_entry(entry_ref)
+            entry, _decoded, proof_valid = self._read_entry(
+                entry_ref, deadline_monotonic=deadline_monotonic
+            )
             if entry.run_id != self._run_id or not proof_valid:
                 return False
 
@@ -718,6 +726,7 @@ class NodeResultCache:
                     )
                 return False
 
+            self._check_deadline(deadline_monotonic)
             self._index.set(entry.idempotency_key, entry_ref)
             self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
                 entry.state_mutations
@@ -727,12 +736,24 @@ class NodeResultCache:
                 self.prune(self._max_entries)
             return True
 
-    def seed_from_trace(self, trace_path: Path | None) -> int:
+    def seed_from_trace(
+        self,
+        trace_path: Path | None,
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> int:
+        self._check_deadline(deadline_monotonic)
         if trace_path is None or not trace_path.exists():
             return 0
         restored = 0
+        self._check_deadline(deadline_monotonic)
         with trace_path.open("r", encoding="utf-8") as handle:
-            for line in handle:
+            while True:
+                self._check_deadline(deadline_monotonic)
+                line = handle.readline()
+                if not line:
+                    break
+                self._check_deadline(deadline_monotonic)
                 raw = line.strip()
                 if not raw:
                     continue
@@ -760,8 +781,10 @@ class NodeResultCache:
                     if ref.kind != "scientist.node_cache_entry":
                         continue
                     try:
-                        if self.load_entry(ref):
+                        if self.load_entry(ref, deadline_monotonic=deadline_monotonic):
                             restored += 1
+                    except TimeoutError:
+                        raise
                     except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
                         logger.debug(
                             "Failed to load cache entry: %s",
@@ -770,14 +793,23 @@ class NodeResultCache:
                         continue
         return restored
 
-    def seed_from_entry_refs(self, refs: list[ArtifactRef] | tuple[ArtifactRef, ...]) -> int:
+    def seed_from_entry_refs(
+        self,
+        refs: list[ArtifactRef] | tuple[ArtifactRef, ...],
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> int:
+        self._check_deadline(deadline_monotonic)
         restored = 0
         for ref in refs:
+            self._check_deadline(deadline_monotonic)
             if ref.kind != "scientist.node_cache_entry":
                 continue
             try:
-                if self.load_entry(ref):
+                if self.load_entry(ref, deadline_monotonic=deadline_monotonic):
                     restored += 1
+            except TimeoutError:
+                raise
             except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
                 logger.debug(
                     "Failed to seed from entry ref: %s",

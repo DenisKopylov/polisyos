@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
@@ -254,6 +254,8 @@ class SearchLoopRunner:
         generator = spec.candidate_generator
         if generator is None:
             raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")
+        generator, analysis = self._configured_generator(spec)
+        spec = replace(spec, candidate_generator=generator)
         objective = CompositeObjective([_AutotuneObjective(spec.promotion_policy)])
         controller = SearchController(
             config=SearchConfig(
@@ -278,8 +280,92 @@ class SearchLoopRunner:
                 "suite_ref": suite_ref.model_dump(mode="json"),
                 "promotion_policy": spec.promotion_policy.model_dump(mode="json"),
                 "evaluator_profile": benchmark_evaluator_profile(spec.benchmark_evaluator),
+                "analysis_configuration": analysis,
             },
         )
+
+    def _configured_generator(self, spec: SearchLoopSpec) -> tuple[Any, dict[str, Any] | None]:
+        """Activate a declared exploratory analysis before controller creation."""
+        if not isinstance(spec.metadata, dict):
+            raise ValueError("search_loop_metadata_requires_mapping")
+        names = {"analysis_ref", "analysis_order_profile", "analysis_purpose"}
+        present = names & spec.metadata.keys()
+        generator = spec.candidate_generator
+        if not present:
+            return generator, None
+        if (
+            present != names
+            or spec.metadata["analysis_order_profile"] != "exploratory_coordinate_order.v1"
+            or spec.metadata["analysis_purpose"] != "exploratory"
+        ):
+            raise ValueError("search_analysis_configuration_requires_known_exploratory_profile")
+        ref = ArtifactRef.model_validate(spec.metadata["analysis_ref"])
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("search_analysis_requires_selected_manifest_profile")
+        from polisyos.scientist.methods.autotune.bayesian_generator import (
+            BayesianCandidateGenerator,
+        )
+        from polisyos.scientist.methods.search.sensitivity_adapter import (
+            SensitivityAwareCandidateGenerator,
+        )
+
+        base = (
+            generator._base if type(generator) is SensitivityAwareCandidateGenerator else generator
+        )
+        if type(base) is not BayesianCandidateGenerator:
+            raise ValueError("search_analysis_requires_canonical_native_generator")
+        configured = SensitivityAwareCandidateGenerator.from_artifact(generator, self._store, ref)
+        if configured.order_profile != spec.metadata["analysis_order_profile"]:
+            raise ValueError("search_analysis_order_profile_unsupported_by_generator")
+        return configured, {
+            "analysis_ref": configured.analysis_ref.model_dump(mode="json"),
+            "order_profile": configured.order_profile,
+            "purpose": "exploratory",
+        }
+
+    @staticmethod
+    def _codec_payload(spec: SearchLoopSpec, payload: dict[str, Any]) -> dict[str, Any]:
+        """Project the canonical native technical envelope for a strict typed mutation."""
+        if type(spec.mutation_codec) is not PydanticMutationCodec:
+            return payload
+        if type(spec.candidate_generator).__module__ not in {
+            "polisyos.scientist.methods.autotune.bayesian_generator",
+            "polisyos.scientist.methods.search.sensitivity_adapter",
+        }:
+            return payload
+        from polisyos.scientist.methods.autotune.bayesian_generator import (
+            BayesianCandidateGenerator,
+        )
+        from polisyos.scientist.methods.search.sensitivity_adapter import (
+            SensitivityAwareCandidateGenerator,
+        )
+
+        generator = spec.candidate_generator
+        adapter = generator if type(generator) is SensitivityAwareCandidateGenerator else None
+        base = adapter._base if adapter is not None else generator
+        if type(base) is not BayesianCandidateGenerator:
+            return payload
+        candidate = dict(payload)
+        if "_sensitivity" in candidate:
+            if (
+                adapter is None
+                or adapter.order_profile != "exploratory_coordinate_order.v1"
+                or candidate["_sensitivity"] != adapter._metadata()
+            ):
+                raise ValueError("search_candidate_sensitivity_configuration_mismatch")
+            candidate.pop("_sensitivity")
+        elif adapter is not None:
+            raise ValueError("search_candidate_sensitivity_metadata_missing")
+        if "_strategy_metadata" in candidate:
+            if not isinstance(candidate["_strategy_metadata"], dict):
+                raise ValueError("search_candidate_native_metadata_requires_mapping")
+            candidate.pop("_strategy_metadata")
+            candidate.setdefault("loop_id", spec.loop_id)
+        if "semantic" not in spec.mutation_codec._model_cls.model_fields and candidate.get(
+            "semantic"
+        ) == {"interventions": []}:
+            candidate.pop("semantic")
+        return candidate
 
     def resume(
         self,
@@ -306,11 +392,23 @@ class SearchLoopRunner:
         codec = spec.mutation_codec
         if codec is None:
             raise ValueError(f"Search loop '{spec.loop_id}' is missing a mutation codec")
-        candidate = codec.decode(candidate_payload)
+        candidate = codec.decode(self._codec_payload(spec, candidate_payload))
+        inputs = [input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")]
+        generator = spec.candidate_generator
+        if type(generator).__module__ == "polisyos.scientist.methods.search.sensitivity_adapter":
+            from polisyos.scientist.methods.search.sensitivity_adapter import (
+                SensitivityAwareCandidateGenerator,
+            )
+
+            if type(generator) is SensitivityAwareCandidateGenerator and generator.analysis_ref:
+                self._store.get_verified_snapshot(generator.analysis_ref)
+                inputs.append(
+                    input_ref_from_artifact_ref(generator.analysis_ref, role="sensitivity_analysis")
+                )
         candidate_ref = persist_mutation_artifact(
             self._store,
             candidate,
-            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+            inputs=inputs,
         )
         basis = benchmark_comparison_basis(
             self._store,
@@ -349,7 +447,7 @@ class SearchLoopRunner:
         evaluation_ref = persist_benchmark_evaluation(
             self._store,
             evaluation,
-            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+            inputs=inputs,
         )
         decision = self._registry.consider_promotion(
             spec.loop_id,

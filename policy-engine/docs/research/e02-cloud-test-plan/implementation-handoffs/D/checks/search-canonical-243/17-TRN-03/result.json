@@ -1,0 +1,127 @@
+{
+  "ordinal": 17,
+  "bundle": "TRN-03",
+  "canonical_line": 481,
+  "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+  "canonical_pytest_arguments": [
+    "-q",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/search/test_lessons.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py",
+    "-ra"
+  ],
+  "selectors": [
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/search/test_lessons.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py"
+  ],
+  "source_before": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:28:39.171807+00:00"
+  },
+  "metadata": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py",
+      "/workspace/e02-D-published-root",
+      "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 9.067481406993465,
+    "output": {
+      "bytes": 6955,
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/events.jsonl",
+    "-q",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/search/test_lessons.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-17-TRN-03-522fd4e82d4f4cad8d8a20818554cc9d",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/junit.xml",
+    "-rA"
+  ],
+  "equivalent_pytest_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/search/test_lessons.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-17-TRN-03-522fd4e82d4f4cad8d8a20818554cc9d",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/junit.xml",
+    "-rA"
+  ],
+  "basetemp": "/dev/shm/search-canonical-243-17-TRN-03-522fd4e82d4f4cad8d8a20818554cc9d",
+  "basetemp_existed_before": false,
+  "exit_code": 0,
+  "wall_seconds": 11.851669525000034,
+  "source_after": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:29:00.125336+00:00"
+  },
+  "complete_output": {
+    "bytes": 3087,
+    "sha256": "6ba66aec2c941ee69a4a5b76f6ed831c37ca641c191d8f448fed6e8d2d50daef"
+  },
+  "max_rss_kib": 1200496,
+  "rss_scope": "cumulative high-water of completed metadata and pytest children in this stdlib-only parent; not isolated per-child peak",
+  "completed_call_outcomes": {
+    "passed": 18
+  },
+  "failed_reports": [],
+  "skipped_reports": [],
+  "event_stream": {
+    "bytes": 31181,
+    "sha256": "956cc1d2987c14833b9622adb37d021c951b228ab18540dbf95c0ade7ee9aecb"
+  },
+  "junit": {
+    "file": {
+      "bytes": 3103,
+      "sha256": "4d15ea6c63074fb33e9c0ba5f32436961a5dc8dc4743ade535a86305c993ee6f"
+    },
+    "counts": {
+      "tests": 18,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "outcome": "PASS",
+  "limit": "Any skipped optional/native-backend query scope remains UNRUN, even if other tests passed. A crash retains actual completed failing reports but supplies no complete command verdict. No inherited-red/P41 waiver. Native Python call entries are observations, not standalone fit/numerical acceptance.",
+  "event_stream_git_filename": "events.jsonl.txt"
+}

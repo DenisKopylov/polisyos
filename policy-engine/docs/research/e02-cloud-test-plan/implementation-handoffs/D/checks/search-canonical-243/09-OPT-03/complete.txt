@@ -1,0 +1,34 @@
+.........                                                                [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py: 9 warnings
+tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py: 3 warnings
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py: 2 warnings
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+_______ test_actual_hard_resource_fallback_checkpoint_preserves_due_fit ________
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 12:16:11.822 | ERROR    | polisyos.common.logger:_call:120 - ResourceArbiter hard RSS limit exceeded: 1111.5MB (hard=0MB)
+
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[scalar_score]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[params]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_transferred_current_rows_cannot_bypass_configured_reader
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py::test_actual_hard_resource_fallback_checkpoint_preserves_due_fit
+PASSED tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[False]
+PASSED tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[True]
+PASSED tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_configured_origin_mismatch_remains_discovery_only_and_cannot_fit_gp
+9 passed, 16 warnings in 23.48s

@@ -1,0 +1,127 @@
+{
+  "ordinal": 14,
+  "bundle": "STR-01",
+  "canonical_line": 409,
+  "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+  "canonical_pytest_arguments": [
+    "-q",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "-ra"
+  ],
+  "selectors": [
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+  ],
+  "source_before": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:26:49.804811+00:00"
+  },
+  "metadata": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py",
+      "/workspace/e02-D-published-root",
+      "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 8.832705011009239,
+    "output": {
+      "bytes": 6955,
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/events.jsonl",
+    "-q",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-14-STR-01-bf043f2b18e64a3bbfbf5fcebbd0e10e",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/junit.xml",
+    "-rA"
+  ],
+  "equivalent_pytest_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-14-STR-01-bf043f2b18e64a3bbfbf5fcebbd0e10e",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/junit.xml",
+    "-rA"
+  ],
+  "basetemp": "/dev/shm/search-canonical-243-14-STR-01-bf043f2b18e64a3bbfbf5fcebbd0e10e",
+  "basetemp_existed_before": false,
+  "exit_code": 0,
+  "wall_seconds": 34.70838782899955,
+  "source_after": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:27:33.380008+00:00"
+  },
+  "complete_output": {
+    "bytes": 5644,
+    "sha256": "a37b1bfb133160287930b4d3dd01587d06b3b44eedcaaf978a53cd86d85e9d98"
+  },
+  "max_rss_kib": 1200496,
+  "rss_scope": "cumulative high-water of completed metadata and pytest children in this stdlib-only parent; not isolated per-child peak",
+  "completed_call_outcomes": {
+    "passed": 38
+  },
+  "failed_reports": [],
+  "skipped_reports": [],
+  "event_stream": {
+    "bytes": 70557,
+    "sha256": "0c862aa0052f2645d5d83eecb43fe447ab591c22feb5e0411c72c774ce1cb174"
+  },
+  "junit": {
+    "file": {
+      "bytes": 6321,
+      "sha256": "61fc7dc5dea45fd1db85299141319fa1b3c0fac1f6981ec6d014067543df6b7a"
+    },
+    "counts": {
+      "tests": 38,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "outcome": "PASS",
+  "limit": "Any skipped optional/native-backend query scope remains UNRUN, even if other tests passed. A crash retains actual completed failing reports but supplies no complete command verdict. No inherited-red/P41 waiver. Native Python call entries are observations, not standalone fit/numerical acceptance.",
+  "event_stream_git_filename": "events.jsonl.txt"
+}

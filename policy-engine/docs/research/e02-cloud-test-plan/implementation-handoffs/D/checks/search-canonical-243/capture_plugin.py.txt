@@ -1,0 +1,137 @@
+"""External measurement-only pytest bootstrap; source and test expectations stay unchanged."""
+
+import collections
+import hashlib
+import json
+from pathlib import Path
+import sys
+import time
+
+
+class Observer:
+    def __init__(self, event_path):
+        self.output = Path(event_path).open("x", encoding="utf-8", buffering=1)
+        self.nodeid = None
+        self.calls = collections.Counter()
+        self.sources = {}
+        self.previous_profile = None
+
+    def emit(self, kind, **values):
+        self.output.write(
+            json.dumps({"kind": kind, "monotonic": time.monotonic(), **values}, ensure_ascii=False)
+            + "\n"
+        )
+        self.output.flush()
+
+    def profile(self, frame, event, arg):
+        if event != "call":
+            return
+        module = frame.f_globals.get("__name__", "")
+        name = frame.f_code.co_name
+        backend = (
+            module.startswith("botorch")
+            and name
+            in {
+                "fit_gpytorch_mll",
+                "fit_gpytorch_mll_scipy",
+                "condition_on_observations",
+                "posterior",
+                "optimize_acqf",
+                "gen_batch_initial_conditions",
+                "forward",
+                "__init__",
+            }
+        ) or (
+            module.startswith("gpytorch.models")
+            and name in {"condition_on_observations", "__init__"}
+        )
+        consumer = module.startswith("polisyos.scientist") and name in {
+            "_fit_gp",
+            "_fit_full_gp",
+            "_effective_training_corpus",
+            "_optimize_acquisition",
+            "_condition_model",
+            "set_state",
+            "get_state",
+            "admit_warm_start",
+            "load_warm_start",
+            "_history_to_evaluations",
+            "warm_start",
+            "generate",
+            "run",
+            "suggest",
+        }
+        if not (backend or consumer):
+            return
+        code = frame.f_code
+        key = f"{module}:{code.co_qualname}@{code.co_filename}:{code.co_firstlineno}"
+        self.calls[key] += 1
+        if key not in self.sources:
+            path = Path(code.co_filename)
+            self.sources[key] = {
+                "module": module,
+                "qualified_name": code.co_qualname,
+                "filename": code.co_filename,
+                "first_line": code.co_firstlineno,
+                "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest()
+                if path.is_file()
+                else None,
+                "scope": "actual_python_call_entry; a call alone does not establish a completed numerical fit or expected-value agreement",
+            }
+            self.emit("native_source", key=key, **self.sources[key])
+
+    def pytest_sessionstart(self, session):
+        self.emit(
+            "session_start",
+            rootpath=str(session.config.rootpath),
+            inipath=str(session.config.inipath),
+            invocation_args=list(session.config.invocation_params.args),
+        )
+
+    def pytest_collection_finish(self, session):
+        self.emit("collection_finish", nodeids=[item.nodeid for item in session.items])
+
+    def pytest_collectreport(self, report):
+        if report.failed or report.skipped:
+            self.emit(
+                "collection_report",
+                nodeid=report.nodeid,
+                outcome=report.outcome,
+                longrepr=str(report.longrepr),
+            )
+
+    def pytest_runtest_logstart(self, nodeid, location):
+        self.nodeid = nodeid
+        self.calls.clear()
+        self.previous_profile = sys.getprofile()
+        sys.setprofile(self.profile)
+        self.emit("test_start", nodeid=nodeid, location=list(location))
+
+    def pytest_runtest_logreport(self, report):
+        self.emit(
+            "test_report",
+            nodeid=report.nodeid,
+            when=report.when,
+            outcome=report.outcome,
+            duration=report.duration,
+            longrepr=str(report.longrepr) if report.longrepr is not None else None,
+            skipreason=str(report.longrepr) if report.skipped else None,
+            wasxfail=getattr(report, "wasxfail", None),
+            native_call_counts=dict(self.calls),
+        )
+
+    def pytest_runtest_logfinish(self, nodeid, location):
+        sys.setprofile(self.previous_profile)
+        self.emit("test_finish", nodeid=nodeid, native_call_counts=dict(self.calls))
+        self.nodeid = None
+
+    def pytest_sessionfinish(self, session, exitstatus):
+        self.emit("session_finish", exitstatus=int(exitstatus), native_sources=self.sources)
+
+
+if __name__ == "__main__":
+    event_path, *arguments = sys.argv[1:]
+    import pytest
+
+    observer = Observer(event_path)
+    raise SystemExit(pytest.main(arguments, plugins=[observer]))

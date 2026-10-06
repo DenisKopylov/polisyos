@@ -1,0 +1,744 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "published-canonical-17-frozen-243",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CTL-01",
+    "CTL-02",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03",
+    "OPT-01",
+    "OPT-02",
+    "OPT-03",
+    "OPT-04",
+    "SRV-01",
+    "SRV-03",
+    "STP-01",
+    "STR-01",
+    "TRN-01",
+    "TRN-02",
+    "TRN-03"
+  ],
+  "finding_ids": [],
+  "execution_role": "Production implementation author executing literal prescribed gates; this is execution evidence, not independent review of own code or adjudication of finding closure.",
+  "slice_base_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "unit_implementation_slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+  ],
+  "candidate_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "candidate_tree_sha": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "artifact_parent_sha": "3ebf94e9dfe925890f2b60843ec82c36d90e177e",
+  "payload_commits": [
+    "e12647f09c9cd60fc6f8a9dc098e1d779d8e7a18",
+    "0c235483c7368fbf8f004e7aba4e499d4db5870d"
+  ],
+  "payload_tree_sha": "1aba148e761b5ed06fe926224ac0212f3735ba6e",
+  "changed_paths": {
+    "scope": "Artifact-only changes underchecks/search-canonical-243 plus this separate receipt; no production/test/root source edits. Full payload set is manifest/files, recursively hashverified fromGit.",
+    "complete_manifest": {
+      "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/manifest.json",
+      "bytes": 28033,
+      "sha256": "3e3cbec7f28ab10faf4164c9d806ba3e5daa08805303cdbe9f2d8329d672001e",
+      "pointer": "/files"
+    }
+  },
+  "literal_definition": {
+    "sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+    "commands": 17,
+    "selector_occurrences": 53,
+    "distinct_python_files": 38,
+    "plan_and_config_helpers": {
+      "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/plan.json",
+      "bytes": 24836,
+      "sha256": "0f9a6230b58d4097f64b3f868b1155b452391f7d857e7a0ac95663ea80d99ff0"
+    },
+    "added_arguments": "The addopts override removes duplicate quiet/report defaults; original -q/-ra and exact selectors are retained. importlib and strict markers are explicit; fresh nonexistent UUID basetemp, JUnit and -rA are added. A measurement-only pytest.main child loads the external observer; each result retains actual argv and equivalent python -m pytest argv."
+  },
+  "checks": [
+    {
+      "bundle": "CTL-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/01-CTL-01/result.json",
+        "bytes": 5001,
+        "sha256": "9a2b05efc88f4eeb69646c7d79475be094b3935e8536cc8ea2eb45bfb98dbf68"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/01-CTL-01/complete.txt",
+        "bytes": 134363,
+        "sha256": "e9880759e7c16f780b6c6fd288b5baa74e0d1f47262a77d1fd9a814e851bebff"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/01-CTL-01/junit.xml",
+        "bytes": 6014,
+        "sha256": "cd066582786807bf4e9ca67d2b08b32da29ba12cce7655ec412ccb2b9419fcff"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/01-CTL-01/events.jsonl.txt",
+        "bytes": 75638,
+        "sha256": "04bac11efebe66ab9a33741e49d411fbc55d218aa0efc7e05d7744208db65e7c"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "CTL-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/02-CTL-02/result.json",
+        "bytes": 5303,
+        "sha256": "c3a0a67f7ac019a00c7d2b4117fcff2c5b0b41472e925ccb682dc726a5acc170"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/02-CTL-02/complete.txt",
+        "bytes": 7060,
+        "sha256": "672589389f6682cc704fcf4c96dbec84a79828a61eaf512bb0e3af6a9e6fad2e"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/02-CTL-02/junit.xml",
+        "bytes": 5808,
+        "sha256": "6a592a7011b446a818e73eee0aacba8d64808a575b36196e6a54358cf947d533"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/02-CTL-02/events.jsonl.txt",
+        "bytes": 205720,
+        "sha256": "d30a4394d34da34630f863d67ad2d3c0d8b682ce53ff5052e51692e5e56afed2"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "CTL-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/result.json",
+        "bytes": 6499,
+        "sha256": "0ce89e39804140050255e34cfe23ffca70477dcceeab88e0ec9ff849a7c3ae8e"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/complete.txt",
+        "bytes": 13091,
+        "sha256": "4b73aa3d9f80392390680d93c09e6f17eb759a2c9d80b5a615badd54a64c1bc4"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/junit.xml",
+        "bytes": 15335,
+        "sha256": "b24a806f9604f329a3c3eea99cb65d28c75a89ff76db4c3409fc68bddc26155b"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/events.jsonl.txt",
+        "bytes": 224911,
+        "sha256": "28566d39ed14250ccef14d7d15a28a3ebcf909543897e142260b57bb7f243379"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "FUN-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/04-FUN-01/result.json",
+        "bytes": 5413,
+        "sha256": "9dfd35ac3b2e7b2405ddb7bc4c142adf7f52d6b91240d5e04b6a2ae1ec982fa8"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/04-FUN-01/complete.txt",
+        "bytes": 11290,
+        "sha256": "0d418a7ed7edf56da09296f0a59b05e555abbe47bb3f386caa14586dc343b04a"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/04-FUN-01/junit.xml",
+        "bytes": 13197,
+        "sha256": "e010629980d1b6ffe14813f1a103f952d2fc2aab923909e00bea0261ccbe077b"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/04-FUN-01/events.jsonl.txt",
+        "bytes": 138001,
+        "sha256": "6e0a2175746adf053e3d8da575801d58c455be7edc82b7271f7c8ddfcb14f822"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "FUN-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/05-FUN-02/result.json",
+        "bytes": 4596,
+        "sha256": "5032df281382a7bac783aed4b03342c5a85daa62f7be209fdbbba84fbdfe32c1"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/05-FUN-02/complete.txt",
+        "bytes": 5465,
+        "sha256": "61ccadc9b3b4c584367154ece0064668973dd42bbd989004a4157ab6febf3bae"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/05-FUN-02/junit.xml",
+        "bytes": 6050,
+        "sha256": "4f57750fe4603de84fe995d924ff96d266f0702d55efc338e8ba7db7d16a29b8"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/05-FUN-02/events.jsonl.txt",
+        "bytes": 62231,
+        "sha256": "4a7f3262e2c2350ac01d364c07b8441442291989519747d884463f324535fcb5"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "FUN-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+      "outcome": "FAIL",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/result.json",
+        "bytes": 5301,
+        "sha256": "4aaa6c4e50dc50085a0f22984674b878e4930244d1c8a32eb70ea8b990ffa81a"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/complete.txt",
+        "bytes": 11470,
+        "sha256": "b22ab673644a51f84342371ec9125ece4ce50dd51eb0af972d71d0bf9adcb75f"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/junit.xml",
+        "bytes": 12657,
+        "sha256": "691e5f3ec316aca04a59b6aa7e74cfc7296e84a7ef36009dc9c41a2f72492f38"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/events.jsonl.txt",
+        "bytes": 96899,
+        "sha256": "f27a650818595791547423f91661e47f5094752ca7eaf8fdb900c246e42f702e"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "OPT-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+      "outcome": "FAIL",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/result.json",
+        "bytes": 6208,
+        "sha256": "0f8eaa468e75482eadd97f9b6ac94ac01a175eb549406df28e19c78b15820a2c"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/complete.txt",
+        "bytes": 19888,
+        "sha256": "2762077dcffadbe4c5b1c3ac284601c9f6c9ab83e08b0e3a1e7ae9fc6160591a"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/junit.xml",
+        "bytes": 22812,
+        "sha256": "50a0df50596bac2d221fa6b4ad14aa6e0869b0c490b3c137bd21e307f97835dd"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/events.jsonl.txt",
+        "bytes": 147790,
+        "sha256": "7eccc86e776929a45321eee2d53ebdced6cf6c134a60d6866ce1524867ccf23a"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "OPT-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/08-OPT-02/result.json",
+        "bytes": 5207,
+        "sha256": "2d4f9504a4fcda6e0f840f3fc27e8d2be8eed4ebcc7e9d4b995f1abab0dc280c"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/08-OPT-02/complete.txt",
+        "bytes": 10189,
+        "sha256": "87fe6135751026cd99422232b673814ba738563681a6e18ffc45c723e2848626"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/08-OPT-02/junit.xml",
+        "bytes": 9335,
+        "sha256": "5e78114e12bbce644658ee92e3eb80f1773d64886718f9c99b8ab599031f6136"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/08-OPT-02/events.jsonl.txt",
+        "bytes": 193684,
+        "sha256": "9e0e6f0738171474c1da716d006b259ce9ba34bd2794651586f4ad10c727dd42"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "OPT-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/result.json",
+        "bytes": 5211,
+        "sha256": "b8460d2c4af2cef9e2ad07f3824a020b446c8bb09cc9c6de017b8cfc4f4c40d2"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/complete.txt",
+        "bytes": 3207,
+        "sha256": "df7bb9d990880efba94fcb20828f8580fea016e48f99a9db0f7e07a21af03627"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/junit.xml",
+        "bytes": 1894,
+        "sha256": "ddde4611406d0d4f88a85ec3dd6eb8bfd5b2a4403c80e8e3682ef2462327ff9b"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/events.jsonl.txt",
+        "bytes": 199829,
+        "sha256": "03bea7ed7f1eaab4450d6553628b8c2e151d47d662757f6f36efb3fcaf3f0084"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "OPT-04",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/10-OPT-04/result.json",
+        "bytes": 5062,
+        "sha256": "ef6e6e6f2adfc3e2c821d0782b2937eb8642b3809590c3c5d05712d99537dc0b"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/10-OPT-04/complete.txt",
+        "bytes": 4779,
+        "sha256": "4c9c4ee9cfef2e8f46324e41ff7cff4a9057b911aa1029ab281a109a9f4934c9"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/10-OPT-04/junit.xml",
+        "bytes": 5125,
+        "sha256": "fafc496a369908e94c3da720f70a530774e663aecda74853409908bdf18beca3"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/10-OPT-04/events.jsonl.txt",
+        "bytes": 57421,
+        "sha256": "de174a9ad593e07f04e864ae79a2241140760bfd7b117cd5a3fcd402ac998c68"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "SRV-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/11-SRV-01/result.json",
+        "bytes": 4978,
+        "sha256": "95e65d072865cae249d0ad102c54e5c8afb171a8cf64c2af0818faaf75aa2331"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/11-SRV-01/complete.txt",
+        "bytes": 134463,
+        "sha256": "734e34f66148ce39c267351714efb50c668a1350d39d406ca218d9333b2ef3b0"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/11-SRV-01/junit.xml",
+        "bytes": 6147,
+        "sha256": "aa5781032838d8223afa266da04a327d251fd384b3c90eb6c2143f0598a2d415"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/11-SRV-01/events.jsonl.txt",
+        "bytes": 76606,
+        "sha256": "a1d9b261285ab545c55b26f3fe6767739d97cacdf0f4b07a32c85711c09737a2"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "SRV-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/12-SRV-03/result.json",
+        "bytes": 4810,
+        "sha256": "aba697760d8dc002f3bf601543a488d59d419481b1d83955603b4936d85876b6"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/12-SRV-03/complete.txt",
+        "bytes": 4450,
+        "sha256": "a068b67cf404b708943ff60a2e7e5d2351b940bd2682bae45ed5220d4e63b337"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/12-SRV-03/junit.xml",
+        "bytes": 4697,
+        "sha256": "b3cbda9890bf07d8f27340faff0f9309c312e9f38bea511619ad63cda48b0a52"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/12-SRV-03/events.jsonl.txt",
+        "bytes": 52661,
+        "sha256": "bb848d4346065525c848a39913d2c1e57a85bea6ed44078de2a341377918ab42"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "STP-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/result.json",
+        "bytes": 5226,
+        "sha256": "c87601c9588f0d59fb427f50d54fb7cabf07298355efad3d9fdaa2ef44919656"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/complete.txt",
+        "bytes": 6002,
+        "sha256": "19fc79dd6dc7e7e06493e264f81987000d4f55a1f42600b6f75c7eea9eb95810"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/junit.xml",
+        "bytes": 6612,
+        "sha256": "581f5533cada7cae103cba9958beb447a2a4f402fc3c644c98c95941a9544fb9"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/events.jsonl.txt",
+        "bytes": 67933,
+        "sha256": "d3bea67a29b46c179f500cb507d93a72b1294cd5903c74f5aee9d3546ae679bb"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "STR-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/result.json",
+        "bytes": 5016,
+        "sha256": "c6f2afa89471c690e37186a4d02577621cfe020fd3a011d49281451ee826da45"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/complete.txt",
+        "bytes": 5644,
+        "sha256": "a37b1bfb133160287930b4d3dd01587d06b3b44eedcaaf978a53cd86d85e9d98"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/junit.xml",
+        "bytes": 6321,
+        "sha256": "61fc7dc5dea45fd1db85299141319fa1b3c0fac1f6981ec6d014067543df6b7a"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/events.jsonl.txt",
+        "bytes": 70557,
+        "sha256": "0c862aa0052f2645d5d83eecb43fe447ab591c22feb5e0411c72c774ce1cb174"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "TRN-01",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/15-TRN-01/result.json",
+        "bytes": 5083,
+        "sha256": "7545d77238e3cdb87df235ba49e0e3f46579e671d13ea3701a05b39089bc92ea"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/15-TRN-01/complete.txt",
+        "bytes": 8461,
+        "sha256": "5c468aa807b21d4db49440893ddaa109ca5ff7637d45a4243de03e108da4a4f6"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/15-TRN-01/junit.xml",
+        "bytes": 8690,
+        "sha256": "69610ec8b4f447bb224b79f25529862ae50edede93a1d5032425441de06737a0"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/15-TRN-01/events.jsonl.txt",
+        "bytes": 201029,
+        "sha256": "8ee6b93091bcf955ba3f83aed0c6547b3d5420fd0dcdcf5932fd32e73b6d7a94"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "TRN-02",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/16-TRN-02/result.json",
+        "bytes": 4914,
+        "sha256": "48a87d70ba9fb0943b6cc927533efe77c5aa0e138e993335368435f5f35a376d"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/16-TRN-02/complete.txt",
+        "bytes": 8905,
+        "sha256": "2ba4f6747da1d67bef4799a368d5e66dfa756730f23c399e46aa50984a08c6d5"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/16-TRN-02/junit.xml",
+        "bytes": 10274,
+        "sha256": "e468934915968a8e11ad756ca977b9c39fa76edbcd42071fa8482efe5e305073"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/16-TRN-02/events.jsonl.txt",
+        "bytes": 111884,
+        "sha256": "0c0a923e3e45f122bfaad60816b195a6c1fb1d050927a0f5c64c8c36b8bbcf3a"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    },
+    {
+      "bundle": "TRN-03",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "outcome": "PASS",
+      "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "command_environment_source_input_result": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/result.json",
+        "bytes": 4982,
+        "sha256": "5d16840699fa4e9499fab9f242f35f2334dae9afb7c821095d9e3e18bda3cecc"
+      },
+      "complete_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/complete.txt",
+        "bytes": 3087,
+        "sha256": "6ba66aec2c941ee69a4a5b76f6ed831c37ca641c191d8f448fed6e8d2d50daef"
+      },
+      "full_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/junit.xml",
+        "bytes": 3103,
+        "sha256": "4d15ea6c63074fb33e9c0ba5f32436961a5dc8dc4743ade535a86305c993ee6f"
+      },
+      "flushed_events_and_native_sources": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/events.jsonl.txt",
+        "bytes": 31181,
+        "sha256": "956cc1d2987c14833b9622adb37d021c951b228ab18540dbf95c0ade7ee9aecb"
+      },
+      "query_scope_limit": "Whole literal selected command only; optional/backend scope skipped would remainUNRUN. No skip occurred in this execution."
+    }
+  ],
+  "actual_complete_result": {
+    "outcome": "FAIL",
+    "commands_completed": 17,
+    "commands_passed": 15,
+    "commands_failed": 2,
+    "junit_execution_occurrences": 744,
+    "passed_execution_occurrences": 737,
+    "failed_execution_occurrences": 7,
+    "errors": 0,
+    "skipped": 0,
+    "count_scope": "Repeated literal execution occurrences, not distinct test IDs or the coalesced80-file union.",
+    "all_native_metadata_children_exit": 0,
+    "root_sha_tree_before_after_each_command_equal": true,
+    "root_tracked_before_after_each_command_clean": true
+  },
+  "environment": {
+    "python_executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch_distribution": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pytest": "9.0.2",
+    "runtime": "CPU Linux; CUDA availablefalse in captured metadata; GPUUNRUN. Percommandactualenvironment/modulebytes/sourceGitmatchrefs are initsenvironment.json.",
+    "overrides": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "thread_limits_added": false,
+    "process_worker_limits_added": false,
+    "parent_imports": "stdlib-only; native environment andsourceorigin imports in separate exited metadata children.",
+    "observed_torch_threads": 5,
+    "observed_torch_interop_threads": 5
+  },
+  "failed_scope_disposition": {
+    "OPT-01": "Five original controls fail when strict BenchmarkEvaluation refuses NaN/Inf in _eval before the downstream Pareto consumer. No validation weakening, exception waiver, xfail or P41 exclusion was applied. A separate shared raw-CAS fixture migration is assigned after this immutable proof.",
+    "FUN-03": "Two original controls fail: the bool-only positive recheck produces no calls; the native workflow VOIScheduler stub lacks prioritize. The funnel author owns separate fixture migration. These remain FAIL; the absent issuer/verifier and valid positive permission path remain held.",
+    "P41": "No exact slice-base replay or complete input-intersection proof was performed; no inherited-red classification or exclusion is supplied."
+  },
+  "property": {
+    "statement": "Execute every literal canonicalD command on the same frozenroot tree and retain actual completedtest reports, source/environmentbindings andnativecall observations without replacing incompleteexecution with availability/markerPASS.",
+    "runtime_path": [
+      "Canonical D.md exact selectors",
+      "Locked Python metadata child verifies native module origins against Git",
+      "Measurement-only pytest child uses root pytest.ini",
+      "Flushed nodeid/phase/outcome/longrepr/native-source events",
+      "Complete JUnit and full stdout/stderr",
+      "Separate Git payload and receipt for G"
+    ],
+    "proxy_divergence": "Optional-stack import success is not a fitted GP; an 80-file child killed after seven failure markers without JUnit is not complete acceptance. Actual SingleTaskGP construction, MLL fitting, conditioning, checkpoint and CAS calls were observed in passed OPT-03 assertions; seven completed assertion failures remain FAIL.",
+    "negative_controls": [
+      "Saved GP warm/corpus mutations with markers preserved are refused; real hard-resource fallback can restore and later perform its permitted due fit.",
+      "Actual original CAS measurement mutation rejects checkpoint restore and the next suggestion in workflow tests.",
+      "Original invalid typed producer and bool-only/stub fixture failures are retained; no passing placeholder, skip or expectation change."
+    ]
+  },
+  "native_backend": {
+    "deciding_scope": {
+      "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/result.json",
+      "bytes": 5211,
+      "sha256": "b8460d2c4af2cef9e2ad07f3824a020b446c8bb09cc9c6de017b8cfc4f4c40d2"
+    },
+    "real_call_sources_and_counts": {
+      "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/events.jsonl.txt",
+      "bytes": 199829,
+      "sha256": "03bea7ed7f1eaab4450d6553628b8c2e151d47d662757f6f36efb3fcaf3f0084"
+    },
+    "bounds": "Actual Python call-entry observations alone do not establish completed fit or numerical agreement. Passed defining assertions establish their bounded continuation/CAS properties. Independent analytic 23 plus native CAS 3 on exact root 243 has a separate receipt.",
+    "independent_receipt": {
+      "sha": "a474ff675264e2264d24e49814f29d873320b1ee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json"
+    }
+  },
+  "coordination": {
+    "execution_order": "OPT-03 first, then canonical commands 1–8 and 10–17; selectors within each command are unchanged.",
+    "writer_serialization": "Waited for transfer B14/B15 release. Paused only the stdlib parent while the current CTL-01 child finished naturally; yielded to independent 26, then continued the parent. Released the cache for B21 after the final child ended.",
+    "writer_yield": {
+      "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/writer-yield.json",
+      "bytes": 765,
+      "sha256": "7d5a8ace54b112e41c56c598e5a8d28e928ea17b61105e8bd5a20293d46c11ba"
+    },
+    "timing_limit": "CTL-01 parent elapsed time of 321.465 seconds includes the coordination pause. This is not the child scientific wall time; event monotonic timestamps, test durations and JUnit time are retained. Other elapsed values are parent-measured, with metadata and pytest recorded separately."
+  },
+  "helper_quality": {
+    "outcome": "FAIL",
+    "scope": "The measurement-only helpers have 65 full-style Ruff annotation/security/import diagnostics. No product Python file changed. Executed helper bytes are transferred unchanged as py.txt artifacts, with original executables preserved under local raw/. No Ruff PASS claim.",
+    "complete_output": {
+      "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/measurement-helper-ruff.txt",
+      "bytes": 29555,
+      "sha256": "7a3c2ed1dd6364be75950eca42795e094ab3d13c3584f49ee4d812a7928d6f79"
+    }
+  },
+  "previous_wide_wave": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "state": "ERROR: the actual 80-file child ended with SIGKILL -9 after approximately 49% and seven failure markers, without JUnit or a complete verdict.",
+    "scope": "This 17-command continuation does not replace the incomplete 80-file denominator or waive its observed failures. Root owns the original wide output and receipt. The 80-file union was not repeated."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Faithful exact-source execution, input/environment bindings and completed test verdicts only; overall criteria, source law and institutional deployment authority remain not_established.",
+  "capability_state_or_finding_state": "All 17 literal defining commands executed; aggregate gate FAIL with seven failed assertions. Findings remain unadjudicated or limited/held/open under existing owner receipts.",
+  "limitations_and_next_owner": [
+    "Root/G: review the complete 17-command PASS/FAIL evidence and separate independent 26. Package counts do not provide a blanket PASS, waiver or finding closure.",
+    "Search author: migrate the shared raw-CAS fixture on strict root 243 while preserving the five original downstream consumer criteria. Any exposed production falsifier remains open.",
+    "Funnel author: migrate VOI scheduling fixtures and the fail-closed bool permission control; do not invent an institutional permit.",
+    "A/G: the independent global-front source/denominator supplier and unapplied export contract remain engineering dependencies. This execution adds no provider.",
+    "Appropriate owners: unit/source-law/authorization/deployment/evaluator/production-history boundaries remain explicit. CPU fixtures do not establish those properties."
+  ],
+  "cleanup": {
+    "permanent_deletion": false,
+    "new_source_archives_worktrees_children": false,
+    "preservation": "Local ignored raw/ retains original helper executables and redundant generated input/results views. Original evidence JSONL streams remain preserved; Git transfers their complete bytes as text artifacts. No explicit cleanup was performed. Per-basetemp existence is reported below; an absent path does not establish its creation/deletion lifecycle.",
+    "exact_repeatable_fixture_candidates": [
+      "/dev/shm/search-canonical-243-01-CTL-01-ffdd307de2b74772ac29ae38b394c60c",
+      "/dev/shm/search-canonical-243-03-CTL-03-915d6a0e10b44c019cc42f7bc096ed15",
+      "/dev/shm/search-canonical-243-04-FUN-01-5eec877e966541d5b21f153af4654eb6",
+      "/dev/shm/search-canonical-243-05-FUN-02-d43386dbc94e48449942cc899f43d7cd",
+      "/dev/shm/search-canonical-243-06-FUN-03-a60850379358496aa22e786bc36423c9",
+      "/dev/shm/search-canonical-243-07-OPT-01-2ed7356c227947f4bb51b75017b0e618",
+      "/dev/shm/search-canonical-243-09-OPT-03-9abb4d1520aa40f2a893c858040920ec",
+      "/dev/shm/search-canonical-243-10-OPT-04-14bcced3132b4fe293ee9b5892aca869",
+      "/dev/shm/search-canonical-243-11-SRV-01-3c7d1649aacf4780aef86cbb7a9bfb74",
+      "/dev/shm/search-canonical-243-12-SRV-03-1d7da9634cc6454b9a7dfc41bf5f20cd",
+      "/dev/shm/search-canonical-243-14-STR-01-bf043f2b18e64a3bbfbf5fcebbd0e10e",
+      "/dev/shm/search-canonical-243-15-TRN-01-21bed44e9f6b4a7a84165b18070080f2",
+      "/dev/shm/search-canonical-243-16-TRN-02-967374c4ac0d41dcbcce5e69b00d7562",
+      "/dev/shm/search-canonical-243-17-TRN-03-522fd4e82d4f4cad8d8a20818554cc9d"
+    ],
+    "fresh_configured_paths_currently_absent": [
+      {
+        "path": "/dev/shm/search-canonical-243-02-CTL-02-5ecb651d227f4f379ea70afd2af7e806",
+        "lifecycle_basis": "not_established; no per-fixture creation/deletion audit was captured"
+      },
+      {
+        "path": "/dev/shm/search-canonical-243-08-OPT-02-9fd6ad54d5f241eea6e750126cce7167",
+        "lifecycle_basis": "not_established; no per-fixture creation/deletion audit was captured"
+      },
+      {
+        "path": "/dev/shm/search-canonical-243-13-STP-01-9d3cbcde9c974c3494a021a66f5ec8ec",
+        "lifecycle_basis": "not_established; no per-fixture creation/deletion audit was captured"
+      }
+    ]
+  },
+  "publication": "The payload was committed first in two normal append-only commits; this receipt is separate. Exact remote head/readback will be supplied after ordinary push. No future own commit SHA is invented."
+}

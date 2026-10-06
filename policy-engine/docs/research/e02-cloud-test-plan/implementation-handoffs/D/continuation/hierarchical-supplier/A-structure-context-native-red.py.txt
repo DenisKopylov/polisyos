@@ -1,0 +1,22 @@
+# Native red recipe; proposed A coordinator patch is intentionally unapplied.
+# Place this exact source in a temporary pytest file, using product/source from the pinned D candidate.
+# Required fixture helper below is the D-owned immutable test file recorded in the handoff.
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import HierarchicalPolicySearchAdapter
+from tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge import _candidate, _config
+
+def test_structure_seed_reader_consumes_supplied_run_and_task_context(tmp_path, monkeypatch):
+    registry = ParetoRegistry(tmp_path / "registry")
+    seen = []
+    original = registry.get_seed_bundle
+    def observe(context, **kwargs):
+        seen.append(context)
+        return original(context, **kwargs)
+    monkeypatch.setattr(registry, "get_seed_bundle", observe)
+    HierarchicalPolicySearchAdapter(pareto_registry=registry).run_search(
+        _candidate(), loop_id="configured_loop", search_config=_config(),
+        initial_context={"run_id": "appointed_source_run", "task_family": "appointed_family", "tenant_id": "tenant-a"},
+    )
+    assert len(seen) == 1
+    assert seen[0].run_id == "appointed_source_run"
+    assert seen[0].task_family == "appointed_family"

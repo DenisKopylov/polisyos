@@ -182,7 +182,8 @@
     ],
     "proxy_divergence": "Named selector availability, descriptor rows, function counts and source shape do not establish entered runtime effect or closure. DD source includes old map; new map review does not mutate the running cohort."
   },
-  "predicate_basis": "independently_reconciled metadata/source correspondence",
+  "predicate_basis": "independently_reconciled",
+  "claim_grade": "Metadata/source correspondence only; no runtime effect, collection, SET admission or own-CAS code acceptance",
   "per_premise_basis": {
     "immutable_refs_hashes_function_resolution": "recomputed",
     "criterion_and_body_reading": "human source-reviewed",

@@ -1,0 +1,325 @@
+{
+  "schema": "policyos.e02.independent_review_handoff.v1",
+  "unit": "D",
+  "slice": "original-criterion-configured-registry-delta-review",
+  "reviewer": "criterion_closeout_review",
+  "review_branch": "codex/e02-D-final-independent-review",
+  "original_criteria_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "continuation_slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "review_slice_base_sha": "06d319a95a4e4adb54b553c33fde3404ccc2275f",
+  "review_slice_base_tree": "93498a8afa26f5d613bd4bed358f4a12dd13d7ba",
+  "implementation_commit": "0e1b138b1967a7cf5ffa3ebef8fef9ab6bf86b90",
+  "implementation_tree": "6843a7d80ee178ef430fa2d61c7dcd1a553ea9ed",
+  "reviewed_product_source": {
+    "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+    "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+    "branch": "codex/e02-D-published-search",
+    "path": "/workspace/e02-D-published-search"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-final-f471-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-pattern-delta.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-independent-three-run-reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-removal-AST-da9ebe4777d6.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-transport-independent-audit-compact.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-author-receipt-binding-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-root-composed-1a77-review.json"
+  ],
+  "complete_remote_readback": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-final-f471-review.json",
+      "bytes": 210883,
+      "sha256": "83edcf66054a02f3e014cc055247a8117f1d8f0418e98c66fcc983cc9b2ff28b",
+      "git_blob": "cdfec4bd4e7d0cb9a0da43c6c6da916fe43f13f7",
+      "body_MATCH": true,
+      "Git_blob_MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-pattern-delta.json",
+      "bytes": 13455,
+      "sha256": "e6677ac92ccd00f8956bda217b7ec89be1aa3f16076af7059328a33e33b46675",
+      "git_blob": "b295530068922e9e93a554144c42e3561d8d2f6b",
+      "body_MATCH": true,
+      "Git_blob_MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-independent-three-run-reconciliation.json",
+      "bytes": 25738,
+      "sha256": "c438892cb0b335f6738a72209241307df1feeee4e7310cafa4525de1a7825ae3",
+      "git_blob": "6dbaff307d737883377c7497b85d4878e104dd06",
+      "body_MATCH": true,
+      "Git_blob_MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-removal-AST-da9ebe4777d6.json",
+      "bytes": 1486,
+      "sha256": "da9ebe4777d6f94aa9cf04b25b77f79faac4d253e2145f6d9c08e983ea59e4c8",
+      "git_blob": "774e3a2b968af65770c5d6bcb2363d841e19657f",
+      "body_MATCH": true,
+      "Git_blob_MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-transport-independent-audit-compact.json",
+      "bytes": 500,
+      "sha256": "1a6316c14b980c9143972e24fb093f9f1a5aceab6210ea1dfe210eff19d0cbd7",
+      "git_blob": "8c77958aeb1e38fa67604b2fe029cd888eaef2f3",
+      "body_MATCH": true,
+      "Git_blob_MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-author-receipt-binding-audit.json",
+      "bytes": 55704,
+      "sha256": "0c26a1b6f99b5bffe1644c82c69c18475c9963be2e7fdee1299a52bb6ded4d51",
+      "git_blob": "8786127a082c380e091261d9a3c37436b8960971",
+      "body_MATCH": true,
+      "Git_blob_MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-root-composed-1a77-review.json",
+      "bytes": 29597,
+      "sha256": "5e7d54146e00fcf8b8757ec2fd7de9e3bf1dddfa9aac56b8f78db62b342a3a8e",
+      "git_blob": "e1caddd6f463f2159c4829a265ef3f7b435baa58",
+      "body_MATCH": true,
+      "Git_blob_MATCH": true
+    }
+  ],
+  "original_criterion_denominator": {
+    "IDs": 45,
+    "occurrences": 46,
+    "bundles": 17,
+    "canonical_owner_occurrences": 45,
+    "supplier_occurrences": 1,
+    "bindings": "All original exact198 acceptance and fragment hashes recomputed; unchanged full binding/text retained.",
+    "LA015_CTL01": "Supplier companion, closure owner SRV-03."
+  },
+  "review_verdict": "ACCEPT_BOUNDED_DECLARED_CONFIGURED_CONSUMER; no actionable source discrepancy found in frozen node delta. Global finding acceptance and composed-root execution remain separate.",
+  "runtime": {
+    "author": {
+      "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "PASS": 35,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "actual_Git_origin_count": 1344,
+      "origin_errors": 0,
+      "output": "/tmp/e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395"
+    },
+    "independent_FUN": {
+      "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "PASS": 7,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "actual_Git_origin_count": 1345,
+      "origin_errors": 0,
+      "output": "/tmp/e02-D-registry-independent-f471-final-o4jjzy1b",
+      "partition": {
+        "custody_positive": 1,
+        "strict_present_refusals": 4,
+        "removal_conformance": 2
+      },
+      "prior_oracle_attempts": [
+        "5 PASS/2 FAIL",
+        "6 PASS/1 FAIL"
+      ]
+    },
+    "author_removals": {
+      "modes": 6,
+      "actual_FAIL_checks": 8,
+      "ERROR": 0,
+      "SKIP": 0,
+      "note": "Actual FAIL checks are kept distinct from positive/conformance PASSs. Single-If AST removals independently reconstructed with Python3.14."
+    },
+    "A_supplier_native": {
+      "PASS": 2,
+      "FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0,
+      "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "deciding": "Supplied run_id is lost at actual A-owned structure seed reader; task_family assertion unrun after preceding mismatch."
+    },
+    "tests_or_backends_executed_by_this_reviewer": 0,
+    "independent_output_reconciliation": "Complete source/tree, hash, call/JUnit and collected-denominator evidence recomputed. This is read-only reconciliation, not this reviewer authoring/running tests.",
+    "root_composed": {
+      "source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+      "source_tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+      "PASS": 44,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "phase_PASS": 132,
+      "partition": {
+        "registry": 35,
+        "canonical_B1_1_ledger": 7,
+        "existing_native_funnel": 2
+      },
+      "complete_collected_call_JUnit_denominator_MATCH": true,
+      "declared_inputs": 2760,
+      "before_after_EQUAL": true,
+      "independently_recomputed_Git_origin_count": 1335,
+      "observed_main_process_exec_records": 1335,
+      "origin_errors": 0,
+      "input_errors": 0,
+      "actual_output": "/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a",
+      "helper_limit": "The imported _bundle helper was not individually snapshotted historically; clean global Git state and later source binding are preserved without claiming all helper bytes were observed."
+    }
+  },
+  "owner_source_and_outputs": {
+    "author_handoff": {
+      "commit": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-consumer.json",
+      "sha256": "6a630796c9dbd5076fd1c37d20782c01466bc000f02b729f02a1f082a949ccb1",
+      "source_objects_MATCH": 9,
+      "complete_deciding_output_refs_MATCH": 182
+    },
+    "author_carrier": {
+      "commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+      "sha256": "1c58127a077d02b84f5164dcbd1879c1b7aad7dd16fb86d0d3f990cf3275d5d0",
+      "members": 1683,
+      "bytes": 443384,
+      "raw_member_bytes": 8650933,
+      "lossless_errors": 0,
+      "nonempty_Git_identical_source_body_copies": 0
+    },
+    "independent_review": {
+      "commit": "a4281c05533eb82940a5f9ca71eb6341ba210618",
+      "tree": "e00a51b5afdf2dee517633b44afdf17b10787203",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-registry-f471-review.json",
+      "sha256": "0b2b42e2eea60941d30951119e488c1b27548f76c578fa843e4e27327cf8fb64"
+    },
+    "independent_output": {
+      "commit": "95a9173ddcb1afbc9a755c9d94683507a11a54cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/output.json.gz",
+      "sha256": "a1c2b74f40ab55f62f0f384d1c50b725c07d8e9b4d73ab3d6433114fd4b24d8f",
+      "bytes": 397477,
+      "members": 141,
+      "Git_refs": 9
+    },
+    "root_composed": {
+      "receipt_commit": "aa6c7b589c465bfe3aa5204be774195b627b72ea",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+      "carrier_commit": "04218ee864ffcae2cdec19d6b22379351eceeed7",
+      "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/complete-output.json.xz",
+      "sha256": "32be0055d49cb4d63d504c668e5f8038af65f71194286acd3150ae9ec97172f8",
+      "member_count": 447,
+      "lossless_errors": 0
+    }
+  },
+  "mechanism": "Existing registry forwarded at three ordinary coordinator ports; physical parameterless typed publication and fresh CAS report; actual existing tenant scope and RunContext tenant/cell routing; strict present-invalid/subject admission; current-field canonical Money JSON/Decimal CAS restoration with whole JSON/hash identity.",
+  "consumer": "Actual hierarchical node/adapter/coordinator, ParetoRegistry physical update and fresh reader, FileSystemCAS frontier report.",
+  "independent_oracle": "FUN separately authored actual produced-subject/history/custody oracle and strict refusals/removal conformance; source review and own full output/source binding recomputation are independent of implementation.",
+  "divergent_proxy": "Constructor field, typed vector/hash/tenant text or stored state alone cannot establish a physical registry entry, routing or fresh report. Input seed hash is distinguished from produced structured hash.",
+  "predicate_basis": {
+    "original_text_bindings": "recomputed",
+    "source_review": "independent_read_only",
+    "actual_outputs": "independently_reconciled",
+    "full_root_composition": "independently_reconciled_actual44_bounded_cells; final100 broad union pending",
+    "owner_appointment": "not_established",
+    "inherited_P41": "not_established"
+  },
+  "environment": {
+    "cwd": "/workspace",
+    "metadata_python": "System stdlib only; no product imports",
+    "actual_runtime": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5",
+    "optional_numerical_backends": "Absent; Torch/BoTorch/GPyTorch/HNSW numerical properties UNRUN",
+    "caps_added": false
+  },
+  "compatibility": "Internal additive port, no-registry legacy preserved. Existing Money DTO parser and canonical hash preserved; private serializer keeps only nullable-year presentation. No public DTO/unit law/library/GP/authority/ledger change.",
+  "pattern_pass": {
+    "patterns": [
+      "P01",
+      "P02",
+      "P05",
+      "P09",
+      "P10",
+      "P14",
+      "P27",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-pattern-delta.json",
+    "formal_global_pass": false,
+    "composed_delta_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/hierarchical-root-composed-1a77-review.json"
+  },
+  "global_prior_statuses_preserved": {
+    "OPEN_VERIFICATION_PENDING": 39,
+    "LIMITED_CURRENT_CANONICAL_B_PRODUCT_FAIL": 1,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+    "note": "Qualified to prior root8c accounting; this delta does not relabel global outcomes."
+  },
+  "limitations": [
+    "Earlier generic35+9 node/regression label is corrected explicitly to actual35 registry+7 canonical ledger+2 existing funnel; the historical review is not silently rewritten.",
+    "The exact f471 whole topic tree differs from root8c at parallel source paths. Adopt selected history via normal merge; do not replace root with the older whole tree.",
+    "Composed root44 completes the exact affected35+7 canonical ledger+2 funnel denominator. Root has frozen c17 for final100-selector union; broad/numerical output remains pending.",
+    "A-W01 structure task/run context propagation remains an actual supplier defect with an unapplied minimum existing-contract patch.",
+    "A default scientific vector producer, registry root/basis/source/export appointment is a requested canonical input, not supplied by the fixture.",
+    "Five held original authority/science positives and B120 canonical B raw numeric-underflow failure remain unchanged. Production stays local/read-only.",
+    "Declared Money/scalar transport is measured; arbitrary rich ParamValue/cross-version profiles are not implied. Cell forwarding is observed; complete cell ContextVar reset is source-reviewed only.",
+    "No P41 inheritance waiver, model-posterior-as-independent-oracle claim, permission subsystem or scientific law is invented."
+  ],
+  "publication": {
+    "method": "Git metadata API only",
+    "checkout_created": false,
+    "admission_create": "not applicable: no checkout/worktree created",
+    "parents_preserved": true,
+    "force": false,
+    "main_or_G_writes": false,
+    "local_hooks": "UNRUN: metadata-only review documents, no filesystem commit hooks",
+    "implementation_records": "First frozen-f471 review4b18754 and composed source supplemental0e1b138 both precede this separate receipt commit."
+  },
+  "cleanup": {
+    "performed": false,
+    "permanent_deletion": false,
+    "Trash_cleared": false,
+    "preserved": "All source/docs, unique inputs and complete deciding outputs.",
+    "candidates_only_after_publication_readback_and_inactive_user_check": [
+      "/tmp/e02-D-registry-independent-f471-final-o4jjzy1b/fresh-fixtures",
+      "/tmp/e02-D-registry-independent-f471-final-o4jjzy1b/pytest-cache"
+    ]
+  },
+  "closure_ids": [],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "prior_f471_review_commit": "4b18754c3b38dc98448e2f4bdf812bc627d79638",
+  "prior_f471_review_tree": "6f5cc398099e5711ece93b9de6c4a6c2e949c8aa",
+  "final_root_frozen_source": {
+    "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+    "product_tests_identical_to_actual_root44_f2": true,
+    "static_disposition": "ACCEPT_BOUNDED available mechanism and reviewed composed delta; no additional source review blocker."
+  },
+  "source_delta_since_root8c": {
+    "source_paths": 1,
+    "test_paths": 2,
+    "exact_f471_node_and_new_test": true,
+    "canonical_ledger_test_adaptation": "Existing B1.1 single-key spend receipt API; aggregate reservations released separately. Owned attempt and atomic multi-key contract are not claimed or erased.",
+    "full_changed_source_inventory": 65,
+    "full_changed_test_inventory": 76
+  },
+  "old6fe_service_reference": {
+    "old_sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06",
+    "current_sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9",
+    "whole_file_identical": false,
+    "changed_methods": [
+      "ask",
+      "_run_locked"
+    ],
+    "other_method_ASTs_unchanged": true,
+    "implementation": "dc583fc449234f746983a9855a2738148dd2f20d",
+    "supplemental_independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/service-control-cleanup-independent-review.json",
+    "later_independent_source": "1ff34d2657aee4e8702cb88486448659accf2466",
+    "later_independent_test": "272e558312a368c4d4d260112afd52c40f0722f7",
+    "actual_independent_cases": "3 PASS preserving exact original cause, last acknowledged ref and prior paid custody",
+    "scope": "Original B119 batch[] only; no new nonempty numerical fallback prohibition. Old6fe15 is retained at exact source, not blanket inherited/new root runtime."
+  }
+}

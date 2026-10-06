@@ -349,7 +349,8 @@ def test_duplicate_intake_obeys_each_supplied_item_budget(tmp_path, operation, b
         pair = KeyPair.generate()
         signer = Ed25519Signer.from_pem(pair.private_pem())
         report = store.sign_all_artifacts(signer, **kwargs)
-    assert report.state == "aborted" and report.abort_reason == budget
+    expected_reason = "cancelled" if budget == "cancel" else "deadline"
+    assert report.state == "aborted" and report.abort_reason == expected_reason
     assert len(consumed) < 10
     assert not report.inventory_exhausted
 

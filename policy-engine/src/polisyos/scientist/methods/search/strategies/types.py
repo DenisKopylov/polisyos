@@ -181,9 +181,9 @@ class StrategyState:
             payload = json.loads(data.decode("utf-8"), parse_constant=_refuse_json_constant)
             if not isinstance(payload, dict):
                 raise ValueError("Strategy artifact must be an object")
-            schema = payload.pop("schema_version", None)
-            if schema not in (None, "strategy_state.v2"):
+            if "schema_version" in payload and payload["schema_version"] != "strategy_state.v2":
                 raise ValueError("Unsupported strategy artifact schema")
+            payload.pop("schema_version", None)
             if set(payload) != {
                 "strategy_name",
                 "iteration",

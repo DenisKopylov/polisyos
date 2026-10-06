@@ -28,6 +28,20 @@ def test_malformed_artifact_has_controlled_refusal(payload):
         StrategyState.from_artifact(json.dumps(payload).encode())
 
 
+@pytest.mark.parametrize("schema", [None, True, 2, "strategy_state.v999"])
+def test_present_invalid_schema_is_not_legacy_absence(schema):
+    strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]))
+    before = strategy.get_state().to_artifact()
+    payload = json.loads(before)
+    payload["schema_version"] = schema
+    with pytest.raises(ValueError):
+        strategy.set_state(StrategyState.from_artifact(json.dumps(payload).encode()))
+    assert strategy.get_state().to_artifact() == before
+    payload.pop("schema_version")
+    strategy.set_state(StrategyState.from_artifact(json.dumps(payload).encode()))
+    assert strategy.get_state().to_artifact() == before
+
+
 def test_nested_semantic_metadata_date_is_identity():
     first = {"semantic": {"metadata": {"starts_at": "2026-01-01"}}}
     second = {"semantic": {"metadata": {"starts_at": "2026-02-01"}}}

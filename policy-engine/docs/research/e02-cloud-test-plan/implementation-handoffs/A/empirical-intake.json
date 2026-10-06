@@ -94,7 +94,7 @@
       "source_refs": [
         "overlay.py@08d77fa061e22f3a4f4c1a10a0096dcf3255221b#L398-L433",
         "overlay.py@08d77fa061e22f3a4f4c1a10a0096dcf3255221b#L473-L514",
-        "overlay.py@08d77fa061e22f3a4f1a10a0096dcf3255221b#L524-L535"
+        "overlay.py@08d77fa061e22f3a4f4c1a10a0096dcf3255221b#L524-L535"
       ]
     },
     {
@@ -246,5 +246,72 @@
     "B33 remains limited: a graph owner must supply a typed, verified source/target applicability and currentness contract, G must admit it, and A needs a CAS-resolving ArtifactStore/CausalGraphModelRef bridge plus real transport consumer tests. Do not derive graph authority from confidence, URI/ref strings, labels, or context deltas.",
     "EMP-01 also includes B31; this slice does not adjudicate B31."
   ],
-  "closure_status": "not_adjudicated; no closure IDs"
+  "closure_status": "not_adjudicated; no closure IDs",
+  "baseline_cells": [],
+  "property": {
+    "statement": "For the active C acquisition epoch, the default A profile selects exactly the admitted C members before cap/grouping, replays the owner-derived projection, and enforces exact membership, full typed-row digest, and passport unit binding. This is bounded intake evidence only; B16 predictive ETS/held-out validation and B33 graph applicability/currentness remain unrun or unestablished.",
+    "runtime_path": [
+      "C CatalogAcquisitionOverlay emits the active passport, overlay receipt, exact acquisition_epoch_members denominator, and CAS-backed raw evidence.",
+      "CanonicalAcquisitionAuthority and CatalogAcquisitionOverlay rederive the typed projection after receipt/passport/source evidence/native membership/stored-row checks; the row digest covers the full typed observation.",
+      "FoundryValuePort → RealValueOwnerGateway → _load_value_data_profile_from_l1_dcat resolves and replays the projection, filters by country and exact IDs before the bounded cap, checks exact membership/physical-row digest/passport unit, then produces the hashed ValueDataProfile.",
+      "F/C graph evidence to A transport still refuses until a verified CausalGraphModelRef bridge and owner-approved applicability contract exist; this handoff records no admitted graph path."
+    ],
+    "proxy_divergence": "Country/scope-only selection or matching row values can hide an omitted C member. Replacing a missing member with a same-country foreign-dataset row is refused, and rehashing altered physical or nonphysical provenance does not establish C authority.",
+    "negative_controls": [
+      "The exact-ID predicate removal control leaves SQL, arguments, and error markers intact; the real profile path then fails closed at acquire_data:value_owner_rows_truncated.",
+      "Deleting an admitted member and adding a same-country, same-outcome, same-period foreign-dataset row is refused as active_observation_projection_drift.",
+      "The control derives physical columns from DuckDB PRAGMA table_info intersected with CanonicalAcquisitionObservation.model_fields and rejects tampering of every such column.",
+      "Rehashed acquisition_method, source_watermark, and dataset_version forgeries are rejected by C owner replay while original passport/receipt/CAS remain.",
+      "A stored condition unit of percent is refused against the passport ratio identity transform.",
+      "An in-scope Inf row is refused rather than silently removed from the profile denominator."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "verification_missing",
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/junit.xml tests/integration/core_runtime/test_e02_higher_order_n8_intake.py tests/integration/core_runtime/test_e02_empirical_member_intake.py tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+      "target_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/green-wave/environment-and-inputs.json@sha256:c8855eeba307f88862a8b58c85be4f5d45726a84f97b435aaa9bf43ac3406278",
+      "input_closure": "The same committed environment-and-inputs.json@sha256:c8855eeba307f88862a8b58c85be4f5d45726a84f97b435aaa9bf43ac3406278 binds the candidate tree and complete runtime/test input hashes.",
+      "outcome": "PASS",
+      "output": "10 passed, 0 failed, 0 skipped (JUnit 71.275s; wall 74.86681695800507s). Committed deciding outputs: higher-order-n8/green-wave/stdout.txt@sha256:9d631ec076c9c8332a5bd3389a9b97a7d85a8c07072d65ec3097d3157290d416; junit.xml@sha256:bdfbe7656293f86fe90a53f59a7624bc925e231908f052c0c3295639cf2229e5; stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/junit.xml",
+        "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+      ]
+    },
+    {
+      "command": "UNRUN: no B16 original-criterion execution was recorded.",
+      "target_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "environment": "UNRUN: no admitted ETS forecast/paired-held-out verifier environment was captured.",
+      "input_closure": "UNRUN: no actual admitted forecast plus paired held-out inputs, training-only verifier, or strict CAS/default-gateway closure was exercised.",
+      "outcome": "UNRUN",
+      "output": "No B16 criterion-specific output exists. finding_outcomes records limited; criterion_specific_check=UNRUN."
+    },
+    {
+      "command": "UNRUN: no B33 original-criterion execution was recorded.",
+      "target_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "environment": "UNRUN: no owner-admitted graph applicability/currentness environment was captured.",
+      "input_closure": "UNRUN: no typed verified source/target applicability contract, G admission, or A CAS-resolving ArtifactStore/CausalGraphModelRef bridge was exercised.",
+      "outcome": "UNRUN",
+      "output": "No B33 criterion-specific output exists. finding_outcomes records limited; criterion_specific_check=UNRUN."
+    }
+  ],
+  "missing_capability_states": [
+    "verification_missing",
+    "bridge_missing"
+  ],
+  "capability_state_or_finding_state_detail": "B16 limited / verification_missing: bounded exact C-member profile intake passed, but the original admitted ETS/held-out predictive criterion is UNRUN. B33 limited / bridge_missing: no owner-admitted applicability/currentness contract or A artifact bridge exists. No finding is closed; closure_ids remains empty."
 }

@@ -1257,7 +1257,11 @@
       ],
       "failure_summary": "Broad pre-fixture-fix unit selection: 75 passed, 5 failed, 51 setup errors. The 51 setup errors divide into 11 production_data/L6-path-missing errors and 40 catalog_fetch_source_unreadable errors. The five ordinary failures are one CG2 expectation assertion and four selected-view v4/v5 cases raising AttributeError because the fixture object lacks problem.",
       "tests_run_in_retained_historical_wave": true,
-      "latest_recorded_wave": false
+      "latest_recorded_wave": false,
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-source-wave-542d/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-source-wave-542d/junit.xml tests/unit/runtime/quality/test_generation_source.py tests/unit/runtime/http/test_core_only_runs_api.py tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py tests/unit/runtime/quality/test_cycle_substrate.py tests/unit/runtime/mirror_contracts/test_runs.py",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json@sha256:a4256b7d932d1212063c3483c5ff839a33f47bc5da239a42d3903798873d257d",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json@sha256:a4256b7d932d1212063c3483c5ff839a33f47bc5da239a42d3903798873d257d; complete source input identities are retained in environment_input_closure.input_paths.",
+      "output": "131 JUnit cases; {'passed': 75, 'failed': 5, 'error': 51}; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stdout.txt@sha256:ed8f7ea1bab43844898cfadef923b0bfe3e7bac9a2075ee78c7b913004d7ec06; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/junit.xml@sha256:eb9b0919e9ebb4d8d21b8eb6963bf4a2472e438d471cc6228f73a4f17d4fe850"
     },
     {
       "kind": "historical_runtime_unit_wave",
@@ -1342,7 +1346,11 @@
       ],
       "failure_summary": "Selected-view regression slice: 2 passed (v3 controls), 4 failed (v4/v5 for two prefixes) with CycleSubstrateContextOwnerError: government_balance policy slot unresolved.",
       "tests_run_in_retained_historical_wave": true,
-      "latest_recorded_wave": false
+      "latest_recorded_wave": false,
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/junit.xml tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json@sha256:9efdf040331dd7d7d066ece7dbfaf5bb5523572a57b7e06ab09fc51b3c6557f5",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json@sha256:9efdf040331dd7d7d066ece7dbfaf5bb5523572a57b7e06ab09fc51b3c6557f5; complete source input identities are retained in environment_input_closure.input_paths.",
+      "output": "6 JUnit cases; {'passed': 2, 'failed': 4}; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stdout.txt@sha256:8b2ed27f08f7325e5e7b149b8fb26b61ac2034505d7b1af64d6a604c02abeff8; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/junit.xml@sha256:c39ce0e06a36963ebc10173902a3a79688989849b4b6ff64dd012d79567312f0"
     },
     {
       "kind": "historical_runtime_unit_wave",
@@ -1440,7 +1448,11 @@
       ],
       "failure_summary": "HTTP catalog fixture suite: 34 passed, 14 failed. Three fixture failure classes: 2 decision_packet writes lack an active owner, 11 registry_bundle writes lack an active owner, and 1 required-trace assertion was masked by the same registry_bundle ownership error.",
       "tests_run_in_retained_historical_wave": true,
-      "latest_recorded_wave": false
+      "latest_recorded_wave": false,
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/junit.xml tests/unit/runtime/http/test_core_only_runs_api.py tests/unit/runtime/http/test_runs_api.py",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json@sha256:955eebd5e8593c38f46c843c5bb6b714f9e5fdf008c18718f57e2f317d249bc8",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json@sha256:955eebd5e8593c38f46c843c5bb6b714f9e5fdf008c18718f57e2f317d249bc8; complete source input identities are retained in environment_input_closure.input_paths.",
+      "output": "48 JUnit cases; {'passed': 34, 'failed': 14}; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stdout.txt@sha256:2d74dd986f0bb388159b2d2b9a7d0985135a7d1aa2a8a821ff461bc043ae9407; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/junit.xml@sha256:f0d47a7486775f3f744c2f9ea07b552055394232691d32a375a420af95836c69"
     },
     {
       "kind": "historical_runtime_unit_wave",
@@ -1526,7 +1538,11 @@
       ],
       "failure_summary": "Selected-view plus CG2 regression slice: 2 passed (v3 controls), 5 failed; four v4/v5 cases failed artifact validation (design_problem_v1_target_slot_invalid), and the CG2 assertion observed abstain where it expected bind.",
       "tests_run_in_retained_historical_wave": true,
-      "latest_recorded_wave": false
+      "latest_recorded_wave": false,
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/junit.xml tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views tests/unit/runtime/quality/test_generation_source.py::test_synthetic_cg2_contract_mechanism_remains_non_promotable",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json@sha256:d1aecb9b1d92b47f765880190f144209a542dff7758d1d88ace22107ddae38a4",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json@sha256:d1aecb9b1d92b47f765880190f144209a542dff7758d1d88ace22107ddae38a4; complete source input identities are retained in environment_input_closure.input_paths.",
+      "output": "7 JUnit cases; {'passed': 2, 'failed': 5}; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stdout.txt@sha256:a075c3615ea11d25bcbb6aca93be7abace3737f4297c70fee4603e3d6a631c51; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/junit.xml@sha256:2cc905b02c352914c126133f67c1c3cf854135ff4503426f4d544d7ee93ca612"
     },
     {
       "kind": "historical_runtime_unit_wave",
@@ -1624,17 +1640,18 @@
       ],
       "failure_summary": "Latest retained owner-CAS HTTP unit wave: 47 passed, 1 failed. The remaining assertion expected stale decision validity but got None after RunIndexService readback emitted core_run_manifest_load_failed:ArtifactOwnershipError. This remains an owner-scoped fixture/consumer failure; a general constructor-path repair is in progress and no final PASS is claimed.",
       "tests_run_in_retained_historical_wave": true,
-      "latest_recorded_wave": false
+      "latest_recorded_wave": false,
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/junit.xml tests/unit/runtime/http/test_core_only_runs_api.py tests/unit/runtime/http/test_runs_api.py",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json@sha256:7903b8dd57cb8d09fff4e84ee1c3c86b762fcec0bc3907714ffabb35a562fced",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json@sha256:7903b8dd57cb8d09fff4e84ee1c3c86b762fcec0bc3907714ffabb35a562fced; complete source input identities are retained in environment_input_closure.input_paths.",
+      "output": "48 JUnit cases; {'passed': 47, 'failed': 1}; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stdout.txt@sha256:6e06f716c36d9eea9277a684af196f91a41b70025b63a9770d4eb3bca90c6340; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/junit.xml@sha256:92bdd0437f7278da38dae8abecc2d6720ea2e0275adc1bade39412571382e5b6"
     },
     {
       "kind": "read_only_receipt_readback_and_git_census",
       "outcome": "PASS",
       "target_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
       "target_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
-      "command": [
-        "python3",
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py"
-      ],
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py",
       "script_identity": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py",
         "sha256": "5ce48157e0d07c929d1d91df478ddcee5f1cac78c4fea4944ace62e45c44c707",
@@ -1837,7 +1854,16 @@
           ]
         }
       ],
-      "output": [
+      "output": "PASS git fixture path census: 4 paths / {'py': 4}; PASS source dependency path census: 5 paths / {'py': 5}; PASS Git blob/content hashes for fixture and dependency source inputs; PASS 542da1927384 stdout/JUnit {'passed': 75, 'failed': 5, 'error': 51} over 131 cases; PASS c605726092f7 stdout/JUnit {'passed': 2, 'failed': 4, 'error': 0} over 6 cases; PASS 340279d8a895 stdout/JUnit {'passed': 34, 'failed': 14, 'error': 0} over 48 cases; PASS 4e47c81aaf7f stdout/JUnit {'passed': 2, 'failed': 5, 'error': 0} over 7 cases; PASS 781f9baa3b64 stdout/JUnit {'passed': 47, 'failed': 1, 'error': 0} over 48 cases; PASS byte-for-byte source-to-companion copies for all retained environment/stdout/stderr/JUnit files",
+      "tests_run": false,
+      "product_runtime_or_numerical_run": false,
+      "command_argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py"
+      ],
+      "environment": "Not separately recorded for the read-only receipt/census script; command invokes python3.",
+      "input_closure": "5 retained environment/input manifests: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json@sha256:a4256b7d932d1212063c3483c5ff839a33f47bc5da239a42d3903798873d257d; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json@sha256:9efdf040331dd7d7d066ece7dbfaf5bb5523572a57b7e06ab09fc51b3c6557f5; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json@sha256:955eebd5e8593c38f46c843c5bb6b714f9e5fdf008c18718f57e2f317d249bc8; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json@sha256:d1aecb9b1d92b47f765880190f144209a542dff7758d1d88ace22107ddae38a4; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json@sha256:7903b8dd57cb8d09fff4e84ee1c3c86b762fcec0bc3907714ffabb35a562fced; each manifest records candidate and input-path identities.",
+      "output_details": [
         "PASS git fixture path census: 4 paths / {'py': 4}",
         "PASS source dependency path census: 5 paths / {'py': 5}",
         "PASS Git blob/content hashes for fixture and dependency source inputs",
@@ -1847,9 +1873,7 @@
         "PASS 4e47c81aaf7f stdout/JUnit {'passed': 2, 'failed': 5, 'error': 0} over 7 cases",
         "PASS 781f9baa3b64 stdout/JUnit {'passed': 47, 'failed': 1, 'error': 0} over 48 cases",
         "PASS byte-for-byte source-to-companion copies for all retained environment/stdout/stderr/JUnit files"
-      ],
-      "tests_run": false,
-      "product_runtime_or_numerical_run": false
+      ]
     },
     {
       "kind": "historical_runtime_unit_wave",
@@ -1961,7 +1985,11 @@
       ],
       "failure_summary": "Candidate 7ef8b1cf58d392b0e2685cd1cae84349a934c154 recorded 51 passed and 4 failed of 55. All 48 HTTP unit cases passed; the selected-view v3 pair and CG2 non-promotable negative passed. Four selected-view v4/v5 cases failed because the test-scoped CAS reader could not read the placeholder 111\u2026 artifact payload for input:n5_input. This is a fixture-stub absence, not an end-to-end N4/N5 result.",
       "tests_run_in_retained_historical_wave": true,
-      "latest_recorded_wave": false
+      "latest_recorded_wave": false,
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-and-selected-view-wave-7ef8/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-and-selected-view-wave-7ef8/junit.xml tests/unit/runtime/http/test_core_only_runs_api.py tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views tests/unit/runtime/quality/test_generation_source.py::test_synthetic_cg2_contract_mechanism_remains_non_promotable",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-and-selected-view-wave-7ef8/environment-and-inputs.json@sha256:230b8387018eb9ca021b15b67346eb1788c98ffb705bddd1eb5308f3e06f11c7",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-and-selected-view-wave-7ef8/environment-and-inputs.json@sha256:230b8387018eb9ca021b15b67346eb1788c98ffb705bddd1eb5308f3e06f11c7; complete source input identities are retained in environment_input_closure.input_paths.",
+      "output": "55 JUnit cases; {'passed': 51, 'failed': 4}; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-and-selected-view-wave-7ef8/stdout.txt@sha256:2ec24cd63a2dad78731094033d99dc2215e7c590f4ed823f82641c7251cf6cc6; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-and-selected-view-wave-7ef8/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-and-selected-view-wave-7ef8/junit.xml@sha256:9c28227968586eddc52ca85d1bd99791dca7bd2fd41fb6788cbb66b075be7e1a"
     },
     {
       "kind": "historical_runtime_unit_wave",
@@ -2044,17 +2072,18 @@
       ],
       "failure_summary": "Candidate 5642b366a023a74df3c4d33206272c1462f49351 passed all six selected-view parameters (a/f \u00d7 v3/v4/v5). The a/f paths now read real sibling CAS manifest views over test-stub bodies; N4/N5 input/source/result loaders remain stubs. This selected-view unit pass does not establish actual N4/N5 producer, ordinary API, or fresh-process N8 behavior.",
       "tests_run_in_retained_historical_wave": true,
-      "latest_recorded_wave": true
+      "latest_recorded_wave": true,
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-5642/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-5642/junit.xml tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-5642/environment-and-inputs.json@sha256:d2ff8c78b6a076faf9638edec09a855a864f969803722a154d1a60a066018f4f",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-5642/environment-and-inputs.json@sha256:d2ff8c78b6a076faf9638edec09a855a864f969803722a154d1a60a066018f4f; complete source input identities are retained in environment_input_closure.input_paths.",
+      "output": "6 JUnit cases; {'passed': 6}; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-5642/stdout.txt@sha256:bbf267e853f11298b5948b3d0d7342f48277c07e0b1e3d963ace55a894f7c747; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-5642/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-5642/junit.xml@sha256:11f7224659191016c227de863bda66a979c517e79294c58329bc2720c72f2b5c"
     },
     {
       "kind": "read_only_receipt_readback_and_git_census",
       "outcome": "PASS",
       "target_sha": "5642b366a023a74df3c4d33206272c1462f49351",
       "target_tree_sha": "e5474654e9d201f1c8629ba42ffe43e660b84568",
-      "command": [
-        "python3",
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py"
-      ],
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py",
       "script_identity": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py",
         "sha256": "0c1f219b538ffac69821e7b39692ecd2232a9f4e6b74765210e67b9125e08e5c",
@@ -2338,7 +2367,16 @@
           ]
         }
       ],
-      "output": [
+      "output": "PASS git fixture path census: 4 paths / {'py': 4}; PASS source dependency path census: 5 paths / {'py': 5}; PASS Git blob/content hashes for fixture and dependency source inputs; PASS 542da1927384 stdout/JUnit {'passed': 75, 'failed': 5, 'error': 51} over 131 cases; PASS c605726092f7 stdout/JUnit {'passed': 2, 'failed': 4, 'error': 0} over 6 cases; PASS 340279d8a895 stdout/JUnit {'passed': 34, 'failed': 14, 'error': 0} over 48 cases; PASS 4e47c81aaf7f stdout/JUnit {'passed': 2, 'failed': 5, 'error': 0} over 7 cases; PASS 781f9baa3b64 stdout/JUnit {'passed': 47, 'failed': 1, 'error': 0} over 48 cases; PASS 7ef8b1cf58d3 stdout/JUnit {'passed': 51, 'failed': 4, 'error': 0} over 55 cases; PASS 5642b366a023 stdout/JUnit {'passed': 6, 'failed': 0, 'error': 0} over 6 cases; PASS byte-for-byte source-to-companion copies for all retained environment/stdout/stderr/JUnit files",
+      "tests_run": false,
+      "product_runtime_or_numerical_run": false,
+      "command_argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py"
+      ],
+      "environment": "Not separately recorded for the read-only receipt/census script; command invokes python3.",
+      "input_closure": "7 retained environment/input manifests: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json@sha256:a4256b7d932d1212063c3483c5ff839a33f47bc5da239a42d3903798873d257d; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json@sha256:9efdf040331dd7d7d066ece7dbfaf5bb5523572a57b7e06ab09fc51b3c6557f5; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json@sha256:955eebd5e8593c38f46c843c5bb6b714f9e5fdf008c18718f57e2f317d249bc8; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json@sha256:d1aecb9b1d92b47f765880190f144209a542dff7758d1d88ace22107ddae38a4; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json@sha256:7903b8dd57cb8d09fff4e84ee1c3c86b762fcec0bc3907714ffabb35a562fced; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-and-selected-view-wave-7ef8/environment-and-inputs.json@sha256:230b8387018eb9ca021b15b67346eb1788c98ffb705bddd1eb5308f3e06f11c7; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-5642/environment-and-inputs.json@sha256:d2ff8c78b6a076faf9638edec09a855a864f969803722a154d1a60a066018f4f; each manifest records candidate and input-path identities.",
+      "output_details": [
         "PASS git fixture path census: 4 paths / {'py': 4}",
         "PASS source dependency path census: 5 paths / {'py': 5}",
         "PASS Git blob/content hashes for fixture and dependency source inputs",
@@ -2350,9 +2388,16 @@
         "PASS 7ef8b1cf58d3 stdout/JUnit {'passed': 51, 'failed': 4, 'error': 0} over 55 cases",
         "PASS 5642b366a023 stdout/JUnit {'passed': 6, 'failed': 0, 'error': 0} over 6 cases",
         "PASS byte-for-byte source-to-companion copies for all retained environment/stdout/stderr/JUnit files"
-      ],
-      "tests_run": false,
-      "product_runtime_or_numerical_run": false
+      ]
+    },
+    {
+      "kind": "global_ordinary_http_n5_route",
+      "command": "UNRUN: no ordinary HTTP POST→source-backed profile→actual N5→CAS→fresh GET/N8 execution was recorded.",
+      "target_sha": "5642b366a023a74df3c4d33206272c1462f49351",
+      "environment": "UNRUN: no admitted source-backed L6 input/environment bundle for the ordinary route was available.",
+      "input_closure": "UNRUN: no actual N5 producer input, CAS result lineage, or fresh-application GET input closure was exercised; property_scope.global_http_n5_property names the missing route.",
+      "outcome": "UNRUN",
+      "output": "No ordinary route output exists. global_runtime_goal remains UNRUN."
     }
   ],
   "pattern_pass": {
@@ -2654,25 +2699,17 @@
     "global_http_n5_property": "UNRUN: ordinary POST /api/v1/control/runs/nl \u2192 source-backed configured profile \u2192 actual N5 engine \u2192 CAS result \u2192 fresh-app/process GET/N8 recomputation. Current selected-view tests continue to stub N4/N5 loaders.",
     "proxy_divergence": "Unit HTTP route/service and selected-view CAS-manifest tests can pass while actual N4/N5 producer admission/execution, CAS result creation, or fresh GET/N8 remains untested; the 7ef v4/v5 CAS-stub failures also show that manifest views do not supply real stub payload bodies."
   },
-  "capability_state": [
-    "verification_missing",
-    "fixture_input_unverified",
-    "unit_harness_only_no_actual_n4_n5_consumer"
-  ],
+  "capability_state": "verification_missing",
   "limitations_and_next_owner": [
     "The 542 broad wave had 11 setup errors because the L6 production_data path was unavailable and 40 catalog_fetch_source_unreadable setup errors.",
     "The 340 empty-catalog HTTP fixture wave had 14 failures in three ownership/error classes. Candidate 781 had 47/48 HTTP unit cases pass; its remaining owner-CAS restart assertion expected stale decision validity but observed None after core_run_manifest_load_failed:ArtifactOwnershipError.",
     "The candidate 7ef combined wave recorded 51 passed / 4 failed across 55 tests: its 48 HTTP unit cases passed, while all four selected-view v4/v5 cases failed because a scoped CAS test stub lacked the placeholder payload. Candidate 564 independently passed the selected-view a/f \u00d7 v3/v4/v5 test (6/6); real sibling CAS manifest views now exist over TEST-STUB bodies, and N4/N5 input/source/result loaders remain stubbed.",
     "The 7ef CG2 synthetic non-promotable negative passed; the earlier 4e47 CG2 helper expected bind but observed abstain. The CG2 positive/bind helper control remains UNRUN; a negative PASS does not restore that positive.",
     "No exact historical command was replayed at slice base b5e1f97; P41 failure attribution is not_established.",
-    "These bounded unit-fixture results do not establish the ordinary HTTP POST \u2192 source-backed profile \u2192 actual N5 \u2192 CAS \u2192 fresh GET/N8 route and close no listed finding. Global runtime goal remains UNRUN."
+    "These bounded unit-fixture results do not establish the ordinary HTTP POST \u2192 source-backed profile \u2192 actual N5 \u2192 CAS \u2192 fresh GET/N8 route and close no listed finding. Global runtime goal remains UNRUN.",
+    "The outstanding capability states are artifact_missing for the source-backed L6 inputs unavailable to these fixtures and verification_missing for the ordinary POST→actual N5→CAS→fresh GET/N8 route; the current run evidence remains unit_harness_only."
   ],
-  "predicate_basis": {
-    "historical_case_outcomes": "independently_reconciled",
-    "historical_case_outcomes_method": "Readback script compares complete JUnit case/outcome/per-file counts with pytest final stdout summary.",
-    "fixture_source_path_denominator": "recomputed from complete Git path sets for the eight fixture implementation commits; b422 product-source dependency has its own five-file census.",
-    "failure_attribution_at_slice_base": "not_established"
-  },
+  "predicate_basis": "independently_reconciled",
   "global_runtime_goal": "UNRUN",
   "companion_footprint": {
     "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation",
@@ -2719,5 +2756,37 @@
     "read_only_receipt_validation_script_run": true,
     "commit_created": false
   },
-  "latest_wave_status": "PASS: candidate 5642b366a023a74df3c4d33206272c1462f49351 selected-view unit wave passed 6/6 (a/f \u00d7 v3/v4/v5). The separate candidate 7ef8b1cf58d392b0e2685cd1cae84349a934c154 55-case wave remains 51 passed / 4 failed. The 55-case result is not a 55/55 PASS at candidate 564; all N4/N5 loaders remain test-controlled stubs and global HTTP/N5 remains UNRUN."
+  "latest_wave_status": "PASS: candidate 5642b366a023a74df3c4d33206272c1462f49351 selected-view unit wave passed 6/6 (a/f \u00d7 v3/v4/v5). The separate candidate 7ef8b1cf58d392b0e2685cd1cae84349a934c154 55-case wave remains 51 passed / 4 failed. The 55-case result is not a 55/55 PASS at candidate 564; all N4/N5 loaders remain test-controlled stubs and global HTTP/N5 remains UNRUN.",
+  "baseline_cells": [],
+  "property": {
+    "statement": "Recorded property is scoped unit-fixture behavior at selected service/context boundaries. Candidate 7ef exercises 48 run HTTP unit cases plus selected-view/CG2 checks; candidate 564 exercises six selected-view parameters using sibling CAS manifest views over test-stub bodies. N4/N5 input/source/result loaders remain stubbed. The ordinary HTTP POST→source-backed profile→actual N5→CAS→fresh GET/N8 property is UNRUN.",
+    "runtime_path": [
+      "Bounded HTTP/service and selected-view unit fixtures exercise selected context and service boundaries.",
+      "Candidate 564 reads sibling CAS manifest views over test-stub bodies for a/f × v3/v4/v5 selected-view cases.",
+      "N4/N5 input/source/result loaders remain stubs; no ordinary served source-backed producer→CAS→fresh-GET path was run."
+    ],
+    "proxy_divergence": "Unit HTTP route/service and selected-view CAS-manifest tests can pass while actual N4/N5 producer admission/execution, CAS result creation, or fresh GET/N8 remains untested; the 7ef v4/v5 CAS-stub failures also show that manifest views do not supply real stub payload bodies.",
+    "negative_controls": [
+      "Candidate 7ef recorded the synthetic CG2 non-promotable negative as PASS; the CG2 positive/bind helper control remains UNRUN.",
+      "Candidate 7ef recorded 4 selected-view v4/v5 failures because the scoped CAS stub lacked the placeholder payload; candidate 564 then passed all 6 selected-view parameters with real sibling manifest views over test-stub bodies.",
+      "The global ordinary HTTP/N5/CAS/fresh-GET property remains UNRUN; scoped unit results do not establish it."
+    ]
+  },
+  "capability_state_or_finding_state": "verification_missing",
+  "predicate_basis_detail": {
+    "historical_case_outcomes": "independently_reconciled",
+    "historical_case_outcomes_method": "Readback script compares complete JUnit case/outcome/per-file counts with pytest final stdout summary.",
+    "fixture_source_path_denominator": "recomputed from complete Git path sets for the eight fixture implementation commits; b422 product-source dependency has its own five-file census.",
+    "failure_attribution_at_slice_base": "not_established"
+  },
+  "capability_state_detail": [
+    "verification_missing",
+    "fixture_input_unverified",
+    "unit_harness_only_no_actual_n4_n5_consumer"
+  ],
+  "missing_capability_states": [
+    "artifact_missing",
+    "verification_missing"
+  ],
+  "capability_state_or_finding_state_detail": "verification_missing; fixture_input_unverified; unit_harness_only_no_actual_n4_n5_consumer; global ordinary HTTP/N5 route UNRUN."
 }

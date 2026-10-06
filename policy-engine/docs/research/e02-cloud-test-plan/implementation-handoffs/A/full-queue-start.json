@@ -71,14 +71,18 @@
       "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
       "outcome": "PASS",
       "scope": "source/index integrity only",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-import-check.txt"
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-import-check.txt",
+      "environment": "Not recorded in the original startup-check receipt; no environment manifest is retained.",
+      "input_closure": "The check is explicitly scoped to source/index integrity at target_sha 198076863e143dea9f89f02734b13d50dae3eed5; individual inputs were not enumerated in its original receipt."
     },
     {
       "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py --self-check",
       "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
       "outcome": "PASS",
       "scope": "source/index integrity only",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-coverage-validator.txt"
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-coverage-validator.txt",
+      "environment": "Not recorded in the original startup-check receipt; no environment manifest is retained.",
+      "input_closure": "The check is explicitly scoped to source/index integrity at target_sha 198076863e143dea9f89f02734b13d50dae3eed5; individual inputs were not enumerated in its original receipt."
     }
   ],
   "property": {
@@ -440,5 +444,11 @@
     "S10 E configured-producer contract exists on E topic 5bd27323; A dependent consumer waits for exact G integration checkpoint.",
     "B09 requires C/F owner ratification; B31 requires appointed semantic owner four ratifications.",
     "Root runtime edits in progress are outside this docs-only immutable candidate."
-  ]
+  ],
+  "baseline_cells": [],
+  "capability_state_or_finding_state": "verification_missing",
+  "missing_capability_states": [
+    "verification_missing"
+  ],
+  "capability_state_or_finding_state_detail": "Startup inventory only: code_acceptance=not_submitted; the 34 primary finding rows remain pending with null outcomes, and closure_ids is empty."
 }

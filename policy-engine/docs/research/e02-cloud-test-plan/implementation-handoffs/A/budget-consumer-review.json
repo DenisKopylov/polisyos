@@ -118,10 +118,7 @@
     ]
   },
   "predicate_basis": "not_established",
-  "capability_state_or_finding_state": {
-    "B10": "verification_missing: bounded grounding fallback exists in the A controller, but full hard feasibility before VOI/top-k plus persisted rejection/result and independent engine oracle are not established.",
-    "B11": "bridge_missing: B66 typed cost-event producer exists as a bounded candidate and B37 local exact-once ledger is G-admitted; B66 is not G-admitted and A's served run/job BudgetState is not bridged to that producer/ledger."
-  },
+  "capability_state_or_finding_state": "verification_missing",
   "source_contracts": {
     "A_slice_base": {
       "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
@@ -230,5 +227,17 @@
       "oracle-design.md",
       "run-cyc04/junit.xml"
     ]
-  }
+  },
+  "bundle_ids": [
+    "CYC-04"
+  ],
+  "baseline_cells": [],
+  "capability_state_detail": {
+    "B10": "verification_missing: bounded grounding fallback exists in the A controller, but full hard feasibility before VOI/top-k plus persisted rejection/result and independent engine oracle are not established.",
+    "B11": "bridge_missing: B66 typed cost-event producer exists as a bounded candidate and B37 local exact-once ledger is G-admitted; B66 is not G-admitted and A's served run/job BudgetState is not bridged to that producer/ledger."
+  },
+  "missing_capability_states": [
+    "verification_missing",
+    "bridge_missing"
+  ]
 }

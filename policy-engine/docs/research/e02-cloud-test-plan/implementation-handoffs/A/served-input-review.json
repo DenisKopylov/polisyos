@@ -49,21 +49,7 @@
   "production_source_changes": false,
   "checks": [
     {
-      "command": [
-        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
-        "-B",
-        "-m",
-        "pytest",
-        "-c",
-        "pytest.ini",
-        "-q",
-        "tests/integration/core_runtime/test_e02_served_cycle_custody.py",
-        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
-        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
-        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp",
-        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/junit.xml",
-        "--durations=0"
-      ],
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -B -m pytest -c pytest.ini -q tests/integration/core_runtime/test_e02_served_cycle_custody.py tests/integration/core_runtime/test_e02_empirical_member_intake.py tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/junit.xml --durations=0",
       "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
       "target_sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
       "target_tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528",
@@ -91,7 +77,23 @@
           "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/environment-and-inputs.json",
           "sha256": "6e987120012ea42f479f565132ab624c0f865a4eff197337434795842678e5b4"
         }
-      }
+      },
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-q",
+        "tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/junit.xml",
+        "--durations=0"
+      ],
+      "output": "FAIL before route: configured profile setup raised l6_control_artifact_missing for intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest before create_runtime_api_app/client POST. Retained outputs: wave-3bd/stdout.txt@sha256:2db18f6f162cda5af13e402b9183485eb29cfa530a573a2cbb53b8c51dc6f5b8; stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; junit.xml@sha256:0dc36ab4eb4eaab6dfd7b19eba191d1e7bdca510c36cb276766888f9f3f9ea04. Served CYC-01/CYC-02 property remains UNRUN."
     }
   ],
   "property": {
@@ -107,7 +109,8 @@
       "Missing required L6 files fails closed with l6_control_artifact_missing before route execution.",
       "The existing read-only root has two required source files whose actual bytes disagree with the nested manifest; do not turn those into a positive fixture.",
       "Foreign scope, wrong profile/WMR/atom/outcome, unknown outcome, denied right, and tampered CAS controls are not exercised by this route attempt."
-    ]
+    ],
+    "proxy_divergence": "Selecting a typed CandidateSimulationScenarioProfile or accepting the launch HTTP request is only a selection/transport proxy. At this candidate the profile builder fails before POST because L6 is absent. The existing loader would also accept the two mismatched read-only files by hashing their actual bytes without reconciling the declared FINAL_ARTIFACTS_MANIFEST."
   },
   "input_identity": {
     "disposition": "fixture_input_unverified",
@@ -243,7 +246,7 @@
   },
   "predicate_basis": "not_established",
   "predicate_basis_detail": "Accepted L6 source authority and the served property remain not_established. Actual SHA/size was recomputed against declared manifest entries; the manifest does not authenticate who issued its expectations.",
-  "capability_state_or_finding_state": "fixture_input_unverified; served semantic test missing; CYC-01/B01-B03/B27 and served CYC-02/B04-B05/B08 are not adjudicated.",
+  "capability_state_or_finding_state": "verification_missing",
   "finding_assessment": [
     {
       "id": "B01",
@@ -333,5 +336,17 @@
       "wave-3bd/stderr.txt",
       "wave-3bd/junit.xml"
     ]
-  }
+  },
+  "bundle_ids": [
+    "CYC-01",
+    "CYC-02",
+    "CYC-03",
+    "SIM-03"
+  ],
+  "baseline_cells": [],
+  "missing_capability_states": [
+    "artifact_missing",
+    "verification_missing"
+  ],
+  "capability_state_or_finding_state_detail": "fixture_input_unverified; served semantic test missing; CYC-01/B01-B03/B27 and served CYC-02/B04-B05/B08 are not adjudicated."
 }

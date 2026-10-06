@@ -1,0 +1,1745 @@
+{
+  "claim_grade": "Independent consumer-oracle author measured actual bounded filesystem/process effects; canonical producer implementation is owned by DUR/ADAPTER and requires their separate independent review/root integration decision.",
+  "created_at_utc": "2026-10-06T20:48:44.971128+00:00",
+  "formal_closure_ids": [],
+  "method_qualification": [
+    "The original source checkout and own test/config overlay are separate immutable projections. Own conftest source insertion is prevented by explicitly listing frozenSrc:ownSrc; all loaded parent polisyos module origins remain under frozenSrc. Child PYTHONPATH derives actual frozen ledger module origin and uses runpy on the pinned test overlay.",
+    "All tracked frozen production files match Git source bytes before/after each execution. No canonical source edits or numerical process/thread quota.",
+    "21 unique baseline child invocations exclude pytest current-directory symlink aliases. Same-live concurrent two calls intentionally share one child/runtime owner.",
+    "The first removal is NONDISTINGUISHING: broad pending projection bypassed first transition lookup and no staged completion fault was observed. It remains actual FAIL, not property-removal proof.",
+    "The deciding removal activates only after the genuine first transition staged snapshot fault and only while subsequent sibling pre_check runs. Original actual read/DTO/reserve/publish/settlement and old intent remain. It creates a second real append/fsync effect, accepts the sibling, and fails the original refusal assertion.",
+    "No external provider status/invoice, physical powerloss, multihost, all-OS or full governed publication/authority claim. Prepublication staged-file fsync and before-replace boundaries only.",
+    "Original DD full native/global gates FAIL and B148 held/B154 A all-confirmations publisher missing remain separate; these tests establish no full60 formal closure."
+  ],
+  "predicate_basis": "recomputed",
+  "production_source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+  "production_source_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+  "runs": {
+    "defining-removal": {
+      "cases": [
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke]",
+          "seconds": "0.515",
+          "status": "FAIL"
+        }
+      ],
+      "fixture_aliases_excluded": [
+        "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pubcurrent"
+      ],
+      "fixtures": [
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); exec(\"\\nfrom polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger\\nfrom polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware\\nfrom polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer\\n_original_exit = ns['_PublicationFault'].__exit__\\n_original_precheck = LLMBudgetEnforcer._pre_check\\n_original_list = BudgetMiddleware.list_completion_obligations_safe\\n_original_runtime = FileBudgetLedger._assert_runtime_admission\\n_original_intersection = FileBudgetLedger._intersecting_completions\\ndef _ignore_pending(self, keys):\\n    _original_list(self, keys)\\n    return ()\\ndef _readmit_only(self, *args, **kwargs):\\n    BudgetMiddleware.list_completion_obligations_safe = _ignore_pending\\n    FileBudgetLedger._assert_runtime_admission = lambda self, keys: None\\n    FileBudgetLedger._intersecting_completions = staticmethod(lambda snapshot, keys, owner_epoch=None: ())\\n    try:\\n        return _original_precheck(self, *args, **kwargs)\\n    finally:\\n        BudgetMiddleware.list_completion_obligations_safe = _original_list\\n        FileBudgetLedger._assert_runtime_admission = _original_runtime\\n        FileBudgetLedger._intersecting_completions = staticmethod(_original_intersection)\\ndef _after_original_fault(self, *args):\\n    _original_exit(self, *args)\\n    if self.operation == 'transition_completion':\\n        assert self.seen, 'Removal must follow the actual first post-effect publication fault'\\n        LLMBudgetEnforcer._pre_check = _readmit_only\\nns['_PublicationFault'].__exit__ = _after_original_fault\\n\"); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/ledger.json",
+                "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+                "completion_fault",
+                "invoke",
+                "file_fsync",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "d2aaea84d5508476ee9d015432071dd7a8ce86f40ae11b56e8c4a03d8bc4091c",
+              "owner_epoch": "468184:e7196301d218471999b4d78197326c3a",
+              "physical_effect_count": 2,
+              "pid": 468184,
+              "returncode": 0,
+              "same_live_sibling": {
+                "status": "accepted"
+              },
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0"
+        }
+      ],
+      "result": {
+        "artifacts": [
+          {
+            "bytes": 37,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 197,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache/v/cache/lastfailed",
+            "sha256": "9fffbe82731d0cc78cf0b0e821531fe7b9503aaeb1fb385e0d690daedd09b563"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache/v/cache/nodeids",
+            "sha256": "22513fc0ea5997027681a4e675d614f31b29fdcfe48427379667df292a2fb097"
+          },
+          {
+            "bytes": 39325,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/module-origins.jsonl",
+            "sha256": "883d854867c665503cefda06c88c4f15c9eccf94f2752979487c158f07085de9"
+          },
+          {
+            "bytes": 4595,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native-stdout.txt",
+            "sha256": "55b9a5e418e48a55d054588f00c6dffc4c934194072053b4db9fb944537535e3"
+          },
+          {
+            "bytes": 3248,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native.xml",
+            "sha256": "299e2167bc16682e599acb8979b7dddbebddb317b6075f0ced8d709cd0334339"
+          },
+          {
+            "bytes": 985860,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/profile.json",
+            "sha256": "3bf7e3b003924639f9645863d4e267285f62f7b59a312db566fe9e5d01906297"
+          },
+          {
+            "bytes": 12548,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+            "sha256": "e3a5fed50573785a8a98dee45952668dc81e462bbfa80acc6ee7592355f75898"
+          },
+          {
+            "bytes": 4330,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/ledger.json",
+            "sha256": "d2aaea84d5508476ee9d015432071dd7a8ce86f40ae11b56e8c4a03d8bc4091c"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 2561,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+            "sha256": "65e03c9e3d208654316da34faa1b87d5df761758c662edc821d0826a4f54f81c"
+          },
+          {
+            "bytes": 3862,
+            "path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/removal-admission.json",
+            "sha256": "6d4d84a5352f0bfc8a71ce4725ec31732c5ef440bc77e13caddb6d8717e7fd29"
+          }
+        ],
+        "counts": {
+          "actual_cases": 1,
+          "error": 0,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0
+        },
+        "elapsed_seconds": 8.838843550998718,
+        "finished_utc": "2026-10-06T20:47:30Z",
+        "returncode": 1,
+        "rusage_exact_pytest_pid": {
+          "maxrss_kib": 108408,
+          "pid": 468152,
+          "system_seconds": 0.202087,
+          "user_seconds": 2.216033
+        },
+        "source_after": {
+          "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+          "status": "",
+          "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e"
+        },
+        "source_before": {
+          "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+          "status": "",
+          "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e"
+        },
+        "test_before_after": {
+          "head": "619e3834cb56a8109460d07cd5d18fcde1fedc49",
+          "status": "",
+          "tree": "9fa61d024b3231b598416b89148f621640650a09"
+        }
+      },
+      "unique_child_count": 1
+    },
+    "initial-nondistinguishing-removal": {
+      "cases": [
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke]",
+          "seconds": "0.473",
+          "status": "FAIL"
+        }
+      ],
+      "fixture_aliases_excluded": [
+        "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pubcurrent"
+      ],
+      "fixtures": [
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); exec('\\nfrom polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger\\nfrom polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware\\n_original_list = BudgetMiddleware.list_completion_obligations_safe\\ndef _ignore_pending(self, keys):\\n    _original_list(self, keys)\\n    return ()\\nBudgetMiddleware.list_completion_obligations_safe = _ignore_pending\\nFileBudgetLedger._assert_runtime_admission = lambda self, keys: None\\nFileBudgetLedger._intersecting_completions = staticmethod(lambda snapshot, keys, owner_epoch=None: ())\\n'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/ledger.json",
+                "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+                "completion_fault",
+                "invoke",
+                "file_fsync",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 2,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "9fcb400ae77ae52e63b35124e5fbdea41469597129cb6598bdaa00fcc27ab473",
+              "owner_epoch": "461305:9b24da1bc08d44898ae27887243bd7a0",
+              "physical_effect_count": 2,
+              "pid": 461305,
+              "returncode": 0,
+              "same_live_sibling": {
+                "cause": "ValueError",
+                "cause_text": "completion ID conflicts with its retained exact record",
+                "exception": "LLMAccountingError",
+                "status": "refused"
+              },
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0"
+        }
+      ],
+      "result": {
+        "artifacts": [
+          {
+            "bytes": 37,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/cache/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/cache/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/cache/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 197,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/cache/v/cache/lastfailed",
+            "sha256": "9fffbe82731d0cc78cf0b0e821531fe7b9503aaeb1fb385e0d690daedd09b563"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/cache/v/cache/nodeids",
+            "sha256": "22513fc0ea5997027681a4e675d614f31b29fdcfe48427379667df292a2fb097"
+          },
+          {
+            "bytes": 39325,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/module-origins.jsonl",
+            "sha256": "883d854867c665503cefda06c88c4f15c9eccf94f2752979487c158f07085de9"
+          },
+          {
+            "bytes": 3727,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/native-stdout.txt",
+            "sha256": "56e21b50a67dc8b8bca598d239b5518ec6876d14733db5a0abe25009e12614e7"
+          },
+          {
+            "bytes": 1468,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/native.xml",
+            "sha256": "d0fbe1863b45e6532d184cc2eb6afebdf646162b8aa8bcb0299f2d24ad120d5b"
+          },
+          {
+            "bytes": 985853,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/profile.json",
+            "sha256": "5faecb511e8da71faae8ec8ce9a170a8b0c3473832db17efbc6a3ea9b9d81a6e"
+          },
+          {
+            "bytes": 7941,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+            "sha256": "989e5073583e74ce4171df87251da00e5413c41fa2551395c29915d9ac168452"
+          },
+          {
+            "bytes": 3029,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/ledger.json",
+            "sha256": "9fcb400ae77ae52e63b35124e5fbdea41469597129cb6598bdaa00fcc27ab473"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 2561,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+            "sha256": "4c02e58f545aecef219ee18639a4a420812f0b468bdd0e1c4a2f00b984d942d2"
+          },
+          {
+            "bytes": 1694,
+            "path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/removal-admission.json",
+            "sha256": "77a69e0c5fbb786c2c4ac833992985ae877927414d7240ffff65bba56c905f0c"
+          }
+        ],
+        "counts": {
+          "actual_cases": 1,
+          "error": 0,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0
+        },
+        "elapsed_seconds": 8.767349419998936,
+        "finished_utc": "2026-10-06T20:46:02Z",
+        "returncode": 1,
+        "rusage_exact_pytest_pid": {
+          "maxrss_kib": 107976,
+          "pid": 461269,
+          "system_seconds": 0.249935,
+          "user_seconds": 2.10603
+        },
+        "source_after": {
+          "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+          "status": "",
+          "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e"
+        },
+        "source_before": {
+          "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+          "status": "",
+          "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e"
+        },
+        "test_before_after": {
+          "head": "619e3834cb56a8109460d07cd5d18fcde1fedc49",
+          "status": "",
+          "tree": "9fa61d024b3231b598416b89148f621640650a09"
+        }
+      },
+      "unique_child_count": 1
+    },
+    "native": {
+      "cases": [
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[file_fsync-invoke]",
+          "seconds": "0.462",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[file_fsync-generate]",
+          "seconds": "0.452",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[replace_before-invoke]",
+          "seconds": "0.467",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[replace_before-generate]",
+          "seconds": "0.463",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke]",
+          "seconds": "1.425",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-generate]",
+          "seconds": "1.447",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[replace_before-invoke]",
+          "seconds": "1.392",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[replace_before-generate]",
+          "seconds": "1.414",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_genuine_known_zero_completion_allows_a_fresh_physical_call[invoke]",
+          "seconds": "1.013",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_genuine_known_zero_completion_allows_a_fresh_physical_call[generate]",
+          "seconds": "1.007",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.scientist.orchestration.engine.test_completion_admission_consumer_oracle::test_same_live_owner_can_finish_two_genuinely_concurrent_physical_calls",
+          "seconds": "0.509",
+          "status": "PASS"
+        }
+      ],
+      "fixture_aliases_excluded": [
+        "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_complecurrent",
+        "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pubcurrent",
+        "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intentcurrent",
+        "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finiscurrent"
+      ],
+      "fixtures": [
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/physical-effects.jsonl",
+                "zero",
+                "invoke",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "58220fdfee2715c5fcd3d85e91e6066e4dbff1a22181dfa0e759780c06cb6034",
+              "owner_epoch": "454734:4288038c7da14ee9b230af71c72ead5f",
+              "physical_effect_count": 1,
+              "pid": 454734,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "accepted"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/physical-effects.jsonl",
+                "zero",
+                "invoke",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "771c143d26043383fa4f0ded318042d144242579c4b0c102a15ee57fc3104e51",
+              "owner_epoch": "454738:370fdc611da2469082c581c3212875b0",
+              "physical_effect_count": 2,
+              "pid": 454738,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "accepted"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple0/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/physical-effects.jsonl",
+                "zero",
+                "generate",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "285c8146daf702d31852f2670d2b3304d0ea675fc4edf339423cc86150aa2f27",
+              "owner_epoch": "454742:8c9cc5969ac34346870677ff49a4ba0a",
+              "physical_effect_count": 1,
+              "pid": 454742,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "accepted"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/physical-effects.jsonl",
+                "zero",
+                "generate",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "8e76e8f27c27b63c325b3ff8b3bf89450f077cc05daa5f2d68132ee891c39724",
+              "owner_epoch": "454746:a593460658e242b8b2cf44203e35f7ec",
+              "physical_effect_count": 2,
+              "pid": 454746,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "accepted"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple1/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+                "completion_fault",
+                "invoke",
+                "file_fsync",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "35f74f3a4d4a8db845fa2b2e11594a1284d38d4365071731e66bed5105e67261",
+              "owner_epoch": "454625:b50f3222de6f407a8c22d5ce01b60f29",
+              "physical_effect_count": 1,
+              "pid": 454625,
+              "returncode": 0,
+              "same_live_sibling": {
+                "cause": "BudgetLedgerCompletionRequiredError",
+                "cause_text": "budget completion requires reconciliation before new work: llm-producer:f3a69a71aabd4f50a04d66bd1f424494",
+                "exception": "LLMAccountingError",
+                "status": "refused"
+              },
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+                "reopen",
+                "invoke",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "35f74f3a4d4a8db845fa2b2e11594a1284d38d4365071731e66bed5105e67261",
+              "owner_epoch": "454627:716dd203406b408599d7f5663138f546",
+              "physical_effect_count": 1,
+              "pid": 454627,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+                "reopen",
+                "invoke",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "35f74f3a4d4a8db845fa2b2e11594a1284d38d4365071731e66bed5105e67261",
+              "owner_epoch": "454628:d600885cc0ed409986c3823ea5d68942",
+              "physical_effect_count": 1,
+              "pid": 454628,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/physical-effects.jsonl",
+                "completion_fault",
+                "generate",
+                "file_fsync",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "9ddd010bff7b78a153f6fadd42bb85c8dc70b31ec3301c12eff06285373455fb",
+              "owner_epoch": "454629:c9df0e05f84b4946a7595acb8ca2671e",
+              "physical_effect_count": 1,
+              "pid": 454629,
+              "returncode": 0,
+              "same_live_sibling": {
+                "cause": "BudgetLedgerCompletionRequiredError",
+                "cause_text": "budget completion requires reconciliation before new work: llm-producer:0f9cf4cf2202439bb0f8b49a467dd2d2",
+                "exception": "LLMAccountingError",
+                "status": "refused"
+              },
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/physical-effects.jsonl",
+                "reopen",
+                "generate",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "9ddd010bff7b78a153f6fadd42bb85c8dc70b31ec3301c12eff06285373455fb",
+              "owner_epoch": "454631:801d1d8fc3a84e41bb072780a0ce3af5",
+              "physical_effect_count": 1,
+              "pid": 454631,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/physical-effects.jsonl",
+                "reopen",
+                "generate",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "9ddd010bff7b78a153f6fadd42bb85c8dc70b31ec3301c12eff06285373455fb",
+              "owner_epoch": "454632:739b56bbdf5e4f329b4af55df6b6eb2d",
+              "physical_effect_count": 1,
+              "pid": 454632,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub1/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/physical-effects.jsonl",
+                "completion_fault",
+                "invoke",
+                "replace_before",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "7e8e28b17ec2f7fdc9a5a8670c7cb2f570ace84c387ecc43913482160b7259ff",
+              "owner_epoch": "454704:7061871ac042477ab0dc2be3b99f6324",
+              "physical_effect_count": 1,
+              "pid": 454704,
+              "returncode": 0,
+              "same_live_sibling": {
+                "cause": "BudgetLedgerCompletionRequiredError",
+                "cause_text": "budget completion requires reconciliation before new work: llm-producer:8c20e3e50f374a6bb83590375da51a30",
+                "exception": "LLMAccountingError",
+                "status": "refused"
+              },
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/physical-effects.jsonl",
+                "reopen",
+                "invoke",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "7e8e28b17ec2f7fdc9a5a8670c7cb2f570ace84c387ecc43913482160b7259ff",
+              "owner_epoch": "454718:ab320471fa764ba8af194a0ef84885e4",
+              "physical_effect_count": 1,
+              "pid": 454718,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/physical-effects.jsonl",
+                "reopen",
+                "invoke",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "7e8e28b17ec2f7fdc9a5a8670c7cb2f570ace84c387ecc43913482160b7259ff",
+              "owner_epoch": "454719:55c47cbab6ef4adf81c051de2e5dd358",
+              "physical_effect_count": 1,
+              "pid": 454719,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub2/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/physical-effects.jsonl",
+                "completion_fault",
+                "generate",
+                "replace_before",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "a571ed3f1ccef4e8879a16754416e1dd93e21a10ab1e43e8118f822bbc4d0996",
+              "owner_epoch": "454720:645382b0cc1046ad88940f6b56a36e88",
+              "physical_effect_count": 1,
+              "pid": 454720,
+              "returncode": 0,
+              "same_live_sibling": {
+                "cause": "BudgetLedgerCompletionRequiredError",
+                "cause_text": "budget completion requires reconciliation before new work: llm-producer:86f93fc53d0f4942ac524215dab5fa14",
+                "exception": "LLMAccountingError",
+                "status": "refused"
+              },
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/physical-effects.jsonl",
+                "reopen",
+                "generate",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "a571ed3f1ccef4e8879a16754416e1dd93e21a10ab1e43e8118f822bbc4d0996",
+              "owner_epoch": "454722:7c35a30ee10b494f938e4549acd88b9f",
+              "physical_effect_count": 1,
+              "pid": 454722,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            },
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/physical-effects.jsonl",
+                "reopen",
+                "generate",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 1,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "a571ed3f1ccef4e8879a16754416e1dd93e21a10ab1e43e8118f822bbc4d0996",
+              "owner_epoch": "454723:40e155a6e579432699458999046035f9",
+              "physical_effect_count": 1,
+              "pid": 454723,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub3/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/physical-effects.jsonl",
+                "intent_fault",
+                "invoke",
+                "file_fsync",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "bfe28037adc51fcea6be1c2dcc53055e8e389ffc5729d03c06e5a917c84d4346",
+              "owner_epoch": "454618:b413eb9f29454982b14591a4e6b17ea2",
+              "physical_effect_count": 0,
+              "pid": 454618,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent0/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/physical-effects.jsonl",
+                "intent_fault",
+                "generate",
+                "file_fsync",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "de9c3b2c7002cf0d07a6e770fc52322184c0728dc1ea23297aed3003f73a988c",
+              "owner_epoch": "454619:9550c5729569481191f04d1ec77f89f0",
+              "physical_effect_count": 0,
+              "pid": 454619,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent1/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/physical-effects.jsonl",
+                "intent_fault",
+                "invoke",
+                "replace_before",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "55ed25f2cb7b9b2a151c42755568db5181e533b1e3273f45822a536e8bded018",
+              "owner_epoch": "454620:7b6bc6768e444afb90f7d3084f3e66f1",
+              "physical_effect_count": 0,
+              "pid": 454620,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent2/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/physical-effects.jsonl",
+                "intent_fault",
+                "generate",
+                "replace_before",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 1,
+              "ledger_sha256": "f50031f197d40039cc338b32143c3fb54b8be11faf63479ba325ccd9c72e8d0d",
+              "owner_epoch": "454624:3bdf7af75a1145338fe989c83e029a69",
+              "physical_effect_count": 0,
+              "pid": 454624,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "refused"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent3/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3"
+        },
+        {
+          "children": [
+            {
+              "argv": [
+                "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+                "-c",
+                "import runpy,sys; ns=runpy.run_path(sys.argv[1],run_name='completion_consumer_driver'); ns['_driver'](sys.argv[2:])",
+                "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/ledger.json",
+                "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/physical-effects.jsonl",
+                "concurrent",
+                "generate",
+                "",
+                "/workspace/e02-B-current-adapters/policy-engine/src"
+              ],
+              "completion_count": 0,
+              "faulted_staged_snapshot_count": 0,
+              "ledger_sha256": "39aaa5d8595c24b7adf9e994ccaa7b728dab76be3d63043ad5dd93f98edbab53",
+              "owner_epoch": "454750:f42398d1d1864c1b9b89305413331c45",
+              "physical_effect_count": 2,
+              "pid": 454750,
+              "returncode": 0,
+              "same_live_sibling": null,
+              "status": "accepted"
+            }
+          ],
+          "committed_child_observations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_same_live_owner_can_finis0/child-observations.jsonl",
+          "original_fixture": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0"
+        }
+      ],
+      "result": {
+        "artifacts": [
+          {
+            "bytes": 37,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/cache/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/cache/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/cache/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 2015,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/cache/v/cache/nodeids",
+            "sha256": "a62c8959bf1fb3af201dd466943bf224e15558f54583ca524d72af92090fe3e9"
+          },
+          {
+            "bytes": 39325,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/module-origins.jsonl",
+            "sha256": "883d854867c665503cefda06c88c4f15c9eccf94f2752979487c158f07085de9"
+          },
+          {
+            "bytes": 4097,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/native-stdout.txt",
+            "sha256": "91dd293a2a7befe83a58c4f1bc334a1f6725cb936497f81a5961ba221e58ce5b"
+          },
+          {
+            "bytes": 2648,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/native.xml",
+            "sha256": "0d6ef6b5a91d6fdc55f86065d1353a2fb3cfc2cd3041b8aee61f32c226e69ca6"
+          },
+          {
+            "bytes": 985449,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/profile.json",
+            "sha256": "74507a5098c467389c57b74f125b9dc2c104f245faa5a3fcbefdfcc9985b6f65"
+          },
+          {
+            "bytes": 14567,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/child-observations.jsonl",
+            "sha256": "8b42f8552aa83f2cc80aa157e13d4aedc03a5af090f71e3336b7127efaaae466"
+          },
+          {
+            "bytes": 5563,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/ledger.json",
+            "sha256": "771c143d26043383fa4f0ded318042d144242579c4b0c102a15ee57fc3104e51"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 1888,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/physical-effects.jsonl",
+            "sha256": "c963bb89026fd84f4a4c8e958b3f58f3bcd27803d30da70a7133d6c535c77b8a"
+          },
+          {
+            "bytes": 14565,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/child-observations.jsonl",
+            "sha256": "eb24c007e8de38cca008a3f440baa0da5e5bb8be2f95ac9babacf882451df202"
+          },
+          {
+            "bytes": 5563,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/ledger.json",
+            "sha256": "8e76e8f27c27b63c325b3ff8b3bf89450f077cc05daa5f2d68132ee891c39724"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 1884,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/physical-effects.jsonl",
+            "sha256": "2f611a8fd3cb687d7713928db517f0b0aab7d7209590dc7ee0f57ba01629d190"
+          },
+          {
+            "bytes": 15417,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+            "sha256": "dfc3a96c2d375c0ddc2d677cb17416108434ee13a8ac76aad0cb66e00497f886"
+          },
+          {
+            "bytes": 1981,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/ledger.json",
+            "sha256": "35f74f3a4d4a8db845fa2b2e11594a1284d38d4365071731e66bed5105e67261"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 947,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+            "sha256": "698d4c19843718b9697fcf9990e84a14cd95ecbed8b291ca6fb0d558ad4e0fbb"
+          },
+          {
+            "bytes": 15417,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/child-observations.jsonl",
+            "sha256": "3a27bd7ac890515c01d9edb9aa89c6aa2fcbb9ae9440b90e8e07c80dd736e2cc"
+          },
+          {
+            "bytes": 1981,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/ledger.json",
+            "sha256": "9ddd010bff7b78a153f6fadd42bb85c8dc70b31ec3301c12eff06285373455fb"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 945,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/physical-effects.jsonl",
+            "sha256": "93282b083024390a0b955d608c864264101c295d66ba737b8a012c53fb9aa63a"
+          },
+          {
+            "bytes": 15421,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/child-observations.jsonl",
+            "sha256": "5930d8218bd48275c638feb682350217d90b00e653f0e9bd61e374def81ec99d"
+          },
+          {
+            "bytes": 1981,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/ledger.json",
+            "sha256": "7e8e28b17ec2f7fdc9a5a8670c7cb2f570ace84c387ecc43913482160b7259ff"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 947,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/physical-effects.jsonl",
+            "sha256": "d9fc1fbc25f8a5e490d68c6b7e680293b5b4cd923e111deb0e045e982cc2ef86"
+          },
+          {
+            "bytes": 15421,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/child-observations.jsonl",
+            "sha256": "12a70dcb4a81a8733313816f1caa707d35c261d02a957939fd15a0935263015b"
+          },
+          {
+            "bytes": 1981,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/ledger.json",
+            "sha256": "a571ed3f1ccef4e8879a16754416e1dd93e21a10ab1e43e8118f822bbc4d0996"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 945,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/physical-effects.jsonl",
+            "sha256": "59099aa0b5474d83d292fa43885e655f1eeb786fced76856ee5c005faa04d8c4"
+          },
+          {
+            "bytes": 4062,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/child-observations.jsonl",
+            "sha256": "e28565859b8c617eac519af5d30156898c84988a3d097e25b934b72627739e89"
+          },
+          {
+            "bytes": 903,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/ledger.json",
+            "sha256": "bfe28037adc51fcea6be1c2dcc53055e8e389ffc5729d03c06e5a917c84d4346"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 4064,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/child-observations.jsonl",
+            "sha256": "4f5d82a17559c313512d2a19a603d2b2223de257bb7de478d64bb0e77a3230dd"
+          },
+          {
+            "bytes": 903,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/ledger.json",
+            "sha256": "de9c3b2c7002cf0d07a6e770fc52322184c0728dc1ea23297aed3003f73a988c"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 4066,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/child-observations.jsonl",
+            "sha256": "422ce79b3af3692ce9b0f1cd84281996d22c6fa5864d23c291ac8a0f1b5cdc55"
+          },
+          {
+            "bytes": 903,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/ledger.json",
+            "sha256": "55ed25f2cb7b9b2a151c42755568db5181e533b1e3273f45822a536e8bded018"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 4068,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/child-observations.jsonl",
+            "sha256": "4e73da605d33f5eb62ca3bb59b4345827787075afa4818a7f49444ab3e596cc4"
+          },
+          {
+            "bytes": 903,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/ledger.json",
+            "sha256": "f50031f197d40039cc338b32143c3fb54b8be11faf63479ba325ccd9c72e8d0d"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 10473,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/child-observations.jsonl",
+            "sha256": "5bb638a326fad2e10f50fe1394d659386b00e3c02a658131665c50babe9773b6"
+          },
+          {
+            "bytes": 5571,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/ledger.json",
+            "sha256": "39aaa5d8595c24b7adf9e994ccaa7b728dab76be3d63043ad5dd93f98edbab53"
+          },
+          {
+            "bytes": 0,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/ledger.json.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 3224,
+            "path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/physical-effects.jsonl",
+            "sha256": "1da6ea69d84f8ddd40613df4bed63c836d568765d33469b96596a64b9dc1916e"
+          }
+        ],
+        "counts": {
+          "actual_cases": 11,
+          "error": 0,
+          "failed": 0,
+          "passed": 11,
+          "skipped": 0
+        },
+        "elapsed_seconds": 18.520114337996347,
+        "finished_utc": "2026-10-06T20:44:49Z",
+        "returncode": 0,
+        "rusage_exact_pytest_pid": {
+          "maxrss_kib": 106236,
+          "pid": 454586,
+          "system_seconds": 1.167385,
+          "user_seconds": 10.807935
+        },
+        "source_after": {
+          "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+          "status": "",
+          "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e"
+        },
+        "source_before": {
+          "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+          "status": "",
+          "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e"
+        },
+        "test_before_after": {
+          "head": "619e3834cb56a8109460d07cd5d18fcde1fedc49",
+          "status": "",
+          "tree": "9fa61d024b3231b598416b89148f621640650a09"
+        }
+      },
+      "unique_child_count": 21
+    }
+  },
+  "schema": "policyos.e02.independent_completion_consumer_observations.v1",
+  "test_overlay_sha": "619e3834cb56a8109460d07cd5d18fcde1fedc49",
+  "test_overlay_tree": "9fa61d024b3231b598416b89148f621640650a09",
+  "transfer_manifest": [
+    {
+      "bytes": 39325,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/module-origins.jsonl",
+      "sha256": "883d854867c665503cefda06c88c4f15c9eccf94f2752979487c158f07085de9"
+    },
+    {
+      "bytes": 4097,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/native-stdout.txt",
+      "sha256": "91dd293a2a7befe83a58c4f1bc334a1f6725cb936497f81a5961ba221e58ce5b"
+    },
+    {
+      "bytes": 2648,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/native.xml",
+      "sha256": "0d6ef6b5a91d6fdc55f86065d1353a2fb3cfc2cd3041b8aee61f32c226e69ca6"
+    },
+    {
+      "bytes": 985449,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/profile.json",
+      "sha256": "74507a5098c467389c57b74f125b9dc2c104f245faa5a3fcbefdfcc9985b6f65"
+    },
+    {
+      "bytes": 14567,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple0/child-observations.jsonl",
+      "sha256": "8b42f8552aa83f2cc80aa157e13d4aedc03a5af090f71e3336b7127efaaae466"
+    },
+    {
+      "bytes": 5563,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple0/ledger.json",
+      "sha256": "771c143d26043383fa4f0ded318042d144242579c4b0c102a15ee57fc3104e51"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple0/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1888,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple0/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple0/physical-effects.jsonl",
+      "sha256": "c963bb89026fd84f4a4c8e958b3f58f3bcd27803d30da70a7133d6c535c77b8a"
+    },
+    {
+      "bytes": 14565,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple1/child-observations.jsonl",
+      "sha256": "eb24c007e8de38cca008a3f440baa0da5e5bb8be2f95ac9babacf882451df202"
+    },
+    {
+      "bytes": 5563,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple1/ledger.json",
+      "sha256": "8e76e8f27c27b63c325b3ff8b3bf89450f077cc05daa5f2d68132ee891c39724"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple1/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1884,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_genuine_known_zero_comple1/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_genuine_known_zero_comple1/physical-effects.jsonl",
+      "sha256": "2f611a8fd3cb687d7713928db517f0b0aab7d7209590dc7ee0f57ba01629d190"
+    },
+    {
+      "bytes": 15417,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+      "sha256": "dfc3a96c2d375c0ddc2d677cb17416108434ee13a8ac76aad0cb66e00497f886"
+    },
+    {
+      "bytes": 1981,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub0/ledger.json",
+      "sha256": "35f74f3a4d4a8db845fa2b2e11594a1284d38d4365071731e66bed5105e67261"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 947,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+      "sha256": "698d4c19843718b9697fcf9990e84a14cd95ecbed8b291ca6fb0d558ad4e0fbb"
+    },
+    {
+      "bytes": 15417,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub1/child-observations.jsonl",
+      "sha256": "3a27bd7ac890515c01d9edb9aa89c6aa2fcbb9ae9440b90e8e07c80dd736e2cc"
+    },
+    {
+      "bytes": 1981,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub1/ledger.json",
+      "sha256": "9ddd010bff7b78a153f6fadd42bb85c8dc70b31ec3301c12eff06285373455fb"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub1/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 945,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub1/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub1/physical-effects.jsonl",
+      "sha256": "93282b083024390a0b955d608c864264101c295d66ba737b8a012c53fb9aa63a"
+    },
+    {
+      "bytes": 15421,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub2/child-observations.jsonl",
+      "sha256": "5930d8218bd48275c638feb682350217d90b00e653f0e9bd61e374def81ec99d"
+    },
+    {
+      "bytes": 1981,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub2/ledger.json",
+      "sha256": "7e8e28b17ec2f7fdc9a5a8670c7cb2f570ace84c387ecc43913482160b7259ff"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub2/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 947,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub2/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub2/physical-effects.jsonl",
+      "sha256": "d9fc1fbc25f8a5e490d68c6b7e680293b5b4cd923e111deb0e045e982cc2ef86"
+    },
+    {
+      "bytes": 15421,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub3/child-observations.jsonl",
+      "sha256": "12a70dcb4a81a8733313816f1caa707d35c261d02a957939fd15a0935263015b"
+    },
+    {
+      "bytes": 1981,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub3/ledger.json",
+      "sha256": "a571ed3f1ccef4e8879a16754416e1dd93e21a10ab1e43e8118f822bbc4d0996"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub3/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 945,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_posteffect_completion_pub3/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_posteffect_completion_pub3/physical-effects.jsonl",
+      "sha256": "59099aa0b5474d83d292fa43885e655f1eeb786fced76856ee5c005faa04d8c4"
+    },
+    {
+      "bytes": 4062,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent0/child-observations.jsonl",
+      "sha256": "e28565859b8c617eac519af5d30156898c84988a3d097e25b934b72627739e89"
+    },
+    {
+      "bytes": 903,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent0/ledger.json",
+      "sha256": "bfe28037adc51fcea6be1c2dcc53055e8e389ffc5729d03c06e5a917c84d4346"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent0/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent0/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4064,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent1/child-observations.jsonl",
+      "sha256": "4f5d82a17559c313512d2a19a603d2b2223de257bb7de478d64bb0e77a3230dd"
+    },
+    {
+      "bytes": 903,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent1/ledger.json",
+      "sha256": "de9c3b2c7002cf0d07a6e770fc52322184c0728dc1ea23297aed3003f73a988c"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent1/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent1/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4066,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent2/child-observations.jsonl",
+      "sha256": "422ce79b3af3692ce9b0f1cd84281996d22c6fa5864d23c291ac8a0f1b5cdc55"
+    },
+    {
+      "bytes": 903,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent2/ledger.json",
+      "sha256": "55ed25f2cb7b9b2a151c42755568db5181e533b1e3273f45822a536e8bded018"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent2/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent2/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4068,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent3/child-observations.jsonl",
+      "sha256": "4e73da605d33f5eb62ca3bb59b4345827787075afa4818a7f49444ab3e596cc4"
+    },
+    {
+      "bytes": 903,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent3/ledger.json",
+      "sha256": "f50031f197d40039cc338b32143c3fb54b8be11faf63479ba325ccd9c72e8d0d"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_preprovider_atomic_intent3/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_preprovider_atomic_intent3/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 10473,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_same_live_owner_can_finis0/child-observations.jsonl",
+      "sha256": "5bb638a326fad2e10f50fe1394d659386b00e3c02a658131665c50babe9773b6"
+    },
+    {
+      "bytes": 5571,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_same_live_owner_can_finis0/ledger.json",
+      "sha256": "39aaa5d8595c24b7adf9e994ccaa7b728dab76be3d63043ad5dd93f98edbab53"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_same_live_owner_can_finis0/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3224,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest/test_same_live_owner_can_finis0/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/pytest/test_same_live_owner_can_finis0/physical-effects.jsonl",
+      "sha256": "1da6ea69d84f8ddd40613df4bed63c836d568765d33469b96596a64b9dc1916e"
+    },
+    {
+      "bytes": 12049,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-a391-f838d5837d24/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/native/result.json",
+      "sha256": "7e92d2a115528b9a2d2d7b6bcfa2c36eb7cbd4f68bf28e1f18dc35612acee0de"
+    },
+    {
+      "bytes": 39325,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/module-origins.jsonl",
+      "sha256": "883d854867c665503cefda06c88c4f15c9eccf94f2752979487c158f07085de9"
+    },
+    {
+      "bytes": 3727,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/native-stdout.txt",
+      "sha256": "56e21b50a67dc8b8bca598d239b5518ec6876d14733db5a0abe25009e12614e7"
+    },
+    {
+      "bytes": 1468,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/native.xml",
+      "sha256": "d0fbe1863b45e6532d184cc2eb6afebdf646162b8aa8bcb0299f2d24ad120d5b"
+    },
+    {
+      "bytes": 985853,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/profile.json",
+      "sha256": "5faecb511e8da71faae8ec8ce9a170a8b0c3473832db17efbc6a3ea9b9d81a6e"
+    },
+    {
+      "bytes": 7941,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+      "sha256": "989e5073583e74ce4171df87251da00e5413c41fa2551395c29915d9ac168452"
+    },
+    {
+      "bytes": 3029,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/pytest/test_posteffect_completion_pub0/ledger.json",
+      "sha256": "9fcb400ae77ae52e63b35124e5fbdea41469597129cb6598bdaa00fcc27ab473"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2561,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+      "sha256": "4c02e58f545aecef219ee18639a4a420812f0b468bdd0e1c4a2f00b984d942d2"
+    },
+    {
+      "bytes": 1694,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/removal-admission.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/removal-admission.json",
+      "sha256": "77a69e0c5fbb786c2c4ac833992985ae877927414d7240ffff65bba56c905f0c"
+    },
+    {
+      "bytes": 3929,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/initial-nondistinguishing-removal/result.json",
+      "sha256": "4724c695d2d4a552c2017bdc319c0853bf887c2f227854625db0c4072af75501"
+    },
+    {
+      "bytes": 39325,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/module-origins.jsonl",
+      "sha256": "883d854867c665503cefda06c88c4f15c9eccf94f2752979487c158f07085de9"
+    },
+    {
+      "bytes": 4595,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/native-stdout.txt",
+      "sha256": "55b9a5e418e48a55d054588f00c6dffc4c934194072053b4db9fb944537535e3"
+    },
+    {
+      "bytes": 3248,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/native.xml",
+      "sha256": "299e2167bc16682e599acb8979b7dddbebddb317b6075f0ced8d709cd0334339"
+    },
+    {
+      "bytes": 985860,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/profile.json",
+      "sha256": "3bf7e3b003924639f9645863d4e267285f62f7b59a312db566fe9e5d01906297"
+    },
+    {
+      "bytes": 12548,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/pytest/test_posteffect_completion_pub0/child-observations.jsonl",
+      "sha256": "e3a5fed50573785a8a98dee45952668dc81e462bbfa80acc6ee7592355f75898"
+    },
+    {
+      "bytes": 4330,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/pytest/test_posteffect_completion_pub0/ledger.json",
+      "sha256": "d2aaea84d5508476ee9d015432071dd7a8ce86f40ae11b56e8c4a03d8bc4091c"
+    },
+    {
+      "bytes": 0,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/pytest/test_posteffect_completion_pub0/ledger.json.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2561,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/pytest/test_posteffect_completion_pub0/physical-effects.jsonl",
+      "sha256": "65e03c9e3d208654316da34faa1b87d5df761758c662edc821d0826a4f54f81c"
+    },
+    {
+      "bytes": 3862,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/removal-admission.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/removal-admission.json",
+      "sha256": "6d4d84a5352f0bfc8a71ce4725ec31732c5ef440bc77e13caddb6d8717e7fd29"
+    },
+    {
+      "bytes": 3945,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/defining-removal/result.json",
+      "sha256": "5038e13097aa1523179512194576f5196316109b91b5070c5cdf3290cb74399d"
+    },
+    {
+      "bytes": 5236,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/completion-consumer-a391/run.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/instruments/run.py.txt",
+      "sha256": "a02cc8effb01449cf886a4ae6eaf64f5cf66be9b61407ff419ad8e20d3c80d00"
+    },
+    {
+      "bytes": 972,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/completion-consumer-a391/origin_guard.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/instruments/origin_guard.py.txt",
+      "sha256": "df10f44431b87554e4e549d856d85ef12199f6d11df7a585d967a75d8650c634"
+    },
+    {
+      "bytes": 5398,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/completion-consumer-a391/removal-run.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/instruments/removal-run.py.txt",
+      "sha256": "95e397b08137ea0aa962ed4a26d01ef9840dec870bc98664d49949d624aa104b"
+    },
+    {
+      "bytes": 1250,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/completion-consumer-a391/removal_guard.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/instruments/removal_guard.py.txt",
+      "sha256": "beb17d2c69c393edc8219d12e99bae3751ff819da21a3818f21f5fecc0b629a5"
+    },
+    {
+      "bytes": 5401,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/completion-consumer-a391/removal2-run.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/instruments/removal2-run.py.txt",
+      "sha256": "d8f08f6507c4785435e42286f59063d15407bdcd81b8b36a9ec571ff689e4c83"
+    },
+    {
+      "bytes": 2348,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/completion-consumer-a391/removal_guard2.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/instruments/removal_guard2.py.txt",
+      "sha256": "cc31e2d458b684ee8b7a30f57fefe1939925f454076158959d165807e7d42013"
+    },
+    {
+      "bytes": 5853,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/completion-consumer-a391/publish-evidence.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/instruments/publish-evidence.py.txt",
+      "sha256": "e5c583f8c7c22b30f1ed2418beb0c62df94e40846fb1806902dda1d72b9883dc"
+    }
+  ]
+}

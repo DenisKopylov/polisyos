@@ -149,7 +149,9 @@ async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
     tmp_path, monkeypatch, adapter_type, mode
 ):
     store = _ReadGateCAS(tmp_path / "cas")
-    ref = store.put_json({"value": 7}, PutOptions(kind="deadline.bridge"))
+    ref = store.put_json(
+        {"value": 7}, PutOptions(kind="deadline.bridge", media_type="application/json")
+    )
     store.target = str(ref.artifact_id)
     # A named fixture helper default proves default-vs-unbounded policy without
     # making each positive test wait the production default of thirty seconds.
@@ -159,7 +161,7 @@ async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
     if mode == "explicit_none":
         kwargs["timeout_seconds"] = None
     adapter = adapter_type(store, **kwargs)
-    assert ensure_async_artifact_store(adapter, unbounded=True) is adapter
+    assert ensure_async_artifact_store(adapter) is adapter
     release = _release_after_enter(store, 0.12)
     try:
         if mode == "unbounded":
@@ -281,8 +283,8 @@ async def test_expired_native_cache_lookup_cannot_refresh_provider_admission(tmp
         assert not store.release.is_set()
         assert result.report.status == "fail"
         assert result.report.nodes[0].error.code == "node.timeout"
-        assert result.report.nodes[0].error.details["execution_state"] == "not_admitted"
         assert node.calls == 1
+        assert result.report.nodes[0].error.details["execution_state"] == "not_admitted"
         assert result.state.params == {"seed": 7}
     finally:
         store.release.set()

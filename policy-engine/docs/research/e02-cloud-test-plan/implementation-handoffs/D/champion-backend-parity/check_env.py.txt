@@ -1,0 +1,36 @@
+import hashlib, importlib.metadata, json, os, subprocess, sys, sysconfig, tomllib
+from pathlib import Path
+import polisyos
+import tools
+root=Path('/workspace/e02-D-published-root/policy-engine')
+overlay=Path('/dev/shm/e02-D-parity-env')
+assert Path(sys.prefix)==overlay
+assert Path(sysconfig.get_paths()['purelib'])==overlay/'lib/python3.14/site-packages'
+assert Path(polisyos.__file__).is_relative_to(root/'src')
+assert Path(tools.__file__).is_relative_to(root)
+profile=json.loads(Path('/workspace/e02-D2-receipts/champion/parity-profile-plan.json').read_text())
+locked=(root/'uv.lock').read_bytes()
+assert hashlib.sha256(locked).hexdigest()==profile['uv_lock_sha256']
+lock=tomllib.loads(locked.decode())
+by_name={}
+for package in lock['package']:
+ by_name.setdefault(package['name'],set()).add(package['version'])
+versions=[]
+for row in profile['closure']:
+ actual=importlib.metadata.version(row['name'])
+ assert actual==row['version'] and row['version'] in by_name[row['name']]
+ versions.append({'distribution':row['name'],'declared_locked_version':row['version'],'actual_installed_version':actual,'metadata_origin':str(importlib.metadata.distribution(row['name'])._path)})
+assert len(versions)==57
+base=Path('/workspace/e02-D-locked-env')
+metadata_files=[]
+for path in sorted((base/'lib/python3.14/site-packages').glob('*.dist-info/**/*')):
+ if path.is_file():
+  data=path.read_bytes()
+  metadata_files.append({'path':str(path),'rawfile_sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+cfg=base/'pyvenv.cfg'
+metadata_files.append({'path':str(cfg),'rawfile_sha256':hashlib.sha256(cfg.read_bytes()).hexdigest(),'bytes':cfg.stat().st_size})
+uv=subprocess.check_output([str(overlay/'bin/uv'),'--version']).decode().strip()
+assert uv.startswith('uv 0.9.21 ')
+record={'status':'read-only environment preparation; not frozen backend gate execution','python':sys.executable,'version':sys.version,'prefix':sys.prefix,'purelib':sysconfig.get_paths()['purelib'],'root_module_origins':{'polisyos':polisyos.__file__,'tools':tools.__file__},'sys_path':sys.path,'uv':uv,'locked_uv_lock_rawfile_sha256':hashlib.sha256(locked).hexdigest(),'doc_ml_full_locked_closure_count':len(versions),'actual_versions':versions,'locked_metadata_scope':'All observed .dist-info regular files plus pyvenv.cfg only; no whole environment byte/mtime claim.','locked_metadata_files':metadata_files,'caps':{name:os.environ.get(name) for name in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','PYTEST_ADDOPTS']},'pythondontwritebytecode':os.environ.get('PYTHONDONTWRITEBYTECODE')}
+Path('/dev/shm/e02-D-backend-parity-review/environment-preparation.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'python':sys.executable,'uv':uv,'actual57_versions_match':True,'locked_metadata_file_count':len(metadata_files),'origins':record['root_module_origins'],'caps':record['caps']},indent=2))

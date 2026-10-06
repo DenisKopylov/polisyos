@@ -1339,7 +1339,19 @@
         "raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-base-science.txt",
         "raw_bytes": 104323,
         "raw_sha256": "e2ab09975fc452328d0232ab149d812dc7de71a50ae71f986542d162b8ea2ef7",
-        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved"
+        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved",
+        "raw_lossless_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.txt.raw.gz",
+          "bytes": 3104,
+          "sha256": "fac8b0c69998ee49b51379efa2473081458e44a185ec00d06a44ce1380cccdaa",
+          "encoding": "gzip",
+          "decompressed_bytes": 104323,
+          "decompressed_sha256": "e2ab09975fc452328d0232ab149d812dc7de71a50ae71f986542d162b8ea2ef7",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-base-science.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
       },
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.json",
@@ -1357,7 +1369,19 @@
         "raw_local_path": "/workspace/e02-F-20261006-receipts/economics/native-aggregate-route-negative.txt",
         "raw_bytes": 4125,
         "raw_sha256": "d6826f3b23701a4bdac4ec84d46aa3f24042a70375cec74658735fc6b263f35a",
-        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved"
+        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved",
+        "raw_lossless_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.txt.raw.gz",
+          "bytes": 942,
+          "sha256": "1da69929d6f6fb67263147d60517eb979996fede8b7a1d21245af64ee87ef7e8",
+          "encoding": "gzip",
+          "decompressed_bytes": 4125,
+          "decompressed_sha256": "d6826f3b23701a4bdac4ec84d46aa3f24042a70375cec74658735fc6b263f35a",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/native-aggregate-route-negative.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
       },
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.json",
@@ -1375,7 +1399,19 @@
         "raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-epsilon-frozen.txt",
         "raw_bytes": 5030,
         "raw_sha256": "b388db2c3b997bf5b154096b0f1b2c34d2b776c9f6615a288149dd824d27ac32",
-        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved"
+        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved",
+        "raw_lossless_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.txt.raw.gz",
+          "bytes": 1469,
+          "sha256": "03f748217515807a2ff642015e422475710eef4d3663482a7433054e457585fd",
+          "encoding": "gzip",
+          "decompressed_bytes": 5030,
+          "decompressed_sha256": "b388db2c3b997bf5b154096b0f1b2c34d2b776c9f6615a288149dd824d27ac32",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-epsilon-frozen.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
       },
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.json",
@@ -1393,7 +1429,19 @@
         "raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-normalization-frozen.txt",
         "raw_bytes": 4654,
         "raw_sha256": "e391cf649e2919347e3129315c28210883a7aa134c6d360fbc4c209121633d13",
-        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved"
+        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved",
+        "raw_lossless_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.txt.raw.gz",
+          "bytes": 1328,
+          "sha256": "40d97ab2e4c9c13d850fc1927ce624ba405634c774e4cadcb415beaa8204b8f2",
+          "encoding": "gzip",
+          "decompressed_bytes": 4654,
+          "decompressed_sha256": "e391cf649e2919347e3129315c28210883a7aa134c6d360fbc4c209121633d13",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-normalization-frozen.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
       },
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.json",
@@ -1411,7 +1459,19 @@
         "raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-aggregate-frozen.txt",
         "raw_bytes": 4926,
         "raw_sha256": "a4a713a69890bbd6ee1971f05eec11f5c1137a4e16146fba64138445ea4c51d4",
-        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved"
+        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved",
+        "raw_lossless_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.txt.raw.gz",
+          "bytes": 1283,
+          "sha256": "5ac90dc8c3ad0cac3ba32c71edcc64fd8a7996d303396c1e233057462cede328",
+          "encoding": "gzip",
+          "decompressed_bytes": 4926,
+          "decompressed_sha256": "a4a713a69890bbd6ee1971f05eec11f5c1137a4e16146fba64138445ea4c51d4",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-aggregate-frozen.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
       },
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.json",
@@ -1501,7 +1561,19 @@
         "raw_local_path": "/workspace/e02-F-20261006-receipts/economics/economic-native-final-candidate.xml",
         "raw_bytes": 41541,
         "raw_sha256": "9e9f1e3cb65a4e58d0b69fa5d8ce6f98c7a48f84641f8d2e8298a92357e680da",
-        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved"
+        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved",
+        "raw_lossless_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.xml.raw.gz",
+          "bytes": 2998,
+          "sha256": "c297426ea53a8fdfb8ad4190e145bb01ad1eedd1da95a233f5eb0d38c282ce83",
+          "encoding": "gzip",
+          "decompressed_bytes": 41541,
+          "decompressed_sha256": "9e9f1e3cb65a4e58d0b69fa5d8ce6f98c7a48f84641f8d2e8298a92357e680da",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/economic-native-final-candidate.xml",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.xml",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
       },
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.xml",
@@ -1510,7 +1582,19 @@
         "raw_local_path": "/workspace/e02-F-20261006-receipts/economics/economic-importer-final-candidate.xml",
         "raw_bytes": 10143,
         "raw_sha256": "8ff5b3f1ba06398733a00d398db245a34bad63d5a48e31f73dd976406dc8e39e",
-        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved"
+        "normalization": "strip trailing whitespace per line and terminal blank separators only; all diagnostic lines preserved",
+        "raw_lossless_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.xml.raw.gz",
+          "bytes": 1754,
+          "sha256": "6d95e2872c7019b26951cc1763f1eea3bb29033c688756e22cd97126b694d12a",
+          "encoding": "gzip",
+          "decompressed_bytes": 10143,
+          "decompressed_sha256": "8ff5b3f1ba06398733a00d398db245a34bad63d5a48e31f73dd976406dc8e39e",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/economic-importer-final-candidate.xml",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.xml",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
       },
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-removal_controls.py",
@@ -1597,6 +1681,110 @@
     "large_local": "170870192B production-invocation-base-report.json remains local with bound SHA; static partial result only, runtime admission not_established.",
     "derived_views": "Full source/config caller match sets remain local; compact scope/count/hash plus portable replay supplied instead of committing source-derived views per AGENTS.",
     "credentials": "Credential-bearing signed-query scan found no transfer blocker; full moderate synthetic/runtime/architecture outputs admitted.",
-    "receipt_commit": "Separate subsequent receipt commit; no future self-SHA recorded."
+    "receipt_commit": "Separate subsequent receipt commit; no future self-SHA recorded.",
+    "raw_fidelity_append": {
+      "schema": "policyos.e02.raw_fidelity_transfer.v1",
+      "generated_utc": "2026-10-06T11:45:40.266289+00:00",
+      "prior_published_head": "71aa0fda257d652a3eab83d5990309a763e21fb8",
+      "runtime_and_test_source_sha_unchanged": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "scope": "Seven previously explicit normalized display companions now have original exact raw bytes in committed lossless gzip companions. Original encoded and raw hashes remain unchanged; no test rerun or new scientific claim. No real production inputs.",
+      "refs": [
+        {
+          "manifest_index": 14,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.txt.raw.gz",
+          "bytes": 3104,
+          "sha256": "fac8b0c69998ee49b51379efa2473081458e44a185ec00d06a44ce1380cccdaa",
+          "encoding": "gzip",
+          "decompressed_bytes": 104323,
+          "decompressed_sha256": "e2ab09975fc452328d0232ab149d812dc7de71a50ae71f986542d162b8ea2ef7",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-base-science.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        },
+        {
+          "manifest_index": 16,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.txt.raw.gz",
+          "bytes": 942,
+          "sha256": "1da69929d6f6fb67263147d60517eb979996fede8b7a1d21245af64ee87ef7e8",
+          "encoding": "gzip",
+          "decompressed_bytes": 4125,
+          "decompressed_sha256": "d6826f3b23701a4bdac4ec84d46aa3f24042a70375cec74658735fc6b263f35a",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/native-aggregate-route-negative.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        },
+        {
+          "manifest_index": 18,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.txt.raw.gz",
+          "bytes": 1469,
+          "sha256": "03f748217515807a2ff642015e422475710eef4d3663482a7433054e457585fd",
+          "encoding": "gzip",
+          "decompressed_bytes": 5030,
+          "decompressed_sha256": "b388db2c3b997bf5b154096b0f1b2c34d2b776c9f6615a288149dd824d27ac32",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-epsilon-frozen.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        },
+        {
+          "manifest_index": 20,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.txt.raw.gz",
+          "bytes": 1328,
+          "sha256": "40d97ab2e4c9c13d850fc1927ce624ba405634c774e4cadcb415beaa8204b8f2",
+          "encoding": "gzip",
+          "decompressed_bytes": 4654,
+          "decompressed_sha256": "e391cf649e2919347e3129315c28210883a7aa134c6d360fbc4c209121633d13",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-normalization-frozen.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        },
+        {
+          "manifest_index": 22,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.txt.raw.gz",
+          "bytes": 1283,
+          "sha256": "5ac90dc8c3ad0cac3ba32c71edcc64fd8a7996d303396c1e233057462cede328",
+          "encoding": "gzip",
+          "decompressed_bytes": 4926,
+          "decompressed_sha256": "a4a713a69890bbd6ee1971f05eec11f5c1137a4e16146fba64138445ea4c51d4",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/gini-removal-aggregate-frozen.txt",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.txt",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        },
+        {
+          "manifest_index": 32,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.xml.raw.gz",
+          "bytes": 2998,
+          "sha256": "c297426ea53a8fdfb8ad4190e145bb01ad1eedd1da95a233f5eb0d38c282ce83",
+          "encoding": "gzip",
+          "decompressed_bytes": 41541,
+          "decompressed_sha256": "9e9f1e3cb65a4e58d0b69fa5d8ce6f98c7a48f84641f8d2e8298a92357e680da",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/economic-native-final-candidate.xml",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.xml",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        },
+        {
+          "manifest_index": 33,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.xml.raw.gz",
+          "bytes": 1754,
+          "sha256": "6d95e2872c7019b26951cc1763f1eea3bb29033c688756e22cd97126b694d12a",
+          "encoding": "gzip",
+          "decompressed_bytes": 10143,
+          "decompressed_sha256": "8ff5b3f1ba06398733a00d398db245a34bad63d5a48e31f73dd976406dc8e39e",
+          "source_target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "original_raw_local_path": "/workspace/e02-F-20261006-receipts/economics/economic-importer-final-candidate.xml",
+          "normalized_display_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.xml",
+          "normalization": "none; decompression restores original raw bytes including trailing whitespace and terminal blank lines"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "limited",
+      "replay": "For each ref read its Git blob, verify stored bytes/SHA256, gzip.decompress, and verify decompressed bytes/SHA256 against both ref and original manifest raw fields.",
+      "transport_exception": "Reviewer-requested lossless gzip is required to preserve moderate raw test/log/JUnit bytes whose whitespace fails text diff checks; original normalized display companions remain available."
+    }
   }
 }

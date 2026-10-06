@@ -1,0 +1,94 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-cohort-inventory-consumer-guide",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_ids": [],
+  "slice_base_sha": "4a128c419f16e9d8aca39b1e811353bbef60262e",
+  "implementation_commits": [
+    "b766309e4cf887fbd2b4bcea13e59d4dc16831f8"
+  ],
+  "candidate_sha": "b766309e4cf887fbd2b4bcea13e59d4dc16831f8",
+  "candidate_tree_sha": "ee068ed9831f71eeb8900b250c69900805999634",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide.json"
+  ],
+  "surface_classification": "metadata-only consumer interpretation; frozen observer and product source unchanged",
+  "source_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide.json",
+    "bytes": 22293,
+    "sha256": "a98693e2dfeedc16f4ca34624c0ace0411d6c86cc7ed4cdbf96a1ad6c3226f13"
+  },
+  "baseline_cells": [],
+  "checks": [
+    {
+      "id": "json-and-source-byte-bindings",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-c",
+        "import hashlib, json, subprocess\nfrom pathlib import Path\np=Path(\"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide.json\")\ng=json.loads(p.read_bytes())\nr=g[\"observer\"]\nb=subprocess.check_output([\"git\",\"show\",r[\"candidate_sha\"]+\":\"+r[\"path\"]])\nassert len(b)==r[\"bytes\"] and hashlib.sha256(b).hexdigest()==r[\"sha256\"]\nassert Path(r[\"path\"]).read_bytes()==b\nfor i in g[\"input_closure\"][\"source_inputs\"]:\n    b=Path(i[\"path\"]).read_bytes()\n    assert len(b)==i[\"bytes\"] and hashlib.sha256(b).hexdigest()==i[\"sha256\"]\nassert g[\"actual_results\"][\"runtime\"]==g[\"actual_results\"][\"collection\"]==\"UNRUN\"\nprint(\"JSON parse and source-byte bindings PASS; observer/parser/collection/runtime not executed\")\n"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters",
+      "target": "guide bytes identified above plus exact frozen e692 observer and named installed pytest9 source-byte inputs",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "Python 3.14.2",
+        "pytest_api_version": "9.0.2 source only; not imported",
+        "process_worker_numerical_quota": "none imposed"
+      },
+      "input_closure": "Entire guide JSON, observer path@e692 immutable Git bytes, own unchanged file bytes, and all six actual installed pytest source files whose size/hash is declared in the guide; no runtime inputs consumed.",
+      "returncode": 0,
+      "outcome": "PASS",
+      "wall_seconds": 0.03404026900534518,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide-evidence/source-binding.txt",
+        "bytes": 90,
+        "sha256": "0bda30e85ebc44178da8f0b55c63af95acb1471528883b187306c867410ffead"
+      },
+      "target_sha": "b766309e4cf887fbd2b4bcea13e59d4dc16831f8"
+    }
+  ],
+  "evidence_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide-evidence/source-binding.txt",
+      "bytes": 90,
+      "sha256": "0bda30e85ebc44178da8f0b55c63af95acb1471528883b187306c867410ffead"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide-evidence/source-binding.json",
+      "bytes": 3494,
+      "sha256": "931f2b785e5b4f5d73f638cf5f6f579180b71801f8022e8405e6cf8a22495861"
+    }
+  ],
+  "property": {
+    "statement": "Preserve actual case identity and setup/call/teardown/collector facts without counting duplicate JUnit representations as additional cases.",
+    "runtime_path": [
+      "actual pytest reports",
+      "frozen e692 observer inventory plus native JUnit and external wait4",
+      "declared guide reduction",
+      "future independent parser review"
+    ],
+    "proxy_divergence": "In actual pytest9 source, call failure followed by teardown error deliberately emits two testcase elements for one nodeid; XML row count diverges from case identity.",
+    "negative_controls": [
+      "No runtime falsifier executed in this slice; actual root wave and independent complete parser review remain UNRUN."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Bounded source interpretation and complete named source-byte equality only; not runtime behavior or finding closure.",
+  "capability_state_or_finding_state": "verification_missing: final actual-wave consumer interpretation pending",
+  "limitations_and_next_owner": [
+    "Root owns final single native wave, selection manifest, stdout/JUnit/inventory/wait4 receipts. This leaf will independently review complete actual outputs when supplied.",
+    "session_exitstatus is the observed regular sessionfinish hook argument, not guaranteed final process status; hook-time module origins are not finalization/child/resource read-set.",
+    "Duplicate identities/repeated phases, unmapped XML, collector errors/skips, incomplete cases and unsupported execution profiles remain explicit; no summary converts them to PASS.",
+    "Runtime/collection/parser UNRUN. Existing source-only CMP qualification accepted; immutable review reference may be supplied separately."
+  ],
+  "actual_execution": {
+    "observer_import": "UNRUN",
+    "collection": "UNRUN",
+    "tests": "UNRUN",
+    "runtime_parser": "UNRUN awaiting final root wave"
+  }
+}

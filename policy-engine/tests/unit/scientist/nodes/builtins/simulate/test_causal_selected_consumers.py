@@ -276,6 +276,7 @@ runpy.run_path(sys.argv[1],run_name='__main__')
     mutations = {
         "point_estimate": report.point_estimate + 0.05,
         "standard_error": 0.25,
+        "p_value": 1e-12,
         "identified_estimand": "different identified quantity",
         "estimand": "different target",
         "estimand_type": "different target type",
@@ -286,6 +287,10 @@ runpy.run_path(sys.argv[1],run_name='__main__')
         "pre_periods": 1,
         "post_periods": 1,
         "graph_ref": "different graph",
+        "assumptions": {"unknown graph law": "established"},
+        "status_reason": "different computation status",
+        "diagnostics": {"fake passed test": True},
+        "method_params": {"method_name": "different estimator"},
     }
     if not point_only:
         mutations["confidence_interval"] = tuple(x + 0.01 for x in report.confidence_interval)

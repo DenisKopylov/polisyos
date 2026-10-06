@@ -26,6 +26,7 @@ from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
 from polisyos.foundry.methods.causal import (
+    DoWhyIdentifyEstimate,
     GraphCausalData,
     GraphCausalDataV1,
     HTEObservationalData,
@@ -452,7 +453,10 @@ def _run_primary_causal_job(
                     source_ref=source,
                 )
                 _verify_dowhy_worker_projection(
-                    report, response=response, observational_data=observational_data
+                    report,
+                    response=response,
+                    observational_data=observational_data,
+                    params=spec.method_params,
                 )
             elif report.status is EstimationStatus.SUCCESS:
                 raise ValueError("selected DoWhy success lacks actual worker provenance")
@@ -490,39 +494,17 @@ def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResul
 
 
 def _verify_dowhy_worker_projection(
-    report: CausalEffectReport, *, response: dict[str, Any], observational_data: GraphCausalData
+    report: CausalEffectReport,
+    *,
+    response: dict[str, Any],
+    observational_data: GraphCausalData,
+    params: dict[str, Any],
 ) -> None:
-    """Bind every consumed estimate field to the validated primitive response."""
-    result = response["result"]
-    interval = result["interval"]
-    treatment = observational_data.data[
-        :, observational_data.column_names.index(observational_data.treatment)
-    ]
-    expected = {
-        "method": CausalMethod.DOWHY_BACKDOOR,
-        "status": EstimationStatus.SUCCESS
-        if interval is not None
-        else EstimationStatus.NUMERICAL_FAILURE,
-        "point_estimate": result["point"],
-        "standard_error": result["standard_error"],
-        "confidence_interval": tuple(interval) if interval is not None else None,
-        "confidence_level": result["effective_confidence_level"],
-        "identified_estimand": result["identified_estimand"],
-        "estimand_type": result["estimand_type"],
-        "estimand": result["estimand_type"],
-        "inference_method": result["method_name"] if interval is not None else "none",
-        "sample_size": observational_data.sample_size,
-        "n_treated": int(np.count_nonzero(treatment == 1)),
-        "n_control": int(np.count_nonzero(treatment == 0)),
-        "pre_periods": 0,
-        "post_periods": 0,
-        "graph_ref": observational_data.graph_ref,
-    }
-    if any(getattr(report, field) != value for field, value in expected.items()) or (
-        report.metadata.get("execution_profile") != response["profile"]
-        or report.metadata.get("inference_status") != result["inference_status"]
-        or report.metadata.get("authority") != response["authority"]
-    ):
+    """Reconcile the whole report through its single canonical producer projection."""
+    expected = DoWhyIdentifyEstimate.report_from_worker_result(
+        data=observational_data, params=params, response=response
+    )
+    if report != expected:
         raise ValueError("selected DoWhy report does not project its validated worker result")
 
 

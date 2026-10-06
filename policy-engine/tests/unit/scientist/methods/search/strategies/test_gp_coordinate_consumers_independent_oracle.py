@@ -147,7 +147,6 @@ def test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_propo
     space = _space()
     strategy = NeuralSearchStrategy(space, NeuralSearchConfig(n_initial=3, seed=31))
     torch = _deps.require_torch()
-    torch.set_num_threads(1)
     observed = {}
     real_model, real_acq, real_optimize = (
         _deps.SingleTaskGP,

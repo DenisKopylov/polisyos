@@ -1,0 +1,58 @@
+{
+  "source_before": {
+    "sha": "df5a6e227bbbac07bef08690f5a733777d3b10b4",
+    "tree": "ff44a5cc3c665ba875ff75250262d07d8ff6c510",
+    "status": "",
+    "branch": "codex/e02-B-current-composition"
+  },
+  "inputs_before": {
+    "catalog": {
+      "path": "/workspace/e02-B-current-composition/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "resolved_path": "/workspace/e02-B-current-composition/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "is_file": false
+    },
+    "acquisition_overlay": {
+      "path": "/workspace/e02-B-current-composition/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb",
+      "resolved_path": "/workspace/e02-B-current-composition/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb",
+      "is_file": false
+    },
+    "test": {
+      "path": "/workspace/e02-B-current-composition/policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "resolved_path": "/workspace/e02-B-current-composition/policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "is_file": true,
+      "bytes": 39751,
+      "sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d"
+    }
+  },
+  "argv": [
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/local-res03-preflight/cache",
+    "-q",
+    "tests/integration/scientist/test_res_03_real_simulation_route.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/local-res03-preflight/fixture",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/local-res03-preflight/junit.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "executable": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T12:39:57.298213+00:00",
+  "namespace": "local G production-input replay; distinct from B cloud producer receipt",
+  "outcome": "UNRUN",
+  "reason": "actual production catalog required by default lifecycle startup is absent",
+  "source_after": {
+    "sha": "df5a6e227bbbac07bef08690f5a733777d3b10b4",
+    "tree": "ff44a5cc3c665ba875ff75250262d07d8ff6c510",
+    "status": "",
+    "branch": "codex/e02-B-current-composition"
+  }
+}

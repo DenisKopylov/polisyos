@@ -245,9 +245,14 @@
       "bytes": 736
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/trace.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/trace.txt",
       "sha256": "30f1434e352e9bb6655fe0683bafd245bd354e1507564f259953e483a51da434",
       "bytes": 20141
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local-cloud-preflight.json",
+      "sha256": "24029f2dda454aa1c9b434682dff6c068d842b0a8bae68be9bcbcf1ef41f3595",
+      "bytes": 2778
     }
   ],
   "finding_classification": {
@@ -259,5 +264,13 @@
       "falsifier": "After actual later failure, local served consumer loses or misbinds the earlier content-verified successful artifact, hides dependent skip, or promotes candidate to authority.",
       "next_owner": "A owns served lifecycle/generation consumer; local G supplies exact native production catalog/overlay and replays whole canonical route test on exact integrated candidate."
     }
+  },
+  "trace_transfer_note": "Original actual trace.jsonl bytes retained verbatim as trace.txt because global trace.jsonl ignore policy applies; no content or provenance transformation.",
+  "local_wrapper_preflight": {
+    "outcome": "UNRUN",
+    "exit_code": 2,
+    "source_sha": "df5a6e227bbbac07bef08690f5a733777d3b10b4",
+    "meaning": "Verified runnable wrapper takes missing actual native production catalog boundary before pytest; no scientific or served test ran.",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local-cloud-preflight.json"
   }
 }

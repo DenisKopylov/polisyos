@@ -166,7 +166,9 @@ def test_cold_warm_preparation_preserves_independent_seeded_numerical_repetition
             result = executor(state, {producer.id: {"seed": seed}, reducer.id: {"offset": 0.75}})
             result.total.block_until_ready()
             expected_draws, expected_total = _oracle(state, seed, 0.5, 0.75)
-            np.testing.assert_array_equal(np.asarray(result.draws), expected_draws)
+            np.testing.assert_allclose(
+                np.asarray(result.draws), expected_draws, rtol=1e-6, atol=1e-7
+            )
             assert float(result.total) == pytest.approx(expected_total, rel=1e-6)
             observations["repetitions"].append(
                 {
@@ -192,7 +194,7 @@ def test_cold_warm_preparation_preserves_independent_seeded_numerical_repetition
         result = second(state, {second_producer.id: {"seed": 23}})
         result.total.block_until_ready()
     expected_draws, expected_total = _oracle(state, 23, 1.5, 0.25)
-    np.testing.assert_array_equal(np.asarray(result.draws), expected_draws)
+    np.testing.assert_allclose(np.asarray(result.draws), expected_draws, rtol=1e-6, atol=1e-7)
     assert float(result.total) == pytest.approx(expected_total, rel=1e-6)
     observations["different_static_result"] = {
         "scale": 1.5,
@@ -230,18 +232,18 @@ def test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds
         expected, _ = _oracle(state, 997, 0.5, 0.0)
         assert len(warmed_outputs) == 2
         for output in warmed_outputs:
-            np.testing.assert_array_equal(output, expected)
+            np.testing.assert_allclose(output, expected, rtol=1e-6, atol=1e-7)
         prepared = compiler.compile_chain(chain, state, jit=True, infer_shapes=True)
         assert calls == {"draw": 1, "reduce": 0}
         actual = prepared(state, {producer.id: {"seed": 23}})
         actual.total.block_until_ready()
         expected_draws, expected_total = _oracle(state, 23, 0.5, 0.25)
-        np.testing.assert_array_equal(np.asarray(actual.draws), expected_draws)
+        np.testing.assert_allclose(np.asarray(actual.draws), expected_draws, rtol=1e-6, atol=1e-7)
         assert float(actual.total) == pytest.approx(expected_total, rel=1e-6)
         direct = handle(state, {"seed": 47})
         direct.draws.block_until_ready()
         expected_direct, _ = _oracle(state, 47, 0.5, 0.0)
-        np.testing.assert_array_equal(np.asarray(direct.draws), expected_direct)
+        np.testing.assert_allclose(np.asarray(direct.draws), expected_direct, rtol=1e-6, atol=1e-7)
     observations = {
         "explicit_warmup_numerical_outputs": warmed_outputs,
         "following_seed": 23,

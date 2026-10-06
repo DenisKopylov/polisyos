@@ -1,0 +1,153 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-fenced-budget-consumer",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DUR-01",
+    "DUR-02"
+  ],
+  "finding_ids": [
+    "B37",
+    "B38",
+    "B78"
+  ],
+  "slice_base_sha": "441f3b7aa598d3e324f204c31830fd37d6105495",
+  "slice_base_tree_sha": "bcab19d2a84ad58e57be2c0db34aa0b47a04c713",
+  "published_source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "2c52e1fe747627b227b5695e578b800cb7eade8b",
+    "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+    "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+    "d3f10bcd593699e79b8b5e4d3999536959289bf7"
+  ],
+  "candidate_sha": "d3f10bcd593699e79b8b5e4d3999536959289bf7",
+  "candidate_tree_sha": "108c1c21620b92d5c5225dc900d891d879506f9d",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "owner": "B root independent runtime consumer review; DUR canonical writer; G integration publisher",
+  "diff_footprint": {
+    "command": [
+      "git",
+      "diff",
+      "--name-status",
+      "441f3b7aa598d3e324f204c31830fd37d6105495",
+      "d3f10bcd593699e79b8b5e4d3999536959289bf7"
+    ],
+    "complete_output": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-bound-upsert.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-controls-final.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-controls-final.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-controls-final.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-corrected-proof.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-corrected-proof.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-corrected-proof.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-proof-fixture-selectors-73.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-property-control-73.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-property-removal-73.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-sibling-red.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-source-census-73.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B78-control-73.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B78-removal-73.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-final-origin.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-final-ruff.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-4f.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-4f.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-4f.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-73.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-73.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-73.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-91cd.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-91cd.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-full-91cd.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-mutator-availability-census-73.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-mutator-consumers-73.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/DUR-mutator-consumers-73.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-create.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-resume.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/dur02_property_removal.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/local-G-candidates.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/probe_bound_upsert.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/run_frozen.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/store_mutation_census.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability.json\nA\tpolicy-engine/release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml\nM\tpolicy-engine/src/polisyos/runtime/http/services/README.md\nM\tpolicy-engine/src/polisyos/runtime/http/services/control_plane_store.py\nM\tpolicy-engine/src/polisyos/scientist/orchestration/engine/README.md\nM\tpolicy-engine/src/polisyos/scientist/orchestration/engine/runner/README.md\nA\tpolicy-engine/tests/unit/remediation/test_dur_02_process.py\nM\tpolicy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+    "classification": "Imported DUR canonical ledger/middleware/control store/native consumers and original complete receipts; root owns three README companions."
+  },
+  "baseline_cells": [],
+  "baseline_navigation": {
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability.json",
+      "bytes": 91141,
+      "sha256": "551d2229eee0b9ef61e44ccc1cc588412c761e319680a25044bb15412cfdd896"
+    },
+    "interpretation": "Exact source/job/environment/cells remain bound by the canonical writer receipt; compact original receipts are source-reported navigation, not deciding evidence."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "tests/unit/remediation/test_dur_02_process.py",
+        "tests/unit/remediation/test_dur_02.py",
+        "tests/unit/runtime/http/test_control_plane_store.py",
+        "tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current81-dur.xml"
+      ],
+      "target_sha": "81c3f2ac8318fcf79d7c99b21f3e51a77310c609",
+      "target_tree_sha": "6506f220eb966f0a18d9039768d570b40190edab",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": "Real FileSystemCAS/local POSIX file ledger, separate OS workers and isolated SQLite files; explicit bootstrap, required writer fields, exhausted reopen, stale owner/takeover, replace/fsync faults, fallback real effects. Own lane source resolves via absolute PYTHONPATH. No production dataset or PostgreSQL DSN supplied. CPython 3.14.2 pytest9.0.2; shell metadata python3 may be3.12.3. Tiktoken input is exact official cl100k bytes; actual port allocated by OS. Source unchanged during check; candidate adds only README companions.",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 230,
+        "pass": 230,
+        "fail": 0,
+        "error": 0,
+        "xfail": 0,
+        "skip": 0
+      },
+      "wall_s": 216.59692131100746,
+      "process_rusage_maxrss_kib": 879156,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer-evidence/current81-dur.json",
+          "bytes": 2505,
+          "sha256": "a36218211359126018ad4d0f4c46dc3f0657b9c7ddc472b854bbfd641e95d652"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer-evidence/current81-dur.txt",
+          "bytes": 320,
+          "sha256": "1948901049cbdc0660115e15441d10348458a9dad278ca6d3f5cccc80a3639cf"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer-evidence/current81-dur.xml",
+          "bytes": 41836,
+          "sha256": "6fe184e60b0017d8a5351448d7e1be3b0dcba07dbb584e583e71351268bb58c8"
+        }
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Sparse/malformed durable budget snapshots refuse before constructor defaults or writes; actual known settlement receipts persist with state. Bound source-job mutations require a live current owner/attempt in the same locked transaction; terminal continuation requires a verified store transition. Unknown primary effects retain typed uncertainty and are never replayed as fallback.",
+    "runtime_path": [
+      "real middleware bootstrap/pre_check/record_spend/settle",
+      "atomic snapshot+receipt index",
+      "fresh process ledger reopen",
+      "actual control store locked SQLite mutations and fresh worker takeover",
+      "real primary external effect and fallback consumer"
+    ],
+    "proxy_divergence": "File existence/atomic helper alone can still admit sparse wire as unlimited; a source-job entry check can pass then expiry occurs before SQL publication; a lost response can coexist with a real completed primary effect. The actual wire, locked-row lease and effect consumer distinguish these cases.",
+    "negative_controls": [
+      "Independent fixed wire-required-field deletion real child middleware oracle fails12 cases when only admission is removed; original budget oracle receipt retained.",
+      "Writer removal real stale mutation and primary lost-response double effect controls remain in canonical receipt, with later assertions unrun stated honestly.",
+      "Real fsync/replace faults accept only complete old/new snapshot or typed uncertainty; no unlimited fallback."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Targeted actual SQLite/local-filesystem consumers accepted; full B cohort and per-finding final adjudication pending.",
+  "limitations_and_next_owner": [
+    {
+      "finding": "B37",
+      "state": "verification_pending",
+      "owner": "B/G",
+      "note": "Canonical local filesystem criterion met by targeted consumers; power-loss/multi-host guarantee outside this criterion, not an invented blocking cryptographic ledger-authenticity requirement."
+    },
+    {
+      "finding": "B38",
+      "state": "limited",
+      "owner": "G runtime backend/input owner",
+      "note": "Full affected route consumers require269 missing catalog/case/L6 inputs; six PostgreSQL cases skipped without isolated DSN. Original complete diagnostics are in canonical receipt; attribution not_established because inputs intersect."
+    },
+    {
+      "finding": "B78",
+      "state": "limited",
+      "owner": "external execution owner/G",
+      "note": "No replay of unknown primary effects demonstrated; actual external reconciliation idempotency/status contract absent."
+    }
+  ],
+  "p41": "not_established for broader route/backend gates; no inherited-red waiver",
+  "cleanup": "Native Trash absent; preserve worktrees, code, documentation, unique input and deciding bytes. Exact reusable scratch cleanup candidates will be listed at full closeout; no permanent deletion."
+}

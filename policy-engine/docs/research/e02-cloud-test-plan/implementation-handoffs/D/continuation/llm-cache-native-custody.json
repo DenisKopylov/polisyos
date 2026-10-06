@@ -1,0 +1,396 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "llm-cache-native-custody-fixture",
+  "author": "/root/search_owner",
+  "state": "bounded_fixture_migration_actual_canonical_root_consumer_pass",
+  "closure_ids": [],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "finding_ids": [],
+  "slice_base_sha": "7814b2001c436097af1ee373172ad7d7630da3f9",
+  "slice_base_tree_sha": "dca8cdc86b562108ce41cce519f5477c434ae706",
+  "implementation_commits": [
+    "0c039c0a58981e6c33271e121d6bcb0e8621fa97"
+  ],
+  "candidate_tree_sha": "ea5d949faa09d04cec5499f3bd57773d59ff61f2",
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/remediation/test_llm_01.py"
+  ],
+  "changed_bindings": [
+    {
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_sha": "0c039c0a58981e6c33271e121d6bcb0e8621fa97",
+      "git_blob": "a6ed83a0060842d17fafa87d007c1567386934f2",
+      "bytes": 15618,
+      "sha256": "728146c58804aa5ac1ca3ec9050f1387b0b729db1604c549be8fbca73e6fc6b4"
+    }
+  ],
+  "change_footprint": {
+    "insertions": 175,
+    "deletions": 36,
+    "production_paths": [],
+    "test_configuration_paths": [],
+    "change": "Migrate two cache/expiry fixtures to existing paid native producer/ledger/readback ports and add five strict refusal cells. Preserve all eight original tests and all 28 original assertion ASTs."
+  },
+  "source_composition": {
+    "runtime_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "runtime_tree_sha": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+    "root_path": "/workspace/e02-D-published-root",
+    "product_path": "/workspace/e02-D-published-root/policy-engine",
+    "source_before": {
+      "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+      "status": ""
+    },
+    "source_after": {
+      "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+      "status": ""
+    },
+    "test_before": {
+      "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+      "status": ""
+    },
+    "test_after": {
+      "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+      "status": ""
+    },
+    "test_blob_matches_implementation": true,
+    "dependency": "Canonical root already contains resolve_funnel_local_receipt. Own older product tree was not executed as an alternative. Root normally merged the test implementation before execution; only canonical root source/configuration/test paths were used.",
+    "supplier_bindings": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+        "bytes": 13099,
+        "sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+        "symbols": [
+          "llm_local_receipt_resolver:32",
+          "_extract_cache_provenance:157"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "c2c631442a3ecf7587425445565d723598eaba81",
+        "bytes": 8687,
+        "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+        "symbols": [
+          "LLMProducerEvent:48",
+          "LLMSettlementAck:88",
+          "LLMProducerSettlement:99",
+          "producer_settlement:269"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+        "bytes": 35161,
+        "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+        "symbols": [
+          "TracedLLMClient receiver-bound producer/reuse event tracing"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+        "bytes": 26353,
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "symbols": [
+          "FileBudgetLedger:278",
+          "snapshot:325",
+          "resolve_spend:495"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+        "bytes": 6067,
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "symbols": [
+          "BudgetMiddleware:22",
+          "settle_spend_safe:126",
+          "resolve_spend_safe:153"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+        "bytes": 28432,
+        "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+        "symbols": [
+          "LLMBudgetEnforcer:68",
+          "_settle_event:458"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+        "bytes": 37271,
+        "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+        "symbols": [
+          "CachingLLMClient._produce:612"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "git_blob": "0820c6f7bfa2cf4653ffc450b66744987c03e9ea",
+        "bytes": 11723,
+        "sha256": "aef417472ef72b9f720c2ffe10d7a68a09cc3bc5a0f05a915ac0a6b4de91db48",
+        "symbols": [
+          "resolve_funnel_local_receipt:29"
+        ]
+      }
+    ]
+  },
+  "baseline_cells": [],
+  "predecessor_observation": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "source_tree_sha": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+    "whole_wave_verdict": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "whole_wave_exit_signal": "SIGKILL",
+    "scope": "Two actually observed named call failures within an incomplete wide wave, not a complete two-test baseline command or inherited waiver.",
+    "selected_reports": [
+      {
+        "original_line_number": 2578,
+        "nodeid": "tests/unit/remediation/test_llm_01.py::test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+        "when": "call",
+        "outcome": "failed"
+      },
+      {
+        "original_line_number": 2583,
+        "nodeid": "tests/unit/remediation/test_llm_01.py::test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry",
+        "when": "call",
+        "outcome": "failed"
+      }
+    ],
+    "deciding_reason": "ValueError: cache reuse requires original producer settlement and local receipt readback",
+    "full_original_stream": {
+      "original_stream": "/tmp/e02-D-final-root-wave-c17db434-20261006/events.jsonl",
+      "original_stream_bytes": 3036271,
+      "original_stream_sha256": "20b1377b538a1a1f32ef41156a4f3e18c7f6f5f4593903f1361050a745fee34d"
+    },
+    "complete_selected_trace_member": "receipt-recomputation/original-c17-named-two-failures.json",
+    "whole_wave_outputs": [
+      "original-c17-wide/result.json",
+      "original-c17-wide/execution-manifest.json",
+      "original-c17-wide/complete.stdout.txt",
+      "original-c17-wide/complete.stderr.txt"
+    ],
+    "original_fixture_limitation": "Plain prompt provider/cache/tracing and memory BudgetState lacked a real persisted producer receipt plus local readback composition."
+  },
+  "environment": {
+    "profile": "existing native core/runtime/test minimal148; no numerical backend substitution",
+    "profile_git_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+    "profile_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+    "actual_distribution_count": 148,
+    "actual_python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "assignments": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp/e02-D-llm-cache-root-06c-2vy5jtz0",
+      "E02_LLM_MEASUREMENT_OUTPUT": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "actually_loaded_optional": [],
+    "parent_optional_imports": [],
+    "no_new_environment_or_package_install": true,
+    "limits": "No Torch/BoTorch/GPyTorch/HNSW/SALib consumer or numerical verdict is asserted."
+  },
+  "property": {
+    "statement": "A cache reuse consumer admits only receiver-bound provenance backed by the original committed native producer receipt and a fresh canonical local receipt reader. Hits retain original billing lineage with zero additional local debit; expiry produces a new paid completion.",
+    "runtime_path": [
+      "synthetic _PromptProvider completion with explicit fixture model/provider identity",
+      "CachingLLMClient._produce under native LLMBudgetEnforcer producer settlement",
+      "BudgetMiddleware.settle_spend_safe -> FileBudgetLedger schema1.1 durable spend receipt",
+      "new FileBudgetLedger owner reads original persisted receipt",
+      "existing resolve_funnel_local_receipt + llm_local_receipt_resolver context",
+      "TracedLLMClient -> strict _extract_cache_provenance -> zero-debit reuse with distinct reuse event identities"
+    ],
+    "proxy_divergence": "Cache-hit/raw marker or memory BudgetState spend alone lacks durable producer custody and is refused. Lookalike receipt dictionaries and contradictory receipt amounts retain surface markers but fail canonical readback.",
+    "positive_observations": [
+      "Initial native provider event commits one 0.02 receipt; a newly constructed ledger reader resolves the exact receipt.",
+      "Two cache hits retain origin event/receipt and raw prompt usage3 while reported usage/cost are zero; provider call count remains1; receipt count1/spend0.02/reserved0.",
+      "Original ttl0.02 and sleep0.04 exercise expiry; second real provider completion commits second0.02 receipt and fresh total0.04."
+    ],
+    "negative_controls": [
+      "Paid cache reuse without local readback context refuses before any new provider call/debit.",
+      "Configured canonical readback returning no receipt refuses; original persisted receipt stays intact.",
+      "Lookalike dictionary receipt refuses strict typed readback.",
+      "Conflicting amount projection refuses exact original receipt equality.",
+      "Unsettled original cache response cannot become paid reuse merely by providing a real empty ledger reader."
+    ],
+    "input_closure": {
+      "provider": "deterministic synthetic _PromptProvider; content answer:hello, usage3prompt/2completion/5total, reported local cost0.02, fixture-model/fixture-provider; not an external provider or invoice issuer",
+      "budget_key": "run",
+      "native_limit": "1.00",
+      "ledger_schema": "1.1",
+      "fresh_fixture_paths_preserved": true,
+      "actual_ledger_snapshots": 7,
+      "all_ledger_input_bytes_member_index": "receipt-recomputation/native-ledger-inputs.json",
+      "authority_purpose": "Conditional local receipt custody, configured budget accounting and cache event lineage only."
+    }
+  },
+  "assertion_preservation": {
+    "original_function_count": 8,
+    "original_assertion_count": 28,
+    "all_original_assertions_retained": true,
+    "current_collected_cases": 13,
+    "original_cases": 8,
+    "new_refusal_cases": 5,
+    "complete_AST_reconciliation_member": "receipt-recomputation/assertion-preservation.json"
+  },
+  "checks": [
+    {
+      "command": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--strict-markers",
+        "--import-mode=importlib",
+        "-o",
+        "cache_dir=/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/pytest-cache",
+        "--basetemp=/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441",
+        "--junitxml=/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/junit.xml",
+        "-p",
+        "llm_cache_measurement",
+        "-q",
+        "-rA",
+        "/workspace/e02-D-published-root/policy-engine/tests/unit/remediation/test_llm_01.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "target_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "test_implementation_sha": "0c039c0a58981e6c33271e121d6bcb0e8621fa97",
+      "configuration": "Canonical root pytest.ini, strict markers/importlib; runner adds measurement-only plugin, fresh cache/basetemp, JUnit and -rA; -o addopts= clears repository auto-addopts only. Full file, no selectors/filter/ignore/test-body overlay.",
+      "environment": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "input_closure": "All13 cases, seven native ledger snapshots; exact inputs/run/plugin and raw files in lossless carrier.",
+      "outcome": "PASS",
+      "counts": {
+        "passed": 13,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "deselected": 0
+      },
+      "exit_code": 0,
+      "pytest_seconds": 0.66,
+      "wall_seconds": 3.9508830230042804,
+      "child_maxrss_KiB": 120596,
+      "observed_product_origins": 115,
+      "product_origin_errors": [],
+      "source_and_test_before_after_equal_clean": true,
+      "output": "13 passed in 0.66s",
+      "full_output_member": "root13/complete.txt",
+      "junit_member": "root13/junit.xml",
+      "per_report_events_member": "root13/events.jsonl",
+      "origin_member": "root13/origins.json",
+      "exact_runner_inputs_member": "root13/inputs.json",
+      "exact_runtime_receipt_member": "root13/result.json"
+    }
+  ],
+  "preparation_outcomes": [
+    {
+      "outcome": "UNRUN",
+      "scope": "Prepared paired-source invocation was rejected before any runner/pytest process. Helpers retained; no tracked test bodies were copied and no source overlay was executed.",
+      "retained_members": [
+        "unrun-preparation/run.py",
+        "unrun-preparation/llm_cache_measurement.py"
+      ]
+    },
+    {
+      "outcome": "UNRUN_STARTUP_PATH_ERROR",
+      "scope": "One wrong measurement-helper path exited2 before runner/pytest/backend; actual canonical run started once from the correct directory.",
+      "retained_member": "receipt-recomputation/startup-error.json"
+    }
+  ],
+  "transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody-proof.json.xz",
+    "format": "XZ-compressed lossless JSON/base64 deciding-output members only; no source/test/environment mirror",
+    "bytes": 43120,
+    "sha256": "e62483d0ca0d70824aef6a9cb46a5b9bd5f5cf122f5409903f40cfd520a1fd00",
+    "member_count": 36,
+    "raw_member_bytes": 181520,
+    "member_hash_and_size_index": "Complete inside decoded members; every member original_path/bytes/sha256/content_base64 losslessly retained.",
+    "all_decoded_and_original_bytes_verified": true,
+    "complete_current_output": {
+      "origins.json": {
+        "bytes": 29921,
+        "sha256": "bb84495408d00ad42e5975bd4b66705735e890e0e054ce162e44bf88be64c939"
+      },
+      "junit.xml": {
+        "bytes": 2204,
+        "sha256": "a6a82ace2ff9280d0113930cc719197737c1a6ebe0faec75fbef6f1155ab5f5b"
+      },
+      "events.jsonl": {
+        "bytes": 8424,
+        "sha256": "518dbab87c04838b499bbaf5d7ac9378530c54c39bc81d8eab4c694529fdc8c9"
+      },
+      "complete.txt": {
+        "bytes": 2648,
+        "sha256": "83f433cd8f52470e79601dcb9b73a65afe9e8b0941fc0b7595b87ba6a6b5d456"
+      },
+      "inputs.json": {
+        "bytes": 1662,
+        "sha256": "cd1f0243ec37408430c31be42bf2645542e5539e32f3314a7aac5ea9cf40a9c1"
+      },
+      "run-root.py": {
+        "bytes": 3691,
+        "sha256": "d7a9b73e68eccb688b8ac299a9cac1a22a2eecb1f4a0389a12f05c8b8e1db15b"
+      },
+      "llm_cache_measurement.py": {
+        "bytes": 1028,
+        "sha256": "3382fc3acc39d872b27df6f8552761f956b4b00abb1a0ab59a3262c311b5e83f"
+      }
+    },
+    "retained_raw_directory": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0",
+    "originals_deleted": false
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Actual native ledger/canonical resolver/cache consumer assertions plus source-byte, before/after, output/JUnit/event/member reconciliation; author evidence, independent review is separate. No inherited wide PASS.",
+  "capability_state_or_finding_state": "Available native B producer/ledger and existing D readback bridge composed in fixture; bounded13 current consumer PASS. Strict guard unchanged; formal finding closure not asserted.",
+  "compatibility": {
+    "classification": "test-fixture-only migration",
+    "release_fragment_required": false,
+    "reason": "No production source, public API, runtime-state/schema or strict guard behavior changed."
+  },
+  "implementation_checks": {
+    "ruff_check": "PASS before implementation commit",
+    "ruff_format": "PASS before implementation commit",
+    "git_diff_check": "PASS",
+    "normal_pre_commit": "lefthook ran; no bypass",
+    "normal_pre_push": "lefthook ran; no bypass"
+  },
+  "remote_implementation_readback": {
+    "ref": "refs/heads/codex/e02-D-published-search",
+    "sha": "0c039c0a58981e6c33271e121d6bcb0e8621fa97"
+  },
+  "independent_review": {
+    "appointed_reviewer": "/root/criterion_closeout_review",
+    "state": "Separate source/output review requested; no independent runtime or final verdict invented",
+    "raw_directory_delivered": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0"
+  },
+  "limitations_and_next_owner": [
+    "Synthetic provider prices are fixture-reported local cost, not external invoice/source-law verification.",
+    "Available native producer/receipt/resolver ports are exercised; no missing-authority excuse or marker-based replacement of the strict guard.",
+    "No default global factory activation, billing-law, cross-provider reconciliation, GP/vector, schema/frontend, full quality wave or deployment acceptance is claimed.",
+    "Original c17 wide SIGKILL and its two named FAIL reports remain source-qualified and unwaived.",
+    "Formal criterion closure/integration acceptance belongs to G/root; closure_ids remains empty."
+  ]
+}

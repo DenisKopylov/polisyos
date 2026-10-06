@@ -232,6 +232,7 @@ class _RunnerEvaluator:
         context: dict[str, Any],
     ) -> BenchmarkEvaluation:
         del suite_ref
+        incumbent = context.get("benchmark_comparison_incumbent")
         candidate = load_model_artifact(context["store"], candidate_ref, _RunnerMutation)
         score = float(candidate.value)
         return BenchmarkEvaluation(
@@ -248,6 +249,12 @@ class _RunnerEvaluator:
             guardrails={"score_present": True},
             promotable=True,
             runtime_split_type=BenchmarkSplit.HOLDOUT,
+            comparison_predecessor_candidate_ref=(
+                incumbent.candidate_ref if incumbent is not None else None
+            ),
+            comparison_predecessor_evaluation_ref=(
+                incumbent.evaluation_ref if incumbent is not None else None
+            ),
         )
 
 

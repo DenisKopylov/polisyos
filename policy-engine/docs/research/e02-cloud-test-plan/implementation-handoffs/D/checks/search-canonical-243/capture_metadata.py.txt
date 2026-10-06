@@ -1,0 +1,81 @@
+"""Separate native metadata child; no backend modules are held by the capture parent."""
+
+import hashlib
+import importlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import platform
+import subprocess
+import sys
+
+root = Path(sys.argv[1]).resolve()
+source = sys.argv[2]
+names = [
+    "torch",
+    "botorch",
+    "gpytorch",
+    "numpy",
+    "scipy",
+    "hnswlib",
+    "pytest",
+    "hypothesis",
+    "polisyos.scientist.methods.search.strategies.bayesian",
+    "polisyos.scientist.methods.search.strategies.transfer",
+    "polisyos.scientist.methods.search.funnel.orchestrator",
+    "polisyos.scientist.methods.search.adversarial",
+    "polisyos.scientist.orchestration.engine.budget_ledger",
+    "polisyos.scientist.methods.autotune.registry",
+    "polisyos.scientist.methods.autotune.bayesian_generator",
+    "polisyos.scientist.methods.search.frontier",
+    "polisyos.scientist.methods.search.stopping",
+]
+result = {
+    "python": sys.version,
+    "executable": sys.executable,
+    "platform": platform.platform(),
+    "source_sha": source,
+    "modules": {},
+    "packages": {},
+    "environment": {
+        name: os.environ.get(name)
+        for name in [
+            "PYTHONPATH",
+            "PYTHONDONTWRITEBYTECODE",
+            "TIKTOKEN_CACHE_DIR",
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS",
+            "POLISYOS_PYTEST_WORKERS",
+            "PYTEST_ADDOPTS",
+            "CUDA_VISIBLE_DEVICES",
+        ]
+    },
+}
+for name in names:
+    module = importlib.import_module(name)
+    path = Path(module.__file__).resolve()
+    row = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+    if name.startswith("polisyos."):
+        relative = path.relative_to(root).as_posix()
+        data = subprocess.check_output(["git", "show", f"{source}:{relative}"], cwd=root)
+        row.update(
+            git_path=relative,
+            git_sha256=hashlib.sha256(data).hexdigest(),
+            git_matches=data == path.read_bytes(),
+        )
+        assert row["git_matches"], relative
+    else:
+        result["packages"][name] = importlib.metadata.version(name)
+    result["modules"][name] = row
+import torch
+
+result["torch_threads"] = torch.get_num_threads()
+result["torch_interop_threads"] = torch.get_num_interop_threads()
+result["cuda_available"] = torch.cuda.is_available()
+result["backend_availability_is_not_runtime_acceptance"] = True
+print(json.dumps(result, indent=2))

@@ -1,0 +1,11 @@
+{
+  "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+  "source_tree": "bf2da141d4e361ecf7f99bc97e31bd6bfce83020",
+  "origin_matches": 25,
+  "unimported": 1,
+  "composition_matches": 11,
+  "copied_files": 39,
+  "copied_bytes": 135892,
+  "review_sha256": "13c0e2cf367164d00e9c248e4d7cff22bfc619b620d3aab83406bbd3284c3b41",
+  "verdict": "HOLD: frozen82 observed finite-counter/case/retry mechanisms supported; aggregate-empty-component completeness fails on identical production bytes"
+}

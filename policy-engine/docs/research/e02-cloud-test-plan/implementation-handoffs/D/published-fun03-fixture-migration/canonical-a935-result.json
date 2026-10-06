@@ -1,0 +1,34 @@
+{
+  "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+  "tree": "17ce701ed5093953d1e08415da1b5c1e6943f5d0",
+  "production_reference": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "production_src_diff_empty": true,
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-FUN03-a935-f13236d34ad443399eb5dc7e32381692",
+    "--junitxml",
+    "/workspace/e02-D2-receipts/funnel/fun03-fixture-migration/canonical-a935.xml"
+  ],
+  "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "added_cpu_process_worker_limits": false
+  },
+  "fresh_basetemp": "/dev/shm/e02-D-FUN03-a935-f13236d34ad443399eb5dc7e32381692",
+  "basetemp_existed_before": false,
+  "exit": 0,
+  "wall_seconds": 15.678895449993433,
+  "peak_rss_kib": 1168872,
+  "complete_output_sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678"
+}

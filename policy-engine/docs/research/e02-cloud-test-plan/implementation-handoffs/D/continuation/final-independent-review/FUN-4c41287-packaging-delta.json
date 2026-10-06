@@ -1,0 +1,21 @@
+{
+  "schema": "policyos.e02.independent_metadata_correction_review.v1",
+  "supplier_sha": "4c41287faf36f4880c4b7412d88cf44bd6d1cc1a",
+  "supplier_tree": "44bbe3255697c0dc351ae7db48c3707cce5000e9",
+  "source_reviewed_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "supplier_not_merged_or_source_rebound_here": true,
+  "member_count": 36,
+  "changed_member_count": 1,
+  "checks": {
+    "old_text_exact_git": true,
+    "ref_sha256": true,
+    "ref_bytes": true,
+    "ref_blob": true,
+    "other35members_equal": true,
+    "member_order_equal": true,
+    "root_fields_equal": true
+  },
+  "runtime": "UNRUN; packaging only",
+  "predicate_basis": "independently_reconciled",
+  "change_to_criteria_input_runtime_outcomes": false
+}

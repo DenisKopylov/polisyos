@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.independent_packaging_interruption_handoff.v1",
+  "owner": "numerical_oracle",
+  "proof_commit": "8a3597bd7494e82822ad8999cda157fb4539dd86",
+  "proof_tree": "bf5a49f284ec8f943bd73753131b3921d8ddf106",
+  "review_lane": {
+    "path": "/workspace/e02-D-published-oracle",
+    "branch": "codex/e02-D-published-oracle",
+    "initial_head": "c879ce8de2701513347ab811b60f63aebb61b351",
+    "proof_commit_status": "clean"
+  },
+  "artifacts": [
+    {
+      "source_sha": "8a3597bd7494e82822ad8999cda157fb4539dd86",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/README.md",
+      "git_blob": "77051ad59a0ef1dee439f1d4ee7fd6e1b0786f2b",
+      "bytes": 1239,
+      "sha256": "0bb183e6bfe23a8d99c168d6b89a8e391be3f2e80e728b1a6b5d2335dd5c52b1",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/README.md@8a3597bd7494e82822ad8999cda157fb4539dd86"
+    },
+    {
+      "source_sha": "8a3597bd7494e82822ad8999cda157fb4539dd86",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/review.json",
+      "git_blob": "4879b06bcd6984434ecf05ccc0607fcdfaa70c24",
+      "bytes": 8837,
+      "sha256": "fababd0bfaf97a77b723dcf49dc0c8f3a206d4e9ab6c41caa242ce87fa5abdb9",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/review.json@8a3597bd7494e82822ad8999cda157fb4539dd86"
+    },
+    {
+      "source_sha": "8a3597bd7494e82822ad8999cda157fb4539dd86",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/d796-binding.json",
+      "git_blob": "06784efe7f245de6418bcbe94719243d0be5069b",
+      "bytes": 2924,
+      "sha256": "724eb1612e351e321a62f51a85b72686adaec2b70fb18a4de9930c9648316013",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/d796-binding.json@8a3597bd7494e82822ad8999cda157fb4539dd86"
+    },
+    {
+      "source_sha": "8a3597bd7494e82822ad8999cda157fb4539dd86",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/f258-binding.json",
+      "git_blob": "7d2f3c99138299efeb50e00225905a82aa6020cc",
+      "bytes": 4888,
+      "sha256": "e645f721e147aeb2188810832d9a8997e02a4380e7f0f3198d6ff2a2e8de5ee5",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/f258-binding.json@8a3597bd7494e82822ad8999cda157fb4539dd86"
+    },
+    {
+      "source_sha": "8a3597bd7494e82822ad8999cda157fb4539dd86",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/wave1052-binding.json",
+      "git_blob": "cc65af6d292341ea76db1452bdc4366f1f9692a4",
+      "bytes": 2285,
+      "sha256": "2b962df91a5198097ef7aef30399e25ca69aa26e9401c41095f603da83ca32df",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/wave1052-binding.json@8a3597bd7494e82822ad8999cda157fb4539dd86"
+    },
+    {
+      "source_sha": "8a3597bd7494e82822ad8999cda157fb4539dd86",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/interruption6333-binding.json",
+      "git_blob": "64be34177a71ebca5ce4b1809936dc4bc550e8ea",
+      "bytes": 6818,
+      "sha256": "82339f59d34e0a9e6ad584d9ffd8681f20c8549068e8c69a072c17c48832a23a",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/interruption6333-binding.json@8a3597bd7494e82822ad8999cda157fb4539dd86"
+    }
+  ],
+  "immutable_reviewed_sources": [
+    {
+      "purpose": "d796 single runner-reference packaging correction",
+      "source_sha": "4c41287faf36f4880c4b7412d88cf44bd6d1cc1a",
+      "tree": "44bbe3255697c0dc351ae7db48c3707cce5000e9",
+      "historical_transport_sha": "3475b78d9a22e512277f0f348d0acf7432a16f54"
+    },
+    {
+      "purpose": "f258 two script-reference packaging correction",
+      "source_sha": "9a8f72e42b48e59820b6983eda2f94816a1a4aed",
+      "tree": "27b6c1a313aed5a88a6c9dc135df36035c168f71",
+      "historical_transport_sha": "334f3b0e8a1e7313dbe05fec46331f1c52a9c5ad"
+    },
+    {
+      "purpose": "preserved interrupted broad-run transport and original5050 accounting drafts",
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "tree": "e88f3f4cce7dbcfa6bfeb24b981c469b5f9f6eae",
+      "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "runtime_source_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459"
+    }
+  ],
+  "deciding_outputs": {
+    "d796": "PASS packaging integrity: one actual1657B Git source ref,35other text bodies unchanged; exact original decoded bytes reconstructed.",
+    "f258": "PASS packaging integrity: two actual2218/1467B Git source refs,58other member records unchanged; exact original decoded bytes reconstructed.",
+    "interruption": "PASS evidence integrity:14lossless members and1052unique source origins bound; execution remainsERROR with unexecuted propertiesUNRUN.",
+    "formal_closed": 0,
+    "D_accepted_in_G": false
+  },
+  "verification_profile": {
+    "backend_runtime": "UNRUN by reviewer: no tests/model/backend imports or runs requested for this metadata review.",
+    "metadata_checks": "stdlib Git/gzip/base64/SHA256/JSON equality; all recorded inputs, outcomes and limits are bound in proof artifacts.",
+    "backend_import_observations": "Historical loaded/installed modules do not establish actual fit or numerical execution. No fit count inferred.",
+    "process_observations": "Recorded kernel wait-status supports child-9/harness-15; interruption cause not established.",
+    "CPU_limits": "No limits added by reviewer. Historical getters/allowed-CPU observations do not identify who configured them."
+  },
+  "decoder_compatibility": "Explicit transport references resolve pinned source_sha:path and verify Git blob/SHA256/bytes, then recover historical body. No universal runtime schema claim.",
+  "remaining_limits": [
+    "No broad runtime PASS or final-ledger adjudication from the interrupted execution.",
+    "Original5050 counts45/46/17 and39conditional/5held/1upstream remain original draft classifications.",
+    "No global P37/all-tracked-carrier assurance; only these three source-bound review scopes.",
+    "c879 original-review scope output remains unchanged per parent disposition.",
+    "No source/test/root changes, backend reruns, child agents or cleanup."
+  ],
+  "source_or_test_edits": 0,
+  "runtime_reruns": 0,
+  "root_writes": 0,
+  "child_agents": 0,
+  "cleanup_actions": 0,
+  "closure_ids": [],
+  "publication": "Separate append-only receipt commit follows the proof commit; normal push/readback must be checked before declaring publication."
+}

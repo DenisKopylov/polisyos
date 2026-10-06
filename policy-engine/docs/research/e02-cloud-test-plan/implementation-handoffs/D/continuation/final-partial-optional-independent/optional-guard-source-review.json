@@ -1,0 +1,41 @@
+{
+  "schema": "polisyos.e02.independent_native_profile_guard_delta.v1",
+  "new_runtime": false,
+  "reference_root_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+  "guard_commit": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+  "guard_parent": "6cd806014944600a580d1dec9f7ea31c33d8dad6",
+  "changed_paths": [
+    "policy-engine/tests/unit/remediation/test_trn_02.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+  ],
+  "file_checks": [
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+      "old_sha256": "5e1592f5644b33957fa26ac71462ebe5f64b9502ddcbed158f5dc646c16d6cb0",
+      "new_sha256": "25532fa88855916951a4bb2782a723616c4c23157da3a09a059d823ac22a4bae",
+      "every_original_AST_statement_and_decorator_preserved": true,
+      "original_assert_nodes": 9
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "old_sha256": "108ccd62281295cb4e03455f9f1c491d22140ab9f00e5970b8ae506f039808dc",
+      "new_sha256": "187850e3147bd294bf20eadf151a834fa6ccc65fa938f7ab403074acba0698b6",
+      "every_original_AST_statement_and_decorator_preserved": true,
+      "original_assert_nodes": 11
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "old_sha256": "a802505e0b79fa1e156b130b26ebda1a920ff4d0679c37fd9052bd9aa7d39d64",
+      "new_sha256": "eb1fa3c1389eb3a9286195bb187e02af5da9fc31a88187821a8407ee8c27c752",
+      "every_original_AST_statement_and_decorator_preserved": true,
+      "original_assert_nodes": 37
+    }
+  ],
+  "scope": "Patch review only; author branch full product snapshot is not identical to root and must be normally merged without superseding root changes.",
+  "verdict": "PASS_bounded_guard_semantics_no_runtime_claim",
+  "classification": "Native backend absence skips are UNRUN. Original18 rootc17 failed calls remain FAIL. No constructor, fit, geometry, ANN integrity or historical numerical outcome is established by these guards.",
+  "guard_breadth": "All15 vector file cases require physical HNSW; TRN first2 guards match other3 existing native functions; single Sobol function guarded, minimal BGC fallback/history functions remain active. Original markers/decorators unchanged.",
+  "formal_closed": 0,
+  "G_accepted": false
+}

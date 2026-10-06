@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.D.continuation-funnel-B-receipt.v1",
+  "closure_ids": [],
+  "finding_ids": [
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B123",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165"
+  ],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "B_dependency": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-dependency.json@c9406ad21d4638a3abecac860802436fd3863406",
+  "D_port_sha": "bb29dcf02",
+  "composed_source_sha": "d99ab43a0dddb4897a467f52a22ebf59bb26695b",
+  "composed_source_tree": "8ad23deb2988f4d71f4a0d42fb1ac2d00816931b",
+  "proof_projection_sha": "34cd2ebfea716a36783eccfa0ea37746b88adf35",
+  "proof_projection_tree": "ad9eaaf8fb88c5d4208128aca63ec84477552dc3",
+  "criteria": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203#CTL-01/CTL-03/FUN-01/FUN-02/FUN-03",
+  "scope": "Source-bounded intermediate author receipt; no independent/final criterion acceptance",
+  "actual_consumer": "Environment-backed create_traced_gateway_client -> actual TracedLLMClient -> published B LLMBudgetEnforcer -> native Gateway response.text/_post_json/parser -> BudgetMiddleware/FileBudgetLedger -> D worker response observer -> Funnel stage/outcome/compatibility -> fresh ledger reopen",
+  "checks": {
+    "d99_combined": {
+      "PASS": 54,
+      "FAIL": 114,
+      "ERROR": 0,
+      "SKIP": 0,
+      "denominator": 168,
+      "cause": "102 obsolete D1.0 projection/absent-cost assertions plus12 B healthy SDK MagicMock phantom present cost fields. Original strict refusals preserved; no inherited waiver."
+    },
+    "34cd_affected": {
+      "PASS": 156,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "denominator": 156,
+      "scope": "FUN native12 + strict raw dictionary98/range4 + actual B cache42"
+    },
+    "d99_HTTP_text": {
+      "PASS": 3,
+      "FAIL": 21,
+      "ERROR": 0,
+      "SKIP": 0,
+      "denominator": 24,
+      "cause": "Native json.loads erases signed nonzero tiny JSON lexemes before strict intake; B-owner decoder request remains open"
+    }
+  },
+  "negative": "Actual missing settlement counterfactual retains typed ACK and tracecost1; exact reopened receipt refusal prevents scientific success. Signal-absent guard removal permits undesired downstream call; reduced draw removal retains fidelity marker but fails actual bootstrap-draw oracle. These controls are in native12.",
+  "residuals": {
+    "B158/B159": "Local receipts and scalar reserve/release verified; stable producer IDs/dedup B bounded API. Persisted run/candidate/evaluation attribution, durable owned reservation transitions, unknown ACK crash/fresh-owner reconciliation remain B DUR-01/W09 request; scalar reserve is not owned transition. External billing authority not established.",
+    "B157": "Actual existing Foundry bootstrap estimator20/80 plus independent numeric oracle; native policy estimator rawsamples/estimand/effectiveconfig producer remains bridge_missing.",
+    "B161": "No authorized same-subject/rule/time refinement law or provenance artifact; semantic_test_missing unchanged.",
+    "B164": "No owner-issued typed promotion permit/current independent verifier/revoke-serialized commit API; valid permit positive UNRUN/bridge_missing; existing bool controls failclosed.",
+    "B118-B123": "Controller/stopping/service continuation source assigned gp_witness; this intermediate consumer receipt makes no final state/eligibility claim.",
+    "B160/B165": "Native stage/outcome/evaluate projection retains cost and aggregate verdict in actual configured path; deployment/publication consumer remains owner-bound.",
+    "B162/B163": "Current bounded typed numerical normalization/calibration retained; new natural evaluator/calibration corpus unverified."
+  },
+  "next_corrections": [
+    "Healthy B SDK fixture forward-port, retaining all16 assertions",
+    "Conflicting finite cost fields admission per explicit user contract",
+    "Actual B unknown ACK error observer/readback and L5 typed incomplete evidence distinction",
+    "B actual HTTP decoder additive lossless parse remains owner input"
+  ],
+  "artifacts": [
+    {
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-B-proof/d99-native-composed.txt.gz",
+      "sha256": "2bac9fd8d253cb465749b6cb48559140a1d4746f1f7cda3043ce5cfcaf5f9362",
+      "uncompressed_sha256": "31af86ca853461ca3bfdb71347d524f7e7732a24235c18604f8c45defccd0807",
+      "uncompressed_bytes": 418926,
+      "command_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-B-proof/d99-native-composed.json"
+    },
+    {
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-B-proof/d99-raw-text.txt.gz",
+      "sha256": "4ddd77bbfd8650178fe56fd1e2f80b2cf105e6887efa954a7be8876e8a6fcd31",
+      "uncompressed_sha256": "a8ad4d5eea5fa32624ae9010cbd2411e549c3b886a1fe14bb7d8e8f0250a1292",
+      "uncompressed_bytes": 28312,
+      "command_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-B-proof/d99-raw-text.json"
+    },
+    {
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-B-proof/34cd-affected.txt.gz",
+      "sha256": "6e3fd1698792f60bc7378a9c66a8edffd4bd235323583fb532ffb6cd4f0e7c55",
+      "uncompressed_sha256": "9695584b425a69c7d8929e1a2a1ef9482adca73e5c075e4a71412f7a7612b1d5",
+      "uncompressed_bytes": 794,
+      "command_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-B-proof/34cd-affected.json"
+    }
+  ],
+  "cleanup": "Retain all named /dev/shm test basetemps and /workspace/e02-D3-receipts/funnel-B-* outputs; no permanent deletion or Trash empty performed. Historical deviation remains in published-funnel-final.json@128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d."
+}

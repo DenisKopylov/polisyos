@@ -1,0 +1,31 @@
+import hashlib,json,os,resource,subprocess,time
+from pathlib import Path
+OUT=Path(__file__).parent
+REPO=Path('/workspace/e02-D-published-search')
+PROJECT=REPO/'policy-engine'
+EXPECTED='f471b8143e2a841b4d1029ae78de472ac43fc88b'
+TEST=Path('/tmp/e02-D-registry-independent-final-input-9sf38yx1/test_registry_consumer_independent.py')
+OWN=Path('/workspace/e02-D-published-funnel')
+CODE='4dbd0c6dbc071241a36123319785eca04f21f2ec'
+CODE_PATH='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/test-registry-consumer.py.txt'
+def git(*args):return subprocess.check_output(['git',*args],cwd=REPO,text=True).strip()
+def state():return {'sha':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'status':git('status','--porcelain')}
+def census():return {n:Path('/sys/fs/cgroup/'+n).read_text() for n in ('memory.current','memory.max','memory.events','memory.stat')}
+before=state();assert before['sha']==EXPECTED and before['status']==''
+assert TEST.read_bytes()==subprocess.check_output(['git','show',CODE+':'+CODE_PATH],cwd=OWN)
+(OUT/'before.json').write_text(json.dumps(before,indent=2)+'\n');(OUT/'resources-before.json').write_text(json.dumps(census(),indent=2)+'\n')
+base=OUT/'fresh-fixtures';assert not base.exists()
+argv=['/tmp/e02-D-runtime-minimal-20261006/bin/python','-B','-m','pytest','-c',str(PROJECT/'pytest.ini'),str(TEST),'--run-quarantine','--basetemp='+str(base),'--junitxml='+str(OUT/'junit.xml'),'-o','cache_dir='+str(OUT/'pytest-cache'),'-p','tests.conftest','-p','tests.unit.scientist.nodes.conftest','-p','e02_registry_capture','-rA']
+env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1','PYTHONPATH':str(PROJECT/'src')+':'+str(PROJECT)+':'+str(OUT),'E02_PROJECT':str(PROJECT),'E02_OUTPUT':str(OUT),'TIKTOKEN_CACHE_DIR':'/workspace/e02-D2-receipts/tokenizer'}
+manifest={'source':before,'cwd':str(PROJECT),'argv':argv,'env_overrides':{k:env[k] for k in ('PYTHONDONTWRITEBYTECODE','PYTHONPATH','E02_PROJECT','E02_OUTPUT','TIKTOKEN_CACHE_DIR')},'start_time_ns':time.time_ns(),'basetemp_before':'nonexisting','quotas_added':False,'test_input':{'source_sha':CODE,'path':CODE_PATH,'sha256':hashlib.sha256(TEST.read_bytes()).hexdigest()},'observer_input':{'source_sha':'566574237b0e7a6c8bcb196425226d76c952efff','path':'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/observer.py.txt'},'profile_sha256':'8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7'}
+(OUT/'execution-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');started=time.monotonic()
+with (OUT/'complete.stdout.txt').open('wb') as stdout,(OUT/'complete.stderr.txt').open('wb') as stderr:
+    result=subprocess.run(argv,cwd=PROJECT,env=env,stdout=stdout,stderr=stderr)
+after=state();(OUT/'after.json').write_text(json.dumps(after,indent=2)+'\n');(OUT/'resources-after.json').write_text(json.dumps(census(),indent=2)+'\n')
+origins=json.loads((OUT/'actual-origins.json').read_text()) if (OUT/'actual-origins.json').exists() else []
+expected=dict(line.split(' ',1) for line in subprocess.check_output(['git','ls-tree','-r',EXPECTED],cwd=REPO,text=True).splitlines()) if False else {}
+for line in subprocess.check_output(['git','ls-tree','-r',EXPECTED],cwd=REPO,text=True).splitlines():
+    metadata,path=line.split('\t',1);expected[path]=metadata.split()[2]
+errors=[o for o in origins if o['git_blob']!=expected.get(o['repo_path'])]
+summary={'source':before,'after':after,'source_unchanged':before==after,'exitcode':result.returncode,'wall_seconds':time.monotonic()-started,'maxrss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,'actual_product_modules':len(origins),'actual_product_unique_paths':len({o['repo_path'] for o in origins}),'origin_errors':errors,'end_time_ns':time.time_ns(),'result_dir':str(OUT)}
+(OUT/'result.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary))

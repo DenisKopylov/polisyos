@@ -1,0 +1,13 @@
+import json, os, subprocess, time, uuid, hashlib
+from pathlib import Path
+root=Path('/workspace/e02-D-published-search'); product=root/'policy-engine'; output=Path(__file__).parent
+selectors=['tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py']
+sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+paths=subprocess.check_output(['git','diff','--name-only','96eb9b9fb7f2acfa872dc741cbfdd96949c5d203',sha],cwd=root,text=True).splitlines()
+argv=['/workspace/e02-D-locked-env/bin/python','-B','-m','pytest','-p','native_observer','-o','addopts=','--import-mode=importlib','--strict-markers','--basetemp=/dev/shm/search-quantity-final-'+uuid.uuid4().hex,'--junitxml='+str(output/'junit.xml'),'-q','-rA',*selectors]
+env=dict(os.environ,PYTHONPATH='src:.:/workspace/e02-D2-receipts/search-space-baseline-39f97ec74fd3439997804385d469c0bb',PYTHONDONTWRITEBYTECODE='1',TIKTOKEN_CACHE_DIR='/workspace/e02-D2-receipts/tokenizer')
+metadata={'source_sha':sha,'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=root,text=True).strip(),'argv':argv,'environment_overrides':{key:env[key] for key in ['PYTHONPATH','PYTHONDONTWRITEBYTECODE','TIKTOKEN_CACHE_DIR']},'cwd':str(product),'changed_paths':paths,'changed_file_sha256':{path:hashlib.sha256((root/path).read_bytes()).hexdigest() for path in paths},'selector_sha256':{path:hashlib.sha256((product/path).read_bytes()).hexdigest() for path in selectors}}
+start=time.monotonic()
+with (output/'complete.txt').open('w') as f: completed=subprocess.run(argv,cwd=product,env=env,stdout=f,stderr=subprocess.STDOUT)
+metadata.update({'returncode':completed.returncode,'wall_seconds':time.monotonic()-start,'source_after':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'status_after':subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True),'output_sha256':hashlib.sha256((output/'complete.txt').read_bytes()).hexdigest()})
+(output/'run.json').write_text(json.dumps(metadata,indent=2));print(json.dumps(metadata,indent=2));print((output/'complete.txt').read_text()[-6500:])

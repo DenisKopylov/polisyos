@@ -7,7 +7,11 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy, ParameterSpec
+from polisyos.scientist.methods.doe.designs import (
+    AdversarialPlan,
+    AdversarialStrategy,
+    ParameterSpec,
+)
 from polisyos.scientist.methods.doe.stress_report import VulnerabilityType
 from polisyos.scientist.methods.search.adversarial import (
     NegatedCompositeObjective,
@@ -21,10 +25,6 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
-from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
-from polisyos.scientist.methods.search.strategies.space import SearchSpace
-from polisyos.scientist.methods.search.strategies.types import ParameterBounds, PolicyCandidate
 from polisyos.scientist.methods.search.sentinels import (
     SentinelCandidate,
     SentinelKind,
@@ -32,6 +32,10 @@ from polisyos.scientist.methods.search.sentinels import (
     SentinelSet,
 )
 from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
+from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import ParameterBounds, PolicyCandidate
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:
@@ -396,6 +400,7 @@ def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
         parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
         strategy=AdversarialStrategy.SEARCH_LOOP,
         max_iterations=33,
+        vulnerability_threshold=2.0,
         stop_on_first_vulnerability=False,
     )
     space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
@@ -420,9 +425,12 @@ def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
     )
 
     assert calls == 33
-    assert report.total_scenarios_evaluated == 33
-    assert report.set_adequacy_status == "unverified"
-    assert report.robustness_score is None or report.robustness_score <= 0.0
+    assert report.total_scenarios_evaluated == 32
+    assert report.metadata["attempted"] == 33
+    assert report.metadata["unknown_or_nonfinite"] == 1
+    assert report.set_adequacy_status == "partial"
+    assert report.robustness_score == 1.0
+    assert report.metadata["score_scope"] == "observed_finite_scenarios"
     assert any(
         item.vulnerability_type == VulnerabilityType.NUMERICAL_INSTABILITY
         for item in report.vulnerabilities

@@ -1,0 +1,53 @@
+{
+  "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+  "tree": "d4e217a2b4e620e22bc0f2fa1a8bf2fcdb6fe3e0",
+  "test_commit": "18699ce536fca6ce174ff1caf1435a79912f0920",
+  "test_sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "-p",
+    "reference_source_binding_probe",
+    "-ra",
+    "--basetemp=/dev/shm/gp-profile4-d38-20518be3192d49a0b96c7c3514fdb2ce",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/candidate-junit.xml"
+  ],
+  "cwd": "/tmp/gp-profile4-d38-0741ba555eb14d6886d88b7b9a9ef8ea/policy-engine",
+  "returncode": 0,
+  "wall_seconds": 22.456018726006732,
+  "scratch": "/tmp/gp-profile4-d38-0741ba555eb14d6886d88b7b9a9ef8ea",
+  "fresh_basetemp": "/dev/shm/gp-profile4-d38-20518be3192d49a0b96c7c3514fdb2ce",
+  "basetemp_observed_after": true,
+  "agent_added_caps": false,
+  "existing_application_runtime_policy": "No extra test/orchestrator thread setting. Original analytic body and its source-defined runtime policy preserved.",
+  "input_scope": [
+    "policy-engine/src",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/unit/scientist/conftest.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py"
+  ],
+  "preparation": {
+    "prior_immutable_source_view": "/tmp/mo-reference-163-dbf251fa9a6b4eaa897ba6afa15fa510",
+    "prior_source": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+    "hardlinked_unchanged_files": 4206,
+    "fresh_successor_blob_paths": [
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/common/serialization.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py"
+    ],
+    "prior_view_mutated": false
+  },
+  "omitted_inputs": "Other tests/docs/fixtures/data omitted, not claimed tested; actual missing inputs remain ERROR/UNRUN."
+}

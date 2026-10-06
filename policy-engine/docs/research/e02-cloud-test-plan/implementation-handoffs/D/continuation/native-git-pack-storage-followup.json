@@ -1,0 +1,20 @@
+{
+  "schema": "e02.native_git_immutable_pack_preservation.v1",
+  "native_pack_path": "/workspace/polisyos/.git/objects/pack/pack-ac8377c087bfb94921016da03396ef5b9769ba27.pack",
+  "preserved_bytes": "/tmp/e02-D-native-pack-preservation-followup-czgq4wlo/native.pack",
+  "bytes": 4813185,
+  "sha256": "7aca7a7b11e199f3f493872eda2e366f524bd2d3d6ee134c02d57475a8e28d1b",
+  "unchanged_idx_sha256": "8f3f439c03a1a0086b9491c2abcc2a348a7d89831ed15609bad633612f00316f",
+  "full_verify_before": "/tmp/e02-D-native-pack-preservation-followup-czgq4wlo/verify-before.txt",
+  "full_verify_after": "/tmp/e02-D-native-pack-preservation-followup-czgq4wlo/verify-after.txt",
+  "full_verify_output_sha256": "3f6b77dea030040f9e25cae8875c6b9bfb3385dd6ce468b06de295f90bdf917f",
+  "full_verify_both_exit": 0,
+  "head_tree_branch_status_before_after": {
+    "head": "225057ced107acdb1cadc50b0a6e4723e8b5ae7e\n",
+    "tree": "fae0db17254e8234b2b4ee6c445316480b0b8b14\n",
+    "branch": "codex/e02-D-published-root\n",
+    "status": ""
+  },
+  "operation": "Byte-identical immutable native Git admin object storage retained on existing/tmp then native pack path atomically replaced by symlink. No source, test, output, history or unique data deletion. No gc, prune, quota or source mirror.",
+  "cleanup": "Active object-database dependency excluded from cleanup while any lane/repository remains active."
+}

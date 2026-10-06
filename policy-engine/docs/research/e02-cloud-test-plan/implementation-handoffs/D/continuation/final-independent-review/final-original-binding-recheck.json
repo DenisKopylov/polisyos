@@ -1,0 +1,18 @@
+{
+  "schema": "policyos.e02.independent_final_original_binding_recheck.v1",
+  "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "original_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "draft_ledger_SHA256": "d11542a4c64b19d490802635d1b4cf2d1033c2ce4cc42f01d0dd044beaea37f9",
+  "independent_previous_review_SHA256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f",
+  "criterion_occurrences": 46,
+  "findings": 45,
+  "canonical_bundles": 17,
+  "supplier_occurrences": 1,
+  "LA015_companion_owner": "SRV-03",
+  "complete_original_acceptance_bytes_verified": true,
+  "original_fragment_and_role_and_owner_matches": true,
+  "errors": [],
+  "predicate_basis": "recomputed",
+  "check": "PASS",
+  "test_runtime": "UNRUN"
+}

@@ -1,0 +1,169 @@
+{
+  "source": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "checks": [
+    {
+      "bundle": "CTL-01",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+      "outcome": "PASS",
+      "tests": 35,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "CTL-02",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+      "outcome": "PASS",
+      "tests": 31,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "CTL-03",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "outcome": "PASS",
+      "tests": 90,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "FUN-01",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "outcome": "PASS",
+      "tests": 80,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "FUN-02",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+      "outcome": "PASS",
+      "tests": 36,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "FUN-03",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+      "outcome": "FAIL",
+      "tests": 52,
+      "failures": [
+        "test_level6_normal_path_calls_runner_after_owner_recheck",
+        "test_run_policy_blueprint_execute_rechecks_owner_at_commit"
+      ],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "OPT-01",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+      "outcome": "FAIL",
+      "tests": 75,
+      "failures": [
+        "test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+        "test_empty_and_invalid_front_preserves_schema_as_incomplete",
+        "test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+        "test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+        "test_duplicate_invalid_candidate_refs_keep_distinct_input_positions"
+      ],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "OPT-02",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+      "outcome": "PASS",
+      "tests": 48,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "OPT-03",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "outcome": "PASS",
+      "tests": 9,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "OPT-04",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "outcome": "PASS",
+      "tests": 28,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "SRV-01",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+      "outcome": "PASS",
+      "tests": 36,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "SRV-03",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "outcome": "PASS",
+      "tests": 25,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "STP-01",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+      "outcome": "PASS",
+      "tests": 36,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "STR-01",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+      "outcome": "PASS",
+      "tests": 38,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "TRN-01",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "outcome": "PASS",
+      "tests": 48,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "TRN-02",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+      "outcome": "PASS",
+      "tests": 59,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "bundle": "TRN-03",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "outcome": "PASS",
+      "tests": 18,
+      "failures": [],
+      "errors": 0,
+      "skips": 0
+    }
+  ],
+  "execution_occurrences": 744,
+  "scope": "Complete JUnit actual occurrence census only; no blanket closure."
+}

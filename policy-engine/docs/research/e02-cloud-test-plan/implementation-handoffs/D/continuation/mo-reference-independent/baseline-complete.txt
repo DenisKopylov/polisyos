@@ -1,0 +1,185 @@
+..FFF..F.FFF..                                                           [100%]
+=================================== FAILURES ===================================
+_ test_configured_reference_refuses_before_lossy_tensor_conversion[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("invalid", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_configured_reference_refuses_before_lossy_tensor_conversion(invalid: object) -> None:
+        config = MOConfig(ref_point=[0.0, 0.0, 0.0])
+        config.ref_point[0] = invalid  # type: ignore[assignment,index]
+>       result = _strategy(config).compute_hypervolume_assessed(_rows())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:268: in compute_hypervolume_assessed
+    self._update_ref_point(Y)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.strategies.multi_objective.MOBayesianOptimizer object at 0x7f7c665ca850>
+Y = tensor([[3., 1., 2.],
+        [1., 3., 2.],
+        [2., 2., 3.]], dtype=torch.float64)
+
+    def _update_ref_point(self, Y) -> None:
+        if self._config.ref_point is not None:
+>           self._ref_point = self._torch.tensor(self._config.ref_point, dtype=self._torch.float64)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:443: OverflowError
+____ test_configured_reference_refuses_before_lossy_tensor_conversion[True] ____
+
+invalid = True
+
+    @pytest.mark.parametrize("invalid", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_configured_reference_refuses_before_lossy_tensor_conversion(invalid: object) -> None:
+        config = MOConfig(ref_point=[0.0, 0.0, 0.0])
+        config.ref_point[0] = invalid  # type: ignore[assignment,index]
+        result = _strategy(config).compute_hypervolume_assessed(_rows())
+>       assert result.value is None
+E       AssertionError: assert 8.0 is None
+E        +  where 8.0 = HypervolumeResult(value=8.0, assessment=HypervolumeAssessment(version='hypervolume-assessment.v2', status='available',...ithm='botorch_dominated_partitioning', backend_version='botorch=0.16.1;torch=2.10.0'), reference_point=(1.0, 0.0, 0.0)).value
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py:63: AssertionError
+___ test_configured_reference_refuses_before_lossy_tensor_conversion[broken] ___
+
+invalid = 'broken'
+
+    @pytest.mark.parametrize("invalid", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_configured_reference_refuses_before_lossy_tensor_conversion(invalid: object) -> None:
+        config = MOConfig(ref_point=[0.0, 0.0, 0.0])
+        config.ref_point[0] = invalid  # type: ignore[assignment,index]
+>       result = _strategy(config).compute_hypervolume_assessed(_rows())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:268: in compute_hypervolume_assessed
+    self._update_ref_point(Y)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.strategies.multi_objective.MOBayesianOptimizer object at 0x7f7c665e1f30>
+Y = tensor([[3., 1., 2.],
+        [1., 3., 2.],
+        [2., 2., 3.]], dtype=torch.float64)
+
+    def _update_ref_point(self, Y) -> None:
+        if self._config.ref_point is not None:
+>           self._ref_point = self._torch.tensor(self._config.ref_point, dtype=self._torch.float64)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           ValueError: too many dimensions 'str'
+
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:443: ValueError
+____ test_configured_reference_dimension_matches_declared_coordinate_basis _____
+
+    def test_configured_reference_dimension_matches_declared_coordinate_basis() -> None:
+        result = _strategy(MOConfig(ref_point=[0.0, 0.0])).compute_hypervolume_assessed(_rows())
+        assert result.value is None
+>       assert result.assessment.reason == "invalid_reference_point"
+E       AssertionError: assert 'invalid_numeric_input' == 'invalid_reference_point'
+E         
+E         - invalid_reference_point
+E         + invalid_numeric_input
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py:71: AssertionError
+_ test_derived_reference_offset_uses_same_finite_number_boundary[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("invalid", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_derived_reference_offset_uses_same_finite_number_boundary(invalid: object) -> None:
+        config = MOConfig()
+        config.ref_point_offset = invalid  # type: ignore[assignment]
+>       result = _strategy(config).compute_hypervolume_assessed(_rows())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:268: in compute_hypervolume_assessed
+    self._update_ref_point(Y)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.strategies.multi_objective.MOBayesianOptimizer object at 0x7f7c665e2520>
+Y = tensor([[3., 1., 2.],
+        [1., 3., 2.],
+        [2., 2., 3.]], dtype=torch.float64)
+
+    def _update_ref_point(self, Y) -> None:
+        if self._config.ref_point is not None:
+            self._ref_point = self._torch.tensor(self._config.ref_point, dtype=self._torch.float64)
+            if self._device != "cpu":
+                self._ref_point = self._ref_point.to(self._device)
+            return
+        worst = Y.min(dim=0).values
+        best = Y.max(dim=0).values
+>       offset = self._config.ref_point_offset * (best - worst).abs()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       OverflowError: int too big to convert
+
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:449: OverflowError
+_____ test_derived_reference_offset_uses_same_finite_number_boundary[True] _____
+
+invalid = True
+
+    @pytest.mark.parametrize("invalid", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_derived_reference_offset_uses_same_finite_number_boundary(invalid: object) -> None:
+        config = MOConfig()
+        config.ref_point_offset = invalid  # type: ignore[assignment]
+        result = _strategy(config).compute_hypervolume_assessed(_rows())
+>       assert result.value is None
+E       AssertionError: assert 22.0 is None
+E        +  where 22.0 = HypervolumeResult(value=22.0, assessment=HypervolumeAssessment(version='hypervolume-assessment.v2', status='available'...hm='botorch_dominated_partitioning', backend_version='botorch=0.16.1;torch=2.10.0'), reference_point=(-1.0, -1.0, 1.0)).value
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py:86: AssertionError
+____ test_derived_reference_offset_uses_same_finite_number_boundary[broken] ____
+
+invalid = 'broken'
+
+    @pytest.mark.parametrize("invalid", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_derived_reference_offset_uses_same_finite_number_boundary(invalid: object) -> None:
+        config = MOConfig()
+        config.ref_point_offset = invalid  # type: ignore[assignment]
+>       result = _strategy(config).compute_hypervolume_assessed(_rows())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:268: in compute_hypervolume_assessed
+    self._update_ref_point(Y)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.strategies.multi_objective.MOBayesianOptimizer object at 0x7f7c665e1ba0>
+Y = tensor([[3., 1., 2.],
+        [1., 3., 2.],
+        [2., 2., 3.]], dtype=torch.float64)
+
+    def _update_ref_point(self, Y) -> None:
+        if self._config.ref_point is not None:
+            self._ref_point = self._torch.tensor(self._config.ref_point, dtype=self._torch.float64)
+            if self._device != "cpu":
+                self._ref_point = self._ref_point.to(self._device)
+            return
+        worst = Y.min(dim=0).values
+        best = Y.max(dim=0).values
+>       offset = self._config.ref_point_offset * (best - worst).abs()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: only integer tensors of a single element can be converted to an index
+
+src/polisyos/scientist/methods/search/strategies/multi_objective.py:449: TypeError
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py::test_configured_reference_refuses_before_lossy_tensor_conversion[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py::test_configured_reference_refuses_before_lossy_tensor_conversion[True]
+FAILED tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py::test_configured_reference_refuses_before_lossy_tensor_conversion[broken]
+FAILED tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py::test_configured_reference_dimension_matches_declared_coordinate_basis
+FAILED tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py::test_derived_reference_offset_uses_same_finite_number_boundary[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py::test_derived_reference_offset_uses_same_finite_number_boundary[True]
+FAILED tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py::test_derived_reference_offset_uses_same_finite_number_boundary[broken]

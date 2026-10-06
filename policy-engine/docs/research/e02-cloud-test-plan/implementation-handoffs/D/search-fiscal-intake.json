@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "family": "Q1 measured scalar intake",
+  "finding_ids": [
+    "B108",
+    "B113"
+  ],
+  "closure_ids": [],
+  "predicate_basis": "recomputed",
+  "scope_annotation": "Bounded local scalar-presence/type/admission predicates; no economic unit law, authentic producer/source/owner authority, complete finding closure or deployment claim.",
+  "risk_patterns": [
+    "P37",
+    "P40"
+  ],
+  "published_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "published_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+  "implementation_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa",
+  "companion_test_checkpoint_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "companion_test_checkpoint_tree": "87804edd3be6bcefb0de06e509e7c73e88934aaa",
+  "changed_paths_implementation": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-fiscal-scalar-intake.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py"
+  ],
+  "changed_paths_canonical_companion": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/retired-source/test_opt_02_strategy_consumers.py.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-executed-coordinates.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-gp-continuation.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-mo-vector-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-pareto-indicators.toml",
+    "policy-engine/tests/unit/remediation/test_opt_02.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/_continuation_fixture.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+  ],
+  "source_cells": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+      "git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+      "git_blob": "a8c1a3658bf3f4a404e965e59313ada5afbb9775"
+    }
+  ],
+  "mechanism": "The existing fiscal alias reader and public history scalar reader reject Boolean measurements and handle float conversion overflow with the existing invalid outcome. Zero/null/primary-alias/conflict/sign and legacy numeric text behavior remains unchanged.",
+  "environment": {
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "PYTHONPATH": "src:.",
+    "device": "CPU",
+    "GPU_profile": "UNRUN"
+  },
+  "checks": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-ebeb-negative.txt",
+      "sha256": "51d98f41a3ae2c31411141c72cf54d4a489240bd34eef2636f44c3eb97068b3d",
+      "bytes": 22114,
+      "target_sha": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "outcome": "FAIL_AS_DEFINING_NEGATIVE",
+      "deciding_output": "13 failed, 4 passed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/history-ebeb-negative.txt",
+      "sha256": "d7fb2585d186680a77b8d8ddf2f23346dc73315181d41c40418adca41b389f2c",
+      "bytes": 6069,
+      "target_sha": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "outcome": "FAIL_AS_DEFINING_NEGATIVE",
+      "deciding_output": "3 failed, 4 deselected"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-candidate.txt",
+      "sha256": "c6ceaf6e0f73291e8da5557a536de373fbcf1c3e2ebd7d3eb140bbdabae15f83",
+      "bytes": 2451,
+      "outcome": "TEST_FIXTURE_ASSUMPTION_ERROR",
+      "deciding_output": "1 failed, 51 passed; SciPy seed scramble is not the selected Torch scramble"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-corrected.txt",
+      "sha256": "13db72d44b7bc86f81f8dd8eb3de3c6db34a530d672efa06d84899b207f20cae",
+      "bytes": 1250,
+      "outcome": "PASS_PRECOMMIT_SNAPSHOT",
+      "deciding_output": "52 passed, 2 warnings in 7.54s"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-paths-ab7577.txt",
+      "sha256": "8573db719614bccbdcbc425fe2a0fdd852d90dd0658bb629402141cb01fcb9fb",
+      "bytes": 4292,
+      "target_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+      "outcome": "PASS",
+      "deciding_output": "123 passed, 15 warnings in 16.33s",
+      "scope": "Exact eight planned files plus fiscal and MO admission files; production/tests/release clean against HEAD; module origins and complete environment are in output"
+    }
+  ],
+  "independent_native_consumer": {
+    "git_sha": "38bf35c1a0e954a25cabcccafd99ad4c056e590e",
+    "proof_sha": "57ed33266bcf292549dc843a6831baf671a65047",
+    "test_sha": "57d5ae63bb1c4fec25a0451ef40402db922e84c8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+    "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56",
+    "target_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+    "scope": "Unchanged30 actual public controller/BGC cases PASS9.47s; unchanged CLI27PASS and3observed-only legacy representation cases. No unit or served-owner closure."
+  },
+  "limits": [
+    "The independent legacy-frontier probe subsequently found a distinct consumer escape in the same complete finite-vector class; fiscal scalar success is not a complete B111 frontier acceptance. Correction is a separate source slice.",
+    "Malformed-present stage_a_passed history admission was subsequently proven by transfer reviewer; not repaired by the scalar helpers and retained as a separate correction.",
+    "No genuine absent optional backend profile, source authorization or real economic simulation unit producer was exercised."
+  ],
+  "harness_note": "A postcommit origin preflight initially omitted PYTHONPATH and stopped before pytest with ModuleNotFoundError; corrected command uses PYTHONPATH=src:. and verified lane origins. No source edit or test success was claimed from that preflight.",
+  "canonical_path_mapping": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-path-mapping.json",
+    "sha256": "ae99b65a0487e9d283ed6d65d4fa72dd52fe3ceddd051226f0aef6e48d8a7cb6",
+    "bytes": 5433
+  },
+  "release_renderer": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-renderer.txt",
+    "sha256": "3a4cd862af8ec43924f0e0b54758c6a836f8ce8ec116f06de71e622e885e5e9d",
+    "bytes": 1655,
+    "outcome": "PASS",
+    "deciding_output": "EXIT_CODE=0; fragment_count=6"
+  },
+  "normal_hooks": "pre-commit completed; JS checks skipped unmatched Python/docs paths. Normal push completed; typecheck skipped no matching push files, not a typecheck PASS."
+}

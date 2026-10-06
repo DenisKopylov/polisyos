@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-numeric-admission",
+  "closure_ids": [],
+  "finding_ids": [
+    "B128",
+    "B130",
+    "B131",
+    "B132",
+    "B129",
+    "B133"
+  ],
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-02"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "ab660ec3bd39875beef395b9d4ec06b7d8152874"
+  ],
+  "candidate_tree_sha": "d8cebe963f0eb7a8c5af861f0e507263d2a3405d",
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numeric-origins.txt",
+      "sha256": "f63ac34064b8703eea27ab16f6feaaba6f9d0d3d706671187d63afd038c9185b"
+    }
+  },
+  "classifications": {
+    "B128": {
+      "mechanism": "Strict faithful full Evaluation codec, original outcome/ref admission and non-promoting reverse BenchmarkEvaluation replay",
+      "oracle": "min/max original fields and timestamps, malformed JSON type refusal, original counts/guardrails/notes/replica preservation",
+      "input": "Real CAS original candidate and persisted BenchmarkEvaluation with explicit technical basis",
+      "owner": "D transfer; configured receiving generator GP composition is separate"
+    },
+    "B130": {
+      "mechanism": "Rank direction-normalized scalar minima while retaining raw original metric",
+      "oracle": "actual min/max fixture directions and reverse raw value",
+      "input": "Explicit single-objective direction_normalized_single_objective.v1 profile",
+      "owner": "D transfer; unsupported multiobjective/noise/scalarizers refused"
+    },
+    "B131": {
+      "mechanism": "Configured complete numeric_transfer_basis.v1, full CAS resolution and actual physical-input/original-observation binding",
+      "oracle": "every role/unit/direction/origin/owner/tenant/metric mismatch, coherent false candidate, clipped out-of-bounds source, repeated CAS mutation",
+      "input": "Exact ArtifactRef plus manifest view for history/candidate/evaluation and six numerical roles; original benchmark metadata full basis",
+      "owner": "D transfer and GP receiving writer; explicit caller owns source/target declarations, source truth/authorization remain external"
+    },
+    "B132": {
+      "mechanism": "Only admitted rows consume training quota; malformed/unavailable observations are visible report entries",
+      "oracle": "loaded/accepted/rejected counters and allowed rows after corrupted inputs",
+      "input": "Bounded native ANN discovered histories and pinned exact source rows",
+      "owner": "D transfer; combined actual consumer still pending"
+    },
+    "B129": {
+      "mechanism": "ANN discovery only, pinned full ref or exact known-key lookup for history",
+      "oracle": "second ANN forbidden and discovered immutable ref maintained",
+      "input": "Real native HNSW metadata containing complete history_ref",
+      "owner": "D transfer/vector"
+    },
+    "B133": {
+      "mechanism": "Local LRU bounded128entries/32MiB serialized payload, full-ref+codec identity, copy isolation and guarded re-read on each hit",
+      "oracle": "one-entry eviction, one-byte oversize bypass, non-mutating sort/metadata and same-ref altered history rejection",
+      "input": "Full ref including manifest profile, verified immutable bytes",
+      "owner": "D transfer; no distributed cache/publication claim"
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tests/unit -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py -ra",
+      "source": "immutable git archive src/tools/architecture/tests/pyproject",
+      "target_sha": "ab660ec3bd39875beef395b9d4ec06b7d8152874",
+      "outcome": "PASS",
+      "result": "63 passed, 2 warnings in 12.95s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numeric-immutable.txt",
+        "sha256": "784c837ad2ac52fda5e78c830c1bbb078aa188f09c84f40c9127252e60c16011"
+      }
+    },
+    {
+      "command": "same archive; remove only actual candidate physical-parameter equality binding; keep all full refs, markers, schema, CAS reads and configured basis; pytest -k candidate_content",
+      "source": "isolated property-removal archive",
+      "target_sha": "ab660ec3bd39875beef395b9d4ec06b7d8152874",
+      "outcome": "EXPECTED_FAIL",
+      "result": "1 failed, 37 deselected, 2 warnings in 9.61s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numeric-property-removal.txt",
+        "sha256": "d775980661325ad18ab8959ef782d2354bb27c667a61160084c15cd951d16861"
+      }
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "supported conditional technical profile; actual combined receiving GP workflow pending",
+  "input_output": "Real native ANN discovers complete history ref; manager reads original candidate/benchmark plus six roles through guarded CAS, admits only consistent typed rows and derives normalized receiving compatibility. Initial and checkpoint restoration share bridge.admit_warm_start.",
+  "proxy_divergence": "Removing actual candidate-input equality admits the coherent marker-preserving false candidate (.95 actual bytes versus original row/benchmark declared .333); unchanged oracle fails with 2 rows instead of1.",
+  "production_owner_input": "persist_benchmark_evaluation owns original stored BenchmarkEvaluation. An explicit composition caller must supply the supported full numeric_transfer_basis.v1 on source record and receiving target; no tracked default production composition currently provides that complete basis. Analytic fixture role artifacts are conditional test inputs, not institutional ownership provenance.",
+  "limitations_and_next_owner": [
+    "No source scientific truth, production transfer benefit, institutional authorization or noise/replica equivalence certification.",
+    "Direct numerical support is successful selection/single original metric, explicit typed ordered bounds, direction-normalized scalar, full original refs and exact declared six-role basis. Unsupported legacy/no basis inputs are visibly refused.",
+    "Actual CAS\u2192configured public generator\u2192SearchLoopRunner\u2192GP combined tree oracle and G independent acceptance remain pending.",
+    "B133 denotes a local bounded cache criterion only; no old principal/distributed hold."
+  ],
+  "receipt_clarification": "Previous generation envelope baseline log has7failed controls:6actual intake escapes, plus truncated bytes already rejected after native loader entry; the latter now rejects before native entry with typed ValueError. Existing count/index-kind controls passed de7."
+}

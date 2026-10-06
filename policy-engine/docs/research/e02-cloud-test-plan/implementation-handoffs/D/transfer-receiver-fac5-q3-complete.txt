@@ -1,0 +1,328 @@
+SOURCE_ORIGINS={"production_sha": "fac5c77a31aa1b392a33f93730e76703478870f0", "modules": {"models": "/dev/shm/e02-D2-receiver-review-fac5/policy-engine/src/polisyos/scientist/methods/autotune/models.py", "registry": "/dev/shm/e02-D2-receiver-review-fac5/policy-engine/src/polisyos/scientist/methods/autotune/registry.py", "generator": "/dev/shm/e02-D2-receiver-review-fac5/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py", "bayesian": "/dev/shm/e02-D2-receiver-review-fac5/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"}, "python": "/workspace/e02-D-locked-env/bin/python", "cwd": "/dev/shm/e02-D2-receiver-review-fac5/policy-engine", "PYTHONPATH": "src:.", "basetemp": "/dev/shm/e02-D2-receiver-review-fac5/pytest-negative-02", "basetemp_preexisted": false}
+PYTEST_ARGS=["-c", "/dev/null", "-p", "no:cacheprovider", "--confcutdir=tests/unit", "--basetemp=/dev/shm/e02-D2-receiver-review-fac5/pytest-negative-02", "-q", "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py", "-k", "cold_registry", "-ra"]
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[selection_metrics-score-True] _
+
+tmp_path = PosixPath('/dev/shm/e02-D2-receiver-review-fac5/pytest-negative-02/test_cold_registry_refuses_raw0')
+section = 'selection_metrics', field = 'score', malformed = True
+
+    @pytest.mark.parametrize(
+        ("section", "field", "malformed"),
+        [
+            ("selection_metrics", "score", True),
+            ("sample_counts", "selection", True),
+            ("guardrails", "finite", 1),
+        ],
+    )
+    def test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis(
+        tmp_path, section, field, malformed
+    ):
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        dataset_ref = store.put_bytes(
+            b'{"id":"one","loss":0.2}\n',
+            artifacts.PutOptions(
+                kind="scientist.autotune.benchmark_dataset", media_type="application/x-ndjson"
+            ),
+        )
+        split_ref = persist_split_manifest(
+            store,
+            BenchmarkSplitManifest(suite_id="receiver-review", selection_ids=["one"]),
+            inputs=[artifacts.input_ref_from_artifact_ref(dataset_ref, role="benchmark_dataset")],
+        )
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(
+                suite_id="receiver-review",
+                kind="review",
+                data_basis="dataset",
+                dataset_ref=dataset_ref,
+                split_manifest_ref=split_ref,
+            ),
+        )
+        candidate_ref = persist_mutation_artifact(
+            store,
+            ReviewMutation(loop_id="receiver-review", x=0.0),
+            inputs=[artifacts.input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        )
+        policy = PromotionPolicy(
+            loop_id="receiver-review",
+            primary_metric="score",
+            unit="fixture-loss",
+            direction=MetricDirection.MINIMIZE,
+            compare_split=BenchmarkSplit.SELECTION,
+            min_sample_count=1,
+            required_guardrails=["finite"],
+        )
+        evaluation = ReviewDatasetEvaluator().evaluate(
+            candidate_ref, suite_ref, {"store": store, "policy": policy}
+        )
+        valid_ref = persist_benchmark_evaluation(store, evaluation)
+        control = ChampionRegistry(tmp_path / "control", store=store).consider_promotion(
+            policy.loop_id, candidate_ref, valid_ref, policy, suite_ref=suite_ref
+        )
+        assert control.promoted, control.reason
+        payload = canon.from_canonical_bytes(store.get_bytes(valid_ref))
+        payload[section][field] = malformed
+        manifest = store.get_manifest(valid_ref)
+        changed_ref = store.put_json(
+            payload,
+            artifacts.ArtifactWriteOptions(
+                kind=valid_ref.kind,
+                media_type=valid_ref.media_type,
+                schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                inputs=manifest.inputs,
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+        assert store.get_manifest(changed_ref).inputs == manifest.inputs
+        assert (
+            canon.from_canonical_bytes(store.get_bytes(changed_ref))["comparison_basis"]
+            == (payload["comparison_basis"])
+        )
+        registry = ChampionRegistry(tmp_path / "negative", store=store)
+        try:
+            decision = registry.consider_promotion(
+                policy.loop_id, candidate_ref, changed_ref, policy, suite_ref=suite_ref
+            )
+        except (TypeError, ValueError):
+            return
+        print(
+            json.dumps(
+                {
+                    "section": section,
+                    "raw_value": malformed,
+                    "decision": decision.model_dump(mode="json"),
+                    "comparison_basis": payload["comparison_basis"],
+                }
+            )
+        )
+>       assert not decision.promoted, "Wrong JSON primitive type reached champion admission"
+E       AssertionError: Wrong JSON primitive type reached champion admission
+E       assert not True
+E        +  where True = PromotionDecision(loop_id='receiver-review', promoted=True, reason='promoted', champion=ChampionPointer(loop_id='recei...iew', 'suite_ref': 'sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095'}), previous_champion=None).promoted
+
+tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py:163: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"section": "selection_metrics", "raw_value": true, "decision": {"loop_id": "receiver-review", "promoted": true, "reason": "promoted", "champion": {"loop_id": "receiver-review", "candidate_ref": {"artifact_id": "sha256:ae60ef0cbeb1d90d1390a10678938c09fc8491fcc1dfb3a63b957e3042098c2d", "kind": "scientist.autotune.receiver-review.candidate", "media_type": "application/json"}, "evaluation_ref": {"artifact_id": "sha256:af437652afd02928b52d08aa1dbc3a288c59160edd8ace4300a72f3105ca5604", "kind": "scientist.autotune.receiver-review.evaluation", "media_type": "application/json"}, "metrics": {"score": 1.0}, "suite_version": "1.0", "promoted_at": "2026-10-06T11:16:42.889545Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "receiver-review", "primary_metric": "score", "unit": "fixture-loss", "direction": "minimize", "compare_split": "selection", "min_improvement": 0.0, "min_sample_count": 1, "required_guardrails": ["finite"]}, "compare_split": "selection", "suite_id": "receiver-review", "suite_ref": "sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095"}}, "previous_champion": null}, "comparison_basis": {"data_basis": "dataset", "dataset_ref": {"artifact_id": "sha256:e253e2a0de1fb4af60db6bc8090a4c318697163ad1f66a4144d575a3da7f09b7", "kind": "scientist.autotune.benchmark_dataset", "media_type": "application/x-ndjson"}, "evaluator_profile": {"name": "test_receiver_preserved_basis_review.ReviewDatasetEvaluator", "version": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720"}, "policy_sha256": "77f0e06b054646e003b5cf3faa3f02fc09ea9b13da64eefd17d73af6f286dbe2", "schema_version": "benchmark-comparison.v1", "split_manifest_ref": {"artifact_id": "sha256:aafe1678e41cd1affa0b3d0ccb7a7c9c063ffaa1e4a9fd5391f352f28fd04250", "kind": "scientist.autotune.split_manifest", "media_type": "application/json"}, "suite_ref": {"artifact_id": "sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095", "kind": "scientist.autotune.review.suite", "media_type": "application/json"}}}
+_ test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[sample_counts-selection-True] _
+
+tmp_path = PosixPath('/dev/shm/e02-D2-receiver-review-fac5/pytest-negative-02/test_cold_registry_refuses_raw1')
+section = 'sample_counts', field = 'selection', malformed = True
+
+    @pytest.mark.parametrize(
+        ("section", "field", "malformed"),
+        [
+            ("selection_metrics", "score", True),
+            ("sample_counts", "selection", True),
+            ("guardrails", "finite", 1),
+        ],
+    )
+    def test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis(
+        tmp_path, section, field, malformed
+    ):
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        dataset_ref = store.put_bytes(
+            b'{"id":"one","loss":0.2}\n',
+            artifacts.PutOptions(
+                kind="scientist.autotune.benchmark_dataset", media_type="application/x-ndjson"
+            ),
+        )
+        split_ref = persist_split_manifest(
+            store,
+            BenchmarkSplitManifest(suite_id="receiver-review", selection_ids=["one"]),
+            inputs=[artifacts.input_ref_from_artifact_ref(dataset_ref, role="benchmark_dataset")],
+        )
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(
+                suite_id="receiver-review",
+                kind="review",
+                data_basis="dataset",
+                dataset_ref=dataset_ref,
+                split_manifest_ref=split_ref,
+            ),
+        )
+        candidate_ref = persist_mutation_artifact(
+            store,
+            ReviewMutation(loop_id="receiver-review", x=0.0),
+            inputs=[artifacts.input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        )
+        policy = PromotionPolicy(
+            loop_id="receiver-review",
+            primary_metric="score",
+            unit="fixture-loss",
+            direction=MetricDirection.MINIMIZE,
+            compare_split=BenchmarkSplit.SELECTION,
+            min_sample_count=1,
+            required_guardrails=["finite"],
+        )
+        evaluation = ReviewDatasetEvaluator().evaluate(
+            candidate_ref, suite_ref, {"store": store, "policy": policy}
+        )
+        valid_ref = persist_benchmark_evaluation(store, evaluation)
+        control = ChampionRegistry(tmp_path / "control", store=store).consider_promotion(
+            policy.loop_id, candidate_ref, valid_ref, policy, suite_ref=suite_ref
+        )
+        assert control.promoted, control.reason
+        payload = canon.from_canonical_bytes(store.get_bytes(valid_ref))
+        payload[section][field] = malformed
+        manifest = store.get_manifest(valid_ref)
+        changed_ref = store.put_json(
+            payload,
+            artifacts.ArtifactWriteOptions(
+                kind=valid_ref.kind,
+                media_type=valid_ref.media_type,
+                schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                inputs=manifest.inputs,
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+        assert store.get_manifest(changed_ref).inputs == manifest.inputs
+        assert (
+            canon.from_canonical_bytes(store.get_bytes(changed_ref))["comparison_basis"]
+            == (payload["comparison_basis"])
+        )
+        registry = ChampionRegistry(tmp_path / "negative", store=store)
+        try:
+            decision = registry.consider_promotion(
+                policy.loop_id, candidate_ref, changed_ref, policy, suite_ref=suite_ref
+            )
+        except (TypeError, ValueError):
+            return
+        print(
+            json.dumps(
+                {
+                    "section": section,
+                    "raw_value": malformed,
+                    "decision": decision.model_dump(mode="json"),
+                    "comparison_basis": payload["comparison_basis"],
+                }
+            )
+        )
+>       assert not decision.promoted, "Wrong JSON primitive type reached champion admission"
+E       AssertionError: Wrong JSON primitive type reached champion admission
+E       assert not True
+E        +  where True = PromotionDecision(loop_id='receiver-review', promoted=True, reason='promoted', champion=ChampionPointer(loop_id='recei...iew', 'suite_ref': 'sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095'}), previous_champion=None).promoted
+
+tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py:163: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"section": "sample_counts", "raw_value": true, "decision": {"loop_id": "receiver-review", "promoted": true, "reason": "promoted", "champion": {"loop_id": "receiver-review", "candidate_ref": {"artifact_id": "sha256:ae60ef0cbeb1d90d1390a10678938c09fc8491fcc1dfb3a63b957e3042098c2d", "kind": "scientist.autotune.receiver-review.candidate", "media_type": "application/json"}, "evaluation_ref": {"artifact_id": "sha256:1a63bee23d7efbe195f62430cd5141465370750adbe3b6ffe4911de5b4447e7d", "kind": "scientist.autotune.receiver-review.evaluation", "media_type": "application/json"}, "metrics": {"score": 0.2}, "suite_version": "1.0", "promoted_at": "2026-10-06T11:16:43.080702Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "receiver-review", "primary_metric": "score", "unit": "fixture-loss", "direction": "minimize", "compare_split": "selection", "min_improvement": 0.0, "min_sample_count": 1, "required_guardrails": ["finite"]}, "compare_split": "selection", "suite_id": "receiver-review", "suite_ref": "sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095"}}, "previous_champion": null}, "comparison_basis": {"data_basis": "dataset", "dataset_ref": {"artifact_id": "sha256:e253e2a0de1fb4af60db6bc8090a4c318697163ad1f66a4144d575a3da7f09b7", "kind": "scientist.autotune.benchmark_dataset", "media_type": "application/x-ndjson"}, "evaluator_profile": {"name": "test_receiver_preserved_basis_review.ReviewDatasetEvaluator", "version": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720"}, "policy_sha256": "77f0e06b054646e003b5cf3faa3f02fc09ea9b13da64eefd17d73af6f286dbe2", "schema_version": "benchmark-comparison.v1", "split_manifest_ref": {"artifact_id": "sha256:aafe1678e41cd1affa0b3d0ccb7a7c9c063ffaa1e4a9fd5391f352f28fd04250", "kind": "scientist.autotune.split_manifest", "media_type": "application/json"}, "suite_ref": {"artifact_id": "sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095", "kind": "scientist.autotune.review.suite", "media_type": "application/json"}}}
+_ test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[guardrails-finite-1] _
+
+tmp_path = PosixPath('/dev/shm/e02-D2-receiver-review-fac5/pytest-negative-02/test_cold_registry_refuses_raw2')
+section = 'guardrails', field = 'finite', malformed = 1
+
+    @pytest.mark.parametrize(
+        ("section", "field", "malformed"),
+        [
+            ("selection_metrics", "score", True),
+            ("sample_counts", "selection", True),
+            ("guardrails", "finite", 1),
+        ],
+    )
+    def test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis(
+        tmp_path, section, field, malformed
+    ):
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        dataset_ref = store.put_bytes(
+            b'{"id":"one","loss":0.2}\n',
+            artifacts.PutOptions(
+                kind="scientist.autotune.benchmark_dataset", media_type="application/x-ndjson"
+            ),
+        )
+        split_ref = persist_split_manifest(
+            store,
+            BenchmarkSplitManifest(suite_id="receiver-review", selection_ids=["one"]),
+            inputs=[artifacts.input_ref_from_artifact_ref(dataset_ref, role="benchmark_dataset")],
+        )
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(
+                suite_id="receiver-review",
+                kind="review",
+                data_basis="dataset",
+                dataset_ref=dataset_ref,
+                split_manifest_ref=split_ref,
+            ),
+        )
+        candidate_ref = persist_mutation_artifact(
+            store,
+            ReviewMutation(loop_id="receiver-review", x=0.0),
+            inputs=[artifacts.input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        )
+        policy = PromotionPolicy(
+            loop_id="receiver-review",
+            primary_metric="score",
+            unit="fixture-loss",
+            direction=MetricDirection.MINIMIZE,
+            compare_split=BenchmarkSplit.SELECTION,
+            min_sample_count=1,
+            required_guardrails=["finite"],
+        )
+        evaluation = ReviewDatasetEvaluator().evaluate(
+            candidate_ref, suite_ref, {"store": store, "policy": policy}
+        )
+        valid_ref = persist_benchmark_evaluation(store, evaluation)
+        control = ChampionRegistry(tmp_path / "control", store=store).consider_promotion(
+            policy.loop_id, candidate_ref, valid_ref, policy, suite_ref=suite_ref
+        )
+        assert control.promoted, control.reason
+        payload = canon.from_canonical_bytes(store.get_bytes(valid_ref))
+        payload[section][field] = malformed
+        manifest = store.get_manifest(valid_ref)
+        changed_ref = store.put_json(
+            payload,
+            artifacts.ArtifactWriteOptions(
+                kind=valid_ref.kind,
+                media_type=valid_ref.media_type,
+                schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                inputs=manifest.inputs,
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+        assert store.get_manifest(changed_ref).inputs == manifest.inputs
+        assert (
+            canon.from_canonical_bytes(store.get_bytes(changed_ref))["comparison_basis"]
+            == (payload["comparison_basis"])
+        )
+        registry = ChampionRegistry(tmp_path / "negative", store=store)
+        try:
+            decision = registry.consider_promotion(
+                policy.loop_id, candidate_ref, changed_ref, policy, suite_ref=suite_ref
+            )
+        except (TypeError, ValueError):
+            return
+        print(
+            json.dumps(
+                {
+                    "section": section,
+                    "raw_value": malformed,
+                    "decision": decision.model_dump(mode="json"),
+                    "comparison_basis": payload["comparison_basis"],
+                }
+            )
+        )
+>       assert not decision.promoted, "Wrong JSON primitive type reached champion admission"
+E       AssertionError: Wrong JSON primitive type reached champion admission
+E       assert not True
+E        +  where True = PromotionDecision(loop_id='receiver-review', promoted=True, reason='promoted', champion=ChampionPointer(loop_id='recei...iew', 'suite_ref': 'sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095'}), previous_champion=None).promoted
+
+tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py:163: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"section": "guardrails", "raw_value": 1, "decision": {"loop_id": "receiver-review", "promoted": true, "reason": "promoted", "champion": {"loop_id": "receiver-review", "candidate_ref": {"artifact_id": "sha256:ae60ef0cbeb1d90d1390a10678938c09fc8491fcc1dfb3a63b957e3042098c2d", "kind": "scientist.autotune.receiver-review.candidate", "media_type": "application/json"}, "evaluation_ref": {"artifact_id": "sha256:fc0dbf2db11a1619069570c7ccdd3fb391cc0e045856ca1fd20d9464b214dc4d", "kind": "scientist.autotune.receiver-review.evaluation", "media_type": "application/json"}, "metrics": {"score": 0.2}, "suite_version": "1.0", "promoted_at": "2026-10-06T11:16:43.201961Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "receiver-review", "primary_metric": "score", "unit": "fixture-loss", "direction": "minimize", "compare_split": "selection", "min_improvement": 0.0, "min_sample_count": 1, "required_guardrails": ["finite"]}, "compare_split": "selection", "suite_id": "receiver-review", "suite_ref": "sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095"}}, "previous_champion": null}, "comparison_basis": {"data_basis": "dataset", "dataset_ref": {"artifact_id": "sha256:e253e2a0de1fb4af60db6bc8090a4c318697163ad1f66a4144d575a3da7f09b7", "kind": "scientist.autotune.benchmark_dataset", "media_type": "application/x-ndjson"}, "evaluator_profile": {"name": "test_receiver_preserved_basis_review.ReviewDatasetEvaluator", "version": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720"}, "policy_sha256": "77f0e06b054646e003b5cf3faa3f02fc09ea9b13da64eefd17d73af6f286dbe2", "schema_version": "benchmark-comparison.v1", "split_manifest_ref": {"artifact_id": "sha256:aafe1678e41cd1affa0b3d0ccb7a7c9c063ffaa1e4a9fd5391f352f28fd04250", "kind": "scientist.autotune.split_manifest", "media_type": "application/json"}, "suite_ref": {"artifact_id": "sha256:45f84b956f2a5a27b216350cc91219224c822b8e71b42e353ace2be8b929c095", "kind": "scientist.autotune.review.suite", "media_type": "application/json"}}}
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py::test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[selection_metrics-score-True]
+FAILED tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py::test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[sample_counts-selection-True]
+FAILED tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py::test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[guardrails-finite-1]
+3 failed, 1 deselected, 1 warning in 0.61s
+MEASUREMENT={"exit_code": 1, "wall_seconds": 2.5559351920092013, "native_observed_calls": {}, "basetemp_preserved": true}

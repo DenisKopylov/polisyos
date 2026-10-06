@@ -1,0 +1,132 @@
+{"argv": ["tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py", "tests/unit/remediation/test_srv_01.py", "tests/unit/remediation/test_srv_03.py", "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py", "tests/unit/scientist/methods/search/test_stopping_limitations.py", "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py", "tests/unit/scientist/methods/autotune/test_registry_and_runner.py", "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py::test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis", "/workspace/e02-D-published-transfer/policy-engine/tests/unit/scientist/methods/search/test_service_ask_publication_review.py", "-s", "--basetemp=/workspace/e02-D-continuation-receipts/champion-verified-positive-d91186cfdcd3477eb0d2464086853682", "--junitxml=/workspace/e02-D-continuation-receipts/champion-verified-positive-junit.xml"], "executable": "/workspace/e02-D-locked-env/bin/python", "native_origins": {"polisyos.common.serialization": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/common/serialization.py", "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852"}, "polisyos.core.artifacts._integrity_ops": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py", "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"}, "polisyos.core.artifacts.store": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/store.py", "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"}, "polisyos.scientist": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/__init__.py", "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3"}, "polisyos.scientist.methods.autotune.models": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py", "sha256": "eebcabb87e906c582ce5906dcef3e64f608150c2618010179636da8265fbd970"}, "polisyos.scientist.methods.autotune.registry": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py", "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"}, "polisyos.scientist.methods.autotune.runtime": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py", "sha256": "461339ef4b35a1220f8e8396d90d9a0013d2deb88e75a2828e496a84e6ba4a0a"}, "polisyos.scientist.methods.search": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/__init__.py", "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7"}, "polisyos.scientist.methods.search.contracts": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/contracts.py", "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"}, "polisyos.scientist.methods.search.controller": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/controller.py", "sha256": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5"}, "polisyos.scientist.methods.search.run_state": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/run_state.py", "sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"}, "polisyos.scientist.methods.search.service": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py", "sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720"}, "polisyos.scientist.methods.search.stopping": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/stopping.py", "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"}, "polisyos.scientist.orchestration.engine.budget_ledger": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py", "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"}, "polisyos.scientist.orchestration.engine.budget_middleware": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py", "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"}}, "platform": "Linux-6.18.44-x86_64-with-glibc2.41", "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]", "source": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230", "tree": "4c628ace2f5b8a5a2e26d51637a0115179aec36f"}
+Traceback (most recent call last):
+  File "/workspace/e02-D-continuation-receipts/champion-verified-verify.py", line 12, in <module>
+    status = pytest.main(argv)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 193, in main
+    config = _prepareconfig(new_args, plugins)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 361, in _prepareconfig
+    config: Config = pluginmanager.hook.pytest_cmdline_parse(
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        pluginmanager=pluginmanager, args=args
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 167, in _multicall
+    raise exception
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 139, in _multicall
+    teardown.throw(exception)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/helpconfig.py", line 124, in pytest_cmdline_parse
+    config = yield
+             ^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 1186, in pytest_cmdline_parse
+    self.parse(args)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 1556, in parse
+    self.hook.pytest_load_initial_conftests(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        early_config=self, args=args, parser=self._parser
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 167, in _multicall
+    raise exception
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 139, in _multicall
+    teardown.throw(exception)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/warnings.py", line 128, in pytest_load_initial_conftests
+    return (yield)
+            ^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 139, in _multicall
+    teardown.throw(exception)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/capture.py", line 173, in pytest_load_initial_conftests
+    yield
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 1270, in pytest_load_initial_conftests
+    self.pluginmanager._set_initial_conftests(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        args=args,
+        ^^^^^^^^^^
+    ...<8 lines>...
+        ),
+        ^^
+    )
+    ^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 602, in _set_initial_conftests
+    self._try_load_conftest(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        anchor,
+        ^^^^^^^
+    ...<2 lines>...
+        consider_namespace_packages=consider_namespace_packages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 640, in _try_load_conftest
+    self._loadconftestmodules(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        anchor,
+        ^^^^^^^
+    ...<2 lines>...
+        consider_namespace_packages=consider_namespace_packages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 680, in _loadconftestmodules
+    mod = self._importconftest(
+        conftestpath,
+    ...<2 lines>...
+        consider_namespace_packages=consider_namespace_packages,
+    )
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 756, in _importconftest
+    self.consider_conftest(mod, registration_name=conftestpath_plugin_name)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 837, in consider_conftest
+    self.register(conftestmodule, name=registration_name)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py", line 522, in register
+    plugin_name = super().register(plugin, name)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_manager.py", line 169, in register
+    hook._maybe_apply_history(hookimpl)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_hooks.py", line 580, in _maybe_apply_history
+    res = self._hookexec(self.name, [method], kwargs, False)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 167, in _multicall
+    raise exception
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/workspace/e02-D-published-transfer/policy-engine/tests/conftest.py", line 144, in pytest_addoption
+    parser.addoption(
+    ~~~~~~~~~~~~~~~~^
+        "--run-quarantine",
+        ^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        help="include tests listed in tests/quarantine.toml instead of skipping them",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/argparsing.py", line 123, in addoption
+    self._anonymous.addoption(*opts, **attrs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/argparsing.py", line 429, in addoption
+    raise ValueError(f"option names {conflict} already added")
+ValueError: option names {'--run-quarantine'} already added

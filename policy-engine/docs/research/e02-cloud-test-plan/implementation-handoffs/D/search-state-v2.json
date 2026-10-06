@@ -1,0 +1,98 @@
+{
+  "schema_version": "e02.D.search-state.v2",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "verified_source_sha": "a1ad856234be5f2e049013ba626be8d2552968b3",
+  "verified_source_tree": "e64f16398a9f46c88cdc6f884835d7e1f87471e6",
+  "finding_ids": [
+    "B112",
+    "B124",
+    "B125",
+    "B126",
+    "B127"
+  ],
+  "closure_ids": [],
+  "predicate_basis": "recomputed",
+  "environment": {
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "PYTHONPATH": "src:."
+  },
+  "checks": {
+    "search-published-baseline.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-published-baseline.txt",
+      "sha256": "79009073528eb1bc6883e0bb3adcc75a0a5dd8ecfa659c927a90c0dd735c9af4",
+      "bytes": 4979,
+      "deciding_output": "1 failed, 72 passed, 8 warnings in 6.06s"
+    },
+    "search-contract-baseline.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-contract-baseline.txt",
+      "sha256": "82753c838868246ddfdc0379bb8070113ac644da9c4330a7b24c2df47059ccbc",
+      "bytes": 18736,
+      "deciding_output": "20 failed, 1 passed, 2 warnings in 7.03s"
+    },
+    "search-state-35d2654.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-35d2654.txt",
+      "sha256": "d909e1de2d93ff83fd4f7c022af3d8fc944b693d7d7de58a9f2da56f8f5e9dd6",
+      "bytes": 665,
+      "deciding_output": "51 passed, 2 warnings in 0.32s"
+    },
+    "search-state-schema-null.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-schema-null.txt",
+      "sha256": "30e92b867dc66a1aaca98b009b8e273cee68ddc161a34d05ffed28a0b7e63fd6",
+      "bytes": 665,
+      "deciding_output": "55 passed, 2 warnings in 0.15s"
+    }
+  },
+  "candidate_command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/remediation/test_ctl_02.py",
+    "tests/unit/remediation/test_opt_02.py",
+    "tests/unit/scientist/search/strategies/test_space_codec.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+  ],
+  "candidate_result": "55 PASS; no skips (four added malformed-present schema controls plus supported legacy absence)",
+  "limitations": [
+    "This is the common state/action slice, not complete Q1/GP/OPT01 or finding closure.",
+    "Fitted GP, RL nested state and transferred source admission remain subsequent work.",
+    "Only the Base/Random/Sobol and public adapter routes are checked here; no all-strategy or deployed-caller claim.",
+    "No inherited-red attribution or scientific optimization quality claim."
+  ],
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "predicate_scope": "Bounded synthetic common state/action runtime properties; not source authority, deployed caller or full Q1 adequacy.",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-contract-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-published-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-35d2654.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-schema-null.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-search-state.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "policy-engine/tests/unit/remediation/test_ctl_02.py",
+    "policy-engine/tests/unit/remediation/test_opt_02.py"
+  ],
+  "input_binding": {
+    "profile": "synthetic bounded native tests, no external production dataset",
+    "test_source_sha": "a1ad856234be5f2e049013ba626be8d2552968b3",
+    "seed_policy": "exact constants and parametrized fixtures in pinned test source; random continuation seed27 and common default42, adapter/native seeds as specified by source",
+    "test_blobs": {
+      "policy-engine/tests/unit/remediation/test_ctl_02.py": "5a7445390c1d404835d656ebbead554cab03de78",
+      "policy-engine/tests/unit/remediation/test_opt_02.py": "346181d69a7fcd6dec533300b95a32e41cb8b7f5",
+      "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py": "4f16e39eed76311fe50f7ce40a6a445cf4f87c00",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py": "69cb0a6db63a4598a646259269d5c13512c7f58f"
+    }
+  },
+  "supersedes_receipt_only": "8c855e68b1f2fd981f284602ce7a54f5e472255d: moves moderate deciding logs into Git, corrects P37 label and adds strict present-schema refusal; prior source35 result remains retained."
+}

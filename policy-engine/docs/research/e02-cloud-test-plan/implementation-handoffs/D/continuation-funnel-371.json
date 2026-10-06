@@ -1,0 +1,248 @@
+{
+  "schema": "policyos.e02.D.continuation-funnel-consumer-receipt.v1",
+  "closure_ids": [],
+  "finding_ids": [
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B123",
+    "B156",
+    "B158",
+    "B159",
+    "B157",
+    "B160",
+    "B165",
+    "B162",
+    "B161",
+    "B163",
+    "B164"
+  ],
+  "companion_ids": [
+    "LA-015"
+  ],
+  "scope": "Author source-bound intermediate receipt; final criteria not accepted; original red proofs retained.",
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "candidate_sha": "371ea933989e9c3059fec0ac99d5b0b488e02213",
+  "candidate_tree": "8b4855cbab3d232b70d23c30ea705c1bd97269dd",
+  "criteria_ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "dependencies": {
+    "B_exact_owner_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-dependency.json@c9406ad21d4638a3abecac860802436fd3863406",
+    "stress_typed_evidence": "6e9c6662d74977847f70e7c66228ca529f1e1bf1",
+    "historical_consumer_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-B-consumer.json@3a7f53ea36547812e7837d43c981f3a30b992581",
+    "cache_original_red": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cache-owner-request.json@d212314677ed2a6af8021350ec135e568db719d7"
+  },
+  "implementation_shas": {
+    "cost_conflict": "42024e4d8",
+    "L5_typed_basis": "b575237a0",
+    "unknown_ACK": "cdd1c9d6d",
+    "cross_envelope_cost": "c50fe0811",
+    "cache_receipt_consumer": "371ea933989e9c3059fec0ac99d5b0b488e02213"
+  },
+  "checks": {
+    "original_cost_conflict": {
+      "denominator": 30,
+      "PASS": 19,
+      "FAIL": 11,
+      "ERROR": 0,
+      "SKIP": 0,
+      "source": "641fbd660cb9abf1754e2ef7d1a3f70b17f76c35",
+      "note": "Actual finite contradictory cost fields admitted before correction; healthy SDK fixture16 unchanged assertions pass."
+    },
+    "actual_affected": {
+      "denominator": 217,
+      "PASS": 203,
+      "FAIL": 14,
+      "ERROR": 0,
+      "SKIP": 0,
+      "actual_origin_guard_count": 15,
+      "origins": "All15 loaded product origins/hash match exact frozen371 tracked Git blobs.",
+      "failures": "All14 standalone B cache consumers omit required configured typed receipt resolver; they truthfully refuse free admission. This is introduced integration boundary, no inherited/debt waiver."
+    }
+  },
+  "actual_consumer": "Environment-backed factory/native translator or adversary -> TracedLLMClient -> B LLMBudgetEnforcer -> actual Gateway HTTP text decoder -> middleware/FileBudgetLedger -> exact producer settlement observer -> native stage/outcome/public projection -> fresh reopen. Real HTTP/provider supplied input fixture, no external invoice authority.",
+  "oracles_and_negative": {
+    "cost": "All declared raw and normalized USD totals agree, or exact known original-to-Gateway component float relation; malformed alternatives never hidden by valid alias, literal zero valid. Actual native98/range4 plus consistency17 pass.",
+    "unknown_ACK": "Actual B producer_event retained. No-mutation unknown versus write-before-ACK known local receipt distinguished via exact typed event/digest/key/amount/provider resolve; scientific success remains false. Four wrong readbacks refuse.",
+    "L5": "Actual typed stress producer and evidence metadata consistency; incomplete/unavailable work only observed warning unless actual high/critical vulnerability occurred. Fraction stays observed scenario scope, never MODEL complement.",
+    "cache": "Actual native HTTP cache content/missing origin/foreign request tamper refuse. Authentic unchanged response one paid provider event then no second provider call. Missing resolver/lookalike receipt/missing readback retain markers and failclosed."
+  },
+  "B_cache_resolver_integrate_contract": {
+    "existing": "B BudgetMiddleware.resolve_spend_safe(event_id)->BudgetLedgerSpendReceipt|None; no settle call from resolver. D funnel/types adapter checks actual typed receipt equality and core local projection.",
+    "core_port": "polisyos.core.llm.response.llm_local_receipt_resolver(callable_or_None), callable(declared_receipt)->LLMLocalSpendReceipt|None, scope-bound read-only operational adapter.",
+    "D_writers_bound": "FunnelOrchestrator around real stage call; translator/adversary around real factory generate call; same configured B middleware instance.",
+    "supplier_request": "B standalone/default factory must bind actual configured owner readback to this port or additive equivalent; memory/no receipt profile cannot claim confirmed free reuse. Original B cache signature/content owner mechanism unchanged.",
+    "limitations": "This is local ledger-receipt consistency, not cache/billing/permission authority. Actual arbitrary cross-context origin cannot grant free reuse."
+  },
+  "rows": [
+    {
+      "finding_id": "B118",
+      "bundle": "CTL-01",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual D stage receipts distinguish local provider-reported settlement, estimates, cache lineage and unknown ACK; no trace/scalar estimate relabeling. Controller/stopping authoritative configured-owner snapshot remains gp_witness supplied route.",
+      "missing_input_or_capability": "Canonical B middleware immutable snapshot/attribution port; externally authorized billing truth; persisted resource prerequisite ownership/reconciliation profile.",
+      "semantic_held": true,
+      "next_owner": "B DUR-01/W09; D controller/stopping supplier; G criterion acceptance"
+    },
+    {
+      "finding_id": "B119",
+      "bundle": "CTL-01",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual D stage receipts distinguish local provider-reported settlement, estimates, cache lineage and unknown ACK; no trace/scalar estimate relabeling. Controller/stopping authoritative configured-owner snapshot remains gp_witness supplied route.",
+      "missing_input_or_capability": "Canonical B middleware immutable snapshot/attribution port; externally authorized billing truth; persisted resource prerequisite ownership/reconciliation profile.",
+      "semantic_held": true,
+      "next_owner": "B DUR-01/W09; D controller/stopping supplier; G criterion acceptance"
+    },
+    {
+      "finding_id": "B120",
+      "bundle": "CTL-01",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual D stage receipts distinguish local provider-reported settlement, estimates, cache lineage and unknown ACK; no trace/scalar estimate relabeling. Controller/stopping authoritative configured-owner snapshot remains gp_witness supplied route.",
+      "missing_input_or_capability": "Canonical B middleware immutable snapshot/attribution port; externally authorized billing truth; persisted resource prerequisite ownership/reconciliation profile.",
+      "semantic_held": true,
+      "next_owner": "B DUR-01/W09; D controller/stopping supplier; G criterion acceptance"
+    },
+    {
+      "finding_id": "B121",
+      "bundle": "CTL-01",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual D stage receipts distinguish local provider-reported settlement, estimates, cache lineage and unknown ACK; no trace/scalar estimate relabeling. Controller/stopping authoritative configured-owner snapshot remains gp_witness supplied route.",
+      "missing_input_or_capability": "Canonical B middleware immutable snapshot/attribution port; externally authorized billing truth; persisted resource prerequisite ownership/reconciliation profile.",
+      "semantic_held": true,
+      "next_owner": "B DUR-01/W09; D controller/stopping supplier; G criterion acceptance"
+    },
+    {
+      "finding_id": "B123",
+      "bundle": "CTL-03",
+      "state": "partial",
+      "engineering_verified_bounded_property": "True finite zero and missing/invalid stage outcome remain distinct at native funnel compatibility consumer.",
+      "missing_input_or_capability": "Full real service typed-result/state acceptance belongs controller/service owner; no full service proof asserted here.",
+      "semantic_held": true,
+      "next_owner": "D gp_witness/controller; G"
+    },
+    {
+      "finding_id": "B156",
+      "bundle": "FUN-01",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual configured native factory TracedLLMClient/B LLMBudgetEnforcer -> Gateway HTTP text -> B1.1 middleware/FileBudgetLedger -> D observer. Full/split actual provider reported events, fresh reopen, stable-ID replay, readback removal guard, scalar budget/reservation guard and unknown-ACK exact readback tested.",
+      "missing_input_or_capability": "B1.1 reserve/release is anonymous; no durable owned reservation transition or atomic two-key profile. Unknown ACK observed immutable event is retained; no invented fresh retry/release owner. Natural HTTP underflow lexemes still lost in B decoder.",
+      "semantic_held": true,
+      "next_owner": "B DUR-01/W09/raw decoder and default factory; A resource appointment; G"
+    },
+    {
+      "finding_id": "B158",
+      "bundle": "FUN-01",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual configured native factory TracedLLMClient/B LLMBudgetEnforcer -> Gateway HTTP text -> B1.1 middleware/FileBudgetLedger -> D observer. Full/split actual provider reported events, fresh reopen, stable-ID replay, readback removal guard, scalar budget/reservation guard and unknown-ACK exact readback tested.",
+      "missing_input_or_capability": "B1.1 reserve/release is anonymous; no durable owned reservation transition or atomic two-key profile. Unknown ACK observed immutable event is retained; no invented fresh retry/release owner. Natural HTTP underflow lexemes still lost in B decoder.",
+      "semantic_held": true,
+      "next_owner": "B DUR-01/W09/raw decoder and default factory; A resource appointment; G"
+    },
+    {
+      "finding_id": "B159",
+      "bundle": "FUN-01",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual configured native factory TracedLLMClient/B LLMBudgetEnforcer -> Gateway HTTP text -> B1.1 middleware/FileBudgetLedger -> D observer. Full/split actual provider reported events, fresh reopen, stable-ID replay, readback removal guard, scalar budget/reservation guard and unknown-ACK exact readback tested.",
+      "missing_input_or_capability": "B1.1 reserve/release is anonymous; no durable owned reservation transition or atomic two-key profile. Unknown ACK observed immutable event is retained; no invented fresh retry/release owner. Natural HTTP underflow lexemes still lost in B decoder.",
+      "semantic_held": true,
+      "next_owner": "B DUR-01/W09/raw decoder and default factory; A resource appointment; G"
+    },
+    {
+      "finding_id": "B157",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Actual existing Foundry BootstrapInferenceEstimator20/80 draws tested against independent numeric arithmetic; reduced draw removal remains deciding.",
+      "missing_input_or_capability": "Native policy backend actual raw samples/estimand/effective drawconfig and typed provenance producer absent; node constructor configuration does not prove scientific effect.",
+      "semantic_held": true,
+      "next_owner": "A native evaluation supplier; D node/Foundry bridge; G scientific rule"
+    },
+    {
+      "finding_id": "B160",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Native stage/outcome/public evaluate preserve provider spend, event IDs and truthful aggregate verdict including failed paid workflow and unknown ACK. L5 typed observed-scenario fraction never becomes population uncertainty.",
+      "missing_input_or_capability": "Ordinary typed blueprint context successor and consumer invocation pending separate receipt; unmanaged legacy/default deployment not appointed.",
+      "semantic_held": true,
+      "next_owner": "D ordinary node factory; A/B deployment/resource owner; G"
+    },
+    {
+      "finding_id": "B165",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Native stage/outcome/public evaluate preserve provider spend, event IDs and truthful aggregate verdict including failed paid workflow and unknown ACK. L5 typed observed-scenario fraction never becomes population uncertainty.",
+      "missing_input_or_capability": "Ordinary typed blueprint context successor and consumer invocation pending separate receipt; unmanaged legacy/default deployment not appointed.",
+      "semantic_held": true,
+      "next_owner": "D ordinary node factory; A/B deployment/resource owner; G"
+    },
+    {
+      "finding_id": "B162",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Existing finite-width interval/zero normalization retained; no missing interval fabricated as zero.",
+      "missing_input_or_capability": "New natural evaluator corpus independent scientific admissibility absent.",
+      "semantic_held": true,
+      "next_owner": "A evaluator; G"
+    },
+    {
+      "finding_id": "B161",
+      "bundle": "FUN-03",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Existing same-context current cache invalidation retained; strict cache receiver additionally binds actual response bytes/model/provider/request and every typed receipt readback.",
+      "missing_input_or_capability": "Authorized same-subject/rule/time epistemic refinement law and input provenance artifact unavailable; no global minimum or last writer refinement invented.",
+      "semantic_held": true,
+      "next_owner": "G scientific rule; A evidence producer; D consumer"
+    },
+    {
+      "finding_id": "B163",
+      "bundle": "FUN-03",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Existing calibration routing and signal-independent capacity guards retained; no cheap_signal needed for budget/reservation guard.",
+      "missing_input_or_capability": "Natural calibration corpus/new route acceptance outside this continuation proof.",
+      "semantic_held": true,
+      "next_owner": "D calibration owner; G"
+    },
+    {
+      "finding_id": "B164",
+      "bundle": "FUN-03",
+      "state": "partial",
+      "engineering_verified_bounded_property": "Current generic bool/callback/retained marker is failclosed with zero writer effects. Legacy marker-revocation control does not invoke issuer/verifier or demonstrate commit serialization.",
+      "missing_input_or_capability": "Valid owner-issued typed permit/current independent verifier/revoke-serialized write owner API absent; positive remains UNRUN/bridge_missing.",
+      "semantic_held": true,
+      "next_owner": "Appointed A/B promotion write issuer/verifier/owner; G"
+    }
+  ],
+  "LA-015_companion": {
+    "state": "partial",
+    "verified": "Actual native caller one provider reported event and confirmed stage/outcome projection; healthy absent SDK semantics maintained with explicit object fixture.",
+    "held": "Resource producer/default deployment appointment and retired authority path acceptance remain A/B/G; no generic retirement claim."
+  },
+  "backend": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "version": "3.14.7",
+    "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "cl100k_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "limits": "No imposed CPU/process/worker/ordinary test quotas; no network tokenizer substitution."
+  },
+  "artifacts": [
+    {
+      "command_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/cost-original-red.json",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/cost-original-red.txt.gz",
+      "sha256": "4eaac186c0e60f2cd1b45a7db9172da5f6ebb074c8b302787d064564d63529c4",
+      "uncompressed_sha256": "d6924c151f8914ec3b696c983cd1427fa1fe6d3698652ef45417b529d93313e4",
+      "uncompressed_bytes": 14742,
+      "source_sha": "641fbd660cb9abf1754e2ef7d1a3f70b17f76c35"
+    },
+    {
+      "command_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/consumer-affected.json",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/consumer-affected.txt.gz",
+      "sha256": "e22ebd208e100098edef5ed885333b81199b5d004cec36da48efda299606f804",
+      "uncompressed_sha256": "634113ffd52edf3228e466f73b1c39e582d9bdf959ddf5eababbc554859c96f5",
+      "uncompressed_bytes": 63410,
+      "source_sha": "371ea933989e9c3059fec0ac99d5b0b488e02213"
+    }
+  ],
+  "compressed_log_reason": "Lossless gzip retains complete deciding stdout/stderr and original hashes while avoiding a repeated large pytest rendering payload; no source or output lines omitted.",
+  "cleanup": "All fresh named basetemps/output directories retained; no new permanent deletion or Trash empty. Historical deviation remains published-funnel-final.json@128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d. No nonexistent path claimed deleted."
+}

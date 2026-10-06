@@ -1,0 +1,20 @@
+{
+  "source_sha": "b6d6910c35035e33d977201737bef31b4985ce06",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "-k",
+    "no_prior_report",
+    "--basetemp",
+    "/dev/shm/e02-D-no-prior-report-red-e3749eeab1f642468219076b1f0a600f",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/no-prior-report-red-junit.xml"
+  ],
+  "exit_code": -9,
+  "wall_seconds": 106.01788733400463,
+  "peak_rss_kib": 733808,
+  "source_sha_after": "b6d6910c35035e33d977201737bef31b4985ce06",
+  "git_status": ""
+}

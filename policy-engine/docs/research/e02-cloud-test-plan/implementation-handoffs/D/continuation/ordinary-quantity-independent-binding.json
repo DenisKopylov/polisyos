@@ -1,0 +1,89 @@
+{
+  "schema": "polisyos.e02.independent-ordinary-quantity-binding.v1",
+  "source_sha": "e73bde06d5b796b99ad84898810b34985787be47",
+  "source_tree": "af25d6fef7ed0398ff2c1d221166984f3e458766",
+  "test_sha": "96694022d1e1ee5461ff25cf1d125bdae194c103",
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+  "test_sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+  "counts": {
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "product_origin_count": 1127,
+  "all_reported_product_submodule_captured_hashes_match_exact_git": true,
+  "binding_list_sha256": "7d05f0d9991bc086f083ec0839d0d965e152716ad06597cfa921a2430c867072",
+  "source_file_bindings": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": {
+      "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+      "match_4393": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+      "match_4393": true
+    },
+    "policy-engine/src/polisyos/scientist/policy_design/output.py": {
+      "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+      "match_4393": false
+    }
+  },
+  "reported_versions": {
+    "torch": null,
+    "botorch": null,
+    "gpytorch": null,
+    "pytest": "9.0.2"
+  },
+  "complete_measurement_files": [
+    {
+      "name": "capture.py",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/capture.py",
+      "bytes": 2349,
+      "sha256": "abf948cb9b696ba596296e1776a40d244de93430372dc81af4b93df7b3eb9981"
+    },
+    {
+      "name": "complete.txt",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/complete.txt",
+      "bytes": 4343,
+      "sha256": "e6f2ce27640dda81e3a01ae2e01f1a54498f9a7672d89575876e838816d4144c"
+    },
+    {
+      "name": "events.jsonl",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/events.jsonl",
+      "bytes": 967,
+      "sha256": "6cffd7521948e74b6230ffeadc3b15a33b17880065cac58059b333fdfc3de062"
+    },
+    {
+      "name": "inputs.json",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/inputs.json",
+      "bytes": 1391,
+      "sha256": "a96afa7fc0ac934513efd08929288a9d48d7451c06387daa272a20d36e842825"
+    },
+    {
+      "name": "junit.xml",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/junit.xml",
+      "bytes": 515,
+      "sha256": "6972ba67dae58723cf246c2a81f53da828024d67dc74e0f7fb150104d66b9d46"
+    },
+    {
+      "name": "measure.py",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/measure.py",
+      "bytes": 1458,
+      "sha256": "579b21da40f608c2596f0dd0e6d3db5c88fa2ce24eb39fe36953bcfb276fce2d"
+    },
+    {
+      "name": "origins.json",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/origins.json",
+      "bytes": 387539,
+      "sha256": "f7849efce9f983eed071c1a3c56f9020bca348fe254a9e15edee88d94c0690d7"
+    },
+    {
+      "name": "result.json",
+      "path": "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9/result.json",
+      "bytes": 1618,
+      "sha256": "9165984eb89e776e7a3abfae534064d85eeff71ff5df219f00f080f24e6d3799"
+    }
+  ],
+  "source_scope": "Recorded actual reported submodule hashes revalidated against immutable Git; no backend or test rerun; top-level polisyos is outside observer denominator."
+}

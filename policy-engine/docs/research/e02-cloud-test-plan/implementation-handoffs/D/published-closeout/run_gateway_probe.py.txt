@@ -1,0 +1,61 @@
+"""Independent replay of the native Gateway raw-cost test at a clean root SHA."""
+
+from __future__ import annotations
+
+import hashlib
+import importlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+import uuid
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-D-published-root')
+PRODUCT = ROOT / 'policy-engine'
+OUT = Path('/dev/shm/e02-D-root-closeout')
+TEST_COMMIT = '678a8bdb06103009d0547e55e00022061dfca4c3'
+TEST_PATH = 'policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py'
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def main():
+    phase = sys.argv[1]
+    source = git('rev-parse', 'HEAD').decode().strip()
+    tree = git('rev-parse', 'HEAD^{tree}').decode().strip()
+    assert not git('status', '--porcelain').strip()
+    raw_test = git('show', f'{TEST_COMMIT}:{TEST_PATH}')
+    scratch = Path('/dev/shm/e02-D-root-gateway-' + phase + '-' + uuid.uuid4().hex)
+    scratch.mkdir()
+    test = scratch / 'test_native_gateway_cost_intake.py'
+    test.write_bytes(raw_test)
+    basetemp = str(scratch / 'new-fixtures')
+    assert not Path(basetemp).exists()
+    modules = {}
+    for name in ('polisyos.core.llm.response', 'polisyos.scientist.orchestration.llm.gateway_client', 'polisyos.scientist.orchestration.llm.budget_enforcer', 'polisyos.scientist.orchestration.engine.budget_middleware', 'polisyos.scientist.orchestration.engine.budget_ledger'):
+        module = importlib.import_module(name)
+        path = Path(module.__file__)
+        raw = path.read_bytes()
+        relative = str(path.relative_to(ROOT))
+        modules[name] = {'origin': str(path), 'sha256': hashlib.sha256(raw).hexdigest(), 'bytes': len(raw), 'root_source_blob': git('rev-parse', f'{source}:{relative}').decode().strip(), 'original_test_source_blob': git('rev-parse', f'{TEST_COMMIT}:{relative}').decode().strip()}
+    command = [sys.executable, '-B', '-m', 'pytest', '-c', str(PRODUCT / 'pytest.ini'), '-o', 'addopts=', '--import-mode=importlib', '--strict-markers', '--basetemp', basetemp, '--junitxml', str(scratch / 'result.xml'), '-q', '-rA', str(test)]
+    started = time.monotonic()
+    output = OUT / ('gateway-' + phase + '.txt')
+    with output.open('wb') as handle:
+        result = subprocess.run(command, cwd=PRODUCT, stdout=handle, stderr=subprocess.STDOUT)
+    cases = ET.parse(scratch / 'result.xml').getroot().findall('.//testcase') if (scratch / 'result.xml').exists() else []
+    counts = {'collected': len(cases), 'failed': sum(c.find('failure') is not None for c in cases), 'error': sum(c.find('error') is not None for c in cases), 'skipped': sum(c.find('skipped') is not None for c in cases)}
+    counts['passed'] = counts['collected'] - counts['failed'] - counts['error'] - counts['skipped']
+    raw = output.read_bytes()
+    receipt = {'source_sha': source, 'source_tree': tree, 'test_commit': TEST_COMMIT, 'test_path': TEST_PATH, 'test_sha256': hashlib.sha256(raw_test).hexdigest(), 'modules': modules, 'command': command, 'cwd': str(PRODUCT), 'environment': {name: os.environ.get(name) for name in ('PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'POLISYOS_PYTEST_WORKERS')}, 'exit_code': result.returncode, 'wall_seconds': time.monotonic() - started, 'cases': counts, 'complete_output': {'path': str(output), 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}, 'preserved_scratch': str(scratch), 'source_after': git('rev-parse', 'HEAD').decode().strip(), 'post_status': git('status', '--porcelain').decode().strip(), 'scope': 'Actual native Gateway parser/enforcer/persisted ledger with conditional HTTP raw payload; no external billing authority or whole repository claim'}
+    (OUT / ('gateway-' + phase + '-receipt.json')).write_text(json.dumps(receipt, indent=2) + '\n')
+    print(json.dumps({'source': source, 'phase': phase, 'exit_code': result.returncode, 'counts': counts, 'output': str(output)}))
+
+
+if __name__ == '__main__':
+    main()

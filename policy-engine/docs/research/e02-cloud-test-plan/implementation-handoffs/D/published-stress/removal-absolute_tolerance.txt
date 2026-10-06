@@ -1,0 +1,575 @@
+FFFFF..FFFFF..F......F                                                   [100%]
+=================================== FAILURES ===================================
+_____ test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True] _____
+
+direction = 'minimize', historical = '0', recent = '1', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+        assert result.should_stop is expected
+        assert result.details["gain"] == pytest.approx(float(gain))
+>       assert result.details["tolerance"] == pytest.approx(float(tolerance))
+E       assert 0.0 == 0.01 ± 1.0e-08
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 0.01 ± 1.0e-08
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:54: AssertionError
+____ test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False] ____
+
+direction = 'minimize', historical = '0', recent = '-1', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+        assert result.should_stop is expected
+        assert result.details["gain"] == pytest.approx(float(gain))
+>       assert result.details["tolerance"] == pytest.approx(float(tolerance))
+E       assert 0.0 == 0.01 ± 1.0e-08
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 0.01 ± 1.0e-08
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:54: AssertionError
+___ test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True] ___
+
+direction = 'minimize', historical = '0', recent = '-0.01', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+>       assert result.should_stop is expected
+E       AssertionError: assert False is True
+E        +  where False = StoppingCondition(should_stop=False, reason=None, details={'best_recent': -0.01, 'best_historical': 0.0, 'gain': 0.01,...ints', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 2, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:52: AssertionError
+_ test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False] __
+
+direction = 'minimize', historical = '0', recent = '-0.0101', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+        assert result.should_stop is expected
+        assert result.details["gain"] == pytest.approx(float(gain))
+>       assert result.details["tolerance"] == pytest.approx(float(tolerance))
+E       assert 0.0 == 0.01 ± 1.0e-08
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 0.01 ± 1.0e-08
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:54: AssertionError
+_ test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True] _
+
+direction = 'minimize', historical = '0.005', recent = '-0.001', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+>       assert result.should_stop is expected
+E       AssertionError: assert False is True
+E        +  where False = StoppingCondition(should_stop=False, reason=None, details={'best_recent': -0.001, 'best_historical': 0.005, 'gain': 0....ints', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 2, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:52: AssertionError
+____ test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True] _____
+
+direction = 'maximize', historical = '0', recent = '-1', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+        assert result.should_stop is expected
+        assert result.details["gain"] == pytest.approx(float(gain))
+>       assert result.details["tolerance"] == pytest.approx(float(tolerance))
+E       assert 0.0 == 0.01 ± 1.0e-08
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 0.01 ± 1.0e-08
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:54: AssertionError
+____ test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False] _____
+
+direction = 'maximize', historical = '0', recent = '1', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+        assert result.should_stop is expected
+        assert result.details["gain"] == pytest.approx(float(gain))
+>       assert result.details["tolerance"] == pytest.approx(float(tolerance))
+E       assert 0.0 == 0.01 ± 1.0e-08
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 0.01 ± 1.0e-08
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:54: AssertionError
+___ test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True] ____
+
+direction = 'maximize', historical = '0', recent = '0.01', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+>       assert result.should_stop is expected
+E       AssertionError: assert False is True
+E        +  where False = StoppingCondition(should_stop=False, reason=None, details={'best_recent': 0.01, 'best_historical': 0.0, 'gain': 0.01, ...ints', 'direction': 'maximize', 'profile_version': '1.0', 'patience': 2, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:52: AssertionError
+__ test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False] __
+
+direction = 'maximize', historical = '0', recent = '0.0101', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+        assert result.should_stop is expected
+        assert result.details["gain"] == pytest.approx(float(gain))
+>       assert result.details["tolerance"] == pytest.approx(float(tolerance))
+E       assert 0.0 == 0.01 ± 1.0e-08
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 0.01 ± 1.0e-08
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:54: AssertionError
+_ test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True] _
+
+direction = 'maximize', historical = '-0.005', recent = '0.001', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+        criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+        result = criterion.check(
+            [
+                {"objective_value": float(old)},
+                {"objective_value": float(new)},
+                {"objective_value": float(new)},
+            ],
+            {},
+        )
+>       assert result.should_stop is expected
+E       AssertionError: assert False is True
+E        +  where False = StoppingCondition(should_stop=False, reason=None, details={'best_recent': 0.001, 'best_historical': -0.005, 'gain': 0....ints', 'direction': 'maximize', 'profile_version': '1.0', 'patience': 2, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:52: AssertionError
+_____________ test_unit_conversion_also_scales_absolute_tolerance ______________
+
+    def test_unit_conversion_also_scales_absolute_tolerance() -> None:
+        verdicts = []
+        for scale, unit in [(1.0, "points"), (1000.0, "millipoints")]:
+            criterion = ImprovementPlateau(
+                patience=2, objective_unit=unit, absolute_tolerance=0.01 * scale
+            )
+            verdicts.append(
+                criterion.check(
+                    [{"objective_value": 0.005 * scale}] + [{"objective_value": -0.001 * scale}] * 2,
+                    {},
+                ).should_stop
+            )
+>       assert verdicts == [True, True]
+E       assert [False, False] == [True, True]
+E         
+E         At index 0 diff: False != True
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:71: AssertionError
+_______ test_declared_plateau_stops_native_controller_and_preserves_best _______
+
+    def test_declared_plateau_stops_native_controller_and_preserves_best() -> None:
+        from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+        from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
+    
+        class GDPStream:
+            def generate(self, history: list, current_best: dict | None, context: dict) -> dict:
+                return {"gdp": -0.005 if not history else 0.001, "semantic": {"interventions": []}}
+    
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=ImprovementPlateau(patience=2, objective_unit="GDP growth rate"),
+                objective=CompositeObjective([GDPGrowthObjective()]),
+            ),
+            candidate_generator=GDPStream(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"gdp_change": candidate["gdp"]},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        )
+        result = controller.run({})
+>       assert result.iterations_completed == 3
+E       AssertionError: assert 4 == 3
+E        +  where 4 = SearchResult(search_id='a709c49a', status=<SearchStatus.STOPPED: 'stopped'>, best_candidate={'gdp': 0.001, 'semantic':...dget_required': False, 'budget_available': False, 'budget_snapshot': {}, 'budget_spent': None}, pareto_projection=None).iterations_completed
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:111: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_unit_conversion_also_scales_absolute_tolerance
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_declared_plateau_stops_native_controller_and_preserves_best
+12 failed, 10 passed in 0.12s

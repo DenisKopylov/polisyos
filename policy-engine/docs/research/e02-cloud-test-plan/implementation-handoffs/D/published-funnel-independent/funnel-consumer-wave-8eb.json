@@ -1,0 +1,27 @@
+{
+  "source_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "cwd": "/dev/shm/e02-D-funnel-independent-8eb99fc1/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+    "-q",
+    "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "tests/unit/scientist/methods/search/funnel/test_level6_promotion.py",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "exit_code": 0,
+  "wall_seconds": 17.53812359100266,
+  "max_rss_kib": 1308820,
+  "rss_scope": "cumulative high-water of completed children in this capture process",
+  "log_sha256": "89b3a323ec32a82d6b857783a946b6890cb289409ea54966274439fcf88b68f2"
+}

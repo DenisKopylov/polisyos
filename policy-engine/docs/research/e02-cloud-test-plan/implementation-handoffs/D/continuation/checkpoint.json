@@ -1,0 +1,123 @@
+{
+  "schema": "policyos.e02.D.continuation-checkpoint.v1",
+  "unit": "D",
+  "role": "Append-only continuation; not a closure receipt",
+  "slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "slice_base_tree": "352f6a29da22ab09588fba0faaad66a1ff35005d",
+  "published_implementation_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "g_checkpoint_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "g_checkpoint_tree": "9e44e9e534cbf77bc59126e08a16d50b1eb0f12e",
+  "fetched_main_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fetched_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "status": "## codex/e02-D-published-root\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/",
+  "admissions": [
+    {
+      "lane": "root",
+      "requested": {
+        "branch": "codex/e02-D-published-root",
+        "mode": "resume",
+        "path": "/workspace/e02-D-published-root"
+      },
+      "status": "admitted",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/admission-root.json",
+      "sha256": "fde687817b94e9231c116a06085b1593efbb7470ee011c191f3c89585603f822"
+    },
+    {
+      "lane": "search",
+      "requested": {
+        "branch": "codex/e02-D-published-search",
+        "mode": "resume",
+        "path": "/workspace/e02-D-published-search"
+      },
+      "status": "admitted",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/admission-search.json",
+      "sha256": "8562ca604aa25c4a748ddd6ab7b346aa9ecb4f3297ec6513b5ce812d94621501"
+    },
+    {
+      "lane": "transfer",
+      "requested": {
+        "branch": "codex/e02-D-published-transfer",
+        "mode": "resume",
+        "path": "/workspace/e02-D-published-transfer"
+      },
+      "status": "admitted",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/admission-transfer.json",
+      "sha256": "eea3c0728f0bb556f9b058fc21d299586528edc0a6937d4553caddf83c2bfb87"
+    },
+    {
+      "lane": "champion",
+      "requested": {
+        "branch": "codex/e02-D-published-champion",
+        "mode": "resume",
+        "path": "/workspace/e02-D-published-champion"
+      },
+      "status": "admitted",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/admission-champion.json",
+      "sha256": "6d3131d36e322cb87a0b94c4b3ef1fe88e76c442135fbb20f07c41136e3774f2"
+    },
+    {
+      "lane": "funnel",
+      "requested": {
+        "branch": "codex/e02-D-published-funnel",
+        "mode": "resume",
+        "path": "/workspace/e02-D-published-funnel"
+      },
+      "status": "admitted",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/admission-funnel.json",
+      "sha256": "ca8ca9a13df9f9636f9c7cad28f9e9f4f90b4d8f220d36173bf03b7f9f81c417"
+    },
+    {
+      "lane": "stress",
+      "requested": {
+        "branch": "codex/e02-D-published-stress",
+        "mode": "resume",
+        "path": "/workspace/e02-D-published-stress"
+      },
+      "status": "admitted",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/admission-stress.json",
+      "sha256": "044aaf835029785ea306cd1f4b106e10e62e42954ae34ac2b0af38174311a49c"
+    },
+    {
+      "lane": "oracle",
+      "requested": {
+        "branch": "codex/e02-D-published-oracle",
+        "mode": "resume",
+        "path": "/workspace/e02-D-published-oracle"
+      },
+      "status": "admitted",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/admission-oracle.json",
+      "sha256": "a5d4456d125fa8d37285a1933192e2ce04c6212834aa0c263e1aa049b7212551"
+    }
+  ],
+  "constraints": [
+    "D topic branches only; preserve history",
+    "B shared ledger/Gateway/middleware have a single B writer; no D 1.0 overlay on B 1.1",
+    "Production data remains local",
+    "No artificial compute quotas",
+    "No permanent deletion; preserve cleanup candidates"
+  ],
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "memory_current_bytes": 16945188864,
+    "memory_max_bytes": 17179869184,
+    "limitations": "Retained tmpfs and no swap leave little resident capacity; report actual ERROR/UNRUN if runtime cannot execute. No cleanup authorized outside native Trash."
+  },
+  "queue": [
+    "quantity/intake",
+    "canonical-budget-and-factory",
+    "transfer-and-state",
+    "stress-and-DOE",
+    "served-factory-and-resume"
+  ],
+  "acceptance_source": "published-final-criterion-accounting.json",
+  "denominator": {
+    "bundles": 17,
+    "ids": 45,
+    "occurrences": 46
+  },
+  "not_claimed": [
+    "D accepted in G",
+    "new numerical replay",
+    "finding closure"
+  ]
+}

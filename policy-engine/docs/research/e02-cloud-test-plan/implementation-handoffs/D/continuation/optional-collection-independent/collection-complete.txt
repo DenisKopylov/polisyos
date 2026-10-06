@@ -1,0 +1,21 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/scientist/methods/autotune/test_transfer_workflow.py _
+ImportError while importing test module '/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py:32: in <module>
+    from tests.unit.scientist.methods.search.strategies.test_transfer import (
+E   ModuleNotFoundError: No module named 'tests.unit.scientist.methods.search'
+_ ERROR collecting tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py _
+ImportError while importing test module '/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py:39: in <module>
+    from tests.unit.scientist.methods.search.strategies.test_transfer import measured_history
+E   ModuleNotFoundError: No module named 'tests.unit.scientist.methods.search'
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:15: UNRUN: native numerical adapter requires Torch
+ERROR tests/unit/scientist/methods/autotune/test_transfer_workflow.py
+ERROR tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!

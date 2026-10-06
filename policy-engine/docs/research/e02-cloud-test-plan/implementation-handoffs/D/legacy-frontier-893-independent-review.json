@@ -1,0 +1,124 @@
+{
+  "schema_version": "e02.D.independent-native-legacy-frontier-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "966772c181e8cbf90b8fdf6632315555082ef6d0",
+  "proof_tree": "a91753d2961c873144c237bc06134f1ea87083d1",
+  "production_writes": false,
+  "source_commit": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+  "source_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa",
+  "snapshot_root": "/dev/shm/e02-oracle-fiscal-893/archive",
+  "selected_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-input-manifest.json",
+    "sha256": "aba93ef24df8a402b4e21a448712141a9c8698a6aa36470ce25fd7395ca95cd6",
+    "bytes": 1842854
+  },
+  "source_cells": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-source-cells.txt",
+    "sha256": "2a30bbeaafa1fa5677e1a69c2781d5b787e6c675f00dbd4b1fe32ab657d50f14",
+    "bytes": 1880
+  },
+  "additional_source": {
+    "path": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "sha256": "ec8ad80f92a5970423aca1c0754c99b76709600f96b453989d2154188523a14d",
+    "bytes": 5501
+  },
+  "test": {
+    "path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+    "commit": "966772c181e8cbf90b8fdf6632315555082ef6d0",
+    "sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+    "count": 10,
+    "independence": "Direct public SearchController.run with actual native service and production composite GDP(maximize)/deficit(minimize); no model/controller replacement and no CLI wrapper."
+  },
+  "deciding_cell": {
+    "command": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+      "--basetemp=/dev/shm/e02-oracle-legacy-front-893-red-5c505874d36546b4abc80bd5fac3623d",
+      "-o",
+      "addopts=",
+      "-q",
+      "-s",
+      "-rA"
+    ],
+    "cwd": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine",
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-input.json",
+      "sha256": "d89154a14dd73929edb722c2966adbf28ba017bac80cde0822b813c7045e31e6",
+      "bytes": 946
+    },
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-red.txt",
+      "sha256": "9c008186c535c47f1008e5d62d39338bbd89a5e459c42a413e71b7823282fef0",
+      "bytes": 33830
+    },
+    "exit_code": 1,
+    "summary": "10 failed,2 warnings in9.26s",
+    "result": "FAIL"
+  },
+  "original_single_probe": {
+    "commit": "258200631ba7831321437955cb357515eecac5bd",
+    "probe": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+      "sha256": "b8dc514a33b73c5c08a1740db9babaca5df7676d773a9a1c93ddea6601e6e1ce",
+      "bytes": 3229
+    },
+    "command": "PYTHONPATH=/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src:/dev/shm/e02-oracle-fiscal-893/archive/policy-engine PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py --source-root /dev/shm/e02-oracle-fiscal-893/archive/policy-engine --source-sha 893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+    "cwd": "/workspace/e02-D-published-oracle",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-legacy-front-boundary.txt",
+      "sha256": "169ffbb08181792b988bd41d2e64241a7f5285b0c64541470bcd0e2897faa0d0",
+      "bytes": 1373
+    },
+    "exit_code": 1,
+    "result": "FAIL"
+  },
+  "independent_expected": {
+    "declared_legacy_objectives": [
+      "gdp_growth maximize",
+      "budget_deficit minimize"
+    ],
+    "seed": "GDP1,balance-10 => normalized(-1,10), complete finite",
+    "challenger": "GDP2 plus missing/null/boolFalse/boolTrue/malformed/NaN/+Inf/-Inf/conversionOverflow/conflicting fiscal aliases => normalized(-2,unavailable)",
+    "property": "An unavailable required coordinate cannot establish strict Pareto dominance. Retain complete measured seed as sole returned front point and preserve unavailable history details; no zero imputation or numerical winner fabricated.",
+    "unit": "not_established",
+    "scientific_basis": "No currency/percent, run/split/tenant authority or dimensional conversion selected"
+  },
+  "observed": "Scalar best correctly stays measured9. In all10 cases the returned legacy pareto_front instead contains ONLY the unavailable-fiscal challenger carrying raw budget_deficitNaN; the complete seed disappears. Unavailable raw history detail remains NaN/is_satisfiedFalse.",
+  "source_review": "Controller._update_pareto_front delegates to update_legacy_pareto_front. It constructs normalized values before complete finite admission; dominates ignores NaN comparisons, and the better GDP coordinate supplies its strict-better flag. The invalid point then removes the complete existing point and is exported as sole front member.",
+  "classification": {
+    "bucket": "P40 existing OPT01/B111 complete finite objective-vector invariant exposed in another real consumer",
+    "owner": "search_owner",
+    "authorization": "Root explicitly routed exclusive legacy frontier correction after exact893 native red",
+    "causality": "This is an exact893 runtime witness. No introduced-by-fiscal-change or inherited-base denominator claim is made.",
+    "status": "FAIL until unchanged corrective replay"
+  },
+  "separate_fiscal_intake_result": {
+    "receipt_commit": "38bf35c1a0e954a25cabcccafd99ad4c056e590e",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+      "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56",
+      "bytes": 10443
+    },
+    "CLI27": "PASS",
+    "native30": "PASS",
+    "boundary": "That source2-helper intake success does not establish returned legacy frontier membership or full B108/B111 closure."
+  },
+  "runtime_profile": {
+    "no_reviewer_CPU_process_test_worker_cap": true,
+    "fresh_basetemp": "/dev/shm/e02-oracle-legacy-front-893-red-5c505874d36546b4abc80bd5fac3623d",
+    "nonexisting_before_pytest": true,
+    "observed_exists_after_run": false,
+    "absence_note": "No temporary fixture requested; path may never have been created. Missing path does not establish deletion.",
+    "manual_deletion": false
+  },
+  "next_step": "Owner fixes production complete finite admission; independently replay this unchanged10-case file and unchanged fiscal30/CLI27 on immutable candidate.",
+  "closure_ids": [],
+  "verdict": "FAIL for bounded actual legacy frontier complete-vector consumption; served unit/owner and global frontier authority remain separately not established.",
+  "cleanup_candidates": ["/dev/shm/e02-oracle-fiscal-893/archive"]
+}

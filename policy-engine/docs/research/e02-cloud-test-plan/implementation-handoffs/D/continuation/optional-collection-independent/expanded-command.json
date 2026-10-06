@@ -1,0 +1,126 @@
+{
+  "source_projection_base": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+  "source_tree": "d4e217a2b4e620e22bc0f2fa1a8bf2fcdb6fe3e0",
+  "existing_immutable_source": "/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine",
+  "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0",
+  "fresh_basetemp": "/dev/shm/optional-seven-pytest-70779c3b094b4a6f95f8be87af9c03f4",
+  "basetemp_observed_after": false,
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine/pytest.ini",
+    "--collect-only",
+    "-q",
+    "--import-mode=importlib",
+    "-p",
+    "expanded_optional_profile",
+    "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+    "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+    "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+    "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+    "-ra",
+    "--basetemp=/dev/shm/optional-seven-pytest-70779c3b094b4a6f95f8be87af9c03f4",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded-junit.xml"
+  ],
+  "cwd": "/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine",
+  "env": {
+    "PYTHONPATH": "/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine/src:/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine:/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 1,
+  "wall_seconds": 24.7751764489949,
+  "agent_added_caps": false,
+  "manual_deletion": false,
+  "inputs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "source": "18699ce536fca6ce174ff1caf1435a79912f0920",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "bytes": 7859,
+      "sha256": "b5b59874df84ef46866805d8b06e81959b00662ab11937c78408f7f197adce9f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "source": "784584d13f94ac7565d5ab159592281597b253ce",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "bytes": 8005,
+      "sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "source": "784584d13f94ac7565d5ab159592281597b253ce",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "bytes": 8727,
+      "sha256": "09ab55c3ad0803e76d08b52bee04215d4d7252b78ce28ab100fadb06b509fcb0"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "source": "df778090a68aa91c5e6780721edd96ec7688affd",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "bytes": 32163,
+      "sha256": "e1a56b30214ddaa96c5b8a64d0ca6b2a44f42e7ee3453994f4e44705ceee1f04"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "bytes": 12045,
+      "sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "source": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "bytes": 11761,
+      "sha256": "6f9af1ce83fa2c46bf9580497b2e1faae3777c768782f1ed90facaacae3fbff0"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "source": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "bytes": 2002,
+      "sha256": "9f916ed3257622082812daa12afd592ba6b5da64995490e0258c19b164c2cb73"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/conftest.py",
+      "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/policy-engine/tests/unit/scientist/conftest.py",
+      "bytes": 103,
+      "sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/source-overrides/polisyos.scientist.methods.search.strategies.neural.py",
+      "bytes": 16561,
+      "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/source-overrides/polisyos.scientist.methods.search.strategies.transfer.py",
+      "bytes": 33255,
+      "sha256": "c61d73d7582f04a3c91333d2dcf43d1a14d9d2224c0f3270d97e2b2f69e2ac2d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "overlay": "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0/source-overrides/tests.unit.scientist.methods.search.strategies.test_transfer.py",
+      "bytes": 18497,
+      "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884"
+    }
+  ],
+  "scope": "Seven numerical collection files with exact owned immutable guards plus current NN/transfer source overrides; no native numerical test execution. Other product modules bind to recorded exact base/overrides; not a composed product runtime claim."
+}

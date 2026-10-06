@@ -1,0 +1,23 @@
+{
+  "target_sha": "bd63d1ef98c558774c5849da9a43fc84b45d4db7",
+  "target_tree": "ae39dd7850e5833004b848225f0e6c4cbb4c7392",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/integration/core/llm/test_gateway_response_text_cost.py",
+    "--basetemp=/dev/shm/e02-D-funnel-text-9c492a3a009843d39abcd65ec89e970d",
+    "--junitxml=/workspace/e02-D-published-funnel/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-text-probe/red.xml",
+    "-ra"
+  ],
+  "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+  "PYTHONPATH": "src:.",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "exit_code": 1,
+  "wall_s": 1.8321735858917236,
+  "max_rss_kib": 113548,
+  "basetemp": "/dev/shm/e02-D-funnel-text-9c492a3a009843d39abcd65ec89e970d",
+  "cleanup": "retained; Trash-only",
+  "outcome": "FAIL"
+}

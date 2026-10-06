@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+    "-k",
+    "contract_import",
+    "-p",
+    "contract_import_profile",
+    "-ra",
+    "--basetemp=/dev/shm/optional-contract-06fce28654724a4494f88b15f457e58e",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/contract-junit.xml"
+  ],
+  "cwd": "/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine",
+  "source_projection": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py": "18699ce536fca6ce174ff1caf1435a79912f0920",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": "18699ce536fca6ce174ff1caf1435a79912f0920",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py": "784584d13f94ac7565d5ab159592281597b253ce",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py": "784584d13f94ac7565d5ab159592281597b253ce",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py": "c1343a44101eab350c886319bcf511e78aafc37b"
+  },
+  "base_source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+  "returncode": 0,
+  "wall_seconds": 5.106901898005162,
+  "fresh_basetemp": "/dev/shm/optional-contract-06fce28654724a4494f88b15f457e58e",
+  "basetemp_observed_after": false,
+  "agent_added_caps": false,
+  "scope": "two actual contractimports under controlledfourbackend denial; mechanism positive only, no numericPASS"
+}

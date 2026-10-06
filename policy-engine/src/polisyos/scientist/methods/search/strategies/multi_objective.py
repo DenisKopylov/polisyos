@@ -3,10 +3,19 @@
 from __future__ import annotations
 
 import io
+import math
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.scientist.methods.autotune.pareto import (
+    HypervolumeAssessment,
+    HypervolumeResult,
+    _finite_vector,
+    compute_hypervolume_assessed,
+    finite_real_scalar,
+)
 from polisyos.scientist.methods.search.objective import OptimizationDirection
 from polisyos.scientist.methods.search.strategies._deps import (
     ExpectedHypervolumeImprovement,
@@ -27,9 +36,17 @@ from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
 from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
 from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
 from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
-from polisyos.scientist.methods.search.strategies.types import Evaluation, PolicyCandidate, StrategyState
+from polisyos.scientist.methods.search.strategies.types import (
+    Evaluation,
+    PolicyCandidate,
+    StrategyState,
+)
 
 logger = get_logger(__name__)
+
+
+class _InvalidReferencePointError(ValueError):
+    """The configured or derived float64 reference cannot be admitted."""
 
 
 @dataclass(slots=True)
@@ -60,12 +77,18 @@ class MOBayesianOptimizer(BaseSearchStrategy):
             raise ValueError("objective_names and directions lengths must match")
         if not objective_names:
             raise ValueError("At least one objective required")
+        if any(not isinstance(name, str) or not name for name in objective_names) or len(
+            set(objective_names)
+        ) != len(objective_names):
+            raise ValueError("Declared objective names must be unique nonempty strings")
+        if any(not isinstance(direction, OptimizationDirection) for direction in directions):
+            raise ValueError("Declared objective directions must be supported")
 
         cfg = config or MOConfig()
         super().__init__(space=space, seed=cfg.seed)
         self._config = cfg
-        self._objective_names = objective_names
-        self._directions = directions
+        self._objective_names = list(objective_names)
+        self._directions = list(directions)
         self._negate_mask = [
             -1.0 if direction == OptimizationDirection.MINIMIZE else 1.0 for direction in directions
         ]
@@ -78,6 +101,13 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         self._torch_rng = None
         self._botorch_ready = False
         self._device = "cpu"
+        self._last_objective_admission: dict[str, Any] = {
+            "version": "mo_objective_admission.v1",
+            "status": "unavailable",
+            "input_count": 0,
+            "assessed_count": 0,
+            "rejected_rows": [],
+        }
 
         try:
             require_botorch()
@@ -95,30 +125,46 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         evaluations: list[Evaluation],
         pending: list[PolicyCandidate] | None = None,
     ) -> PolicyCandidate:
-        del pending
         self._iteration = len(evaluations)
+        admitted = self._admit_objective_rows(evaluations, for_training=True)
+        report = self.last_objective_admission
+        try:
+            candidate = self._suggest_admitted(admitted, pending)
+        finally:
+            self._last_objective_admission = report
+        candidate.metadata["objective_admission"] = deepcopy(report)
+        return candidate
+
+    def _suggest_admitted(
+        self, evaluations: list[Evaluation], pending: list[PolicyCandidate] | None
+    ) -> PolicyCandidate:
+        del pending
         if len(evaluations) < self._config.n_initial:
-            return self._sobol_candidate(len(evaluations), source="sobol_init")
+            return self._sobol_candidate(self._iteration, source="sobol_init")
         if not self._botorch_ready:
             return self._random_candidate(source="random_no_botorch")
 
+        train_set = self._select_training_subset(evaluations)
+        if len(train_set) >= max(3, len(self._objective_names)):
+            self._reference_point_values([self._objective_vector(row) for row in train_set])
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
                 return self._random_candidate(source="random_hard_limit")
-            train_set = self._select_training_subset(evaluations)
             if len(train_set) < max(3, len(self._objective_names)):
                 return self._random_candidate(source="random_insufficient_data")
             try:
                 X, Y = self._prepare_training_data(train_set)
-                self._fit_model_list(X, Y)
                 self._update_ref_point(Y)
+                self._fit_model_list(X, Y)
                 candidate, acq_value = self._optimize_ehvi(soft_limit=soft, batch_size=1)
                 return self._tensor_to_candidate(
                     candidate.squeeze(0),
                     source="ehvi",
                     acquisition_value=float(acq_value.squeeze().item()),
                 )
+            except _InvalidReferencePointError:
+                raise
             except Exception as exc:
                 logger.warning("MO optimization failed; random fallback: {}", exc)
                 return self._random_candidate(source="random_fallback")
@@ -126,23 +172,38 @@ class MOBayesianOptimizer(BaseSearchStrategy):
     def suggest_batch(
         self, evaluations: list[Evaluation], batch_size: int
     ) -> list[PolicyCandidate]:
+        admitted = self._admit_objective_rows(evaluations, for_training=True)
+        report = self.last_objective_admission
+        try:
+            candidates = self._suggest_batch_admitted(admitted, batch_size, len(evaluations))
+        finally:
+            self._last_objective_admission = report
+        for candidate in candidates:
+            candidate.metadata["objective_admission"] = deepcopy(report)
+        return candidates
+
+    def _suggest_batch_admitted(
+        self, evaluations: list[Evaluation], batch_size: int, initial_index: int
+    ) -> list[PolicyCandidate]:
         if batch_size < 1:
             return []
         if len(evaluations) < self._config.n_initial:
             return [
-                self._sobol_candidate(len(evaluations) + idx, source="sobol_init")
+                self._sobol_candidate(initial_index + idx, source="sobol_init")
                 for idx in range(batch_size)
             ]
         if not self._botorch_ready:
             return [self._random_candidate(source="random_no_botorch") for _ in range(batch_size)]
 
+        train_set = self._select_training_subset(evaluations)
+        if len(train_set) >= max(3, len(self._objective_names)):
+            self._reference_point_values([self._objective_vector(row) for row in train_set])
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
                 return [
                     self._random_candidate(source="random_hard_limit") for _ in range(batch_size)
                 ]
-            train_set = self._select_training_subset(evaluations)
             if len(train_set) < max(3, len(self._objective_names)):
                 return [
                     self._random_candidate(source="random_insufficient_data")
@@ -150,13 +211,15 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 ]
             try:
                 X, Y = self._prepare_training_data(train_set)
-                self._fit_model_list(X, Y)
                 self._update_ref_point(Y)
+                self._fit_model_list(X, Y)
                 candidates, _ = self._optimize_ehvi(soft_limit=soft, batch_size=batch_size)
                 return [
                     self._tensor_to_candidate(candidates[idx], source="batch_qehvi")
                     for idx in range(batch_size)
                 ]
+            except _InvalidReferencePointError:
+                raise
             except Exception as exc:
                 logger.warning("MO batch optimization failed; random fallback: {}", exc)
                 return [
@@ -165,7 +228,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 ]
 
     def get_pareto_front(self, evaluations: list[Evaluation]) -> list[Evaluation]:
-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
+        valid = self._admit_objective_rows(evaluations)
         if len(valid) < 2:
             return valid
         points = [self._objective_vector(evaluation) for evaluation in valid]
@@ -191,23 +254,56 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 output.append(valid[idx])
         return output
 
-    def compute_hypervolume(self, evaluations: list[Evaluation]) -> float:
-        if not self._botorch_ready:
-            return 0.0
-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
-        if not valid:
-            return 0.0
-        with self._arbiter.acquire("torch"):
-            Y = self._torch.tensor(
-                [self._objective_vector(evaluation) for evaluation in valid],
-                dtype=self._torch.float64,
+    def compute_hypervolume_assessed(self, evaluations: list[Evaluation]) -> HypervolumeResult:
+        """Exact volume for the existing direction-normalized maximizing reference.
+
+        Configured ``ref_point`` retains its existing maximizing-coordinate
+        convention. No metric-unit rescaling or new reference policy is applied.
+        Indicator availability never changes complete-vector front membership.
+        """
+        valid = self._admit_objective_rows(evaluations)
+        try:
+            self._reference_configuration()
+            invalid_reference = False
+        except ValueError:
+            invalid_reference = True
+        if not valid or not self._botorch_ready:
+            result = HypervolumeResult(
+                value=None,
+                assessment=HypervolumeAssessment(
+                    version="hypervolume-assessment.v2",
+                    status="unavailable",
+                    basis="not_established",
+                    reason="no_usable_inputs" if not valid else "optional_backend_unavailable",
+                    profile="dominated_box_union.float64.maximize.v1",
+                ),
             )
-            if self._device != "cpu":
-                Y = Y.to(self._device)
-            if self._ref_point is None:
-                self._update_ref_point(Y)
-            partitioning = NondominatedPartitioning(ref_point=self._ref_point, Y=Y)
-            return float(partitioning.compute_hypervolume().item())
+        elif invalid_reference:
+            result = compute_hypervolume_assessed([], ())
+        else:
+            points = [tuple(self._objective_vector(evaluation)) for evaluation in valid]
+            with self._arbiter.acquire("torch"):
+                if self._ref_point is None:
+                    Y = self._torch.tensor(points, dtype=self._torch.float64, device=self._device)
+                    try:
+                        self._update_ref_point(Y)
+                    except _InvalidReferencePointError:
+                        result = compute_hypervolume_assessed([], ())
+                        self._last_hypervolume_result = result
+                        return result
+                reference = tuple(self._ref_point.detach().cpu().tolist())
+                result = compute_hypervolume_assessed(points, reference)
+        self._last_hypervolume_result = result
+        return result
+
+    def compute_hypervolume(self, evaluations: list[Evaluation]) -> float | None:
+        """Null means unavailable; a measured zero remains a recomputed quantity."""
+        return self.compute_hypervolume_assessed(evaluations).value
+
+    @property
+    def last_hypervolume_assessment(self) -> HypervolumeAssessment | None:
+        result = getattr(self, "_last_hypervolume_result", None)
+        return result.assessment if result is not None else None
 
     def get_state(self) -> StrategyState:
         model_state: bytes | None = None
@@ -253,7 +349,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 self._ref_point = self._ref_point.to(self._device)
 
     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
-        filtered = [e for e in evaluations if len(e.params_normalized) == self._space.dim]
+        filtered = self._admit_objective_rows(evaluations, for_training=True)
         if len(filtered) <= self._config.max_train_size:
             return filtered
         recent_n = self._config.max_train_size // 2
@@ -264,12 +360,15 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         return sampled + recent
 
     def _prepare_training_data(self, evaluations: list[Evaluation]):
+        admitted = self._admit_objective_rows(evaluations, for_training=True)
+        if not admitted:
+            raise ValueError("No complete finite declared objective vectors for training")
         X = self._torch.tensor(
-            [list(e.params_normalized) for e in evaluations],
+            [list(self._space.normalize(e.params)) for e in admitted],
             dtype=self._torch.float64,
         )
         Y = self._torch.tensor(
-            [self._objective_vector(evaluation) for evaluation in evaluations],
+            [self._objective_vector(evaluation) for evaluation in admitted],
             dtype=self._torch.float64,
         )
         if self._device != "cpu":
@@ -280,14 +379,75 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         return X, Y
 
     def _objective_vector(self, evaluation: Evaluation) -> list[float]:
-        objective_values = {
-            objective.name: objective.raw_value for objective in evaluation.objectives
-        }
+        objective_values = {}
+        for objective in evaluation.objectives:
+            if objective.name not in self._objective_names:
+                continue
+            if objective.name in objective_values:
+                raise ValueError(f"duplicate_declared_objective:{objective.name}")
+            objective_values[objective.name] = objective
         output: list[float] = []
         for idx, objective_name in enumerate(self._objective_names):
-            raw = float(objective_values.get(objective_name, 0.0))
-            output.append(raw * self._negate_mask[idx])
+            if objective_name not in objective_values:
+                raise ValueError(f"missing_declared_objective:{objective_name}")
+            objective = objective_values[objective_name]
+            if objective.direction != self._directions[idx]:
+                raise ValueError(f"objective_direction_mismatch:{objective_name}")
+            raw = objective.raw_value
+            scalar = _finite_vector((raw,))
+            if scalar is None:
+                raise ValueError(f"non_finite_or_untyped_objective:{objective_name}")
+            output.append(scalar[0] * self._negate_mask[idx])
         return output
+
+    @property
+    def last_objective_admission(self) -> dict[str, Any]:
+        """Original input coverage; excluded rows never become invented zero coordinates."""
+        return deepcopy(self._last_objective_admission)
+
+    def _admit_objective_rows(
+        self, evaluations: list[Evaluation], *, for_training: bool = False
+    ) -> list[Evaluation]:
+        admitted = []
+        rejected = []
+        for index, evaluation in enumerate(evaluations):
+            try:
+                if not evaluation.is_valid:
+                    raise ValueError("invalid_evaluation_outcome")
+                self._objective_vector(evaluation)
+                if for_training:
+                    executed = self._space.normalize(evaluation.params)
+                    supplied = _finite_vector(evaluation.params_normalized)
+                    if (
+                        supplied is None
+                        or len(supplied) != len(executed)
+                        or any(
+                            not math.isclose(value, effective, rel_tol=0.0, abs_tol=1e-10)
+                            for value, effective in zip(supplied, executed, strict=True)
+                        )
+                    ):
+                        raise ValueError("executed_coordinates_mismatch")
+                admitted.append(evaluation)
+            except (TypeError, ValueError, OverflowError) as exc:
+                rejected.append(
+                    {
+                        "input_index": index,
+                        "candidate_id": evaluation.candidate_id,
+                        "reason": str(exc),
+                    }
+                )
+        self._last_objective_admission = {
+            "version": "mo_objective_admission.v1",
+            "status": "complete"
+            if admitted and not rejected
+            else "partial"
+            if admitted
+            else "unavailable",
+            "input_count": len(evaluations),
+            "assessed_count": len(admitted),
+            "rejected_rows": rejected,
+        }
+        return admitted
 
     def _fit_model_list(self, X, Y) -> None:
         models = [
@@ -303,16 +463,43 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         mll = SumMarginalLogLikelihood(self._model.likelihood, self._model)
         fit_gpytorch_mll(mll)
 
-    def _update_ref_point(self, Y) -> None:
+    def _reference_configuration(self) -> tuple[tuple[float, ...] | None, float | None]:
+        """Admit configured numeric reference inputs before any tensor arithmetic."""
         if self._config.ref_point is not None:
-            self._ref_point = self._torch.tensor(self._config.ref_point, dtype=self._torch.float64)
-            if self._device != "cpu":
-                self._ref_point = self._ref_point.to(self._device)
-            return
-        worst = Y.min(dim=0).values
-        best = Y.max(dim=0).values
-        offset = self._config.ref_point_offset * (best - worst).abs()
-        self._ref_point = worst - offset
+            reference = _finite_vector(self._config.ref_point)
+            if reference is None or len(reference) != len(self._objective_names):
+                raise _InvalidReferencePointError("invalid_reference_point")
+            return reference, None
+        offset = finite_real_scalar(self._config.ref_point_offset)
+        if offset is None:
+            raise _InvalidReferencePointError("invalid_reference_point")
+        return None, offset
+
+    def _reference_point_values(self, points: list[list[float]]) -> tuple[float, ...]:
+        """Admit geometry before tensors, model fitting, or fallback generation."""
+        reference, configured_offset = self._reference_configuration()
+        if reference is not None:
+            return reference
+        if not points or configured_offset is None:
+            raise _InvalidReferencePointError("invalid_reference_point")
+        values: list[float] = []
+        for index in range(len(self._objective_names)):
+            worst = min(point[index] for point in points)
+            best = max(point[index] for point in points)
+            span = finite_real_scalar(best - worst)
+            if span is None:
+                raise _InvalidReferencePointError("invalid_reference_point")
+            value = finite_real_scalar(worst - configured_offset * span)
+            if value is None:
+                raise _InvalidReferencePointError("invalid_reference_point")
+            values.append(value)
+        return tuple(values)
+
+    def _update_ref_point(self, Y) -> None:
+        reference = self._reference_point_values(Y.detach().cpu().tolist())
+        self._ref_point = self._torch.tensor(
+            reference, dtype=self._torch.float64, device=self._device
+        )
 
     def _optimize_ehvi(self, soft_limit: bool, batch_size: int):
         assert self._model is not None
@@ -353,11 +540,16 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         acquisition_value: float | None = None,
     ) -> PolicyCandidate:
         vector = tuple(float(value) for value in tensor.detach().cpu().tolist())
-        return PolicyCandidate(
-            params=self._space.denormalize(vector),
-            params_normalized=vector,
+        return self._space.candidate_from_vector(
+            vector,
             acquisition_value=acquisition_value,
             source_strategy=source,
+            metadata={
+                "prediction_basis": "not_established_no_scalar_predictor",
+                "acquisition_value_basis": "relaxed_proposal"
+                if acquisition_value is not None
+                else "not_established",
+            },
         )
 
 

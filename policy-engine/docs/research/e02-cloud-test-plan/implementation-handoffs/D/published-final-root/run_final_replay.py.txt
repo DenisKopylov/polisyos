@@ -1,0 +1,74 @@
+"""Observe two exact defining commands on a clean immutable candidate."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import time
+import uuid
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-D-published-root')
+PRODUCT = ROOT / 'policy-engine'
+OUT = Path('/dev/shm/e02-D-root-closeout')
+PYTHON = '/workspace/e02-D-locked-env/bin/python'
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+def digest(path):
+    raw = path.read_bytes()
+    return {'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+
+def main():
+    source = git('rev-parse', 'HEAD')
+    tree = git('rev-parse', 'HEAD^{tree}')
+    assert git('status', '--porcelain') == ''
+    product_delta = git('diff', '--name-only', '243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3', source, '--', 'policy-engine/src/')
+    assert product_delta == ''
+    plan = PRODUCT / 'docs/research/e02-cloud-test-plan/closure-decisions/D.md'
+    commands = {}
+    bundle = None
+    for line in plan.read_text().splitlines():
+        if line.startswith('### ') and ' — ' in line:
+            bundle = line.split()[1]
+        if line.startswith('cd policy-engine && python -m pytest '):
+            commands[bundle] = line
+    assert len(commands) == 17
+    capture = {'schema': 'e02.root.independent.defining_replay.v1', 'source_sha': source, 'source_tree': tree, 'slice_base': BASE, 'production_source_tree': git('rev-parse', source+':policy-engine/src'), 'changed_paths_complete': git('diff', '--name-only', BASE, source).splitlines(), 'delta_from_original_wave': git('diff', '--name-only', '243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3', source).splitlines(), 'production_delta_from_original_wave': [], 'definition': digest(plan), 'measurement_helper': digest(Path(__file__)), 'environment': {k: os.environ.get(k) for k in ['PYTHONPATH','PYTHONDONTWRITEBYTECODE','TIKTOKEN_CACHE_DIR','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','POLISYOS_TORCH_NUM_THREADS','POLISYOS_TORCH_INTEROP_THREADS','XLA_FLAGS','PYTEST_ADDOPTS']}, 'added_cpu_process_worker_limits': False, 'observer_imports': 'stdlib only; native dependencies only in pytest children', 'checks': []}
+    for name in ('FUN-03','OPT-01'):
+        literal = commands[name]
+        parsed = shlex.split(literal.split(' && ',1)[1])
+        selectors = [arg for arg in parsed if arg.startswith('tests/')]
+        paths = sorted({arg.split('::',1)[0] for arg in selectors})
+        temp = '/dev/shm/e02-D-final-'+name+'-'+uuid.uuid4().hex
+        assert not Path(temp).exists()
+        xml = OUT / (name+'-final.xml')
+        log = OUT / (name+'-final.txt')
+        assert not xml.exists() and not log.exists()
+        # Preserve canonical -q, selectors and -ra; add only capture paths.
+        assert parsed[:4] == ['python','-m','pytest','-q']
+        args = [PYTHON,'-B','-m','pytest',*parsed[3:],'--basetemp',temp,'--junitxml',str(xml)]
+        entry = {'bundle':name,'canonical_command':literal,'actual_command':args,'cwd':str(PRODUCT),'target_sha':source,'target_tree':tree,'input_paths':{p:digest(PRODUCT/p) for p in paths},'fresh_basetemp':temp,'basetemp_existed_before':False,'source_before':git('rev-parse','HEAD'),'status_before':git('status','--porcelain')}
+        assert entry['source_before'] == source and entry['status_before'] == ''
+        start = time.monotonic()
+        with log.open('wb') as out:
+            result = subprocess.run(args,cwd=PRODUCT,stdout=out,stderr=subprocess.STDOUT)
+        entry.update(exit_code=result.returncode,wall_seconds=time.monotonic()-start,complete_output=digest(log),source_after=git('rev-parse','HEAD'),status_after=git('status','--porcelain'))
+        assert entry['source_after'] == source and entry['status_after'] == ''
+        if xml.exists():
+            cases = list(ET.fromstring(xml.read_bytes()).iter('testcase'))
+            counts = {'executed':len(cases),'failed':sum(x.find('failure') is not None for x in cases),'errors':sum(x.find('error') is not None for x in cases),'skipped':sum(x.find('skipped') is not None for x in cases)}
+            counts['passed'] = counts['executed']-counts['failed']-counts['errors']-counts['skipped']
+            entry.update(junit=digest(xml),junit_counts=counts)
+        entry['outcome'] = 'PASS' if result.returncode == 0 and entry.get('junit_counts',{}).get('skipped') == 0 else 'FAIL' if result.returncode == 1 else 'ERROR'
+        capture['checks'].append(entry)
+        (OUT/'final-root-replay-runtime.json').write_text(json.dumps(capture,indent=2)+'\n')
+        print(json.dumps({'bundle':name,'source':source,'exit':result.returncode,'counts':entry.get('junit_counts'),'seconds':entry['wall_seconds']}),flush=True)
+    capture['scope'] = 'Independent execution of two changed-fixture defining commands only. Original24317-command result and incomplete80-file attempt remain immutable. No typed promotion issuer/current verifier/serialized positive; no production science/history or full acceptance inference.'
+    (OUT/'final-root-replay-runtime.json').write_text(json.dumps(capture,indent=2)+'\n')
+
+if __name__ == '__main__':
+    main()

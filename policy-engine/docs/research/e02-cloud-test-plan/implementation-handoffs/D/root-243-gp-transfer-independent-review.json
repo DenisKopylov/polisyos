@@ -1,0 +1,173 @@
+{
+  "schema_version": "e02.D.independent-final-root-gp-transfer-runtime.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "216e83a87c0f35ec304f0c4490eeed2b29449630",
+  "proof_tree": "bd4280a683aaa2c96f8a11a1ed4ad589adff7839",
+  "source_commit": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "actual_product_root": "/workspace/e02-D-published-root/policy-engine",
+  "production_writes": false,
+  "new_source_archives": false,
+  "unchanged_tests": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "bytes": 31836,
+      "sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "bytes": 7616,
+      "sha256": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885"
+    }
+  ],
+  "input_command": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-runtime-command.json",
+    "bytes": 4167,
+    "sha256": "fd974d6887fdf72a5c1a985c96891930634805955cd97235be4804872bbf5e38"
+  },
+  "complete_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent26.txt",
+    "bytes": 9636,
+    "sha256": "39a2db70b4de14a85d487d2ef6f8b28060917c735fccf8c035802a7d4ae7d80a"
+  },
+  "actual_JUnit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent26.xml",
+    "bytes": 5326,
+    "sha256": "851412969fd8a53f7bfe0e6bcaaceec7062313b4e37ade88d8deb5e33e867b9a"
+  },
+  "actual_runtime_origins": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-actual-origin-cells.json",
+    "bytes": 3968,
+    "sha256": "3e12f0b4d8934b1f81fcb3d5afefe78dacee3b99d8ec0e17e718858d059ca36d"
+  },
+  "exact_child_observation_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-child.py.txt",
+    "bytes": 2264,
+    "sha256": "35bb6f197d1333ce27bfcc39f5af80bb8f088d1f13ee24cc3624df1b9d58dd6f"
+  },
+  "result": {
+    "verdict": "PASS bounded currentcandidate runtime",
+    "exit_code": 0,
+    "actual_cases": {
+      "collected": 26,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 26
+    },
+    "denominator": {
+      "unchanged_independent_analytic_GP": 23,
+      "unchanged_nativeCAS_workflow": 3
+    },
+    "summary": "26 passed,6 warnings in15.24s",
+    "wall_seconds": 20.56707147999259,
+    "warnings": [
+      "Python3.14 TorchJIT deprecation2",
+      "Supported shifted conditioned input-basis min-max warnings2",
+      "BoTorch existing EI numerical recommendation2"
+    ],
+    "skips": 0,
+    "errors": 0,
+    "source_before_after_equal_and_clean": true
+  },
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "backend": {
+      "torch": {
+        "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "loaded": true,
+        "version": "2.10.0"
+      },
+      "botorch": {
+        "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "loaded": true,
+        "version": "0.16.1"
+      },
+      "gpytorch": {
+        "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+        "loaded": true,
+        "version": "1.15.1"
+      },
+      "numpy": {
+        "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+        "loaded": true,
+        "version": "2.3.5"
+      },
+      "scipy": {
+        "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+        "loaded": true,
+        "version": "1.16.3"
+      },
+      "hnswlib": {
+        "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+        "loaded": true,
+        "version": "0.8.0"
+      }
+    },
+    "actual_six_native_Polisyos_origin_sha_matches": true,
+    "parent_imported_backend": false,
+    "observer": "One pytest child runs unchanged tests; sessionfinish reads already-loaded sys.modules/file hashes and installed versions. No model/fit/reader substitution or expected numerical calculation added by runtime observer.",
+    "no_reviewer_CPU_process_test_worker_caps": true,
+    "recorded_environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null,
+      "PYTEST_ADDOPTS": null
+    },
+    "fresh_nonexisting_basetemp": "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61/new-fixtures",
+    "basetemp_before_exists": false,
+    "basetemp_after_exists": true,
+    "preservation": "Actual fixtures retained; no cleanup/deletion.",
+    "shared_cache_window": "Explicit release from search_owner after natural firstOPT039PASS and CTL0135PASS; sole26child12:20:01Z..12:20:22Z then immediate explicit release back to search.",
+    "no_held_Torch_parent": true
+  },
+  "deciding_analytic_properties": {
+    "independent_expected": "Explicit NumPy RBF covariance K and C=K+noiseI, Cholesky solve, saved fitted input/output transforms and original objective units; no backend kernel/model.posterior/transform method used for expected means/full covariance.",
+    "ten_unique_points": [
+      0.08, 0.16, 0.23, 0.35, 0.42, 0.5, 0.61, 0.7, 0.82, 0.93
+    ],
+    "actual_append": 0.975,
+    "posterior_checks": "Actual native SingleTaskGP mean and full7x7 query covariance match independent10-point and11-point original-unit calculations; symmetry/offdiagonal/observationnoise covered. Full concise deciding values in complete output.",
+    "actual_fit_calls": "Initial realMLL1; same-basis restored no-op and actual conditioning append0; declared due cadence and changed existing outcome require realrefit.",
+    "same_marker_controls": [
+      "fitted lengthscale",
+      "saved outputmean",
+      "saved inputscale",
+      "warm scalar",
+      "warm physicalcoordinate",
+      "Python RNG",
+      "consumed Torch restart/sampler stream",
+      "checkpoint Boolean type mutations"
+    ],
+    "negative_control": "Omitting actual fitted-state restore is detected by independent numerical oracle; invalid observations excluded without fabricated penalties."
+  },
+  "deciding_nativeCAS_properties": {
+    "ordinary_and_malformed": "RealconfiguredCAS/HNSW transfer discovery and exact admission -> actual SearchLoopRunner/BayesianCandidateGenerator -> realSingleTaskGP. Ordinary8 original rows or malformed-outcome-excluded7 rows match actual fitted rawX/rawnegativeY and full provenance refs.",
+    "persisted_restore": "Actual CAS StrategyState checkpoint reopens into actualSingleTaskGP with same rawtrain tensors and tight posterior mean parity. This workflow comparison is replay parity; independent analytic NumPy correctness is established by separate23-case suite in the same run.",
+    "same_reference_mutation": "Alter actual original evaluation CAS bytes under unchanged full reference: both saved-state restore and next optimizer.suggest refuse.",
+    "different_origin": "ANN remains discovery-only; incompatible configuredorigin rejectsall8 warm rows and actual public generator emits Sobol with no model.",
+    "limits": "Conditional analytic producer and technically bound CAS content; no statistical full-history equivalence, scientific measurement truth, source rights or appointed institutional evaluator authority claim."
+  },
+  "wide_gate_boundary": {
+    "previous_review_commit": "b66553bf05f624f6bfda8245e91369837c731c0d",
+    "previous_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-final-runner-receiver-independent-review.json",
+      "bytes": 7212,
+      "sha256": "df0bf6f731ea09d67af6896e94066a154fc4814e2e35ffb630c9c5194aef34b7"
+    },
+    "wide_verdict": "ERROR/incomplete,exit-9 beforeJUnit with7unnamedFprogress markers",
+    "scope": "This26PASS supplies requested currentcandidate native witness only; it neither hides those markers nor makes the interrupted80-file acceptance wave green."
+  },
+  "supersession": "Only the currentcandidate GP23/nativeCASworkflow3 pending runtime cell in b665 and0cce progress is superseded by this exact243 execution. Historical reds, profile deviation, other queues and authority limitations remain.",
+  "closure_ids": [],
+  "cleanup_candidates": [
+    "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61"
+  ],
+  "verdict": "PASS for bounded independent actual GP mathematics/continuation and native technically admitted CAS corpus/restore/refusal on exact frozen root243; overall wide acceptance remains incomplete."
+}

@@ -1,0 +1,419 @@
+{
+  "schema": "e02-D-independent-continuation-review.v1",
+  "reviewer": "/root/transfer_owner",
+  "skill": "codex-engineering-guardrails:code-verification",
+  "status": "PARTIAL source/owner native evidence; FAIL independent ask checkpoint publication coherence",
+  "closure_ids": [],
+  "finding_ids": [
+    "LA-014",
+    "LA-015",
+    "B122"
+  ],
+  "bounded_companion_scope": [
+    "B118",
+    "B119",
+    "B41"
+  ],
+  "reviewed_source": {
+    "sha": "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60",
+    "tree": "10a8fad4aef72703e12109b5455a260a7625cdd2",
+    "test_only_successor": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+    "test_only_tree": "03c8971189df101d6603204231951e03e26f78c5",
+    "production_identity": {
+      "path_denominator": 6,
+      "filetype_denominator": "six reviewed native service/controller/contract/state/stopping/runtime Python modules",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "sha256_by_source": {
+            "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60": "91b158602ff6c5b19582e3c5f38d14ca386fd0c44f560a6098f81bf9240f3808",
+            "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70": "91b158602ff6c5b19582e3c5f38d14ca386fd0c44f560a6098f81bf9240f3808",
+            "f2586cb5c0402eb6ceca25aac51a98602d8d418f": "91b158602ff6c5b19582e3c5f38d14ca386fd0c44f560a6098f81bf9240f3808"
+          },
+          "match": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "sha256_by_source": {
+            "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5",
+            "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5",
+            "f2586cb5c0402eb6ceca25aac51a98602d8d418f": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5"
+          },
+          "match": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "sha256_by_source": {
+            "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1",
+            "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1",
+            "f2586cb5c0402eb6ceca25aac51a98602d8d418f": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"
+          },
+          "match": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+          "sha256_by_source": {
+            "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5",
+            "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5",
+            "f2586cb5c0402eb6ceca25aac51a98602d8d418f": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+          },
+          "match": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+          "sha256_by_source": {
+            "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+            "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+            "f2586cb5c0402eb6ceca25aac51a98602d8d418f": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+          },
+          "match": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "sha256_by_source": {
+            "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60": "ec3ae60aa2a292631d1071a4cc870083a2d1c64ad90d6d51d996021d8d1a90b2",
+            "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70": "ec3ae60aa2a292631d1071a4cc870083a2d1c64ad90d6d51d996021d8d1a90b2",
+            "f2586cb5c0402eb6ceca25aac51a98602d8d418f": "ec3ae60aa2a292631d1071a4cc870083a2d1c64ad90d6d51d996021d8d1a90b2"
+          },
+          "match": true
+        }
+      ]
+    }
+  },
+  "runtime_source": {
+    "sha": "f2586cb5c0402eb6ceca25aac51a98602d8d418f",
+    "tree": "1158fd5644e83904189648d5531808be5f30bb90",
+    "cwd": "/workspace/e02-D-published-root/policy-engine",
+    "before": {
+      "sha": "f2586cb5c0402eb6ceca25aac51a98602d8d418f",
+      "tree": "1158fd5644e83904189648d5531808be5f30bb90",
+      "status": ""
+    },
+    "after": {
+      "sha": "f2586cb5c0402eb6ceca25aac51a98602d8d418f",
+      "tree": "1158fd5644e83904189648d5531808be5f30bb90",
+      "status": ""
+    },
+    "supplier_delta": "f258 contains actual E DoE producer dependency a843d963c; whole input differs from fb9, six service/controller/state/contracts/stopping/runtime module bytes match c352 and fb9",
+    "actual_loaded_product_module_count": 704,
+    "all_actual_loaded_product_files_match_exact_runtime_git": true,
+    "full_module_origin_hash_census_member": "independent/runtime-reconciliation.json"
+  },
+  "independent_test": {
+    "sha": "ca7d1e834c96f40864ad5e6accb1e7b2dfd2ca1d",
+    "tree": "f83bceb8218f86502bfbe00d1c65d35cee554812",
+    "path": "policy-engine/tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+    "sha256": "0becdae0dd7f8008b1f2b39e40dc44c25f114006c5bae1ec53877d5438d041bc",
+    "runtime_copy_byte_identical": true,
+    "production_changes": [],
+    "ruff": "0.14.10 focused check and format check PASS; ordinary precommit/prepush hooks executed"
+  },
+  "original_criteria": [
+    {
+      "id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "criterion_card": "SRV-01",
+      "canonical_closure_owner": "SRV-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          455,
+          481
+        ],
+        "byte_offset": 52637,
+        "bytes": 2835,
+        "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+        "byte_offset": 54712,
+        "bytes": 284,
+        "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-01",
+      "missing_input_pointer": "/findings/43/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "criterion_card": "SRV-03",
+      "canonical_closure_owner": "SRV-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-03",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-03",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    }
+  ],
+  "criterion_review": [
+    {
+      "finding": "LA-014",
+      "card": "SRV-01",
+      "status": "limited",
+      "source": "canonical pure contracts/lazy facade and controller-owned accept_tell transition",
+      "consumer": "Actual NativeSearchService ask/tell/fresh restore with real SequenceCandidateGenerator and B FileSystemCAS",
+      "oracle": "independent live view equals fresh restore of the exact acknowledged manifest-qualified reference",
+      "evidence": "Owner119 profile PASS, historical58 +tell snapshot removal1FAIL; independent healthy1PASS but actual CAS ask publication failures2FAIL",
+      "missing": "Ask failure coherence remains open on frozen source; full external cutover/authority outside bounded local checkpoint scope"
+    },
+    {
+      "finding": "LA-015",
+      "card": "CTL-01",
+      "role": "supplier_companion_only",
+      "status": "limited",
+      "source": "SearchRunState fresh/detached ledger owner; NativeSearchService reuses controller transitions",
+      "consumer": "Public native runner create_service/run/resume and lifecycle warm/sentinel/empty/failure paths in owner119",
+      "oracle": "Known evaluated subjects, counter/history/frontier correspondence and independent acknowledged-state comparison",
+      "missing": "Supplier does not close SRV03 caller retirement; independent ask failure open"
+    },
+    {
+      "finding": "LA-015",
+      "card": "SRV-03",
+      "role": "canonical_owner",
+      "status": "limited",
+      "source": "SearchLoopRunner.run calls create_service then public run_search; resume creates fresh configured service and reads exact checkpoint",
+      "consumer": "Actual native CAS candidate/evaluation/champion path in preserved owner lifecycle tests",
+      "oracle": "Legacy full-loop removal trap +known evaluated subjects +fresh preserved pending/history/stopping profiles",
+      "missing": "Served hierarchical caller remains unappointed; complete production/import/serialized-history retirement acceptance not established; custom opaque replay refuses; current ask failure open"
+    },
+    {
+      "finding": "B122",
+      "card": "STP-01",
+      "status": "limited",
+      "source": "Strict finite stopping adapter +unchanged declared unit/direction .01 absolute/relative law",
+      "consumer": "Existing Decimal oracle and native controller stopping tests in complete owner119 execution",
+      "oracle": "Independent Decimal gain/tolerance formula including both directions, zero, equality, deterioration, units and malformed/underflow observations",
+      "missing": "No additional independent numerical execution here; no statistical convergence or unknown embedding authority inferred"
+    },
+    {
+      "finding": "B41",
+      "card": "STP-01",
+      "status": "held_for_distinct_owner_evidence",
+      "source": "Embedding iteration/input/model freshness is distinct from plateau and cost state",
+      "missing": "No new embedding producer/consumer/freshness proof executed by this review; native stopping evidence cannot close semantic embedding freshness"
+    }
+  ],
+  "confirmed_finding": {
+    "id": "SRV-ASK-PUBLICATION-COHERENCE",
+    "severity": "medium",
+    "confidence": "high",
+    "class": "Same local checkpoint admission/publication-state coherence class at sibling ask entry (P40), compared with existing tell rollback; no new institutional authority class",
+    "source_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "method": "NativeSearchService.ask",
+    "property": "If actual checkpoint write or verified readback fails, the unacknowledged ask must not advance supported local generator/pending/cursor state beyond the last acknowledged reference",
+    "implementation_turns_on": "ask mutates generator cursor, pending mappings and ask_iteration before _persist; only successful checkpoint readback updates checkpoint_ref; no local ask rollback",
+    "concrete_divergence": "After first acknowledged ask/tell, both failures retain that exact reference while live cursor/ask_iteration are2 with pendingcandidate_1_0, fresh reopened reader is1/1 with no pending candidate",
+    "actual_state_controls_member": "independent/observed-state-comparison.json",
+    "impact": "A retry on the same service can differ from reopening the acknowledged run and retain candidate ownership never returned to caller",
+    "remediation_direction": "Canonical owner widens local checkpoint transition isolation to supported ask/generator state, or explicitly refuses a profile lacking an atomic checkpoint state contract; no distributed transaction requested",
+    "scope_hygiene": "Owner769 receipt explicitly left ask failure watchpoint unsupported; this result does not falsify proven tell-only rollback or establish external exactly-once semantics",
+    "routed_to": [
+      "/root",
+      "/root/gp_witness"
+    ]
+  },
+  "unverified_source_watchpoint": {
+    "property": "restore whole-view validation before local effect",
+    "observation": "restore invokes generator.set_state and assigns stopping/run_state before checkpoint_value decodes pending and initial Any payloads; a malformed reserved carrier can raise later",
+    "status": "source inference only; UNRUN; no extra child or runtime defect claim",
+    "class_disposition": "Same local admission/publication coherence class; handed to root/writer for broad invariant review rather than independent patch ladder"
+  },
+  "independent_execution": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "pytest",
+      "-c",
+      "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+      "-p",
+      "review_observer",
+      "/workspace/e02-D3-receipts/transfer-service-independent/test_service_ask_publication_review.py",
+      "--confcutdir=/workspace/e02-D3-receipts/transfer-service-independent",
+      "-q",
+      "-s",
+      "--basetemp=/workspace/e02-D3-receipts/transfer-service-independent/pytest-ask-publication-root-d7e5fdae352242449ecf284c1e9f2f5a",
+      "--junitxml=/workspace/e02-D3-receipts/transfer-service-independent/ask-publication-root.xml"
+    ],
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/workspace/e02-D3-receipts/transfer-service-independent",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "TORCH_NUM_THREADS": null
+    },
+    "runtime_profile": {
+      "botorch_loaded": false,
+      "executable": "/workspace/e02-D-locked-env/bin/python",
+      "gpytorch_loaded": false,
+      "pytest_exitstatus": 1,
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "torch_loaded": false,
+      "versions": {
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "hnswlib": "0.8.0",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2",
+        "torch": "2.10.0"
+      }
+    },
+    "exit_code": 1,
+    "passed": 1,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "wall_seconds": 80.5184965133667,
+    "cases": [
+      {
+        "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[None]",
+        "outcome": "PASS"
+      },
+      {
+        "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[put]",
+        "outcome": "FAIL"
+      },
+      {
+        "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[readback]",
+        "outcome": "FAIL"
+      }
+    ],
+    "deciding_complete_output_member": "independent/ask-publication-root.txt",
+    "complete_output_sha256": "f8fc6dfebaa5be19c93f6cec74651af90225e0c5bfa6ee2da504ca8cab661b98",
+    "complete_junit_member": "independent/ask-publication-root.xml",
+    "actual_CAS_regular_file_count": 35
+  },
+  "owner_evidence_review": {
+    "receipt_git_sha": "769a8dac89450dc54c1caeef69b217685bf983f8",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile.json",
+    "receipt_sha256": "f4c3906a81eb1ec2440b9f069b0b0fc63db6aaefed46ab40414eb4e313a8e210",
+    "original_declared_byte_identity_denominator": 27,
+    "all_27_match_git_bytes": true,
+    "denominator": "10 product/docs/test byte identities plus17 deciding/supporting evidence files declared by owner receipt",
+    "positive": "Owner fb9 actual119PASS8.27s,13 origins, Torch/BoTorch/GPyTorch false; not independent runtime here",
+    "removal": "Owner final2FAIL: bool/int profile distinction and raw underflow decoder removed only, same actual CAS controls preserved",
+    "historical": "6b owner58PASS7.19s and deep-ledger-snapshot removal1FAIL6.21s retained; historical not aggregated with current119 or independent3",
+    "full_reconciliation_member": "independent/owner-artifact-reconciliation.json"
+  },
+  "nondeciding_attempt": {
+    "status": "ERROR_COLLECTION; all3 requested controls UNRUN",
+    "cause": "New test in own lane loaded ancestor conftest, which inserted older owner source despite root config/absolutePYTHONPATH; NativeSearchService unavailable at older source",
+    "correction": "Unchanged independent test copied alone into scratch with explicit confcutdir; preserved full pytest.ini, root source, locked environment, selectors and assertions; no product source copies/overlays",
+    "complete_output_member": "independent/ask-publication.txt",
+    "complete_output_sha256": "913bc221edd6942533d5c7be494fb8bcca7c07c57c2c202bbb91468535bf9831",
+    "first_profile_loaded_torch": true,
+    "fit_requested_or_completed": false
+  },
+  "predicate_basis": {
+    "code_and_module_identity": "independently_reconciled against exact frozen Git",
+    "live_and_reopened_checkpoint_state": "recomputed by actual native public service/CAS execution",
+    "owner119_and_historical_outputs": "independently_reconciled existing owner output, not reviewer runtime",
+    "declared_custom_evaluator_checkpoint_configuration": "consumer_asserted supported engineering configuration contract, not scientific appointment",
+    "provider_reported_origin_receipt_revision": "not_established through current recorded middleware port",
+    "served_hierarchical_caller_appointment": "not_established"
+  },
+  "scope_limits": [
+    "No GP fit/numerical23/26 replay. Corrected actual child imported no Torch/BoTorch/GPyTorch.",
+    "Six native modules frozen c352=fb9=f258; E supplier wholeinput delta explicitly bound, not attributed to c352 standalone.",
+    "B CAS one verified content/manifest snapshot is used; no second latest pointer, new store or distributed atomicity.",
+    "Recorded budget state and recorded_by_provider aggregates are not provider-report truth or receipt/revision authority.",
+    "Native evaluator configuration/source/build/data bindings establish supported technical replay, not independent evaluator or promotion authority.",
+    "Unsupported custom objective/opaque evaluator/resourcearbiter/registry/diversity profiles refuse; no universal replay claim.",
+    "External registry/evaluator/frontier effects and service checkpoint publication remain separate boundaries.",
+    "Complete served caller cutover and serialized-history/import retirement remain separate original criteria.",
+    "New OPT04 verified-snapshot models/registry delta and native DOE supplier consumer require separate exact successor review."
+  ],
+  "resource_record": {
+    "before": {
+      "memory.current": "17167003648\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 16229581\noom 131\noom_kill 24\noom_group_kill 0\n"
+    },
+    "after": {
+      "memory.current": "16924262400\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 16769798\noom 132\noom_kill 25\noom_group_kill 0\n"
+    },
+    "interpretation": "Cgroup pressure near16GiB and oom counters131/24 to132/25 observed. Own deciding child naturally completed exit1; no PID-specific OOM attribution. No caps, timeout, repeat of killed gate, deletion, source copy or shared environment install.",
+    "root_and_shared_cache_release": "Actual child/capture ended and source footer captured before explicit release to root"
+  },
+  "preservation": {
+    "manual_cleanup": false,
+    "trash_available": false,
+    "retained_cleanup_candidates": [
+      "/workspace/e02-D3-receipts/transfer-service-independent/pytest-ask-publication-0f861fb1ecf9411cac6d9d86d96de9d1",
+      "/workspace/e02-D3-receipts/transfer-service-independent/pytest-ask-publication-root-d7e5fdae352242449ecf284c1e9f2f5a"
+    ],
+    "raw_scratch": "/workspace/e02-D3-receipts/transfer-service-independent",
+    "retained_CAS_files": "All deciding native regular files stored losslessly in payload; original scratch preserved"
+  },
+  "output_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+    "bytes": 209293,
+    "sha256": "87d7375a40bbbfeacb58d94be706ee0b0a047f4db63a6b9a172eab7b94369d3c",
+    "lossless_member_count": 60,
+    "all_member_bytes_hashes_validated": true
+  }
+}

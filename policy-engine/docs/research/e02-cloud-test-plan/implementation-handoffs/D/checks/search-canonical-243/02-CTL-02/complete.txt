@@ -1,0 +1,58 @@
+...............................                                          [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[scalar_score]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[params]
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_schema_integers_refuse_boolean_and_float[codec_version-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_schema_integers_refuse_boolean_and_float[codec_version-1.0]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_schema_integers_refuse_boolean_and_float[algorithm_version-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_schema_integers_refuse_boolean_and_float[algorithm_version-1.0]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_schema_integers_refuse_boolean_and_float[dimension-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_schema_integers_refuse_boolean_and_float[dimension-1.0]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_malformed_artifact_has_controlled_refusal[None]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_malformed_artifact_has_controlled_refusal[payload1]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_malformed_artifact_has_controlled_refusal[1]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_malformed_artifact_has_controlled_refusal[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_malformed_artifact_has_controlled_refusal[payload4]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_malformed_artifact_has_controlled_refusal[payload5]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_present_invalid_schema_is_not_legacy_absence[None]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_present_invalid_schema_is_not_legacy_absence[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_present_invalid_schema_is_not_legacy_absence[2]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_present_invalid_schema_is_not_legacy_absence[strategy_state.v999]
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_nested_semantic_metadata_date_is_identity
+PASSED tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_actual_random_stream_survives_json_roundtrip
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_wrapper_and_nested_rng_actual_consumers_resume[random]
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_wrapper_and_nested_rng_actual_consumers_resume[sobol]
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[None]
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload1]
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[1]
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload4]
+PASSED tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload5]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[scalar_score]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_warm_content_changed_with_fitted_markers_preserved_refuses[params]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_transferred_current_rows_cannot_bypass_configured_reader
+31 passed, 11 warnings in 16.23s

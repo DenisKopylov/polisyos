@@ -1,0 +1,729 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:3:1
+   |
+ 1 |   """Continue one frozen acceptance wave with the literal D.md commands, one child each."""
+ 2 |
+ 3 | / import collections
+ 4 | | import datetime
+ 5 | | import hashlib
+ 6 | | import json
+ 7 | | import os
+ 8 | | from pathlib import Path
+ 9 | | import resource
+10 | | import shlex
+11 | | import subprocess
+12 | | import sys
+13 | | import time
+14 | | import uuid
+15 | | import xml.etree.ElementTree as ET
+   | |__________________________________^
+16 |
+17 |   ROOT = Path("/workspace/e02-D-published-root")
+   |
+help: Organize imports
+
+ANN201 Missing return type annotation for public function `git`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:32:5
+   |
+32 | def git(*args):
+   |     ^^^
+33 |     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+   |
+help: Add return type annotation
+
+ANN002 Missing type annotation for `*args`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:32:9
+   |
+32 | def git(*args):
+   |         ^^^^^
+33 |     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+   |
+
+S603 `subprocess` call: check for execution of untrusted input
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:33:12
+   |
+32 | def git(*args):
+33 |     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+   |            ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+S607 Starting a process with a partial executable path
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:33:36
+   |
+32 | def git(*args):
+33 |     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+   |                                    ^^^^^^^^^^^^^^
+   |
+
+ANN201 Missing return type annotation for public function `fingerprint`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:36:5
+   |
+36 | def fingerprint(path):
+   |     ^^^^^^^^^^^
+37 |     data = path.read_bytes()
+38 |     return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `path`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:36:17
+   |
+36 | def fingerprint(path):
+   |                 ^^^^
+37 |     data = path.read_bytes()
+38 |     return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+   |
+
+ANN201 Missing return type annotation for public function `snapshot`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:41:5
+   |
+41 | def snapshot():
+   |     ^^^^^^^^
+42 |     result = {
+43 |         "head": git("rev-parse", "HEAD"),
+   |
+help: Add return type annotation
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:50:5
+   |
+48 |         "utc": datetime.datetime.now(datetime.UTC).isoformat(),
+49 |     }
+50 |     assert result["head"] == SOURCE and result["tree"] == TREE, result
+   |     ^^^^^^
+51 |     assert not result["tracked_status"] and not result["full_tracked_diff"], result
+52 |     return result
+   |
+
+PT018 Assertion should be broken down into multiple parts
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:50:5
+   |
+48 |         "utc": datetime.datetime.now(datetime.UTC).isoformat(),
+49 |     }
+50 |     assert result["head"] == SOURCE and result["tree"] == TREE, result
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+51 |     assert not result["tracked_status"] and not result["full_tracked_diff"], result
+52 |     return result
+   |
+help: Break down assertion into multiple parts
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:51:5
+   |
+49 |     }
+50 |     assert result["head"] == SOURCE and result["tree"] == TREE, result
+51 |     assert not result["tracked_status"] and not result["full_tracked_diff"], result
+   |     ^^^^^^
+52 |     return result
+   |
+
+PT018 Assertion should be broken down into multiple parts
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:51:5
+   |
+49 |     }
+50 |     assert result["head"] == SOURCE and result["tree"] == TREE, result
+51 |     assert not result["tracked_status"] and not result["full_tracked_diff"], result
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+52 |     return result
+   |
+help: Break down assertion into multiple parts
+
+ANN201 Missing return type annotation for public function `definitions`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:55:5
+   |
+55 | def definitions():
+   |     ^^^^^^^^^^^
+56 |     rows = []
+57 |     bundle = None
+   |
+help: Add return type annotation
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:66:13
+   |
+64 |         selectors = [value for value in argv if value.startswith("tests/")]
+65 |         for selector in selectors:
+66 |             assert (PRODUCT / selector.split("::", 1)[0]).is_file(), selector
+   |             ^^^^^^
+67 |         rows.append(
+68 |             {
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:77:5
+   |
+75 |             }
+76 |         )
+77 |     assert len(rows) == 17
+   |     ^^^^^^
+78 |     assert sum(len(row["selectors"]) for row in rows) == 53
+79 |     return rows
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:78:5
+   |
+76 |         )
+77 |     assert len(rows) == 17
+78 |     assert sum(len(row["selectors"]) for row in rows) == 53
+   |     ^^^^^^
+79 |     return rows
+   |
+
+ANN201 Missing return type annotation for public function `main`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:82:5
+   |
+82 | def main():
+   |     ^^^^
+83 |     mode = sys.argv[1]
+84 |     before = snapshot()
+   |
+help: Add return type annotation: `None`
+
+E501 Line too long (191 > 100)
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:101:101
+    |
+ 99 | …["selectors"]})
+100 | …
+101 | … plus repository pytest.ini and ancestor conftests remain unmodified. No alternative source/archive/worktree.",
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 | …
+103 | …
+    |
+
+E501 Line too long (198 > 100)
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:112:101
+    |
+110 | …
+111 | …
+112 | …benchmark storage. Run after transfer B14/B15 release; one child at a time, without compute/thread/process quota.",
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+113 | …
+114 | …
+    |
+
+E501 Line too long (216 > 100)
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:124:101
+    |
+122 | …
+123 | …
+124 | …overrides, plugins=[external measurement observer]); both actual child argv and equivalent python -m pytest argv retained.",
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+125 | …
+126 | …
+    |
+
+T201 `print` found
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:127:5
+    |
+125 |     }
+126 |     (HERE / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
+127 |     print(
+    |     ^^^^^
+128 |         json.dumps(
+129 |             {
+    |
+help: Remove `print`
+
+S101 Use of `assert` detected
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:141:5
+    |
+139 |     if mode == "prepare":
+140 |         return
+141 |     assert mode == "run"
+    |     ^^^^^^
+142 |     results = []
+143 |     execution_rows = [row for row in rows if row["bundle"] == "OPT-03"] + [
+    |
+
+S603 `subprocess` call: check for execution of untrusted input
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:157:24
+    |
+155 |             (directory / "environment.stderr.txt").open("xb") as errors,
+156 |         ):
+157 |             metadata = subprocess.run(
+    |                        ^^^^^^^^^^^^^^
+158 |                 metadata_argv, cwd=PRODUCT, env=ENV, stdout=output, stderr=errors
+159 |             )
+    |
+
+S108 Probable insecure usage of temporary file or directory: "/dev/shm/search-canonical-243-"
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:169:26
+    |
+167 |         if metadata.returncode == 0:
+168 |             json.loads((directory / "environment.json").read_text())
+169 |         temporary = Path("/dev/shm/search-canonical-243-" + label + "-" + uuid.uuid4().hex)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+170 |         assert not temporary.exists()
+171 |         junit = directory / "junit.xml"
+    |
+
+S101 Use of `assert` detected
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:170:9
+    |
+168 |             json.loads((directory / "environment.json").read_text())
+169 |         temporary = Path("/dev/shm/search-canonical-243-" + label + "-" + uuid.uuid4().hex)
+170 |         assert not temporary.exists()
+    |         ^^^^^^
+171 |         junit = directory / "junit.xml"
+172 |         arguments = [
+    |
+
+S603 `subprocess` call: check for execution of untrusted input
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:200:25
+    |
+198 |         start = time.monotonic()
+199 |         with (directory / "complete.txt").open("xb") as output:
+200 |             completed = subprocess.run(
+    |                         ^^^^^^^^^^^^^^
+201 |                 argv, cwd=PRODUCT, env=ENV, stdout=output, stderr=subprocess.STDOUT
+202 |             )
+    |
+
+E501 Line too long (144 > 100)
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:209:101
+    |
+207 | …plete.txt"),
+208 | …GE_CHILDREN).ru_maxrss,
+209 | …d metadata and pytest children in this stdlib-only parent; not isolated per-child peak",
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+210 | …
+211 | …
+    |
+
+S314 Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:233:19
+    |
+231 |         item["event_stream"] = fingerprint(events_path) if events_path.exists() else None
+232 |         if junit.exists():
+233 |             xml = ET.parse(junit).getroot()
+    |                   ^^^^^^^^^^^^^^^
+234 |             suites = [xml] if xml.tag == "testsuite" else list(xml.findall("testsuite"))
+235 |             item["junit"] = {
+    |
+
+E501 Line too long (310 > 100)
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:254:101
+    |
+252 | …
+253 | …
+254 | … passed. A crash retains actual completed failing reports but supplies no complete command verdict. No inherited-red/P41 waiver. Native Python call entries are observations, not standalone fit/numerical acceptance."
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+255 | …
+256 | …
+    |
+
+T201 `print` found
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_commands.py:270:9
+    |
+268 |             + "\n"
+269 |         )
+270 |         print(
+    |         ^^^^^
+271 |             json.dumps(
+272 |                 {
+    |
+help: Remove `print`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py:3:1
+   |
+ 1 |   """Separate native metadata child; no backend modules are held by the capture parent."""
+ 2 |
+ 3 | / import hashlib
+ 4 | | import importlib
+ 5 | | import importlib.metadata
+ 6 | | import json
+ 7 | | import os
+ 8 | | from pathlib import Path
+ 9 | | import platform
+10 | | import subprocess
+11 | | import sys
+   | |__________^
+12 |
+13 |   root = Path(sys.argv[1]).resolve()
+   |
+help: Organize imports
+
+S603 `subprocess` call: check for execution of untrusted input
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py:65:16
+   |
+63 |     if name.startswith("polisyos."):
+64 |         relative = path.relative_to(root).as_posix()
+65 |         data = subprocess.check_output(["git", "show", f"{source}:{relative}"], cwd=root)
+   |                ^^^^^^^^^^^^^^^^^^^^^^^
+66 |         row.update(
+67 |             git_path=relative,
+   |
+
+S607 Starting a process with a partial executable path
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py:65:40
+   |
+63 |     if name.startswith("polisyos."):
+64 |         relative = path.relative_to(root).as_posix()
+65 |         data = subprocess.check_output(["git", "show", f"{source}:{relative}"], cwd=root)
+   |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+66 |         row.update(
+67 |             git_path=relative,
+   |
+
+S101 Use of `assert` detected
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py:71:9
+   |
+69 |             git_matches=data == path.read_bytes(),
+70 |         )
+71 |         assert row["git_matches"], relative
+   |         ^^^^^^
+72 |     else:
+73 |         result["packages"][name] = importlib.metadata.version(name)
+   |
+
+E402 Module level import not at top of file
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py:75:1
+   |
+73 |         result["packages"][name] = importlib.metadata.version(name)
+74 |     result["modules"][name] = row
+75 | import torch
+   | ^^^^^^^^^^^^
+76 |
+77 | result["torch_threads"] = torch.get_num_threads()
+   |
+
+T201 `print` found
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py:81:1
+   |
+79 | result["cuda_available"] = torch.cuda.is_available()
+80 | result["backend_availability_is_not_runtime_acceptance"] = True
+81 | print(json.dumps(result, indent=2))
+   | ^^^^^
+   |
+help: Remove `print`
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:3:1
+  |
+1 |   """External measurement-only pytest bootstrap; source and test expectations stay unchanged."""
+2 |
+3 | / import collections
+4 | | import hashlib
+5 | | import json
+6 | | from pathlib import Path
+7 | | import sys
+8 | | import time
+  | |___________^
+  |
+help: Organize imports
+
+ANN204 Missing return type annotation for special method `__init__`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:12:9
+   |
+11 | class Observer:
+12 |     def __init__(self, event_path):
+   |         ^^^^^^^^
+13 |         self.output = Path(event_path).open("x", encoding="utf-8", buffering=1)
+14 |         self.nodeid = None
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `event_path`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:12:24
+   |
+11 | class Observer:
+12 |     def __init__(self, event_path):
+   |                        ^^^^^^^^^^
+13 |         self.output = Path(event_path).open("x", encoding="utf-8", buffering=1)
+14 |         self.nodeid = None
+   |
+
+SIM115 Use a context manager for opening files
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:13:23
+   |
+11 | class Observer:
+12 |     def __init__(self, event_path):
+13 |         self.output = Path(event_path).open("x", encoding="utf-8", buffering=1)
+   |                       ^^^^^^^^^^^^^^^^^^^^^
+14 |         self.nodeid = None
+15 |         self.calls = collections.Counter()
+   |
+
+ANN201 Missing return type annotation for public function `emit`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:19:9
+   |
+17 |         self.previous_profile = None
+18 |
+19 |     def emit(self, kind, **values):
+   |         ^^^^
+20 |         self.output.write(
+21 |             json.dumps({"kind": kind, "monotonic": time.monotonic(), **values}, ensure_ascii=False)
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `kind`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:19:20
+   |
+17 |         self.previous_profile = None
+18 |
+19 |     def emit(self, kind, **values):
+   |                    ^^^^
+20 |         self.output.write(
+21 |             json.dumps({"kind": kind, "monotonic": time.monotonic(), **values}, ensure_ascii=False)
+   |
+
+ANN003 Missing type annotation for `**values`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:19:26
+   |
+17 |         self.previous_profile = None
+18 |
+19 |     def emit(self, kind, **values):
+   |                          ^^^^^^^^
+20 |         self.output.write(
+21 |             json.dumps({"kind": kind, "monotonic": time.monotonic(), **values}, ensure_ascii=False)
+   |
+
+ANN201 Missing return type annotation for public function `profile`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:26:9
+   |
+24 |         self.output.flush()
+25 |
+26 |     def profile(self, frame, event, arg):
+   |         ^^^^^^^
+27 |         if event != "call":
+28 |             return
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `frame`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:26:23
+   |
+24 |         self.output.flush()
+25 |
+26 |     def profile(self, frame, event, arg):
+   |                       ^^^^^
+27 |         if event != "call":
+28 |             return
+   |
+
+ANN001 Missing type annotation for function argument `event`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:26:30
+   |
+24 |         self.output.flush()
+25 |
+26 |     def profile(self, frame, event, arg):
+   |                              ^^^^^
+27 |         if event != "call":
+28 |             return
+   |
+
+ANN001 Missing type annotation for function argument `arg`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:26:37
+   |
+24 |         self.output.flush()
+25 |
+26 |     def profile(self, frame, event, arg):
+   |                                     ^^^
+27 |         if event != "call":
+28 |             return
+   |
+
+E501 Line too long (139 > 100)
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:79:101
+   |
+77 | …
+78 | …
+79 | … call alone does not establish a completed numerical fit or expected-value agreement",
+   |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+80 | …
+81 | …f.sources[key])
+   |
+
+ANN201 Missing return type annotation for public function `pytest_sessionstart`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:83:9
+   |
+81 |             self.emit("native_source", key=key, **self.sources[key])
+82 |
+83 |     def pytest_sessionstart(self, session):
+   |         ^^^^^^^^^^^^^^^^^^^
+84 |         self.emit(
+85 |             "session_start",
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `session`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:83:35
+   |
+81 |             self.emit("native_source", key=key, **self.sources[key])
+82 |
+83 |     def pytest_sessionstart(self, session):
+   |                                   ^^^^^^^
+84 |         self.emit(
+85 |             "session_start",
+   |
+
+ANN201 Missing return type annotation for public function `pytest_collection_finish`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:91:9
+   |
+89 |         )
+90 |
+91 |     def pytest_collection_finish(self, session):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+92 |         self.emit("collection_finish", nodeids=[item.nodeid for item in session.items])
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `session`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:91:40
+   |
+89 |         )
+90 |
+91 |     def pytest_collection_finish(self, session):
+   |                                        ^^^^^^^
+92 |         self.emit("collection_finish", nodeids=[item.nodeid for item in session.items])
+   |
+
+ANN201 Missing return type annotation for public function `pytest_collectreport`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:94:9
+   |
+92 |         self.emit("collection_finish", nodeids=[item.nodeid for item in session.items])
+93 |
+94 |     def pytest_collectreport(self, report):
+   |         ^^^^^^^^^^^^^^^^^^^^
+95 |         if report.failed or report.skipped:
+96 |             self.emit(
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `report`
+  --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:94:36
+   |
+92 |         self.emit("collection_finish", nodeids=[item.nodeid for item in session.items])
+93 |
+94 |     def pytest_collectreport(self, report):
+   |                                    ^^^^^^
+95 |         if report.failed or report.skipped:
+96 |             self.emit(
+   |
+
+ANN201 Missing return type annotation for public function `pytest_runtest_logstart`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:103:9
+    |
+101 |             )
+102 |
+103 |     def pytest_runtest_logstart(self, nodeid, location):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+104 |         self.nodeid = nodeid
+105 |         self.calls.clear()
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `nodeid`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:103:39
+    |
+101 |             )
+102 |
+103 |     def pytest_runtest_logstart(self, nodeid, location):
+    |                                       ^^^^^^
+104 |         self.nodeid = nodeid
+105 |         self.calls.clear()
+    |
+
+ANN001 Missing type annotation for function argument `location`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:103:47
+    |
+101 |             )
+102 |
+103 |     def pytest_runtest_logstart(self, nodeid, location):
+    |                                               ^^^^^^^^
+104 |         self.nodeid = nodeid
+105 |         self.calls.clear()
+    |
+
+ANN201 Missing return type annotation for public function `pytest_runtest_logreport`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:110:9
+    |
+108 |         self.emit("test_start", nodeid=nodeid, location=list(location))
+109 |
+110 |     def pytest_runtest_logreport(self, report):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^
+111 |         self.emit(
+112 |             "test_report",
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `report`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:110:40
+    |
+108 |         self.emit("test_start", nodeid=nodeid, location=list(location))
+109 |
+110 |     def pytest_runtest_logreport(self, report):
+    |                                        ^^^^^^
+111 |         self.emit(
+112 |             "test_report",
+    |
+
+ANN201 Missing return type annotation for public function `pytest_runtest_logfinish`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:123:9
+    |
+121 |         )
+122 |
+123 |     def pytest_runtest_logfinish(self, nodeid, location):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^
+124 |         sys.setprofile(self.previous_profile)
+125 |         self.emit("test_finish", nodeid=nodeid, native_call_counts=dict(self.calls))
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `nodeid`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:123:40
+    |
+121 |         )
+122 |
+123 |     def pytest_runtest_logfinish(self, nodeid, location):
+    |                                        ^^^^^^
+124 |         sys.setprofile(self.previous_profile)
+125 |         self.emit("test_finish", nodeid=nodeid, native_call_counts=dict(self.calls))
+    |
+
+ANN001 Missing type annotation for function argument `location`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:123:48
+    |
+121 |         )
+122 |
+123 |     def pytest_runtest_logfinish(self, nodeid, location):
+    |                                                ^^^^^^^^
+124 |         sys.setprofile(self.previous_profile)
+125 |         self.emit("test_finish", nodeid=nodeid, native_call_counts=dict(self.calls))
+    |
+
+ANN201 Missing return type annotation for public function `pytest_sessionfinish`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:128:9
+    |
+126 |         self.nodeid = None
+127 |
+128 |     def pytest_sessionfinish(self, session, exitstatus):
+    |         ^^^^^^^^^^^^^^^^^^^^
+129 |         self.emit("session_finish", exitstatus=int(exitstatus), native_sources=self.sources)
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `session`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:128:36
+    |
+126 |         self.nodeid = None
+127 |
+128 |     def pytest_sessionfinish(self, session, exitstatus):
+    |                                    ^^^^^^^
+129 |         self.emit("session_finish", exitstatus=int(exitstatus), native_sources=self.sources)
+    |
+
+ANN001 Missing type annotation for function argument `exitstatus`
+   --> policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py:128:45
+    |
+126 |         self.nodeid = None
+127 |
+128 |     def pytest_sessionfinish(self, session, exitstatus):
+    |                                             ^^^^^^^^^^
+129 |         self.emit("session_finish", exitstatus=int(exitstatus), native_sources=self.sources)
+    |
+
+Found 65 errors.
+[*] 3 fixable with the `--fix` option (14 hidden fixes can be enabled with the `--unsafe-fixes` option).

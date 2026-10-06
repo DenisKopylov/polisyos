@@ -1,0 +1,19 @@
+{
+  "source_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+  "command": [
+    "/workspace/e02-D-doe-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+    "positive",
+    "2af38d95e83cf3f1ab121c47ff8898f5a0920bec"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 19.554849375999765,
+  "peak_rss_kib": 804996,
+  "source_sha_after": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "scope": "Actual defining blueprint function and ordinary context/registry/case producer/CAS fresh reader; no pytest collection/extracted defining function in positive mode."
+}

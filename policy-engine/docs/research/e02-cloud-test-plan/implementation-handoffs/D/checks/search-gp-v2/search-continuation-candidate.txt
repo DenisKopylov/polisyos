@@ -1,0 +1,581 @@
+FF.........                                                              [100%]
+=================================== FAILURES ===================================
+______________ test_real_same_corpus_and_append_resume_do_not_fit ______________
+
+self = <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7efc956f5450>
+state = StrategyState(strategy_name='BayesianOptimizer', iteration=6, rng_state={'python': {'codec': 'python_random', 'codec_v...ain_y_bo': [[-4.11390625], [-4.075625], [-4.04515625], [-4.0225], [-4.00765625], [-4.000625]], 'warm_evaluations': []})
+
+    def set_state(self, state: StrategyState) -> None:
+        """Decode and reconcile a complete continuation before any live mutation."""
+        meta = state.metadata
+        if (
+            not isinstance(meta, Mapping)
+            or type(meta.get("gp_state_version")) is not int
+            or meta["gp_state_version"] != _GP_STATE_VERSION
+        ):
+            raise ValueError("GP checkpoint lacks a supported complete state basis")
+        if (
+            meta.get("acquisition_policy") != _ACQUISITION_POLICY
+            or meta.get("numerical_basis") != self._basis_payload
+        ):
+            raise ValueError("GP checkpoint numerical basis or acquisition policy changed")
+        cfg = meta.get("config")
+        expected = asdict(self._config)
+        if not isinstance(cfg, Mapping) or set(cfg) != set(expected):
+            raise ValueError("GP checkpoint configuration is invalid")
+        for key, value in expected.items():
+            actual = cfg[key]
+            if isinstance(value, int) and not isinstance(value, bool) and type(actual) is not int:
+                raise ValueError("GP integer configuration requires an integer")
+            if isinstance(value, bool) and type(actual) is not bool:
+                raise ValueError("GP boolean configuration requires a boolean")
+            if isinstance(value, float) and (
+                type(actual) not in (int, float) or not math.isfinite(actual)
+            ):
+                raise ValueError("GP numeric configuration requires a finite number")
+            if key != "seed" and actual != value:
+                raise ValueError("GP checkpoint configuration changed")
+        if cfg["seed"] != meta.get("seed"):
+            raise ValueError("GP seed basis changed")
+        last_fit, last_size = meta.get("last_refit_iteration"), meta.get("last_train_size")
+        if (
+            type(state.iteration) is not int
+            or state.iteration < 0
+            or type(last_fit) is not int
+            or type(last_size) is not int
+            or not -1 <= last_fit <= state.iteration
+            or last_size < 0
+        ):
+            raise ValueError("GP checkpoint refit counters are invalid")
+        payloads = meta.get("warm_evaluations")
+        if not isinstance(payloads, list):
+            raise ValueError("GP checkpoint warm corpus is invalid")
+        warm = [self._decode_evaluation(e) for e in payloads]
+        if warm:
+            # Reuse the same configured admission reader during restore. Its
+            # failure/omission cannot silently remove rows from a fitted basis.
+            probe = copy.copy(self)
+            probe._warm_evals = []
+            probe._warm_evaluation_ids = set()
+            probe.warm_start(warm)
+            if [self._encode_evaluation(e) for e in probe._warm_evals] != payloads:
+                raise ValueError("GP checkpoint warm corpus is no longer admitted")
+            warm = probe._warm_evals
+        torch_rng = None
+        if self._torch_rng is not None:
+            raw_rng = state.rng_state.get("torch") if isinstance(state.rng_state, Mapping) else None
+            if not isinstance(raw_rng, list) or any(
+                type(v) is not int or not 0 <= v <= 255 for v in raw_rng
+            ):
+                raise ValueError("GP Torch RNG bytes are invalid")
+            try:
+                torch_rng = self._torch.Generator()
+                torch_rng.set_state(self._torch.tensor(raw_rng, dtype=self._torch.uint8))
+            except (RuntimeError, TypeError) as exc:
+                raise ValueError("GP Torch RNG state is invalid") from exc
+        model = X = Y = refit_X = refit_Y = None
+        fitted_ids = refit_ids = []
+        if state.model_state is not None:
+            if meta.get("corpus_sha256") != self._corpus_digest(meta):
+                raise ValueError("GP checkpoint corpus content differs from its saved binding")
+            if meta.get("model_state_sha256") != hashlib.sha256(state.model_state).hexdigest():
+                raise ValueError("GP checkpoint model content differs from its saved binding")
+            if not self._botorch_ready or meta.get("backend") != self._backend_identity():
+                raise ValueError("GP checkpoint numerical backend changed")
+            X, Y = self._checkpoint_tensors(meta, "train_X", "train_y_bo")
+            refit_X, refit_Y = self._checkpoint_tensors(meta, "refit_train_X", "refit_train_y_bo")
+            fitted_ids, refit_ids = meta.get("fitted_record_ids"), meta.get("refit_record_ids")
+            if (
+                last_fit < 0
+                or last_size != refit_X.shape[0]
+                or X.shape[0] > last_size * 1.2
+                or not self._torch.equal(refit_X, X[:last_size])
+                or not self._torch.equal(refit_Y, Y[:last_size])
+            ):
+                raise ValueError("GP checkpoint full-refit corpus/counters disagree")
+            if (
+                not isinstance(fitted_ids, list)
+                or not isinstance(refit_ids, list)
+                or len(fitted_ids) != len(X)
+                or len(refit_ids) != last_size
+                or fitted_ids[:last_size] != refit_ids
+                or any(not isinstance(v, str) or not v for v in fitted_ids)
+            ):
+                raise ValueError("GP checkpoint observation identities disagree")
+            try:
+                weights = self._torch.load(
+                    io.BytesIO(state.model_state), weights_only=True, map_location=self._device
+                )
+                if not isinstance(weights, Mapping) or any(
+                    self._torch.is_tensor(v) and not self._torch.isfinite(v).all()
+                    for v in weights.values()
+                ):
+>                   raise ValueError("Non-finite or malformed model state")
+E                   ValueError: Non-finite or malformed model state
+
+src/polisyos/scientist/methods/search/strategies/bayesian.py:496: ValueError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_real_same_corpus_and_append_resume_do_not_fit():
+        space = SearchSpace([ParameterBounds("x")])
+        original = optimizer(space)
+        history = rows(space, 6)
+        real_fit = module.fit_gpytorch_mll
+        with patch.object(module, "fit_gpytorch_mll", wraps=real_fit) as fit:
+            assert original.suggest(history).source_strategy == "bayesian_acquisition"
+            assert fit.call_count == 1
+            state = StrategyState.from_artifact(original.get_state().to_artifact())
+            restored = optimizer(space)
+>           restored.set_state(state)
+
+tests/unit/remediation/test_opt_03_continuation.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7efc956f5450>
+state = StrategyState(strategy_name='BayesianOptimizer', iteration=6, rng_state={'python': {'codec': 'python_random', 'codec_v...ain_y_bo': [[-4.11390625], [-4.075625], [-4.04515625], [-4.0225], [-4.00765625], [-4.000625]], 'warm_evaluations': []})
+
+    def set_state(self, state: StrategyState) -> None:
+        """Decode and reconcile a complete continuation before any live mutation."""
+        meta = state.metadata
+        if (
+            not isinstance(meta, Mapping)
+            or type(meta.get("gp_state_version")) is not int
+            or meta["gp_state_version"] != _GP_STATE_VERSION
+        ):
+            raise ValueError("GP checkpoint lacks a supported complete state basis")
+        if (
+            meta.get("acquisition_policy") != _ACQUISITION_POLICY
+            or meta.get("numerical_basis") != self._basis_payload
+        ):
+            raise ValueError("GP checkpoint numerical basis or acquisition policy changed")
+        cfg = meta.get("config")
+        expected = asdict(self._config)
+        if not isinstance(cfg, Mapping) or set(cfg) != set(expected):
+            raise ValueError("GP checkpoint configuration is invalid")
+        for key, value in expected.items():
+            actual = cfg[key]
+            if isinstance(value, int) and not isinstance(value, bool) and type(actual) is not int:
+                raise ValueError("GP integer configuration requires an integer")
+            if isinstance(value, bool) and type(actual) is not bool:
+                raise ValueError("GP boolean configuration requires a boolean")
+            if isinstance(value, float) and (
+                type(actual) not in (int, float) or not math.isfinite(actual)
+            ):
+                raise ValueError("GP numeric configuration requires a finite number")
+            if key != "seed" and actual != value:
+                raise ValueError("GP checkpoint configuration changed")
+        if cfg["seed"] != meta.get("seed"):
+            raise ValueError("GP seed basis changed")
+        last_fit, last_size = meta.get("last_refit_iteration"), meta.get("last_train_size")
+        if (
+            type(state.iteration) is not int
+            or state.iteration < 0
+            or type(last_fit) is not int
+            or type(last_size) is not int
+            or not -1 <= last_fit <= state.iteration
+            or last_size < 0
+        ):
+            raise ValueError("GP checkpoint refit counters are invalid")
+        payloads = meta.get("warm_evaluations")
+        if not isinstance(payloads, list):
+            raise ValueError("GP checkpoint warm corpus is invalid")
+        warm = [self._decode_evaluation(e) for e in payloads]
+        if warm:
+            # Reuse the same configured admission reader during restore. Its
+            # failure/omission cannot silently remove rows from a fitted basis.
+            probe = copy.copy(self)
+            probe._warm_evals = []
+            probe._warm_evaluation_ids = set()
+            probe.warm_start(warm)
+            if [self._encode_evaluation(e) for e in probe._warm_evals] != payloads:
+                raise ValueError("GP checkpoint warm corpus is no longer admitted")
+            warm = probe._warm_evals
+        torch_rng = None
+        if self._torch_rng is not None:
+            raw_rng = state.rng_state.get("torch") if isinstance(state.rng_state, Mapping) else None
+            if not isinstance(raw_rng, list) or any(
+                type(v) is not int or not 0 <= v <= 255 for v in raw_rng
+            ):
+                raise ValueError("GP Torch RNG bytes are invalid")
+            try:
+                torch_rng = self._torch.Generator()
+                torch_rng.set_state(self._torch.tensor(raw_rng, dtype=self._torch.uint8))
+            except (RuntimeError, TypeError) as exc:
+                raise ValueError("GP Torch RNG state is invalid") from exc
+        model = X = Y = refit_X = refit_Y = None
+        fitted_ids = refit_ids = []
+        if state.model_state is not None:
+            if meta.get("corpus_sha256") != self._corpus_digest(meta):
+                raise ValueError("GP checkpoint corpus content differs from its saved binding")
+            if meta.get("model_state_sha256") != hashlib.sha256(state.model_state).hexdigest():
+                raise ValueError("GP checkpoint model content differs from its saved binding")
+            if not self._botorch_ready or meta.get("backend") != self._backend_identity():
+                raise ValueError("GP checkpoint numerical backend changed")
+            X, Y = self._checkpoint_tensors(meta, "train_X", "train_y_bo")
+            refit_X, refit_Y = self._checkpoint_tensors(meta, "refit_train_X", "refit_train_y_bo")
+            fitted_ids, refit_ids = meta.get("fitted_record_ids"), meta.get("refit_record_ids")
+            if (
+                last_fit < 0
+                or last_size != refit_X.shape[0]
+                or X.shape[0] > last_size * 1.2
+                or not self._torch.equal(refit_X, X[:last_size])
+                or not self._torch.equal(refit_Y, Y[:last_size])
+            ):
+                raise ValueError("GP checkpoint full-refit corpus/counters disagree")
+            if (
+                not isinstance(fitted_ids, list)
+                or not isinstance(refit_ids, list)
+                or len(fitted_ids) != len(X)
+                or len(refit_ids) != last_size
+                or fitted_ids[:last_size] != refit_ids
+                or any(not isinstance(v, str) or not v for v in fitted_ids)
+            ):
+                raise ValueError("GP checkpoint observation identities disagree")
+            try:
+                weights = self._torch.load(
+                    io.BytesIO(state.model_state), weights_only=True, map_location=self._device
+                )
+                if not isinstance(weights, Mapping) or any(
+                    self._torch.is_tensor(v) and not self._torch.isfinite(v).all()
+                    for v in weights.values()
+                ):
+                    raise ValueError("Non-finite or malformed model state")
+                input_transform = Normalize(d=X.shape[-1])
+                outcome_transform = Standardize(m=1)
+                for prefix, transform in (
+                    ("input_transform.", input_transform),
+                    ("outcome_transform.", outcome_transform),
+                ):
+                    transform.load_state_dict(
+                        {
+                            key[len(prefix) :]: value
+                            for key, value in weights.items()
+                            if key.startswith(prefix)
+                        },
+                        strict=True,
+                    )
+                    transform.eval()
+                model = SingleTaskGP(
+                    train_X=X,
+                    train_Y=Y,
+                    input_transform=input_transform,
+                    outcome_transform=outcome_transform,
+                )
+                model.load_state_dict(weights, strict=True)
+                model.eval()
+                with self._torch.no_grad():
+                    expected_Y = model.outcome_transform(Y)[0].squeeze(-1)
+                if not self._torch.allclose(
+                    model.train_targets, expected_Y, rtol=1e-12, atol=1e-12
+                ):
+                    raise ValueError("Restored model targets differ from saved transform/corpus")
+            except Exception as exc:
+>               raise ValueError("GP checkpoint numerical model is invalid") from exc
+E               ValueError: GP checkpoint numerical model is invalid
+
+src/polisyos/scientist/methods/search/strategies/bayesian.py:527: ValueError
+_______ test_actual_hard_resource_fallback_checkpoint_preserves_due_fit ________
+
+self = <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7efc956f7d90>
+state = StrategyState(strategy_name='BayesianOptimizer', iteration=4, rng_state={'python': {'codec': 'python_random', 'codec_v..._X': [[0.0625], [0.125], [0.1875]], 'train_y_bo': [[-4.11390625], [-4.075625], [-4.04515625]], 'warm_evaluations': []})
+
+    def set_state(self, state: StrategyState) -> None:
+        """Decode and reconcile a complete continuation before any live mutation."""
+        meta = state.metadata
+        if (
+            not isinstance(meta, Mapping)
+            or type(meta.get("gp_state_version")) is not int
+            or meta["gp_state_version"] != _GP_STATE_VERSION
+        ):
+            raise ValueError("GP checkpoint lacks a supported complete state basis")
+        if (
+            meta.get("acquisition_policy") != _ACQUISITION_POLICY
+            or meta.get("numerical_basis") != self._basis_payload
+        ):
+            raise ValueError("GP checkpoint numerical basis or acquisition policy changed")
+        cfg = meta.get("config")
+        expected = asdict(self._config)
+        if not isinstance(cfg, Mapping) or set(cfg) != set(expected):
+            raise ValueError("GP checkpoint configuration is invalid")
+        for key, value in expected.items():
+            actual = cfg[key]
+            if isinstance(value, int) and not isinstance(value, bool) and type(actual) is not int:
+                raise ValueError("GP integer configuration requires an integer")
+            if isinstance(value, bool) and type(actual) is not bool:
+                raise ValueError("GP boolean configuration requires a boolean")
+            if isinstance(value, float) and (
+                type(actual) not in (int, float) or not math.isfinite(actual)
+            ):
+                raise ValueError("GP numeric configuration requires a finite number")
+            if key != "seed" and actual != value:
+                raise ValueError("GP checkpoint configuration changed")
+        if cfg["seed"] != meta.get("seed"):
+            raise ValueError("GP seed basis changed")
+        last_fit, last_size = meta.get("last_refit_iteration"), meta.get("last_train_size")
+        if (
+            type(state.iteration) is not int
+            or state.iteration < 0
+            or type(last_fit) is not int
+            or type(last_size) is not int
+            or not -1 <= last_fit <= state.iteration
+            or last_size < 0
+        ):
+            raise ValueError("GP checkpoint refit counters are invalid")
+        payloads = meta.get("warm_evaluations")
+        if not isinstance(payloads, list):
+            raise ValueError("GP checkpoint warm corpus is invalid")
+        warm = [self._decode_evaluation(e) for e in payloads]
+        if warm:
+            # Reuse the same configured admission reader during restore. Its
+            # failure/omission cannot silently remove rows from a fitted basis.
+            probe = copy.copy(self)
+            probe._warm_evals = []
+            probe._warm_evaluation_ids = set()
+            probe.warm_start(warm)
+            if [self._encode_evaluation(e) for e in probe._warm_evals] != payloads:
+                raise ValueError("GP checkpoint warm corpus is no longer admitted")
+            warm = probe._warm_evals
+        torch_rng = None
+        if self._torch_rng is not None:
+            raw_rng = state.rng_state.get("torch") if isinstance(state.rng_state, Mapping) else None
+            if not isinstance(raw_rng, list) or any(
+                type(v) is not int or not 0 <= v <= 255 for v in raw_rng
+            ):
+                raise ValueError("GP Torch RNG bytes are invalid")
+            try:
+                torch_rng = self._torch.Generator()
+                torch_rng.set_state(self._torch.tensor(raw_rng, dtype=self._torch.uint8))
+            except (RuntimeError, TypeError) as exc:
+                raise ValueError("GP Torch RNG state is invalid") from exc
+        model = X = Y = refit_X = refit_Y = None
+        fitted_ids = refit_ids = []
+        if state.model_state is not None:
+            if meta.get("corpus_sha256") != self._corpus_digest(meta):
+                raise ValueError("GP checkpoint corpus content differs from its saved binding")
+            if meta.get("model_state_sha256") != hashlib.sha256(state.model_state).hexdigest():
+                raise ValueError("GP checkpoint model content differs from its saved binding")
+            if not self._botorch_ready or meta.get("backend") != self._backend_identity():
+                raise ValueError("GP checkpoint numerical backend changed")
+            X, Y = self._checkpoint_tensors(meta, "train_X", "train_y_bo")
+            refit_X, refit_Y = self._checkpoint_tensors(meta, "refit_train_X", "refit_train_y_bo")
+            fitted_ids, refit_ids = meta.get("fitted_record_ids"), meta.get("refit_record_ids")
+            if (
+                last_fit < 0
+                or last_size != refit_X.shape[0]
+                or X.shape[0] > last_size * 1.2
+                or not self._torch.equal(refit_X, X[:last_size])
+                or not self._torch.equal(refit_Y, Y[:last_size])
+            ):
+                raise ValueError("GP checkpoint full-refit corpus/counters disagree")
+            if (
+                not isinstance(fitted_ids, list)
+                or not isinstance(refit_ids, list)
+                or len(fitted_ids) != len(X)
+                or len(refit_ids) != last_size
+                or fitted_ids[:last_size] != refit_ids
+                or any(not isinstance(v, str) or not v for v in fitted_ids)
+            ):
+                raise ValueError("GP checkpoint observation identities disagree")
+            try:
+                weights = self._torch.load(
+                    io.BytesIO(state.model_state), weights_only=True, map_location=self._device
+                )
+                if not isinstance(weights, Mapping) or any(
+                    self._torch.is_tensor(v) and not self._torch.isfinite(v).all()
+                    for v in weights.values()
+                ):
+>                   raise ValueError("Non-finite or malformed model state")
+E                   ValueError: Non-finite or malformed model state
+
+src/polisyos/scientist/methods/search/strategies/bayesian.py:496: ValueError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_actual_hard_resource_fallback_checkpoint_preserves_due_fit():
+        space = SearchSpace([ParameterBounds("x")])
+        arbiter = ResourceArbiter(ResourcePolicy(enable_cleanup=False))
+        original = optimizer(space, interval=1, arbiter=arbiter)
+        real_fit = module.fit_gpytorch_mll
+        with patch.object(module, "fit_gpytorch_mll", wraps=real_fit) as fit:
+            original.suggest(rows(space, 3))
+            assert fit.call_count == 1
+            arbiter.policy.hard_rss_mb = 0
+            assert original.suggest(rows(space, 4)).source_strategy == "random_hard_limit"
+            state = StrategyState.from_artifact(original.get_state().to_artifact())
+            assert state.iteration == 4 and state.metadata["last_refit_iteration"] == 3
+            restored = optimizer(space, interval=1)
+>           restored.set_state(state)
+
+tests/unit/remediation/test_opt_03_continuation.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7efc956f7d90>
+state = StrategyState(strategy_name='BayesianOptimizer', iteration=4, rng_state={'python': {'codec': 'python_random', 'codec_v..._X': [[0.0625], [0.125], [0.1875]], 'train_y_bo': [[-4.11390625], [-4.075625], [-4.04515625]], 'warm_evaluations': []})
+
+    def set_state(self, state: StrategyState) -> None:
+        """Decode and reconcile a complete continuation before any live mutation."""
+        meta = state.metadata
+        if (
+            not isinstance(meta, Mapping)
+            or type(meta.get("gp_state_version")) is not int
+            or meta["gp_state_version"] != _GP_STATE_VERSION
+        ):
+            raise ValueError("GP checkpoint lacks a supported complete state basis")
+        if (
+            meta.get("acquisition_policy") != _ACQUISITION_POLICY
+            or meta.get("numerical_basis") != self._basis_payload
+        ):
+            raise ValueError("GP checkpoint numerical basis or acquisition policy changed")
+        cfg = meta.get("config")
+        expected = asdict(self._config)
+        if not isinstance(cfg, Mapping) or set(cfg) != set(expected):
+            raise ValueError("GP checkpoint configuration is invalid")
+        for key, value in expected.items():
+            actual = cfg[key]
+            if isinstance(value, int) and not isinstance(value, bool) and type(actual) is not int:
+                raise ValueError("GP integer configuration requires an integer")
+            if isinstance(value, bool) and type(actual) is not bool:
+                raise ValueError("GP boolean configuration requires a boolean")
+            if isinstance(value, float) and (
+                type(actual) not in (int, float) or not math.isfinite(actual)
+            ):
+                raise ValueError("GP numeric configuration requires a finite number")
+            if key != "seed" and actual != value:
+                raise ValueError("GP checkpoint configuration changed")
+        if cfg["seed"] != meta.get("seed"):
+            raise ValueError("GP seed basis changed")
+        last_fit, last_size = meta.get("last_refit_iteration"), meta.get("last_train_size")
+        if (
+            type(state.iteration) is not int
+            or state.iteration < 0
+            or type(last_fit) is not int
+            or type(last_size) is not int
+            or not -1 <= last_fit <= state.iteration
+            or last_size < 0
+        ):
+            raise ValueError("GP checkpoint refit counters are invalid")
+        payloads = meta.get("warm_evaluations")
+        if not isinstance(payloads, list):
+            raise ValueError("GP checkpoint warm corpus is invalid")
+        warm = [self._decode_evaluation(e) for e in payloads]
+        if warm:
+            # Reuse the same configured admission reader during restore. Its
+            # failure/omission cannot silently remove rows from a fitted basis.
+            probe = copy.copy(self)
+            probe._warm_evals = []
+            probe._warm_evaluation_ids = set()
+            probe.warm_start(warm)
+            if [self._encode_evaluation(e) for e in probe._warm_evals] != payloads:
+                raise ValueError("GP checkpoint warm corpus is no longer admitted")
+            warm = probe._warm_evals
+        torch_rng = None
+        if self._torch_rng is not None:
+            raw_rng = state.rng_state.get("torch") if isinstance(state.rng_state, Mapping) else None
+            if not isinstance(raw_rng, list) or any(
+                type(v) is not int or not 0 <= v <= 255 for v in raw_rng
+            ):
+                raise ValueError("GP Torch RNG bytes are invalid")
+            try:
+                torch_rng = self._torch.Generator()
+                torch_rng.set_state(self._torch.tensor(raw_rng, dtype=self._torch.uint8))
+            except (RuntimeError, TypeError) as exc:
+                raise ValueError("GP Torch RNG state is invalid") from exc
+        model = X = Y = refit_X = refit_Y = None
+        fitted_ids = refit_ids = []
+        if state.model_state is not None:
+            if meta.get("corpus_sha256") != self._corpus_digest(meta):
+                raise ValueError("GP checkpoint corpus content differs from its saved binding")
+            if meta.get("model_state_sha256") != hashlib.sha256(state.model_state).hexdigest():
+                raise ValueError("GP checkpoint model content differs from its saved binding")
+            if not self._botorch_ready or meta.get("backend") != self._backend_identity():
+                raise ValueError("GP checkpoint numerical backend changed")
+            X, Y = self._checkpoint_tensors(meta, "train_X", "train_y_bo")
+            refit_X, refit_Y = self._checkpoint_tensors(meta, "refit_train_X", "refit_train_y_bo")
+            fitted_ids, refit_ids = meta.get("fitted_record_ids"), meta.get("refit_record_ids")
+            if (
+                last_fit < 0
+                or last_size != refit_X.shape[0]
+                or X.shape[0] > last_size * 1.2
+                or not self._torch.equal(refit_X, X[:last_size])
+                or not self._torch.equal(refit_Y, Y[:last_size])
+            ):
+                raise ValueError("GP checkpoint full-refit corpus/counters disagree")
+            if (
+                not isinstance(fitted_ids, list)
+                or not isinstance(refit_ids, list)
+                or len(fitted_ids) != len(X)
+                or len(refit_ids) != last_size
+                or fitted_ids[:last_size] != refit_ids
+                or any(not isinstance(v, str) or not v for v in fitted_ids)
+            ):
+                raise ValueError("GP checkpoint observation identities disagree")
+            try:
+                weights = self._torch.load(
+                    io.BytesIO(state.model_state), weights_only=True, map_location=self._device
+                )
+                if not isinstance(weights, Mapping) or any(
+                    self._torch.is_tensor(v) and not self._torch.isfinite(v).all()
+                    for v in weights.values()
+                ):
+                    raise ValueError("Non-finite or malformed model state")
+                input_transform = Normalize(d=X.shape[-1])
+                outcome_transform = Standardize(m=1)
+                for prefix, transform in (
+                    ("input_transform.", input_transform),
+                    ("outcome_transform.", outcome_transform),
+                ):
+                    transform.load_state_dict(
+                        {
+                            key[len(prefix) :]: value
+                            for key, value in weights.items()
+                            if key.startswith(prefix)
+                        },
+                        strict=True,
+                    )
+                    transform.eval()
+                model = SingleTaskGP(
+                    train_X=X,
+                    train_Y=Y,
+                    input_transform=input_transform,
+                    outcome_transform=outcome_transform,
+                )
+                model.load_state_dict(weights, strict=True)
+                model.eval()
+                with self._torch.no_grad():
+                    expected_Y = model.outcome_transform(Y)[0].squeeze(-1)
+                if not self._torch.allclose(
+                    model.train_targets, expected_Y, rtol=1e-12, atol=1e-12
+                ):
+                    raise ValueError("Restored model targets differ from saved transform/corpus")
+            except Exception as exc:
+>               raise ValueError("GP checkpoint numerical model is invalid") from exc
+E               ValueError: GP checkpoint numerical model is invalid
+
+src/polisyos/scientist/methods/search/strategies/bayesian.py:527: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 09:56:20.107 | ERROR    | polisyos.common.logger:_call:120 - ResourceArbiter hard RSS limit exceeded: 1116.9MB (hard=0MB)
+
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/remediation/test_opt_03_continuation.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/remediation/test_opt_03_continuation.py::test_actual_hard_resource_fallback_checkpoint_preserves_due_fit
+tests/unit/remediation/test_opt_03_continuation.py::test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_opt_03_continuation.py::test_real_same_corpus_and_append_resume_do_not_fit
+FAILED tests/unit/remediation/test_opt_03_continuation.py::test_actual_hard_resource_fallback_checkpoint_preserves_due_fit
+2 failed, 9 passed, 5 warnings in 13.31s

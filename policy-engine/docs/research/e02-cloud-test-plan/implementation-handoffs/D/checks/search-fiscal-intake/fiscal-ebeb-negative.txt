@@ -1,0 +1,300 @@
+FFFFFFFFFFFFF....                                                        [100%]
+=================================== FAILURES ===================================
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-gov_balance] _
+
+alias = 'gov_balance', unmeasured = False
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(-0.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   -0.0 = ObjectiveValue(name='budget_deficit', raw_value=-0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-government_balance] _
+
+alias = 'government_balance', unmeasured = False
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(-0.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   -0.0 = ObjectiveValue(name='budget_deficit', raw_value=-0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-budget_deficit] _
+
+alias = 'budget_deficit', unmeasured = False
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(0.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   0.0 = ObjectiveValue(name='budget_deficit', raw_value=0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-deficit] _
+
+alias = 'deficit', unmeasured = False
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(0.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   0.0 = ObjectiveValue(name='budget_deficit', raw_value=0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-gov_balance] _
+
+alias = 'gov_balance', unmeasured = True
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(0.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   0.0 = ObjectiveValue(name='budget_deficit', raw_value=0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-government_balance] _
+
+alias = 'government_balance', unmeasured = True
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(0.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   0.0 = ObjectiveValue(name='budget_deficit', raw_value=0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-budget_deficit] _
+
+alias = 'budget_deficit', unmeasured = True
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(1.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   1.0 = ObjectiveValue(name='budget_deficit', raw_value=1.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-deficit] _
+
+alias = 'deficit', unmeasured = True
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+        outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(1.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   1.0 = ObjectiveValue(name='budget_deficit', raw_value=1.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:14: AssertionError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-gov_balance] _
+
+alias = 'gov_balance', unmeasured = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+>       outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/objective.py:131: in evaluate
+    raw = self._extract_value(results)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:182: in _extract_value
+    balance = _read_metric_aliases(results, _BALANCE_ALIASES)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+results = {'gov_balance': 100000000000000000...0000000000000000000}
+aliases = ('gov_balance', 'government_balance')
+
+    def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:
+        """Read one numeric metric from aliases without hiding conflicts or invalid values."""
+        values: list[float] = []
+        for alias in aliases:
+            raw_value = results.get(alias, _MISSING)
+            if raw_value is _MISSING or raw_value is None:
+                continue
+            try:
+>               value = float(raw_value)
+                        ^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/objective.py:25: OverflowError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-government_balance] _
+
+alias = 'government_balance'
+unmeasured = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+>       outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/objective.py:131: in evaluate
+    raw = self._extract_value(results)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:182: in _extract_value
+    balance = _read_metric_aliases(results, _BALANCE_ALIASES)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+results = {'government_balance': 100000000000000000...0000000000000000000}
+aliases = ('gov_balance', 'government_balance')
+
+    def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:
+        """Read one numeric metric from aliases without hiding conflicts or invalid values."""
+        values: list[float] = []
+        for alias in aliases:
+            raw_value = results.get(alias, _MISSING)
+            if raw_value is _MISSING or raw_value is None:
+                continue
+            try:
+>               value = float(raw_value)
+                        ^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/objective.py:25: OverflowError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-budget_deficit] _
+
+alias = 'budget_deficit', unmeasured = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+>       outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/objective.py:131: in evaluate
+    raw = self._extract_value(results)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:188: in _extract_value
+    deficit = _read_metric_aliases(results, _DEFICIT_ALIASES)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+results = {'budget_deficit': 100000000000000000...0000000000000000000}
+aliases = ('budget_deficit', 'deficit')
+
+    def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:
+        """Read one numeric metric from aliases without hiding conflicts or invalid values."""
+        values: list[float] = []
+        for alias in aliases:
+            raw_value = results.get(alias, _MISSING)
+            if raw_value is _MISSING or raw_value is None:
+                continue
+            try:
+>               value = float(raw_value)
+                        ^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/objective.py:25: OverflowError
+_ test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-deficit] _
+
+alias = 'deficit', unmeasured = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("alias", ["gov_balance", "government_balance", "budget_deficit", "deficit"])
+    @pytest.mark.parametrize("unmeasured", [False, True, 10**400])
+    def test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable(alias, unmeasured):
+>       outcome = BudgetDeficitObjective().evaluate({alias: unmeasured})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/objective.py:131: in evaluate
+    raw = self._extract_value(results)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/objective.py:188: in _extract_value
+    deficit = _read_metric_aliases(results, _DEFICIT_ALIASES)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+results = {'deficit': 100000000000000000...0000000000000000000}
+aliases = ('budget_deficit', 'deficit')
+
+    def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:
+        """Read one numeric metric from aliases without hiding conflicts or invalid values."""
+        values: list[float] = []
+        for alias in aliases:
+            raw_value = results.get(alias, _MISSING)
+            if raw_value is _MISSING or raw_value is None:
+                continue
+            try:
+>               value = float(raw_value)
+                        ^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/objective.py:25: OverflowError
+_________ test_present_boolean_does_not_fall_back_to_a_different_alias _________
+
+    def test_present_boolean_does_not_fall_back_to_a_different_alias():
+        outcome = BudgetDeficitObjective().evaluate({"gov_balance": False, "budget_deficit": 99})
+>       assert math.isnan(outcome.raw_value)
+E       AssertionError: assert False
+E        +  where False = <built-in function isnan>(-0.0)
+E        +    where <built-in function isnan> = math.isnan
+E        +    and   -0.0 = ObjectiveValue(name='budget_deficit', raw_value=-0.0, direction=<OptimizationDirection.MINIMIZE: 'minimize'>, weight=1.0, is_satisfied=True, threshold=None).raw_value
+
+tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py:20: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-gov_balance]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-government_balance]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-budget_deficit]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[False-deficit]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-gov_balance]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-government_balance]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-budget_deficit]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[True-deficit]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-gov_balance]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-government_balance]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-budget_deficit]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_fiscal_alias_boolean_and_unrepresentable_integer_are_unavailable[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-deficit]
+FAILED tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py::test_present_boolean_does_not_fall_back_to_a_different_alias
+13 failed, 4 passed, 2 warnings in 7.06s

@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+    "--receipt",
+    "/workspace/e02-D3-receipts/funnel-production-invocation-d877/diagnostic.json"
+  ],
+  "exit_code": -9,
+  "wall_seconds": 63.93419018900022,
+  "candidate_sha": "d877127c6fae40de0bd1b33ac8f126dee7b93f26",
+  "candidate_tree": "0ccee4ce1702adf8d681ad8b8b021d9f6ca4c5dd",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "diagnostic_exists": false,
+  "before_status": "",
+  "after_status": "",
+  "after_sha": "d877127c6fae40de0bd1b33ac8f126dee7b93f26",
+  "after_tree": "0ccee4ce1702adf8d681ad8b8b021d9f6ca4c5dd",
+  "purpose": "Mandatory actual static-source diagnostic; no runtime invocation, scientific custody or finding closure inferred; no fake replacement lexical statistic or process quota."
+}

@@ -1,0 +1,31 @@
+{
+  "before": {
+    "head": "f5642cca00f084ddbc195c98541a30df058612db",
+    "tree": "8ebb02c8f1718af198c2ade3abfd8d787e8e86d6",
+    "status": ""
+  },
+  "after": {
+    "head": "f5642cca00f084ddbc195c98541a30df058612db",
+    "tree": "8ebb02c8f1718af198c2ade3abfd8d787e8e86d6",
+    "status": ""
+  },
+  "target": "/tmp/o5-3w45wygb",
+  "objects": 696,
+  "compressed_bytes": 8025424,
+  "complete_native_git_byte_verification": true,
+  "all_targets_active_excluded_cleanup": true,
+  "no_trash_no_permanent_cleanup": true,
+  "scope": "Live native Git storage byte preservation only; no code/test/runtime/environment/fixture cleanup or numerical verdict",
+  "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-git-storage-preservation5/complete-metadata.json.xz",
+  "carrier_sha256": "0fb90254b1cae8c43105be35d30c02b4530ecc741fee4e40eb28fe1e3c4d2071",
+  "carrier_bytes": 78424,
+  "active_targets_excluded_cleanup": [
+    "/tmp/o5-3w45wygb"
+  ],
+  "complete_output_names": [
+    "summary.json",
+    "complete-cat-file.stderr.txt",
+    "complete-cat-file.stdout.txt",
+    "preservation.json"
+  ]
+}

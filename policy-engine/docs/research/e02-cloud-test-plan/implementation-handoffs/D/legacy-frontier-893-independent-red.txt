@@ -1,0 +1,664 @@
+{"source_commit": "893e649bc477e8fceac5038d4cbc3b4337f6d76e", "source_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa", "test_path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py", "test_sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b", "command": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py", "--basetemp=/dev/shm/e02-oracle-legacy-front-893-red-5c505874d36546b4abc80bd5fac3623d", "-o", "addopts=", "-q", "-s", "-rA"], "cwd": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine", "basetemp": "/dev/shm/e02-oracle-legacy-front-893-red-5c505874d36546b4abc80bd5fac3623d", "nonexisting_before_pytest": true, "PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1", "no_reviewer_CPU_process_worker_caps": true}
+FFFFFFFFFF
+=================================== FAILURES ===================================
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[missing] _
+
+fiscal_metrics = {}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[null] _
+
+fiscal_metrics = {'gov_balance': None}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-false] _
+
+fiscal_metrics = {'budget_deficit': 99.0, 'gov_balance': False}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-true] _
+
+fiscal_metrics = {'gov_balance': True}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[malformed] _
+
+fiscal_metrics = {'gov_balance': 'bad'}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[nan] _
+
+fiscal_metrics = {'gov_balance': nan}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[inf] _
+
+fiscal_metrics = {'gov_balance': inf}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[negative-inf] _
+
+fiscal_metrics = {'gov_balance': -inf}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conversion-overflow] _
+
+fiscal_metrics = {'gov_balance': 100000000000000000...0000000000000000000}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+_ test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conflicting-aliases] _
+
+fiscal_metrics = {'gov_balance': -1.0, 'government_balance': 1.0}
+
+    @pytest.mark.parametrize(
+        "fiscal_metrics",
+        [
+            pytest.param({}, id="missing"),
+            pytest.param({"gov_balance": None}, id="null"),
+            pytest.param({"gov_balance": False, "budget_deficit": 99.0}, id="bool-false"),
+            pytest.param({"gov_balance": True}, id="bool-true"),
+            pytest.param({"gov_balance": "bad"}, id="malformed"),
+            pytest.param({"gov_balance": math.nan}, id="nan"),
+            pytest.param({"gov_balance": math.inf}, id="inf"),
+            pytest.param({"gov_balance": -math.inf}, id="negative-inf"),
+            pytest.param({"gov_balance": 10**400}, id="conversion-overflow"),
+            pytest.param({"gov_balance": -1.0, "government_balance": 1.0}, id="conflicting-aliases"),
+        ],
+    )
+    def test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate(fiscal_metrics):
+        calls = []
+    
+        def stage_b(candidate, context):
+            del context
+            calls.append(candidate["candidate_id"])
+            metrics = (
+                {"gdp_change": 1.0, "gov_balance": -10.0}
+                if candidate["candidate_id"] == "measured"
+                else {"gdp_change": 2.0, **fiscal_metrics}
+            )
+            return {"simulation_results": metrics, "feedback": {"verdict": "APPROVE"}}
+    
+        controller = SearchController(
+            SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([GDPGrowthObjective(), BudgetDeficitObjective()]),
+                max_iterations_hard_limit=2,
+            ),
+            candidate_generator=_Generator(),
+            evaluators=SearchEvaluatorPorts(
+                stage_a=lambda candidate, context: (0.0, True), stage_b=stage_b
+            ),
+        )
+        result = controller.run({}, {"candidate_id": "measured"})
+        assert calls == ["measured", "unavailable-fiscal"]
+        assert result.best_candidate == {"candidate_id": "measured"}
+        assert result.best_objective == 9.0
+        assert len(result.history) == 2
+        unavailable = result.history[-1].objective_details
+        assert math.isnan(unavailable[1].raw_value)
+        assert unavailable[1].is_satisfied is False
+    
+        # The independently enumerated complete vector is (-GDP, deficit)=(-1, 10).
+        # (-2, unavailable) cannot establish dominance despite its better GDP axis.
+        assert len(result.pareto_front) == 1
+        point = result.pareto_front[0]
+>       assert point["candidate"] == {"candidate_id": "measured"}
+E       AssertionError: assert {'candidate_i...lable-fiscal'} == {'candidate_id': 'measured'}
+E         
+E         Differing items:
+E         {'candidate_id': 'unavailable-fiscal'} != {'candidate_id': 'measured'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py:80: AssertionError
+=============================== warnings summary ===============================
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[missing]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[null]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-false]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-true]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[malformed]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[nan]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[inf]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[negative-inf]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conversion-overflow]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conflicting-aliases]
+10 failed, 2 warnings in 9.26s
+
+{"exit_code": 1}

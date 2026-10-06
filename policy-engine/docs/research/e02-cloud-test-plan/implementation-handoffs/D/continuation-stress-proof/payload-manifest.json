@@ -1,0 +1,416 @@
+{
+  "schema": "policyos.e02.captured_payload_manifest.v1",
+  "runtime_candidate_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/results-import-check.txt",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "bytes": 112
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/coverage-self-check.txt",
+      "sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a",
+      "bytes": 435
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/complete-census-measurement-b.json",
+      "sha256": "5bd3c399c69a2ab54e2f3614d2644f9a05a164e759d844d7266c4f7df1924a78",
+      "bytes": 726
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/schema-context-frozen-resource.json",
+      "sha256": "e65724d100e8a2471ac1205fe8ac3774f4cf522354fd1962928bc3b2842c5958",
+      "bytes": 612
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/schema-context-frozen-complete.txt",
+      "sha256": "cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "bytes": 1
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/schema-context-frozen-b-resource.json",
+      "sha256": "927b66b0f1f0fc173174f6e0a0e18f0cdad788468b8715407a6784e001a8232d",
+      "bytes": 950
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/schema-context-frozen-b-complete.txt",
+      "sha256": "f9544a95fe26df4955e56eaf344947b3b28c945c60681ac3929efa2585e4e2c9",
+      "bytes": 2933
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/schema-context-frozen-b-junit.xml",
+      "sha256": "a94863bb476e0efc900fd93900b3477e84d8dc309427c603ec6d783d8c1a6762",
+      "bytes": 6414
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-red-resource.json",
+      "sha256": "6526ffef2d08620a97c90708e4dffcd413d917fafbf47e465fa99e576b1512ce",
+      "bytes": 828
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-red-complete.txt",
+      "sha256": "a5a9baf94fc6069da4f80d9eb40c99d4048dfe338a46829731210f32073d7121",
+      "bytes": 16124
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-red-junit.xml",
+      "sha256": "53ce2290eef4e905666017a7557a2c3ca230a0962ac39d76c3d5fca2d71ff3de",
+      "bytes": 15590
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-intake-red-resource.json",
+      "sha256": "452d38d8790d255641ed60825c63610eaf861068261f8c10c41a72875f1191e6",
+      "bytes": 666
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-intake-red-complete.txt",
+      "sha256": "d170adceaf39ab82f88230c6796d942110af2c6cdaaf75353e7f81ff3fe5f31a",
+      "bytes": 8981
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-intake-red-junit.xml",
+      "sha256": "0d481db84360c8d0fc6005a3d27938f23b9ae948bf605454bacc3dfe775f4165",
+      "bytes": 7375
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-frozen-resource.json",
+      "sha256": "68e2930938374e23c3b38fcba676c5398d274803247f223394c93cfb2539174a",
+      "bytes": 898
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-frozen-complete.txt",
+      "sha256": "fc39b2b750bc475a01b440c072d486325cf0a3b8e279b5eb8b907a1fb1443451",
+      "bytes": 3194
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-frozen-junit.xml",
+      "sha256": "9e576573966728a35aadd945b5fcb371d9358733073f893ee4c8e10470ad66bd",
+      "bytes": 10401
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-bridge-resource.json",
+      "sha256": "54c7a739c82cbf4822ba1129af45327db315162053fd0f3a8e2cb1d34db369d3",
+      "bytes": 315
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-bridge-complete.txt",
+      "sha256": "f171036d1a2e80f168ba12c5075aa421322db679c124b9b33973ce0aed2237da",
+      "bytes": 2276
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-composition-inputs.json",
+      "sha256": "2b4dbb187dbb6e3d2494dcc2aa5ef99b347796adf52b86ae1f559cbd9fb28633",
+      "bytes": 2786
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-composition-full-inputs.json",
+      "sha256": "f36b0b75a1f7a27b43f4831e8b98da555afab1fc53c2bf4aeba0e9a69479889c",
+      "bytes": 3332
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-bridge-full-resource.json",
+      "sha256": "cbcde905c56fdc18750b49b1f534e7f26381636014406daf6b343505454e099e",
+      "bytes": 504
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-bridge-full-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-bridge-full-b-resource.json",
+      "sha256": "e3295401efa4d2003d2c838e73559bb203361abc69321bc2938d04911f96c84a",
+      "bytes": 628
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/doe-bridge-full-b-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/frozen-a-resource.json",
+      "sha256": "712ae10a82e20caaec049a0935de3ccd24c02ad341785e07fb4114b5ec774c0f",
+      "bytes": 2139
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/frozen-a-complete.txt",
+      "sha256": "33366cf1d57c717c8775caa337503a2ef92631f4f500cc0101de600bba56d7e9",
+      "bytes": 23897
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/frozen-a-junit.xml",
+      "sha256": "6749607f3c12af7fc88cff856593ae4f3c514ca615862525f1a6c19b928e95f8",
+      "bytes": 39839
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-fixture-red-full-resource.json",
+      "sha256": "46cbf872a9ad3ad05a84cee40f399bb66dc7da331efe5b723ebf477baa88be26",
+      "bytes": 834
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-fixture-red-full-complete.txt",
+      "sha256": "2b47124b8b354ce2b2b4bf736768a1c5ad2f760fd1b941dcda2345f8c30caa46",
+      "bytes": 6689
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-fixture-red-full-junit.xml",
+      "sha256": "b3b0088c6bf4d65bbc39af1247efb505ba6551729413611912fbac0b67efbacf",
+      "bytes": 5180
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-fixture-red-resource.json",
+      "sha256": "c2a1b7c760b33067013aca8b354c4649bb02905e41aa16c969bec0fcc2b6ba11",
+      "bytes": 1036
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-fixture-red-complete.txt",
+      "sha256": "9b81cd266a0fa550a7e30fc88f3dd97c8c514ef60ba0037666d9dfacb3ee1aa1",
+      "bytes": 7098
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/frozen82-mypy-four-paths.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/frozen82-mypy-four-paths-process-error.json",
+      "sha256": "e54191f751c61318870efc73975b0da10eacd814b98312c12871b9e650e43386",
+      "bytes": 1257
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/frozen82-ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/frozen82-ruff-format.txt",
+      "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80",
+      "bytes": 27
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/dto-mypy-complete.txt",
+      "sha256": "cb0cca8d4b0d3bb03c0e76621fe061451509c4930eecb5a6ece3303790ca8aa7",
+      "bytes": 513
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/dto-mypy-corrected.txt",
+      "sha256": "a4a457e649781bd45c449df207fb534eada1a9a24ff4e504425631bed915571c",
+      "bytes": 177
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/dto-mypy-corrected-b.txt",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "bytes": 43
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/state-reads-complete.txt",
+      "sha256": "fdc487c16d65c797597dca9b80fbe0580314b12a5b4d5989300766089519c54d",
+      "bytes": 1512
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/state-reads-blueprint-scope.json",
+      "sha256": "2fdf708d090e44e4f01fd171a298cf9bbfb33603d7c703e8a6afa2c267b55566",
+      "bytes": 822
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/removal-example_fraction-complete.txt",
+      "sha256": "bd83392ac75006f938ac4071b50d2d9cb7d53a5185e422b0afcb4c3e2c5c7a15",
+      "bytes": 5406
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/removal-example_fraction-resource.json",
+      "sha256": "a5095de7255895d9a14dc49a5d5832bd28c96fec1278adbb359fac153c1cdb41",
+      "bytes": 878
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/removal-example_fraction-junit.xml",
+      "sha256": "cd2a70c3555566a6acdfbd38810130761e4c6208696619754f19308334ad96b2",
+      "bytes": 2918
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/removal-raw_bool-complete.txt",
+      "sha256": "002b262c2603518dd5cc4bbbddb83f622c37c9b779bb2770bbe1edabb63ecaa9",
+      "bytes": 1271
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/removal-raw_bool-resource.json",
+      "sha256": "41a0be95796675c91d787e56a77bb5a12c4a4e86ffa0678691707ec9185d1df2",
+      "bytes": 859
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/projection-red-complete.txt",
+      "sha256": "8ae63279dfdb0bfea3034956d2bffd309f87b17969d7da5c7e941b77ff7aae7d",
+      "bytes": 15955
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/projection-red-resource.json",
+      "sha256": "60f3f20886c3dc7d2f0b446017a7def8ee944e607a08826943d80ae49d441d25",
+      "bytes": 868
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/projection-red-junit.xml",
+      "sha256": "f9a438a3a07c096c4b2a9c99e8012e27eb3fe18a8e5500a00896972647eb0a5a",
+      "bytes": 13190
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/empty-component-red-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/empty-component-red-resource.json",
+      "sha256": "106f42a2208baa0ed8e1a62b506afa6489a3dbb0c931029c13bd808a7826d6dd",
+      "bytes": 880
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/projection-green-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/projection-green-resource.json",
+      "sha256": "5373ded07314721533d741cb291b1fe46b0b4c221067dfbd5e0bfbea8a75e3ee",
+      "bytes": 874
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-positive-complete.txt",
+      "sha256": "edd0d622b23391f85f872b64dc13f72f8533e04ff0376754755673ce52fc39f3",
+      "bytes": 1959
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-positive-resource.json",
+      "sha256": "08b85b51212eb2490a4f0335f973eca522b09e799dc1889cbacae8bc721b8e8d",
+      "bytes": 412
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-remove_strict_bool-complete.txt",
+      "sha256": "e747bdfa5afcb847e80867603a0605f148cc29aa0406e0373df86817708a1702",
+      "bytes": 1736
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-remove_strict_bool-resource.json",
+      "sha256": "813e4c583c6436924f7a869fc0736063d3515e2ba681ef7f99049c59f2be3833",
+      "bytes": 422
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-consumer-wave-complete.txt",
+      "sha256": "e59770136ca871381b73da9140095be0242190849e582dc21914a1fa1d3f7522",
+      "bytes": 26643
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-consumer-wave-resource.json",
+      "sha256": "0acab46d8bcbb963e6b87f62a452b756b167a9e429a959e838b40daf8287754e",
+      "bytes": 1363
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-consumer-wave-junit.xml",
+      "sha256": "ff05e21504b5e97b1c935c3681e40650476223ffb28979f99b1e2b92de5f89be",
+      "bytes": 60097
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-projection-companion-complete.txt",
+      "sha256": "db141f75efa388d5dd6dcf059fe20e3dd1d37506a354a3fc56f8ff55db323323",
+      "bytes": 3037
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-projection-companion-resource.json",
+      "sha256": "53c5f35eded7b45a74c4381e1f290a2975785162f0efaffd9c027a947f88e137",
+      "bytes": 754
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-projection-companion-junit.xml",
+      "sha256": "71cc5c1c1950c006022a0201b784b40ffdf6e820c0b8278ba4ee5d90d7cfb502",
+      "bytes": 1011
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-ruff14-complete.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-ruff14-format.txt",
+      "sha256": "2afb1c293434bc55d84b35d54454a0bf9aa84e41cda426817a5c6693d432e37a",
+      "bytes": 27
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-mypy-four-paths-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-mypy-four-paths-resource.json",
+      "sha256": "a6321386b69ed39529ce409cfa8e5333f6d4fb8271452dad12610452f90753ce",
+      "bytes": 590
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-source-profile.json",
+      "sha256": "08907e79eece8af36f3ea60d97cd429358ed4ddc986dcc1e8876de3f889fbaa3",
+      "bytes": 7768
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/locked-environment.json",
+      "sha256": "c7c9f4de5b412c39ea40bfb92049587b44dd6bc51e12a7bf5f9fb4f078c2b3ee",
+      "bytes": 6428
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/baseline-complete.txt",
+      "sha256": "6933a7e0df95783acf93ed90af942334f7d1619d9a6a1f897c79ed256537f3c9",
+      "bytes": 60
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/baseline-b-complete.txt",
+      "sha256": "3abd98b0d2087b45dcdaedcce3538804fefd35ea5daae58077330c0c2a5af93b",
+      "bytes": 15943
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/baseline-b-resource.json",
+      "sha256": "4219dba4758e1da70b849546452f7becdec0e87c87da30f0a9f115cbac949446",
+      "bytes": 446
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/baseline-c-complete.txt",
+      "sha256": "54d2402a19b950e37527575001dfade26e943277b7baf5592b6e0a96ce60cf21",
+      "bytes": 15492
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/baseline-c-resource.json",
+      "sha256": "3f9bd0185840b1e2aaac45e5a3da42042da4c6b2b1b64fde44ac415fe4413d4f",
+      "bytes": 445
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-schema-red-complete.txt",
+      "sha256": "a11a3caffe19948bebc70b3154c0fbdd55ab453ca8a60d6cc28aabc675ec7ec5",
+      "bytes": 11803
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-schema-red-resource.json",
+      "sha256": "044dcb832b471f3954192a0b4cc8c3b7770d9292ddb29d40a2f8eba288082f27",
+      "bytes": 609
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/retry-schema-red-junit.xml",
+      "sha256": "626842ca12ecf185d13ed404c9421e5886fd118655f8a64ff42f5dfa9c8cd8f6",
+      "bytes": 15443
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge_runtime_runner.py",
+      "sha256": "3668e4485f416a0dd1169134eefa9017ba58acbbb5f4c763d495ce2a1549a13a",
+      "bytes": 1228,
+      "role": "captured verifier source; not domain input or new gate authority"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/runtime_runner.py",
+      "sha256": "552922cac3ebcd1c9bdb39b161a986488247e1a5f6b83ae5d16f110ee7216ab4",
+      "bytes": 1170,
+      "role": "captured verifier source; not domain input or new gate authority"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/capture_complete_census.py",
+      "sha256": "078020171719e8d611d956a01c172c3073b969e46d84d09496d48857e4d87cb8",
+      "bytes": 10661,
+      "role": "captured verifier source; not domain input or new gate authority"
+    }
+  ],
+  "bytes": 405828,
+  "scope": "Complete deciding stdout/resource/JUnit and exact input profiles. Historical errors/failures remain. Source SHA on each resource record controls its execution; this manifest is not a combined runtime verdict."
+}

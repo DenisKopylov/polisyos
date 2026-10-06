@@ -1,0 +1,47 @@
+{
+  "production_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "test_source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+  "test_inputs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "e072bed003ff5fa00412c640578e91d0b52e1aeff9331ab393467d6f78382e10"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "52593342cf1783b1b63fdff0f370b5f4a731f818aced3c0d19c8de3cb533139f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "a7b7c7bfd7d0e83f6e2306484c42b78eeb0f8fe16afffc90c749b4b0621a8dce"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "4afd6424485fcbaeb9a4b6e9f468d5d0f297bc95596a278e6d8bd34af1cfe9fa"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "5be71426a16abb77d196a1a9bd82371266368fb3baa559a1a8cdc166ab519a5f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5"
+    }
+  ],
+  "scope": "Exact admitted production slice-base with exact final candidate test bytes injected; not an inherited-red exclusion"
+}

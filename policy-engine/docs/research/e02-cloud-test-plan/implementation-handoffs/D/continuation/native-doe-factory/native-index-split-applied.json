@@ -1,0 +1,17 @@
+{
+  "operation": "native_git_split_index_encoding_preverified_trial",
+  "root": "/workspace/e02-D-published-champion",
+  "branch": "refs/heads/codex/e02-D-published-champion",
+  "head_before_and_after": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+  "tree_before_and_after": "ae90a66a882ee9b434cd21554043d887056d75b2",
+  "complete_staging_entries_flags_sha256_before_and_after": "85f47689bf94a66174af18aa23f72dff296072e67b63c0e37c6572617233e238",
+  "status_before_and_after": " M policy-engine/README.md\n M policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/\n",
+  "old_complete_index_backup": "/tmp/e02-D-champion-split-trial-wqe_05qc/original.index",
+  "old_index_sha256": "757635ba9962a7e117e6ed82ed1c0daab48cf6cd415041a3a932a1a686c6de3a",
+  "old_bytes": 1270174,
+  "new_index_bytes": 53819,
+  "shared_index_path": "../polisyos/.git/worktrees/e02-D-published-champion/sharedindex.fbaa9755f642ae95c186815150c7dfd48ea3d7b3",
+  "source_tests_hooks_refs_unchanged": true,
+  "expiry_disabled_during_native_operation": true,
+  "cleanup_or_data_deleted": false
+}

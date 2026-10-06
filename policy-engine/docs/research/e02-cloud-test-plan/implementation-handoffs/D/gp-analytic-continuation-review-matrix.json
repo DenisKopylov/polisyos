@@ -1,0 +1,71 @@
+{
+  "schema_version": "e02.D.independent-five-queue-review-matrix.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "oracle_implementation_commit": "538f354484d0c71d5de2c7d3be60f4cdc9a6da26",
+  "oracle_implementation_tree": "688c8cc3ca9bbdc7ac22ad9e9b01a960d5748e7f",
+  "specification_axis": "Each immutable review must meet its declared runtime property and defining/affected consumer checks.",
+  "engineering_axis": "Inspect source/caller/schema/error paths separately; passing mathematics or labels do not hide unexecuted consumers.",
+  "rows": [
+    {
+      "queue": 1,
+      "bundles": ["OPT-01", "OPT-02", "OPT-03", "CTL-02"],
+      "requirement": "Metric direction/full coordinates/Pareto plus actual fitted GP and typed semantic checkpoint continuation",
+      "observable": "Original-unit independent full mean/covariance; initial MLL=1; same-basis restore/no-op/append=0; due/basis change>0; actual saved corpus/transforms/RNG affect consumers or fail closed",
+      "evidence": "Own analytic oracle and native action/space/Pareto/state companion tests at exact immutable source",
+      "negative": "Parameter/transform/warm/RNG/type mutations retaining markers; omitted fitted-state load; invalid/missing outcome no fake penalty",
+      "baseline_result": "FAIL: 12 failed / 9 passed",
+      "candidate_commit": null,
+      "candidate_result": "UNRUN"
+    },
+    {
+      "queue": 2,
+      "bundles": ["TRN-01", "TRN-02", "TRN-03"],
+      "requirement": "ANN discovery separated from exact CAS row admission; one immutable vector generation; lesson policy/freshness parity",
+      "observable": "Full ArtifactRef/content binds every actual GP row; query captures complete old/new generation once; producer freshness independent of access time",
+      "evidence": "Actual CAS originals -> native GP tensors; real native reader barriers across load/add; restart and local/transfer lesson reads",
+      "negative": "Same-ref altered bytes; source candidate/bounds/unit/direction/owner substitution; mixed-generation barrier; access-only freshness change",
+      "baseline_result": "Not executed by this leaf",
+      "candidate_commit": null,
+      "candidate_result": "UNRUN"
+    },
+    {
+      "queue": 3,
+      "bundles": ["OPT-04", "SRV-01", "SRV-03"],
+      "requirement": "Existing champion lock/flock/canonical reread and exact shared comparison basis; actual ask/tell and persisted lifecycle",
+      "observable": "Competing writers/crash/fresh-reader coherent publication; changed suite/data/split/metric requires comparable replay; actual caller history/stopping/partial/failure/resume",
+      "evidence": "Exact CAS candidate/evaluation/suite consumers and local process competition; actual public native caller with removed call controls",
+      "negative": "Different candidate/evaluation/profile/content; changed data/split; stale predecessor write; removed ask/tell dispatch; failure/resume boundary",
+      "baseline_result": "Not executed by this leaf",
+      "candidate_commit": null,
+      "candidate_result": "UNRUN",
+      "boundary": "No expected_predecessor API, second registry, or distributed guarantee invented"
+    },
+    {
+      "queue": 4,
+      "bundles": ["CTL-01", "CTL-03", "FUN-01", "FUN-02", "FUN-03"],
+      "requirement": "Actual measured event settlement through existing persisted budget ledger; typed outcome/config; owner promotion permission at commit boundary",
+      "observable": "Stable event ID dedupe, real before/after debit and fresh reopen, full/split event parity; malformed-present no fallback; valid permit one effect and revoked permit zero",
+      "evidence": "Resource owner -> BudgetMiddleware -> BudgetLedger/FileBudgetLedger; actual effective engine; independent typed permit verifier with revoke/commit barrier or explicit bridge_missing",
+      "negative": "Keep trace cost=1 remove settlement; retry duplicate; malformed typed-present; revoke after preflight while bool remains true",
+      "baseline_result": "Not executed by this leaf",
+      "candidate_commit": null,
+      "candidate_result": "UNRUN",
+      "boundary": "No absent permission issuer/verifier replaced by a self-attested bool or invented permission subsystem"
+    },
+    {
+      "queue": 5,
+      "bundles": ["STP-01", "STR-01"],
+      "requirement": "Selected objective-unit/direction plateau law; observed finite scenario fraction before grouping/cap",
+      "observable": "gain <= max(.01 objective units,.01*abs(historical_best)); no convergence without unit/profile; (finite-violated)/finite with at-most-one violation per scenario; zero unavailable/unknown partial",
+      "evidence": "Independent enumerated near-zero/sign/unit examples and physical objective stress scenarios; same samples at different caps/groupings",
+      "negative": "Missing unit/profile; direction reversal; duplicated finding severity; zero denominator/unknown/incomplete; cap-dependent score",
+      "baseline_result": "Not executed by this leaf",
+      "candidate_commit": null,
+      "candidate_result": "UNRUN",
+      "boundary": "Observed sample fraction is not a population probability; selected B122 profile supersedes historical principal hold"
+    }
+  ],
+  "closure_ids": [],
+  "status": "Review-ready; no production candidate acceptance yet"
+}

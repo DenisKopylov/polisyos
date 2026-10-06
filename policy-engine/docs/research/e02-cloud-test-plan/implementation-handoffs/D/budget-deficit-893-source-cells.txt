@@ -1,0 +1,45 @@
+{
+  "source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+  "source_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa",
+  "python": "3.14.7",
+  "versions": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5"
+  },
+  "modules": [
+    {
+      "name": "polisyos.scientist.methods.search.objective",
+      "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "bytes": 10078
+    },
+    {
+      "name": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "00551f51c14fbdd1e0589a7b2f79f2e1d31a3cc0f208b05853489f35daee8aeb",
+      "bytes": 21235
+    },
+    {
+      "name": "polisyos.scientist.methods.search.controller",
+      "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+      "bytes": 50528
+    },
+    {
+      "name": "polisyos.scientist.methods.search.service",
+      "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+      "bytes": 11909
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.bayesian",
+      "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "bytes": 48512
+    }
+  ]
+}

@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import math
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields, is_dataclass
+from datetime import datetime
 from enum import Enum
-from typing import Any
+from types import UnionType
+from typing import Any, get_args, get_origin, get_type_hints
+
+from pydantic import BaseModel
 
 from polisyos.scientist.methods.search.contracts import ParetoViewProjection
 
@@ -53,6 +58,10 @@ class SearchRunState:
     budget_spent: float = 0.0
     budget_available: bool = False
     budget_snapshot: dict[str, float] = field(default_factory=dict)
+    budget_snapshot_source: str = "unavailable"
+    budget_evidence: dict[str, Any] = field(default_factory=dict)
+    budget_ledger_id: str | None = None
+    budget_ledger_revision: int | None = None
     policy_evaluation_errors: int = 0
     generation_transition: GenerationTransition | None = None
     pareto_projection: ParetoViewProjection | None = None
@@ -138,6 +147,243 @@ class SearchRunState:
     def snapshot(self) -> SearchRunState:
         """Return a deep snapshot that cannot be changed by a later run."""
         return deepcopy(self)
+
+    def checkpoint_state(self) -> dict[str, Any]:
+        """Encode the sole ledger without serializing callbacks or owner handles."""
+        return checkpoint_json(self)
+
+    @classmethod
+    def from_checkpoint(cls, payload: dict[str, Any]) -> SearchRunState:
+        """Rebuild typed history/frontier and refuse malformed ledger primitives."""
+        from polisyos.scientist.methods.search.controller import SearchIteration, SearchStatus
+        from polisyos.scientist.methods.search.frontier import FrontierPoint
+        from polisyos.scientist.methods.search.objective import (
+            ObjectiveValue,
+            OptimizationDirection,
+        )
+        from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+        raw = checkpoint_value(payload)
+        if not isinstance(raw, dict) or set(raw) != {item.name for item in fields(cls)}:
+            raise ValueError("search checkpoint ledger fields do not match")
+        for item in fields(cls):
+            if type(item.default) is int:
+                value = raw[item.name]
+                if type(value) is not int or value < 0:
+                    raise ValueError(f"invalid search counter: {item.name}")
+            elif type(item.default) is bool and type(raw[item.name]) is not bool:
+                raise ValueError(f"invalid search flag: {item.name}")
+        if not isinstance(raw["search_id"], str) or not raw["search_id"]:
+            raise ValueError("search checkpoint requires a run identity")
+        raw["status"] = SearchStatus(raw["status"])
+        transition = raw["generation_transition"]
+        raw["generation_transition"] = GenerationTransition(transition) if transition else None
+        history = []
+        for row in raw["history"]:
+            if not isinstance(row, dict) or set(row) != {
+                item.name for item in fields(SearchIteration)
+            }:
+                raise ValueError("invalid search history record")
+            if type(row["iteration"]) is not int or row["iteration"] < -1:
+                raise ValueError("invalid search history iteration")
+            for name in ("is_promising", "stage_a_passed"):
+                if type(row[name]) is not bool:
+                    raise ValueError(f"invalid search history flag: {name}")
+            if not isinstance(row["candidate"], dict):
+                raise ValueError("invalid search history candidate")
+            for name in ("objective_value", "duration_seconds"):
+                if type(row[name]) not in (int, float):
+                    raise ValueError(f"invalid search history number: {name}")
+            if not math.isfinite(row["duration_seconds"]) or row["duration_seconds"] < 0:
+                raise ValueError("invalid search history duration")
+            details = []
+            for detail in row["objective_details"]:
+                if set(detail) != {item.name for item in fields(ObjectiveValue)}:
+                    raise ValueError("invalid objective detail")
+                if type(detail["is_satisfied"]) is not bool:
+                    raise ValueError("invalid objective satisfaction flag")
+                for name in ("raw_value", "weight", "threshold"):
+                    if detail[name] is not None and type(detail[name]) not in (int, float):
+                        raise ValueError("invalid objective detail number")
+                detail["direction"] = OptimizationDirection(detail["direction"])
+                details.append(ObjectiveValue(**detail))
+            row["objective_details"] = details
+            if row["policy_evaluation"] is not None:
+                row["policy_evaluation"] = PolicyEvaluationVector.model_validate(
+                    row["policy_evaluation"]
+                )
+                stage_b_result = row["stage_b_result"]
+                if not isinstance(stage_b_result, dict):
+                    raise ValueError("invalid search history evaluator result")
+                if "policy_evaluation" in stage_b_result:
+                    vector = PolicyEvaluationVector.model_validate(
+                        stage_b_result["policy_evaluation"]
+                    )
+                    if vector != row["policy_evaluation"]:
+                        raise ValueError("search history policy evaluation mismatch")
+                    stage_b_result["policy_evaluation"] = vector
+            row["timestamp"] = datetime.fromisoformat(row["timestamp"])
+            if row["timestamp"].tzinfo is None:
+                raise ValueError("search history timestamp must be timezone aware")
+            history.append(SearchIteration(**row))
+            _validate_dataclass(history[-1])
+        raw["history"] = history
+        if len(history) != raw["evaluation_iterations"] + raw["training_evaluations"]:
+            raise ValueError("search checkpoint history/counter mismatch")
+        if sum(row.iteration == -1 for row in history) != raw["training_evaluations"]:
+            raise ValueError("search checkpoint warm-history mismatch")
+        ordinary_stage_b = sum(row.stage_a_passed for row in history if row.iteration != -1)
+        if (
+            not ordinary_stage_b
+            <= raw["stage_b_evaluations"]
+            <= ordinary_stage_b + raw["sentinel_evaluations"]
+        ):
+            raise ValueError("search checkpoint stage-B/counter mismatch")
+        if type(raw["best_objective"]) not in (int, float):
+            raise ValueError("invalid best objective")
+        if raw["best_candidate"] is not None and not isinstance(raw["best_candidate"], dict):
+            raise ValueError("invalid best candidate")
+        points = []
+        for point in raw["pareto_points"]:
+            if set(point) != {item.name for item in fields(FrontierPoint)}:
+                raise ValueError("invalid frontier point")
+            point["normalized_values"] = tuple(point["normalized_values"])
+            if any(
+                type(value) not in (int, float) or not math.isfinite(value)
+                for value in point["normalized_values"]
+            ):
+                raise ValueError("invalid frontier coordinates")
+            points.append(FrontierPoint(**point))
+        raw["pareto_points"] = points
+        if raw["pareto_projection"] is not None:
+            raw["pareto_projection"] = ParetoViewProjection.model_validate(raw["pareto_projection"])
+        result = cls(**raw)
+        _validate_dataclass(result)
+        from polisyos.scientist.methods.search.stopping import _nonnegative_cost
+
+        if _nonnegative_cost(result.budget_spent) is None:
+            raise ValueError("invalid recorded budget spend")
+        if any(_nonnegative_cost(value) is None for value in result.budget_snapshot.values()):
+            raise ValueError("invalid recorded budget snapshot")
+        evidence = result.budget_evidence
+        if evidence:
+            required = {
+                "source",
+                "receipt_revision_available",
+                "provider_cost_origin_available",
+                "recorded_by_provider",
+                "unavailable_reason",
+            }
+            optional = {"canonical_contract", "coordination_mode", "recorded_spend_key_present"}
+            if not required <= evidence.keys() or evidence.keys() - required - optional:
+                raise ValueError("invalid recorded budget evidence fields")
+            if evidence["source"] not in (
+                "unavailable",
+                "legacy_context",
+                "configured_owner_recorded_state",
+            ) or any(
+                evidence[key] is not False
+                for key in (
+                    "receipt_revision_available",
+                    "provider_cost_origin_available",
+                )
+            ):
+                raise ValueError("unsupported recorded budget evidence authority")
+            for key in ("canonical_contract", "coordination_mode", "unavailable_reason"):
+                if (
+                    key in evidence
+                    and evidence[key] is not None
+                    and not isinstance(evidence[key], str)
+                ):
+                    raise ValueError("invalid recorded budget evidence string")
+            if (
+                "recorded_spend_key_present" in evidence
+                and type(evidence["recorded_spend_key_present"]) is not bool
+            ):
+                raise ValueError("invalid recorded budget key-presence flag")
+            providers = evidence["recorded_by_provider"]
+            if providers is not None and (
+                not isinstance(providers, dict)
+                or any(
+                    not isinstance(key, str) or _nonnegative_cost(value) is None
+                    for key, value in providers.items()
+                )
+            ):
+                raise ValueError("invalid recorded provider aggregate")
+        if result.budget_ledger_revision is not None and result.budget_ledger_revision < 0:
+            raise ValueError("invalid recorded budget revision")
+        return result
+
+
+def _validate_dataclass(value: Any) -> None:
+    """Check all declared ledger primitives without Pydantic's legacy coercion."""
+
+    def valid(item: Any, annotation: Any) -> bool:
+        if annotation is Any:
+            return True
+        origin = get_origin(annotation)
+        arguments = get_args(annotation)
+        if origin is UnionType:
+            return any(valid(item, choice) for choice in arguments)
+        if origin is list:
+            return isinstance(item, list) and all(valid(entry, arguments[0]) for entry in item)
+        if origin is dict:
+            return isinstance(item, dict) and all(
+                valid(key, arguments[0]) and valid(entry, arguments[1])
+                for key, entry in item.items()
+            )
+        if annotation is float:
+            return type(item) in (int, float)
+        if annotation in (int, bool, str, type(None)):
+            return type(item) is annotation
+        return isinstance(item, annotation)
+
+    for name, annotation in get_type_hints(type(value)).items():
+        if not valid(getattr(value, name), annotation):
+            raise ValueError(f"invalid search checkpoint primitive: {name}")
+
+
+_NONFINITE_KEY = "__search_nonfinite_float__"
+
+
+def checkpoint_json(value: Any) -> Any:
+    """Encode supported JSON data, preserving unavailable objective signals."""
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, BaseModel):
+        return checkpoint_json(value.model_dump(mode="python"))
+    if is_dataclass(value) and not isinstance(value, type):
+        return {item.name: checkpoint_json(getattr(value, item.name)) for item in fields(value)}
+    if isinstance(value, dict):
+        if _NONFINITE_KEY in value or any(not isinstance(key, str) for key in value):
+            raise ValueError("search checkpoint payload contains a reserved or non-string key")
+        return {key: checkpoint_json(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [checkpoint_json(item) for item in value]
+    if type(value) is float and not math.isfinite(value):
+        return {_NONFINITE_KEY: "nan" if math.isnan(value) else "inf" if value > 0 else "-inf"}
+    if value is None or type(value) in (str, bool, int, float):
+        return value
+    raise TypeError(f"unsupported search checkpoint value: {type(value).__name__}")
+
+
+def checkpoint_value(value: Any) -> Any:
+    """Decode only the reserved nonfinite carrier, never arbitrary object types."""
+    if isinstance(value, dict):
+        if _NONFINITE_KEY in value:
+            if set(value) != {_NONFINITE_KEY} or value[_NONFINITE_KEY] not in (
+                "inf",
+                "-inf",
+                "nan",
+            ):
+                raise ValueError("invalid search nonfinite carrier")
+            return float(value[_NONFINITE_KEY])
+        return {key: checkpoint_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [checkpoint_value(item) for item in value]
+    return value
 
 
 __all__ = ["GenerationTransition", "SearchRunState"]

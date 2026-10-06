@@ -1,0 +1,209 @@
+FFFFFFFFF                                                                [100%]
+=================================== FAILURES ===================================
+____ test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction[1] ____
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_real_32_case_producer_and0')
+presentation_cap = 1
+
+    @pytest.mark.parametrize("presentation_cap", [1, 20])
+    def test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction(
+        tmp_path: Path, presentation_cap: int
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        cases = [_case(i, i < 31) for i in range(32)]
+        suite = _suite(store, cases)
+        report = suite.stress_test_report
+>       assert report is not None and report.scenario_evidence is not None
+E       AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve..._gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}) is not None and None is not None)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve..._gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}).scenario_evidence
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:67: AssertionError
+___ test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction[20] ____
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_real_32_case_producer_and1')
+presentation_cap = 20
+
+    @pytest.mark.parametrize("presentation_cap", [1, 20])
+    def test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction(
+        tmp_path: Path, presentation_cap: int
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        cases = [_case(i, i < 31) for i in range(32)]
+        suite = _suite(store, cases)
+        report = suite.stress_test_report
+>       assert report is not None and report.scenario_evidence is not None
+E       AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve..._gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}) is not None and None is not None)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve..._gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}).scenario_evidence
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:67: AssertionError
+_ test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases0-0-0-0] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_empty_unknown_skipped_or_0')
+cases = [], attempted = 0, unknown = 0, skipped = 0
+
+    @pytest.mark.parametrize(
+        "cases,attempted,unknown,skipped",
+        [
+            ([], 0, 0, 0),
+            ([_case(0, False, status="skipped")], 0, 0, 1),
+            ([_case(0, False, status="error")], 1, 1, 0),
+            ([_case(0, False, status="passed")], 1, 1, 0),
+            ([_case(0, True, expected="")], 1, 1, 0),
+        ],
+    )
+    def test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable(
+        tmp_path: Path, cases: list[ChallengeCaseResult], attempted: int, unknown: int, skipped: int
+    ) -> None:
+        result = _suite(FileSystemCAS(tmp_path / "cas"), cases)
+        report = result.stress_test_report
+>       assert report is not None
+E       assert None is not None
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:130: AssertionError
+_ test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases1-0-0-1] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_empty_unknown_skipped_or_1')
+cases = [ChallengeCaseResult(case=ChallengeCase(case_id='case-0', challenge_family='strategic', expected_outcome='declared_che...severity='high', metadata={}), status='skipped', passed=False, summary='same observed issue', metrics={}, metadata={})]
+attempted = 0, unknown = 0, skipped = 1
+
+    @pytest.mark.parametrize(
+        "cases,attempted,unknown,skipped",
+        [
+            ([], 0, 0, 0),
+            ([_case(0, False, status="skipped")], 0, 0, 1),
+            ([_case(0, False, status="error")], 1, 1, 0),
+            ([_case(0, False, status="passed")], 1, 1, 0),
+            ([_case(0, True, expected="")], 1, 1, 0),
+        ],
+    )
+    def test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable(
+        tmp_path: Path, cases: list[ChallengeCaseResult], attempted: int, unknown: int, skipped: int
+    ) -> None:
+        result = _suite(FileSystemCAS(tmp_path / "cas"), cases)
+        report = result.stress_test_report
+>       assert report is not None
+E       assert None is not None
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:130: AssertionError
+_ test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases2-1-1-0] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_empty_unknown_skipped_or_2')
+cases = [ChallengeCaseResult(case=ChallengeCase(case_id='case-0', challenge_family='strategic', expected_outcome='declared_check', severity='high', metadata={}), status='error', passed=False, summary='same observed issue', metrics={}, metadata={})]
+attempted = 1, unknown = 1, skipped = 0
+
+    @pytest.mark.parametrize(
+        "cases,attempted,unknown,skipped",
+        [
+            ([], 0, 0, 0),
+            ([_case(0, False, status="skipped")], 0, 0, 1),
+            ([_case(0, False, status="error")], 1, 1, 0),
+            ([_case(0, False, status="passed")], 1, 1, 0),
+            ([_case(0, True, expected="")], 1, 1, 0),
+        ],
+    )
+    def test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable(
+        tmp_path: Path, cases: list[ChallengeCaseResult], attempted: int, unknown: int, skipped: int
+    ) -> None:
+        result = _suite(FileSystemCAS(tmp_path / "cas"), cases)
+        report = result.stress_test_report
+        assert report is not None
+>       assert report.robustness_score is None and report.is_robust is False
+E       AssertionError: assert (0.0 is None)
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=1, adver...c_gaming_v1', 'challenge_family_counts': {'strategic': 1}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}).robustness_score
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:131: AssertionError
+_ test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases3-1-1-0] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_empty_unknown_skipped_or_3')
+cases = [ChallengeCaseResult(case=ChallengeCase(case_id='case-0', challenge_family='strategic', expected_outcome='declared_che... severity='high', metadata={}), status='passed', passed=False, summary='same observed issue', metrics={}, metadata={})]
+attempted = 1, unknown = 1, skipped = 0
+
+    @pytest.mark.parametrize(
+        "cases,attempted,unknown,skipped",
+        [
+            ([], 0, 0, 0),
+            ([_case(0, False, status="skipped")], 0, 0, 1),
+            ([_case(0, False, status="error")], 1, 1, 0),
+            ([_case(0, False, status="passed")], 1, 1, 0),
+            ([_case(0, True, expected="")], 1, 1, 0),
+        ],
+    )
+    def test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable(
+        tmp_path: Path, cases: list[ChallengeCaseResult], attempted: int, unknown: int, skipped: int
+    ) -> None:
+        result = _suite(FileSystemCAS(tmp_path / "cas"), cases)
+        report = result.stress_test_report
+        assert report is not None
+>       assert report.robustness_score is None and report.is_robust is False
+E       AssertionError: assert (0.0 is None)
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=1, adver...c_gaming_v1', 'challenge_family_counts': {'strategic': 1}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}).robustness_score
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:131: AssertionError
+_ test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases4-1-1-0] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_empty_unknown_skipped_or_4')
+cases = [ChallengeCaseResult(case=ChallengeCase(case_id='case-0', challenge_family='strategic', expected_outcome='', severity='high', metadata={}), status='passed', passed=True, summary='declared check passed', metrics={}, metadata={})]
+attempted = 1, unknown = 1, skipped = 0
+
+    @pytest.mark.parametrize(
+        "cases,attempted,unknown,skipped",
+        [
+            ([], 0, 0, 0),
+            ([_case(0, False, status="skipped")], 0, 0, 1),
+            ([_case(0, False, status="error")], 1, 1, 0),
+            ([_case(0, False, status="passed")], 1, 1, 0),
+            ([_case(0, True, expected="")], 1, 1, 0),
+        ],
+    )
+    def test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable(
+        tmp_path: Path, cases: list[ChallengeCaseResult], attempted: int, unknown: int, skipped: int
+    ) -> None:
+        result = _suite(FileSystemCAS(tmp_path / "cas"), cases)
+        report = result.stress_test_report
+>       assert report is not None
+E       assert None is not None
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:130: AssertionError
+______ test_partial_named_cases_retain_only_observed_conditional_fraction ______
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_partial_named_cases_retai0')
+
+    def test_partial_named_cases_retain_only_observed_conditional_fraction(tmp_path: Path) -> None:
+        result = _suite(
+            FileSystemCAS(tmp_path / "cas"), [_case(0, True), _case(1, False, status="error")]
+        )
+        report = result.stress_test_report
+>       assert report is not None and report.scenario_evidence is not None
+E       AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=2, adver...c_gaming_v1', 'challenge_family_counts': {'strategic': 2}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}) is not None and None is not None)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=2, adver...c_gaming_v1', 'challenge_family_counts': {'strategic': 2}, 'blocking_failure_count': 1, 'derived_from_phase_d4': True}).scenario_evidence
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:145: AssertionError
+_______ test_duplicate_case_ids_refuse_and_nonboolean_outcome_is_unknown _______
+
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-red-d34e0fd93cdc422caebbeaebd1bc5e9d/test_duplicate_case_ids_refuse0')
+
+    def test_duplicate_case_ids_refuse_and_nonboolean_outcome_is_unknown(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+>       with pytest.raises(ValueError, match="case.*identity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:158: Failed
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction[1]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_real_32_case_producer_and_blueprint_fresh_reader_keep_fraction[20]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases0-0-0-0]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases1-0-0-1]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases2-1-1-0]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases3-1-1-0]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_unknown_skipped_or_inconsistent_case_basis_is_unavailable[cases4-1-1-0]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_partial_named_cases_retain_only_observed_conditional_fraction
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_duplicate_case_ids_refuse_and_nonboolean_outcome_is_unknown
+RUNTIME_ENVIRONMENT={"executable": "/workspace/e02-D-locked-env/bin/python", "exit_code": 1, "modules": [{"module": "polisyos.scientist.methods.backtesting.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py", "sha256": "26b16eedb5fc8629931a5cae7fa44b4425b2c360114134c6bc6331fe2cb19496"}, {"module": "polisyos.scientist.methods.doe.designs", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py", "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e"}, {"module": "polisyos.scientist.methods.doe.stress_report", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py", "sha256": "06c96057208cfce3380f8db6c18374ead2d79e6d60c60866566f2336232d2cd9"}, {"module": "polisyos.scientist.methods.doe.sampling", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py", "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"}, {"module": "polisyos.scientist.methods.search.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py", "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"}, {"module": "polisyos.scientist.policy_design.adversary", "path": null, "sha256": null}, {"module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "0fb75594a07be36d29c3a5fba4057b0136946c806dffbdfe4b11075400616450"}, {"module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py", "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4"}, {"module": "polisyos.scientist.methods.search.funnel.orchestrator", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"}], "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"}

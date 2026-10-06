@@ -1,0 +1,31 @@
+{
+  "schema": "policyos.e02.independent_removal_AST.v1",
+  "reviewer": "criterion_closeout_review",
+  "method": "Nonimporting parse of exact Git source and independent reconstruction of the named single If deletion; no backend/runtime executed",
+  "results": [
+    {
+      "mode": "tenant_conflict_guard",
+      "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "original_method_ast_sha256": "a53e7a5a12a73d3b19280744db460803616f59f9c06427870039618b9c137d79",
+      "modified_method_ast_sha256": "621dabedb3eaae8fb909a10ab3adfa1ab5cb1db02d8fffacac4ad1926e195bb9",
+      "exactly_one_removed_if": true,
+      "original_MATCH": true,
+      "modified_MATCH": true,
+      "removed_node_MATCH": true,
+      "other_ast_nodes_retained": true
+    },
+    {
+      "mode": "subject_guard",
+      "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "original_method_ast_sha256": "745b00308925a9611c54065ca1ce52f819e1ade8e8354b9ca5fdd10e11eba0af",
+      "modified_method_ast_sha256": "c0747bdb195252e8b07597640b8aa26b5ffa43df00c6c3601b3c8c03bb496217",
+      "exactly_one_removed_if": true,
+      "original_MATCH": true,
+      "modified_MATCH": true,
+      "removed_node_MATCH": true,
+      "other_ast_nodes_retained": true
+    }
+  ]
+}

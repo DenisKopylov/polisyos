@@ -1,0 +1,82 @@
+{
+  "schema": "polisyos.e02.lossless-oracle-output-header.v1",
+  "compressed_sha256": "84596939ac4b3c0eb8eff0b0a255650ca4f99877577ebbb6ccbb9c5bf026941a",
+  "compressed_bytes": 56933,
+  "decoded_json_sha256": "2d7cb711af1d801d3b78cde31b9510ff7e7b27d17e51bd1018c48d568d44cffa",
+  "decoded_json_bytes": 230955,
+  "member_count": 14,
+  "raw_bytes": 171556,
+  "members": [
+    {
+      "name": "startup-wrong-origin/complete.txt",
+      "bytes": 1025,
+      "sha256": "14092666912697363419369bb870a7a2c6164f7fb4af9bacd88e116ab40619f8"
+    },
+    {
+      "name": "startup-wrong-origin/inputs.json",
+      "bytes": 1577,
+      "sha256": "fba35c975d0108b23fb0e5bc1eed52c477b7fa080a3fe76110e5f0396896332a"
+    },
+    {
+      "name": "startup-wrong-origin/junit.xml",
+      "bytes": 1028,
+      "sha256": "44bc29f0d12098832eebdbb901eb75d6ca3a99a91df6a4e06ed47c99707fad8a"
+    },
+    {
+      "name": "startup-wrong-origin/native.json",
+      "bytes": 52005,
+      "sha256": "f341ddb766613e32890399bdfa67f87fae7b28bf5cb30cdd4012a9bd84fcaefd"
+    },
+    {
+      "name": "startup-wrong-origin/run.json",
+      "bytes": 2030,
+      "sha256": "fa7680ea5514b2e0e3a85829d9dd6148b28054180a9a3efee7de70f57fed3544"
+    },
+    {
+      "name": "startup-wrong-origin/subnormal_observer.py",
+      "bytes": 1062,
+      "sha256": "fab4f67aca5dc983226f198394bc3e592142c4f2e8e1fd7d64e7ff2e4d116eb9"
+    },
+    {
+      "name": "canonical-baseline/complete.txt",
+      "bytes": 17976,
+      "sha256": "97ec0e9200c785745214d8cb515a85ab34acda6c42c1ade89635a257c1dc4a93"
+    },
+    {
+      "name": "canonical-baseline/inputs.json",
+      "bytes": 1659,
+      "sha256": "06370892beac3491f968fe4d714fab944bc8def6d749c1daf852083d990e58af"
+    },
+    {
+      "name": "canonical-baseline/junit.xml",
+      "bytes": 19680,
+      "sha256": "e09923786aaba40a9a5329433e19463efd10ceaf99d97bf5eaed9b39a896a520"
+    },
+    {
+      "name": "canonical-baseline/native.json",
+      "bytes": 60134,
+      "sha256": "e7dfe3f6aa07cdc53bfd27c0fff001743cc04f2f4c1f1d0c02cba10687f7ec54"
+    },
+    {
+      "name": "canonical-baseline/run.json",
+      "bytes": 2111,
+      "sha256": "6726852bbe9929a3a35a8a53ded41dd0e0c4befed5e1209b35fe4e6fbd6560dc"
+    },
+    {
+      "name": "canonical-baseline/subnormal_observer.py",
+      "bytes": 1421,
+      "sha256": "758124e7cc429775da7f17cfcaae8e29ad70e386535413cad3a726b06721317b"
+    },
+    {
+      "name": "instruments/e02-oracle-subnormal-capture.py.txt",
+      "bytes": 4715,
+      "sha256": "823edf6aea66282edf5e22883512089b227fc5c3a61ef204aa8ea7451b3e03f1"
+    },
+    {
+      "name": "instruments/e02-oracle-subnormal-capture-fixed.py.txt",
+      "bytes": 5133,
+      "sha256": "23cbd9e6659290874f3e922104b41d5d0f1aa2235c9db2e6d6c72b19ee8ebb05"
+    }
+  ],
+  "scope": "Only new output/helper measurement bytes; no tracked production/test source or fixture mirror. All originals remain at original retained paths."
+}

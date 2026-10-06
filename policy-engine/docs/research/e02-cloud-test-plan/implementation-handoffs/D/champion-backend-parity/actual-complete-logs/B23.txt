@@ -1,0 +1,14 @@
+Measured: declared MkDocs nav/not_in_nav publication membership, inline Markdown page/directory links, literal .yml workflow references and reference-page metadata.
+Not measured: prose truth, runtime behavior, external URL availability, unpublished document contents, reference-style links, images, asset existence, unresolved extensionless links, .yaml workflows, rendered site deployment, or hosted CI.
+Docs accuracy report: FAILED
+- violations: 10
+- docs/adr/by-topic.md:144: relative docs link `0176-epoch-validity-transition-admission-predicates.md` points to unpublished or excluded page `adr/0176-epoch-validity-transition-admission-predicates.md`
+- docs/adr/by-topic.md:145: relative docs link `0177-governed-public-record-bounded-initial-root-profile.md` points to unpublished or excluded page `adr/0177-governed-public-record-bounded-initial-root-profile.md`
+- docs/adr/by-topic.md:146: relative docs link `0178-promotion-posture-admission-resolves-owner-artifacts.md` points to unpublished or excluded page `adr/0178-promotion-posture-admission-resolves-owner-artifacts.md`
+- docs/adr/by-topic.md:254: relative docs link `0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md` points to unpublished or excluded page `adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md`
+- docs/adr/index.md:95: relative docs link `0176-epoch-validity-transition-admission-predicates.md` points to unpublished or excluded page `adr/0176-epoch-validity-transition-admission-predicates.md`
+- docs/adr/index.md:96: relative docs link `0177-governed-public-record-bounded-initial-root-profile.md` points to unpublished or excluded page `adr/0177-governed-public-record-bounded-initial-root-profile.md`
+- docs/adr/index.md:97: relative docs link `0178-promotion-posture-admission-resolves-owner-artifacts.md` points to unpublished or excluded page `adr/0178-promotion-posture-admission-resolves-owner-artifacts.md`
+- docs/adr/index.md:98: relative docs link `0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md` points to unpublished or excluded page `adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md`
+- docs/reference/policy-design-case-failure-patterns.md:334: relative docs link `../how-to/author-measurement-instruments.md` points to unpublished or excluded page `how-to/author-measurement-instruments.md`
+- docs/runbooks/migration-release-promotion.md:72: relative repo link `../../ops/migrations/ir/README.md` points outside the published docs surface; use inline code or a stable external URL

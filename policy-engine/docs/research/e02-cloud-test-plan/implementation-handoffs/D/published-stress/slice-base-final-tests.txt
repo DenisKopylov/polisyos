@@ -1,0 +1,1603 @@
+FF.FFFFFFFFFFFFFFFFFFFFFF......FFFFFFFFFFFFFFF........FFFF.............F [ 64%]
+FFF...................................F.                                 [100%]
+=================================== FAILURES ===================================
+_____________ test_missing_unit_cannot_claim_objective_convergence _____________
+
+    def test_missing_unit_cannot_claim_objective_convergence() -> None:
+        result = ImprovementPlateau(patience=2).check([{"objective_value": 1.0}] * 3, {})
+>       assert not result.should_stop
+E       AssertionError: assert not True
+E        +  where True = StoppingCondition(should_stop=True, reason='Improvement plateau: no improvement above 1.00% for 2 iterations', details={'best_recent': 1.0, 'best_historical': 1.0, 'improvement': 0.0, 'patience': 2}).should_stop
+
+tests/unit/scientist/methods/search/test_stopping_limitations.py:8: AssertionError
+___________ test_missing_profile_cannot_claim_objective_convergence ____________
+
+    def test_missing_profile_cannot_claim_objective_convergence() -> None:
+>       result = ImprovementPlateau(patience=2, objective_unit="points", profile_version=None).check(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [{"objective_value": 1.0}] * 3, {}
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_limitations.py:13: TypeError
+_____ test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True] _____
+
+direction = 'minimize', historical = '0', recent = '1', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+____ test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False] ____
+
+direction = 'minimize', historical = '0', recent = '-1', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+___ test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True] ___
+
+direction = 'minimize', historical = '0', recent = '-0.01', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+_ test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False] __
+
+direction = 'minimize', historical = '0', recent = '-0.0101', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+_ test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True] _
+
+direction = 'minimize', historical = '0.005', recent = '-0.001', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+___ test_plateau_matches_declared_unit_decimal_oracle[minimize-100-99-True] ____
+
+direction = 'minimize', historical = '100', recent = '99', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+___ test_plateau_matches_declared_unit_decimal_oracle[minimize-100-98-False] ___
+
+direction = 'minimize', historical = '100', recent = '98', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+____ test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True] _____
+
+direction = 'maximize', historical = '0', recent = '-1', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+____ test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False] _____
+
+direction = 'maximize', historical = '0', recent = '1', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+___ test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True] ____
+
+direction = 'maximize', historical = '0', recent = '0.01', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+__ test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False] __
+
+direction = 'maximize', historical = '0', recent = '0.0101', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+_ test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True] _
+
+direction = 'maximize', historical = '-0.005', recent = '0.001', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+__ test_plateau_matches_declared_unit_decimal_oracle[maximize--100--99-True] ___
+
+direction = 'maximize', historical = '-100', recent = '-99', expected = True
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+__ test_plateau_matches_declared_unit_decimal_oracle[maximize--100--98-False] __
+
+direction = 'maximize', historical = '-100', recent = '-98', expected = False
+
+    @pytest.mark.parametrize(
+        ("direction", "historical", "recent", "expected"),
+        [
+            ("minimize", "0", "1", True),
+            ("minimize", "0", "-1", False),
+            ("minimize", "0", "-0.01", True),
+            ("minimize", "0", "-0.0101", False),
+            ("minimize", "0.005", "-0.001", True),
+            ("minimize", "100", "99", True),
+            ("minimize", "100", "98", False),
+            ("maximize", "0", "-1", True),
+            ("maximize", "0", "1", False),
+            ("maximize", "0", "0.01", True),
+            ("maximize", "0", "0.0101", False),
+            ("maximize", "-0.005", "0.001", True),
+            ("maximize", "-100", "-99", True),
+            ("maximize", "-100", "-98", False),
+        ],
+    )
+    def test_plateau_matches_declared_unit_decimal_oracle(
+        direction: str, historical: str, recent: str, expected: bool
+    ) -> None:
+        old, new = Decimal(historical), Decimal(recent)
+        gain = old - new if direction == "minimize" else new - old
+        tolerance = max(Decimal("0.01"), Decimal("0.01") * abs(old))
+        assert (gain <= tolerance) is expected
+>       criterion = ImprovementPlateau(
+            patience=2,
+            objective_unit="objective_points",
+            direction=OptimizationDirection(direction),
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:39: TypeError
+_____________ test_unit_conversion_also_scales_absolute_tolerance ______________
+
+    def test_unit_conversion_also_scales_absolute_tolerance() -> None:
+        verdicts = []
+        for scale, unit in [(1.0, "points"), (1000.0, "millipoints")]:
+>           criterion = ImprovementPlateau(
+                patience=2, objective_unit=unit, absolute_tolerance=0.01 * scale
+            )
+E           TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:62: TypeError
+_______ test_present_invalid_observation_cannot_establish_plateau[None] ________
+
+bad = None
+
+    @pytest.mark.parametrize("bad", [None, "1.0", True, float("nan"), float("inf")])
+    def test_present_invalid_observation_cannot_establish_plateau(bad: object) -> None:
+>       result = ImprovementPlateau(patience=2, objective_unit="points").check(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [{"objective_value": 1.0}, {"objective_value": 1.0}, {"objective_value": bad}], {}
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:76: TypeError
+________ test_present_invalid_observation_cannot_establish_plateau[1.0] ________
+
+bad = '1.0'
+
+    @pytest.mark.parametrize("bad", [None, "1.0", True, float("nan"), float("inf")])
+    def test_present_invalid_observation_cannot_establish_plateau(bad: object) -> None:
+>       result = ImprovementPlateau(patience=2, objective_unit="points").check(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [{"objective_value": 1.0}, {"objective_value": 1.0}, {"objective_value": bad}], {}
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:76: TypeError
+_______ test_present_invalid_observation_cannot_establish_plateau[True] ________
+
+bad = True
+
+    @pytest.mark.parametrize("bad", [None, "1.0", True, float("nan"), float("inf")])
+    def test_present_invalid_observation_cannot_establish_plateau(bad: object) -> None:
+>       result = ImprovementPlateau(patience=2, objective_unit="points").check(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [{"objective_value": 1.0}, {"objective_value": 1.0}, {"objective_value": bad}], {}
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:76: TypeError
+________ test_present_invalid_observation_cannot_establish_plateau[nan] ________
+
+bad = nan
+
+    @pytest.mark.parametrize("bad", [None, "1.0", True, float("nan"), float("inf")])
+    def test_present_invalid_observation_cannot_establish_plateau(bad: object) -> None:
+>       result = ImprovementPlateau(patience=2, objective_unit="points").check(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [{"objective_value": 1.0}, {"objective_value": 1.0}, {"objective_value": bad}], {}
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:76: TypeError
+________ test_present_invalid_observation_cannot_establish_plateau[inf] ________
+
+bad = inf
+
+    @pytest.mark.parametrize("bad", [None, "1.0", True, float("nan"), float("inf")])
+    def test_present_invalid_observation_cannot_establish_plateau(bad: object) -> None:
+>       result = ImprovementPlateau(patience=2, objective_unit="points").check(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [{"objective_value": 1.0}, {"objective_value": 1.0}, {"objective_value": bad}], {}
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:76: TypeError
+____________ test_absent_observation_does_not_shorten_plateau_basis ____________
+
+    def test_absent_observation_does_not_shorten_plateau_basis() -> None:
+>       result = ImprovementPlateau(patience=2, objective_unit="points").check(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [{"objective_value": 1.0}, {}, {"objective_value": 1.0}] * 2, {}
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:84: TypeError
+_______ test_declared_plateau_stops_native_controller_and_preserves_best _______
+
+    def test_declared_plateau_stops_native_controller_and_preserves_best() -> None:
+        from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+        from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
+    
+        class GDPStream:
+            def generate(self, history: list, current_best: dict | None, context: dict) -> dict:
+                return {"gdp": -0.005 if not history else 0.001, "semantic": {"interventions": []}}
+    
+        controller = SearchController(
+            config=SearchConfig(
+>               stopping=ImprovementPlateau(patience=2, objective_unit="GDP growth rate"),
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                objective=CompositeObjective([GDPGrowthObjective()]),
+            ),
+            candidate_generator=GDPStream(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"gdp_change": candidate["gdp"]},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        )
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:100: TypeError
+______ test_physical_direction_fraction_and_exact_cas_readback[-0.5-gdp] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_physical_direction_fracti0')
+kind = 'gdp', threshold = -0.5
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.0, 0.5])
+    def test_physical_direction_fraction_and_exact_cas_readback(
+        tmp_path: Path, kind: str, threshold: float
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        objective = CompositeObjective(
+            [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+        )
+        seen = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            physical = candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+            seen.append(physical)
+            return {
+                "simulation_results": {"gdp_change" if kind == "gdp" else "budget_deficit": physical}
+            }
+    
+        # GDP is normalized to -GDP; cost already has minimization coordinates.
+        selected_threshold = threshold if kind == "gdp" else threshold + 2.0
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=selected_threshold),
+            base_objective=objective,
+            stage_b_evaluator=evaluator,
+            cas=store,
+        )
+        bad = (
+            [x <= -selected_threshold for x in seen]
+            if kind == "gdp"
+            else [x >= selected_threshold for x in seen]
+        )
+        assert report.worst_case_parameters == {"p": -1.0 if kind == "gdp" else 1.0}
+        assert report.worst_case_objective == (1.0 if kind == "gdp" else 3.0)
+        assert report.total_scenarios_evaluated == len(seen) == 2
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:70: KeyError
+______ test_physical_direction_fraction_and_exact_cas_readback[-0.5-cost] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_physical_direction_fracti1')
+kind = 'cost', threshold = -0.5
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.0, 0.5])
+    def test_physical_direction_fraction_and_exact_cas_readback(
+        tmp_path: Path, kind: str, threshold: float
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        objective = CompositeObjective(
+            [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+        )
+        seen = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            physical = candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+            seen.append(physical)
+            return {
+                "simulation_results": {"gdp_change" if kind == "gdp" else "budget_deficit": physical}
+            }
+    
+        # GDP is normalized to -GDP; cost already has minimization coordinates.
+        selected_threshold = threshold if kind == "gdp" else threshold + 2.0
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=selected_threshold),
+            base_objective=objective,
+            stage_b_evaluator=evaluator,
+            cas=store,
+        )
+        bad = (
+            [x <= -selected_threshold for x in seen]
+            if kind == "gdp"
+            else [x >= selected_threshold for x in seen]
+        )
+        assert report.worst_case_parameters == {"p": -1.0 if kind == "gdp" else 1.0}
+        assert report.worst_case_objective == (1.0 if kind == "gdp" else 3.0)
+        assert report.total_scenarios_evaluated == len(seen) == 2
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:70: KeyError
+_______ test_physical_direction_fraction_and_exact_cas_readback[0.0-gdp] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_physical_direction_fracti2')
+kind = 'gdp', threshold = 0.0
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.0, 0.5])
+    def test_physical_direction_fraction_and_exact_cas_readback(
+        tmp_path: Path, kind: str, threshold: float
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        objective = CompositeObjective(
+            [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+        )
+        seen = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            physical = candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+            seen.append(physical)
+            return {
+                "simulation_results": {"gdp_change" if kind == "gdp" else "budget_deficit": physical}
+            }
+    
+        # GDP is normalized to -GDP; cost already has minimization coordinates.
+        selected_threshold = threshold if kind == "gdp" else threshold + 2.0
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=selected_threshold),
+            base_objective=objective,
+            stage_b_evaluator=evaluator,
+            cas=store,
+        )
+        bad = (
+            [x <= -selected_threshold for x in seen]
+            if kind == "gdp"
+            else [x >= selected_threshold for x in seen]
+        )
+        assert report.worst_case_parameters == {"p": -1.0 if kind == "gdp" else 1.0}
+        assert report.worst_case_objective == (1.0 if kind == "gdp" else 3.0)
+        assert report.total_scenarios_evaluated == len(seen) == 2
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:70: KeyError
+______ test_physical_direction_fraction_and_exact_cas_readback[0.0-cost] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_physical_direction_fracti3')
+kind = 'cost', threshold = 0.0
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.0, 0.5])
+    def test_physical_direction_fraction_and_exact_cas_readback(
+        tmp_path: Path, kind: str, threshold: float
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        objective = CompositeObjective(
+            [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+        )
+        seen = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            physical = candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+            seen.append(physical)
+            return {
+                "simulation_results": {"gdp_change" if kind == "gdp" else "budget_deficit": physical}
+            }
+    
+        # GDP is normalized to -GDP; cost already has minimization coordinates.
+        selected_threshold = threshold if kind == "gdp" else threshold + 2.0
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=selected_threshold),
+            base_objective=objective,
+            stage_b_evaluator=evaluator,
+            cas=store,
+        )
+        bad = (
+            [x <= -selected_threshold for x in seen]
+            if kind == "gdp"
+            else [x >= selected_threshold for x in seen]
+        )
+        assert report.worst_case_parameters == {"p": -1.0 if kind == "gdp" else 1.0}
+        assert report.worst_case_objective == (1.0 if kind == "gdp" else 3.0)
+        assert report.total_scenarios_evaluated == len(seen) == 2
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:70: KeyError
+_______ test_physical_direction_fraction_and_exact_cas_readback[0.5-gdp] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_physical_direction_fracti4')
+kind = 'gdp', threshold = 0.5
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.0, 0.5])
+    def test_physical_direction_fraction_and_exact_cas_readback(
+        tmp_path: Path, kind: str, threshold: float
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        objective = CompositeObjective(
+            [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+        )
+        seen = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            physical = candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+            seen.append(physical)
+            return {
+                "simulation_results": {"gdp_change" if kind == "gdp" else "budget_deficit": physical}
+            }
+    
+        # GDP is normalized to -GDP; cost already has minimization coordinates.
+        selected_threshold = threshold if kind == "gdp" else threshold + 2.0
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=selected_threshold),
+            base_objective=objective,
+            stage_b_evaluator=evaluator,
+            cas=store,
+        )
+        bad = (
+            [x <= -selected_threshold for x in seen]
+            if kind == "gdp"
+            else [x >= selected_threshold for x in seen]
+        )
+        assert report.worst_case_parameters == {"p": -1.0 if kind == "gdp" else 1.0}
+        assert report.worst_case_objective == (1.0 if kind == "gdp" else 3.0)
+        assert report.total_scenarios_evaluated == len(seen) == 2
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:70: KeyError
+______ test_physical_direction_fraction_and_exact_cas_readback[0.5-cost] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_physical_direction_fracti5')
+kind = 'cost', threshold = 0.5
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.0, 0.5])
+    def test_physical_direction_fraction_and_exact_cas_readback(
+        tmp_path: Path, kind: str, threshold: float
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        objective = CompositeObjective(
+            [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+        )
+        seen = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            physical = candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+            seen.append(physical)
+            return {
+                "simulation_results": {"gdp_change" if kind == "gdp" else "budget_deficit": physical}
+            }
+    
+        # GDP is normalized to -GDP; cost already has minimization coordinates.
+        selected_threshold = threshold if kind == "gdp" else threshold + 2.0
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=selected_threshold),
+            base_objective=objective,
+            stage_b_evaluator=evaluator,
+            cas=store,
+        )
+        bad = (
+            [x <= -selected_threshold for x in seen]
+            if kind == "gdp"
+            else [x >= selected_threshold for x in seen]
+        )
+        assert report.worst_case_parameters == {"p": -1.0 if kind == "gdp" else 1.0}
+        assert report.worst_case_objective == (1.0 if kind == "gdp" else 3.0)
+        assert report.total_scenarios_evaluated == len(seen) == 2
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:70: KeyError
+__________ test_unknown_outcomes_are_separate_from_finite_fraction[1] __________
+
+invalid_count = 1
+
+    @pytest.mark.parametrize("invalid_count", [1, 2])
+    def test_unknown_outcomes_are_separate_from_finite_fraction(invalid_count: int) -> None:
+        outcomes = iter([None] * invalid_count + [1.0] * (2 - invalid_count))
+    
+        def evaluator(candidate: dict, context: dict) -> object:
+            value = next(outcomes)
+            return None if value is None else {"simulation_results": {"budget_deficit": value}}
+    
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=2.0),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=evaluator,
+        )
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:97: KeyError
+__________ test_unknown_outcomes_are_separate_from_finite_fraction[2] __________
+
+invalid_count = 2
+
+    @pytest.mark.parametrize("invalid_count", [1, 2])
+    def test_unknown_outcomes_are_separate_from_finite_fraction(invalid_count: int) -> None:
+        outcomes = iter([None] * invalid_count + [1.0] * (2 - invalid_count))
+    
+        def evaluator(candidate: dict, context: dict) -> object:
+            value = next(outcomes)
+            return None if value is None else {"simulation_results": {"budget_deficit": value}}
+    
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=2.0),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=evaluator,
+        )
+>       assert report.metadata["attempted"] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:97: KeyError
+_________ test_first_violation_does_not_claim_complete_observed_stream _________
+
+    def test_first_violation_does_not_claim_complete_observed_stream() -> None:
+        plan = _plan(vulnerability_threshold=0.0).model_copy(
+            update={"stop_on_first_vulnerability": True}
+        )
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([GDPGrowthObjective()]),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"gdp_change": candidate["p"]}
+            },
+        )
+>       assert report.metadata["attempted"] == report.metadata["finite_evaluated"] == 1
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:118: KeyError
+_______ test_typed_adaptive_extremum_and_best_feedback_survive_cas[gdp] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_typed_adaptive_extremum_a0')
+kind = 'gdp'
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    def test_typed_adaptive_extremum_and_best_feedback_survive_cas(tmp_path: Path, kind: str) -> None:
+        class PhysicalProposal:
+            def __init__(self) -> None:
+                self.values = iter([-2.0, -3.0, 0.0] if kind == "gdp" else [2.0, 3.0, 0.0])
+                self.bests = []
+    
+            def generate(self, history: list, current_best: dict | None, context: dict) -> dict:
+                self.bests.append(current_best)
+                return {"p": next(self.values)}
+    
+        proposal = PhysicalProposal()
+        store = FileSystemCAS(tmp_path / "cas")
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.SEARCH_LOOP,
+                max_iterations=35,
+                vulnerability_threshold=1.5 if kind == "gdp" else 3.5,
+                stop_on_first_vulnerability=False,
+                seed=7,
+            ),
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {
+                    "gdp_change" if kind == "gdp" else "budget_deficit": (
+                        candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+                    )
+                }
+            },
+            candidate_generator=proposal,
+            cas=store,
+        )
+        sign = -1.0 if kind == "gdp" else 1.0
+        assert proposal.bests == [None, {"p": 2.0 * sign}, {"p": 3.0 * sign}]
+        assert report.worst_case_parameters == {"p": 3.0 * sign}
+        assert report.worst_case_objective == (3.0 if kind == "gdp" else 5.0)
+>       assert report.metadata["finite_evaluated"] == 35
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'finite_evaluated'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:176: KeyError
+_______ test_typed_adaptive_extremum_and_best_feedback_survive_cas[cost] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_typed_adaptive_extremum_a1')
+kind = 'cost'
+
+    @pytest.mark.parametrize("kind", ["gdp", "cost"])
+    def test_typed_adaptive_extremum_and_best_feedback_survive_cas(tmp_path: Path, kind: str) -> None:
+        class PhysicalProposal:
+            def __init__(self) -> None:
+                self.values = iter([-2.0, -3.0, 0.0] if kind == "gdp" else [2.0, 3.0, 0.0])
+                self.bests = []
+    
+            def generate(self, history: list, current_best: dict | None, context: dict) -> dict:
+                self.bests.append(current_best)
+                return {"p": next(self.values)}
+    
+        proposal = PhysicalProposal()
+        store = FileSystemCAS(tmp_path / "cas")
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.SEARCH_LOOP,
+                max_iterations=35,
+                vulnerability_threshold=1.5 if kind == "gdp" else 3.5,
+                stop_on_first_vulnerability=False,
+                seed=7,
+            ),
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective()] if kind == "gdp" else [BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {
+                    "gdp_change" if kind == "gdp" else "budget_deficit": (
+                        candidate["p"] if kind == "gdp" else candidate["p"] + 2.0
+                    )
+                }
+            },
+            candidate_generator=proposal,
+            cas=store,
+        )
+        sign = -1.0 if kind == "gdp" else 1.0
+        assert proposal.bests == [None, {"p": 2.0 * sign}, {"p": 3.0 * sign}]
+        assert report.worst_case_parameters == {"p": 3.0 * sign}
+        assert report.worst_case_objective == (3.0 if kind == "gdp" else 5.0)
+>       assert report.metadata["finite_evaluated"] == 35
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'finite_evaluated'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:176: KeyError
+_________ test_repeated_scenarios_are_not_unique_issue_denominator[1] __________
+
+cap = 1
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_repeated_scenarios_are_not_unique_issue_denominator(cap: int) -> None:
+        proposal = RepeatingProposal()
+        calls = 0
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            nonlocal calls
+            calls += 1
+            return {"simulation_results": {"budget_deficit": 1.0 if calls <= 32 else 3.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.SEARCH_LOOP,
+                max_iterations=42,
+                vulnerability_threshold=2.0,
+                stop_on_first_vulnerability=False,
+                collect_top_k=cap,
+                seed=7,
+            ),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=evaluator,
+            candidate_generator=proposal,
+        )
+        assert len(proposal.current_bests) == 10
+>       assert report.metadata["attempted"] == report.metadata["finite_evaluated"] == 42
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:212: KeyError
+_________ test_repeated_scenarios_are_not_unique_issue_denominator[10] _________
+
+cap = 10
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_repeated_scenarios_are_not_unique_issue_denominator(cap: int) -> None:
+        proposal = RepeatingProposal()
+        calls = 0
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            nonlocal calls
+            calls += 1
+            return {"simulation_results": {"budget_deficit": 1.0 if calls <= 32 else 3.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.SEARCH_LOOP,
+                max_iterations=42,
+                vulnerability_threshold=2.0,
+                stop_on_first_vulnerability=False,
+                collect_top_k=cap,
+                seed=7,
+            ),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=evaluator,
+            candidate_generator=proposal,
+        )
+        assert len(proposal.current_bests) == 10
+>       assert report.metadata["attempted"] == report.metadata["finite_evaluated"] == 42
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'attempted'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:212: KeyError
+__________ test_search_loop_without_adaptive_producer_remains_partial __________
+
+    def test_search_loop_without_adaptive_producer_remains_partial() -> None:
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.SEARCH_LOOP,
+                max_iterations=40,
+                vulnerability_threshold=2.0,
+                stop_on_first_vulnerability=False,
+                seed=7,
+            ),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"budget_deficit": 1.0}
+            },
+        )
+        assert report.total_scenarios_evaluated == 32
+        assert report.robustness_score == 1.0
+>       assert report.metadata["completeness"] is False
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'completeness'
+
+tests/unit/scientist/search/test_adversarial_streaming.py:237: KeyError
+_________ test_full_vulnerability_payloads_are_bounded_during_real_run _________
+
+    def test_full_vulnerability_payloads_are_bounded_during_real_run() -> None:
+        gc.collect()
+        before = sum(type(obj) is Vulnerability for obj in gc.get_objects())
+        observed = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            gc.collect()
+            observed.append(sum(type(obj) is Vulnerability for obj in gc.get_objects()) - before)
+            return {"simulation_results": {"budget_deficit": 3.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.RANDOM_TAIL,
+                max_iterations=20,
+                vulnerability_threshold=2.0,
+                stop_on_first_vulnerability=False,
+                collect_top_k=2,
+                seed=7,
+            ),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=evaluator,
+        )
+>       assert max(observed) <= 3
+E       assert 19 <= 3
+E        +  where 19 = max([0, 1, 2, 3, 4, 5, ...])
+
+tests/unit/scientist/search/test_adversarial_streaming.py:264: AssertionError
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing] _
+
+invalid_result = None
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+>       assert report.total_scenarios_evaluated == 32
+E       AssertionError: assert 33 == 32
+E        +  where 33 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_3258570993c5ea1f8ff8236383112cf1f7b478510bf2374...on_count': 32, 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).total_scenarios_evaluated
+
+tests/unit/scientist/search/test_adversarial.py:427: AssertionError
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric] _
+
+invalid_result = {'simulation_results': {'budget_deficit': 'not-a-number'}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+>       assert report.total_scenarios_evaluated == 32
+E       AssertionError: assert 33 == 32
+E        +  where 33 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_3258570993c5ea1f8ff8236383112cf1f7b478510bf2374...on_count': 32, 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).total_scenarios_evaluated
+
+tests/unit/scientist/search/test_adversarial.py:427: AssertionError
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan] _
+
+invalid_result = {'simulation_results': {'budget_deficit': nan}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+>       assert report.total_scenarios_evaluated == 32
+E       AssertionError: assert 33 == 32
+E        +  where 33 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_3258570993c5ea1f8ff8236383112cf1f7b478510bf2374...on_count': 32, 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).total_scenarios_evaluated
+
+tests/unit/scientist/search/test_adversarial.py:427: AssertionError
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf] _
+
+invalid_result = {'simulation_results': {'budget_deficit': inf}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+>       assert report.total_scenarios_evaluated == 32
+E       AssertionError: assert 33 == 32
+E        +  where 33 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_3258570993c5ea1f8ff8236383112cf1f7b478510bf2374...on_count': 32, 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).total_scenarios_evaluated
+
+tests/unit/scientist/search/test_adversarial.py:427: AssertionError
+____________ TestStoppingCriteria.test_improvement_plateau_triggers ____________
+
+self = <search.test_search_loop.TestStoppingCriteria object at 0x7f3990d1ad50>
+
+    def test_improvement_plateau_triggers(self):
+        """ImprovementPlateau should trigger when no improvement."""
+>       criterion = ImprovementPlateau(patience=3, min_improvement=0.01, objective_unit="loss")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/search/test_search_loop.py:502: TypeError
+_ TestStoppingCriteria.test_improvement_plateau_stops_after_zero_then_positive_loss _
+
+self = <search.test_search_loop.TestStoppingCriteria object at 0x7f3990dda190>
+
+    def test_improvement_plateau_stops_after_zero_then_positive_loss(self):
+        """A positive loss after a zero minimum is not infinite improvement."""
+>       criterion = ImprovementPlateau(patience=2, min_improvement=0.01, objective_unit="loss")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/search/test_search_loop.py:517: TypeError
+_ TestStoppingCriteria.test_improvement_plateau_preserves_negative_gain_after_zero _
+
+self = <search.test_search_loop.TestStoppingCriteria object at 0x7f3990dda8b0>
+
+    def test_improvement_plateau_preserves_negative_gain_after_zero(self):
+        """A negative objective after zero remains a real improvement."""
+>       criterion = ImprovementPlateau(patience=2, min_improvement=0.01, objective_unit="loss")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/search/test_search_loop.py:535: TypeError
+____ TestStoppingCriteria.test_improvement_plateau_keeps_real_progress_open ____
+
+self = <search.test_search_loop.TestStoppingCriteria object at 0x7f3990d4ab10>
+
+    def test_improvement_plateau_keeps_real_progress_open(self):
+        """A normal positive relative gain still prevents an early stop."""
+>       criterion = ImprovementPlateau(patience=2, min_improvement=0.01, objective_unit="loss")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ImprovementPlateau.__init__() got an unexpected keyword argument 'objective_unit'. Did you mean 'objective_key'?
+
+tests/unit/scientist/search/test_search_loop.py:550: TypeError
+________________ test_scenario_adversary_fallback_and_execution ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-159/test_scenario_adversary_fallba0')
+
+    def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        worker = ScenarioAdversaryWorker(
+            ScenarioAdversaryConfig(
+                max_scenarios=3, collect_top_k=2, strategy=AdversarialStrategy.GRID_EXTREME
+            )
+        )
+        surface = ScenarioAttackSurface(
+            candidate_id="candidate_policy",
+            parameter_specs=[
+                DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0),
+                DOEParameterSpec(name="noise", lower_bound=0.0, upper_bound=1.0),
+            ],
+            base_metrics={"gdp_change": [0.1, 0.2, 0.3]},
+            benchmark_split_manifest=BenchmarkSplitManifest(
+                suite_id="suite",
+                selection_ids=["a"],
+                holdout_ids=["b"],
+            ),
+            vulnerability_threshold=-0.5,
+        )
+        bundle = worker.propose(surface, run_id="adv_test", budget_state=BudgetState())
+    
+        assert bundle.fallback_used is True
+        assert bundle.scenarios
+        assert any(item.target_split == "hidden_holdout_only" for item in bundle.scenarios)
+    
+        result = worker.execute(
+            surface=surface,
+            base_objective=CompositeObjective([GDPGrowthObjective()]),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {
+                    "gdp_change": float(candidate.get("shock", 0.0))
+                    + float(candidate.get("noise", 0.0))
+                }
+            },
+            cas=store,
+            run_id="adv_test",
+        )
+    
+        assert result.compiled_plan.parameter_specs
+        assert result.stress_test_report.total_scenarios_evaluated >= 1
+        assert result.stress_test_report.vulnerabilities
+        # CompositeObjective normalizes GDP as -GDP; low GDP is the bad corner.
+        assert result.stress_test_report.worst_case_objective == 0.0
+>       assert result.stress_test_report.metadata["score_scope"] == "observed_finite_scenarios"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'score_scope'
+
+tests/unit/scientist/policy_design/test_phase_b_policy_workers.py:280: KeyError
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_missing_unit_cannot_claim_objective_convergence
+FAILED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_missing_profile_cannot_claim_objective_convergence
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-100-99-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-100-98-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize--100--99-True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize--100--98-False]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_unit_conversion_also_scales_absolute_tolerance
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[None]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[1.0]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[True]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[nan]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[inf]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_absent_observation_does_not_shorten_plateau_basis
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_declared_plateau_stops_native_controller_and_preserves_best
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[-0.5-gdp]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[-0.5-cost]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.0-gdp]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.0-cost]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.5-gdp]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_physical_direction_fraction_and_exact_cas_readback[0.5-cost]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_unknown_outcomes_are_separate_from_finite_fraction[1]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_unknown_outcomes_are_separate_from_finite_fraction[2]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_first_violation_does_not_claim_complete_observed_stream
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_typed_adaptive_extremum_and_best_feedback_survive_cas[gdp]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_typed_adaptive_extremum_and_best_feedback_survive_cas[cost]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_repeated_scenarios_are_not_unique_issue_denominator[1]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_repeated_scenarios_are_not_unique_issue_denominator[10]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_search_loop_without_adaptive_producer_remains_partial
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_full_vulnerability_payloads_are_bounded_during_real_run
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing]
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric]
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan]
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf]
+FAILED tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_improvement_plateau_triggers
+FAILED tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_improvement_plateau_stops_after_zero_then_positive_loss
+FAILED tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_improvement_plateau_preserves_negative_gain_after_zero
+FAILED tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_improvement_plateau_keeps_real_progress_open
+FAILED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution
+48 failed, 64 passed, 2 warnings in 44.69s

@@ -1,0 +1,19 @@
+{
+  "operation": "native_git_index_v4_prefix_compression",
+  "root": "/workspace/e02-D-published-oracle",
+  "index": "/workspace/polisyos/.git/worktrees/e02-D-published-oracle/index",
+  "head": "c40e633fc01398cdf757f3361f6e1ed0d62497ab",
+  "branch": "refs/heads/codex/e02-D-published-oracle",
+  "old_backup": "/tmp/e02-D-index-v4-l8i40gqo/original.index",
+  "old_bytes": 2184564,
+  "new_bytes": 1271347,
+  "old_sha256": "afea3393cf08e9821cca78a737c17f74f8ebd499f61b28875d0483ba774ccffe",
+  "new_sha256": "8fe6b449159ac918d5b15397ea09d5b37e5ec8333c9cbde78d68b2e706970f4b",
+  "complete_stage_debug_sha256_before_and_after": "c36771aa5a916e51f013f346fbcdc36d2947f7a0244844ef9d9bba7c39b9dbce",
+  "status_before_and_after": "",
+  "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+  "source_tests_hooks_unchanged": true,
+  "permanent_cleanup": false,
+  "available_bytes_before": 4468736,
+  "available_bytes_after": 5382144
+}

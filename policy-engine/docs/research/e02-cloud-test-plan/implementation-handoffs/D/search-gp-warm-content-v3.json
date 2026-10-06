@@ -1,0 +1,101 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-gp-warm-content-v3",
+  "finding_ids": [
+    "B114",
+    "B115",
+    "B127"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "OPT-03",
+    "OPT-02"
+  ],
+  "slice_base_sha": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+  "slice_base_tree": "ae6f687cb1edb76e61aa380c263a2a91d3966eab",
+  "implementation_commits": [
+    "87f22cab5d270c3b3c6c4d37e33328d09ed06494"
+  ],
+  "candidate_tree_sha": "6eb8bbfeb9bae115cec5b8aff00a9b62bd363f8b",
+  "branch": "codex/e02-D-published-search",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-v3-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-4c-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-final.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-gp-continuation.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/tests/unit/remediation/test_opt_02.py",
+    "policy-engine/tests/unit/remediation/test_opt_03_continuation.py"
+  ],
+  "baseline_cells": [
+    "F02-P095",
+    "F06-P112",
+    "F08-P096",
+    "F10-P086",
+    "F13-P108"
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Supported conditional synthetic/CAS numerical continuation; no source authenticity or authority from hashes",
+  "environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "PYTHONPATH": "src:."
+  },
+  "input_closure": {
+    "profile": "synthetic_scalar_gp.v1 explicit configured target;6warm x(i+1)/16; scalar4+(x-.4)^2; seed37; contextfixture/warm-basis; metriccost/unitfixture_cost/directionminimize",
+    "negative": "same saved model/corpus/compatibility markers, first warm scalar+.2 or physical+normalizedx+.002",
+    "time_role": "past-due current-observation refit clock remains legal after actual resource refusal; warm count not equated with iteration",
+    "typed_coordinate_counterexample": "Python dict {mode:True} == {mode:1}; native categorical coordinate IDs differ and actual GP duplicate comparison preserves that distinction"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q -s tests/unit/remediation/test_opt_03_continuation.py -k saved_warm_content",
+      "target_sha": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+      "input_test_source_sha": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+      "outcome": "FAIL",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-4c-negative.txt",
+      "sha256": "5d7a23bdb9321cc06ca2985e89761540499c016b45170f3516271f4e516ad095",
+      "bytes": 7618,
+      "deciding_output": "2 failed, 3 deselected, 6 warnings in 25.87s"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_opt_03_continuation.py tests/unit/remediation/test_ctl_03_nested.py tests/unit/remediation/test_opt_02.py tests/unit/scientist/search/strategies/test_bayesian.py tests/unit/scientist/search/strategies/test_space_codec.py tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "target_sha": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+      "input_test_source_sha": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+      "outcome": "PASS",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-v3-final.txt",
+      "sha256": "f1613952ef345232925a4d98e74c746e3d173f2393833991408f3ca99c2bf34f",
+      "bytes": 1884,
+      "deciding_output": "59 passed, 20 warnings in 14.97s"
+    }
+  ],
+  "property": {
+    "statement": "The complete persisted warm payload and schedule counts participate in the canonical fitted-corpus binding before numerical restore. Saved-marker warm mutations refuse atomically, not repair via a later same-basis MLL fit.",
+    "runtime_path": [
+      "real fitted6warm SingleTaskGP",
+      "StrategyState JSON/model/corpus hashes",
+      "same configured admission reader + completecorpus binding",
+      "actual same/append/due/resource suggest and native typed duplicate consumer"
+    ],
+    "negative_controls": [
+      "exact4c warm mutation2FAIL; actual extraMLL1 each",
+      "corrective same mutations refused before model/Python/Torch/clock live changes",
+      "True/int1 distinct actual categorical duplicateconsumer"
+    ]
+  },
+  "capability_state_or_finding_state": "partial; independent fresh23 analytic/initializer review requested",
+  "limitations_and_next_owner": [
+    "gp_state_version3 refuses incomplete priorv2; no legacy numerical continuation guarantee.",
+    "Digests establish conditional content consistency, not institutional source authenticity or authorization.",
+    "Configured numeric transfer source ab660 owned separately; real composed CAS->runner->GP consumer pending root composition.",
+    "Earlier receipt50041 incorrectly assigned immutable4c target to intermediate precommit logs search-continuation-candidate(.txt/-2.txt) and search-native-candidate.txt. Those are retained diagnostic history with exact source not captured, predicate_basis not_established; deciding candidate evidence is only final search-gp-final55 at4c and search-gp-v3-final59 at87. This corrective receipt supersedes that source-label scope without replacing recorded outputs.",
+    "Independent author full23 analytic/run87 pending; no closure accepted."
+  ]
+}

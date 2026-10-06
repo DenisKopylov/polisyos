@@ -1,0 +1,168 @@
+{
+  "schema": "policyos.e02.D.five-queue-taskboard.v1",
+  "unit": "D",
+  "slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "G_checkpoint": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "D_published_checkpoint": "8f48ba70a3e6fb3f31bf247319a5a97f12bd016f",
+  "observed_at": "2026-10-06T16:18:58.493093+00:00",
+  "denominator": {
+    "bundles": 17,
+    "finding_ids": 45,
+    "criterion_occurrences": 46,
+    "LA-015_CTL-01": "supplier companion; canonical closure owner SRV-03"
+  },
+  "queues": [
+    {
+      "name": "search_controller_optimizer_service_stopping",
+      "bundles": [
+        "CTL-01",
+        "CTL-02",
+        "CTL-03",
+        "OPT-01",
+        "OPT-02",
+        "OPT-03",
+        "OPT-04",
+        "SRV-01",
+        "SRV-03",
+        "STP-01"
+      ],
+      "writers": {
+        "quantity_frontier_native_gp_generator": "search_owner",
+        "native_service_controller_champion_stopping": "gp_witness"
+      },
+      "reviewers": [
+        "numerical_oracle",
+        "root"
+      ],
+      "state": "finishing available state/basis/cost-reader mechanisms; original authority/scientific input limits remain explicit"
+    },
+    {
+      "name": "funnel",
+      "bundles": [
+        "FUN-01",
+        "FUN-02",
+        "FUN-03"
+      ],
+      "writers": {
+        "D_funnel_and_strict_response_receiver": "funnel_owner"
+      },
+      "reviewers": [
+        "transfer_owner",
+        "root"
+      ],
+      "state": "actual HTTP/B-ledger repeated event and mutated cached-cost corrections; default node execution-owner admission packet"
+    },
+    {
+      "name": "stress",
+      "bundles": [
+        "STR-01"
+      ],
+      "writers": {
+        "scenario_report_blueprint_challenge_intake": "baseline_census"
+      },
+      "reviewers": [
+        "numerical_oracle",
+        "root"
+      ],
+      "state": "known schema and per-case denominator adapter; E consumer actual two SIGKILL errors not acceptance"
+    },
+    {
+      "name": "transfer_state",
+      "bundles": [
+        "TRN-01",
+        "TRN-02"
+      ],
+      "writers": {
+        "NN_warm_state_transfer_native_vector": "transfer_owner"
+      },
+      "reviewers": [
+        "numerical_oracle",
+        "root"
+      ],
+      "state": "published cba source and82 receipt received on root; no distributed/authorization guarantee"
+    },
+    {
+      "name": "lessons_temporal_transfer",
+      "bundles": [
+        "TRN-03"
+      ],
+      "writers": {
+        "local_transferred_materialized_as_of_and_retention": "transfer_owner"
+      },
+      "reviewers": [
+        "numerical_oracle",
+        "root"
+      ],
+      "state": "published future-anchor refusal; authorized revalidation input held"
+    }
+  ],
+  "direct_agents": {
+    "search_owner": {
+      "path": "/workspace/e02-D-published-search",
+      "branch": "codex/e02-D-published-search",
+      "observed_head": "350519adde62860982fba8e14e72ce83ef421d65",
+      "observed_tree": "1bb1e07d0e64353deed535db20dd29f23b971168",
+      "working_status": "M policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py\n M policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "interpretation": "read-only observed checkpoint; source-bound test receipts state their own exact source, never inferred from current HEAD"
+    },
+    "gp_witness": {
+      "path": "/workspace/e02-D-published-champion",
+      "branch": "codex/e02-D-published-champion",
+      "observed_head": "3b00c3d74f582bb615b4cdfcd7271673c448acf3",
+      "observed_tree": "07821e2596015c017f2d999938a5badc172f40fe",
+      "working_status": "M policy-engine/src/polisyos/scientist/methods/autotune/runtime.py\n M policy-engine/src/polisyos/scientist/methods/search/service.py\n M policy-engine/src/polisyos/scientist/methods/search/stopping.py\n M policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "interpretation": "read-only observed checkpoint; source-bound test receipts state their own exact source, never inferred from current HEAD"
+    },
+    "funnel_owner": {
+      "path": "/workspace/e02-D-published-funnel",
+      "branch": "codex/e02-D-published-funnel",
+      "observed_head": "bc30edf5867e6023170fa8f5f95478ab68437e87",
+      "observed_tree": "16bcebb952730dec64918bca04f69fbcbde51d90",
+      "working_status": "M policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py\n M policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py\n?? policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "interpretation": "read-only observed checkpoint; source-bound test receipts state their own exact source, never inferred from current HEAD"
+    },
+    "baseline_census": {
+      "path": "/workspace/e02-D-published-stress",
+      "branch": "codex/e02-D-published-stress",
+      "observed_head": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "observed_tree": "bf2da141d4e361ecf7f99bc97e31bd6bfce83020",
+      "working_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+      "interpretation": "read-only observed checkpoint; source-bound test receipts state their own exact source, never inferred from current HEAD"
+    },
+    "transfer_owner": {
+      "path": "/workspace/e02-D-published-transfer",
+      "branch": "codex/e02-D-published-transfer",
+      "observed_head": "82c3194d3ac106d225ad5b7a88fdfc85ae7f7d1f",
+      "observed_tree": "007f6a692994009fdd93dd57c32199931550b1f4",
+      "working_status": "",
+      "interpretation": "read-only observed checkpoint; source-bound test receipts state their own exact source, never inferred from current HEAD"
+    },
+    "numerical_oracle": {
+      "path": "/workspace/e02-D-published-oracle",
+      "branch": "codex/e02-D-published-oracle",
+      "observed_head": "7f9ab55fa77f3a2dcd1b9416fe7e4e67a9bf38ba",
+      "observed_tree": "a4d718cd2cf5600cd58f06a96a5e4228ee8e2844",
+      "working_status": "M policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/",
+      "interpretation": "read-only observed checkpoint; source-bound test receipts state their own exact source, never inferred from current HEAD"
+    }
+  },
+  "rules": {
+    "children": false,
+    "author_is_reviewer": false,
+    "single_writer_per_shared_file": true,
+    "artificial_compute_limits": false,
+    "G_integration_writes": false,
+    "other_chat_dispatch": false,
+    "handoff_channel": "committed Git branches/receipts",
+    "source_freeze": "pending all available correction slices and independent reviews",
+    "broad_wave": "one final changed-source denominator wave after freeze, not after each merge",
+    "prior_617_executions": "historical immutable lineages, not new replay"
+  },
+  "capability_observation": {
+    "actual_E_consumer": "two frozen unchanged-input executions SIGKILL(-9), no deciding output; UNRUN/ERROR",
+    "native_trash": "unavailable; preserve exact cleanup candidates, no permanent deletion",
+    "kernel_cache_reclaim": "read-only data-preserving clean-cache reclaim request unavailable Permission denied; no file change or resource-limit change",
+    "cgroup_memory_bytes": 17179869184,
+    "no_added_caps": true
+  }
+}

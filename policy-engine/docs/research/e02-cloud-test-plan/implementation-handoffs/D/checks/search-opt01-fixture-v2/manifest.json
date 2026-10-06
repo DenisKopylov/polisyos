@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.evidence_manifest.v1",
+  "implementation_sha": "c3fe956011df8185c226155b86488294fe16143e",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/complete.txt",
+      "bytes": 27252,
+      "sha256": "dc37eedef7a3e454db7b375ad7f427b4778a85ac508d05ce50b0551c8bebadf6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/events.jsonl.txt",
+      "bytes": 141700,
+      "sha256": "94c6ac41d5eeb183d490c3406688aa54b7a54ec1e1f507b8cfd1ebc188d907d2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/junit.xml",
+      "bytes": 14009,
+      "sha256": "7cf25e6f665d9047c0f8a3cf0cc6f52a584274c1be3d94fbf7c5e48468ee88b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/result.json",
+      "bytes": 4963,
+      "sha256": "32fd59400e62482a18cd0230c697b1d21f4a50a79a29830e524ecd3ec4c2b590"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/capture.py.txt",
+      "bytes": 7528,
+      "sha256": "5f5fdb5ab79f1f13d3bc1a179ea88d734d23a224a571118612fe9019df45042c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/environment.json",
+      "bytes": 1710,
+      "sha256": "b60c33124415a52e52c9fa6180c2340d0daac303138c4788884facf391375b19"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/inputs.json",
+      "bytes": 3520,
+      "sha256": "25a05ecc04f77a0c2e29afcc9c39d754ef48e55ce0fc7795873b0ea62d56ce9b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/complete.txt",
+      "bytes": 21100,
+      "sha256": "a5b7abb053c5af0529d24d37412c3dddda3f7082f8906fc3908b59be3ab2f1d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/events.jsonl.txt",
+      "bytes": 16198,
+      "sha256": "b844a516696809092da73ed1c0cb6bda591285a9969360d0f6d2aace5ec33475"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/junit.xml",
+      "bytes": 6078,
+      "sha256": "678fcbfa166003b26df124d98c4ac56dd8f4a8ad877b79a7985c9386e2b19816"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/result.json",
+      "bytes": 6003,
+      "sha256": "71b83d761068f9e929cad215b52c27d73e5805abd3faef0419e075282ccdcf58"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/ruff-check.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/ruff-format.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    }
+  ]
+}

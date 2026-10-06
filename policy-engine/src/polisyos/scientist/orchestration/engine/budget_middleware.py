@@ -10,7 +10,11 @@ import threading
 from decimal import Decimal
 
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
-from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedger
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedger,
+    BudgetLedgerSettlementOutcomeUnknownError,
+    BudgetLedgerSpendReceipt,
+)
 
 __all__ = ["BudgetMiddleware"]
 
@@ -37,6 +41,14 @@ class BudgetMiddleware:
             with self._lock:
                 self._budget = self._ledger.load()
         return self._budget
+
+    @property
+    def settlement_owner_identity(self) -> tuple[str, str, str]:
+        """Expose persisted ledger/contract identity without synthetic memory ownership."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            return self._ledger.settlement_owner_identity
 
     def pre_check(self, alias: str, budget_key: str = "run") -> None:
         """Raise :class:`BudgetExhaustedError` if budget is exhausted."""
@@ -110,3 +122,39 @@ class BudgetMiddleware:
             result = self._ledger.commit_reservation(key, amount, provider=provider)
             self._budget = result.state
             return result.applied_amount
+
+    def settle_spend_safe(
+        self,
+        event_id: str,
+        key: str,
+        amount: Decimal,
+        *,
+        payload_digest: str,
+        provider: str | None = None,
+    ) -> BudgetLedgerSpendReceipt:
+        """Persist one producer charge exactly once through a configured ledger.
+
+        An in-memory BudgetState cannot issue a durable acknowledgment. If
+        delivery/readback fails, the same event remains resolvable; callers
+        must retain unknown settlement instead of declaring zero cost.
+        """
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            receipt = self._ledger.settle_spend(
+                event_id, key, amount, payload_digest=payload_digest, provider=provider
+            )
+            try:
+                self._budget = self._ledger.load()
+            except OSError as exc:
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
+            return receipt
+
+    def resolve_spend_safe(self, event_id: str) -> BudgetLedgerSpendReceipt | None:
+        """Resolve a ledger receipt without manufacturing an acknowledgment from memory."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            receipt = self._ledger.resolve_spend(event_id)
+            self._budget = self._ledger.load()
+            return receipt

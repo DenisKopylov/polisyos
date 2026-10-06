@@ -1,0 +1,24 @@
+{
+  "head": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+  "tree": "0d1e53c83e61cd205f4d2798f8c61fa8a49d14e3",
+  "product_source_base": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+    "-ra",
+    "--basetemp=/dev/shm/pareto-box-union-96eb-1d9e51342043436fbab67bd425c09be8",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/box-union-independent/baseline-junit.xml"
+  ],
+  "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+  "source_sha256": {
+    "src/polisyos/scientist/methods/autotune/pareto.py": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f",
+    "src/polisyos/scientist/methods/autotune/models.py": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+    "src/polisyos/core/artifacts/store.py": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+  },
+  "test_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+  "fresh_basetemp": "/dev/shm/pareto-box-union-96eb-1d9e51342043436fbab67bd425c09be8",
+  "orchestrator_cpu_process_thread_worker_limits_added": false
+}

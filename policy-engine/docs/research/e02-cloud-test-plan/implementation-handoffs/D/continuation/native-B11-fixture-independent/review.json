@@ -1,0 +1,293 @@
+{
+  "schema": "policyos.e02.independent_native_B11_fixture_review.v1",
+  "reviewer": "D/numerical_oracle",
+  "verdict": "PASS_BOUNDED_FIXTURE_MIGRATION",
+  "implementation": {
+    "initial_sha": "1264dfd94a84c4197144ff8b3b3836e8f612ccd0",
+    "initial_tree": "478fc6e5258dd24bb66635bed0dbe762e5962fe6",
+    "corrected_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+    "corrected_tree": "27d436302735cbb4c4856f159d66e41d9889db62",
+    "changed_paths": [
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+    ],
+    "production_changes": 0,
+    "changed_test": {
+      "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "git_blob": "29d2a4a2fb972af1dac72ce568a67da966c806ea",
+      "sha256": "ee64851e54b4013110cc9c5b782c96864f25369587d31b6d82a0d1c58582fdb6",
+      "bytes": 7164
+    }
+  },
+  "scope": "Full original five-purpose stale D-shaped ledger fixture and corrected seven native B1.1 cases, two unchanged ordinary funnel callers, immutable source/evidence bindings. No reviewer backend/test execution.",
+  "source_review": {
+    "complete_diff_read": "1264 parent through dee52; only this test file changes",
+    "canonical_ports": [
+      "BudgetMiddleware.reserve_safe",
+      "BudgetMiddleware.release_safe",
+      "BudgetMiddleware.settle_spend_safe",
+      "BudgetMiddleware.resolve_spend_safe",
+      "FileBudgetLedger.snapshot",
+      "BudgetLedgerSpendReceipt",
+      "BudgetLedgerSettlementOutcomeUnknownError"
+    ],
+    "product_identities": [
+      {
+        "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+        "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f",
+        "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+        "bytes": 6159
+      },
+      {
+        "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "bytes": 26353
+      },
+      {
+        "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "bytes": 6067
+      },
+      {
+        "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "git_blob": "f5752151ab11d4df0cde974d3454acb126228933",
+        "sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c",
+        "bytes": 63654
+      }
+    ],
+    "ledger_and_middleware_byte_equal_root613": {
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": true,
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": true
+    },
+    "basis": "Actual existing single-key atomic receipt custody; reservations are aggregate balances, with explicit independent release. No BudgetResourceEvent alias, synthetic owner appointment or new B API."
+  },
+  "original_five_purpose_mapping": [
+    {
+      "original": "Paid amount, fresh reopen, journal eviction, exact duplicate/conflict",
+      "current": "Receipt amount1, spent1/remaining4 after explicit release; fresh owner+resolve+retry return same frozen receipt; eviction removes journal entry while receipt survives; conflicting amount/key/provider/digest and mutation refuse without changing snapshot.",
+      "status": "SUPPORTED_MECHANISM_PASS"
+    },
+    {
+      "original": "Actual above estimate and unlimited key, formerly simultaneous two keys",
+      "current": "Two parameterized independent single-key cases charge2 despite estimate0.5. Limited reserved0.5 remains until release; unlimited reserve returnsTrue without an aggregate balance, release0, spent/provider2 and remainingNone.",
+      "status": "SINGLE_KEY_PASS",
+      "unsupported_original_claim": "Atomic charge across two budget keys is not asserted or proved."
+    },
+    {
+      "original": "Owned reservations and no release of another attempt",
+      "current": "Two reserves total4. Receipt delivery/retry never releases any aggregate capacity. Explicit release2 leaves2; second measured0.5 and explicit release produce spent1.5/remaining3.5.",
+      "status": "AGGREGATE_CAPACITY_PASS",
+      "unsupported_original_claim": "Attempt identity and durable per-attempt release authority are absent; this is not an ownership witness."
+    },
+    {
+      "original": "Same receipt delivered with later reservation",
+      "current": "Repeated receipt charges once; each new aggregate reservation1 survives settlement until explicit release1. Final spent1/reserved0.",
+      "status": "SUPPORTED_DEDUPLICATION_PASS"
+    },
+    {
+      "original": "Unknown billing and reconciliation",
+      "current": "Actual ledger os.replace fault before and after durable publication raises the exact typed unknown-ACK event/digest. Fresh receipt resolution distinguishes absent from committed, exact retry charges once and reserved2 remains until explicit release.",
+      "status": "UNKNOWN_PUBLICATION_ACK_PASS",
+      "unsupported_original_claim": "Missing external measurement/billing truth or a require_reconciliation/status transition is not provided by this ACK test."
+    }
+  ],
+  "unchanged_actual_consumers": {
+    "test_source": {
+      "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "git_blob": "ff54043b63bed3e21c2e4f5cf2a1a454ae72927a",
+      "sha256": "f9e107f3b496abcfcf841f1b61942f2af7a79385bbeb72c3de9212656b9081dd",
+      "bytes": 24423
+    },
+    "nodeids": [
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work"
+    ],
+    "full_split": "Actual configured adversary/translator Gateway call paths settle and fresh-reopen local ledger; amount2, trace costs1/1, no duplicate cached effects and full/split equal key/provider/amount records. Provider response bytes remain declared fixtures, not external billing authority.",
+    "capacity_recheck": "Prior reserve3.5 causes defer; unrelated measured spend alone does not resume; explicit release rechecks remaining work and new ticket resumes downstream. Existing source comment explicitly denies durable ownership proof."
+  },
+  "historical_results": {
+    "minimal_union_613": {
+      "verdict": "ERROR_PYTEST_COLLECTION",
+      "source_sha": "613343c3ef00379038b5ac07127605528f166531",
+      "selected_files": 99,
+      "collected_nodeids": 1202,
+      "optional_module_skips_UNRUN": 15,
+      "nonoptional_collection_errors": 1,
+      "test_body_phases": 0,
+      "receipt": {
+        "source_sha": "8f3fd532ce3e6a668e297bdce11d3d4bbcb3b019",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent-handoff.json",
+        "git_blob": "40f9334102441a9a4e3f44ba34cccc97b51d38cf",
+        "sha256": "760fe833dc97323dec0ecd4ee540eb581a7831b96f79cd82903cbf17b88a3be6",
+        "bytes": 7329
+      },
+      "successor_99_collection": "UNRUN; targeted nine does not supersede whole union."
+    },
+    "initial_1264": {
+      "status": "FAIL",
+      "passed": 8,
+      "failed": 1,
+      "errors": 0,
+      "skips": 0,
+      "failure": "Fixture assumes unlimited reserve creates reserved0.5; actual native API returnsTrue without capacity.",
+      "output_member": "initial/complete.stdout.txt",
+      "actual_origin_capture": "Unavailable: -p capture selected built-in pytest plugin. Initial full output and six clean frozen input identities are preserved, no inherited origin claim."
+    },
+    "corrected_dee52": {
+      "status": "PASS",
+      "passed": 9,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0,
+      "whole_file": 7,
+      "unchanged_consumers": 2,
+      "pytest_seconds": 13.05,
+      "wall_seconds": 22.365157749998616,
+      "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "python": "3.14.7",
+      "optional_packages_loaded": {
+        "torch": false,
+        "botorch": false,
+        "gpytorch": false,
+        "hnswlib": false,
+        "SALib": false
+      },
+      "numerical_backend_properties": "UNRUN; no GP/backend numerical claim."
+    }
+  },
+  "independent_bindings": {
+    "author_handoff": {
+      "source_sha": "0ca2b7b0664785e51c8a0b809c9967b9885e3407",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture.json",
+      "git_blob": "08b4777037920462c8296f1645038dd9c141c331",
+      "sha256": "2b58d51e33b21b5c79c5aa028b15c730413ad67e22c25ef9aecafaa0bea6810a",
+      "bytes": 11295
+    },
+    "measurement_helpers_source": "566574237b0e7a6c8bcb196425226d76c952efff",
+    "lossless_transport": {
+      "source_sha": "8573527c2019edf17e882b81ac38bcc3e19c5c67",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/output.json.gz",
+      "git_blob": "88341da547a7997a34714314a0e7a7d7a1b0f99b",
+      "sha256": "4d347d279bfd47af15ccb561a4ce3766c88716647ac404a4092fdfd88c882137",
+      "bytes": 165048
+    },
+    "decoded_members": 66,
+    "tracked_helper_reference_members": 4,
+    "each_member_hash_and_bytes_recomputed": true,
+    "each_member_equal_retained_original": true,
+    "member_errors": [],
+    "actual_origin_records": 1141,
+    "unique_product_origin_paths": 1141,
+    "recomputed_origin_bytes_blob_sha256_match_frozen_Git": true,
+    "origin_errors": 0,
+    "critical_input_count": 6,
+    "critical_input_bindings": [
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "bytes": 7164,
+        "sha256": "ee64851e54b4013110cc9c5b782c96864f25369587d31b6d82a0d1c58582fdb6",
+        "git_blob": "29d2a4a2fb972af1dac72ce568a67da966c806ea",
+        "matches_manifest": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "bytes": 26353,
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+        "matches_manifest": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "bytes": 6067,
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+        "matches_manifest": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "bytes": 63654,
+        "sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c",
+        "git_blob": "f5752151ab11d4df0cde974d3454acb126228933",
+        "matches_manifest": true
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+        "bytes": 24423,
+        "sha256": "f9e107f3b496abcfcf841f1b61942f2af7a79385bbeb72c3de9212656b9081dd",
+        "git_blob": "ff54043b63bed3e21c2e4f5cf2a1a454ae72927a",
+        "matches_manifest": true
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "bytes": 1021,
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+        "matches_manifest": true
+      }
+    ],
+    "before_after_head_tree_inputs_and_clean_status_equal": true,
+    "junit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    "call_report_PASS_count": 9,
+    "full_stdout": {
+      "bytes": 1576,
+      "sha256": "240dffd1d11dbe5d8d386f546a0d6a42a38aeb2e0129caffc59641e8931bff57",
+      "git_blob": "12cf321dba60d84ea8d428ca719dc0f01dc7df24"
+    },
+    "full_stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    "complete_nodeids": [
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_measured_charge_reopens_and_duplicate_survives_journal_eviction",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_actual_above_estimate_and_unlimited_key_are_fully_charged[run]",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_actual_above_estimate_and_unlimited_key_are_fully_charged[unlimited]",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_receipt_retry_does_not_release_aggregate_reserved_capacity",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_same_provider_receipt_delivery_with_new_reservation_does_not_double_charge",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_unknown_ack_retains_capacity_until_fresh_receipt_resolution[False]",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_unknown_ack_retains_capacity_until_fresh_receipt_resolution[True]",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work"
+    ],
+    "capture_roots": [
+      "/tmp/e02-D-ledger-B11-1264-Cab4C2mR",
+      "/tmp/e02-D-ledger-B11-dee52-5ozjgTCa"
+    ],
+    "independent_derived_checks": "/tmp/e02-oracle-ledger-B11-independent-e46d55cd877d45a3b1a96781f5979568",
+    "full_existing_outputs": "Resolved from pinned author transport; no duplicated tracked script/doc/test bodies."
+  },
+  "review_findings": [],
+  "acceptance": "Accept this test-only canonical fixture migration in supported B1.1 scope. Do not use it to close missing original authority capabilities or claim complete99 collection.",
+  "limitations": [
+    "No product writes or new owner API; current B1.1 boundary reviewed, not future B packets.",
+    "Declared local provider amount and actual ledger custody are distinct from external billing verification.",
+    "No reviewer runtime, GP26 replay, numeric fit, optional backend success or complete collection success.",
+    "No artificial CPU/thread/process/test-worker/time caps in the inspected runner and selectors; observer records end-of-session loaded packages.",
+    "No universal source-transient preservation/P37 claim. All selected member originals were readable and equal at this review.",
+    "No formal closure or G acceptance; root retains all original criterion/quality/accounting limits."
+  ],
+  "publication": {
+    "route": "Root-authorized Git API append to existing codex/e02-D-published-oracle only, expected parent8f3fd532ce3e6a668e297bdce11d3d4bbcb3b019 and forcefalse; local HEADf102 remains unchanged; no native hook pass claim.",
+    "proof_and_handoff": "Separate commits; existing history retained."
+  },
+  "child_agents": 0,
+  "product_writes": 0,
+  "test_writes": 0,
+  "root_writes": 0,
+  "cleanup_actions": 0,
+  "formal_closed": 0,
+  "D_accepted_in_G": false,
+  "closure_ids": []
+}

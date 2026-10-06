@@ -1,0 +1,23 @@
+{
+  "compatibility_change_class_counts": {},
+  "compatibility_changes": [],
+  "curated_section_counts": {
+    "api": 0,
+    "change_class": 6,
+    "compatibility": 6,
+    "limitations": 6,
+    "migration": 6,
+    "surface_classification": 0
+  },
+  "date": "2026-10-06",
+  "fragment_count": 6,
+  "fragments": [
+    "/dev/shm/search-release-q1-_m63z3ja/2026-10-06-published-executed-coordinates.toml",
+    "/dev/shm/search-release-q1-_m63z3ja/2026-10-06-published-fiscal-scalar-intake.toml",
+    "/dev/shm/search-release-q1-_m63z3ja/2026-10-06-published-gp-continuation.toml",
+    "/dev/shm/search-release-q1-_m63z3ja/2026-10-06-published-mo-vector-admission.toml",
+    "/dev/shm/search-release-q1-_m63z3ja/2026-10-06-published-pareto-indicators.toml",
+    "/dev/shm/search-release-q1-_m63z3ja/2026-10-06-published-search-state.toml"
+  ],
+  "version": "0.0.0-q1-review"
+}

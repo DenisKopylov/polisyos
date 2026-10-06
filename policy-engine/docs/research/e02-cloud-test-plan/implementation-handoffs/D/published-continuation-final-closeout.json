@@ -1,0 +1,301 @@
+{
+  "schema": "e02.D.published_continuation_final_closeout.v1",
+  "branch": "codex/e02-D-published-root",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/47",
+  "original_receipt_head": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "original_receipt_tree": "352f6a29da22ab09588fba0faaad66a1ff35005d",
+  "original_implementation_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "original_implementation_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "original_slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "continuation_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "final_candidate_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "final_candidate_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "final_engineering_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+  "final_engineering_tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+  "publication_mode": "Append-only original D history; own topic only, implementation followed by separate receipts; no main/reset/rebase/switch/force/prune/new-user-chat",
+  "fresh_G_checkpoint": {
+    "branch": "codex/e02-integration",
+    "sha": "ff277db7798fc312654704fa51c52e00f53f10f4",
+    "tree": "618e17b5da96a623d5e57f30d265e245a2b277eb",
+    "D_accepted": false,
+    "complete_fetch_receipt_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+    "complete_fetch_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-remote-readback-20261006.json"
+  },
+  "denominator": {
+    "findings": 45,
+    "criteria": 46,
+    "bundles": 17,
+    "queues": 5,
+    "minimum_owner_packets": 16
+  },
+  "original_acceptance_binding": "All46 literal acceptance texts/UTF8 hashes/fragments/task anchors/owners/roles retained; independently reviewed final ledger",
+  "supplier_companion": "LA-015@CTL-01 supplier only; canonical closure SRV-03",
+  "ledger": {
+    "ledger.json": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+      "bytes": 555218,
+      "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4"
+    },
+    "owner-inputs.json": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "bytes": 135805,
+      "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+    },
+    "source-bindings.json": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/source-bindings.json",
+      "bytes": 116230,
+      "sha256": "63baca73e6c0691daf537c9d4dafa3db83533ab92d62e110aa0339b24baf7b7f"
+    },
+    "root-G-verification-packet.json": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+      "bytes": 71761,
+      "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a"
+    },
+    "validation.json": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/validation.json",
+      "bytes": 1352,
+      "sha256": "29bc5339324c5fecd50f49162d11ed077755f99f9fb54d0e5128e068a52f6fca"
+    },
+    "summary.json": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/summary.json",
+      "bytes": 5034,
+      "sha256": "26b73fc5397134e38ee3e1ce4338c8767985aa1240888f61f782caf8076edad9"
+    },
+    "README.md": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/README.md",
+      "bytes": 2549,
+      "sha256": "0ee16757250475fa3291696d6f3fba699b4935986d7176ced2a25abf5660c784"
+    }
+  },
+  "finding_disposition": {
+    "conditional_engineering_proposals": 39,
+    "OPEN_VERIFICATION_PENDING": 39,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+    "OPEN_CURRENT_UPSTREAM_FAIL": 1,
+    "formal_closed": 0,
+    "G_accepted": false,
+    "canonical_verdict_counts": {
+      "closed": 0,
+      "limited": 0,
+      "held": 5,
+      "open": 40
+    },
+    "held_ids": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "open_observed_upstream_fail": "B120",
+    "interpretation": "39 bounded engineering proposals remain open pending matched original-criterion verification; no39-closure claim."
+  },
+  "engineering_delivery": {
+    "state": "Ready for scoped code/evidence review; not accepted inG and broad verification incomplete",
+    "finished_owned_residuals": [
+      "Exact supported1–4D geometry and typed availability/fullcoordinate intake→persisted downstream report",
+      "Owned hierarchical configured registry with actualtenant/run/candidate subject/Money JSON and directCAS bridges",
+      "Existing canonicalB1.1 ledger fixture port without shared ledger product write",
+      "Paid-cache ordinary consumers ported to existing native enforcer/receipt/reopened ledger/D resolver; former ownbadfixtures fixed",
+      "Optional native discovery admission without losing original assertions/supportedsiblings",
+      "Stress report/intake oracle widened to existing projection consumer after actual39-case blindspot",
+      "Public child-export documentation corrected to actual internal inventory classification",
+      "Persisted native search/public resume, as-of transfer filtering and other prior owned mechanisms remain source-qualified"
+    ],
+    "scoped_output_index_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+    "scoped_output_index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-delivery-runtime-index.json",
+    "full_code_test_companion_changed_paths": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+      "bytes": 345835,
+      "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+      "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+    }
+  },
+  "final_broad_wave": {
+    "status": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "runtime_source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+    "actual_exit": -9,
+    "actual_signal": 9,
+    "wall_seconds": 85.5190040430025,
+    "recorded_nodeids": 1249,
+    "case_start_report_finish": 0,
+    "test_predicates_UNRUN": 1249,
+    "collection_module_SKIPs": 15,
+    "collection_completed": false,
+    "JUnit_present": false,
+    "cause": "not_established",
+    "declared_inputs": 5568,
+    "observed_main_product_paths": 1366,
+    "identity_mismatches": 0,
+    "complete_deciding_output": {
+      "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+      "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+      "bytes": 783012,
+      "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+    },
+    "separate_receipt_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+    "separate_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final.json",
+    "independent_review_sha": "b56f56a8add78882e66e3df323631baf4e778daa",
+    "independent_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent-handoff.json",
+    "divergent_proxy": "Saved state, imports, collection and source hashes do not establish execution acceptance",
+    "next_verification": "Complete original100selector/17canonical plan and actualnative profiles in root-G-verification-packet. No weakened statistic or nativeSKIP→PASS."
+  },
+  "owner_requests": {
+    "input_packets": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "bytes": 135805,
+      "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+    },
+    "packet_count": 16,
+    "authority_appointments": "not_established where realissuer/law/servedcaller is absent; requestedcanonical owner named perpacket",
+    "ordinary_B_defect": "Gateway actualJSONnumeric token±1e-1000 collapses before costguard; unchanged realdecoder→enforcer/middleware→reopened ledger21FAIL remains OPEN. CanonicalB owner receives lossless parse seam/minimumrequirements, not a parallel Dledger/parser write.",
+    "provided_B_capability": "ExistingB1.1 paidsettlement/readback/cachelineage port is provided and consumed byactual13 Dfixtures. Additional B1.2 adoption/publicdelegate/twokey contracts scoped separately.",
+    "ordinary_A_bridge": "ExistingAinitial_context propagation dropsrun/taskfamily; actual1FAIL2wirePASS and minimalunappliedpatch/contextrecipe supplied toA-W01. Dconfiguredregistry/Money/tenant/subject consumers completed."
+  },
+  "local_production_boundary": {
+    "data_transfer_to_cloud": false,
+    "mode": "Read-only local only when exactoriginalcriterion requires evaluator/history input",
+    "minimum_ref_and_recipe": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "bytes": 135805,
+      "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+    },
+    "exact_candidate_and_remote_receipts": {
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+      "bytes": 71761,
+      "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a"
+    },
+    "production_truth_not_inferred_from": "Providerfixtures/Foundrydrawprofile/discoverymetadata/localPOSIXfixtures/ownerflags"
+  },
+  "P41": {
+    "predicate_basis": "not_established",
+    "reason": "No exact continuation-slice-base fullcommand plus completezero-overlap inputdenominator. Historical617 executions/15lineages retainoldpins."
+  },
+  "patterns_to_independent_review": [
+    "P01",
+    "P02",
+    "P05",
+    "P09",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "cleanup": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-cleanup-candidates.json",
+    "implementation_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+    "action": "None; native cloudTrash absent, exactconditional candidatesonly. Preservecode/docs/uniqueinputs/decidingoutputs/liveGit andactiveenv. No permanentdelete/prune/Trash empty."
+  },
+  "limitations": [
+    "Finalbroadwave interrupted before any testcase body; all1249remainUNRUN.",
+    "OptionalnativeTorch/BoTorch/GPyTorch/HNSW/SALib numerical checks notrun inminimal148profile. OriginalGP26 andothernativeevidence are scopedtoexactoldsource; no new617replay.",
+    "Canonicalowner fiveheldinputs cannot be manufactured byDfixtures.",
+    "B120 is upstream engineering failure withactualresponse-text reproduction; ordinaryAservedcontext/sourcebasis andadditionalB/E contracts have exactminimuminput packets.",
+    "Schema/architecture/frontend/publishedcompanions remainincomplete wherecomplete outputs are unavailable; sourcecensus is boundeddiagnostic, notruntimeintegration.",
+    "G must independentlyreview/adopt and run its sharedintegrationfreeze; no Gacceptance/productiontruth/mainpublication asserted."
+  ],
+  "portable_Git_output_reader": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/read-final258-output.py",
+    "bytes": 2329,
+    "sha256": "8fbd7e9a6efade1ea81bc29702b3904885b48fc92820322e6f746554b1ad4b0a",
+    "commands_from_repository_root": [
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/read-final258-output.py",
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/read-final258-output.py --member execution-manifest.json",
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/read-final258-output.py --member result.json",
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/read-final258-output.py --member selector-plan.json"
+    ],
+    "behavior": "Reads immutableGitcarrier; verifies full13member digests and source/tree; lists or prints exactoriginalbytes, no filesystem extraction/deletion or backend run. Historical/workspace paths inoriginalmanifest are provenance. G supplies admitted actualbackendprofile andfresh outputnamespace forfuture100selector execution.",
+    "actual_readback_check": {
+      "result.json_exact_bytes": 45623,
+      "result.json_sha256": "aaf25a7f8b9bb0f163c1ddd6c98cab138183a0ab6b27ff440d3eb31736aa2359",
+      "execution-manifest.json_exact_bytes": 34461,
+      "execution-manifest.json_sha256": "fe9956570b8d2981d7a58f0d00b43f763e4000c759770548563addc662567e96",
+      "matches_original_outputs": true,
+      "new_runtime": false
+    }
+  },
+  "ledger_separate_handoff": {
+    "receipt_sha": "aad42a1dd4c8136e07ad7a9f6b2ea25e36a353b2",
+    "receipt_tree": "20ce04868e68f3cc283b2f2088513fabbf79fa24",
+    "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+    "implementation_tree": "83c70095bdc2c4e73fde6d65cb2ce94ad029ffd7",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/handoff.json",
+    "bytes": 17440,
+    "sha256": "5d83ad3417157f8286a00f43a947613c1782c5f4f99a64728bd8659504ff6dfd"
+  },
+  "ledger_append_only_scope_correction": {
+    "commit_sha": "68c634210d2926ece915a5cf55bb1b1a66b0988c",
+    "tree": "00ce77457b1fbd7a1ade209618ea1ae239427aa5",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/native-factory-scope-correction.json",
+    "bytes": 11400,
+    "sha256": "ea43ee20da9ef4fa45e03d042094a715f0029b3bb2f15e9afa7ff30d8e267056",
+    "meaning": "Nested historical LA014/015 native15/scan payloadpending label clarified by actualexisting sourcequalified6fe15 and2701caller scan refs; originalbindings and finaldisposition unchanged."
+  },
+  "independent_original_criterion_and_pattern_review": {
+    "implementation_sha": "aa1cf435b0f9aa1ea0faa227ddde0635fbd7e959",
+    "implementation_tree": "dd7963b703463a458b6fc7cf12e4534b82f1931f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/final258-original-criterion-and-pattern-review.json",
+    "bytes": 169069,
+    "sha256": "ed6980b518f758213c593c180f9be4fb243cff18a84fccbee241cddd7bf267bb",
+    "reviewer": "criterion_closeout_review",
+    "reviewed_original_criteria": 46,
+    "reviewed_finding_ids": 45,
+    "reviewed_patterns": 14,
+    "verdict": "Bounded metadata/code-evidence review; no original criterion shortened, no current258/runtime/globalpatternPASS, no formalclosure/Gacceptance."
+  },
+  "ledger_class_wide_capability_clarification": {
+    "commit_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+    "tree": "8017b9362663a9d7e6d7a1d9eb82dad6b07d5236",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/capability-scope-correction.json",
+    "bytes": 22062,
+    "sha256": "8e3663f602c2ef15a542f80e06d488039625952df81d9a7236b657a709064714",
+    "scope": "All nested currentrecipe/capability/pending strings reviewed;5exact stale pointers clarified (Dprovided registry constructor/bridge plus historicalc17 freeze); old15/scan correction68c retained. CurrentAprovider/authority requests remain separate; originalcriteria/receipts/source/runtime unchanged."
+  },
+  "final_B_supplier_recheck": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-B-supplier-readonly-audit.json",
+    "bytes": 37879,
+    "sha256": "c22326d01b1d7ec1e34331bda581fcb8a17fc4b200919a0f33fd9544811544cb",
+    "requested_owner": "CanonicalB GatewayLLM decoder owner",
+    "scope": "Read-only latest4supplierrefs plus root258:5identical_post_json ASTs/28contractcells. No native test or newB PASS. Tool command outputs transcribed (nooriginalredirectedrawfile); observationtimestamp notrecorded andnotinvented.",
+    "result": "No newly available lossless Gateway decoder supplier fix. Existing canonical B decoder owner remains needed for preserving raw ±1e-1000 values before D admission; no new PASS or new runtime result inferred.",
+    "parser_ast_sha256": "99594ed6164f229b485d201687ba5cdabbf10a9835d9777aa39e3b3e1dcbe6f5",
+    "provided_cache_capability": "NativeB1.1 receipt/readback/Dresolver13PASS remains provided",
+    "root_independent_readback": {
+      "actual_result": "28old/current contractpairs MATCH;5parserASTs MATCH",
+      "path_bindings": 56,
+      "present_file_bindings": 52,
+      "confirmed_absent_bindings": 4,
+      "absence_semantics": "Composition/runtime settlement.py absent inbothrecorded/current trees; null equality isabsenceonly, not availability. ExistingcanonicalD1.1 providedreceipt port remains separately proven13PASS.",
+      "preparation_failure": "First rootmetadata verification attempt KeyError blob forabsentrecords beforecompletion; no runtime/result/sourcechanges. Retained as ERROR_METADATA_SHAPE; corrected only get(blob) absentnormalization, all56 actualGitpresent/absent bindings verified.",
+      "backend_invocations": 0
+    }
+  },
+  "independent_review_separate_handoff": {
+    "receipt_sha": "c1eb06c85e1a6b45d6de8b8a66f0c513bd76c25a",
+    "receipt_tree": "de05ae054295ab6b7b7057fc2660881288cf9290",
+    "implementation_sha": "aa1cf435b0f9aa1ea0faa227ddde0635fbd7e959",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review-final258-handoff.json",
+    "bytes": 45815,
+    "sha256": "215c6d7b93ff4f6e0adcd248c2979667384032c4fd6ede24b456290178050235",
+    "scope": "All45/46originalbindings,14patterns, full973metadata, exact8f58fivepointer correction, rootindex/portable reader/cleanup bounded acceptance; final1249UNRUN,15moduleskip,0closure/Gfalse/P41notestablished."
+  }
+}

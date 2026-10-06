@@ -1,0 +1,18 @@
+{
+  "source_sha": "063a4723a09e881febef2aa06ac33d210d74d1a1",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_component_stays_incomplete_beside_a_complete_case_set",
+    "--basetemp",
+    "/dev/shm/e02-D-empty-component-red-bbe404f51aa8487cb5d6f2473d382582",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/empty-component-red-junit.xml"
+  ],
+  "exit_code": -9,
+  "wall_seconds": 104.8427057480003,
+  "peak_rss_kib": 684016,
+  "source_sha_after": "063a4723a09e881febef2aa06ac33d210d74d1a1",
+  "git_status": " M tests/integration/scientist/methods/search/stress_doe_bridge_probe.py\n?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+}

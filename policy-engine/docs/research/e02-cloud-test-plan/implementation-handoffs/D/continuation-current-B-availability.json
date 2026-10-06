@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.current_owner_input_availability.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120",
+    "B158",
+    "B159"
+  ],
+  "packet_author_base_sha": "233b08894235fac374bd44a14799bb2558e7fa2c",
+  "root_target_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+  "root_target_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+  "input_manifest_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+  "requirements_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+  "review_status": "read_only_source_availability_verified; no new backend execution",
+  "predicate_basis": "recomputed source/API/byte comparison; historical runtime remains bound to its own source",
+  "result": "No newer contract for the three requested supplier capabilities exists in the inspected live B heads. Adopted B1.1 single-key settlement/resolve and configured paid native D factory remain available.",
+  "available": [
+    {
+      "capability": "canonical_B1.1_single_key_spend_receipt_and_resolve",
+      "source": {
+        "sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "methods": [
+          "settle_spend_safe",
+          "resolve_spend_safe",
+          "settlement_owner_identity"
+        ]
+      },
+      "consumer": "Existing configured LLMBudgetEnforcer -> D translator/adversary -> actual B receipt/readback -> funnel/controller/cost stopping. Single-key adversary remains ordinary supported path. Existing scoped-key totals remain distinct from provider aggregate.",
+      "runtime_evidence": "inputs.runtime_evidence_refs.native_paid_cost_stopping_5"
+    },
+    {
+      "capability": "typed_FileBudgetLedger_snapshot",
+      "source": {
+        "sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "method": "snapshot()->BudgetLedgerSnapshot"
+      },
+      "qualification": "Typed snapshot exists. Frozen spend receipts do not make the entire snapshot model immutable. Configured middleware still has no public snapshot delegate."
+    },
+    {
+      "capability": "ordinary_configurable_native_gateway_factory",
+      "source": {
+        "sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "method": "create_traced_gateway_client"
+      },
+      "consumer": "Existing required_accounting/cache_reuse_authorizer ports and LLMBudgetEnforcer(budget_middleware=...) already compose the actual paid worker. No missing whole-factory claim.",
+      "qualification": "Raw factory has no configured ledger construction; ordinary D wrappers supply existing owner. Default native blueprint CPU/evidence backend has no physical provider cost producer."
+    }
+  ],
+  "missing": [
+    {
+      "request_id": "B-raw-cost-token",
+      "status": "current_B_decoder_mechanism_gap",
+      "source": "gateway_client.py:508 json.loads(raw_text); shared Gateway blob52005eecef61a6ed0b727a7a444e28cf3acfa1e4 on all four live heads.",
+      "runtime_status": "Actual historical current-B1.1 source04bc24:21FAIL/3PASS/0ERROR/0SKIP, product FAIL. Source equality does not relabel it a new root5050 execution or expected-success control.",
+      "evidence": "inputs.runtime_evidence_refs.raw_text_24"
+    },
+    {
+      "request_id": "B-middleware-snapshot",
+      "status": "missing_public_supplier_port",
+      "source": "FileBudgetLedger.snapshot exists; full BudgetMiddleware API has no snapshot delegate. Current controller uses public budget_state plus optional public owner identity."
+    },
+    {
+      "request_id": "B-owned-two-key-transition",
+      "status": "missing_conditional_owned_atomic_supplier_contract",
+      "source": "_settle_event loops single-key settlements then separately releases in-memory reservation. Existing persisted state.reserved contains aggregate amounts, not owned reservation record.",
+      "qualification": "Conditional on actual default translator two-key scope; does not block available ordinary single-key adversary. No new store requested."
+    }
+  ],
+  "byte_binding": "Six canonical B mechanism blobs match root5050 and rootE73. Root strict core.response is a distinct D-composed consumer; newer B heads still contain the older loose response blob. Do not overlay B response over strict D guards.",
+  "authority_limit": "Local recorded accounting/source availability does not appoint invoice truth, native numerical billing, scientific draw/refinement or promotion permission authority. Valid typed promotion positive remains outside this packet and UNRUN/bridge_missing.",
+  "publication_boundary": "Documents only; no B/D product edits, backend rerun, schema design, new authority, source copying, fetching or cleanup."
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "e02.root.lossless_git_integrity.v1",
+  "result": "PASS: raw byte/hash/length bindings only; no runtime or finding closure inference",
+  "bundles": [
+    {
+      "sha": "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243-complete.json.gz",
+      "gzip_bytes": 276469,
+      "gzip_sha256": "3b43811027e728a29773621628325adedaa4605a229edf6cda18f31cb0893b96",
+      "decoded_bytes": 1607629,
+      "decoded_sha256": "bbd99363e3017c36384e5ad9b85c703cbbe45a706e4d05b6c3cc08a88f805a82",
+      "verified_files": 371
+    },
+    {
+      "sha": "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243-complete.json.gz",
+      "gzip_bytes": 9345,
+      "gzip_sha256": "6a1a5257aea16f1c1d3be9db045292624bd1f6ea830651d6be5a6301c6ee9640",
+      "decoded_bytes": 33429,
+      "decoded_sha256": "95c427cdcb7ea294ebaefba6328efb726d73926d30b59463b92412cf9cd46df2",
+      "verified_files": 11
+    },
+    {
+      "sha": "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+      "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/manifest.json",
+      "verified_files": 44
+    }
+  ]
+}

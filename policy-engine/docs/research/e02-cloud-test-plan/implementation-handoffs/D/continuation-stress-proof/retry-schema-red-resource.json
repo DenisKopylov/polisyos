@@ -1,0 +1,18 @@
+{
+  "source_sha": "30da79e438d0879bdfb791993e50e9dc1a6cc47d",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+    "--basetemp",
+    "/dev/shm/e02-D-stress-red-fdc2c23c76dd4967936362214bacbf4b",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/retry-schema-red-junit.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 21.06039003400656,
+  "peak_rss_kib": 1092320,
+  "source_sha_after": "30da79e438d0879bdfb791993e50e9dc1a6cc47d",
+  "git_status_after": ""
+}

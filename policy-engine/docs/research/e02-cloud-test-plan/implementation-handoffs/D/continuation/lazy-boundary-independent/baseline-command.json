@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+    "-k",
+    "contract_import",
+    "-ra",
+    "--basetemp=/dev/shm/autotune-lazy-red-75b4987ee7b548bcac37c562341e8bfd",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lazy-boundary-independent/baseline-junit.xml"
+  ],
+  "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+  "source_head": "d7a1712f356b5dc5024fe3a492b6f52bc411afa6",
+  "returncode": 1,
+  "wall_seconds": 19.940972871001577,
+  "controlled_optional_import_denial": "torch,botorch,gpytorch,hnswlib",
+  "actual_minimal_environment_claim": false,
+  "fresh_basetemp": "/dev/shm/autotune-lazy-red-75b4987ee7b548bcac37c562341e8bfd",
+  "caps_added": false
+}

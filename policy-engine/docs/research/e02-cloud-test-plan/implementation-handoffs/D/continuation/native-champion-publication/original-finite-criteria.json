@@ -1,0 +1,235 @@
+{
+  "criteria_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "full_original_fragments_and_cards": [
+    {
+      "id": "B116@OPT-04",
+      "finding_id": "B116",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3011,
+          3024
+        ],
+        "byte_offset": 677489,
+        "bytes": 3727,
+        "sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98",
+        "text": "## B116. Технический champion может получить оценку другого кандидата или несопоставимого испытания\n\n**Основание и область:** generic `ChampionRegistry.consider_promotion`, `BenchmarkEvaluation`, вызов из `SearchLoopRunner._evaluate_candidate`; C01–C04. Особый `claim_adjudication` путь не исполнялся. [C10.R03, C10.R07, C10.R11]\n\n**Проблема.** API отдельно получает candidate_ref и evaluation_ref. Загруженная оценка содержит собственные candidate_ref, loop_id, suite_id/version и runtime split, но перед созданием pointer они не сопоставляются с эффективным запросом. Проверяются guardrails, promotable, sample count и число метрики; этого недостаточно для установления предмета доказательства. Текущий champion хранит suite_version, однако совместимость старой и новой базы сравнения также не проверяется в этой функции.\n\n**Локальное воспроизведение.** Полный registry на fixture-store с настоящими временными JSON-файлами записал candidate B с evaluation, описывающей A. Отдельно прошла оценка из другого loop и смена suite/version при лучшем числе. Контроль `promotable=False` правильно отказал: защита не отсутствует целиком, она не закрывает идентичность. В нормальном caller candidate передаётся evaluator, но результат затем сохраняется и рассматривается без обнаруженной проверки соответствия внутри прочитанного участка.\n\n**Рекомендуемое решение.** До использования числа связать candidate, evaluation и активную политику; подтвердить применимую версию suite, split, методику метрики и data basis. Не сравнивать два числа только потому, что ключ метрики одинаков. Для новой suite — переоценить текущий champion на новой базе либо явно начать новое сравнение; не запрещать развитие benchmark вообще.\n\n**Сохранить границы полномочий.** Это проверка технической привязки, не добавление нового институционального допуска. Не следует ослаблять специализированные guards, выдавать подпись за валидность оценки или считать этот опыт обходом всех tenant/authentication/CAS-проверок. Fixture-store здесь не воспроизводит их.\n\n**Приёмка.** Перепутанная пара A/B, чужой loop, неверный split и несовместимая suite не меняют pointer; одинаковая подтверждённая база допускает честное улучшение; ошибка возвращает конкретную несовместимость, а не общий low score. Проверить cache-replay оценки и штатный evaluator-to-registry путь.\n\n"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Перепутанная пара A/B, чужой loop, неверный split и несовместимая suite не меняют pointer; одинаковая подтверждённая база допускает честное улучшение; ошибка возвращает конкретную несовместимость, а не общий low score. Проверить cache-replay оценки и штатный evaluator-to-registry путь.",
+        "byte_offset": 680728,
+        "bytes": 486,
+        "sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-04",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+      "missing_input_pointer": "/findings/10/unreceived_inputs_or_APIs",
+      "canonical_card_binding": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "bytes": 13217,
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684"
+      },
+      "canonical_card_text_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "id": "B117@OPT-04",
+      "finding_id": "B117",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3025,
+          3038
+        ],
+        "byte_offset": 681216,
+        "bytes": 3986,
+        "sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d",
+        "text": "## B117. Атомарная запись champion-файла не делает атомарным сравнение с предшественником\n\n**Основание и область:** `get → compare → _write_pointer` и `_write_json`; R01–R02. Полный registry, настоящий файловый ввод-вывод и управляемая конкурентная последовательность. [C10.R07, C10.E02]\n\n**Проблема.** Указатель читается, улучшение вычисляется, затем файл атомарно заменяется. Между чтением и записью другой вызов может установить более сильный вариант. Второй писатель не проверяет, что сравнивавшийся предшественник всё ещё актуален. Atomic replace защищает целостность одного файла, не изоляцию всей операции read–compare–publish.\n\n**Локальное воспроизведение.** Исходный score=1. Писатель B со score=2 прочитал его и остановлен непосредственно перед записью. Писатель C со score=3 прочитал тот же 1 и опубликовал 3. После освобождения B записал 2. Обе операции вернули promoted=True, окончательный pointer содержит 2. При последовательном контроле C→B значение осталось 3, а B отвергнут. Синхронизация событий обеспечивает порядок; случайная гонка не используется как доказательство.\n\n**Рекомендуемое решение.** Сделать conditional publish относительно конкретной версии predecessor под существующим владельцем: транзакция/compare-and-swap или подходящий стабильный lock вокруг чтения, сравнения и фиксации. На конфликте заново сравнить с актуальным pointer, а не слепо повторять старую запись. Дорогой benchmark исполняется вне критической секции; под ней остаётся короткая проверка неизменяемых артефактов и перехода.\n\n**Два обязательных уточнения.** In-process lock недостаточен для нескольких процессов, если такой режим разрешён. Для специализированного claim-пути pointer и promotion_basis должны оставаться согласованными; просто добавить блокировку одной записи недостаточно. История конфликтовавшего кандидата/оценки сохраняется независимо от того, стал ли он текущим.\n\n**Приёмка и предел.** Управляемая последовательность B/C не ухудшает лучший актуальный результат по одной принятой политике; conflicting predicate возвращается явно. Авария на границе публикации даёт старое или новое согласованное состояние. На production workload конкурентное обращение к этому registry не измерялось; карточка применима при разрешении нескольких писателей. Новый распределённый реестр ради одного локального сценария не нужен.\n\n"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Управляемая последовательность B/C не ухудшает лучший актуальный результат по одной принятой политике; conflicting predicate возвращается явно. Авария на границе публикации даёт старое или новое согласованное состояние. На production workload конкурентное обращение к этому registry не измерялось; карточка применима при разрешении нескольких писателей. Новый распределённый реестр ради одного локального сценария не нужен.",
+        "byte_offset": 684423,
+        "bytes": 777,
+        "sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-04",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+      "missing_input_pointer": "/findings/11/unreceived_inputs_or_APIs",
+      "canonical_card_binding": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "bytes": 13217,
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684"
+      },
+      "canonical_card_text_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "criterion_card": "SRV-01",
+      "canonical_closure_owner": "SRV-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          455,
+          481
+        ],
+        "byte_offset": 52637,
+        "bytes": 2835,
+        "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2",
+        "text": "## LA-014. Search contracts импортируют и изменяют legacy runtime\n\n**Слияние / разделение ответственности**\n\n**Статус.** Смешение контрактов и реализации подтверждено.\n\n**Точная область:**\n\n`src/polisyos/scientist/methods/search/contracts.py`\n\n**Что установлено и почему это legacy-кандидат.** Рядом с CandidateProposal, EvaluationBundle, SearchService и FunnelService находятся concrete adapters. Импорт contracts тянет SearchController и FunnelOrchestrator. LegacySearchServiceAdapter.tell вручную пишет _history, _best_objective и _best_candidate контроллера. Это отдельный путь обновления состояния, а не чистая декларация интерфейса.\n\n**Что сохранить.** Стабильные DTO/protocols и переходный доступ к действующему controller. Сохранить семантику policy_evaluation/frontier/registry feedback, а не лишь scalar minimum.\n\n**Куда перенести / с чем объединить.** В contracts.py оставить DTO/protocols; предлагаемый новый adapters.py в том же существующем methods/search/ принимает LegacySearchServiceAdapter и OrchestratorFunnelService. Конкретную операцию tell-state transition предоставляет владелец search state, не обход приватных полей.\n\n**Порядок миграции.** Сначала разорвать import dependency, затем централизовать переход состояния; временно сохранить старый export только если подтверждён публичный контракт. Перемещение dataclass без устранения ручной мутации не завершает смысловую миграцию.\n\n**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.\n\n**Приоритет.** Высокая архитектурная отдача; средняя цена.\n\n**Граница вывода.** Новый native SearchService не показан как готовая замена: в прочитанном contracts присутствуют protocol и adapter. Нельзя удалить controller потому, что интерфейс уже назван canonical.\n\n**Основания:** E27, E28.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+        "byte_offset": 54712,
+        "bytes": 284,
+        "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-01",
+      "missing_input_pointer": "/findings/43/unreceived_inputs_or_APIs",
+      "canonical_card_binding": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+        "bytes": 8706,
+        "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0"
+      },
+      "canonical_card_text_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+        "git_blob": "d865853fc8410b64892cbb9763b651f2f55d91ad",
+        "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0",
+        "bytes": 8706,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+        "text": "## LA-015. SearchController: живое legacy-ядро, требующее поэтапного замещения\n\n**Слияние / разделение ответственности**\n\n**Статус.** Legacy-роль и production-source caller подтверждены.\n\n**Точная область:**\n\n`src/polisyos/scientist/methods/search/controller.py`\n\n`src/polisyos/scientist/methods/search/frontier.py`\n\n`src/polisyos/scientist/methods/autotune/runtime.py`\n\n**Что установлено и почему это legacy-кандидат.** Контроллер поддерживает старый монолитный loop; autotune/runtime действительно создаёт SearchController. Protocol ask/tell не доказывает наличия второго полноценного loop, уже покрывающего stopping, warm-start, sentinels и историю. Сохранение старого драйвера лишь ради зрелого consumer — типичный случай живого legacy, а не unused code.\n\n**Что сохранить.** Проверенные сценарии, историю, причины остановки, evaluator ports, sentinel roles, бюджетные ограничения и частичные результаты. Стратегии и funnel не нужно выносить или переписывать вместе с driver.\n\n**Куда перенести / с чем объединить.** Текущий владелец methods/search/ и SearchService-contract. Предлагаемая extraction: state transition и run state под тем же владельцем, затем native ask/tell driver; autotune/runtime переводится на этот сервис. Это план миграции, не ссылка на якобы уже готовый advanced implementation.\n\n**Порядок миграции.** Снять characterization traces по фактически используемым сценариям. Выделять операции без смены поведения, переключать одного consumer и только затем выводить full-loop API. Отдельный retirement для старых serialized histories и import names.\n\n**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.\n\n**Приоритет.** Высокая полезность, высокая цена; не первая cleanup-волна.\n\n**Граница вывода.** В этом проходе перечитан contract и подтверждён caller; весь controller/runtime повторно не исполнен. Нет основания удалить весь methods/search, содержащий работающие современные компоненты.\n\n**Основания:** E27, E28, E37.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs",
+      "canonical_card_binding": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "bytes": 17621,
+        "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f"
+      },
+      "canonical_card_text_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "git_blob": "500da588ba34cac6939898a11d5510d24d8f4aeb",
+        "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+        "bytes": 17621,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "criterion_card": "SRV-03",
+      "canonical_closure_owner": "SRV-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-03",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+        "text": "## LA-015. SearchController: живое legacy-ядро, требующее поэтапного замещения\n\n**Слияние / разделение ответственности**\n\n**Статус.** Legacy-роль и production-source caller подтверждены.\n\n**Точная область:**\n\n`src/polisyos/scientist/methods/search/controller.py`\n\n`src/polisyos/scientist/methods/search/frontier.py`\n\n`src/polisyos/scientist/methods/autotune/runtime.py`\n\n**Что установлено и почему это legacy-кандидат.** Контроллер поддерживает старый монолитный loop; autotune/runtime действительно создаёт SearchController. Protocol ask/tell не доказывает наличия второго полноценного loop, уже покрывающего stopping, warm-start, sentinels и историю. Сохранение старого драйвера лишь ради зрелого consumer — типичный случай живого legacy, а не unused code.\n\n**Что сохранить.** Проверенные сценарии, историю, причины остановки, evaluator ports, sentinel roles, бюджетные ограничения и частичные результаты. Стратегии и funnel не нужно выносить или переписывать вместе с driver.\n\n**Куда перенести / с чем объединить.** Текущий владелец methods/search/ и SearchService-contract. Предлагаемая extraction: state transition и run state под тем же владельцем, затем native ask/tell driver; autotune/runtime переводится на этот сервис. Это план миграции, не ссылка на якобы уже готовый advanced implementation.\n\n**Порядок миграции.** Снять characterization traces по фактически используемым сценариям. Выделять операции без смены поведения, переключать одного consumer и только затем выводить full-loop API. Отдельный retirement для старых serialized histories и import names.\n\n**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.\n\n**Приоритет.** Высокая полезность, высокая цена; не первая cleanup-волна.\n\n**Граница вывода.** В этом проходе перечитан contract и подтверждён caller; весь controller/runtime повторно не исполнен. Нет основания удалить весь methods/search, содержащий работающие современные компоненты.\n\n**Основания:** E27, E28, E37.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-03",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs",
+      "canonical_card_binding": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+        "bytes": 9440,
+        "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0"
+      },
+      "canonical_card_text_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+        "git_blob": "a65d6feeaf669dd46677abe6a7b258980da180cd",
+        "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0",
+        "bytes": 9440,
+        "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md@198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    }
+  ]
+}

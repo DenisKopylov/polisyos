@@ -1,0 +1,2 @@
+Scope: all 6 workspace projects
+Done in 3.5s using pnpm v10.33.2

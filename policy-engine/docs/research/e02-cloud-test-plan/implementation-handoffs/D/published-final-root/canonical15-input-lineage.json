@@ -1,0 +1,799 @@
+{
+  "schema": "e02.exact_declared_input_lineage.v1",
+  "source": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "prior_source": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "production_blobs": 2910,
+  "checks": [
+    {
+      "bundle": "CTL-01",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "bytes": 11363,
+          "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "bytes": 36072,
+          "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_controller_api.py",
+          "bytes": 1710,
+          "sha256": "c09a00d0692c525ec2e592f3fd853743484d9569ba05364ca7a9db33ba2b8447"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/01-CTL-01/complete.txt",
+        "bytes": 134363,
+        "sha256": "e9880759e7c16f780b6c6fd288b5baa74e0d1f47262a77d1fd9a814e851bebff"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/01-CTL-01/junit.xml",
+        "bytes": 6014,
+        "sha256": "cd066582786807bf4e9ca67d2b08b32da29ba12cce7655ec412ccb2b9419fcff"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "CTL-02",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+          "bytes": 2684,
+          "sha256": "fcdf153d70253388a62083839eb7bf16450748a9227e352569d49f8b96ce9e39"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+          "bytes": 1886,
+          "sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+          "bytes": 5645,
+          "sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/02-CTL-02/complete.txt",
+        "bytes": 7060,
+        "sha256": "672589389f6682cc704fcf4c96dbec84a79828a61eaf512bb0e3af6a9e6fad2e"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/02-CTL-02/junit.xml",
+        "bytes": 5808,
+        "sha256": "6a592a7011b446a818e73eee0aacba8d64808a575b36196e6a54358cf947d533"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "CTL-03",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "bytes": 36072,
+          "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+          "bytes": 4730,
+          "sha256": "5be71426a16abb77d196a1a9bd82371266368fb3baa559a1a8cdc166ab519a5f"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "bytes": 7556,
+          "sha256": "f01ca0ca71da13bc5a0fdfeff8274ab6e58ac5f6467f995536a490fbab5929f5"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py",
+          "bytes": 5297,
+          "sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "bytes": 17339,
+          "sha256": "56e684f7fc8de07da14f228d05db70915f70543f641276ff0747d8e06850aa4d"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+          "bytes": 4433,
+          "sha256": "bace2c7ad3bdda33856bb07b2a456e8e882fba388e9d39f0fd12c406b86b4654"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/complete.txt",
+        "bytes": 13091,
+        "sha256": "4b73aa3d9f80392390680d93c09e6f17eb759a2c9d80b5a615badd54a64c1bc4"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/junit.xml",
+        "bytes": 15335,
+        "sha256": "b24a806f9604f329a3c3eea99cb65d28c75a89ff76db4c3409fc68bddc26155b"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "FUN-01",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "bytes": 26876,
+          "sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py",
+          "bytes": 5297,
+          "sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "bytes": 17339,
+          "sha256": "56e684f7fc8de07da14f228d05db70915f70543f641276ff0747d8e06850aa4d"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+          "bytes": 4433,
+          "sha256": "bace2c7ad3bdda33856bb07b2a456e8e882fba388e9d39f0fd12c406b86b4654"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/04-FUN-01/complete.txt",
+        "bytes": 11290,
+        "sha256": "0d418a7ed7edf56da09296f0a59b05e555abbe47bb3f386caa14586dc343b04a"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/04-FUN-01/junit.xml",
+        "bytes": 13197,
+        "sha256": "e010629980d1b6ffe14813f1a103f952d2fc2aab923909e00bea0261ccbe077b"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "FUN-02",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "bytes": 26876,
+          "sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_fun_02.py",
+          "bytes": 6434,
+          "sha256": "c90d5b94053d38ae5ca17c4520f4db98b7af214bbc43a7bdded3c4bdf4c3d311"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/05-FUN-02/complete.txt",
+        "bytes": 5465,
+        "sha256": "61ccadc9b3b4c584367154ece0064668973dd42bbd989004a4157ab6febf3bae"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/05-FUN-02/junit.xml",
+        "bytes": 6050,
+        "sha256": "4f57750fe4603de84fe995d924ff96d266f0702d55efc338e8ba7db7d16a29b8"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "OPT-02",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+          "bytes": 14993,
+          "sha256": "a802505e0b79fa1e156b130b26ebda1a920ff4d0679c37fd9052bd9aa7d39d64"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "bytes": 7556,
+          "sha256": "f01ca0ca71da13bc5a0fdfeff8274ab6e58ac5f6467f995536a490fbab5929f5"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+          "bytes": 5546,
+          "sha256": "c98484f2d9bf920d8ed8e185bccfb96f97bf9fc658267c63a4b473be2c2c0ded"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/08-OPT-02/complete.txt",
+        "bytes": 10189,
+        "sha256": "87fe6135751026cd99422232b673814ba738563681a6e18ffc45c723e2848626"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/08-OPT-02/junit.xml",
+        "bytes": 9335,
+        "sha256": "5e78114e12bbce644658ee92e3eb80f1773d64886718f9c99b8ab599031f6136"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "OPT-03",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+          "bytes": 5645,
+          "sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+          "bytes": 2030,
+          "sha256": "004369b6fdcddf5d5adda03f0ba5f453ed036e10b1a1f0e4b22f7a6d678b37ef"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+          "bytes": 7616,
+          "sha256": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/complete.txt",
+        "bytes": 3207,
+        "sha256": "df7bb9d990880efba94fcb20828f8580fea016e48f99a9db0f7e07a21af03627"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/09-OPT-03/junit.xml",
+        "bytes": 1894,
+        "sha256": "ddde4611406d0d4f88a85ec3dd6eb8bfd5b2a4403c80e8e3682ef2462327ff9b"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "OPT-04",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "bytes": 11363,
+          "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_frontier.py",
+          "bytes": 3179,
+          "sha256": "db452e942e98827005997942d1bf7a5fa4002a87e4dbf8e8f5bf35888b3d7b51"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "bytes": 28236,
+          "sha256": "d2b7e85f839c1a57694e41cbd8c7a5fd6729808a51187667137481838167a390"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/10-OPT-04/complete.txt",
+        "bytes": 4779,
+        "sha256": "4c9c4ee9cfef2e8f46324e41ff7cff4a9057b911aa1029ab281a109a9f4934c9"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/10-OPT-04/junit.xml",
+        "bytes": 5125,
+        "sha256": "fafc496a369908e94c3da720f70a530774e663aecda74853409908bdf18beca3"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "SRV-01",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "bytes": 11363,
+          "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_contracts.py",
+          "bytes": 3419,
+          "sha256": "25657a74d27506f49e337c92ee1b66f74a9563ab486ee4cf8b1110d98b7183ab"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "bytes": 36072,
+          "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/11-SRV-01/complete.txt",
+        "bytes": 134463,
+        "sha256": "734e34f66148ce39c267351714efb50c668a1350d39d406ca218d9333b2ef3b0"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/11-SRV-01/junit.xml",
+        "bytes": 6147,
+        "sha256": "aa5781032838d8223afa266da04a327d251fd384b3c90eb6c2143f0598a2d415"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "SRV-03",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "bytes": 11363,
+          "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "bytes": 28236,
+          "sha256": "d2b7e85f839c1a57694e41cbd8c7a5fd6729808a51187667137481838167a390"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/12-SRV-03/complete.txt",
+        "bytes": 4450,
+        "sha256": "a068b67cf404b708943ff60a2e7e5d2351b940bd2682bae45ed5220d4e63b337"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/12-SRV-03/junit.xml",
+        "bytes": 4697,
+        "sha256": "b3cbda9890bf07d8f27340faff0f9309c312e9f38bea511619ad63cda48b0a52"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "STP-01",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+          "bytes": 2076,
+          "sha256": "a7b7c7bfd7d0e83f6e2306484c42b78eeb0f8fe16afffc90c749b4b0621a8dce"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+          "bytes": 1248,
+          "sha256": "50be760cd99772cab25a0613494e264d468182b3507cdda7ea3f7ebda2b5664d"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+          "bytes": 5129,
+          "sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/complete.txt",
+        "bytes": 6002,
+        "sha256": "19fc79dd6dc7e7e06493e264f81987000d4f55a1f42600b6f75c7eea9eb95810"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/junit.xml",
+        "bytes": 6612,
+        "sha256": "581f5533cada7cae103cba9958beb447a2a4f402fc3c644c98c95941a9544fb9"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "STR-01",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+          "bytes": 10766,
+          "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+          "bytes": 19728,
+          "sha256": "4afd6424485fcbaeb9a4b6e9f468d5d0f297bc95596a278e6d8bd34af1cfe9fa"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+          "bytes": 11914,
+          "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/complete.txt",
+        "bytes": 5644,
+        "sha256": "a37b1bfb133160287930b4d3dd01587d06b3b44eedcaaf978a53cd86d85e9d98"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/14-STR-01/junit.xml",
+        "bytes": 6321,
+        "sha256": "61fc7dc5dea45fd1db85299141319fa1b3c0fac1f6981ec6d014067543df6b7a"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "TRN-01",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+          "bytes": 18497,
+          "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+          "bytes": 4604,
+          "sha256": "5f760489d73b675d014ed01a8f82a5e609b02d9a94f5c974b9387c79877ec9bd"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+          "bytes": 7616,
+          "sha256": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/15-TRN-01/complete.txt",
+        "bytes": 8461,
+        "sha256": "5c468aa807b21d4db49440893ddaa109ca5ff7637d45a4243de03e108da4a4f6"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/15-TRN-01/junit.xml",
+        "bytes": 8690,
+        "sha256": "69610ec8b4f447bb224b79f25529862ae50edede93a1d5032425441de06737a0"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "TRN-02",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+          "bytes": 7515,
+          "sha256": "5e1592f5644b33957fa26ac71462ebe5f64b9502ddcbed158f5dc646c16d6cb0"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+          "bytes": 4648,
+          "sha256": "108ccd62281295cb4e03455f9f1c491d22140ab9f00e5970b8ae506f039808dc"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+          "bytes": 18497,
+          "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/16-TRN-02/complete.txt",
+        "bytes": 8905,
+        "sha256": "2ba4f6747da1d67bef4799a368d5e66dfa756730f23c399e46aa50984a08c6d5"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/16-TRN-02/junit.xml",
+        "bytes": 10274,
+        "sha256": "e468934915968a8e11ad756ca977b9c39fa76edbcd42071fa8482efe5e305073"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    },
+    {
+      "bundle": "TRN-03",
+      "original_check": "PASS",
+      "executed_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "delta_review_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "basis": "lineage_checked",
+      "unchanged_declared_inputs": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+          "bytes": 7419,
+          "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+          "bytes": 4342,
+          "sha256": "dbc96fb574339da46c578215a33b1027523ade804e494afec49bbab9194f2bcc"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+          "bytes": 9200,
+          "sha256": "e872ca78bca4ff0cbc141fe1602e6577fd213d3331702f0ba3c266b12cc13e11"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "bytes": 1021,
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "complete_original_output": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/complete.txt",
+        "bytes": 3087,
+        "sha256": "6ba66aec2c941ee69a4a5b76f6ed831c37ca641c191d8f448fed6e8d2d50daef"
+      },
+      "full_original_junit": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/17-TRN-03/junit.xml",
+        "bytes": 3103,
+        "sha256": "4d15ea6c63074fb33e9c0ba5f32436961a5dc8dc4743ade535a86305c993ee6f"
+      },
+      "runtime_scope": "No new execution claimed. Entire2910src blob/pathset and listed selectors/config/lock bytes identical. Does not waive full quality, scientific source law, authorized local input, or changed doc input checks."
+    }
+  ],
+  "criterion_closure": false
+}

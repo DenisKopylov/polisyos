@@ -1,0 +1,6 @@
+{"source": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5", "input_bounds": [-1e+308, 1e+308], "declared_finite": true, "normalization_input": 0.0}
+{"normalized": 0.0, "physical": "nan", "finite": false}
+{"normalized": 0.5, "physical": "inf", "finite": false}
+{"normalized": 1.0, "physical": "inf", "finite": false}
+{"normalize_physical_zero": [0.0]}
+{"native_random_candidate_error": "ValueError", "message": "Finite physical parameter required for 'x'"}

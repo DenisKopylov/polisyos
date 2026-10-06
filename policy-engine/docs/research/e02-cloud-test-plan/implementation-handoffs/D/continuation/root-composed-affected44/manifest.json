@@ -1,0 +1,2720 @@
+{
+  "schema": "e02.lossless_carrier_manifest.v1",
+  "source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+  "source_tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+  "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/complete-output.json.xz",
+  "carrier_bytes": 1060752,
+  "carrier_sha256": "32be0055d49cb4d63d504c668e5f8038af65f71194286acd3150ae9ec97172f8",
+  "member_count": 447,
+  "original_raw_bytes": 9161971,
+  "members": [
+    {
+      "name": "completed44/after.json",
+      "bytes": 826681,
+      "sha256": "2e98f6e047e89774163bd259488906df25b7c39bd838c1d143a815a7789886c5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/before.json",
+      "bytes": 793489,
+      "sha256": "a93b177b078ee7b078a6c88847b32fa87cb3cfcab714ffde7650caea5692c9a7",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/child.json",
+      "bytes": 62,
+      "sha256": "0b286d17d47ea8581ee4d5a1bd589eabed26acd085e2e5616d64fb625b29ed0b",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/collected-nodeids.json",
+      "bytes": 7453,
+      "sha256": "4f49083e44900aaea70cf13cdcbda46d617e070f269a41691fe9447d03287f98",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/complete.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/complete.stdout.txt",
+      "bytes": 1616,
+      "sha256": "4724bdee0418b1184b50c59ec0b73cbddf3cfcb2d9255f80c38a1014df88de1c",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/events.jsonl",
+      "bytes": 3421055,
+      "sha256": "1a81ee456c5c4be7926138f23e4beef5c6f1e166d975b7b55e4c88511b9ba451",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/execution-manifest.json",
+      "bytes": 2247,
+      "sha256": "1f72f46219abf91f5e091b11fdd7ceca8eef5b173248f45ecf39941c53fbfcdb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_above_estimate_and0/budget.json",
+      "bytes": 1327,
+      "sha256": "04cee13e5ced41ea4d02e092d03a8e4ea787b2f157bfecf96bd560fdb5b7f8dc",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_above_estimate_and0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_above_estimate_and1/budget.json",
+      "bytes": 1361,
+      "sha256": "413fb4511a5f2e6c29ccbe09164c4c0283a2c5ad1398e9b8fddfb66dfdf20804",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_above_estimate_and1/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-23.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/01/3d/013d7dafeb2eccba25016f86b4284975df2c10880470c4cff45da48b8d2756d7.blob",
+      "bytes": 1817,
+      "sha256": "013d7dafeb2eccba25016f86b4284975df2c10880470c4cff45da48b8d2756d7",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/01/3d/013d7dafeb2eccba25016f86b4284975df2c10880470c4cff45da48b8d2756d7.manifest.json",
+      "bytes": 726,
+      "sha256": "09f52f2345f325182aee7b9fc96530cb6fc4a4c56cf3c610d79f7c2753879dc7",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/01/3d/013d7dafeb2eccba25016f86b4284975df2c10880470c4cff45da48b8d2756d7.view.0a5ccd4376e86debff992629f811939d1cdcf8ec5c8c5f7eac18f18f2931c0ca.manifest.json",
+      "bytes": 726,
+      "sha256": "09f52f2345f325182aee7b9fc96530cb6fc4a4c56cf3c610d79f7c2753879dc7",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/56/4d/564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e.blob",
+      "bytes": 2970,
+      "sha256": "564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/56/4d/564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e.manifest.json",
+      "bytes": 653,
+      "sha256": "c79d202da6a6ce8199e79acd2ca1848b7cf15f5cfec801131918bb42aab0e007",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/56/4d/564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e.view.5d0d8ee8256770b5d3216889be8714ae026f2e91eda3e9022c8d8632977334ce.manifest.json",
+      "bytes": 653,
+      "sha256": "c79d202da6a6ce8199e79acd2ca1848b7cf15f5cfec801131918bb42aab0e007",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/d9/7d/d97d5b35bf7f465f92656c194b09764827f62dec3d425d97d449b51dfd741bc3.blob",
+      "bytes": 5009,
+      "sha256": "d97d5b35bf7f465f92656c194b09764827f62dec3d425d97d449b51dfd741bc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/d9/7d/d97d5b35bf7f465f92656c194b09764827f62dec3d425d97d449b51dfd741bc3.manifest.json",
+      "bytes": 769,
+      "sha256": "7fbb8d4f6d38fb915fc463ec056bbfc90b03ba9aa831d7bf16f0e29e9316d839",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/d9/7d/d97d5b35bf7f465f92656c194b09764827f62dec3d425d97d449b51dfd741bc3.view.49af2583d12a594714377bc1db2275a4ac4a0bf5467654766868109fdad48132.manifest.json",
+      "bytes": 769,
+      "sha256": "7fbb8d4f6d38fb915fc463ec056bbfc90b03ba9aa831d7bf16f0e29e9316d839",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_canonical_candidat0/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-08.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-52.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/21/4d/214d2b0aa894c6935d29fd90a6768682a98a90cf347e18b22285cc553b3020c8.blob",
+      "bytes": 1897,
+      "sha256": "214d2b0aa894c6935d29fd90a6768682a98a90cf347e18b22285cc553b3020c8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/21/4d/214d2b0aa894c6935d29fd90a6768682a98a90cf347e18b22285cc553b3020c8.manifest.json",
+      "bytes": 726,
+      "sha256": "11345c18a95a85e69dc44c376c08b86b83fe49447e5dc6c7e5c68c7ef9f0e437",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/21/4d/214d2b0aa894c6935d29fd90a6768682a98a90cf347e18b22285cc553b3020c8.view.0a5ccd4376e86debff992629f811939d1cdcf8ec5c8c5f7eac18f18f2931c0ca.manifest.json",
+      "bytes": 726,
+      "sha256": "11345c18a95a85e69dc44c376c08b86b83fe49447e5dc6c7e5c68c7ef9f0e437",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/f9/c3/f9c30ad986890db5fdd9527e724e15868f4dc9e3c8104e8febc6d40c053740f4.blob",
+      "bytes": 5009,
+      "sha256": "f9c30ad986890db5fdd9527e724e15868f4dc9e3c8104e8febc6d40c053740f4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/f9/c3/f9c30ad986890db5fdd9527e724e15868f4dc9e3c8104e8febc6d40c053740f4.manifest.json",
+      "bytes": 769,
+      "sha256": "0f2c1a2151790850396a418ebb5427059acefd309bd233568f9cb1574b9d2351",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/artifacts/sha256/f9/c3/f9c30ad986890db5fdd9527e724e15868f4dc9e3c8104e8febc6d40c053740f4.view.49af2583d12a594714377bc1db2275a4ac4a0bf5467654766868109fdad48132.manifest.json",
+      "bytes": 769,
+      "sha256": "0f2c1a2151790850396a418ebb5427059acefd309bd233568f9cb1574b9d2351",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_forwards_owne0/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_node_money_intake_0/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 6600,
+      "sha256": "f6ff6c573af288201ee7a9ccf1dd64fded1e9516d01558d504a9386bad6d25eb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/registry/loops/nonprojectable/pareto_registry.json",
+      "bytes": 10579,
+      "sha256": "253c6e1a182fc94614cd2cec1cf68aa08b6544d77a02a6934506c0d72928fcbb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non0/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 6600,
+      "sha256": "81494153270725cb4b34b9fe531579e9852d6f9cdcdd9ebea2b635e5ac9ab43a",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/registry/loops/nonprojectable/pareto_registry.json",
+      "bytes": 10579,
+      "sha256": "917adb5b57c97c2818f6d2afbbfefd8b5dfd08eaf61809eee74ee6a4f66b4b97",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non1/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 6600,
+      "sha256": "2fb25d0246fe088a668e7ad9bee41e11923ab4d82be8be75ff231103b27294b7",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/registry/loops/nonprojectable/pareto_registry.json",
+      "bytes": 10579,
+      "sha256": "ce19e22fe92b342716bfd257f7b5f92c5bb18b7ae7f32f8fbbbbf7dc4c0a5f76",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_report_refuses_non2/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_spend_does_not_res0/budget.json",
+      "bytes": 6366,
+      "sha256": "c4ebe73fc3c97317f57cf122312b96946b2bd5de824d498814d7d87a4604eb28",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_spend_does_not_res0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/2e/92/2e92b613d17712233244de8c54e25bcb04020a0b18c0514919e0d19fba6f57f0.blob",
+      "bytes": 2685,
+      "sha256": "2e92b613d17712233244de8c54e25bcb04020a0b18c0514919e0d19fba6f57f0",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/2e/92/2e92b613d17712233244de8c54e25bcb04020a0b18c0514919e0d19fba6f57f0.manifest.json",
+      "bytes": 769,
+      "sha256": "bc39e251461c01067319ceaa6d11999744d09cebf60075a96a8c7ae2f9ee735f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/2e/92/2e92b613d17712233244de8c54e25bcb04020a0b18c0514919e0d19fba6f57f0.view.49af2583d12a594714377bc1db2275a4ac4a0bf5467654766868109fdad48132.manifest.json",
+      "bytes": 769,
+      "sha256": "bc39e251461c01067319ceaa6d11999744d09cebf60075a96a8c7ae2f9ee735f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/registry/catalog/80a707af7dc77ee1/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 8191,
+      "sha256": "f073f2ff405265c0ba7c9e04405a7742b3a30525cb3983b46ff0543e86a920ac",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/registry/loops/actual_rows/pareto_registry.json",
+      "bytes": 27208,
+      "sha256": "66051e07dcae6d90c7fd36fbb84b575e4fa951787eb2b172a1daaed9a5fe55ad",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d0/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-47.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/50/4b/504b68a3e057a5786b9f0ea89456f57e4869f7462903e5eeed9d48e1935b996f.blob",
+      "bytes": 2199,
+      "sha256": "504b68a3e057a5786b9f0ea89456f57e4869f7462903e5eeed9d48e1935b996f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/50/4b/504b68a3e057a5786b9f0ea89456f57e4869f7462903e5eeed9d48e1935b996f.manifest.json",
+      "bytes": 769,
+      "sha256": "f04d89615d9d5b1790af56a01d40c54cd57e97e113c5391ff55a5f089bb3443c",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/50/4b/504b68a3e057a5786b9f0ea89456f57e4869f7462903e5eeed9d48e1935b996f.view.49af2583d12a594714377bc1db2275a4ac4a0bf5467654766868109fdad48132.manifest.json",
+      "bytes": 769,
+      "sha256": "f04d89615d9d5b1790af56a01d40c54cd57e97e113c5391ff55a5f089bb3443c",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/registry/catalog/80a707af7dc77ee1/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 6591,
+      "sha256": "3b13cf7bb765a37ac661b9c586ce5387ebf7e3dc5bbcd17e152346621b1db6f6",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/registry/loops/actual_rows/pareto_registry.json",
+      "bytes": 10573,
+      "sha256": "c87b1acc28209e524bba576fde1c309838df79bb148cd9bc5cb9846ae52aef01",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_actual_typed_rows_reach_d1/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_configured_registry_reach2/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 8182,
+      "sha256": "9962d332f433a9f51f65151106eb60d1ae0ff344fef626e900e27e955d79ea0f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_configured_registry_reach2/registry/loops/port_run/pareto_registry.json",
+      "bytes": 27196,
+      "sha256": "6211dedc2c875994015c9480bc63ddf11e7c8cd3af007f905d77141e3804a338",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-40.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/56/4d/564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e.blob",
+      "bytes": 2970,
+      "sha256": "564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/56/4d/564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e.manifest.json",
+      "bytes": 653,
+      "sha256": "c79d202da6a6ce8199e79acd2ca1848b7cf15f5cfec801131918bb42aab0e007",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/56/4d/564d484b2d2c694a2e13acade7d77a5213a37d105f1364bae1e4f77721ea9a6e.view.5d0d8ee8256770b5d3216889be8714ae026f2e91eda3e9022c8d8632977334ce.manifest.json",
+      "bytes": 653,
+      "sha256": "c79d202da6a6ce8199e79acd2ca1848b7cf15f5cfec801131918bb42aab0e007",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/aa/88/aa88859e3eae4630e1621199d446c97ecd6c0112bfd7271f13989f34db2696a8.blob",
+      "bytes": 2684,
+      "sha256": "aa88859e3eae4630e1621199d446c97ecd6c0112bfd7271f13989f34db2696a8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/aa/88/aa88859e3eae4630e1621199d446c97ecd6c0112bfd7271f13989f34db2696a8.manifest.json",
+      "bytes": 769,
+      "sha256": "d012e3bc92f96aef646a3e9137d543207095fba482895edfa053aeb2fbad227b",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/aa/88/aa88859e3eae4630e1621199d446c97ecd6c0112bfd7271f13989f34db2696a8.view.49af2583d12a594714377bc1db2275a4ac4a0bf5467654766868109fdad48132.manifest.json",
+      "bytes": 769,
+      "sha256": "d012e3bc92f96aef646a3e9137d543207095fba482895edfa053aeb2fbad227b",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 8188,
+      "sha256": "a28c8e90240c2f21c090e4eb4f4b3864de88f87a7a4c05f866b08f2ab3d74346",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/registry/loops/direct_cas/pareto_registry.json",
+      "bytes": 27204,
+      "sha256": "d5ef010564355cdbe9bc98cdb59d2b932da3a39d5606e8e6efe15756d37d0546",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_direct_canonical_candidat0/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_measured_charge_reopens_a0/budget.json",
+      "bytes": 1328,
+      "sha256": "3c7995ca557fce8c15733b68a09b86e9c741159fee84a9c56e50e428ac68d5ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_measured_charge_reopens_a0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_native_policy_callers_ful0/full/budget.json",
+      "bytes": 4094,
+      "sha256": "d981f091d2fb67b06fa21d3c310f138c63ec52d33dbf0dd971a66301229a011b",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_native_policy_callers_ful0/full/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_native_policy_callers_ful0/split/budget.json",
+      "bytes": 4146,
+      "sha256": "582e934fba9d58ee675642fbd0766a1c30dee586501ada8e8a774e7885991413",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_native_policy_callers_ful0/split/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_parameterless_callback_ac0/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 6488,
+      "sha256": "e9af1089c9293b4df5212fd23f0a61fc34cc2553d72434c063894215d6a05929",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_parameterless_callback_ac0/registry/loops/one_binding/pareto_registry.json",
+      "bytes": 10470,
+      "sha256": "7aa587bcd3e45f0170be5f426c0cede49b1cff3152e4bf126f07f87efeed83d8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_parameterless_callback_ac1/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 6507,
+      "sha256": "0fabe9c35d5bee3fa35afbe5aef575b99c874dc5e685d076244990d73968fcd7",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_parameterless_callback_ac1/registry/loops/one_binding/pareto_registry.json",
+      "bytes": 10489,
+      "sha256": "d37f1c4089d948ef1a06d210969a70b0d8290fd43db1a7af0e16dec05c2c77af",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_parameterless_missing_axe0/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 591,
+      "sha256": "9ef55dcf424deb0382c1d60137505c8d784e8ca2620479f3840170d1a542dfc1",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_parameterless_missing_axe0/registry/loops/missing/pareto_registry.json",
+      "bytes": 10691,
+      "sha256": "6633642909a0273922d4cbfa0f27cf973636588de6d5cb79700b00c9208a747b",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-01.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "400ac3748fe0f5e358ea21a8b97549c912e5cb61f1687d0f8eb6a8e52020dd03",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "ef4fe21307e6b56d0a8a65dda70aaa3209c02db3c4e608b724ce04f1bdb493b8",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "9c18c68964a2f8069f13a33fa4cf1cd26e261db2666d88aec97e7a9dec41114f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/64/14/641401c7cf5c50cb01c9e14d47573efeb16de49d84fc173b7cefecdb98c58001.blob",
+      "bytes": 3521,
+      "sha256": "641401c7cf5c50cb01c9e14d47573efeb16de49d84fc173b7cefecdb98c58001",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/64/14/641401c7cf5c50cb01c9e14d47573efeb16de49d84fc173b7cefecdb98c58001.manifest.json",
+      "bytes": 769,
+      "sha256": "291d636972df246677a4d39abeea5a25868c8e7216c9c6808ed349517957eb16",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/64/14/641401c7cf5c50cb01c9e14d47573efeb16de49d84fc173b7cefecdb98c58001.view.49af2583d12a594714377bc1db2275a4ac4a0bf5467654766868109fdad48132.manifest.json",
+      "bytes": 769,
+      "sha256": "291d636972df246677a4d39abeea5a25868c8e7216c9c6808ed349517957eb16",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "9e0c6c39e608e00988335e3d23322dd0d7fd3a6e17b5aaf209a4a0855e8c28e5",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "17c65ae8842ae700894444e261e08bc2b3c86aa7c2e72a272625fb24f1eb8f24",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "7b6fc3f0991516c40a1b13037c6fc52483343de3d76c1e8438a56cd5c29566e4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "1d5eb59b47b8241cc0f09ab66f00e32d92fcb98010e78d86e0e6a7d159310c6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "1bb64b1d5da9d80d305444505c2db7343cbc9e133581613553b55cf2d6f3d38d",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/registry/catalog/global/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 8191,
+      "sha256": "67e7a86846505e3fd36591cf0a780ab77c478a026ca03c7719469fec3fa9084f",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/registry/loops/denominator/pareto_registry.json",
+      "bytes": 19717,
+      "sha256": "0f3d186f8cb2f7747509b1fb0b059a59395fff6e2f6dccb34a84288933e74436",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_real_source_denominator_c0/runs/R_test/trace.jsonl",
+      "bytes": 191,
+      "sha256": "75e80c40371909605ad89be08496842dfe0b9b045852e3a36c993cd79fefdefb",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_receipt_retry_does_not_re0/budget.json",
+      "bytes": 1654,
+      "sha256": "37aa95f5bea37757dd085c381d083d8648e1b1205b3e577cce56f8665ee4d258",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_receipt_retry_does_not_re0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_same_provider_receipt_del0/budget.json",
+      "bytes": 1323,
+      "sha256": "07f7c119791641e200ecea59416c749a1296087824dc0172688bd55b5f7c50b1",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_same_provider_receipt_del0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_tenant_scope_covers_real_0/registry/catalog/80a707af7dc77ee1/registry_policy/fiscal/pareto_registry.json",
+      "bytes": 8173,
+      "sha256": "c1a508fb1fff9488e4dcf1b04e7030f0a933fd521f8e8bfe0c2c72bdcbad06d7",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_tenant_scope_covers_real_0/registry/loops/scope/pareto_registry.json",
+      "bytes": 27184,
+      "sha256": "31a934a79afdb1e13db1d4ce8541e14df17c46e0302e821eddb7f8aa98338489",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_unknown_ack_retains_capac0/budget.json",
+      "bytes": 1323,
+      "sha256": "f7612e100baeda9da7d687252239f22a24aba787e05d845b45ea81f6efd29f96",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_unknown_ack_retains_capac0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_unknown_ack_retains_capac1/budget.json",
+      "bytes": 1323,
+      "sha256": "307781c25eba390d4245b1a14bb6cb0f37464e095a97dc69ccd76c2b207eac92",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/fresh-fixtures/test_unknown_ack_retains_capac1/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/junit.xml",
+      "bytes": 9016,
+      "sha256": "4c5c49aaaf0f95725038f7493d3817abdccc1cb5f98d89801ef095b3f748c627",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/observer-summary.json",
+      "bytes": 1759394,
+      "sha256": "5ba90297f1408e164a4e199f069c8852b49c8c2f23a155db16ebf647b1252e56",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/pytest-cache/.gitignore",
+      "bytes": 37,
+      "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/pytest-cache/CACHEDIR.TAG",
+      "bytes": 191,
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/pytest-cache/README.md",
+      "bytes": 302,
+      "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/pytest-cache/v/cache/nodeids",
+      "bytes": 7228,
+      "sha256": "35867a7a5ff5ff79fc8bf3c12c3bf5d78d157b9c6ade50633ad9374bbbacd2f1",
+      "encoding": "base64"
+    },
+    {
+      "name": "completed44/result.json",
+      "bytes": 12749,
+      "sha256": "85b0a5f0fda777fc00ac2c5b62705413a8307281baa4a4ebe9c21c299e8c0e9a",
+      "encoding": "base64"
+    },
+    {
+      "name": "startup-error/after.json",
+      "bytes": 826678,
+      "sha256": "81f204b67d02de1cbc45d2177e83dceffc6123a861a61bb5f09a72e0ce113b6f",
+      "encoding": "base64"
+    },
+    {
+      "name": "startup-error/before.json",
+      "bytes": 826678,
+      "sha256": "8ed48e34e92d075f0222cd28790130624c7920345b30b82e072d63bf86ebd571",
+      "encoding": "base64"
+    },
+    {
+      "name": "startup-error/child.json",
+      "bytes": 62,
+      "sha256": "7c8d6a1e706a748b54fc82aade60f512356c3939422af84ecfefb85bed87d4c3",
+      "encoding": "base64"
+    },
+    {
+      "name": "startup-error/complete.stderr.txt",
+      "bytes": 3879,
+      "sha256": "effa38e6c5142b514579029bf8279a055652e4d3842faec48a92aa06f2e17ed6",
+      "encoding": "base64"
+    },
+    {
+      "name": "startup-error/complete.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "startup-error/execution-manifest.json",
+      "bytes": 2247,
+      "sha256": "1ecac92b0375808e9cf62181ec75e2dd2bc458190814190a7f32376011b3087c",
+      "encoding": "base64"
+    },
+    {
+      "name": "startup-error/result.json",
+      "bytes": 669,
+      "sha256": "d9021cd6e7322e5fcefb35b57b6408ce2b17ec866feda43462019b633978a872",
+      "encoding": "base64"
+    },
+    {
+      "name": "original-inputs/e02-D-root-affected-consumers.py.txt",
+      "bytes": 4275,
+      "sha256": "267c1ed4043a192b546045b3a800741cbfc733b2a8c60959440f40d27f44c608",
+      "encoding": "base64"
+    },
+    {
+      "name": "original-inputs/e02-D-root-affected-consumers-v2.py.txt",
+      "bytes": 4272,
+      "sha256": "557aa43f955584ae7db584ba0acfa63bbd6b5e4831d2267fa4f5d8606a8e8338",
+      "encoding": "base64"
+    }
+  ],
+  "existing_original_input_references": {
+    "observer": {
+      "implementation_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "raw_sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81"
+    },
+    "broad_helper": {
+      "raw_sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+      "previous_git_carrier": "D/continuation/root-wave-8c-interruption",
+      "reference_documents": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-configured-GP-update.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-independent-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/manifest.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/prewave-8c17a44-disposition.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/interruption6333-binding.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/transport.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-original-criterion-review/final-source-5050a940-review.json"
+      ]
+    },
+    "profile": {
+      "sha": "8391c8db699564a6af39cf66477e141cc6d30030",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/complete-profile-metadata.json.xz"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.independent_native_B11_fixture_handoff.v1",
+  "reviewer": "D/numerical_oracle",
+  "scope": "Read-only source/evidence review; no reviewer pytest, optional backend or GP execution",
+  "verdict": "PASS_BOUNDED_FIXTURE_MIGRATION",
+  "proof_commit": "e8e7f55ec7eec3d99b62f638c55d5f18c1d4267f",
+  "proof_tree": "10c330dfbc24570c44786eaaed8952b4403e7475",
+  "proof_parent": "8f3fd532ce3e6a668e297bdce11d3d4bbcb3b019",
+  "proof_files": [
+    {
+      "filename": "README.md",
+      "git_blob": "90e3de969609f0dd88476147aef6851f651e4e5b",
+      "sha256": "e7d601231a97a4a2ab30929be2b877ea6d92c7949a62a0cb5a39ca08677b549c",
+      "bytes": 844,
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-B11-fixture-independent/README.md"
+    },
+    {
+      "filename": "review.json",
+      "git_blob": "5a99fb6a643a7977498ef23c2abda1ca9c721028",
+      "sha256": "af8a90bd58583bb6b068a903914883f9dd03c518595782ac00b740cb03b38237",
+      "bytes": 15919,
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-B11-fixture-independent/review.json"
+    }
+  ],
+  "actual_author_runtime": {
+    "source_sha": "dee52f69005dca0df7e3de77ce348fe8086047a5",
+    "source_tree": "27d436302735cbb4c4856f159d66e41d9889db62",
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "selected": "Whole native ledger file7 plus two unchanged ordinary funnel consumer selectors",
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "skips": 0,
+    "pytest_seconds": 13.05,
+    "wall_seconds": 22.365157749998616,
+    "optional_backends_loaded": false
+  },
+  "independently_recomputed": {
+    "transport_sha": "8573527c2019edf17e882b81ac38bcc3e19c5c67",
+    "transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/output.json.gz",
+    "transport_bytes": 165048,
+    "transport_sha256": "4d347d279bfd47af15ccb561a4ce3766c88716647ac404a4092fdfd88c882137",
+    "member_count": 66,
+    "tracked_helper_reference_members": 4,
+    "member_hash_byte_and_original_errors": 0,
+    "actual_unique_product_paths": 1141,
+    "Git_byte_blob_sha256_binding_errors": 0,
+    "critical_input_count": 6,
+    "source_HEAD_tree_inputs_clean_before_after_equal": true,
+    "Junit_and_call_reports": {
+      "passed": 9,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0
+    }
+  },
+  "reviewed_author_handoff": {
+    "source_sha": "0ca2b7b0664785e51c8a0b809c9967b9885e3407",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture.json",
+    "sha256": "2b58d51e33b21b5c79c5aa028b15c730413ad67e22c25ef9aecafaa0bea6810a"
+  },
+  "original_results_preserved": {
+    "minimal_union_613": "Exit2 ERROR:1202collected/15optionalmoduleSKIP=UNRUN/1stale nonoptional ledgerAPI collectionERROR,0testbodies. Targeted9does not supersede full99collection.",
+    "initial_1264": "8PASS1unlimited-fixtureFAIL; initial -p capture plugin did not capture actual origins. Critical frozen before/after input identities preserved.",
+    "corrected_dee52": "Native unlimited reserve admitted without reserved capacity; charge2/provider2 and release0 asserted."
+  },
+  "scope_limits": [
+    "Native receipt+aggregate reservation mechanism accepted only. No attempt-owned reservation identity, auto-release, atomic multi-key transition, missing billing reconciliation status or external provider billing authority.",
+    "No GP26 rerun, numerical PASS, full99collectionPASS, whole quality gate or universal source/preservation/P37 claim.",
+    "All source/test production writes0. No caps, child agents, root writes, cleanup or backend jobs introduced by reviewer."
+  ],
+  "publication": {
+    "method": "Root-authorized Git API on existing topic codex/e02-D-published-oracle only",
+    "expected_parent_lease": true,
+    "force": false,
+    "local_head": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+    "local_head_advanced": false,
+    "local_status": "clean",
+    "native_commit_push_hooks": "Not executed for API commits; no native hook PASS claimed",
+    "all_proof_blobs_raw_readback_equal": true
+  },
+  "retained_derived_checks": "/tmp/e02-oracle-ledger-B11-independent-e46d55cd877d45a3b1a96781f5979568",
+  "formal_closed": 0,
+  "D_accepted_in_G": false,
+  "closure_ids": []
+}

@@ -1,0 +1,66 @@
+{
+  "schema": "e02.independent.final_proof_payload_manifest.v1",
+  "reviewer_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "reviewer_prior": "a474ff675264e2264d24e49814f29d873320b1ee",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/helper-quality.json",
+      "bytes": 905,
+      "sha256": "f5f5f91817cf189de2013b6d77927ecbdb316e2eefa9c2e9eecfb6464f98d4f5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/helper-ruff-complete.txt",
+      "bytes": 58330,
+      "sha256": "cda9e233fb2172bf9a231d3eedac6c1d3cadef4abc0ee3b9a04d1df877403d0e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/observations.json",
+      "bytes": 285747,
+      "sha256": "fae597eec5648055cbf26387503142c8e8f1d25d8cf07bdccde9932f3c028f6d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt",
+      "bytes": 22217,
+      "sha256": "0c1d9a4f7a925e0487bcb94418446e7b8acae9b894d01301a6e86ec4c4e0112e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/actual-origins.json",
+      "bytes": 7015,
+      "sha256": "6f23e7d60e13c92cf6d4def232e9f0019f5da59d110a7d25d74dd1663d335555"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/command.json",
+      "bytes": 4166,
+      "sha256": "91fbef0289614bd5d49403b0f60fbd99401aa7ff04242945e2f61fb42dbfd16b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/complete.txt",
+      "bytes": 24362,
+      "sha256": "7d4227496be1f6c39e4d66f1409a3d6a5f58a711f57a59fa0dd381e0b77c3b3c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/junit.xml",
+      "bytes": 28407,
+      "sha256": "59d1e356b3d98ce171c47a4a8804c4b5a426aa842a14b1a28710aa410536342e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/observations.json",
+      "bytes": 5126,
+      "sha256": "5abe61fd3d4aaf4676707ff341327dfba29e039f4e786723da36070391399194"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt",
+      "bytes": 7693,
+      "sha256": "54a70d36830ab02ebded59c0c7e758c6565f43c953eaf65b9ad5040a8548489d"
+    }
+  ],
+  "scope": "Own complete Git binding observations/verifier and actual current142 command/origins/full output/JUnit; executed helpers unchanged, own Ruff82FAIL retained separately. No production edits or source archive.",
+  "source_execution": {
+    "sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+    "tree": "e674e22edb8d94d47579326135a786c832402a15"
+  },
+  "cleanup_candidates": [
+    "/dev/shm/e02-oracle-final3f38-native142-0ab3369db8354882986a1e6979b1c818"
+  ],
+  "closure_ids": []
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "policyos.e02.independent_original_criterion_review_delta.v1",
+  "parent_review_sha256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f",
+  "delta": "Scope clarification before any B119 verdict.",
+  "finding_id": "B119",
+  "original_fragment_scope": "run/_generate_candidates batch [] only; excludes ordinary nonempty route.",
+  "source_question_classification": "No runtime falsifier was executed here and no B119 mechanism defect is established by the Bayesian adapter broad catch.",
+  "minimum_actual_control": "Use the existing public batch contract and existing refusal/cancellation exception. Assert its exact cause and previous accepted history/cost/checkpoint view remain, then distinguish persistent empty/exhaustion and allowed transient. No new cancellation authority/API or unrelated nonempty behavior is imposed.",
+  "implication": "The earlier B119 review-state denotes an uncited acceptance clause, not a proven product failure. Actual native public rethrow behavior may discharge it with a small ordinary consumer test and no product patch.",
+  "runtime_executions": 0,
+  "finding_closed": false,
+  "G_accepted_D": false
+}

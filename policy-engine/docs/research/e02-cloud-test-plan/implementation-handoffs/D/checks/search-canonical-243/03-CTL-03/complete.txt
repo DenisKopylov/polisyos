@@ -1,0 +1,102 @@
+........................................................................ [ 80%]
+..................                                                       [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestCostBudgetStopping::test_stops_at_budget
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestCostBudgetStopping::test_does_not_stop_below_budget
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestCostBudgetStopping::test_stops_when_over_budget
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestCostBudgetStopping::test_missing_cost_key_is_unavailable_and_stops
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestCostBudgetStopping::test_custom_cost_key
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestCostBudgetStopping::test_invalid_budget_raises
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestCostBudgetStopping::test_name
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestAllStoppingCriteria::test_stops_when_all_trigger
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestAllStoppingCriteria::test_does_not_stop_when_only_one_triggers
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestAllStoppingCriteria::test_does_not_stop_when_none_trigger
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestAllStoppingCriteria::test_reason_includes_all
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestAllStoppingCriteria::test_reset_propagates
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestAllStoppingCriteria::test_empty_criteria_raises
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestAllStoppingCriteria::test_name
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestStoppingPresetsCostBounded::test_cost_bounded_preset
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestStoppingPresetsCostBounded::test_stops_on_cost
+PASSED tests/unit/scientist/search/test_cost_stopping.py::TestStoppingPresetsCostBounded::test_stops_on_iterations
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_public_space_matches_independent_physical_encoding
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_default_public_suggestion_consumes_real_seeded_torch_design
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_full_history_identity_reaches_actual_directional_training_and_json[minimize]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_full_history_identity_reaches_actual_directional_training_and_json[maximize]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[False]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[True]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[false]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[true]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[0]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[1]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[None]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed5]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed6]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_absent_and_declared_boolean_stage_contract_is_preserved[False-None-True]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_absent_and_declared_boolean_stage_contract_is_preserved[True-True-True]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_absent_and_declared_boolean_stage_contract_is_preserved[True-False-False]
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetLimit::test_basic_creation
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetLimit::test_with_soft_limit
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetLimit::test_extra_fields_forbidden
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_remaining_no_limit
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_remaining_with_limit
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_remaining_no_spend
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_would_exceed_false
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_would_exceed_true
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_would_exceed_no_limit
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_record_spend
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_is_soft_limit_exceeded
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_is_soft_limit_not_exceeded
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetState::test_is_soft_limit_no_soft
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetStateConversion::test_from_experiment_budgets
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetStateConversion::test_to_experiment_budgets
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetStateConversion::test_roundtrip
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetExhaustedError::test_is_policy_os_error
+PASSED tests/unit/scientist/orchestration/engine/test_budget.py::TestBudgetExhaustedError::test_default_stage
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateProviderSpent::test_record_with_provider
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateProviderSpent::test_record_without_provider
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_reserve_reduces_remaining
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_reserve_fails_when_insufficient
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_release_restores_remaining
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_release_clamps_to_zero
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_commit_converts_to_spend
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_remaining_accounts_for_reserved
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_would_exceed_accounts_for_reserved
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateReservation::test_reserve_no_limit
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateThresholdAlerts::test_alert_at_80
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateThresholdAlerts::test_alert_at_90
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateThresholdAlerts::test_no_alert_below_80
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateThresholdAlerts::test_no_limit_no_alert
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetStateRoundtrip::test_serialization_with_new_fields
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddleware::test_pre_check_passes
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddleware::test_pre_check_blocks_exhausted
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddleware::test_threshold_deduplication
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddleware::test_record_spend_safe
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddleware::test_reserve_safe
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddleware::test_commit_safe
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddleware::test_release_safe_returns_actual_released_amount
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestBudgetMiddlewareThreadSafety::test_concurrent_record_spend
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_persists_state_across_middleware_instances
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_mutation_uses_copy_on_write_budget_state
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_snapshot_exposes_canonical_multi_host_contract
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_journal_tracks_cross_host_mutation_provenance
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_journal_retention_stays_bounded
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_reader_never_observes_blank_snapshot_during_writer_pause
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_failed_atomic_replace_preserves_last_valid_snapshot
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_corrupt_existing_snapshot_never_becomes_unlimited
+PASSED tests/unit/scientist/orchestration/engine/test_budget_middleware.py::TestFileBudgetLedger::test_ledger_reads_are_observations_without_spending_or_revision
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_measured_charge_reopens_and_duplicate_survives_journal_eviction
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_actual_above_estimate_and_unlimited_key_are_fully_charged
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_reservations_are_owned_and_replay_does_not_release_another_attempt
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_same_provider_receipt_delivery_with_new_reservation_does_not_double_charge
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_unknown_billing_retains_reservation_for_reconciliation
+90 passed, 2 warnings in 11.46s

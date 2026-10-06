@@ -1,0 +1,20 @@
+{
+  "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+    "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+    "--basetemp",
+    "/dev/shm/e02-D-challenge-frozen-bbedce8d8d7443e7b601dfa128ec91df",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/challenge-frozen-junit.xml"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 22.275484461002634,
+  "peak_rss_kib": 871952,
+  "source_sha_after": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+  "git_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+}

@@ -1,0 +1,120 @@
+{"source": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230", "removed_properties": ["ask local-state publication rollback", "fresh canonical predecessor reread for the actual slow writer"], "service_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py", "registry_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py"}
+FFF
+=================================== FAILURES ===================================
+_ test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write] _
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-negative-74220b752ded47fcab9d5151eacb04e2/test_failed_ask_publication_re0')
+failure = 'fail_write'
+
+    @pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+    def test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view(
+        tmp_path, failure
+    ):
+        store = _FailingCAS(tmp_path / "cas")
+        service = _direct(store)
+        first = service.ask(None, None, {})[0]
+        service.tell(
+            first.candidate_id,
+            service.controller._evaluate_for_tell(first.payload, iteration=0, context={}),
+        )
+        acknowledged = service.checkpoint_ref
+        before = service.controller._generator.get_state()
+        setattr(store, failure, True)
+        with pytest.raises(OSError, match="actual checkpoint"):
+            service.ask(None, None, {})
+        assert service.checkpoint_ref == acknowledged
+>       assert service.controller._generator.get_state() == before
+E       AssertionError: assert {'candidates'...generator.v1'} == {'candidates'...generator.v1'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'index': 2} != {'index': 1}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_persistence.py:495: AssertionError
+_ test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback] _
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-negative-74220b752ded47fcab9d5151eacb04e2/test_failed_ask_publication_re1')
+failure = 'fail_readback'
+
+    @pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+    def test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view(
+        tmp_path, failure
+    ):
+        store = _FailingCAS(tmp_path / "cas")
+        service = _direct(store)
+        first = service.ask(None, None, {})[0]
+        service.tell(
+            first.candidate_id,
+            service.controller._evaluate_for_tell(first.payload, iteration=0, context={}),
+        )
+        acknowledged = service.checkpoint_ref
+        before = service.controller._generator.get_state()
+        setattr(store, failure, True)
+        with pytest.raises(OSError, match="actual checkpoint"):
+            service.ask(None, None, {})
+        assert service.checkpoint_ref == acknowledged
+>       assert service.controller._generator.get_state() == before
+E       AssertionError: assert {'candidates'...generator.v1'} == {'candidates'...generator.v1'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'index': 2} != {'index': 1}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_persistence.py:495: AssertionError
+_ test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread _
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-negative-74220b752ded47fcab9d5151eacb04e2/test_competing_native_writer_r0')
+
+    def test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread(tmp_path):
+        store, registry, suite_ref, policy, spec = _environment(tmp_path, values=(1,))
+        SearchLoopRunner(store=store, registry=registry).run(
+            spec, suite_ref=suite_ref, max_iterations=1
+        )
+        entered, release = Event(), Event()
+    
+        class BarrierEvaluator(_Evaluator):
+            def evaluate(self, candidate_ref, suite_ref, context):
+                candidate = load_model_artifact(context["store"], candidate_ref, _Mutation)
+                if candidate.value == 3:
+                    entered.set()
+                    release.wait()
+                return super().evaluate(candidate_ref, suite_ref, context)
+    
+        slow = replace(
+            spec,
+            candidate_generator=SequenceCandidateGenerator([_Mutation(loop_id="verified", value=3)]),
+            benchmark_evaluator=BarrierEvaluator(),
+        )
+        fast = replace(
+            spec,
+            candidate_generator=SequenceCandidateGenerator([_Mutation(loop_id="verified", value=2)]),
+        )
+        with ThreadPoolExecutor() as workers:
+            pending = workers.submit(
+                SearchLoopRunner(store=store, registry=registry).run,
+                slow,
+                suite_ref=suite_ref,
+                max_iterations=1,
+            )
+            entered.wait()
+            try:
+                other = ChampionRegistry(tmp_path / "champions", store=FileSystemCAS(tmp_path / "cas"))
+                SearchLoopRunner(store=other._store, registry=other).run(
+                    fast, suite_ref=suite_ref, max_iterations=1
+                )
+            finally:
+                release.set()
+            slow_result = pending.result()
+        decision = slow_result.history[0].stage_b_result["feedback"]["promotion_decision"]
+>       assert decision["promoted"] is False
+E       assert True is False
+
+tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py:280: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write]
+FAILED tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback]
+FAILED tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread
+3 failed in 4.42s
+{"pytest_exit": 1, "torch_loaded": false}

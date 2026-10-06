@@ -1,0 +1,122 @@
+{
+  "schema": "e02.D.final_delivery_runtime_index.v1",
+  "original_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "frozen_runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "frozen_runtime_source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "engineering_source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+  "engineering_source_tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+  "metadata_heads_are_not_runtime_pins": true,
+  "actual_scoped_checks": [
+    {
+      "scope": "Configured hierarchical registry and tenant/subject/Money transport35 +canonicalB1.1 ledger7 +2existing actual full/split/recheck funnel callers",
+      "runtime_source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+      "actual_result": "44PASS0FAIL/ERROR/SKIP",
+      "receipt_sha": "aa6c7b589c465bfe3aa5204be774195b627b72ea",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+      "independent_review_sha": "672384852a3b9fedb0cbb8fa4019d4df7dc6845b",
+      "limitations": "Historical _bundle helper not individually captured at run; after-run frozen Git binding and clean global root only. Provider fixtures and declared Money transport are bounded."
+    },
+    {
+      "scope": "Real paid-cache ordinary consumer fixture, native enforcer→middleware→reopenedB1.1ledger receipt→existing D funnel local-receipt resolver→cache reuse/expiry/refusal",
+      "runtime_source_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "actual_result": "13PASS0FAIL/ERROR/SKIP;7physical ledgers",
+      "receipt_sha": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+      "independent_review_sha": "6b787d90a45eb8fdec9364f29cfdd8c781d42d30",
+      "limitations": "Paid provider fixtures, not invoice authority or appointed default served factory."
+    },
+    {
+      "scope": "Stress shared per-scenario intake/producer→report→blueprint denominator, unchanged original probes plus existing projection selector",
+      "runtime_source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "actual_result": "baseline57PASS;example_fraction53PASS4intentionalFAIL;raw_bool53PASS4intentionalFAIL;0ERROR/SKIP",
+      "receipt_sha": "115b8efa503b82a15fa4e2c97bf796846dd97632",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-stress-probes-independent-review.json",
+      "limitations": "Original raw_bool39PASS detection gap retained; widened selector57 exposes it. No SALib/native DOE on this minimal runtime."
+    },
+    {
+      "scope": "Whole3 optional admission test files; guarded nativeHNSW/Sobol cells and unchanged supported siblings",
+      "runtime_source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "actual_result": "17PASS21SKIP/UNRUN0FAIL/ERROR",
+      "receipt_sha": "415621e89b059d432f1b24a00262b73b3fe99e22",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-handoff.json",
+      "independent_review_sha": "8c0970e164bc427cc1a223922018dcaa50b5ca6e",
+      "limitations": "57assertion ASTs retained; native skipped properties notPASS."
+    }
+  ],
+  "historical_scoped_evidence": {
+    "configured_real_GP_bridge": {
+      "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "receipt_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "independent_review_sha": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "positive": "Actual8CASrows→SingleTaskGP→fit_mll returned; signal9 before acquisition/testcase acceptance; ERROR_PARTIAL_UNRUN",
+      "negatives": "4PASS before constructor/fit; changedref/basis/direction/false outcome",
+      "GP26": "Original independent fixed-parameter NumPy mean/fullcovariance oracle plus realCAS8/7row fit/restore preserved, unchanged dependency only; no new replay/aggregate claim"
+    },
+    "older_c17_wave": {
+      "runtime_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial.json",
+      "status": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+      "observed_call_results": {
+        "PASS": 229,
+        "FAIL": 45,
+        "SKIP": 5,
+        "UNRUN": 965
+      },
+      "own_repairs": "Optional17+1native cells guarded;2paidcacheconsumer fixtures ported to existing actualreceipt. Failures retained, never converted toPASS. B21decoderFAIL and4CASchild timeout verdict remain source-scoped."
+    },
+    "historical617": "617executions across15immutable lineages; no current replay and no P41 waiver"
+  },
+  "final_corrective_wave": {
+    "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "receipt_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final.json",
+    "payload_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+    "independent_review_sha": "b56f56a8add78882e66e3df323631baf4e778daa",
+    "independent_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent-handoff.json",
+    "status": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "recorded_cases": 1249,
+    "case_starts_reports_finishes": 0,
+    "case_predicates_UNRUN": 1249,
+    "module_SKIPs": 15,
+    "collection_completed": false,
+    "JUnit_present": false,
+    "cause": "Observed signal9 only; notestablished",
+    "full_captured_inputs": 5568,
+    "source_python": 2701,
+    "tests_python": 2860,
+    "observed_main_product_paths": 1366,
+    "frozen_identity_mismatches": 0,
+    "plan": {
+      "canonical_commands": 17,
+      "canonical_raw_selectors": 53,
+      "canonical_unique_paths": 38,
+      "changed_test_inputs": 79,
+      "changed_pytest_files": 73,
+      "union_selectors": 100,
+      "standalone_probes": 4,
+      "worker_helpers": 2
+    }
+  },
+  "cross_cutting_limitations": [
+    "Do not sum overlapping scoped counts or call them final258 aggregatePASS.",
+    "Source equality supports only unchanged assertions; no inheritedP41 without exactslice-basecommand and completezero-overlap denominator.",
+    "All unavailable native Torch/BoTorch/GPyTorch/HNSW/SALib predicates remainUNRUN.",
+    "Production evaluator/history remain local/read-only; canonicalowner minimum refs and bounded recipes are committed in finalaccounting owner/G packets.",
+    "G is sole integration publisher; D notaccepted, no main publication authorized."
+  ],
+  "formal_closed": 0,
+  "G_accepted": false,
+  "append_only_metadata_corrections": [
+    {
+      "receipt_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final.json",
+      "old_field": "environment.profile_git_ref=8391c8db699564a6af39cf66477e141cc6d30030 with minimal-runtime-profile.json",
+      "correct_profile_receipt_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "correct_profile_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "receipt_bytes": 11996,
+      "receipt_sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859",
+      "meaning": "8391 is proof carrier; named profile receipt belongs to6a157. Exact actual environment148packages and runtimeERROR/UNRUN unchanged; immutable receipt preserved."
+    }
+  ]
+}

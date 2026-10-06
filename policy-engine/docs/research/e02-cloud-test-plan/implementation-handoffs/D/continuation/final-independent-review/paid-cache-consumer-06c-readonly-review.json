@@ -1,0 +1,1472 @@
+{
+  "schema": "policyos.e02.independent_paid_cache_consumer_review.v1",
+  "unit": "D",
+  "reviewer": "criterion_closeout_review independent of fixture author",
+  "review_role": "read-only full fixture/source/actual-output review; no child, product/test write, own backend or pytest run",
+  "review_branch": "codex/e02-D-final-independent-review",
+  "review_parent": "e40afbb3c800c3de245d07b481eff3a1e567798d",
+  "review_parent_tree": "ec4b3012802ad573ef0c6987ddc5629961114a98",
+  "continuation_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "original_criterion_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation": {
+    "sha": "0c039c0a58981e6c33271e121d6bcb0e8621fa97",
+    "tree": "ea5d949faa09d04cec5499f3bd57773d59ff61f2",
+    "parent": "7814b2001c436097af1ee373172ad7d7630da3f9",
+    "complete_changed_paths": [
+      "policy-engine/tests/unit/remediation/test_llm_01.py"
+    ]
+  },
+  "actual_root": {
+    "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+    "fixture_blob_equal_author_root": true
+  },
+  "verdict": "ACCEPTED_BOUNDED_FIXTURE_REPAIR_NO_ACTIONABLE_SOURCE_FINDING",
+  "check_outcomes": {
+    "author_actual_runtime": "PASS13 FAIL0 ERROR0 SKIP0",
+    "independent_fixture_and_existing_ports": "PASS bounded static review",
+    "independent_output_recomputation": "MATCH",
+    "independent_runtime": "UNRUN: deliberately not duplicated",
+    "B120_raw_Gateway_JSON_decoder": "existing actual FAIL21/PASS3 at canonical B source; unchanged by this fixture",
+    "final_composed_wide_wave": "pending separate root frozen source/output",
+    "formal_finding_closed": false,
+    "accepted_in_G": false
+  },
+  "original_criterion_denominator": {
+    "bundles": 17,
+    "ids": 45,
+    "occurrences": 46,
+    "supplier": "LA-015@CTL-01, closure owner SRV-03",
+    "binding_changed": false,
+    "full_prior_acceptance_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/review.json",
+    "affected_original_occurrence": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "fragment_lines": [
+        3192,
+        3205
+      ],
+      "original_fragment_sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29",
+      "exact_acceptance_paragraph_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+      "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+      "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+      "original_accounting_occurrence": "B120@CTL-03"
+    },
+    "no_original_acceptance_text_replacement": true
+  },
+  "mechanism_review": [
+    "Existing canonical CachingLLMClient caches the real producer-settled response; its receiver-admitted in-process capability binds exact cache request/content/model/provider, not raw hit flag/class name.",
+    "Current TracedLLMClient physical completion calls the existing LLMBudgetEnforcer owner; enforcer publishes canonical B BudgetLedgerSpendReceipt and releases reservation; paid cache publication happens after that actual completion.",
+    "Current D resolver admits only declared native BudgetLedgerSpendReceipt and exact reopened B owner resolve_spend_safe equality, then creates the read-only LLMLocalSpendReceipt view.",
+    "Current response boundary requires original kind provider, exact request/content/model/provider, committed ledger acknowledgment with receipts, derived event/key/payload binding, amount/provider, and reported-vs-estimated cost consistency before accepting zero new charge.",
+    "Fixture uses current canonical single run budget key; no new ledger/schema, shared B write, Gateway parser change, authority subsystem, parallel registry or product guard relaxation."
+  ],
+  "ordinary_consumer_scope": "Explicitly configured actual native Cache→Traced→Enforcer→Middleware(FileBudgetLedger)→fresh D receipt resolver. Low-level current funnel resolver port executes; full FunnelOrchestrator/default served factory are separate existing evidence and no new claim here.",
+  "assertion_preservation": {
+    "reviewer": "criterion_closeout_review",
+    "source_root": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "source_tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+    "author": "0c039c0a58981e6c33271e121d6bcb0e8621fa97",
+    "author_tree": "ea5d949faa09d04cec5499f3bd57773d59ff61f2",
+    "author_parent": "7814b2001c436097af1ee373172ad7d7630da3f9",
+    "changed_paths": [
+      "policy-engine/tests/unit/remediation/test_llm_01.py"
+    ],
+    "test_blob_equal_author_root": true,
+    "test_blob_sha256": "728146c58804aa5ac1ca3ec9050f1387b0b729db1604c549be8fbca73e6fc6b4",
+    "original_test_names": [
+      "test_duplicate_prompt_is_normalized_to_one_provider_argument",
+      "test_gateway_prompt_form_maps_to_supported_user_message_once",
+      "test_conflicting_prompt_forms_are_rejected_before_provider_call",
+      "test_optional_metrics_failure_preserves_provider_result_and_no_retry",
+      "test_provider_raw_cache_marker_cannot_forge_reuse_billing",
+      "test_mandatory_accounting_failure_exposes_received_response",
+      "test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+      "test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry"
+    ],
+    "new_test_functions": [
+      "test_paid_cache_reuse_without_local_readback_refuses_without_new_charge",
+      "test_unsettled_cache_origin_cannot_become_paid_reuse_with_a_real_reader",
+      "test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt"
+    ],
+    "original_assertion_count": 28,
+    "missing_assertions": 0,
+    "per_test": [
+      {
+        "name": "test_duplicate_prompt_is_normalized_to_one_provider_argument",
+        "old_asserts": 2,
+        "new_asserts": 2,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": true
+      },
+      {
+        "name": "test_gateway_prompt_form_maps_to_supported_user_message_once",
+        "old_asserts": 3,
+        "new_asserts": 3,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": true
+      },
+      {
+        "name": "test_conflicting_prompt_forms_are_rejected_before_provider_call",
+        "old_asserts": 1,
+        "new_asserts": 1,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": true
+      },
+      {
+        "name": "test_optional_metrics_failure_preserves_provider_result_and_no_retry",
+        "old_asserts": 2,
+        "new_asserts": 2,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": true
+      },
+      {
+        "name": "test_provider_raw_cache_marker_cannot_forge_reuse_billing",
+        "old_asserts": 4,
+        "new_asserts": 4,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": true
+      },
+      {
+        "name": "test_mandatory_accounting_failure_exposes_received_response",
+        "old_asserts": 3,
+        "new_asserts": 3,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": true
+      },
+      {
+        "name": "test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+        "old_asserts": 11,
+        "new_asserts": 21,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": false
+      },
+      {
+        "name": "test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry",
+        "old_asserts": 2,
+        "new_asserts": 10,
+        "missing_original_assertion_AST": [],
+        "whole_function_AST_unchanged": false
+      }
+    ],
+    "reviewed_current_port_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "git_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+        "sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "git_blob": "c2c631442a3ecf7587425445565d723598eaba81",
+        "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+        "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "git_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+        "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+        "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "git_blob": "0820c6f7bfa2cf4653ffc450b66744987c03e9ea",
+        "sha256": "aef417472ef72b9f720c2ffe10d7a68a09cc3bc5a0f05a915ac0a6b4de91db48",
+        "unchanged_author_fixture_commit": true,
+        "unchanged_root_fixture_merge": true
+      }
+    ]
+  },
+  "positive_properties": [
+    "Paid miss yields one immutable provider receipt and reopened spent0.02; two reuse calls retain origin usage and exact original settlement lineage, distinct zero-amount reuse event IDs, no second physical provider invocation or added paid receipt.",
+    "After same configured TTL expires, second actual physical invocation produces distinct internal event/paid receipt; reopened amount sum/spent0.04, no outstanding reservation."
+  ],
+  "negative_properties": [
+    "Missing local reader with real paid origin refuses reuse, retains original paid charge and receipt, releases only current reservation.",
+    "Missing/dict lookalike/conflicting amount readback each first proves valid original canonical readback present, then changes only returned readback; reuse refuses with same original paid receipt/spent0.02 and no second provider invocation.",
+    "Unmanaged origin retains trace usage/cost and genuine cache capability; actual empty reopened ledger reader cannot confer paid status, no reuse admission or new charge."
+  ],
+  "independent_quantity_oracle": "Independently parse retained actual native ledger JSON rather than calling the same product observer: seven unique physical snapshots, schema1.1, receipt sums exactly spent0.02 or0.04 (empty0), reserved0; current-directory symlink aliases excluded. This is local debit/readback evidence, not invoice truth.",
+  "actual_output_reconciliation": {
+    "reviewer": "criterion_closeout_review",
+    "predicate": "independent read-only recomputation of complete author actual output metadata and retained fixture bytes; no independent runtime rerun",
+    "source": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+    "actual_interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "actual_python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "optional_modules_loaded": [],
+    "exit_code": 0,
+    "wall_seconds": 3.9508830230042804,
+    "source_before": {
+      "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+      "status": ""
+    },
+    "source_after": {
+      "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+      "status": ""
+    },
+    "source_unchanged_and_clean": true,
+    "full_command": [
+      "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-c",
+      "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+      "-o",
+      "addopts=",
+      "--strict-markers",
+      "--import-mode=importlib",
+      "-o",
+      "cache_dir=/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/pytest-cache",
+      "--basetemp=/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441",
+      "--junitxml=/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/junit.xml",
+      "-p",
+      "llm_cache_measurement",
+      "-q",
+      "-rA",
+      "/workspace/e02-D-published-root/policy-engine/tests/unit/remediation/test_llm_01.py"
+    ],
+    "full_environment_assignments": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp/e02-D-llm-cache-root-06c-2vy5jtz0",
+      "E02_LLM_MEASUREMENT_OUTPUT": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "raw_output_bindings": [
+      {
+        "file": "origins.json",
+        "MATCH": true,
+        "sha256": "bb84495408d00ad42e5975bd4b66705735e890e0e054ce162e44bf88be64c939"
+      },
+      {
+        "file": "junit.xml",
+        "MATCH": true,
+        "sha256": "a6a82ace2ff9280d0113930cc719197737c1a6ebe0faec75fbef6f1155ab5f5b"
+      },
+      {
+        "file": "events.jsonl",
+        "MATCH": true,
+        "sha256": "518dbab87c04838b499bbaf5d7ac9378530c54c39bc81d8eab4c694529fdc8c9"
+      },
+      {
+        "file": "complete.txt",
+        "MATCH": true,
+        "sha256": "83f433cd8f52470e79601dcb9b73a65afe9e8b0941fc0b7595b87ba6a6b5d456"
+      },
+      {
+        "file": "inputs.json",
+        "MATCH": true,
+        "sha256": "cd1f0243ec37408430c31be42bf2645542e5539e32f3314a7aac5ea9cf40a9c1"
+      },
+      {
+        "file": "run-root.py",
+        "MATCH": true,
+        "sha256": "d7a9b73e68eccb688b8ac299a9cac1a22a2eecb1f4a0389a12f05c8b8e1db15b"
+      },
+      {
+        "file": "llm_cache_measurement.py",
+        "MATCH": true,
+        "sha256": "3382fc3acc39d872b27df6f8552761f956b4b00abb1a0ab59a3262c311b5e83f"
+      }
+    ],
+    "full_expected_case_names": [
+      "test_duplicate_prompt_is_normalized_to_one_provider_argument",
+      "test_gateway_prompt_form_maps_to_supported_user_message_once",
+      "test_conflicting_prompt_forms_are_rejected_before_provider_call",
+      "test_optional_metrics_failure_preserves_provider_result_and_no_retry",
+      "test_provider_raw_cache_marker_cannot_forge_reuse_billing",
+      "test_mandatory_accounting_failure_exposes_received_response",
+      "test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+      "test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry",
+      "test_paid_cache_reuse_without_local_readback_refuses_without_new_charge",
+      "test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt[missing]",
+      "test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt[lookalike]",
+      "test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt[conflicting_amount]",
+      "test_unsettled_cache_origin_cannot_become_paid_reuse_with_a_real_reader"
+    ],
+    "actual_junit_case_names": [
+      "test_duplicate_prompt_is_normalized_to_one_provider_argument",
+      "test_gateway_prompt_form_maps_to_supported_user_message_once",
+      "test_conflicting_prompt_forms_are_rejected_before_provider_call",
+      "test_optional_metrics_failure_preserves_provider_result_and_no_retry",
+      "test_provider_raw_cache_marker_cannot_forge_reuse_billing",
+      "test_mandatory_accounting_failure_exposes_received_response",
+      "test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+      "test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry",
+      "test_paid_cache_reuse_without_local_readback_refuses_without_new_charge",
+      "test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt[missing]",
+      "test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt[lookalike]",
+      "test_paid_cache_reuse_invalid_readback_refuses_and_preserves_original_receipt[conflicting_amount]",
+      "test_unsettled_cache_origin_cannot_become_paid_reuse_with_a_real_reader"
+    ],
+    "case_count": 13,
+    "call_phase_count": 13,
+    "phase_count": 39,
+    "phase_counts": {
+      "setup:passed": 13,
+      "call:passed": 13,
+      "teardown:passed": 13
+    },
+    "product_origins_count": 115,
+    "complete_origin_bindings": [
+      {
+        "module": "polisyos",
+        "path": "policy-engine/src/polisyos/__init__.py",
+        "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+        "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core",
+        "path": "policy-engine/src/polisyos/core/__init__.py",
+        "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+        "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.common",
+        "path": "policy-engine/src/polisyos/common/__init__.py",
+        "git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+        "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.common.canonical",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "git_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+        "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.canon.canon_json",
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+        "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.common.hashing",
+        "path": "policy-engine/src/polisyos/common/hashing.py",
+        "git_blob": "796af1b64e6ae530cb6d880bbff54803e8298a47",
+        "sha256": "4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.canon.hashing",
+        "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+        "git_blob": "0007ba9acac60ad77c58f85355eacece9150df56",
+        "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.canon",
+        "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+        "git_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+        "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.common.logger",
+        "path": "policy-engine/src/polisyos/common/logger.py",
+        "git_blob": "db809a0db12ca6dbe3dccf318f2d2e21cde7bb2e",
+        "sha256": "d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.discovery.base",
+        "path": "policy-engine/src/polisyos/core/discovery/base.py",
+        "git_blob": "dddb72dfe46791c1a6959b37862f8d894ebfb1b3",
+        "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.discovery",
+        "path": "policy-engine/src/polisyos/core/discovery/__init__.py",
+        "git_blob": "b0295a41b4286a344e04d41fde653e36f2a149a7",
+        "sha256": "050b0b60b19d7ae358b9927baa279b8efc70f999b18a083b62ee7588c9a474ce",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.capabilities",
+        "path": "policy-engine/src/polisyos/core/components/capabilities.py",
+        "git_blob": "d191649c4931df237e75ee7b7711fcbb3882c821",
+        "sha256": "899ac56d56e4c85e1447c707c1e8637ef9798cc2b1a7373b002a84cadfed9a8a",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.ids",
+        "path": "policy-engine/src/polisyos/core/components/ids.py",
+        "git_blob": "1bc3173672a668d955b7187403026af9c78787d8",
+        "sha256": "7cac29d83cbe0775829892a9e32339c53ef7b06c0dabef95e9341b99e26c5c6c",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.metadata",
+        "path": "policy-engine/src/polisyos/core/components/metadata.py",
+        "git_blob": "8dc3a616b855fb1f7c2a5193abd37525c7e2b0ac",
+        "sha256": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.protocols",
+        "path": "policy-engine/src/polisyos/core/components/protocols.py",
+        "git_blob": "1ac91730868ddc315a18d6863f34e3058d806a53",
+        "sha256": "a755d4f4bf0c008265afc9be48f84f854c0604d9d0aa669bc8c872d834af7a01",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.discovery",
+        "path": "policy-engine/src/polisyos/core/components/discovery.py",
+        "git_blob": "54efe19873fc8087426120eb6fcff5e0bd48fc5d",
+        "sha256": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.registry.generic",
+        "path": "policy-engine/src/polisyos/core/registry/generic.py",
+        "git_blob": "0563b4217dc587d2f60d502d5b5edf7dd0f5ea90",
+        "sha256": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.registry.base",
+        "path": "policy-engine/src/polisyos/core/registry/base.py",
+        "git_blob": "045b8003f9f93e7005bc0aa50ea25ee3a660218f",
+        "sha256": "140b47ccc131641a2a3cf3bbb91f899e6ef7429348ba2be3bd59afa7b275a015",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.registry",
+        "path": "policy-engine/src/polisyos/core/registry/__init__.py",
+        "git_blob": "d0dbdf77cff76fe6fc12a3719976b6df10ffd1aa",
+        "sha256": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.registry",
+        "path": "policy-engine/src/polisyos/core/components/registry.py",
+        "git_blob": "7a5952a4f8461ea09bbfb360e5a354c475a56b2b",
+        "sha256": "e15806f4df623df06293e3e50ded6c160b9e3f14257174b263608734fbdc41fe",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.bootstrap",
+        "path": "policy-engine/src/polisyos/core/components/bootstrap.py",
+        "git_blob": "d1cc3baabe15db526f66c8a57782fb44eb002f27",
+        "sha256": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components.compliance",
+        "path": "policy-engine/src/polisyos/core/components/compliance.py",
+        "git_blob": "f01deed0d2e6257fb4ba9905acb1c46709581650",
+        "sha256": "b34a3adb344e6332d2912faee4156f64d800bac5f9244920b41a2080325c1e1b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.components",
+        "path": "policy-engine/src/polisyos/core/components/__init__.py",
+        "git_blob": "473a0a59dbd5ce6bf1bc56884357f17572ce6f97",
+        "sha256": "7be43542a1e235b4a32cb13f2a0924fac8cc43087433515c063f7f7b683dfd89",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.ids",
+        "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "git_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+        "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.manifest",
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "git_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts._integrity_ops",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "git_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+        "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.common.serialization",
+        "path": "policy-engine/src/polisyos/common/serialization.py",
+        "git_blob": "d559d8182b5fc6b5deaafbb7dbcae8267cf2214b",
+        "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts._atomic_write",
+        "path": "policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+        "git_blob": "4f355498b5a615865c5c190bba9f2510316b93ad",
+        "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts._manifest_lifecycle",
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "git_blob": "cba03f8d7542954cb20dbc84a746a24baafda64e",
+        "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.signing",
+        "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "git_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+        "sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts._transfer_ops",
+        "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "git_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+        "sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.common.async_tools",
+        "path": "policy-engine/src/polisyos/common/async_tools.py",
+        "git_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+        "sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.protocol",
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "git_blob": "7748250f475b0ac2c212468ecb6609c8f80ed8b9",
+        "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.async_store",
+        "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "git_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+        "sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.backends",
+        "path": "policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+        "git_blob": "cbf733e7d9fb984bdcf2e68888e8863adfc7ed33",
+        "sha256": "c1b63ae18ac92ae67fac24338d775c0dd17253682d0240e32f92bd98398a998a",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.backends.config",
+        "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+        "git_blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+        "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.cas_integrity_report",
+        "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "git_blob": "10c362d63a869ef3cd1bafd243916ec1faed0c9a",
+        "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.graph",
+        "path": "policy-engine/src/polisyos/core/artifacts/graph.py",
+        "git_blob": "d64f8cef24a186730ea8a66455c6a94f8c79fe00",
+        "sha256": "26fe822573a2c9787fafe015195121b70a1a2a7ff89e3bf20d182a92d4909e1f",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.manifest_profile",
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "git_blob": "fac90cf474c8e86418d0fc4e8c83b6077c8c0e6e",
+        "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.ownership",
+        "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "git_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+        "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.registry",
+        "path": "policy-engine/src/polisyos/core/artifacts/registry.py",
+        "git_blob": "50ae012e30b3f7f84de5b6e00e28a1301114a5f9",
+        "sha256": "e665dc55703db9d4c4a9b4f4040c665a8a85c300ae9c668d67480f6241ccaf28",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.config",
+        "path": "policy-engine/src/polisyos/core/observability/config.py",
+        "git_blob": "2c548ee17173274a7cbb517e18552573007e3eb8",
+        "sha256": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.determinism",
+        "path": "policy-engine/src/polisyos/core/observability/determinism.py",
+        "git_blob": "59bca8e6f153dc9f35e0f5fbea521b381f11da66",
+        "sha256": "989adf82b32a6ea03d11c11920364d97cc2fb64982b5bc54006b76b36e4bd7de",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.security",
+        "path": "policy-engine/src/polisyos/core/security/__init__.py",
+        "git_blob": "7641c716036cef618a6c99c97eec4edb53c7f00f",
+        "sha256": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.errors.base",
+        "path": "policy-engine/src/polisyos/core/errors/base.py",
+        "git_blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+        "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.errors",
+        "path": "policy-engine/src/polisyos/core/errors/__init__.py",
+        "git_blob": "3e5f2a2d2ed7f54ea09b04e3a86f47a564be42de",
+        "sha256": "e1bbe5e46a1f67d2c9d01175400036782717be128130ab15c63768af1003cdec",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.security.exceptions",
+        "path": "policy-engine/src/polisyos/core/security/exceptions.py",
+        "git_blob": "40e2281a27f2c42e9d4186b030d2f3edb5bbb1a6",
+        "sha256": "7ec972cde8fc7da7d79b553a4ea5441cffff35add96787c5ffab515250083f92",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.security.db_backend",
+        "path": "policy-engine/src/polisyos/core/security/db_backend.py",
+        "git_blob": "fcf1961a70cdeecb6ec600e702fba5f4a5fb1a55",
+        "sha256": "e2a24be263f3afe4faa445cf0b0500cfeacec2fbe1949a911b138f8ba4c84727",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.security.tenant_context",
+        "path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+        "git_blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9",
+        "sha256": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.tracer",
+        "path": "policy-engine/src/polisyos/core/observability/tracer.py",
+        "git_blob": "2e0b0303eba54574e0a746abd1003768fc41f6ab",
+        "sha256": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.decorators",
+        "path": "policy-engine/src/polisyos/core/observability/decorators.py",
+        "git_blob": "c4202269fd0dfb972657ea63c8439ce184fed6a7",
+        "sha256": "909bf120a4650ee6ef0f0b6d0e02af3d23283c172e77e8646aad976c4913d27d",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.logs",
+        "path": "policy-engine/src/polisyos/core/observability/logs.py",
+        "git_blob": "e49a4164b1502e600c22efe3f08b10ca5b5d6d6e",
+        "sha256": "9d51eda431ee4a4d9e839866500d792e4f527c1bec08731f247a5ad083d72f4f",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability._metrics_helpers",
+        "path": "policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+        "git_blob": "f21a2f51a87bb8233bcb7bdcb2402e9b759c7d2c",
+        "sha256": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability._metrics_registry_base",
+        "path": "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+        "git_blob": "1ae17bbe492d61218375968e7b37c932ec8a42a1",
+        "sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.metrics_parts",
+        "path": "policy-engine/src/polisyos/core/observability/metrics_parts.py",
+        "git_blob": "08d4cfc6cc012243904d280470ec0fa49d1eadd4",
+        "sha256": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.metrics",
+        "path": "policy-engine/src/polisyos/core/observability/metrics.py",
+        "git_blob": "92afd54998f40b3630588cda1f9fd50695c54d5c",
+        "sha256": "9148d24d122b591e2a9f16d1aaafee161dd37746cbab024686b1750e549ba022",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.pricing",
+        "path": "policy-engine/src/polisyos/core/observability/pricing.py",
+        "git_blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c",
+        "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability.propagation",
+        "path": "policy-engine/src/polisyos/core/observability/propagation.py",
+        "git_blob": "ff635c68cd5b8c6f808b3733bc2370c9e58428d2",
+        "sha256": "0662550de014f5f6eefbb85a371328503f630186b9df376d610fd444fd843a96",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.observability",
+        "path": "policy-engine/src/polisyos/core/observability/__init__.py",
+        "git_blob": "13b7588762d07a9ac2e56b7858195fdcfaa97230",
+        "sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts._layout",
+        "path": "policy-engine/src/polisyos/core/artifacts/_layout.py",
+        "git_blob": "f51a8cf732778ddeec4bdcc10522b2adf0ae873f",
+        "sha256": "693f2a119d9b413e3091f0fbf5b1dc093ad3786c7af5cc15ed0c3209e660f194",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts._signature_ops",
+        "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "git_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+        "sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.write_contract",
+        "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+        "git_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+        "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts.store",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.artifacts",
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "git_blob": "329786340d076973b812a5302aefc21e0938c62f",
+        "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm.cost",
+        "path": "policy-engine/src/polisyos/core/llm/cost.py",
+        "git_blob": "b06f0e58ea638333bb233f23b2159029a1a35b41",
+        "sha256": "502d16e322fcbadff094eb0cd3ade4c289ca604ecfeb4ff514e62c11b49f93b0",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm.protocols",
+        "path": "policy-engine/src/polisyos/core/llm/protocols.py",
+        "git_blob": "833c37548e6d76fc1aff37acf900197bda688250",
+        "sha256": "591d7cd709f470ccf6684fa9dff44b48235d405ed8f1ccabfea39cf01e741e3e",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm.response",
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "git_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+        "sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.resilience.retry",
+        "path": "policy-engine/src/polisyos/core/resilience/retry.py",
+        "git_blob": "b25efd5c6222449fdfba5058e08f8db7d6e51321",
+        "sha256": "08b2d4db030005b8f582af2adc85d8b0516f54d14dc70372cb1bc449275997f3",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.resilience",
+        "path": "policy-engine/src/polisyos/core/resilience/__init__.py",
+        "git_blob": "a3787ef4040069dce4659cd270c60557e27d296b",
+        "sha256": "0be35fe64f80c0a53e5f1982c69c4a2f6121166f4b9b9cbe5cfba09cb7b8ad74",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm.retry",
+        "path": "policy-engine/src/polisyos/core/llm/retry.py",
+        "git_blob": "d102b49b172139ff9c6b45d919e8f485c0f01ecf",
+        "sha256": "f321dcab248a4379b08bfc53f075584b61129a6988c8570b12b5532161d6750a",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm.sanitization",
+        "path": "policy-engine/src/polisyos/core/llm/sanitization.py",
+        "git_blob": "17eb67288c8b63801c961700843f75bfc08b15ed",
+        "sha256": "c0c1fc588a0ba8cc7070bc64440b1fae86c8c5f0e82bd4d6838189f5285a5a4b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm.settlement",
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "git_blob": "c2c631442a3ecf7587425445565d723598eaba81",
+        "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm.traced_client",
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+        "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.core.llm",
+        "path": "policy-engine/src/polisyos/core/llm/__init__.py",
+        "git_blob": "b362658c388c1c4c3a861b986c326688e32f1f54",
+        "sha256": "e8382029341226839ad5e9b14110d11233c9aca0c9d32b39ae275533a3cc4128",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist",
+        "path": "policy-engine/src/polisyos/scientist/__init__.py",
+        "git_blob": "14ec83d7813924b29683a5c8dba41ed30f4f3020",
+        "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.methods",
+        "path": "policy-engine/src/polisyos/scientist/methods/__init__.py",
+        "git_blob": "52075498bf02bfa63fa1455741daa2fd9ae06309",
+        "sha256": "5c61c468891b681961b791f6d27210dffe754df23a378b8f22d75e0c17abf85b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+        "git_blob": "00bf6a9080d3245aa27eb42d8f96a24489718ae4",
+        "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.api",
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "git_blob": "aa3ec766d950a830292b8448015f2bb390080a4b",
+        "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir",
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "git_blob": "66068a49645b226700ae797f41c8b9d8b3049a44",
+        "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.analytics",
+        "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "git_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+        "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.artifacts.contracts",
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "git_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+        "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.model_layer",
+        "path": "policy-engine/src/polisyos/ir/model_layer/__init__.py",
+        "git_blob": "aa2c8ac5e927963512184cb84e6c5b29ff55b6b1",
+        "sha256": "7ed768ff9143dc957510f4f22ac51c44bb2c2791a68b5209185cd2eb8bb72993",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.model_layer.canon",
+        "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+        "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.artifacts.io",
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "git_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+        "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.artifacts.lineage",
+        "path": "policy-engine/src/polisyos/ir/artifacts/lineage.py",
+        "git_blob": "f6a31539326275a200adf3574b19e9b9eafa0d54",
+        "sha256": "52627f8886454ecb4b3d23435754eb3e68ecd8245761765bf2eef02a8c6722ff",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.observation",
+        "path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+        "git_blob": "c5c2c3f01edc752ac231c4414975d42ca159aefe",
+        "sha256": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir._internal",
+        "path": "policy-engine/src/polisyos/ir/_internal/__init__.py",
+        "git_blob": "e52c60e2615b2dc86dbde59a863b12adcf4669d3",
+        "sha256": "26efcf5ea5aa8d7138a675fef7ccd2f17083279ddf38f6fda5c028830dab3756",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.model_layer.types",
+        "path": "policy-engine/src/polisyos/ir/model_layer/types.py",
+        "git_blob": "5e2e88fb82b83c4ec0e77791122d3def2ea72538",
+        "sha256": "9420f2ccde75f9ffe37a1f2acacd37b330aac1489daf77a42da9ab6da1c6bde6",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir._internal.validation",
+        "path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+        "git_blob": "9164ebe1a441bee8a4694acfc0437d484590d55b",
+        "sha256": "d1cb68bfec95789a5067cf352adae538875297e67423dc344f3453885b2d8b4b",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.kernel",
+        "path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+        "git_blob": "defe43d23655f9e4e095fd2aa62a6031b942429a",
+        "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.kernel.base",
+        "path": "policy-engine/src/polisyos/ir/kernel/base.py",
+        "git_blob": "cbb0c4b122ecf0ac9fbebbcab84dd2348c6265c8",
+        "sha256": "ca08c309aefc4d39bc5d96850e44c8801f30441f49c67da4aa3aed92d9091607",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.observation.contracts",
+        "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+        "git_blob": "51ab79b8b1e3ce7f4c2dbf971a74ab22e7f6b6ec",
+        "sha256": "4154ee4d25e789791e2d590e73425f1856f376e01deb73d8225257ef8415b6c7",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.artifacts.transport",
+        "path": "policy-engine/src/polisyos/ir/artifacts/transport.py",
+        "git_blob": "97e9659b4d0587b8bb3f91e2e2d25a6d81d21b8e",
+        "sha256": "ae135cb10626f01d4bae2d5f9853cc133be4ea80650b15920f375b6246eb6a0d",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.artifacts",
+        "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+        "git_blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+        "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.registry",
+        "path": "policy-engine/src/polisyos/ir/registry/__init__.py",
+        "git_blob": "cb6c56e385a1cdebe29389eb8c642c9fbc53404f",
+        "sha256": "edebf2f8452d62b447bc593d9935c75183857653b281f82fd46dc571e38116f2",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.registry.refs",
+        "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+        "git_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+        "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.ir.analytics.uncertainty",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/__init__.py",
+        "git_blob": "a8c11e50f5aaab5c81d982f52e6c63f46b359ea2",
+        "sha256": "40beb0a19843e28995a4f3deaa30aadcd6dc5ac706fcca998e833d0ef1043457",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.workflows",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/__init__.py",
+        "git_blob": "a3a55f389963a32b88fe0d04dc0c42a9cb4ac0a6",
+        "sha256": "ba866b6887fe4a9b72cf4a60271f7918c9f07d033d804ecf9ac2ad3a8d20cf27",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.workflows.engine_base",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/engine_base.py",
+        "git_blob": "e91d118b09470e1b732362543e6f0469d6f6bd4b",
+        "sha256": "e460d6a40df95182bff67bdabc348cdca026bbfc0a5fac58b4c36cee1179638f",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.stages",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/stages.py",
+        "git_blob": "0718ee70627dc9c96265006d0c47e71cb9adcac9",
+        "sha256": "5ff7a8503c278e2c3b6a3aee96389f518b4ae623be7f85e7f0bd3cae8ba55e0d",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.uncertainty",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+        "git_blob": "856c6919a3be13f676172d7d0767d0d2d3554f43",
+        "sha256": "7abf99878e05b420ed899662fdfd719492634640daff28c602d1e4fb6be70fed",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.funnel.types",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "git_blob": "0820c6f7bfa2cf4653ffc450b66744987c03e9ea",
+        "sha256": "aef417472ef72b9f720c2ffe10d7a68a09cc3bc5a0f05a915ac0a6b4de91db48",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.funnel",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/__init__.py",
+        "git_blob": "15ba55ef58fae026d7e5a8f9eb58dc844a4ff5a9",
+        "sha256": "df819b7ed0d863018b6097cc3b07c76188f3a63f94e91cc30a3fafe4dbbc36a5",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py",
+        "git_blob": "a958c8429e14e3c60b83fa9e1e52af3fd99f7376",
+        "sha256": "79ffb9a9e14a06b62aaa19378b7279930247b7b41974057ac6571bc1d8e28df2",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.budget",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+        "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f",
+        "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.llm",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/__init__.py",
+        "git_blob": "e879f14bbcd9a8b2901cf0fffb4bc7b464248525",
+        "sha256": "e9d970c63e43cc20d6a83d265f425f2b3f3d69fc20a693738454a07138c6ddfe",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.error_semantics",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/error_semantics.py",
+        "git_blob": "6f20c51bd0fbc26ba92b31fb27f6aa8f9790f85d",
+        "sha256": "b0ef31d6e3bbf78e971ce17c3857fdc279729ec0e7f304247c6d871a6c9079d0",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.operational_monitoring",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/operational_monitoring.py",
+        "git_blob": "4bac4b6e7d535a81d35dc820dc4d378f57bccd75",
+        "sha256": "c06f7e162bc11429ad13473701f0bd89e65e53889280ac7834073240df706d74",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.llm.cost_anomaly",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/cost_anomaly.py",
+        "git_blob": "67a2d4f96e6fe8e05d1f2153b5b58e4491a31282",
+        "sha256": "a4ab0555543a5f89aa731ea6e28b166e9720ef6af1d2a3bbe98188e3dc1e3169",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+        "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.llm.gateway_client",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+        "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+        "MATCH": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.llm.prompt_cache",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "git_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+        "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+        "MATCH": true
+      }
+    ],
+    "retained_native_ledgers": [
+      {
+        "fixture": "test_budget_enforcer_charges_m0",
+        "relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json",
+        "sha256": "4dbdfda747244e53379e2ab3f1b73203e1be74750654607e0254742fe5a97225",
+        "bytes": 4965,
+        "schema_version": "1.1",
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "ledger_id": "ledger:208f2e6b8ae3bb3e",
+        "paid_receipts": 2,
+        "spent_usd": "0.04",
+        "receipt_sum_usd": "0.04",
+        "reserved_usd": "0",
+        "mutation_operations": {
+          "bootstrap": 1,
+          "reserve": 3,
+          "settle_spend": 2,
+          "release": 3
+        },
+        "MATCH_expected_real_charge": true
+      },
+      {
+        "fixture": "test_cache_hits_emit_reuse_wit0",
+        "relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json",
+        "sha256": "06fe8c7469562b527b34b66de89b86a3f872af255ee973848103390de7fc560b",
+        "bytes": 4057,
+        "schema_version": "1.1",
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "ledger_id": "ledger:4c62c35a1b300490",
+        "paid_receipts": 1,
+        "spent_usd": "0.02",
+        "receipt_sum_usd": "0.02",
+        "reserved_usd": "0",
+        "mutation_operations": {
+          "bootstrap": 1,
+          "reserve": 3,
+          "settle_spend": 1,
+          "release": 3
+        },
+        "MATCH_expected_real_charge": true
+      },
+      {
+        "fixture": "test_paid_cache_reuse_invalid_0",
+        "relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_0/llm-producer-budget.json",
+        "sha256": "3ba7b58b1c73b63d04294feb0fdbb087dd027a5f00b96e670bc36bd1736cf37d",
+        "bytes": 3331,
+        "schema_version": "1.1",
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "ledger_id": "ledger:744ecb32d3b0e929",
+        "paid_receipts": 1,
+        "spent_usd": "0.02",
+        "receipt_sum_usd": "0.02",
+        "reserved_usd": "0",
+        "mutation_operations": {
+          "bootstrap": 1,
+          "reserve": 2,
+          "settle_spend": 1,
+          "release": 2
+        },
+        "MATCH_expected_real_charge": true
+      },
+      {
+        "fixture": "test_paid_cache_reuse_invalid_1",
+        "relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_1/llm-producer-budget.json",
+        "sha256": "52d2f706cb772ea962ba1001806d65753bb535509448b86abdac90534368ad74",
+        "bytes": 3331,
+        "schema_version": "1.1",
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "ledger_id": "ledger:1e5038f47366c80e",
+        "paid_receipts": 1,
+        "spent_usd": "0.02",
+        "receipt_sum_usd": "0.02",
+        "reserved_usd": "0",
+        "mutation_operations": {
+          "bootstrap": 1,
+          "reserve": 2,
+          "settle_spend": 1,
+          "release": 2
+        },
+        "MATCH_expected_real_charge": true
+      },
+      {
+        "fixture": "test_paid_cache_reuse_invalid_2",
+        "relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json",
+        "sha256": "5f59e759fad5a70d236208530eb25c1ef145ebd583230d1952588b7872eb17a1",
+        "bytes": 3331,
+        "schema_version": "1.1",
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "ledger_id": "ledger:4755368edb81f695",
+        "paid_receipts": 1,
+        "spent_usd": "0.02",
+        "receipt_sum_usd": "0.02",
+        "reserved_usd": "0",
+        "mutation_operations": {
+          "bootstrap": 1,
+          "reserve": 2,
+          "settle_spend": 1,
+          "release": 2
+        },
+        "MATCH_expected_real_charge": true
+      },
+      {
+        "fixture": "test_paid_cache_reuse_without_0",
+        "relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json",
+        "sha256": "71f0f6b183721b59cd4f7ca3a8dd2ebe5da344fb2313a0305da9ab2afa1eef62",
+        "bytes": 3331,
+        "schema_version": "1.1",
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "ledger_id": "ledger:97b10e516e20128f",
+        "paid_receipts": 1,
+        "spent_usd": "0.02",
+        "receipt_sum_usd": "0.02",
+        "reserved_usd": "0",
+        "mutation_operations": {
+          "bootstrap": 1,
+          "reserve": 2,
+          "settle_spend": 1,
+          "release": 2
+        },
+        "MATCH_expected_real_charge": true
+      },
+      {
+        "fixture": "test_unsettled_cache_origin_ca0",
+        "relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json",
+        "sha256": "d19da9fa4e84c9927edbf65c00ce02f6ecb2cfcd3f025608adb5bc57c9fbc68e",
+        "bytes": 810,
+        "schema_version": "1.1",
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "ledger_id": "ledger:2e05070f28961e9f",
+        "paid_receipts": 0,
+        "spent_usd": "0",
+        "receipt_sum_usd": "0",
+        "reserved_usd": "0",
+        "mutation_operations": {
+          "bootstrap": 1
+        },
+        "MATCH_expected_real_charge": true
+      }
+    ],
+    "errors": [],
+    "MATCH": true,
+    "ledger_path_alias_census": [
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json",
+        "fixture_parent_symlink": false
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_mcurrent/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json",
+        "fixture_parent_symlink": true
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json",
+        "fixture_parent_symlink": false
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_witcurrent/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json",
+        "fixture_parent_symlink": true
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_0/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_0/llm-producer-budget.json",
+        "fixture_parent_symlink": false
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_1/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_1/llm-producer-budget.json",
+        "fixture_parent_symlink": false
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json",
+        "fixture_parent_symlink": false
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_current/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json",
+        "fixture_parent_symlink": true
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json",
+        "fixture_parent_symlink": false
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_current/llm-producer-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json",
+        "fixture_parent_symlink": true
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json",
+        "fixture_parent_symlink": false
+      },
+      {
+        "listed_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_cacurrent/unpaid-origin-budget.json",
+        "resolved_relative_path": "fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json",
+        "fixture_parent_symlink": true
+      }
+    ],
+    "unique_physical_ledger_count": 7,
+    "unique_physical_ledger_note": "Pytest current directory symlinks are aliases, excluded from physical fixture denominator."
+  },
+  "author_complete_output_carrier": {
+    "pending_published_locator": true,
+    "format": "lossless36memberXZ with seven real native ledger fixtures and preserved historical attempts",
+    "sha256": "e62483d0ca0d70824aef6a9cb46a5b9bd5f5cf122f5409903f40cfd520a1fd00",
+    "bytes": 43120,
+    "local_output_directory": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0"
+  },
+  "pattern_pass": {
+    "P01": {
+      "disposition": "ACTUAL_CONFIGURED_ACCOUNTING_CHAIN_RECONCILED",
+      "evidence": "Paid fixture provider→canonical cache/tracing→LLMBudgetEnforcer→BudgetMiddleware→FileBudgetLedger receipt→fresh D read-only resolver→accepted zero-new-charge reuse; provider invoice/default factory remain not_established.",
+      "falsifier": "Retain trace cost and raw cache hit but omit original paid receipt: reuse must refuse. New unsettled-origin and missing-reader cases verify bounded refusal.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P02": {
+      "disposition": "EXISTING_D_RECEIPT_CONSUMER_EXECUTED",
+      "evidence": "New fixture binds existing resolve_funnel_local_receipt through existing llm_local_receipt_resolver; producer settlement precedes cache publication. No new permission/ledger subsystem.",
+      "falsifier": "Replace native fresh receipt with dict lookalike or remove resolver; all original paid input remains, reuse must refuse.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P05": {
+      "disposition": "ACTUAL_PAID_AND_REUSE_QUANTITY_RECONCILED",
+      "evidence": "Metrics retains cost0.02 and origin usage; real physical ledger charges1×0.02 for miss+2reuse,2×0.02 after expiry, never infers debit from trace.",
+      "falsifier": "Trace-only/unmanaged origin is not paid receipt; current guard must refuse free reuse even with actual reader.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P09": {
+      "disposition": "EXACT_OLD_TEST_ASSERTIONS_RETAINED",
+      "evidence": "All8 existingtest names and28 assertion AST occurrences preserved; first6 whole test ASTs identical. No failure made green by expectation weakening.",
+      "falsifier": "Any removed original assertion, altered original expected cost/usage or ignored real charge invalidates this review.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P10": {
+      "disposition": "REAL_CANONICAL_LEDGER_READBACK_RECONCILED",
+      "evidence": "Seven unique retained native ledgers schema1.1; fresh reader same persisted identity; sums equal spent0.02/0.04 and reserved0, negative refusals preserve paid origin receipt.",
+      "falsifier": "A typed-looking declaration without exact canonical owner resolve cannot admit reuse.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P14": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "LINEAGE_AND_PHYSICAL_EVENT_DENOMINATORS_PRESERVED",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Present one evidence row via both local/transfer or same paid event twice; quota/confidence/physical charge cannot double. Distinct replicas/new evidence remain eligible.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P27": {
+      "disposition": "NATIVE_FILE_PERSISTENCE_SCOPE_ONLY",
+      "evidence": "Actual reopened local POSIX ledger receipt, event/payload/provider/key/amount bindings; no distributed, power-loss, invoice authority or production data claim.",
+      "falsifier": "Same receipt marker with conflicting amount fails current consumer before reuse.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P29": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "REAL_RUN_RECEIPTS_QUALIFIED_NO_SELF_ATTESTED_CLOSURE",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Delete the semantic property while retaining markers or corrupt raw ref/content; effect-based oracle must fail. A PASS receipt shape or imported backend cannot replace execution.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P32": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "EXACT_REF_AND_RECEIPT_INTAKE_BOUNDED_AUTHORITY_HELD",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Keep same ref/receipt/permit label while changing content, split, owner, scope, context or revocation; numeric transfer/free reuse/write must refuse.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P35": {
+      "disposition": "COMPLETE_13_CASE_OUTPUT_RECONCILED",
+      "evidence": "Complete13 JUnit cases,39 phase records, whole module command without filtering/caps,115 actually loaded product origins exact06c Git bytes, zero optional backends loaded.",
+      "falsifier": "Mismatch of any expected param case, phase, frozen loaded origin, native ledger or full output hash invalidates this result.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P37": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "PREDICATE_BASIS_FROZEN_FAIL_CLOSED",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Make declared threshold, corpus identity, payment, owner, time or permission premise false with labels retained; actual consumer degrades/refuses.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P38": {
+      "disposition": "AUTHOR_RUNTIME_AND_INDEPENDENT_RECOMPUTATION_SEPARATE",
+      "evidence": "13PASS author runtime; independent reviewer recomputed AST denominator, hashes, JUnit/events,115 Git origins and seven retained native ledgers, without issuing own runtimePASS.",
+      "falsifier": "Author receipt summary alone without complete outputs and exact source binding is insufficient.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P40": {
+      "disposition": "OWN_FIXTURE_ESCAPE_CORRECTED_AT_REAL_PAID_BOUNDARY",
+      "evidence": "Two c17 cache-positive fixture failures were repairable D intake fixtures; one fixture composition now uses existing native paid owner and fresh read-only resolver, plus five refusal cells. Product guards unchanged; no endless helper ladder or unsupported new authority.",
+      "falsifier": "If ordinary declared cache reuse can pass with unmanaged/missing/lookalike/tampered original readback, widen the existing seam; these tests must detect it.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P41": {
+      "disposition": "NOT_ESTABLISHED_FOR_INHERITED_CLAIMS",
+      "evidence": "No inherited classification is inferred from preserved assertion AST or unchanged product blobs; exact slice-base command and complete input zero-overlap remain mandatory.",
+      "falsifier": "Lack of exactcae slice-base execution/complete input denominator forbids inherited verdict.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    }
+  },
+  "residuals_and_limitations": [
+    "Provider is a bounded response fixture, not paid external invoice authority. Its request_id is constant while actual internal producer events differ; no external invoice uniqueness/retry semantics follows.",
+    "Explicit private cache capability wiring and configured native owner are fixture composition, not ordinary default B-W09 or served-factory appointment proof.",
+    "Gateway prompt test replaces _post_json with a parsed dict. It does not exercise response-text decoder; raw1e-1000/-1e-1000/conflict currentBFAIL remains unclosed.",
+    "Readback negatives may create/release current reservation mutations; receipt/spent preservation is verified. They do not claim complete ledger byte identity for an attempted call.",
+    "TTL0.02 and wait0.04 retain the original existing expiry profile; this actual bounded runtime passed. No cross-environment timing guarantee is added.",
+    "Complete new composed regression wave and extras numerical/native properties remain exact-source execution work; missing backends never become numericalPASS.",
+    "All original45ID/46criterion occurrences remain unchanged,39 conditional engineering proposals pending complete verification, five scientific/authority holds and B120current decoder failure retained. Formal closed0/Gacceptedfalse."
+  ],
+  "publication_scope": "Review documentation only on own append-only topic branch; implementation handoff separate; no checkout created, no product copies, no main/G writes. Local hooks not run because metadata-only Git API publication. No cleanup performed."
+}

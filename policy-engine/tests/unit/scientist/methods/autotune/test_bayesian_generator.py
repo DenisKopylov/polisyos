@@ -80,6 +80,9 @@ class TestBayesianCandidateGeneratorFallback:
 
 def test_first_sobol_candidate_uses_native_search_space_protocol() -> None:
     """The autotune wrapper must drive the native mixed-type SearchSpace protocol."""
+    pytest.importorskip("torch")
+    pytest.importorskip("botorch")
+    pytest.importorskip("gpytorch")
     native_space = SearchSpace(
         bounds=[
             ParameterBounds(name="tax_rate", lower=0.0, upper=1.0),
@@ -261,10 +264,7 @@ def test_history_without_score_is_not_a_successful_zero_observation() -> None:
 
     assert not any(evaluation.is_valid for evaluation in evaluations)
     assert all(
-        not (
-            evaluation.status is EvaluationStatus.SUCCESS
-            and evaluation.scalar_score == 0.0
-        )
+        not (evaluation.status is EvaluationStatus.SUCCESS and evaluation.scalar_score == 0.0)
         for evaluation in evaluations
     )
 

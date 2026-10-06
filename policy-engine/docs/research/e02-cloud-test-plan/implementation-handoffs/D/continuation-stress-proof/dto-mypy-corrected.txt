@@ -1,0 +1,2 @@
+mypy.ini:9: error: Error importing plugin "polisyos.foundry.methods.mypy_plugin": No module named 'polisyos'  [misc]
+Found 1 error in 1 file (errors prevented further checking)

@@ -1,0 +1,287 @@
+"""Continue one frozen acceptance wave with the literal D.md commands, one child each."""
+
+import collections
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import resource
+import shlex
+import subprocess
+import sys
+import time
+import uuid
+import xml.etree.ElementTree as ET
+
+ROOT = Path("/workspace/e02-D-published-root")
+PRODUCT = ROOT / "policy-engine"
+SOURCE = "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+TREE = "f3763c0911f1f80d8c5ee049667045a594fb55c2"
+PYTHON = "/workspace/e02-D-locked-env/bin/python"
+HERE = Path(__file__).resolve().parent
+PLAN = PRODUCT / "docs/research/e02-cloud-test-plan/closure-decisions/D.md"
+ENV = {
+    **os.environ,
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+}
+
+
+def git(*args):
+    return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+
+
+def fingerprint(path):
+    data = path.read_bytes()
+    return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def snapshot():
+    result = {
+        "head": git("rev-parse", "HEAD"),
+        "tree": git("rev-parse", "HEAD^{tree}"),
+        "branch": git("symbolic-ref", "--short", "HEAD"),
+        "tracked_status": git("status", "--porcelain", "--untracked-files=no"),
+        "full_tracked_diff": git("diff", SOURCE, "--name-only"),
+        "utc": datetime.datetime.now(datetime.UTC).isoformat(),
+    }
+    assert result["head"] == SOURCE and result["tree"] == TREE, result
+    assert not result["tracked_status"] and not result["full_tracked_diff"], result
+    return result
+
+
+def definitions():
+    rows = []
+    bundle = None
+    for number, line in enumerate(PLAN.read_text().splitlines(), 1):
+        if line.startswith("### ") and " — " in line:
+            bundle = line.split()[1]
+        if not line.startswith("cd policy-engine && python -m pytest "):
+            continue
+        argv = shlex.split(line.split(" && ", 1)[1])[3:]
+        selectors = [value for value in argv if value.startswith("tests/")]
+        for selector in selectors:
+            assert (PRODUCT / selector.split("::", 1)[0]).is_file(), selector
+        rows.append(
+            {
+                "ordinal": len(rows) + 1,
+                "bundle": bundle,
+                "canonical_line": number,
+                "canonical_command": line,
+                "canonical_pytest_arguments": argv,
+                "selectors": selectors,
+            }
+        )
+    assert len(rows) == 17
+    assert sum(len(row["selectors"]) for row in rows) == 53
+    return rows
+
+
+def main():
+    mode = sys.argv[1]
+    before = snapshot()
+    rows = definitions()
+    plan = {
+        "schema": "policyos.e02.canonical_command_capture.v1",
+        "source_sha": SOURCE,
+        "source_tree": TREE,
+        "source_before": before,
+        "plan": {"git_path": str(PLAN.relative_to(ROOT)), **fingerprint(PLAN)},
+        "definitions": rows,
+        "selector_occurrences": 53,
+        "distinct_python_files": len(
+            {s.split("::", 1)[0] for row in rows for s in row["selectors"]}
+        ),
+        "input_files": {
+            name: fingerprint(PRODUCT / name)
+            for name in sorted({s.split("::", 1)[0] for row in rows for s in row["selectors"]})
+        },
+        "source_closure": "Exact whole Git tree; per-command selected file bytes plus repository pytest.ini and ancestor conftests remain unmodified. No alternative source/archive/worktree.",
+        "config": fingerprint(PRODUCT / "pytest.ini"),
+        "helpers": {
+            name: fingerprint(HERE / name)
+            for name in ["capture_commands.py", "capture_plugin.py", "capture_metadata.py"]
+        },
+        "environment_overrides": {
+            name: ENV[name]
+            for name in ["PYTHONPATH", "PYTHONDONTWRITEBYTECODE", "TIKTOKEN_CACHE_DIR"]
+        },
+        "limits_added": False,
+        "writer_serialization": "The literal commands share root _cache/pytest and benchmark storage. Run after transfer B14/B15 release; one child at a time, without compute/thread/process quota.",
+        "runner_added_arguments": [
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "--basetemp",
+            "fresh nonexistent UUID path",
+            "--junitxml",
+            "fresh output file",
+            "-rA",
+        ],
+        "measurement_bootstrap": "pytest.main(original arguments plus stated capture/config overrides, plugins=[external measurement observer]); both actual child argv and equivalent python -m pytest argv retained.",
+    }
+    (HERE / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
+    print(
+        json.dumps(
+            {
+                "mode": mode,
+                "commands": len(rows),
+                "selector_occurrences": 53,
+                "distinct_files": plan["distinct_python_files"],
+                "source": SOURCE,
+            }
+        ),
+        flush=True,
+    )
+    if mode == "prepare":
+        return
+    assert mode == "run"
+    results = []
+    execution_rows = [row for row in rows if row["bundle"] == "OPT-03"] + [
+        row for row in rows if row["bundle"] != "OPT-03"
+    ]
+    for row in execution_rows:
+        label = f"{row['ordinal']:02d}-{row['bundle']}"
+        directory = HERE / label
+        directory.mkdir(exist_ok=False)
+        item = {**row, "source_before": snapshot()}
+        metadata_argv = [PYTHON, "-B", str(HERE / "capture_metadata.py"), str(ROOT), SOURCE]
+        start = time.monotonic()
+        with (
+            (directory / "environment.json").open("xb") as output,
+            (directory / "environment.stderr.txt").open("xb") as errors,
+        ):
+            metadata = subprocess.run(
+                metadata_argv, cwd=PRODUCT, env=ENV, stdout=output, stderr=errors
+            )
+        item["metadata"] = {
+            "argv": metadata_argv,
+            "exit_code": metadata.returncode,
+            "wall_seconds": time.monotonic() - start,
+            "output": fingerprint(directory / "environment.json"),
+            "stderr": fingerprint(directory / "environment.stderr.txt"),
+        }
+        if metadata.returncode == 0:
+            json.loads((directory / "environment.json").read_text())
+        temporary = Path("/dev/shm/search-canonical-243-" + label + "-" + uuid.uuid4().hex)
+        assert not temporary.exists()
+        junit = directory / "junit.xml"
+        arguments = [
+            *row["canonical_pytest_arguments"],
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "--basetemp",
+            str(temporary),
+            "--junitxml",
+            str(junit),
+            "-rA",
+        ]
+        argv = [
+            PYTHON,
+            "-B",
+            str(HERE / "capture_plugin.py"),
+            str(directory / "events.jsonl"),
+            *arguments,
+        ]
+        item.update(
+            argv=argv,
+            equivalent_pytest_argv=[PYTHON, "-B", "-m", "pytest", *arguments],
+            basetemp=str(temporary),
+            basetemp_existed_before=False,
+        )
+        (directory / "inputs.json").write_text(json.dumps(item, indent=2) + "\n")
+        start = time.monotonic()
+        with (directory / "complete.txt").open("xb") as output:
+            completed = subprocess.run(
+                argv, cwd=PRODUCT, env=ENV, stdout=output, stderr=subprocess.STDOUT
+            )
+        item.update(
+            exit_code=completed.returncode,
+            wall_seconds=time.monotonic() - start,
+            source_after=snapshot(),
+            complete_output=fingerprint(directory / "complete.txt"),
+            max_rss_kib=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,
+            rss_scope="cumulative high-water of completed metadata and pytest children in this stdlib-only parent; not isolated per-child peak",
+        )
+        events_path = directory / "events.jsonl"
+        events = (
+            [json.loads(line) for line in events_path.read_text().splitlines()]
+            if events_path.exists()
+            else []
+        )
+        reports = [event for event in events if event["kind"] == "test_report"]
+        item["completed_call_outcomes"] = dict(
+            collections.Counter(event["outcome"] for event in reports if event["when"] == "call")
+        )
+        item["failed_reports"] = [
+            {key: event[key] for key in ["nodeid", "when", "outcome"]}
+            for event in reports
+            if event["outcome"] == "failed"
+        ]
+        item["skipped_reports"] = [
+            {key: event[key] for key in ["nodeid", "when", "outcome", "skipreason"]}
+            for event in reports
+            if event["outcome"] == "skipped"
+        ]
+        item["event_stream"] = fingerprint(events_path) if events_path.exists() else None
+        if junit.exists():
+            xml = ET.parse(junit).getroot()
+            suites = [xml] if xml.tag == "testsuite" else list(xml.findall("testsuite"))
+            item["junit"] = {
+                "file": fingerprint(junit),
+                "counts": {
+                    key: sum(int(suite.get(key, 0)) for suite in suites)
+                    for key in ["tests", "errors", "failures", "skipped"]
+                },
+            }
+        else:
+            item["junit"] = None
+        item["outcome"] = (
+            "ERROR"
+            if completed.returncode not in [0, 1] or item["junit"] is None
+            else (
+                "FAIL"
+                if completed.returncode == 1
+                else ("UNRUN" if item["skipped_reports"] or metadata.returncode else "PASS")
+            )
+        )
+        item["limit"] = (
+            "Any skipped optional/native-backend query scope remains UNRUN, even if other tests passed. A crash retains actual completed failing reports but supplies no complete command verdict. No inherited-red/P41 waiver. Native Python call entries are observations, not standalone fit/numerical acceptance."
+        )
+        (directory / "result.json").write_text(json.dumps(item, indent=2) + "\n")
+        results.append(item)
+        (HERE / "results.json").write_text(
+            json.dumps(
+                {
+                    "source_sha": SOURCE,
+                    "source_tree": TREE,
+                    "commands": results,
+                    "complete": len(results) == 17,
+                },
+                indent=2,
+            )
+            + "\n"
+        )
+        print(
+            json.dumps(
+                {
+                    "label": label,
+                    "outcome": item["outcome"],
+                    "exit_code": completed.returncode,
+                    "wall_seconds": item["wall_seconds"],
+                    "calls": item["completed_call_outcomes"],
+                    "failures": item["failed_reports"],
+                    "junit": item["junit"]["counts"] if item["junit"] else None,
+                }
+            ),
+            flush=True,
+        )
+
+
+if __name__ == "__main__":
+    main()

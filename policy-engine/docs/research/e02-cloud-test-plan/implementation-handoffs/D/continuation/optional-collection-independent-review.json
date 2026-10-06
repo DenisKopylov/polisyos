@@ -1,0 +1,551 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "source_projection": {
+    "base_source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+    "base_tree": "d4e217a2b4e620e22bc0f2fa1a8bf2fcdb6fe3e0",
+    "overrides": {
+      "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py": "18699ce536fca6ce174ff1caf1435a79912f0920",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": "18699ce536fca6ce174ff1caf1435a79912f0920",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py": "784584d13f94ac7565d5ab159592281597b253ce",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py": "784584d13f94ac7565d5ab159592281597b253ce",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py": "c1343a44101eab350c886319bcf511e78aafc37b"
+    },
+    "actual_added_fixture": {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4"
+    }
+  },
+  "verdict": "PASS bounded collection/refusal mechanism: original three and expanded seven-file profiles each explicitly SKIP/UNRUN with zero collection errors; zero numerical backend PASS",
+  "collection": {
+    "junit": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3
+    },
+    "exit_code": 5,
+    "meaning": "pytest collect-only collected zero tests and exited5 because all three modules explicitly skipped; not a numerical PASS or an exit0 command.",
+    "denial": {
+      "attempts": [
+        "torch",
+        "torch",
+        "hnswlib",
+        "torch",
+        "torch"
+      ],
+      "loaded_optional_modules": [],
+      "exitstatus": 5,
+      "scope": "controlled import-denial profile, not an actually uninstalled environment or numeric execution"
+    },
+    "origins": {
+      "loaded_product_origins": 472,
+      "independently_rechecked_git_bytes": 472,
+      "errors": []
+    }
+  },
+  "contract_imports": {
+    "junit": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "meaning": "Two actual contract import tests PASS under four-module denial; non-numerical mechanism only.",
+    "origins": {
+      "loaded_product_origins": 63,
+      "independently_rechecked_git_bytes": 63,
+      "errors": []
+    }
+  },
+  "historical_preparation_failure": {
+    "junit": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 2,
+      "skipped": 1
+    },
+    "exit_code": 2,
+    "meaning": "First projection omitted actual test_transfer helper: one skip, two collection errors. Retained as harness/input failure; adding the exact source helper fixes preparation, not a production numerical result."
+  },
+  "actual_minimal_environment": "UNRUN: existing actual no-Torch/HNSW environment lacks pytest/pydantic. No new install; this proof is controlled import denial in installed locked runtime.",
+  "new_optional_files_disposition": {
+    "NN": "Actual exact cba neural checkpoint file included: hnswlib guard causes explicit UNRUN skip; current neural and transfer source files supplied as exact cba module overlays.",
+    "generator_current_state": "Actual83b87b845210bdb579f47b4cc2418a3d9804e2fe guards in both owned files included; all native function/class ASTs unchanged per owner/inspected delta.",
+    "owned_analytic23": "Actual df778090a guards/integration marker included; every function/class AST equals historical18699 deciding23 file. No expectation weakening."
+  },
+  "preservation": {
+    "agent_added_caps": false,
+    "manual_deletion": false,
+    "cleanup_candidates": [
+      "/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b",
+      "/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c",
+      "/dev/shm/optional-complete-9af28b2e910c43ed9d5aab3692d031de",
+      "/dev/shm/optional-contract-06fce28654724a4494f88b15f457e58e",
+      "/dev/shm/optional-seven-c13f67a61b3d4e07a35f088030b94ff0",
+      "/dev/shm/optional-seven-pytest-70779c3b094b4a6f95f8be87af9c03f4",
+      "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498",
+      "/dev/shm/optional-seven-pytest-7bfb7ce6bd7c42a59f3de9a59ea7de13"
+    ],
+    "basetemp_observed_after": [
+      false,
+      false
+    ],
+    "absence_interpretation": "Cases do not request tmp_path; no observed basetemp after collection/import cases is not evidence of deletion.",
+    "expanded_basetemp_observed_after": [
+      false,
+      false
+    ]
+  },
+  "limits": [
+    "First Torch guard dominates module skip; separate absence of every backend is not independently executed.",
+    "Seven named numerical files cover these newly owned guards only; no general all-repository optional-tests collection claim.",
+    "No broad AST gate, real minimal-environment execution or installed-backend numerical rerun."
+  ],
+  "payload_manifest": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/collection-command.json",
+      "bytes": 2625,
+      "sha256": "1d6129b408e020b011f5985f890befb6ad76e9fb5224e7ca3ad7b5c12109b511"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/collection-complete.txt",
+      "bytes": 1752,
+      "sha256": "88ec4b45c7482435997f23640981ef574b1789ec8e9085685b198cb900b35a2f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/collection-denial.json",
+      "bytes": 210,
+      "sha256": "39afa64e9997e77e726b56e2ca381951c00631b38e3bbdce66807a7f092fee40"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/collection-junit.xml",
+      "bytes": 2006,
+      "sha256": "94202d433f9f73280bc078b6356f406c5982a1357655dd54e087be7d3c5f87e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-command.json",
+      "bytes": 2941,
+      "sha256": "0fbc9d5d1e0a8417f82d9682e5376a7efe1c637bdfa7b2233e5ab0af4de821e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-complete.txt",
+      "bytes": 483,
+      "sha256": "a40426a4cc63269721b77ee9a03acef473be4e91f673b64f7540df037e6d15ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-denial.json",
+      "bytes": 251,
+      "sha256": "81a37f246ef5837047c97d7e2ca545475e7d800c68fe487580a16ddae52f0c4f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-junit.xml",
+      "bytes": 1400,
+      "sha256": "4c0b243ba2c37a8b54a4a989633e075f788711ca145d9534e2b1c7e9ac564d59"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-origins.json",
+      "bytes": 216981,
+      "sha256": "f13ebf36b72d0e8493fda1837c1b94f1b9bfe51119741e0ee6bda0d625d98c80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-plugin.py.txt",
+      "bytes": 2849,
+      "sha256": "b40b04c8733e688d3fd959a209d750f442596aad938245e0df23636de9d8a59b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/contract-command.json",
+      "bytes": 1722,
+      "sha256": "a2d4de10658d84375a7dd4f74c7c74f282db0d23f120bd2e36ee45cd5a405114"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/contract-complete.txt",
+      "bytes": 80,
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/contract-denial.json",
+      "bytes": 182,
+      "sha256": "65c4c12db7daef95d3bf6b3ae2009797c009c7cc46581fbcbf9c868e743c9b3c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/contract-import-plugin.py.txt",
+      "bytes": 2835,
+      "sha256": "8300115c9455c58853a03bb0edfaa144eaf44b1acba25309e0afa6bd595e1eef"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/contract-junit.xml",
+      "bytes": 715,
+      "sha256": "5ceed9d9c5b793a4312d42d7511e73c7034357cad5fc534f02732c0cc01e7109"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/contract-origins.json",
+      "bytes": 27681,
+      "sha256": "254246bee6c56d2970f8e05d95da824f8d485fe4c1a41e69651d2e81d57490ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/deny_optional_profile.py.txt",
+      "bytes": 1041,
+      "sha256": "8c519933cdca976f888d55acf440cfebbbb3727eb7bc239aff14f113d6de01dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded-command.json",
+      "bytes": 7933,
+      "sha256": "2f67b11daa60d6f27a363aef9355dd4c22ceeffe04e1dade238597a657bcaf64"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded-complete.txt",
+      "bytes": 7415,
+      "sha256": "625bbdff704ca4858f0a22a4adf24864c09d519071beb45c0bd73ae44f47011a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded-plugin.py.txt",
+      "bytes": 3769,
+      "sha256": "3e53f35b2ca9cc6d1039bf248d904aedfc25aa2d113e00d73917d4a8d7b66280"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded02-command.json",
+      "bytes": 17211,
+      "sha256": "eff05d298eddc17ed0d7ccd8fca140a59404fe41100a45e8538694ac76b059b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded02-complete.txt",
+      "bytes": 1590,
+      "sha256": "b4669978b2c965a0336c53027d25bc91f9a4fea435d1dc3f550e93e0a7fcfdba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded02-denial.json",
+      "bytes": 305,
+      "sha256": "bcc5399521da0fe36de4bc8dff4a8b32bcf5373763549fd1de3ce71ce34ce888"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded02-junit.xml",
+      "bytes": 2112,
+      "sha256": "d421ed3004e888e9077a0817a58d3aadcb3e69769559ff0e0cc3384447ff34bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded02-origins.json",
+      "bytes": 217462,
+      "sha256": "cfb043d411bf2e03024c49c218009a36f7cde2a1b889b0561e23c1c576235a55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/expanded02-plugin.py.txt",
+      "bytes": 3773,
+      "sha256": "bfa18445bb576c6859446d3d9a3b476ad6334b0926d024d8430fc291ab81e560"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/run-expanded-collection.py.txt",
+      "bytes": 7429,
+      "sha256": "0c9956fea07c64bbfc4d23b6fa797f993d6adfd1b2cb0ad1b7e467c7f6281353"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/run-expanded02-collection.py.txt",
+      "bytes": 7677,
+      "sha256": "0b94fae451ea045b6ab28210ce11114e14ce8f23ee2f34b6acc3204fa787db58"
+    }
+  ],
+  "expanded_collection": {
+    "junit": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 7
+    },
+    "exit_code": 5,
+    "wall_seconds": 7.029003191011725,
+    "command_record": "optional-collection-independent/expanded02-command.json",
+    "denial": {
+      "attempts": [
+        "torch",
+        "torch",
+        "hnswlib",
+        "torch",
+        "torch",
+        "torch",
+        "hnswlib",
+        "torch",
+        "torch"
+      ],
+      "loaded_optional_modules": [],
+      "exitstatus": 5,
+      "scope": "controlled installed-runtime denial, not numerical execution or actual uninstalled environment"
+    },
+    "origin_binding": {
+      "loaded_product_origins": 473,
+      "independently_rechecked_git_bytes": 473,
+      "errors": []
+    },
+    "source_projection": "Seven numerical collection files with exact owned immutable guards plus current NN/transfer source overrides; no native numerical test execution. Other product modules bind to recorded exact base/overrides; not a composed product runtime claim.",
+    "inputs": [
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "source": "18699ce536fca6ce174ff1caf1435a79912f0920",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "bytes": 7859,
+        "sha256": "b5b59874df84ef46866805d8b06e81959b00662ab11937c78408f7f197adce9f"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "source": "784584d13f94ac7565d5ab159592281597b253ce",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "bytes": 8005,
+        "sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+        "source": "784584d13f94ac7565d5ab159592281597b253ce",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+        "bytes": 8727,
+        "sha256": "09ab55c3ad0803e76d08b52bee04215d4d7252b78ce28ab100fadb06b509fcb0"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+        "source": "df778090a68aa91c5e6780721edd96ec7688affd",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+        "bytes": 32163,
+        "sha256": "e1a56b30214ddaa96c5b8a64d0ca6b2a44f42e7ee3453994f4e44705ceee1f04"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+        "bytes": 12045,
+        "sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "source": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "bytes": 11761,
+        "sha256": "6f9af1ce83fa2c46bf9580497b2e1faae3777c768782f1ed90facaacae3fbff0"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+        "source": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+        "bytes": 2002,
+        "sha256": "9f916ed3257622082812daa12afd592ba6b5da64995490e0258c19b164c2cb73"
+      },
+      {
+        "path": "policy-engine/tests/conftest.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/conftest.py",
+        "bytes": 9664,
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/conftest.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/conftest.py",
+        "bytes": 103,
+        "sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/AUTHORING.md",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/AUTHORING.md",
+        "bytes": 1072,
+        "sha256": "7a10a611b477a67fd0f4feef15982778ae45033edf13a85d06337c421caa987b"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/README.md",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/README.md",
+        "bytes": 963,
+        "sha256": "1d8d06f76ef41bee803cfeffa22032a0c486281e607484c9cccfec85ddf037db"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/__init__.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/__init__.py",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/acquisition_chain.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/acquisition_chain.py",
+        "bytes": 10878,
+        "sha256": "a9c80b88d3437c13b5267cb6a6fe0fe3bbf33afd2e1c90c06b48c7faf7fd9cc8"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/acquisition_epoch_production.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/acquisition_epoch_production.py",
+        "bytes": 7281,
+        "sha256": "ee68578f03d60cd7df54849a1d975ee719733b8904092a2b51393fe81a28e7ef"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/acquisition_human_decision.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/acquisition_human_decision.py",
+        "bytes": 12473,
+        "sha256": "b6107b2f37e031eb84eca028996f77aab8bae52dcd8ba84d57dc629cd383b278"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/acquisition_movement.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/acquisition_movement.py",
+        "bytes": 9106,
+        "sha256": "ff56d70724c99dd12dfa7075b4b9e866f2cbe4be5fd29343e9c0099673836489"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/acquisition_production.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/acquisition_production.py",
+        "bytes": 17120,
+        "sha256": "1e004223eb1fa78a672e3db5f716ec897c49638421a44b7651e0ee8499ff587f"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/acquisition_supplier.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/acquisition_supplier.py",
+        "bytes": 3082,
+        "sha256": "505c0be95628f07912a959a9eb97625d0af5cffdd06abdf8a399083a5fea3de4"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/artifacts.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/artifacts.py",
+        "bytes": 9046,
+        "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/c7_synthetic_data.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/c7_synthetic_data.py",
+        "bytes": 31194,
+        "sha256": "22ba84f8db13df430a28e31717680c3145f1e5036d7286b1c55a311db92d6a3a"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/causal_scm_fixtures.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/causal_scm_fixtures.py",
+        "bytes": 8112,
+        "sha256": "8c381aa9afbc59d96660645254d4a4a081c679c9093e5035a2c5c4f6211cbdb3"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/chronology_qualification.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/chronology_qualification.py",
+        "bytes": 88529,
+        "sha256": "12131fa3bff8aa9a6fbe4d2bc9da982efd708d96c6de6ffddd4254bfe3de4714"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/control_worker.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/control_worker.py",
+        "bytes": 3128,
+        "sha256": "060132f88dc11d72dab9215f2d8245339e013716907fe18da11616d6b097b269"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "bytes": 10771,
+        "sha256": "9456d7811ff0b58e681c11733511f86be086f3a0b4ff8eb7695b7f7f1b9adf04"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/custody_markdown.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/custody_markdown.py",
+        "bytes": 2294,
+        "sha256": "abc23b97e43d05d9e3bee7553f7717868a604e339c30021cebb94f9817d704dd"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/hds_quality.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/hds_quality.py",
+        "bytes": 139138,
+        "sha256": "389e71836146218e2b09a9d1eca0aee524baa1011586d2c442db221bc932a01b"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/mirror_contracts.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/mirror_contracts.py",
+        "bytes": 1953,
+        "sha256": "5e287fddd810a14131d5be42a5ef7626b587148a4358120dd91c78b224951b1a"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/observability.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/observability.py",
+        "bytes": 2392,
+        "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/policy_design_case_projection.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/policy_design_case_projection.py",
+        "bytes": 2717,
+        "sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/runtime_http.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/runtime_http.py",
+        "bytes": 56431,
+        "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/scientist_runtime.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/scientist_runtime.py",
+        "bytes": 14637,
+        "sha256": "f506c8b714388dceca16a275d3e84c5ae7923e6ca712d6738835de25981265cd"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/search_strategies.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/search_strategies.py",
+        "bytes": 1741,
+        "sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/_helpers/semantic_epoch_native.py",
+        "bytes": 10497,
+        "sha256": "6b5df236c53627b3d0325d66ece56e730339774630b41026bf63377110b48d77"
+      },
+      {
+        "path": "policy-engine/tests/quarantine.toml",
+        "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/quarantine.toml",
+        "bytes": 492,
+        "sha256": "3cd9b583ef697b890efbb764933eaa4125bd0ce328426c83777492b1a7d5b5e1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/source-overrides/polisyos.scientist.methods.search.strategies.neural.py",
+        "bytes": 16561,
+        "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/source-overrides/polisyos.scientist.methods.search.strategies.transfer.py",
+        "bytes": 33255,
+        "sha256": "c61d73d7582f04a3c91333d2dcf43d1a14d9d2224c0f3270d97e2b2f69e2ac2d"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "overlay": "/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/source-overrides/tests.unit.scientist.methods.search.strategies.test_transfer.py",
+        "bytes": 18497,
+        "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884"
+      }
+    ],
+    "preparation_failure": {
+      "command": "optional-collection-independent/expanded-command.json",
+      "complete_output": "optional-collection-independent/expanded-complete.txt",
+      "exit_code": 1,
+      "status": "UNRUN startup",
+      "reason": "Small test overlay omitted the actual _helpers pytest plugins; full traceback retained, no collection verdict/JUnit. Successor adds exact tracked _helpers and quarantine inputs."
+    },
+    "count_semantics": "Seven file-level skips, not seven numerical passes. Original three files repeat within expanded seven; counts are execution occurrences, not additive unique tests."
+  }
+}

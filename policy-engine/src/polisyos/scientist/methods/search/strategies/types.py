@@ -10,6 +10,7 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.objective import ObjectiveValue
 
 NormalizedVector = tuple[float, ...]
@@ -69,9 +70,9 @@ class ParameterBounds:
 
         if lower is None or upper is None:
             raise ValueError(f"Explicit bounds required for '{name}'")
-        lower_float = float(lower)
-        upper_float = float(upper)
-        if not math.isfinite(lower_float) or not math.isfinite(upper_float):
+        lower_float = finite_real_scalar(lower)
+        upper_float = finite_real_scalar(upper)
+        if lower_float is None or upper_float is None:
             raise ValueError(f"Finite explicit bounds required for '{name}'")
         return cls(
             name=name,
@@ -89,10 +90,20 @@ class ParameterBounds:
                     f"Categorical parameter '{self.name}' requires at least two categories"
                 )
             return
+        lower = finite_real_scalar(self.lower)
+        upper = finite_real_scalar(self.upper)
+        if lower is None or upper is None:
+            raise ValueError(f"Finite numeric bounds required for '{self.name}'")
+        object.__setattr__(self, "lower", lower)
+        object.__setattr__(self, "upper", upper)
         if self.lower >= self.upper:
             raise ValueError(f"Invalid bounds for '{self.name}': lower >= upper")
-        if self.log_scale and self.lower <= 0:
+        if not math.isfinite(self.upper - self.lower):
+            raise ValueError(f"Unsupported representable span for '{self.name}'")
+        if (self.log_scale or self.dtype == ParameterType.LOG_CONTINUOUS) and self.lower <= 0:
             raise ValueError(f"Log-scale parameter '{self.name}' requires lower > 0")
+        if self.dtype == ParameterType.INTEGER and math.ceil(self.lower) > math.floor(self.upper):
+            raise ValueError(f"Integer parameter '{self.name}' has no attainable values")
 
 
 @dataclass(slots=True)
@@ -115,7 +126,12 @@ class Evaluation:
     @property
     def is_valid(self) -> bool:
         """True when evaluation is usable for surrogate training."""
-        return self.status == EvaluationStatus.SUCCESS and self.stage_a_passed
+        return (
+            self.status == EvaluationStatus.SUCCESS
+            and self.stage_a_passed is True
+            and isinstance(self.scalar_score, (int, float))
+            and finite_real_scalar(self.scalar_score) is not None
+        )
 
 
 @dataclass(slots=True)
@@ -162,11 +178,45 @@ class StrategyState:
         payload = asdict(self)
         if payload["model_state"] is not None:
             payload["model_state"] = payload["model_state"].hex()
-        return json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+        payload["schema_version"] = "strategy_state.v2"
+        try:
+            return json.dumps(payload, sort_keys=True, allow_nan=False).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Strategy artifact contains unsupported or non-finite data") from exc
 
     @classmethod
     def from_artifact(cls, data: bytes) -> StrategyState:
-        payload = json.loads(data.decode("utf-8"))
-        model_state = payload.get("model_state")
-        payload["model_state"] = bytes.fromhex(model_state) if model_state else None
-        return cls(**payload)
+        try:
+            payload = json.loads(data.decode("utf-8"), parse_constant=_refuse_json_constant)
+            if not isinstance(payload, dict):
+                raise ValueError("Strategy artifact must be an object")
+            if "schema_version" in payload and payload["schema_version"] != "strategy_state.v2":
+                raise ValueError("Unsupported strategy artifact schema")
+            payload.pop("schema_version", None)
+            if set(payload) != {
+                "strategy_name",
+                "iteration",
+                "rng_state",
+                "model_state",
+                "metadata",
+            }:
+                raise ValueError("Strategy artifact fields are incomplete or unknown")
+            if not isinstance(payload["strategy_name"], str) or not payload["strategy_name"]:
+                raise ValueError("Strategy identity is invalid")
+            if type(payload["iteration"]) is not int or payload["iteration"] < 0:
+                raise ValueError("Strategy iteration must be a non-negative integer")
+            if not isinstance(payload["rng_state"], dict) or not isinstance(
+                payload["metadata"], dict
+            ):
+                raise ValueError("Strategy RNG and metadata must be objects")
+            model_state = payload["model_state"]
+            if model_state is not None and not isinstance(model_state, str):
+                raise ValueError("Strategy model must be hex bytes or null")
+            payload["model_state"] = bytes.fromhex(model_state) if model_state is not None else None
+            return cls(**payload)
+        except (UnicodeError, KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid strategy artifact: {exc}") from exc
+
+
+def _refuse_json_constant(value: str) -> None:
+    raise ValueError(f"Non-finite JSON value: {value}")

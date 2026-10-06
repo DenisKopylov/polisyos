@@ -1,0 +1,63 @@
+{
+  "schema": "polisyos.e02.independent-interrupted-wave-binding.v1",
+  "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "module_exec_event_count": 1052,
+  "unique_source_paths": 1052,
+  "file_git_binding_errors": [],
+  "event_kind_counts": {
+    "configure": 1,
+    "observer_loaded": 1,
+    "polisyos_module_census": 1,
+    "polisyos_module_exec": 1052
+  },
+  "files": {
+    "events.jsonl": {
+      "bytes": 875844,
+      "sha256": "8095b9d4cf3844b23398687f163a56760e8d68275534f10e54243032f8ad55b2"
+    },
+    "complete.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "complete.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "execution-manifest.json": {
+      "bytes": 34407,
+      "sha256": "5aa3e5081e30c4b7b327fe026fe2c5c0a89b5a5e7e4ce2462cd12bb2c9d5101e"
+    },
+    "before.json": {
+      "bytes": 825397,
+      "sha256": "88c52f093a3ffb83b84cd06604768bef3bc3c5938ac583e6b00c7a51078b3300"
+    },
+    "plan.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "plan.stdout.txt": {
+      "bytes": 938,
+      "sha256": "ff999bddbf5b81f882184c849815eb4d548ff0336633206efbde194db0cca385"
+    },
+    "selector-plan.argv.json": {
+      "bytes": 7252,
+      "sha256": "a134fe60f0e58a9b52ce55a79f1ac291aa0d6cce1972345b87ec89d97f58a9ac"
+    },
+    "selector-plan.json": {
+      "bytes": 141285,
+      "sha256": "4e791bcf5ab83b2510f4900dd349d6c1e7be544c0ae1802c5bf12ce9ceda10b2"
+    }
+  },
+  "classification": {
+    "observed_original_manifest": "RUNNING",
+    "final_execution": "ERROR/incomplete only after interruption authority receipt confirms end; no actual exit/signal inferred from source events",
+    "property_status": "UNRUN",
+    "collection_complete": false,
+    "test_phase_events": 0,
+    "numerical_fit": "No witnessed execution; module imports/installed versions do not establish backend properties",
+    "formal_closed": 0,
+    "G_accepted": false
+  },
+  "scope": "read-only Git byte verification and originalpartialcapture observation; no runtime/backend/test execution"
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "e02.D.append_only_source_baseline.v1",
+  "observed_utc": "2026-10-06T21:36:26.045090+00:00",
+  "lane": {
+    "branch": "codex/e02-D-published-root",
+    "absolute_path": "/workspace/e02-D-published-root",
+    "head": "de8e8c093b1e29b387f48387a48929c704bb8440",
+    "tree": "8ee8f7c6bfe7efc724677e8ea63110909862263a",
+    "status_sb_complete": "## codex/e02-D-published-root\n",
+    "unexpected_head_repair_performed": false
+  },
+  "slice_bases": {
+    "original_published_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "continuation_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+    "unchanged_runtime_source_before_new_node_test_delta": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "metadata_snapshot_before_new_code": "de8e8c093b1e29b387f48387a48929c704bb8440"
+  },
+  "fetched_origin_main": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "authorized_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "anchor_is_ancestor": true
+  },
+  "fetched_G_ref": {
+    "branch": "codex/e02-integration",
+    "head": "ff277db7798fc312654704fa51c52e00f53f10f4",
+    "tree": "618e17b5da96a623d5e57f30d265e245a2b277eb",
+    "checkpoint_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-12.json",
+    "checkpoint_integration_source": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "checkpoint_integration_source_tree": "759daf4ccbd6e72230de8bda36e1522ffa8fe3e4",
+    "new_slices_accepted_in_checkpoint": [],
+    "finding_closures_in_checkpoint": [],
+    "D_acceptance_established": false
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/main:refs/remotes/origin/main",
+        "refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration"
+      ],
+      "exit": 0,
+      "complete_stdout": "",
+      "complete_stderr": "From https://github.com/DenisKopylov/polisyos\n   127dc7ab8..ff277db77  codex/e02-integration -> origin/codex/e02-integration\n"
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "origin/main"
+      ],
+      "exit": 0,
+      "complete_stdout": "",
+      "complete_stderr": ""
+    }
+  ],
+  "code_tests_delta_against_8c": "",
+  "limitations": [
+    "No source merge or acceptance by G is inferred from checkpoint12 metadata.",
+    "This observation is immutable; mutable remote branches may advance.",
+    "Local production inputs remain local/read-only; no transfer performed."
+  ]
+}

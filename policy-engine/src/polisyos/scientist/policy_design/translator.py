@@ -10,8 +10,15 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.llm.traced_client import LLMAccountingError
+from polisyos.scientist.methods.search.funnel.types import (
+    funnel_resource_receipt_context,
+    observe_funnel_resource_accounting_failure,
+    observe_funnel_resource_response,
+)
 from polisyos.scientist.methods.search.readiness import DecisionReadinessContract
 from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.output import (
@@ -181,11 +188,15 @@ class PolicyTranslatorWorker:
         config: PolicyTranslatorConfig | None = None,
         *,
         fallback: DeterministicPolicyTranslator | None = None,
+        budget_middleware: BudgetMiddleware | None = None,
     ) -> None:
         self._config = config or PolicyTranslatorConfig()
         self._fallback = fallback or DeterministicPolicyTranslator()
+        self._budget_middleware = budget_middleware
 
-    async def translate_async(self, bundle: TranslatorInputBundle) -> PolicyBrief:
+    async def translate_async(
+        self, bundle: TranslatorInputBundle, *, evaluation_id: str | None = None
+    ) -> PolicyBrief:
         client = create_traced_gateway_client(
             model_name=self._config.model_name,
             provider_hint=self._config.provider_hint,
@@ -195,10 +206,16 @@ class PolicyTranslatorWorker:
             return self._fallback.translate(bundle)
 
         llm_client: Any = client
-        if bundle.budget_state is not None:
+        configured_budget = (
+            self._budget_middleware.budget_state
+            if self._budget_middleware is not None
+            else bundle.budget_state
+        )
+        if configured_budget is not None:
             llm_client = LLMBudgetEnforcer(
                 client=client,
-                budget_state=bundle.budget_state,
+                budget_state=configured_budget,
+                budget_middleware=self._budget_middleware,
                 budget_keys=list(self._config.budget_keys),
                 model_name=self._config.model_name,
                 run_id=bundle.run_id,
@@ -217,26 +234,41 @@ class PolicyTranslatorWorker:
             ),
         }
         try:
-            response = await llm_client.generate(
-                system=get_policy_translator_prompt(),
-                user=build_policy_translator_user_payload(payload),
-                response_format={"type": "json_object"},
-                temperature=self._config.temperature,
-                max_tokens=self._config.max_tokens,
-                _run_id=bundle.run_id,
-            )
+            with funnel_resource_receipt_context(self._budget_middleware):
+                response = await llm_client.generate(
+                    system=get_policy_translator_prompt(),
+                    user=build_policy_translator_user_payload(payload),
+                    response_format={"type": "json_object"},
+                    temperature=self._config.temperature,
+                    max_tokens=self._config.max_tokens,
+                    _run_id=bundle.run_id,
+                    **(
+                        {"_evaluation_id": evaluation_id}
+                        if self._budget_middleware is not None
+                        else {}
+                    ),
+                )
+            observe_funnel_resource_response(response)
             raw = getattr(response, "content", response)
             return PolicyBrief.model_validate(_parse_json_object(raw))
+        except LLMAccountingError as exc:
+            # A missing durable acknowledgment cannot become a free fallback brief.
+            observe_funnel_resource_accounting_failure(
+                exc, budget_keys=tuple(self._config.budget_keys)
+            )
+            raise
         except Exception:
             if not self._config.fallback_on_error:
                 raise
             return self._fallback.translate(bundle)
 
-    def translate(self, bundle: TranslatorInputBundle) -> PolicyBrief:
+    def translate(
+        self, bundle: TranslatorInputBundle, *, evaluation_id: str | None = None
+    ) -> PolicyBrief:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            return asyncio.run(self.translate_async(bundle))
+            return asyncio.run(self.translate_async(bundle, evaluation_id=evaluation_id))
         return self._fallback.translate(bundle)
 
     async def translate_and_persist_async(
@@ -245,8 +277,9 @@ class PolicyTranslatorWorker:
         bundle: TranslatorInputBundle,
         *,
         inputs: list[InputRef] | None = None,
+        evaluation_id: str | None = None,
     ) -> tuple[PolicyBrief, ArtifactRef]:
-        brief = await self.translate_async(bundle)
+        brief = await self.translate_async(bundle, evaluation_id=evaluation_id)
         ref = persist_policy_brief(store, brief, inputs=inputs)
         return brief, ref
 
@@ -256,11 +289,16 @@ class PolicyTranslatorWorker:
         bundle: TranslatorInputBundle,
         *,
         inputs: list[InputRef] | None = None,
+        evaluation_id: str | None = None,
     ) -> tuple[PolicyBrief, ArtifactRef]:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            return asyncio.run(self.translate_and_persist_async(store, bundle, inputs=inputs))
+            return asyncio.run(
+                self.translate_and_persist_async(
+                    store, bundle, inputs=inputs, evaluation_id=evaluation_id
+                )
+            )
         brief = self._fallback.translate(bundle)
         ref = persist_policy_brief(store, brief, inputs=inputs)
         return brief, ref

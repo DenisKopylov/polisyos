@@ -1,0 +1,269 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+  "source_tree": "bd080793d0a544b251112a41572c4673015a3172",
+  "branch": "codex/e02-D-published-transfer",
+  "role": "Transfer/NN production author; source-bound technical evidence, not independent acceptance or institutional authorization",
+  "canonical_accounting": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "fresh_G_audit": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md@363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "output_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-continuation-output.json.gz",
+    "encoding": "gzip UTF-8 JSON with per-file lossless UTF-8/base64 contents",
+    "raw_file_sha256": "8049ec22e3634cc7d565124c78e2649a9a4aef85438a04046451b1161f59bf8b",
+    "uncompressed_sha256": "5d8babf52a3aec8475e6a843ead91328ccead3524307a68c4dfb133259b3220a",
+    "compressed_bytes": 59559,
+    "uncompressed_bytes": 516461,
+    "member_count": 84,
+    "retained_scratch": "/workspace/e02-D2-receipts/transfer-continuation"
+  },
+  "preservation": {
+    "manual_cleanup": "No manual deletion or cleanup; native Trash unavailable per root environment report. All original logs, basetemps, packets and single-file mutations retained.",
+    "scope_correction": "Earlier transfer-lesson-as-of receipt wording No deletion/no environment deletions describes no manual cleanup. It is not a whole filesystem immutability claim: existing CAS atomic replace and native save/load TemporaryDirectory cleanup still execute normally.",
+    "cleanup_candidates": [
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-warm-base-84952b1f26f94cf99b23dae2d8fabc73",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-warm-base-corrected-3fa33a7ceb614618afd8dd2c78a1d02a",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-lessons-frozen-a839741128ec4c8ea22c57a91bd9193f",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-vector-transfer-process-frozen-21aee95549f24a6986ac5bc248259700",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-cas-transfer-native-frozen-31635e43e4864f20bcce53c26c71bb9d",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-additional-negative-base-2a1b92c39a4f41d18d3c3f9f88d36e51",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-transfer-corrected-f228d2ef8ab14ced9b7ea4d0d45e61ba",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-restore-removal-0428870b8fb44614a3e9fb314da00eae"
+    ],
+    "no_caps": "Every deciding child records absent numeric thread caps, actual source-default model/acquisition settings, natural execution. No environment installs/shared venv writes.",
+    "notification_deviation": "Original NN baseline characterization was launched before parent heavy-import notification; immediately reported. Subsequent native deciding/negative/removal child launches notified first."
+  },
+  "quality": {
+    "ruff_version": "0.14.10",
+    "check": "PASS",
+    "format_check": "PASS",
+    "python_paths": 11
+  },
+  "count_semantics": "Checks are execution occurrences with repeated controls, not additive unique-test totals; skipped/UNRUN backend cases are not native PASS.",
+  "slice": "continuation-B-owned-snapshot-vector-process",
+  "finding_ids": [
+    "B129",
+    "B133",
+    "B134"
+  ],
+  "original_criteria": [
+    {
+      "id": "B129@TRN-02",
+      "original_criterion": {
+        "text": "**Приёмка:** история, найденная в индексе размером более 1000, читается без второго ANN; изменение `top_k` discovery не меняет адресуемость уже выбранного артефакта; повреждённая ссылка не подменяется другой похожей историей. Строгие фильтры применимости учитывать до окончательного лимита, но не смешивать их с адресным чтением.",
+        "byte_offset": 780379,
+        "bytes": 582,
+        "sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a"
+      },
+      "card": "TRN-02",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    },
+    {
+      "id": "B133@TRN-02",
+      "original_criterion": {
+        "text": "**Приёмка:** новый допустимый snapshot одинаково читается холодным и тёплым путями; replay конкретной старой ссылки остаётся старым; мутация потребителя не меняет общий результат; ограничение памяти не скрывает действительный артефакт. B129 должен передать точную ссылку, иначе этот ремонт останется неполным.",
+        "byte_offset": 795310,
+        "bytes": 552,
+        "sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d"
+      },
+      "card": "TRN-02",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    },
+    {
+      "id": "B134@TRN-02",
+      "original_criterion": {
+        "text": "**Приёмка:** отказ добавления не портит старые запросы; failed load оставляет прежнее полностью согласованное поколение; загрузка без нужных bytes не публикуется частично; проверены capacity, неверная форма и настоящие нативные исключения. Resize допустим только внутри выделенного ресурса. Не снимать лимиты и не перестраивать весь индекс на каждом нормальном запросе.",
+        "byte_offset": 799747,
+        "bytes": 651,
+        "sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d"
+      },
+      "card": "TRN-02",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    }
+  ],
+  "implementation_commit": "0a0cb85af53ff634ead74d1bab37203427d17cf0",
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "blob": "0326977e81c32e1acc0a872f288c6a985b3fbb7e",
+      "raw_file_sha256": "b8e5a6f11aab9185413da92f067de260ea088184de393f9bcb65f922c6dcb4ba",
+      "bytes": 13986
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "blob": "7f7d64794c00432b75748d294f4f9607349e3396",
+      "raw_file_sha256": "c61d73d7582f04a3c91333d2dcf43d1a14d9d2224c0f3270d97e2b2f69e2ac2d",
+      "bytes": 33255
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_vector_transfer_process.py",
+      "blob": "55d3a5f1f67e6b5bad3c21f8874cddbb026a227c",
+      "raw_file_sha256": "1e6af3e18c385276fec0d907593abc7cb9fd70929580f667458f459a0ee6a096",
+      "bytes": 1411
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/vector_transfer_process_worker.py",
+      "blob": "ddfdbcdd8e6492771f432beb1629729093c90849",
+      "raw_file_sha256": "4c47861187c5411c8add98f4424153dd48273c9aa5038baa0db74bf47f9f71ca",
+      "bytes": 7517
+    }
+  ],
+  "owner_dependency": {
+    "actual_B_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-verification-snapshot.json@01129503d3cbfd6d77ef5dab85ac08e5c2e4a644",
+    "root_composition": "28231314770215be0e646d33d8c1f567211f6c19",
+    "own_normal_merge": "e11b1afc5a5c1fb5fbe044e8887c18f401a7ba85",
+    "all_13_byte_identity": "transfer-native-continuation-output.json.gz#B-minimum-source-identity.json",
+    "identity_output_sha256": "c31028216d55506a8c5ce9b6f03215e79ebf7b8e649a8f1956947e336aa1ff4a",
+    "port": "existing FileSystemCAS.get_verified_snapshot complete ArtifactRef -> owned immutable data+manifest snapshot; no new public types/export or second latest pointer"
+  },
+  "runtime_trace": "OS producer actual HNSW1002entries +actualCAS bundle/fullhistoryref packet -> exits -> new receiving OS process opens same FileSystemCAS -> B public verified snapshot -> native load -> one ANN discovery -> exact found ArtifactRef reads transfer history/original candidates/evaluations/basis refs -> three admitted rows and exact alias cache -> original native bytes changed at same ref -> refusal with prior generation/query coherent",
+  "checks": [
+    {
+      "outcome": "PASS",
+      "source_sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+      "source_tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+      "source_before_status": "",
+      "source_after_status": "",
+      "junit": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "tests/unit/scientist/agent/test_vector_transfer_process.py",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-vector-transfer-process-frozen-21aee95549f24a6986ac5bc248259700",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/vector-transfer-process-frozen.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 18.6540310382843,
+        "before": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+          "status": ""
+        },
+        "after": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "c51d81af13819f63c6c0728b909d88f8b95efeb588674ebbcb64130fa3b6cf9c"
+      },
+      "complete_output_member": "vector-transfer-process-frozen.txt"
+    },
+    {
+      "outcome": "PASS",
+      "source_sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+      "source_tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+      "source_before_status": "",
+      "source_after_status": "",
+      "junit": {
+        "tests": 60,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "tests/unit/scientist/agent/test_vector_memory.py",
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+          "tests/unit/scientist/methods/autotune/test_warm_start.py",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-cas-transfer-native-frozen-31635e43e4864f20bcce53c26c71bb9d",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/cas-transfer-native-frozen.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 19.926931381225586,
+        "before": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+          "status": ""
+        },
+        "after": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "bdb455c030ee54af841011a02ff4b231a29404ee32f4ebaa16def6f0a75b7d40"
+      },
+      "complete_output_member": "cas-transfer-native-frozen.txt"
+    }
+  ],
+  "actual_negative_oracles": [
+    "Receiving reader forbids get_bytes/get_manifest legacy rereads, counts actual native verified snapshots and complete refs; no second ANN allowed after discovery.",
+    "Same complete native ref changed bytes refuses and generation pointer remains identical, real query coherence retained. Original native bytes preserved before mutation.",
+    "Valid native96-byteheader then actual hnswlib.load_index truncated stream raises native RuntimeError Index seems to be corrupted or unsupported; old actual generation/query unchanged, no fakeIndex.",
+    "Whole existing vector_memory native tests use real reader barrier acrossload/add with query captureonce; failed native add/envelope/unknownversion/header/dim/count and same-ref controls retained."
+  ],
+  "corpus_scope": "One conditional analytic candidate-only history3, one1002entry ANN fixture with1001 unrelated metadata entries; genuine measured benchmark histories/authorized tenant/split inputs are absent. ANN similarity is discovery only; exact fullrefs/CAS content bind address and numerical inputs.",
+  "legacy_profile": "If public snapshot port absent, legacy get_bytes/get_manifest fallback remains bounded content/ref checks; not a claim of one owned immutable byte+manifest snapshot. Legacy ID-only vector bundle support remains explicit and bounded.",
+  "limits": [
+    "Process-local immutable generation and bounded second-process CAS reopen do not establish distributed publication, power-loss or institutional authorization.",
+    "B133 is local exact-version/copy/LRU cache semantics, no old principal-decision hold.",
+    "B134 native failure/coherence proven for these actual dimensions/capacity/native profile; allocated resize limits unchanged and no index rebuilding on normal query."
+  ],
+  "owner_request_ref": "transfer-production-input-request.json",
+  "run_configuration_inputs": [
+    {
+      "path": "policy-engine/pytest.ini",
+      "raw_file_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "raw_file_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "raw_file_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    }
+  ],
+  "source_lineage": "The two process and60-case native executions are exactly d9, as their records state. Vector source and both new process test files are byte-identical d9→cba; transfer has only the finite-number typed refusal delta atcba, independently exercised by whole39 transfer cases in68. These earlier runs are not relabeled as a fresh all-source replay on cba."
+}

@@ -1,0 +1,13 @@
+{
+  "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+  "command": [
+    "/workspace/e02-D-doe-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+  ],
+  "input_profile_sha256": "fb74df437369cf759695564e47bd5ab243bce285f469106a62bf2d543f390850",
+  "exit_code": 0,
+  "wall_seconds": 89.74578591099998,
+  "peak_rss_kib": 815156,
+  "source_sha_after": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+  "output_bytes": 6859
+}

@@ -1,0 +1,97 @@
+FF
+=================================== FAILURES ===================================
+____ test_same_marker_warm_row_changes_corpus_or_refuses_atomically[scalar] ____
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...nterrupted_strategy=<polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7fb3ce3678c0>)
+mutation = 'scalar'
+
+    @pytest.mark.parametrize("mutation", ["scalar", "coordinate"])
+    def test_same_marker_warm_row_changes_corpus_or_refuses_atomically(
+        analytic_case: AnalyticCase,
+        mutation: str,
+    ) -> None:
+        case = analytic_case
+        changed = copy.deepcopy(case.initial)
+        row = _warm_row(changed.metadata)
+        assert row is not None, (
+            "Checkpoint must persist its actual typed warm rows, not just a compatibility marker"
+        )
+        if mutation == "scalar":
+            row["scalar_score"] += 3.0
+        else:
+            row["params"]["x"] = 0.11
+            row["params_normalized"] = [0.11]
+        restored = _restore(case)
+        before = restored.get_state()
+        try:
+            restored.set_state(changed)
+        except ValueError:
+            _assert_unchanged(restored, before)
+            return
+        expected_mean, expected_covariance = _dense_expected(case.initial, POINTS)
+        actual_mean, actual_covariance = _actual(restored._model)
+>       assert not (
+            np.allclose(actual_mean, expected_mean, rtol=RTOL, atol=ATOL)
+            and np.allclose(actual_covariance, expected_covariance, rtol=RTOL, atol=ATOL)
+        ), "A changed actual warm row was accepted with an unchanged immediate posterior"
+E       AssertionError: A changed actual warm row was accepted with an unchanged immediate posterior
+E       assert not (True and True)
+E        +  where True = <function allclose at 0x7fb3de1d0370>(array([51.2206112 , 55.76687062, 60.68453552, 59.35440333, 52.70605963,\n       46.73648273, 46.85234145]), array([51.2206112 , 55.76687062, 60.68453552, 59.35440333, 52.70605963,\n       46.73648273, 46.85234145]), rtol=2e-07, atol=2e-08)
+E        +    where <function allclose at 0x7fb3de1d0370> = np.allclose
+E        +  and   True = <function allclose at 0x7fb3de1d0370>(array([[ 1.73179045e-01,  9.10549975e-03, -6.38909099e-03,\n         4.24819166e-03, -3.67832413e-03,  1.12716620e-03,\n... 4.60771096e-04, -6.47900212e-04,\n        -4.31924687e-04,  4.77994618e-03,  2.18414159e-03,\n         1.56337310e-01]]), array([[ 1.73179045e-01,  9.10549975e-03, -6.38909099e-03,\n         4.24819166e-03, -3.67832413e-03,  1.12716620e-03,\n... 4.60771096e-04, -6.47900212e-04,\n        -4.31924687e-04,  4.77994618e-03,  2.18414159e-03,\n         1.56337310e-01]]), rtol=2e-07, atol=2e-08)
+E        +    where <function allclose at 0x7fb3de1d0370> = np.allclose
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:588: AssertionError
+__ test_same_marker_warm_row_changes_corpus_or_refuses_atomically[coordinate] __
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...nterrupted_strategy=<polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7fb3ce3678c0>)
+mutation = 'coordinate'
+
+    @pytest.mark.parametrize("mutation", ["scalar", "coordinate"])
+    def test_same_marker_warm_row_changes_corpus_or_refuses_atomically(
+        analytic_case: AnalyticCase,
+        mutation: str,
+    ) -> None:
+        case = analytic_case
+        changed = copy.deepcopy(case.initial)
+        row = _warm_row(changed.metadata)
+        assert row is not None, (
+            "Checkpoint must persist its actual typed warm rows, not just a compatibility marker"
+        )
+        if mutation == "scalar":
+            row["scalar_score"] += 3.0
+        else:
+            row["params"]["x"] = 0.11
+            row["params_normalized"] = [0.11]
+        restored = _restore(case)
+        before = restored.get_state()
+        try:
+            restored.set_state(changed)
+        except ValueError:
+            _assert_unchanged(restored, before)
+            return
+        expected_mean, expected_covariance = _dense_expected(case.initial, POINTS)
+        actual_mean, actual_covariance = _actual(restored._model)
+>       assert not (
+            np.allclose(actual_mean, expected_mean, rtol=RTOL, atol=ATOL)
+            and np.allclose(actual_covariance, expected_covariance, rtol=RTOL, atol=ATOL)
+        ), "A changed actual warm row was accepted with an unchanged immediate posterior"
+E       AssertionError: A changed actual warm row was accepted with an unchanged immediate posterior
+E       assert not (True and True)
+E        +  where True = <function allclose at 0x7fb3de1d0370>(array([51.2206112 , 55.76687062, 60.68453552, 59.35440333, 52.70605963,\n       46.73648273, 46.85234145]), array([51.2206112 , 55.76687062, 60.68453552, 59.35440333, 52.70605963,\n       46.73648273, 46.85234145]), rtol=2e-07, atol=2e-08)
+E        +    where <function allclose at 0x7fb3de1d0370> = np.allclose
+E        +  and   True = <function allclose at 0x7fb3de1d0370>(array([[ 1.73179045e-01,  9.10549975e-03, -6.38909099e-03,\n         4.24819166e-03, -3.67832413e-03,  1.12716620e-03,\n... 4.60771096e-04, -6.47900212e-04,\n        -4.31924687e-04,  4.77994618e-03,  2.18414159e-03,\n         1.56337310e-01]]), array([[ 1.73179045e-01,  9.10549975e-03, -6.38909099e-03,\n         4.24819166e-03, -3.67832413e-03,  1.12716620e-03,\n... 4.60771096e-04, -6.47900212e-04,\n        -4.31924687e-04,  4.77994618e-03,  2.18414159e-03,\n         1.56337310e-01]]), rtol=2e-07, atol=2e-08)
+E        +    where <function allclose at 0x7fb3de1d0370> = np.allclose
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:588: AssertionError
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_warm_row_changes_corpus_or_refuses_atomically[scalar]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_warm_row_changes_corpus_or_refuses_atomically[coordinate]
+2 failed, 21 deselected, 2 warnings in 88.83s (0:01:28)

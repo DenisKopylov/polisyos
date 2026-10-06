@@ -1,0 +1,41 @@
+from pathlib import Path
+import hashlib, json, os, subprocess, sys
+from tools.devx.workspace import verify, ci_parity, doctor, _common
+
+root=Path('/workspace/e02-D-published-root/policy-engine')
+assert _common.PRODUCT_ROOT.resolve()==root
+python='/dev/shm/e02-D-parity-env/bin/python'
+assert sys.prefix=='/dev/shm/e02-D-parity-env'
+uv='/dev/shm/e02-D-parity-env/bin/uv'
+assert _common.uv_command()==(uv,)
+verify_specs=verify._backend_commands(pytest_workers=None,pytest_dist=verify.DEFAULT_PYTEST_DIST)
+ci_specs=ci_parity._backend_commands(skip_runtime_http=False,skip_docs=False)[1:]
+assert len(verify_specs)==14 and len(ci_specs)==11
+
+def convert(spec):
+    argv=list(spec.argv)
+    assert argv[:2]==[uv,'run'], argv
+    payload=argv[2:]
+    extras=[]
+    while payload and payload[0]=='--extra':
+        extras.append(payload[1]);payload=payload[2:]
+    executable,*args=payload
+    if executable=='python':direct=[python,*args]
+    elif executable=='pytest':direct=[python,'-m','pytest',*args]
+    elif executable=='polisyos-tools':direct=[python,'-m','tools.cli',*args]
+    else:raise AssertionError(payload)
+    caps=dict(spec.env or {})
+    assert not caps or caps==verify.PYTEST_NUMERICAL_ENV
+    return {'label':spec.label,'canonical_argv':argv,'direct_argv':direct,'cwd':str(root),'canonical_env':caps,'removed_only_wrapper_numeric_caps':caps,'required_extra_profiles':extras,'state':'UNRUN pending parent freeze; no executable verdict'}
+rows=[{'group':'verify_backend',**convert(s)} for s in verify_specs]+[{'group':'ci_addition',**convert(s)} for s in ci_specs]
+assert len(rows)==25
+sources=[]
+for path in [Path(verify.__file__),Path(ci_parity.__file__),Path(doctor.__file__),Path(_common.__file__),root/'tools/quality/validation/check_extension_examples.py',root/'pytest.ini',root/'uv.lock',root/'pyproject.toml']:
+ data=path.read_bytes()
+ sources.append({'path':str(path),'rawfile_sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+repo=root.parent
+sha=subprocess.check_output(['/usr/bin/git','-C',str(repo),'rev-parse','HEAD']).decode().strip()
+tree=subprocess.check_output(['/usr/bin/git','-C',str(repo),'rev-parse','HEAD^{tree}']).decode().strip()
+plan={'status':'PROVISIONAL_SOURCE_DERIVATION_NOT_FREEZE_OR_EXECUTION','source_sha':sha,'tree':tree,'source_identities':sources,'python':sys.executable,'prefix':sys.prefix,'canonical_uv':uv,'command_count':len(rows),'commands':rows,'doctor':{'baseline_checks':'Call existing doctor _check_python/_check_node/_check_uv and default empty optional surfaces directly, without invoking hidden uv run sync.','chromium_argv':['node','-e',doctor.PLAYWRIGHT_SMOKE],'chromium_cwd':str(root/'apps/runtime-dashboard'),'uv_lock_argv':[uv,'lock','--check'],'pnpm_lock_argv':['corepack','pnpm','install','--frozen-lockfile','--lockfile-only','--ignore-scripts'],'frontend_contract_argv':['corepack','pnpm','run','contracts:verify'],'frontend_contract_cwd':str(root/'apps/runtime-dashboard'),'schema_and_runtime_api_checks':'Reuse identical exact direct commands already present in the25 backend commands once final source/env are fixed.'},'literal_wrappers':'UNRUN/incompatible with cloud instruction: verify.PYTEST_NUMERICAL_ENV injects6 caps=1. Direct exact commands remove only those wrapper overrides and avoid implicit uv sync.'}
+Path('/dev/shm/e02-D-backend-parity-review/gates-derived-provisional.json').write_text(json.dumps(plan,indent=2)+'\n')
+print(json.dumps({'source_sha':sha,'tree':tree,'count':len(rows),'labels':[x['label'] for x in rows],'caps':verify.PYTEST_NUMERICAL_ENV},indent=2))

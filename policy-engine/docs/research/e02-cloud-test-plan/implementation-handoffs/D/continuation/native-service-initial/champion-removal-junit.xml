@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.772" timestamp="2026-10-06T15:25:42.288915+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject" time="0.617"><failure message="assert [2, 3] == [1, 2, 3]&#10;  &#10;  At index 0 diff: 2 != 1&#10;  Right contains one more item: 3&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-negative-9e5af238e6d7436c9ab8f60c1e276def/test_native_factory_failure_ch0')
+
+    def test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject(tmp_path):
+        runner, store, registry, suite, evaluator, spec = _runner(tmp_path, fail_value=2)
+        service = runner.create_service(spec, suite_ref=suite, max_iterations=3)
+        with pytest.raises(RuntimeError, match="actual evaluator interruption"):
+            service.run_search(initial_context={})
+        old_ref = service.checkpoint_ref
+        assert isinstance(old_ref, ArtifactRef)
+        assert service.controller._status is SearchStatus.FAILED
+        assert [row.candidate["value"] for row in service.controller._history] == [1]
+        assert set(service._pending_candidates) == {"candidate_1_0"}
+        old_bytes = store.get_bytes(old_ref)
+        fresh_runner, fresh_store, fresh_registry, fresh_suite, fresh_evaluator, fresh_spec = _runner(
+            tmp_path
+        )
+        result = fresh_runner.resume(
+            fresh_spec, suite_ref=suite, checkpoint_ref=old_ref, max_iterations=3
+        )
+&gt;       assert [row.candidate["value"] for row in result.history] == [1, 2, 3]
+E       assert [2, 3] == [1, 2, 3]
+E         
+E         At index 0 diff: 2 != 1
+E         Right contains one more item: 3
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_persistence.py:107: AssertionError</failure></testcase></testsuite></testsuites>

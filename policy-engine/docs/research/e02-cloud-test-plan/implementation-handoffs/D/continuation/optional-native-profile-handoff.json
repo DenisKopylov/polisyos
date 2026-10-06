@@ -1,0 +1,249 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "optional-native-test-profile-admission",
+  "created_at_utc": "2026-10-06T22:22:36.927655+00:00",
+  "slice_base_sha": "6cd806014944600a580d1dec9f7ea31c33d8dad6",
+  "implementation_commits": [
+    "66270f22b3cdab68196f97d78cc6c9e4715ce97c"
+  ],
+  "candidate_tree_sha": "1c3141bde537f21061ac8d71f7c6d2dec92465c8",
+  "proof_commit": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+  "proof_tree_sha": "0964b020ff0a30e776b381e28c134d783ab04bc5",
+  "runtime_source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+  "runtime_tree_sha": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+  "branch": "codex/e02-D-published-champion",
+  "pull_request": null,
+  "closure_ids": [],
+  "bundle_ids": [
+    "TRN-02",
+    "OPT-03"
+  ],
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+    "policy-engine/tests/unit/remediation/test_trn_02.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+  ],
+  "mandatory_companion_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/complete-data.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/proof.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/README.md"
+  ],
+  "proof_bindings": [
+    {
+      "source_sha": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/complete-data.json.gz",
+      "blob_sha": "ae88fe3a412b07ff40b3547dbbee36bfd0051208",
+      "bytes": 637147,
+      "raw_sha256": "4dcd692301dfb28eef60f36098697ad7ad84ac0db01926f76818e1591e2d7822"
+    },
+    {
+      "source_sha": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/proof.json",
+      "blob_sha": "eb0383d5def88e56407529d2806b355a54611db7",
+      "bytes": 9649,
+      "raw_sha256": "dbc99a53d4a48b9ee37ea1d9c2a61c19c03276d2a9b6673f334a628562b1ab79"
+    },
+    {
+      "source_sha": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/README.md",
+      "blob_sha": "085901dd1320ac464f681063850eaeb46533bc12",
+      "bytes": 2312,
+      "raw_sha256": "e60d9bb9f421d0f7c686fba6d31338e6d98805dc6e6fa990fcfbcf51a57cc8e9"
+    }
+  ],
+  "product_source_changed_paths": [],
+  "original_criteria_changed": false,
+  "test_change": "Autouse native-only HNSW fixture for15 vector cases; explicit HNSW admission for first2 transfer measured_history cases; torch/botorch/gpytorch admission for only native Sobol case. All fallback/history/DTO cases retain original bodies. One assertion has Ruff-only line wrapping.",
+  "source_dependency_qualification": "Three leased test files at own base already matched ROOTc17 exactly; no root source adoption/copy was required. Runtime tests were executed only after ordinary root merge on exact b9 canonical configuration/source. The author branch whole product tree differs by ancestry and is not a production acceptance target.",
+  "source_assertion_preservation": {
+    "existing_assertions": 57,
+    "by_file": [
+      {
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "assertions": 9
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "assertions": 11
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "assertions": 37
+      }
+    ],
+    "full_original_AST_after_only_new_admission_removal": "MATCH_ROOTc17",
+    "predicate_basis": "recomputed"
+  },
+  "checks": [
+    {
+      "target_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+      ],
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "outcome": "PASS",
+      "complete_output": "All checks passed!"
+    },
+    {
+      "target_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+      ],
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "outcome": "PASS",
+      "complete_output": "3 files already formatted"
+    },
+    {
+      "target_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "command": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_broad_observer",
+        "-q",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "-ra",
+        "--run-quarantine",
+        "-o",
+        "cache_dir=/tmp/e02-D-optional-native-profile-b9fc7d005d39-4a89790f79a346c6b42bf517bc06ac72/pytest-cache-82aca4a061444929a64aac6750a85ae8",
+        "--basetemp=/tmp/e02-D-optional-native-profile-b9fc7d005d39-4a89790f79a346c6b42bf517bc06ac72/pytest-basetemp-6ba27ccb90f847e5b5aa82498f88601d",
+        "--junitxml=/tmp/e02-D-optional-native-profile-b9fc7d005d39-4a89790f79a346c6b42bf517bc06ac72/junit.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "environment_assignments": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "verdict_scope": "Supported minimal-profile test admission/fallback behavior;21 native properties SKIP/UNRUN.",
+      "actual_exit": 0,
+      "actual_collected": 38,
+      "finished": 38,
+      "junit_outcomes": {
+        "PASS": 17,
+        "SKIP": 21,
+        "FAIL": 0,
+        "ERROR": 0
+      },
+      "deselected": 0,
+      "wall_seconds": 7.318935567003791,
+      "maxrss_KiB_linux": 245848,
+      "output_git_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/complete-data.json.gz@6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+      "native_property_status": "UNRUN: optional native backends absent, not a native PASS"
+    },
+    {
+      "target_sha": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+      "command": "gzip decode + generic UTF-8/member-ref resolution; raw SHA256/size and all original retained-output byte equality",
+      "outcome": "PASS",
+      "complete_output": "10 complete members reconcile; after.json resolves byte-identical before.json. No tracked source/test/config/document body copies."
+    }
+  ],
+  "property": {
+    "statement": "Native numerical test bodies require their optional backend before evaluation; absence yields explicit pytest SKIP/UNRUN while backend-independent fallback/history/DTO tests continue to execute.",
+    "runtime_path": [
+      "canonical ROOT pytest configuration/conftest",
+      "real148 minimal interpreter with absent numerical extras",
+      "native test admission",
+      "six fallback and eleven history/DTO cases",
+      "complete JUnit/phase reports"
+    ],
+    "proxy_divergence": "Native Sobol previously used a fallback dictionary and failed on missing candidate keys; native HNSW oracles previously treated missing optional backend as product-call failure. An exit0 or skip is not native property evidence.",
+    "negative_controls": [
+      "Actual HNSW absent:15 vector and5TRN cases skip",
+      "Actual Torch absent:only first native Sobol skips",
+      "No-Bo fallback6 and history/DTO11 execute PASS"
+    ],
+    "backend_present_positive": "UNRUN for this new run; original native bodies/assertions unchanged and earlier native evidence stays bound to its original sources."
+  },
+  "environment": {
+    "profile_git_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json@6a157f301b400fe46268bcc53610359bb9ee4a71",
+    "python": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python_version": "3.14.7",
+    "pytest_version": "9.0.2",
+    "numpy_version": "2.3.5",
+    "actually_loaded_numerical_extras": [],
+    "absent_extras": [
+      "torch",
+      "botorch",
+      "gpytorch",
+      "hnswlib",
+      "SALib"
+    ],
+    "configured_compute_or_time_limits_added": false,
+    "active_linked_environment_targets_cleanup_excluded": true
+  },
+  "input_and_origin_verification": {
+    "actual_pinned_files": 5567,
+    "product_python_inputs": 2701,
+    "test_python_inputs": 2860,
+    "before_after_bytehash_git_state_unchanged": true,
+    "actual_final_product_origins": 249,
+    "actual_transient_module_exec_origins": 249,
+    "mismatches": 0,
+    "observer_errors": 0,
+    "scope": "Actual main-process observed imports/execs; no claim every product module ran or child-worker origin audit."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Corrected supported optional-profile test admission; native numerical properties explicitly UNRUN in this environment",
+  "baseline_evidence": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "run_scope": "Original broad run was SIGKILL9 partial ERROR; not a completed baseline suite or inherited-red waiver.",
+    "events_path": "/tmp/e02-D-final-root-wave-c17db434-20261006/events.jsonl",
+    "events_raw_sha256": "20b1377b538a1a1f32ef41156a4f3e18c7f6f5f4593903f1361050a745fee34d",
+    "relevant_call_event_lines": [
+      2383,
+      2728
+    ],
+    "independent_reviewer_reported_relevant_native_failures": 18,
+    "failure_distribution": {
+      "TRN_first_two": 2,
+      "vector_native": 15,
+      "first_native_Sobol": 1
+    },
+    "predicate_basis": "institutionally_supplied",
+    "reviewer": "/root/numerical_oracle",
+    "independent_partial_review_path": "/tmp/e02-oracle-final-partial-audit-c17-review.json",
+    "independent_partial_review_raw_sha256": "e66b2e9373d656b3a199cb6a6ca43ea3d922329e594d3ec37b375835687da556",
+    "git_carrier": null,
+    "limitation": "Root lossless historical carrier publication pending when this proof is written; no receipt SHA invented, no retroactive baseline PASS."
+  },
+  "independent_review_locator": {
+    "reviewer": "/root/numerical_oracle",
+    "source_delta_review": "/tmp/e02-oracle-native-profile-66270-independent-review.json",
+    "actual_output_review": "/tmp/e02-oracle-native-profile-b9fc-complete-independent-review.json",
+    "actual_output_review_bytes": 14815,
+    "actual_output_review_raw_sha256": "4aeec499c45392ae12953133acd60dff9b8591a6117a94e7a483b574bed868ed",
+    "status": "Reviewer-reported scoped source/output acceptance; no independent runtime duplicate or invented Git receipt SHA"
+  },
+  "limitations_and_next_owner": [
+    "38 actual cases =17 executed PASS and21 native SKIP/UNRUN; not38 native passes.",
+    "Missing Torch/BoTorch/GPyTorch/HNSW/SALib are actual absent extras in supported148 distribution profile.",
+    "No full backend execution, numerical fit or GP26 replay occurred here; unchanged positive-body numerical evidence remains separately historical.",
+    "Canonical root conftest/config used; only supported pytest cache_dir option moved local cache to unique output. Internal framework cleanup scope remains unknown; listed output files and source identities are preserved.",
+    "Linked minimal environment/targets retained; no deletion, cleanup, new environment, mock backend, selector filter or cap."
+  ],
+  "metadata_initial_errors": [
+    "First Ruff format --check reported one existing multiline assertion formatting difference; formatter corrected it with unchanged Assert AST.",
+    "Initial author AST comparator stripped existing later TRN importorskip expressions as well as new ones; comparator narrowed to only edited functions and original AST equality then passed. No product/source/test assertion change was made for the comparator."
+  ],
+  "publication_note": "Implementation then complete proof commits precede this separate receipt. Normal own-topic push/readback follows; receipt asserts no future/self SHA and no broader native/broad-wave closure."
+}

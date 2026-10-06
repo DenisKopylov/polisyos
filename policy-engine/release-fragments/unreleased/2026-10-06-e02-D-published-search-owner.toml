@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-D-published-search-owner"
+title = "Share evaluation acceptance and persisted budget snapshots with native search"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "Provide a detached evaluator result for native ask/tell and retain one acceptance owner for history, best/frontier, counters, and diversity. A configured resource middleware supplies fresh persisted budget snapshots to stopping and result telemetry."
+evidence = ["tests/unit/scientist/methods/search/test_controller.py", "tests/unit/scientist/search/test_search_loop.py"]
+compatibility = "Existing controller run and non-reentrant behavior remain; the native service supplier seam does not create persisted search resume semantics. Legacy context cost mode remains explicitly labeled separately from persisted owner accounting."
+limitations = "Ordinary blueprint runtime resource injection and persisted search-service resume require their appointed consumer owners; scalar context numbers do not establish measured spend."

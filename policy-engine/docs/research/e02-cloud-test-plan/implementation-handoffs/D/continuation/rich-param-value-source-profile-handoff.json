@@ -1,0 +1,120 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "rich-param-value-source-profile-readonly",
+  "slice_base_sha": "3e59b7117978598453d1041c62943d8baf6143f8",
+  "implementation_commits": [
+    "50ca6d1bba5df807a8c6602587dd436606f5329f"
+  ],
+  "candidate_tree_sha": "d6b7e9e697b84466a93206e3e94a91e160a21543",
+  "branch": "codex/e02-D-published-champion",
+  "pull_request": null,
+  "created_at_utc": "2026-10-06T21:54:54.224666+00:00",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/rich-param-value-source-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/rich-param-value-source-profile.md"
+  ],
+  "proof_bindings": [
+    {
+      "source_sha": "50ca6d1bba5df807a8c6602587dd436606f5329f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/rich-param-value-source-profile.json",
+      "blob_sha": "8fb36ef28d94ad3d6858802f1e7cd593091f9408",
+      "bytes": 16156,
+      "raw_sha256": "6ac844b9d76ec18ea98776a292020ed49fd0b71230e083977aa1065264f6f6d1"
+    },
+    {
+      "source_sha": "50ca6d1bba5df807a8c6602587dd436606f5329f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/rich-param-value-source-profile.md",
+      "blob_sha": "e0d70291f4af4ff0019392c112d0cd04cffdde94",
+      "bytes": 1570,
+      "raw_sha256": "d528fe717670f65d4cafbca407c75f04693f79a3c70247f387a97af4ca5f590e"
+    }
+  ],
+  "original_criteria_changed": false,
+  "product_and_test_changed_paths": [],
+  "product_runtime_executed": false,
+  "environment": {
+    "python_executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python_version": "3.14.7",
+    "profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json@6a157f301b400fe46268bcc53610359bb9ee4a71",
+    "use": "stdlib-only Git/object/AST/JSON reads; no product or optional backend import, no new environment"
+  },
+  "checks": [
+    {
+      "target_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "command": "/tmp/e02-D-runtime-minimal-20261006/bin/python /tmp/e02-D-rich-value-packet.py",
+      "kind": "source metadata census, not product runtime",
+      "outcome": "PASS",
+      "input_closure": "git ls-tree -r -z pinned source -- policy-engine/src/polisyos; select every tracked .py blob; fully read each via git cat-file --batch and ast.parse; AST Call name/attribute exact RateValue/CountValue/DurationValue; independent case-insensitive literal name-parenthesis pass",
+      "complete_deciding_output": {
+        "primary_bindings": 11,
+        "supplemental_bindings": 5,
+        "python_blob_count": 2701,
+        "direct_constructor_calls": 0,
+        "literal_definition_hits": 3,
+        "parse_errors": []
+      },
+      "limitation": "Ephemeral author script is retained locally, not a shipped product tool. Pinned Git selection and operations are disclosed in the committed packet; aliases, decoding, external and non-Python inputs remain unresolved."
+    },
+    {
+      "target_sha": "50ca6d1bba5df807a8c6602587dd436606f5329f",
+      "command": "stdlib JSON parse; git show/rev-parse of all 16 bound files; raw byte/hash/blob reconciliation; git diff --check; committed packet+README readback",
+      "kind": "metadata binding validation",
+      "outcome": "PASS",
+      "complete_deciding_output": {
+        "bindings_checked": 16,
+        "source_metadata_validation": "PASS",
+        "product_runtime": "UNRUN",
+        "committed_file_readbacks": 2,
+        "diff_check_exit_code": 0
+      }
+    },
+    {
+      "target_sha": "50ca6d1bba5df807a8c6602587dd436606f5329f",
+      "command": "git commit (normal checkout-local Lefthook pre-commit)",
+      "outcome": "PASS",
+      "complete_deciding_output": "lefthook v2.1.6: prettier/eslint no files for inspection; contrast/reduced-motion no matching staged files; summary done in 0.14 seconds. Commit created two documentation files; no hook bypass."
+    },
+    {
+      "target_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "command": null,
+      "kind": "rich value mutation/output semantic falsifier",
+      "outcome": "UNRUN",
+      "complete_deciding_output": "Source inference only. No product import, runtime test or restored-output validation executed."
+    }
+  ],
+  "property": {
+    "statement": "Preserve exact source/caller/type breadth and qualify unexecuted Rate/Duration restoration inference without inflating Money/scalar verification.",
+    "runtime_path": [
+      "LexProvisionMappingRegistry.resolve",
+      "LexInterventionCompiler.compile",
+      "neutral ParameterSpec",
+      "HierarchicalPolicySearchAdapter.build_candidate",
+      "PolicyCandidateSchema.as_search_payload",
+      "A _normalize_value_like/_restore_value_like"
+    ],
+    "proxy_divergence": "A numeric input branch does not prove canonical primitive validity after model_copy mutation.",
+    "negative_controls": [
+      "Source-only Rate Decimal field updated with float",
+      "Source-only Duration int field updated with float"
+    ],
+    "negative_runtime_status": "UNRUN"
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "source-only owner input; richer mutation/output semantic verification not established",
+  "limitations_and_next_owner": [
+    {
+      "owner": "A-W01 policy_design/search.py",
+      "scope": "Native rich output restoration or explicit supported parameter profile. Canonical transport types are already available; no missing-library or scientific-held claim."
+    },
+    {
+      "scope": "Zero direct constructors is confined to 2701 tracked Python-source blobs at the original pin; indirect, external, model_validate and non-Python producers remain unresolved."
+    },
+    {
+      "scope": "No all-rich acceptance, actual product FAIL, closure, unit law, original-criteria change, or supersession of existing Money/scalar and subject-registry receipts."
+    }
+  ],
+  "publication_note": "Receipt pins the already committed proof; ordinary topic-branch publication and remote readback follow this separate receipt commit. No future/self commit SHA is asserted."
+}

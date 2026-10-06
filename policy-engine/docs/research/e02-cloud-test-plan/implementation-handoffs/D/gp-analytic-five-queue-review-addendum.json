@@ -1,0 +1,44 @@
+{
+  "schema_version": "e02.D.independent-five-queue-review-addendum.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "previous_matrix_commit": "2bffe971558f06189670768f8b766adfbc296196",
+  "proof_commit": "fd7ecbaf6237966ae46a116af3d1a3a877ebf424",
+  "proof_tree": "52039c1869736d941c4cf6ce3e96d9d6a4864453",
+  "rows": [
+    {
+      "queue": 1,
+      "source": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+      "result": "PARTIAL",
+      "gp_continuation": "PASS23 independent actual backend controls",
+      "coordinate_domain": "FAIL extreme finite interval at4c, pending source correction",
+      "pareto": "Independent new selected source review pending",
+      "transfer_composition": "UNRUN pending immutable bridge implementation",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json"
+    },
+    {
+      "queue": 2,
+      "result": "UNRUN",
+      "reason": "No immutable continuation TRN/ANN/lesson candidate routed to this reviewer yet"
+    },
+    {
+      "queue": 3,
+      "result": "UNRUN",
+      "reason": "No immutable continuation champion/service candidate routed to this reviewer yet"
+    },
+    {
+      "queue": 4,
+      "source": "dcb203fdff6b0b8747e55bc3bc53a29f66db953b",
+      "result": "FAIL",
+      "reported_resource": "34PASS/1FAIL validreceipt erased by malformed token metadata",
+      "effective_engine_and_permission": "UNRUN in this settlement-only review",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-independent-review.json"
+    },
+    {
+      "queue": 5,
+      "result": "UNRUN",
+      "reason": "No immutable selected objective-unit STP/scenario-fraction STR candidate routed to this reviewer yet"
+    }
+  ],
+  "closure_ids": [],
+  "verdict": "Incomplete five-queue verification; retain exact FAIL and UNRUN cells, no aggregate green."
+}

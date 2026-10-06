@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-D-unknown-ACK"
+title = "Retain actual producer input across failed settlement acknowledgment"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "Observe the existing B accounting error before workflow rejection. Preserve its immutable event and actual accounting keys, distinguish unconfirmed paid input from exact receipt readback, and keep scientific success false after unknown acknowledgment."
+evidence = ["tests/integration/scientist/methods/search/funnel/test_orchestrator.py"]
+compatibility = "Readback never retries a charge, issues a permission or releases a reservation. Receipt key, provider, amount, event and payload digest must all match."
+limitations = "Fresh-process retry/owned reservation transitions and durable run/evaluation attribution remain B-owner boundaries."

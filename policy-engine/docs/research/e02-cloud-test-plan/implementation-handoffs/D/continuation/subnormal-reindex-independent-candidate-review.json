@@ -1,0 +1,209 @@
+{
+  "schema": "polisyos.e02.independent-subnormal-reindex-candidate-review.v1",
+  "reviewer": "numerical_oracle",
+  "verdict": "PASS within exact declared direct typed-artifact serialization profile and independently reviewed geometry/identity/reference delta",
+  "closure_ids": [],
+  "source": {
+    "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+    "tree": "27ce16e448d5dbca54b4b1dc7ee5dc40caf5deaa",
+    "lane": "/workspace/e02-D-published-search",
+    "admitted_base": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+    "source_before_after_clean": true
+  },
+  "proof": {
+    "test_commit": "6de7eb8b183d081dbbd1cf6ddb7901e5d08ab252",
+    "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+    "test_sha256": "2f167180dd0cf233fe98236dc062161752db9eed3a70b91b0a54129474ef0561",
+    "runtime_own_head": "a5556757463a97940ef69a9c215ab21faed2a13a",
+    "runtime_own_tree": "54a06b1819f25bd420a6852709393f08d19d8538",
+    "prior_test_commit": "8a57c1e9df9e586529133487c8dec9f2bdb7288e",
+    "format_delta": "One helper-call keyword exclude_none=False; every test-function AST and all numerical/identity assertion ASTs are unchanged.",
+    "root_authorized_profile": "Explicit null-preserving direct typed-model canonical serialization; never generic default-writer-safe.",
+    "ruff": "Owned test check and format --check PASS after this one-line change; no full quality claim."
+  },
+  "original_criterion_binding": {
+    "source_sha": "a9fc597378ab8bfe069cf7ddde09c2ab6e4b9980",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-baseline.json",
+    "pointers": [
+      "/original_criteria/0",
+      "/original_criteria/1"
+    ],
+    "occurrences": [
+      "B110@OPT-01",
+      "B111@OPT-01"
+    ],
+    "original_card_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+    "original_card_bytes": 20853,
+    "original_card_sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+    "full_scope_retained": "Serialization/is_dominated identity, display invariance/split preservation, order invariant membership, invalid reasons, finite or explicitly unavailable reference/quantity, actual CAS/upstream guards and genesis/champion undefined-number protection remain original criteria; this bounded job does not replace all criteria."
+  },
+  "historical_deciding_cells": [
+    {
+      "source": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "counts": "7FAIL/6PASS/0ERROR/0SKIP",
+      "receipt_sha": "a9fc597378ab8bfe069cf7ddde09c2ab6e4b9980",
+      "receipt": "continuation/subnormal-reindex-independent-baseline.json",
+      "scope": "actual baseline math/omission/reference FAIL; initial wrong-origin collectionERROR retained separately"
+    },
+    {
+      "source": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+      "counts": "4FAIL/9PASS/0ERROR/0SKIP",
+      "receipt_sha": "a5556757463a97940ef69a9c215ab21faed2a13a",
+      "receipt": "continuation/subnormal-reindex-independent-default-writer.json",
+      "scope": "Default direct BaseModel canonical profile drops null; this persistence FAIL remains explicit, not made safe by this profile correction."
+    }
+  ],
+  "deciding_cell": {
+    "counts": {
+      "tests": 13,
+      "passed": 13,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "returncode": 0,
+    "natural_completion": true,
+    "wall_seconds": 12.092757076999987,
+    "pytest_seconds": 7.34,
+    "maxrss_kb": 640688,
+    "complete_sha256": "4995acd8e243eeff267925eaf05a733ff376e56a45b228365cae1aaf28c65f38",
+    "three_reported_backend_module_files_hash_match_locked_files": true,
+    "source_and_test_before_after_clean": true,
+    "command_locator": "deciding-outputs.json.gz!/run.json#/argv",
+    "actual_origins_locator": "deciding-outputs.json.gz!/native.json#/modules",
+    "all_338_reported_product_submodule_origins_hash_match_exact_source_git": true
+  },
+  "independent_expectation": {
+    "method": "Exact Fraction.from_float inclusion-exclusion box union, using the finite binary floating inputs; no production kernel/posterior/partitioner call provides expected values.",
+    "positive_underflow": "single and overlapping 2D unions exact>0 but float(expected)==0 require null+unavailable/not_established/nonzero_derived_hypervolume_underflow.",
+    "true_zero_and_tiny_positive": "Boundary boxes exact0 remain available0; widths1e-150 and1e-160 produce their strictly positive correctly representable rational-union float.",
+    "reindex": "Mixed MAX gain(selection,metres,gain.v1)/MIN cost(holdout,seconds,cost.v1), three assessed plus one omitted row, explicit reference: exact union16. Paired name/policy/value/ref/version reindex retains member identities/quantity and reindexed omissionIDs after actual CAS; stale omission and unpaired unit/version reject.",
+    "reference": "Real Torch finite input\u00b11e308 with .1 offset refuses overflowing intermediate span before _ref_point assignment; exact rational final reference is finite. This is the supported arithmetic boundary, not mathematical impossibility."
+  },
+  "actual_native_path": {
+    "shared_compute_calls": 17,
+    "promoter_compute_front_calls": 12,
+    "FileSystemCAS_put_json_calls": 11,
+    "load_model_artifact_calls": 11,
+    "native_MO_update_ref_point_calls": 1,
+    "fit_model_list_calls_observed": 0,
+    "fit_gpytorch_mll_calls_observed": 0,
+    "CAS": "Fresh FileSystemCAS reader reopens actual persisted typed quantity/front bytes; inputs use synthetic candidate refs and declared fixture units, not external source authority."
+  },
+  "full_delta_review": {
+    "from": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+    "to": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+    "production_paths": {
+      "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": "Strict positive contributors plus float0 => typed unavailable; zero noncontributors preserved. Every missing/nonfinite omission ID must be unique and bound to current schema before incomplete/no-usable early return; absent/legacy schemas reject omitted rows.",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py": "Shared finite reference configuration + pure finite span/final-value preparation before model construction; single/batch propagate dedicated ValueError across fallback, indicator returns typed invalid_reference_point; no offset-sign/range/unit law added."
+    },
+    "author_controls_read": [
+      "tests/unit/scientist/methods/autotune/test_hypervolume_representability.py:1\u20134D zero/tiny,2\u20134D underflow,actualCAS/native dominance,paired-axis readback,12 partial/no-usable stale/duplicate/unbound omission controls",
+      "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py:single/batch/indicator \u00d7 offsets0/.1/1e308; no model/fit/random fallback"
+    ],
+    "test_only_direction_commit": "5e6b743c39073e1f04526199e528fea4cd9cb043",
+    "test_only_direction_review": "Changes declared tiny-cost policy to MINIMIZE, matching its higher-cost dominated assertion; product source identical4ac. This is a fixture direction correction, not a production score-law change.",
+    "structured_compatibility": "release-fragments/unreleased/2026-10-06-D-pareto-representability.toml: internal persisted-artifact-format breaking record; owner/version/deprecation/migration/runbook present; range/profile/scientific limitations explicit. Full migration document read.",
+    "no_remaining_blocker_in_this_scope": true
+  },
+  "serialization_trace": {
+    "exact_bound_paths": [
+      {
+        "lane": "/workspace/e02-D-published-root",
+        "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-root",
+        "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-root",
+        "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+        "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+        "match_git": true,
+        "assessment_metadata_present": true
+      },
+      {
+        "lane": "/workspace/e02-D-published-search",
+        "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-search",
+        "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-search",
+        "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+        "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd",
+        "match_git": true,
+        "assessment_metadata_present": false
+      }
+    ],
+    "ordinary_scope": "Registry _write_json preserves nested nullable dict; root PolicyArtifactBuilder/report persistence exports assessment metadata and preserves nested null. Search4393 output.py is older and lacks root assessment export delta.",
+    "fresh_ordinary_underflow_pipeline": "Not executed by this independent job. Author preparing actual registry.update\u2192diskfreshreader\u2192builder\u2192CASfreshreport underflow/zero; requires root-composed output delta, not inherited constructed-snapshot proof.",
+    "generic_default": "Default direct BaseModel canonical writer omits None and remains unsafe for these typed direct fields; four actual failures retained."
+  },
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "Python": "3.14.7",
+    "Torch": "2.10.0",
+    "BoTorch": "0.16.1",
+    "GPyTorch": "1.15.1",
+    "actual_optional_imports": [
+      "torch",
+      "botorch",
+      "gpytorch"
+    ],
+    "missing_backend": "UNRUN, never numerical PASS",
+    "parent_stdlib_only": true,
+    "no_CPU_thread_process_or_test_worker_caps_added": true,
+    "inherited_runtime_limit_environment": {},
+    "strict_native_pytest_ini": true,
+    "mutable_cache": "Unique per-run cache directory; not a cap or substitute runtime profile."
+  },
+  "payload": {
+    "directory": "subnormal-reindex-independent-candidate",
+    "bundle": "deciding-outputs.json.gz",
+    "header": "deciding-outputs.header.json",
+    "binding": "binding.json",
+    "sha256": "b4b142a62fe427825b9ed7e104bebd2f737b7398accacebbeaf86074c55fcfb2",
+    "member_count": 7,
+    "raw_bytes": 98739,
+    "all_original_member_bytes_preserved_losslessly": true,
+    "no_production_or_test_source_snapshot": true
+  },
+  "cleanup_candidates_no_deletion": [
+    "/dev/shm/e02-oracle-subnormal-explicit-null-4bdb8a1d35a14e8296b9c21a50673df6",
+    "/dev/shm/e02-oracle-subnormal-capture-explicit-null.py",
+    "/tmp/e02-oracle-subnormal-explicit-null-490990bdb1a54a0682fb08f89f041f6e",
+    "/dev/shm/e02-oracle-subnormal-publication"
+  ],
+  "limitations": [
+    "PASS is specific to declared null-preserving direct typed-artifact serialization and this source delta; generic default writer4FAIL remains explicit.",
+    "Own actual geometry here is2D plus native reference arithmetic. Previous independent21 higher-dimensional/profile geometry evidence is preserved; no fresh broad1\u20134D replay claimed.",
+    "Fresh ordinary registry.update/report underflow export is a separate composed consumer dependency, not proved by this job or by author constructed snapshot.",
+    "No arbitrary precision, metric-unit appointment, source-universe denominator, A supplier authority, GP numerical quality, broad backend/gate PASS or automatic finding closure.",
+    "All338 reported Polisyos origins and3backend files bind this execution only; no universal environment/transient preservation claim.",
+    "Root/G accepted closure accounting and held B04/B19/B23/mypy results remain separate.",
+    "Origin observer reports polisyos.* submodules; the top-level polisyos package is outside that reported submodule denominator."
+  ]
+}

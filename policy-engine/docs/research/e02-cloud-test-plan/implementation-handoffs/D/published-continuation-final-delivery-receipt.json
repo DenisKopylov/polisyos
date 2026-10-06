@@ -1,0 +1,780 @@
+{
+  "schema": "e02.D.final_delivery_separate_receipt.v1",
+  "created_utc": "2026-10-06T23:17:50.402712+00:00",
+  "branch": "codex/e02-D-published-root",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/47",
+  "delivery_implementation_sha": "6755090f55d6a9577299ef45ad1ec1c4c99ebd3c",
+  "delivery_implementation_tree": "3757b16ae1b37a628a080b59e514582b4ef6203d",
+  "payload_implementation_sha": "d0ec00f627c45f994dc6c3af0e00f3e93fc30958",
+  "payload_tree": "9bc8e40af9041584b1749b580217a29a8ff7427e",
+  "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "runtime_source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "original_continuation_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "original_implementation_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "original_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "complete_closeout": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-continuation-final-closeout.json",
+    "bytes": 19301,
+    "sha256": "629598f9da1e501d7a0993268cba8459fceddd09f9efb57acf3932c27076b909",
+    "implementation_sha": "6755090f55d6a9577299ef45ad1ec1c4c99ebd3c"
+  },
+  "publication_deciding_outputs": {
+    "payload_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-delivery-publication/complete-output.json.xz",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-delivery-publication/manifest.json",
+    "carrier_bytes": 14064,
+    "carrier_sha256": "708de2ee6c70d09a69e4c912f7c5e80d30ff6f3b59aff484d737b24010b577ac",
+    "original_raw_bytes": 57168,
+    "members": [
+      {
+        "name": "implementation-publication.json",
+        "bytes": 6803,
+        "sha256": "3279fd998d6e760f12eeb54f673a4447127c52e019019cb8b936543792b0c75a",
+        "encoding": "base64"
+      },
+      {
+        "name": "PR47-readback.json",
+        "bytes": 50365,
+        "sha256": "e93bd4efaf73997a2b20713619fdc2947b7dc5564311728a0815c85a0ee554fd",
+        "encoding": "base64"
+      }
+    ],
+    "all_original_bytes_reconciled": true,
+    "actual_result": "NormalGitpush/fetch/readback675 andfourfile digestsMATCH; RESTPR47 title/bodyMATCH, draftopenunmerged. HistoricalGraphQLfailedmetadataattempt andpendingbodyAssertionError preserved as metadata errors; no backend/runtimepredicate inferred."
+  },
+  "runtime_code_test_companion_pathset": {
+    "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+    "bytes": 345835,
+    "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+    "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+  },
+  "full_criteria_and_owners": {
+    "ledger_implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+    "ledger_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+    "ledger_bytes": 555218,
+    "ledger_sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4",
+    "original46_bindings": "Allliteral/hash/fragment/role/owner/taskanchorMATCH; LA015_CTL01 suppliercompaniononly/SRV03closure",
+    "denominator": {
+      "bundles": 17,
+      "findings": 45,
+      "criterion_occurrences": 46,
+      "queues": 5,
+      "minimal_owner_packets": 16
+    },
+    "per_bundle": [
+      {
+        "bundle": "CTL-01",
+        "criterion_occurrences": [
+          {
+            "id": "B118@CTL-01",
+            "finding_id": "B118",
+            "canonical_closure_owner": "CTL-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/12",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B119@CTL-01",
+            "finding_id": "B119",
+            "canonical_closure_owner": "CTL-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/13",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "LA-015@CTL-01",
+            "finding_id": "LA-015",
+            "canonical_closure_owner": "SRV-03",
+            "role": "supplier_companion_only",
+            "original_binding_ledger_pointer": "/criterion_occurrences/44",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "SUPPLIER_COMPANION_VERIFIED_FINAL_CHECK_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "CTL-02",
+        "criterion_occurrences": [
+          {
+            "id": "B124@CTL-02",
+            "finding_id": "B124",
+            "canonical_closure_owner": "CTL-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/18",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B125@CTL-02",
+            "finding_id": "B125",
+            "canonical_closure_owner": "CTL-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/19",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B126@CTL-02",
+            "finding_id": "B126",
+            "canonical_closure_owner": "CTL-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/20",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "CTL-03",
+        "criterion_occurrences": [
+          {
+            "id": "B120@CTL-03",
+            "finding_id": "B120",
+            "canonical_closure_owner": "CTL-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/14",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_CURRENT_UPSTREAM_FAIL"
+          },
+          {
+            "id": "B121@CTL-03",
+            "finding_id": "B121",
+            "canonical_closure_owner": "CTL-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/15",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B123@CTL-03",
+            "finding_id": "B123",
+            "canonical_closure_owner": "CTL-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/17",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "FUN-01",
+        "criterion_occurrences": [
+          {
+            "id": "B156@FUN-01",
+            "finding_id": "B156",
+            "canonical_closure_owner": "FUN-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/32",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B158@FUN-01",
+            "finding_id": "B158",
+            "canonical_closure_owner": "FUN-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/34",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B159@FUN-01",
+            "finding_id": "B159",
+            "canonical_closure_owner": "FUN-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/35",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "FUN-02",
+        "criterion_occurrences": [
+          {
+            "id": "B157@FUN-02",
+            "finding_id": "B157",
+            "canonical_closure_owner": "FUN-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/33",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "HELD_ORIGINAL_POSITIVE_INPUT"
+          },
+          {
+            "id": "B160@FUN-02",
+            "finding_id": "B160",
+            "canonical_closure_owner": "FUN-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/36",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B162@FUN-02",
+            "finding_id": "B162",
+            "canonical_closure_owner": "FUN-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/38",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B165@FUN-02",
+            "finding_id": "B165",
+            "canonical_closure_owner": "FUN-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/41",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "FUN-03",
+        "criterion_occurrences": [
+          {
+            "id": "B161@FUN-03",
+            "finding_id": "B161",
+            "canonical_closure_owner": "FUN-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/37",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "HELD_ORIGINAL_POSITIVE_INPUT"
+          },
+          {
+            "id": "B163@FUN-03",
+            "finding_id": "B163",
+            "canonical_closure_owner": "FUN-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/39",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B164@FUN-03",
+            "finding_id": "B164",
+            "canonical_closure_owner": "FUN-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/40",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "HELD_ORIGINAL_POSITIVE_INPUT"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "OPT-01",
+        "criterion_occurrences": [
+          {
+            "id": "B108@OPT-01",
+            "finding_id": "B108",
+            "canonical_closure_owner": "OPT-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/2",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B109@OPT-01",
+            "finding_id": "B109",
+            "canonical_closure_owner": "OPT-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/3",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B110@OPT-01",
+            "finding_id": "B110",
+            "canonical_closure_owner": "OPT-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/4",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B111@OPT-01",
+            "finding_id": "B111",
+            "canonical_closure_owner": "OPT-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/5",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "OPT-02",
+        "criterion_occurrences": [
+          {
+            "id": "B112@OPT-02",
+            "finding_id": "B112",
+            "canonical_closure_owner": "OPT-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/6",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B113@OPT-02",
+            "finding_id": "B113",
+            "canonical_closure_owner": "OPT-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/7",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B127@OPT-02",
+            "finding_id": "B127",
+            "canonical_closure_owner": "OPT-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/21",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "OPT-03",
+        "criterion_occurrences": [
+          {
+            "id": "B114@OPT-03",
+            "finding_id": "B114",
+            "canonical_closure_owner": "OPT-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/8",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B115@OPT-03",
+            "finding_id": "B115",
+            "canonical_closure_owner": "OPT-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/9",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "OPT-04",
+        "criterion_occurrences": [
+          {
+            "id": "B116@OPT-04",
+            "finding_id": "B116",
+            "canonical_closure_owner": "OPT-04",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/10",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B117@OPT-04",
+            "finding_id": "B117",
+            "canonical_closure_owner": "OPT-04",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/11",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "SRV-01",
+        "criterion_occurrences": [
+          {
+            "id": "LA-014@SRV-01",
+            "finding_id": "LA-014",
+            "canonical_closure_owner": "SRV-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/43",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "SRV-03",
+        "criterion_occurrences": [
+          {
+            "id": "LA-015@SRV-03",
+            "finding_id": "LA-015",
+            "canonical_closure_owner": "SRV-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/45",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "STP-01",
+        "criterion_occurrences": [
+          {
+            "id": "B122@STP-01",
+            "finding_id": "B122",
+            "canonical_closure_owner": "STP-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/16",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B41@STP-01",
+            "finding_id": "B41",
+            "canonical_closure_owner": "STP-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/42",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "STR-01",
+        "criterion_occurrences": [
+          {
+            "id": "B106@STR-01",
+            "finding_id": "B106",
+            "canonical_closure_owner": "STR-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/0",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B107@STR-01",
+            "finding_id": "B107",
+            "canonical_closure_owner": "STR-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/1",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "TRN-01",
+        "criterion_occurrences": [
+          {
+            "id": "B128@TRN-01",
+            "finding_id": "B128",
+            "canonical_closure_owner": "TRN-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/22",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B130@TRN-01",
+            "finding_id": "B130",
+            "canonical_closure_owner": "TRN-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/24",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B131@TRN-01",
+            "finding_id": "B131",
+            "canonical_closure_owner": "TRN-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/25",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "HELD_ORIGINAL_POSITIVE_INPUT"
+          },
+          {
+            "id": "B132@TRN-01",
+            "finding_id": "B132",
+            "canonical_closure_owner": "TRN-01",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/26",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "TRN-02",
+        "criterion_occurrences": [
+          {
+            "id": "B129@TRN-02",
+            "finding_id": "B129",
+            "canonical_closure_owner": "TRN-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/23",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B133@TRN-02",
+            "finding_id": "B133",
+            "canonical_closure_owner": "TRN-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/27",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B134@TRN-02",
+            "finding_id": "B134",
+            "canonical_closure_owner": "TRN-02",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/28",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      },
+      {
+        "bundle": "TRN-03",
+        "criterion_occurrences": [
+          {
+            "id": "B135@TRN-03",
+            "finding_id": "B135",
+            "canonical_closure_owner": "TRN-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/29",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B136@TRN-03",
+            "finding_id": "B136",
+            "canonical_closure_owner": "TRN-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/30",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "OPEN_VERIFICATION_PENDING"
+          },
+          {
+            "id": "B137@TRN-03",
+            "finding_id": "B137",
+            "canonical_closure_owner": "TRN-03",
+            "role": "canonical_owner",
+            "original_binding_ledger_pointer": "/criterion_occurrences/31",
+            "original_full_text_and_binding_source": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+            "disposition": "HELD_ORIGINAL_POSITIVE_INPUT"
+          }
+        ],
+        "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "actual_final_runtime_property": "UNRUN; broad childsignal9 before any test body; no wholebundlePASS",
+        "source_qualified_runtime_consumer_oracle_negative_residual": "Complete per-ID finding rows in pinned originalcriterion ledger, scopedruntime index and exact independentreviews",
+        "formal_closed": 0,
+        "G_accepted": false
+      }
+    ]
+  },
+  "decisions": {
+    "conditional_engineering_proposals": 39,
+    "OPEN_VERIFICATION_PENDING": 39,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+    "OPEN_CURRENT_UPSTREAM_FAIL": 1,
+    "formal_closed": 0,
+    "G_accepted": false,
+    "canonical_verdict_counts": {
+      "closed": 0,
+      "limited": 0,
+      "held": 5,
+      "open": 40
+    },
+    "held_ids": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "open_observed_upstream_fail": "B120",
+    "interpretation": "39 bounded engineering proposals remain open pending matched original-criterion verification; no39-closure claim."
+  },
+  "scoped_execution_index": {
+    "implementation_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-delivery-runtime-index.json",
+    "counts": "Actualf2_44P;06c_13P;b9_stress57P with two53P4intentionalF; b9_profile17P21SKIP/UNRUN; scopedearlier evidenceonly, do notsumoverlap or callfinal258PASS"
+  },
+  "final_runtime": {
+    "status": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "runtime_source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+    "actual_exit": -9,
+    "actual_signal": 9,
+    "wall_seconds": 85.5190040430025,
+    "recorded_nodeids": 1249,
+    "case_start_report_finish": 0,
+    "test_predicates_UNRUN": 1249,
+    "collection_module_SKIPs": 15,
+    "collection_completed": false,
+    "JUnit_present": false,
+    "cause": "not_established",
+    "declared_inputs": 5568,
+    "observed_main_product_paths": 1366,
+    "identity_mismatches": 0,
+    "complete_deciding_output": {
+      "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+      "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+      "bytes": 783012,
+      "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+    },
+    "separate_receipt_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+    "separate_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final.json",
+    "independent_review_sha": "b56f56a8add78882e66e3df323631baf4e778daa",
+    "independent_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent-handoff.json",
+    "divergent_proxy": "Saved state, imports, collection and source hashes do not establish execution acceptance",
+    "next_verification": "Complete original100selector/17canonical plan and actualnative profiles in root-G-verification-packet. No weakened statistic or nativeSKIP→PASS."
+  },
+  "actual_environment_backend_seed_inputs": "Exact148package minimal3.14.7profile, recorded NumPy2.3.5/pytest9.0.2/absentTorchBoGPHNSWSALib, existingtestseeds withnoglobaloverride, all5568input manifests andcomplete100argv infinal13member carrier; numerical/nativepredicatesUNRUN. Each scopedreceipt recordsits ownactualenv/seed/ref.",
+  "independent_original_review": {
+    "receipt_sha": "c1eb06c85e1a6b45d6de8b8a66f0c513bd76c25a",
+    "receipt_tree": "de05ae054295ab6b7b7057fc2660881288cf9290",
+    "implementation_sha": "aa1cf435b0f9aa1ea0faa227ddde0635fbd7e959",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review-final258-handoff.json",
+    "bytes": 45815,
+    "sha256": "215c6d7b93ff4f6e0adcd248c2979667384032c4fd6ede24b456290178050235",
+    "scope": "All45/46originalbindings,14patterns, full973metadata, exact8f58fivepointer correction, rootindex/portable reader/cleanup bounded acceptance; final1249UNRUN,15moduleskip,0closure/Gfalse/P41notestablished."
+  },
+  "independent_native_source_review": {
+    "receipt_sha": "b56f56a8add78882e66e3df323631baf4e778daa",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent-handoff.json",
+    "result": "All13carrier members/5568inputs/1366observed mainpathsMATCH; no finalbackendbodyPASS"
+  },
+  "class_wide_metadata_clarifications": [
+    {
+      "commit_sha": "68c634210d2926ece915a5cf55bb1b1a66b0988c",
+      "tree": "00ce77457b1fbd7a1ade209618ea1ae239427aa5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/native-factory-scope-correction.json",
+      "bytes": 11400,
+      "sha256": "ea43ee20da9ef4fa45e03d042094a715f0029b3bb2f15e9afa7ff30d8e267056",
+      "meaning": "Nested historical LA014/015 native15/scan payloadpending label clarified by actualexisting sourcequalified6fe15 and2701caller scan refs; originalbindings and finaldisposition unchanged."
+    },
+    {
+      "commit_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+      "tree": "8017b9362663a9d7e6d7a1d9eb82dad6b07d5236",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/capability-scope-correction.json",
+      "bytes": 22062,
+      "sha256": "8e3663f602c2ef15a542f80e06d488039625952df81d9a7236b657a709064714",
+      "scope": "All nested currentrecipe/capability/pending strings reviewed;5exact stale pointers clarified (Dprovided registry constructor/bridge plus historicalc17 freeze); old15/scan correction68c retained. CurrentAprovider/authority requests remain separate; originalcriteria/receipts/source/runtime unchanged."
+    }
+  ],
+  "final_B_capability_check": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-B-supplier-readonly-audit.json",
+    "bytes": 37879,
+    "sha256": "c22326d01b1d7ec1e34331bda581fcb8a17fc4b200919a0f33fd9544811544cb",
+    "requested_owner": "CanonicalB GatewayLLM decoder owner",
+    "scope": "Read-only latest4supplierrefs plus root258:5identical_post_json ASTs/28contractcells. No native test or newB PASS. Tool command outputs transcribed (nooriginalredirectedrawfile); observationtimestamp notrecorded andnotinvented.",
+    "result": "No newly available lossless Gateway decoder supplier fix. Existing canonical B decoder owner remains needed for preserving raw ±1e-1000 values before D admission; no new PASS or new runtime result inferred.",
+    "parser_ast_sha256": "99594ed6164f229b485d201687ba5cdabbf10a9835d9777aa39e3b3e1dcbe6f5",
+    "provided_cache_capability": "NativeB1.1 receipt/readback/Dresolver13PASS remains provided",
+    "root_independent_readback": {
+      "actual_result": "28old/current contractpairs MATCH;5parserASTs MATCH",
+      "path_bindings": 56,
+      "present_file_bindings": 52,
+      "confirmed_absent_bindings": 4,
+      "absence_semantics": "Composition/runtime settlement.py absent inbothrecorded/current trees; null equality isabsenceonly, not availability. ExistingcanonicalD1.1 providedreceipt port remains separately proven13PASS.",
+      "preparation_failure": "First rootmetadata verification attempt KeyError blob forabsentrecords beforecompletion; no runtime/result/sourcechanges. Retained as ERROR_METADATA_SHAPE; corrected only get(blob) absentnormalization, all56 actualGitpresent/absent bindings verified.",
+      "backend_invocations": 0
+    }
+  },
+  "predicate_basis": "Originalcriterion acceptance not_established; exact source/content/output metadata independently_reconciled; bounded runtime receipts retainexactsource. Globalpattern PASS false/P41not_established.",
+  "runtime_property_consumer_oracle_divergent_proxy_negative_basis_residual": "Per-originalcriterion in fullledger and matchedexact receipts; savedstate/import/collection/statusmarkers never standaloneclosure. Final258 positives/negativesallUNRUN.",
+  "G_action": "Use committed16minimumowner packets andcomplete existing100selector/17canonical plusaffectedconsumer plan withactualnativeprofile onGcommonfreeze; localread-only exactcandidate/minimumref/remote receipt fordata-dependentcriteria. Drequests no mainpublication.",
+  "cleanup": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-cleanup-candidates.json",
+    "implementation_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+    "action": "None; native cloudTrash absent, exactconditional candidatesonly. Preservecode/docs/uniqueinputs/decidingoutputs/liveGit andactiveenv. No permanentdelete/prune/Trash empty."
+  },
+  "limitations": [
+    "Finalbroadwave interrupted before any testcase body; all1249remainUNRUN.",
+    "OptionalnativeTorch/BoTorch/GPyTorch/HNSW/SALib numerical checks notrun inminimal148profile. OriginalGP26 andothernativeevidence are scopedtoexactoldsource; no new617replay.",
+    "Canonicalowner fiveheldinputs cannot be manufactured byDfixtures.",
+    "B120 is upstream engineering failure withactualresponse-text reproduction; ordinaryAservedcontext/sourcebasis andadditionalB/E contracts have exactminimuminput packets.",
+    "Schema/architecture/frontend/publishedcompanions remainincomplete wherecomplete outputs are unavailable; sourcecensus is boundeddiagnostic, notruntimeintegration.",
+    "G must independentlyreview/adopt and run its sharedintegrationfreeze; no Gacceptance/productiontruth/mainpublication asserted."
+  ],
+  "authorization": "Own topic publication only; Gsoleintegration publisher; no main/rebase/force/reset/switch/prune/newuserchats orpermanentdeletion",
+  "metadata_followup_head_rule": "This separate receipt follows implementation andoutput commits; future receipt/head advances neverrebind actualruntime source258 or publication snapshot675."
+}

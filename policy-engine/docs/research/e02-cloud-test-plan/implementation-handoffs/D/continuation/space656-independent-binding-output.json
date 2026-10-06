@@ -1,0 +1,10 @@
+{
+  "source_sha": "656c7f614ecfd404af1fed912a8e02194551bfb4",
+  "source_tree": "c9fe5e164e8d9819e2ddaa3adac52fe766a8cfb8",
+  "transport_sha": "594b14654f5446f3900c564e05fc3cf5a5c4c498",
+  "payload_files": 24,
+  "runtime_input_hash_matches": 357,
+  "origins": 27,
+  "review_sha256": "6ae56a19370c5ee6f10f2a1285b2df8fc8d9b9a16c7558c392e7c1bdbbc85d26",
+  "verdict": "PASS within bounded conversion-first finite coordinate/bounds intake and actual native receiver exclusion. Original OPT02 finding acceptance remains a separate full contract decision."
+}

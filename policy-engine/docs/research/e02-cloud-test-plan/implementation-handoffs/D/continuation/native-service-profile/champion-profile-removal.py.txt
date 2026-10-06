@@ -1,0 +1,13 @@
+from __future__ import annotations
+import hashlib, json, subprocess, sys
+from pathlib import Path
+import pytest
+from polisyos.core.canon.canon_json import from_canonical_bytes
+from polisyos.scientist.methods.search import service
+assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip() == 'c35214cb0f60bbd9ff6698fcba80f4c8e8160e60'
+print(json.dumps({'source':'c35214cb0f60bbd9ff6698fcba80f4c8e8160e60','module_path':service.__file__,'module_sha256':hashlib.sha256(Path(service.__file__).read_bytes()).hexdigest(),'removed_properties':['boolean/integer profile distinction','wire numeric-underflow pre-decoding guard'],'argv':sys.argv}),flush=True)
+service._same_configuration = lambda saved,current: saved == current
+service._decode_checkpoint = from_canonical_bytes
+status=pytest.main(['tests/unit/scientist/methods/search/test_service_persistence.py::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]','tests/unit/scientist/methods/search/test_service_persistence.py::test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]','-s','--basetemp=/workspace/e02-D-continuation-receipts/champion-profile-negative-8a7a190f6d4f46f0a7629f1b0da34693','--junitxml=/workspace/e02-D-continuation-receipts/champion-profile-negative-junit.xml'])
+print(json.dumps({'pytest_exit':int(status),'torch_loaded':'torch' in sys.modules}),flush=True)
+raise SystemExit(status)

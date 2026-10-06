@@ -1,0 +1,35 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-funnel-invocation-diagnostic",
+  "closure_ids": [],
+  "branch": "codex/e02-D-published-funnel",
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "implementation_sha": "d877127c6fae40de0bd1b33ac8f126dee7b93f26",
+  "candidate_tree_sha": "0ccee4ce1702adf8d681ad8b8b021d9f6ca4c5dd",
+  "payload_commit": "4dba1913313ecf878eb072261a1e10df7b02f178",
+  "checks": [
+    {
+      "metadata_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-invocation-proof/attempt.json",
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-invocation-proof/complete.txt",
+      "outcome": "ERROR",
+      "exit_code": -9,
+      "wall_seconds": 63.93419018900022,
+      "complete_static_verdict": "UNRUN",
+      "diagnostic_receipt": "not produced",
+      "input_closure": "Actual source analyzer invoked over its configured tracked Python denominator; incomplete run establishes no denominator, invocation absence, regression or unresolved-count verdict."
+    }
+  ],
+  "purpose": "Required actual source-only production_invocation diagnostic. No runtime execution, persisted business receipt, scientific custody or promotion authority is inferred from static paths.",
+  "result": "Native process ended with signal9 and empty complete stdout/stderr, no admitted diagnostic receipt. No artificial timeout/quota, lexical substitute, resource-cause attribution or acceptance waiver.",
+  "prior_runtime_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-node.json@d877127c6fae40de0bd1b33ac8f126dee7b93f26"
+  ],
+  "limitations_and_next_owner": [
+    "Static source invocation completeness remains UNRUN; G must rerun actual analyzer on accepted aggregate source in an available execution environment.",
+    "Bounded author191, independent21 and successor20+2 actual consumer proofs remain separately bound to their exact source/input/owner scope; they do not replace this diagnostic.",
+    "Original15 criteria and LA015 companion remain partial, with no finding closure."
+  ],
+  "cleanup": "Fresh retained output directory /workspace/e02-D3-receipts/funnel-production-invocation-d877; no new manual deletion, Trash empty or shared environment installation."
+}

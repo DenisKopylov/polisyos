@@ -1,0 +1,137 @@
+{
+  "schema_version": "independent-code-work-handoff.v1",
+  "author": "/root/numerical_oracle",
+  "independent_production_reviewer": "root; author does not review own production",
+  "scope": "Root-leased autotune lazy import boundary plus owned numerical adapter optional guard; internal structured checkpoint/artifact compatibility companion",
+  "source_commit": "c1343a44101eab350c886319bcf511e78aafc37b",
+  "source_tree": "4088ad852918be917bfc6220d0fc150100a072f7",
+  "doc_successor": "a70fa4d866ced24c2fac546bd684af9c5cfd61a1",
+  "doc_successor_tree": "cc6a0517bcd02dbbd3332757be84786fdedee969",
+  "production_lease": "Only src/polisyos/scientist/methods/autotune/__init__.py; eager runtime/execution_plan imports removed, eight existing names retained unconditionally in __all__, existing __getattr__ mapping reused, errors propagated on access. Doc successor identifies internal facade.",
+  "optional_owned_test": "test_bayesian_numerical_oracle.py standard importorskip Torch/BoTorch/GPyTorch with explicit UNRUN and integration profile; all test bodies/assertions unchanged. Transfer owner handles two other direct imports. Strong GPanalytic26 preserved.",
+  "baseline": {
+    "command_metadata": {
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+        "-k",
+        "contract_import",
+        "-ra",
+        "--basetemp=/dev/shm/autotune-lazy-red-75b4987ee7b548bcac37c562341e8bfd",
+        "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lazy-boundary-independent/baseline-junit.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+      "source_head": "d7a1712f356b5dc5024fe3a492b6f52bc411afa6",
+      "returncode": 1,
+      "wall_seconds": 19.940972871001577,
+      "controlled_optional_import_denial": "torch,botorch,gpytorch,hnswlib",
+      "actual_minimal_environment_claim": false,
+      "fresh_basetemp": "/dev/shm/autotune-lazy-red-75b4987ee7b548bcac37c562341e8bfd",
+      "caps_added": false
+    },
+    "counts": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "status": "FAIL"
+  },
+  "candidate": {
+    "command_metadata": {
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_default_public_suggestion_consumes_real_seeded_torch_design",
+        "-ra",
+        "--basetemp=/dev/shm/autotune-lazy-green-c283ea68dcbd4411be0ae2e78efbb57a",
+        "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lazy-boundary-independent/candidate-junit.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+      "source_head": "c1343a44101eab350c886319bcf511e78aafc37b",
+      "source_tree": "4088ad852918be917bfc6220d0fc150100a072f7",
+      "source_sha256": "37ca650f0938493fac1e61c57a62c4324c7a2ae1f8d6e77c9d92be7cb971b42f",
+      "returncode": 0,
+      "wall_seconds": 12.246926913998323,
+      "fresh_basetemp": "/dev/shm/autotune-lazy-green-c283ea68dcbd4411be0ae2e78efbb57a",
+      "source_unchanged": true,
+      "caps_added": false
+    },
+    "counts": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "status": "PASS"
+  },
+  "bounded_result": "Controlled no-optional import boundary2FAIL becomes3lazyPASS plus actual unchanged Torch Sobol consumer1PASS; four actual cases, not full minimal runtime or MLL proof.",
+  "optional_environment": "Actual /workspace/.polisyos-environment/bin/python lacks pytest/pydantic and Torch/BoTorch/GPyTorch/HNSW: actual minimal test execution UNRUN. Controlled subprocess MetaPathFinder denies four backends and observes no attempted imports after fix.",
+  "compatibility_companion": {
+    "source": "a70fa4d866ced24c2fac546bd684af9c5cfd61a1",
+    "records": "release-fragments/unreleased/2026-10-06-search-profile-compatibility-records.toml",
+    "recipe": "docs/how-to/search-checkpoint-profile-compatibility.md",
+    "classification": "Tracked public manifest lists supported scientist entrypoints, no child search/autotune surfaces; internal_rule applies. No new public export.",
+    "scope": "GPprofile3, RL supported schedule/nested state and nullable Paretoassessment breaking-profile records; retain immutable old artifacts/refusals, supported original implementation for continuation or explicit fresh run, never relabel markers/lossless migration.",
+    "canonical_validation": {
+      "scope": "exact one new structured fragment and its referenced documentation; not full repository compatibility gate",
+      "source": "a70fa4d866ced24c2fac546bd684af9c5cfd61a1",
+      "source_tree": "cc6a0517bcd02dbbd3332757be84786fdedee969",
+      "invocation": "canonical _validate_fragments(repo_root, tracked policy, [exact own fragment], breaking_classes=(runtime-state-format,persisted-artifact-format))",
+      "fragment_sha256": "b7ca575f7dcb5474657721d13a7044ec99734558a31300401569d1bed3af7bb7",
+      "policy_sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3",
+      "errors": [],
+      "findings": [],
+      "status": "PASS",
+      "actual_backend_replay": false
+    }
+  },
+  "proof_files": {
+    "lazy-boundary-independent/baseline-command.json": {
+      "bytes": 900,
+      "sha256": "f939bd7fa4ebea8afe81e6092de04b8cbc064243693727156fe794dd5573317f"
+    },
+    "lazy-boundary-independent/baseline-complete.txt": {
+      "bytes": 4582,
+      "sha256": "fbc0ccade0f3b1dc6789c1f4d4e88aec06bcb5bf84289e6c04d0684ef0d98011"
+    },
+    "lazy-boundary-independent/baseline-junit.xml": {
+      "bytes": 5141,
+      "sha256": "24d95963f8fe3b3ff718a4c0bd5cd09248492020bef6dfe8c257d61fd82a4d41"
+    },
+    "lazy-boundary-independent/candidate-command.json": {
+      "bytes": 1075,
+      "sha256": "3967b01c11a208fe9b5ef05c6399cee8bd1f680dd1321e07aaa7244acbdddc74"
+    },
+    "lazy-boundary-independent/candidate-complete.txt": {
+      "bytes": 634,
+      "sha256": "f3514d29f9a3b21812467c4a8d37aa751face214e6ee5f8714603ab0e149ba65"
+    },
+    "lazy-boundary-independent/candidate-junit.xml": {
+      "bytes": 1093,
+      "sha256": "a5d9b4790859bbcd04b16a5e52e4fc9706140bfd1c07b630ef8102353ffb41ba"
+    },
+    "profile-compatibility-independent/canonical-fragment-validation.json": {
+      "bytes": 670,
+      "sha256": "359df2e3f840d78c84e5230f702393c2a3c71d88c73606ab7d3bfcec0ec85004"
+    }
+  },
+  "current_verdict": "Author verification PASS bounded4 and exact new structured fragment schema; awaiting root independent production review; full governance gates remain separate",
+  "limitations": [
+    "c134 native4 run not relabeled as doc-successor backend run; a70 changes facade docstring and docs/fragment only.",
+    "No full actual minimal runtime collection claim, dependency availability metadata is not numerical PASS.",
+    "No full B04/B19/B23 quality pass or inherited waiver; root owns inventory generation and finding acceptance.",
+    "No main/G integration, no authoritative source/universe claim, no expensive GP26 replay.",
+    "No agent-added caps or permanent deletion."
+  ],
+  "cleanup_candidates": [
+    "/dev/shm/autotune-lazy-red-75b4987ee7b548bcac37c562341e8bfd",
+    "/dev/shm/autotune-lazy-green-c283ea68dcbd4411be0ae2e78efbb57a"
+  ]
+}

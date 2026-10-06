@@ -1,0 +1,28 @@
+{
+  "action": "lossless same-inode recompression of only fresh untracked own deciding-output copy then rename .xz",
+  "original_encoded": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-bytes.json.gz",
+    "encoding": "gzip",
+    "raw_bytes": 6806490,
+    "raw_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+    "encoded_bytes": 1861461,
+    "encoded_sha256": "9c1b40c631dddd2db673ee5a089d37d1d420e16e28080d66c6c64d10127ca163"
+  },
+  "original_gzip_backup": "/tmp/e02-D-native-doe-original-input-gzip-6fe",
+  "raw_bytes": 6806490,
+  "raw_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+  "new_encoded": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-bytes.json.xz",
+    "encoding": "xz",
+    "raw_bytes": 6806490,
+    "raw_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+    "encoded_bytes": 101340,
+    "encoded_sha256": "8ac27c489e775e4e2201a6ddfb38f96ef4c7d2a1c058e3b6fbb254185189b8e2"
+  },
+  "inode_before_after": 952000,
+  "all1217_actual_source_regular_files_verified_preserved": true,
+  "filesystem_available_before": 0,
+  "filesystem_available_after": 372736,
+  "bytes_recovered": 1760121,
+  "no_cleanup_unlink_source_fixture_env_index_or_refs_mutation": true
+}

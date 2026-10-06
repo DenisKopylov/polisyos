@@ -1,0 +1,809 @@
+{
+  "schema": "e02.independent_implementation_review.v1",
+  "reviewer": "D transfer owner; production author of transfer paths, not these reviewed service/champion paths",
+  "review_mode": "Read-only immutable source, defining consumer tests, complete retained outputs and byte reconciliation. No new runtime test or production edits.",
+  "review_base_sha": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
+  "reviewed_source": {
+    "sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+    "tree": "34d0333d489d065c78bbc4bbf9a9214283a4cb33",
+    "initial_corrected_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+    "initial_corrected_tree": "4c628ace2f5b8a5a2e26d51637a0115179aec36f",
+    "later_delta": "dcae..d885:13 insertions/2 deletions in runtime.py,controller.py,run_state.py; actual seed candidate input profile and canonical typed stage-history repair. Full corresponding source/test diff read."
+  },
+  "owner_handoff": {
+    "sha": "b2fefca972c4fddb8cd372a3c4cef0f0de94fca0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+    "rawfile_sha256": "f30c1ed99a02549de5d695cdd45ff821f62b26de6277ce2c33f1590e946b623d",
+    "evidence_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd"
+  },
+  "status": "BOUNDED_POSITIVE_READ_ONLY_REVIEW_NO_NEW_BLOCKER_IN_SUPPORTED_PROFILE",
+  "closure_ids": [],
+  "G_accepted": false,
+  "covered_finding_ids": [
+    "B116",
+    "B117",
+    "LA-014",
+    "LA-015",
+    "B118",
+    "B120",
+    "B122"
+  ],
+  "source_and_declared_evidence_byte_reconciliation": {
+    "declared_files": 39,
+    "all_match": true,
+    "rows": [
+      {
+        "group": "footprint",
+        "path": "policy-engine/README.md",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 17786,
+        "sha256": "545542370e8835bc8ae384dcb3cdf42e5d2deaa677eca065248d90c2ed611c92",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 6148,
+        "sha256": "fab54b89d826219f3bc98b56d53802254d1da848ffab889979fda0d89446cc6f",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 29375,
+        "sha256": "eebcabb87e906c582ce5906dcef3e64f608150c2618010179636da8265fbd970",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 27732,
+        "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 14518,
+        "sha256": "d910fc2bb151ef1725edf2ffc70e19a1b5f51931092f6327000e2ea5c92b2dbd",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 55051,
+        "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 17782,
+        "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 40669,
+        "sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 15755,
+        "sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 28366,
+        "sha256": "adad9a5ea8c326703b0424c1820a77b7449dd962e399a1a7f31948efdf360cb2",
+        "matches": true
+      },
+      {
+        "group": "footprint",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+        "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+        "bytes": 43260,
+        "sha256": "27ca58db276560aa8dec8f19684aebcb0cf638f6111bd258340fefbbd757d7e3",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json.gz",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 46610,
+        "sha256": "ea70125803614ea4b401766d0932c26db7ed54045c0657935caf22516f410b83",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-ask-precommit-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 759,
+        "sha256": "607bc4d4514e39651f012f5a494ea10603a661c98d057d54707eb087a25a0b88",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 6867,
+        "sha256": "c24e3c8a443209d26d5c3851e1f5e3abed0c0ee392f5f5f9124433890660c456",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-junit.xml",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 7744,
+        "sha256": "f22afccf1af40e1bc57f5af99841ea8e7b8bc1970e1ad188cbd94c95e5f2a1fb",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 21,
+        "sha256": "a9685a0c9db42a4e9dfa410a0951569c430ab99d6f70eb15b161026d48977cc2",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-junit.xml",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 623,
+        "sha256": "efa880bf1e2bffe1e1f576942992b1a732456bc561b32cd691d85fbd50988d46",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-current-positive-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 7509,
+        "sha256": "c36194a2f62fba0e705646ff7424447061fff4eac6761bf7cb3702494109062d",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-current-verify.py.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 2720,
+        "sha256": "01626d847b2355b5d8c04d961433535ecbea8861e88c03589d76273774ef49b6",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 21736,
+        "sha256": "46bcd0ed9a62d756e745b26e06279a474f91dd4394f2eb42d03cabb05b7782bf",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-junit.xml",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 29439,
+        "sha256": "47e6150750e3403318e5791389b921dc6c120c60ffd8500364e8f640c21c0842",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-verify.py.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 2716,
+        "sha256": "7db02f048b6e4fab1d0b73282339c6a349f90c29fbc0730f406d37c22906f6aa",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 20168,
+        "sha256": "e4bc31719cd1844115911e4f4d21f20f607e4ff27eab64977e86e325875842e7",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-junit.xml",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 32789,
+        "sha256": "67ccc5390221829063642c70f3a61fa8934bf57be7d393e312e48232a5abc911",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-verify.py.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 2190,
+        "sha256": "2761c40d8d3a95e26a644156764161993418e65c566c94e7e4520bc1d17bb69a",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 6355,
+        "sha256": "3e4d99f219bea320c8cb23fba0ad6e9bf87d4fca7d795244690193aa9f533b1c",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-fresh-reader.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 4293,
+        "sha256": "93452dfcf416a00c57ca451d18179a6e399758c96af1ad1f1244dbe9664e66a9",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-junit.xml",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 6377,
+        "sha256": "9bc642f84044acd66b8c7733b1a1e0ffd5b58b74d852b36c45694e4866806c0f",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-positive-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 12425,
+        "sha256": "0f57e50a76817e480c80c3037256f112fcd5498f18141cca3cd84901e08737fc",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-precommit-2-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 2917,
+        "sha256": "3bead0e27bf8cfc3f93269d438008ad4047bfc6611f95a893c534184a4c401a3",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-precommit-complete.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 14344,
+        "sha256": "ff573abcbbe1eacf03a7f024421ae45711491d100c0eced7e1efe88d6e15a5f2",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-removal.py.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 1835,
+        "sha256": "2126e5469ebcb842aa16945d8dd02dbf1d73b629d5c539769ef85d3172419fe0",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-verify.py.txt",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 2723,
+        "sha256": "7c0b552e21edb02445ab16016ff42a5dfde9036ee90dd7314b6fc8bbf4452f2b",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/current-full-run-status.json",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 562,
+        "sha256": "3d60e3ad03e8459c9b450fa8d49918416eab8d09c9c8dbb1f77a331e01a0a948",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/fixture-assertion-preservation.json",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 411,
+        "sha256": "895890717613c65868394bd258806b30ed3d54a448f05a1ce078912b583a5b60",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/focused-run-status.json",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 616,
+        "sha256": "3b6328b1f5ae3deeb5c3f0b4d1ba3223e8e2f85e1e2a32dcdb3ed14af75de664",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/lossless-output-encoding.json",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 2586,
+        "sha256": "dc89a36930edf1e3fa2be272e68863d0ae29bcbc3abfe530bb8e03fbf6453eb9",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 89116,
+        "sha256": "a590b4df8c4fa93a0724b8738521f726992b2afbdcee343efee20a62a23552b1",
+        "matches": true
+      },
+      {
+        "group": "evidence",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json.gz",
+        "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+        "bytes": 75932,
+        "sha256": "f86d0dd050cb89c3aec068df19bdcd6362b9f3ebc89f9f424c1a45a6da8b0ad4",
+        "matches": true
+      }
+    ]
+  },
+  "actual_source_import_reconciliation": {
+    "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+    "rows": [
+      {
+        "module": "polisyos.common.serialization",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/common/serialization.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/common/serialization.py",
+        "rawfile_sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852",
+        "matches": true
+      },
+      {
+        "module": "polisyos.core.artifacts._integrity_ops",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "rawfile_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+        "matches": true
+      },
+      {
+        "module": "polisyos.core.artifacts.store",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "rawfile_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/__init__.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/__init__.py",
+        "rawfile_sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.autotune.models",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "rawfile_sha256": "eebcabb87e906c582ce5906dcef3e64f608150c2618010179636da8265fbd970",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.autotune.registry",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "rawfile_sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.autotune.runtime",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "rawfile_sha256": "461339ef4b35a1220f8e8396d90d9a0013d2deb88e75a2828e496a84e6ba4a0a",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+        "rawfile_sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.contracts",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "rawfile_sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.controller",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "rawfile_sha256": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.run_state",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "rawfile_sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.service",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "rawfile_sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.stopping",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "rawfile_sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "rawfile_sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "matches": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+        "actual_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "rawfile_sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "matches": true
+      }
+    ],
+    "all_match": true,
+    "scope": "15 explicitly observed native module files in author completed151 output; not a full import census for subsequent d885 or final root."
+  },
+  "actual_fixture_content_reconciliation": {
+    "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+    "files": 444,
+    "total_bytes": 614367,
+    "all_rawfile_lengths_and_sha256_match": true,
+    "binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "f3f5f10ae44da849891eec43d16044541e0a84f1",
+      "bytes": 46610,
+      "sha256": "ea70125803614ea4b401766d0932c26db7ed54045c0657935caf22516f410b83",
+      "encoding": "gzip",
+      "decoded_bytes": 843248,
+      "decoded_sha256": "feb4b4ea57b99eb40a1def9093abbe24528dd6417e58c53c358d23980c4bdfec"
+    },
+    "method": "Decode every preserved utf8/base64 payload; compare each actual byte count and SHA256. No product imports/model execution."
+  },
+  "preserved_input_index": {
+    "binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "14ea322e98c897adb91df43382871a18925a3415",
+      "bytes": 75932,
+      "sha256": "f86d0dd050cb89c3aec068df19bdcd6362b9f3ebc89f9f424c1a45a6da8b0ad4",
+      "encoding": "gzip",
+      "decoded_bytes": 1034528,
+      "decoded_sha256": "35c838aeffeadae45db3602852f4a55fa79987cfbe7dc846cfd50ad7ca18df5d"
+    },
+    "scope": "2770 currently present regular-file hash records; not a proof of full historical workspace preservation or symlinks."
+  },
+  "complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "f3f5f10ae44da849891eec43d16044541e0a84f1",
+      "bytes": 46610,
+      "sha256": "ea70125803614ea4b401766d0932c26db7ed54045c0657935caf22516f410b83",
+      "encoding": "gzip",
+      "decoded_bytes": 843248,
+      "decoded_sha256": "feb4b4ea57b99eb40a1def9093abbe24528dd6417e58c53c358d23980c4bdfec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "ad0621b33650ff2e263ebe71ae1e040150bc93c3",
+      "bytes": 6867,
+      "sha256": "c24e3c8a443209d26d5c3851e1f5e3abed0c0ee392f5f5f9124433890660c456"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "b64873f528b30a71ed9893e5e3f2e4e5b1467060",
+      "bytes": 21,
+      "sha256": "a9685a0c9db42a4e9dfa410a0951569c430ab99d6f70eb15b161026d48977cc2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "78f6c32ba468cb010e5350ddbf850404c2232c29",
+      "bytes": 623,
+      "sha256": "efa880bf1e2bffe1e1f576942992b1a732456bc561b32cd691d85fbd50988d46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-current-positive-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "2ee06f5b0e05894d6a891a41d1cae3916fe3cb6f",
+      "bytes": 7509,
+      "sha256": "c36194a2f62fba0e705646ff7424447061fff4eac6761bf7cb3702494109062d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "4020734b5e32942d926d05af363e842c25d3e71c",
+      "bytes": 21736,
+      "sha256": "46bcd0ed9a62d756e745b26e06279a474f91dd4394f2eb42d03cabb05b7782bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "db3f730cfc9585d2d5d81a980671823b20f565cc",
+      "bytes": 29439,
+      "sha256": "47e6150750e3403318e5791389b921dc6c120c60ffd8500364e8f640c21c0842"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-verify.py.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "a509adbb886c53570a10476e8dfd3f9393bdd808",
+      "bytes": 2716,
+      "sha256": "7db02f048b6e4fab1d0b73282339c6a349f90c29fbc0730f406d37c22906f6aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "c4d613c51aa03e173b6fc784372b1c3de543987c",
+      "bytes": 20168,
+      "sha256": "e4bc31719cd1844115911e4f4d21f20f607e4ff27eab64977e86e325875842e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "dfc03ac384985d4a945f8846f281897ce776acb3",
+      "bytes": 32789,
+      "sha256": "67ccc5390221829063642c70f3a61fa8934bf57be7d393e312e48232a5abc911"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "ee9351a1e3f4cc6087f042a16a925ec1d19efe71",
+      "bytes": 6355,
+      "sha256": "3e4d99f219bea320c8cb23fba0ad6e9bf87d4fca7d795244690193aa9f533b1c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-fresh-reader.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "0f9c92a13ea610e0969a998351b68e1c2a5fdd19",
+      "bytes": 4293,
+      "sha256": "93452dfcf416a00c57ca451d18179a6e399758c96af1ad1f1244dbe9664e66a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "88cdffc082cd0f0ffaaf8d013a5e0b3072754d3c",
+      "bytes": 6377,
+      "sha256": "9bc642f84044acd66b8c7733b1a1e0ffd5b58b74d852b36c45694e4866806c0f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-removal.py.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "bc4d345b15d3a74ec9852e68269b89e312bdf18c",
+      "bytes": 1835,
+      "sha256": "2126e5469ebcb842aa16945d8dd02dbf1d73b629d5c539769ef85d3172419fe0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/current-full-run-status.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "6440916e3d75896bfcac885bd52a4b5abeb75406",
+      "bytes": 562,
+      "sha256": "3d60e3ad03e8459c9b450fa8d49918416eab8d09c9c8dbb1f77a331e01a0a948"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/fixture-assertion-preservation.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "8f2973930a228a1811fa851d0d1448c0dab4114c",
+      "bytes": 411,
+      "sha256": "895890717613c65868394bd258806b30ed3d54a448f05a1ce078912b583a5b60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/focused-run-status.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "1f42d50c9fedb30f8f612f470a89991927a3d032",
+      "bytes": 616,
+      "sha256": "3b6328b1f5ae3deeb5c3f0b4d1ba3223e8e2f85e1e2a32dcdb3ed14af75de664"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "2dc9127326921a8da55d65df1b622fe9b6161a78",
+      "bytes": 89116,
+      "sha256": "a590b4df8c4fa93a0724b8738521f726992b2afbdcee343efee20a62a23552b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "14ea322e98c897adb91df43382871a18925a3415",
+      "bytes": 75932,
+      "sha256": "f86d0dd050cb89c3aec068df19bdcd6362b9f3ebc89f9f424c1a45a6da8b0ad4",
+      "encoding": "gzip",
+      "decoded_bytes": 1034528,
+      "decoded_sha256": "35c838aeffeadae45db3602852f4a55fa79987cfbe7dc846cfd50ad7ca18df5d"
+    }
+  ],
+  "completed_author_run_matrix": {
+    "initial_frozen_positive": {
+      "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+      "actual": {
+        "tests": 151,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 151
+      },
+      "declared_matches": true,
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-junit.xml",
+      "junit_sha256": "47e6150750e3403318e5791389b921dc6c120c60ffd8500364e8f640c21c0842"
+    },
+    "property_removal": {
+      "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+      "actual": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "declared_matches": true,
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-junit.xml",
+      "junit_sha256": "9bc642f84044acd66b8c7733b1a1e0ffd5b58b74d852b36c45694e4866806c0f"
+    },
+    "new_real_controls_before_correction": {
+      "source_sha": "81eb4c5ac560ee423a18731385dca36e9d95bf8c",
+      "actual": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "declared_matches": true,
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-junit.xml",
+      "junit_sha256": "f22afccf1af40e1bc57f5af99841ea8e7b8bc1970e1ad188cbd94c95e5f2a1fb"
+    },
+    "new_real_controls_after_correction": {
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "actual": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 2
+      },
+      "declared_matches": true,
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-junit.xml",
+      "junit_sha256": "efa880bf1e2bffe1e1f576942992b1a732456bc561b32cd691d85fbd50988d46"
+    },
+    "final_focused_scope": {
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "actual": {
+        "tests": 81,
+        "failures": 0,
+        "errors": 11,
+        "skipped": 0,
+        "passed": 70
+      },
+      "declared_matches": true,
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-junit.xml",
+      "junit_sha256": "67ccc5390221829063642c70f3a61fa8934bf57be7d393e312e48232a5abc911"
+    }
+  },
+  "incomplete_runs": {
+    "d885_final153": {
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "source_tree": "34d0333d489d065c78bbc4bbf9a9214283a4cb33",
+      "exit_code": 137,
+      "status": "ERROR_PROCESS_SIGKILL_NO_SUITE_VERDICT",
+      "requested_cases": 153,
+      "junit_produced": false,
+      "observed_after_kill": {
+        "memory_current": 17178898432,
+        "memory_max": 17179869184,
+        "oom": 240,
+        "oom_kill": 33,
+        "scope": "post-kill counters only, no specific causality assignment"
+      },
+      "descendant_305392": "zombie after parent death; no active descendant",
+      "no_identical_retry": true
+    },
+    "d885_focused81": "Actual70PASS/11tmpdir setupERROR; not81PASS. Filesystem zero free bytes observed; no broader completed verdict.",
+    "scope": "No aggregation relabels historical dcae151 or current d8852 as a current d885153 pass."
+  },
+  "observed_optional_backend_presence": {
+    "torch_loaded": true,
+    "botorch_loaded": true,
+    "gpytorch_loaded": true,
+    "scope": "Import presence only; no numerical GP selector executed or inferred."
+  },
+  "prior_independent_actual_falsifier": {
+    "sha": "334f3b0e8a1e7313dbe05fec46331f1c52a9c5ad",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-review.json",
+    "rawfile_sha256": "8bcb867a94566766c7d023a9863cbf02fcbe8b5c461655f202e4d7daa9be3295",
+    "source_sha": "f2586cb5c0402eb6ceca25aac51a98602d8d418f",
+    "source_tree": "1158fd5644e83904189648d5531808be5f30bb90",
+    "actual": "Healthy1PASS, realCAS put/readback failure2FAIL; live cursor/pending state diverged from actual last acknowledged fresh checkpoint. Complete outputs and actual native origins retained in prior independent receipt.",
+    "test_sha": "ca7d1e834c96f40864ad5e6accb1e7b2dfd2ca1d",
+    "test_path": "policy-engine/tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+    "test_rawfile_sha256": "0becdae0dd7f8008b1f2b39e40dc44c25f114006c5bae1ec53877d5438d041bc",
+    "correction_evidence": "Exact unchanged three-case oracle is included in author dcae151PASS; independent corrected-root runtime remains UNRUN here."
+  },
+  "consumer_and_property_judgment": [
+    {
+      "criterion": "B116 / OPT-04 exact admitted benchmark identity",
+      "consumer": "Existing SearchLoopRunner._evaluate_candidate → existing models snapshot reader → ChampionRegistry.consider_promotion",
+      "mechanism": "Qualified candidate/evaluation/suite refs and comparison basis use existing B get_verified_snapshot held data+manifest. Raw wrong types/mismatched identities and incompatible split/suite/loop refuse before pointer mutation. Actual incumbent is evaluated under the active context before comparison. No get_bytes/get_manifest split-read substitute or institutional appointment.",
+      "oracle": "Native evaluator consumes exact persisted NDJSON/split after original mutable input paths change; wrong manifest-profile pair refuses; exact previous qualified same-byte view remains valid; actual fresh OS registry readback retains full refs.",
+      "judgment": "No blocker found in supported existing public-snapshot/technical comparison profile; cache identity is content plus profile, not artifact ID alone."
+    },
+    {
+      "criterion": "B117 / OPT-04 local compare-and-publish",
+      "consumer": "Existing ChampionRegistry lock-held canonical predecessor read → comparison → existing atomic pointer write/fsync",
+      "mechanism": "Expensive evaluator runs outside existing POSIX lock; publication reacquires and rereads current canonical predecessor. Stale predecessor refuses, not overwritten through stale cached score.",
+      "oracle": "Actual two controlled writers plus separate cold observer; removal publishes staleC score3 overB2 and expected assertion fails. Actual os._exit before/after replace yields complete old/new pair.",
+      "judgment": "No blocker found for original finite local writer/crash boundary; atomic rename alone is not claimed as compare, no distributed/power-loss/workload claim."
+    },
+    {
+      "criterion": "LA-014 / native service ask publication and restore",
+      "consumer": "NativeSearchService.ask/_persist/restore using actual supported SequenceCandidateGenerator checkpoint and native sole run ledger",
+      "mechanism": "Supported generator state and mutable search custody are captured before ask; realCAS put/readback exceptions restore cursor/pending/initial/ledger/context/priorref; unsupported rollback blocks custody. Late pending/initial carriers decode before generator/live restoration.",
+      "oracle": "Independent historical realCAS failure reds; unchanged oracle author positive; removal2 actual failures. Malformed late carriers refuse without changing cursor; declared source/config/context mismatch rejects.",
+      "judgment": "No new source-level blocker found. External evaluator/registry effects and checkpoint acknowledgement are separate atomic boundaries; no external exactly-once claim."
+    },
+    {
+      "criterion": "LA-015 / ordinary native runner factory",
+      "consumer": "SearchLoopRunner.create_service/run/resume → actual SearchController → actual NativeSearchService",
+      "mechanism": "Factory binds actual suite fullref, evaluator profile, promotion policy, ObjectiveStack and context in existing replay profile. Uses caller-supplied actual generator; missing generator refuses rather than silently synthesizing one. Restore supported v2 only.",
+      "oracle": "Existing native lifecycle/service tests in completed151; final2 actual seed and typed fresh history/frontier/next tell controls.",
+      "judgment": "Supported explicit native factory path reviewed positively; d885 does not establish default DOE from metadata, served hierarchical coordinator appointment, or current root all-tests acceptance."
+    },
+    {
+      "criterion": "B118/B120/B122 finite typed numerical/stopping boundaries",
+      "consumer": "Existing SearchController normalized acceptance, SearchRunState typed replay and existing stopping predicates",
+      "mechanism": "Canonical finite scalar/Decimal underflow admission and strict bool/int typing precede numerical handling; nested known PolicyEvaluationVector is rebuilt and reconciled on fresh replay. Retains .01 units and original direction/threshold law.",
+      "oracle": "Actual malformed/underflow/huge scalar and typed fresh history controls in separately source-bound owner outputs.",
+      "judgment": "Source/evidence review only for these supplier boundaries; recorded budget fields remain accounting input, not physical invoice/issuer truth."
+    }
+  ],
+  "compatibility_and_companions": {
+    "reviewed": [
+      "policy-engine/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml"
+    ],
+    "judgment": "Explicit v2 supported profile, old artifacts/custom opaque custody refusal and operator resume limitations described; new public result fields additive. Fixture migrations retain original assertion ASTs as bound owner artifact."
+  },
+  "scope_limits": [
+    "No independent corrected-root runtime child was started in this review; parent requested no duplicate backend.",
+    "No unchanged GP23/26 replay or SingleTaskGP fit was executed/inferred; actual optional import presence is separately recorded.",
+    "New default DOE models/runtime working changes after d885 are uncommitted/unreviewed here; only immutable d885 source is the review baseline.",
+    "No institutional tenant/split/scientific reuse permission or production service appointment is inferred from fixture identity.",
+    "No CI/fullsource/G acceptance or final153 PASS; final adjudication belongs to root/G."
+  ],
+  "git_metadata_operation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-index-v4.json",
+    "rawfile_sha256": "c1dfdd88d546b69d851bc984836b450081c1fe1468dc970b48785921336ade40",
+    "root_instruction": "Approved nativeGit version4 index conversion while ownGit paused. Complete index backup, full stage/debug entries and flags, HEAD/branch/status unchanged. No cleanup or production change."
+  }
+}

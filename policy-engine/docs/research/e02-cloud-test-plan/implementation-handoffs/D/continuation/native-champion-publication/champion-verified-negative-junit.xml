@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="4.424" timestamp="2026-10-06T17:06:38.164472+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write]" time="3.394"><failure message="AssertionError: assert {'candidates'...generator.v1'} == {'candidates'...generator.v1'}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'index': 2} != {'index': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-negative-74220b752ded47fcab9d5151eacb04e2/test_failed_ask_publication_re0')
+failure = 'fail_write'
+
+    @pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+    def test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view(
+        tmp_path, failure
+    ):
+        store = _FailingCAS(tmp_path / "cas")
+        service = _direct(store)
+        first = service.ask(None, None, {})[0]
+        service.tell(
+            first.candidate_id,
+            service.controller._evaluate_for_tell(first.payload, iteration=0, context={}),
+        )
+        acknowledged = service.checkpoint_ref
+        before = service.controller._generator.get_state()
+        setattr(store, failure, True)
+        with pytest.raises(OSError, match="actual checkpoint"):
+            service.ask(None, None, {})
+        assert service.checkpoint_ref == acknowledged
+&gt;       assert service.controller._generator.get_state() == before
+E       AssertionError: assert {'candidates'...generator.v1'} == {'candidates'...generator.v1'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'index': 2} != {'index': 1}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_persistence.py:495: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback]" time="0.058"><failure message="AssertionError: assert {'candidates'...generator.v1'} == {'candidates'...generator.v1'}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'index': 2} != {'index': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-negative-74220b752ded47fcab9d5151eacb04e2/test_failed_ask_publication_re1')
+failure = 'fail_readback'
+
+    @pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+    def test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view(
+        tmp_path, failure
+    ):
+        store = _FailingCAS(tmp_path / "cas")
+        service = _direct(store)
+        first = service.ask(None, None, {})[0]
+        service.tell(
+            first.candidate_id,
+            service.controller._evaluate_for_tell(first.payload, iteration=0, context={}),
+        )
+        acknowledged = service.checkpoint_ref
+        before = service.controller._generator.get_state()
+        setattr(store, failure, True)
+        with pytest.raises(OSError, match="actual checkpoint"):
+            service.ask(None, None, {})
+        assert service.checkpoint_ref == acknowledged
+&gt;       assert service.controller._generator.get_state() == before
+E       AssertionError: assert {'candidates'...generator.v1'} == {'candidates'...generator.v1'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'index': 2} != {'index': 1}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_persistence.py:495: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread" time="0.578"><failure message="assert True is False">tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-negative-74220b752ded47fcab9d5151eacb04e2/test_competing_native_writer_r0')
+
+    def test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread(tmp_path):
+        store, registry, suite_ref, policy, spec = _environment(tmp_path, values=(1,))
+        SearchLoopRunner(store=store, registry=registry).run(
+            spec, suite_ref=suite_ref, max_iterations=1
+        )
+        entered, release = Event(), Event()
+    
+        class BarrierEvaluator(_Evaluator):
+            def evaluate(self, candidate_ref, suite_ref, context):
+                candidate = load_model_artifact(context["store"], candidate_ref, _Mutation)
+                if candidate.value == 3:
+                    entered.set()
+                    release.wait()
+                return super().evaluate(candidate_ref, suite_ref, context)
+    
+        slow = replace(
+            spec,
+            candidate_generator=SequenceCandidateGenerator([_Mutation(loop_id="verified", value=3)]),
+            benchmark_evaluator=BarrierEvaluator(),
+        )
+        fast = replace(
+            spec,
+            candidate_generator=SequenceCandidateGenerator([_Mutation(loop_id="verified", value=2)]),
+        )
+        with ThreadPoolExecutor() as workers:
+            pending = workers.submit(
+                SearchLoopRunner(store=store, registry=registry).run,
+                slow,
+                suite_ref=suite_ref,
+                max_iterations=1,
+            )
+            entered.wait()
+            try:
+                other = ChampionRegistry(tmp_path / "champions", store=FileSystemCAS(tmp_path / "cas"))
+                SearchLoopRunner(store=other._store, registry=other).run(
+                    fast, suite_ref=suite_ref, max_iterations=1
+                )
+            finally:
+                release.set()
+            slow_result = pending.result()
+        decision = slow_result.history[0].stage_b_result["feedback"]["promotion_decision"]
+&gt;       assert decision["promoted"] is False
+E       assert True is False
+
+tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py:280: AssertionError</failure></testcase></testsuite></testsuites>

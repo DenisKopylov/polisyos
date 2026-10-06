@@ -1,0 +1,22 @@
+{
+  "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+  "cwd": "/dev/shm/e02-D-funnel-independent-fac5c77a/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+    "remove_population_boundary"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "basetemp": null,
+  "basetemp_scope": "not a pytest invocation",
+  "exit_code": 1,
+  "wall_seconds": 11.124642708993633,
+  "max_rss_kib": 1151296,
+  "rss_scope": "cumulative high-water of completed children in this capture process",
+  "log_sha256": "3507101aa6557f03a3cb8a82b75fafca33f065b1ee5efbc0543f2571ce25b5c9"
+}

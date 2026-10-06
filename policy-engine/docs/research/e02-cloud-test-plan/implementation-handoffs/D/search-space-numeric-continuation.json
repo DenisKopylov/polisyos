@@ -1,0 +1,336 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "canonical-space-numeric-admission",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B112",
+    "B113",
+    "B127"
+  ],
+  "bundle_ids": [
+    "OPT-02"
+  ],
+  "slice_base_sha": "3a4e8f211a5384d9d61bec24d54477532b100574",
+  "slice_base_tree_sha": "91f7aa046cf5d650131672dfdd6ad08650216d09",
+  "candidate_sha": "656c7f614ecfd404af1fed912a8e02194551bfb4",
+  "candidate_tree_sha": "c9fe5e164e8d9819e2ddaa3adac52fe766a8cfb8",
+  "implementation_commits": [
+    "656c7f614ecfd404af1fed912a8e02194551bfb4"
+  ],
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "git_blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+      "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "git_blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+      "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "git_blob": "adc92646413d42b9fe027e6f88f9fdab7cc35ed2",
+      "sha256": "f6dbbacce844d0a7945fcf82fe2785491296d894aae45a041e5f86d8be8ff0ac"
+    }
+  ],
+  "baseline_cells": "Original criterion/source basis remains D.md OPT02/B112/B113/B127; predecessor is immediate admitted existing technical input mechanism, not P41 inherited attribution",
+  "property": {
+    "statement": "One conversion-first finite-real primitive rejects unsupported raw bounds/coordinates with controlled ValueError before arithmetic and the actual native receiver can refuse a bad row while retaining valid rows.",
+    "runtime_path": [
+      "raw bounds/params/normalized vector",
+      "canonical ParameterBounds and SearchSpace",
+      "existing BayesianOptimizer._has_compatible_params",
+      "actual cold suggest/effective training corpus"
+    ],
+    "proxy_divergence": "math.isfinite on raw10**400 raises before the receiver can classify compatibility; bool explicit bounds previously float-coerced to0/1.",
+    "negative_controls": [
+      "baseline14FAIL16PASS",
+      "unsafe shared helper alias removal preserving markers2FAIL2PASS",
+      "invalid coordinate batch and actual receiver control",
+      "typed category True vs1 vsstring1, exactzero, fractional integer attainment, empty integer domain, log and representable-span controls"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Technical float-representable domain and native numerical input compatibility only; institutional units/source authority not established",
+  "environment": {
+    "python": "3.14.7",
+    "runtime": "/workspace/e02-D-locked-env/bin/python",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "execution": "actual child CPU origins/native calls preserved per cell; stdlib-only parent, no caps/cleanup"
+  },
+  "checks": [
+    {
+      "id": "baseline",
+      "outcome": "FAIL",
+      "meaning": "14 FAIL / 16 PASS on predecessor production with exact new uncommitted defining input bytes; no inherited waiver",
+      "target_sha": "3a4e8f211a5384d9d61bec24d54477532b100574",
+      "source_tree": "91f7aa046cf5d650131672dfdd6ad08650216d09",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-2fdf0e0fb0174bd58cfbf07a00acfeb4",
+        "--junitxml=/workspace/e02-D2-receipts/search-space-baseline-39f97ec74fd3439997804385d469c0bb/junit.xml",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-space-baseline-39f97ec74fd3439997804385d469c0bb",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "returncode": 1,
+      "wall_seconds": 117.34940249400097,
+      "source_after": "3a4e8f211a5384d9d61bec24d54477532b100574",
+      "status_after": "?? policy-engine/tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py\n",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/run.json",
+      "complete_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/complete.txt",
+      "junit": {
+        "tests": 30,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "frozen-final",
+      "outcome": "PASS",
+      "meaning": "49 PASS / 0 SKIP on immutable656; own30, existing space_codec12, shared scalar7",
+      "target_sha": "656c7f614ecfd404af1fed912a8e02194551bfb4",
+      "source_tree": "c9fe5e164e8d9819e2ddaa3adac52fe766a8cfb8",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-6dad152596e04e168d6ef06a57abc464",
+        "--junitxml=/workspace/e02-D2-receipts/search-space-final-78057cbd72284fa286eeb555455f471e/junit.xml",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+        "tests/unit/scientist/search/strategies/test_space_codec.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-space-final-78057cbd72284fa286eeb555455f471e",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "returncode": 0,
+      "wall_seconds": 28.271492436993867,
+      "source_after": "656c7f614ecfd404af1fed912a8e02194551bfb4",
+      "status_after": "",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/run.json",
+      "complete_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/complete.txt",
+      "junit": {
+        "tests": 49,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "property-removal",
+      "outcome": "FAIL",
+      "meaning": "FAIL_AS_REQUIRED:2 FAIL /2 PASS /26 deselected when conversion-first protection removed in child, all source/schema/space markers unchanged",
+      "target_sha": "656c7f614ecfd404af1fed912a8e02194551bfb4",
+      "source_tree": "c9fe5e164e8d9819e2ddaa3adac52fe766a8cfb8",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-p",
+        "numeric_removal",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-4db57b90be9d46c4bef3eb0e1f647df8",
+        "--junitxml=/workspace/e02-D2-receipts/search-space-removal-80f4b05075094ba08036562ad43af02c/junit.xml",
+        "-q",
+        "-rA",
+        "-k",
+        "native_receiver",
+        "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-space-removal-80f4b05075094ba08036562ad43af02c",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "returncode": 1,
+      "wall_seconds": 15.75987510298728,
+      "source_after": "656c7f614ecfd404af1fed912a8e02194551bfb4",
+      "status_after": "",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/run.json",
+      "complete_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/complete.txt",
+      "junit": {
+        "tests": 4,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "quality": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/quality",
+  "gp_dependency_delta": {
+    "native_gp_math_source_unchanged": true,
+    "existing_valid_bounds_fingerprint_behavior": "Numerical lower/upper values are canonicalized tofloat, which is already used by existing fingerprint. Space stream/codec12 and native scalar+physical controls rerun; independent full GP23 remains exactd38, not a fresh656 numerical proof."
+  },
+  "capability_state_or_finding_state": "bounded engineering verified; G original finding acceptance held/open",
+  "limitations_and_next_owner": [
+    "Supported raw coordinate JSON int/float domain is retained; arbitraryprecision or arbitrary Real coordinate support not claimed.",
+    "Float64-unrepresentable span fails at construction; no invented large-domain interpolation law.",
+    "Source units/version/ownership/evaluator provenance remain configured/institutional suppliers and G acceptance, not repaired by this numeric primitive.",
+    "ParameterBounds categorytokens preserve typed identity; numeric guard is not categorical domain reinterpretation.",
+    "No fresh unchanged GP26 replay; numerical core bytes unchanged, affected canonical coordinate/codec/scalar consumers executed.",
+    "DOE actual ranking consumer is next separately configured slice; metadata-only prior adapter is not acceptance."
+  ],
+  "evidence_manifest": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/complete.txt",
+      "bytes": 34966,
+      "sha256": "af93645f557528c89439312a338818f77e2deeeb72a08db5c7002f0faf8cdef7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/exact-defining-test.py.txt",
+      "bytes": 4265,
+      "sha256": "f6dbbacce844d0a7945fcf82fe2785491296d894aae45a041e5f86d8be8ff0ac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/junit.native.json",
+      "bytes": 3614,
+      "sha256": "728585c963b6bdadbea14c088a5a714c25a410ead06b205f3f0be0dc77db88e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/junit.xml",
+      "bytes": 32362,
+      "sha256": "74f45c0327df69bf195b6d493d844118864531d9b5ae804ce1cef8f11571b354"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/native_observer.py.txt",
+      "bytes": 2442,
+      "sha256": "b6adc31c4fc24468f9c89396d339b1db2639dc8d481657025f9e102556b69123"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/run.json",
+      "bytes": 41914,
+      "sha256": "dcd96b26f81776f4cac40ffc52ad8d0a57014d61300fd86aaec1b0a023e1af44"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/baseline/run.py.txt",
+      "bytes": 2132,
+      "sha256": "2a0a6bd48a0860abff5e56767532be1e2c42d6343a08b1ecb4a415b3e5e8598d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/complete.txt",
+      "bytes": 11697,
+      "sha256": "3e8af94f2c1b27c0a04cb265780edc063cff71f108327d8feb1bd3bd11a88e88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/junit.native.json",
+      "bytes": 3617,
+      "sha256": "db58d818ccdcfee4b7707532afc387b4ac5b7067c29699fbac5df2c15e696692"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/junit.xml",
+      "bytes": 12736,
+      "sha256": "514234064113f5efaf601c587a4a079e14c8e0d09839bb6843b236097d44cf78"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/native_observer.py.txt",
+      "bytes": 2442,
+      "sha256": "b6adc31c4fc24468f9c89396d339b1db2639dc8d481657025f9e102556b69123"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/run.json",
+      "bytes": 42737,
+      "sha256": "e45877fa82b1ac7f5923b50fafa736d71c5b05ad866b6d3ae6d84f7d678f03a8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/frozen-final/run.py.txt",
+      "bytes": 2386,
+      "sha256": "d50d07d531f6ebb21491d409e7b3bb6c952f337b2cf89f55d25adab0c1d9458b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/complete.txt",
+      "bytes": 8219,
+      "sha256": "083c134bf2482764f55fdb3dc20c54fa073bbf9ab07072aca25e2cf2f7a5baae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/junit.native.json",
+      "bytes": 3611,
+      "sha256": "bb2965f6184b807790a8c17263c90fc4ed3155cd8fc664f0abd3f824cb528eb7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/junit.xml",
+      "bytes": 6972,
+      "sha256": "d12e72c519a2b561b6dc47c3d790cf1f2161f96b424af7866f5242eee8e9388d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/native_observer.py.txt",
+      "bytes": 2442,
+      "sha256": "b6adc31c4fc24468f9c89396d339b1db2639dc8d481657025f9e102556b69123"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/numeric_removal.py.txt",
+      "bytes": 353,
+      "sha256": "36a3d81d668a50fe0e7155b105a7ddefa7f4cc361621b986eee87e24bf8edb61"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/run.json",
+      "bytes": 42374,
+      "sha256": "8c6ab8e76a833e04c4866d551a09aab95152be6ce5570ebca315885c188b4739"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/property-removal/run.py.txt",
+      "bytes": 2296,
+      "sha256": "3d91a15617553b08e62e2c1bc89812eef595808ade4a8500d1d8f0af3055a779"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/quality/ruff-check.json",
+      "bytes": 645,
+      "sha256": "8541978890391c33957383c242a631660ee21c67aae49ec3f4350f0fe6f8e058"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/quality/ruff-check.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/quality/ruff-format.json",
+      "bytes": 661,
+      "sha256": "9d649cdd5d6c51715bd6e1903298743b03c44b99c6202edc5b651ae0c17f2344"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-space-numeric-continuation/quality/ruff-format.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    }
+  ]
+}

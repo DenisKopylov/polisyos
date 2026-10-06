@@ -1,0 +1,362 @@
+FF.FFFF........F..FFF                                                    [100%]
+=================================== FAILURES ===================================
+_ test_actual_three_dimensional_front_matches_independent_box_union[points0-0] _
+
+points = ((2, 0, 0), (0, 2, 0), (0, 0, 2)), expected = 0
+
+    @pytest.mark.parametrize(
+        ("points", "expected"),
+        [
+            (((2, 0, 0), (0, 2, 0), (0, 0, 2)), 0),
+            (((3, 1, 2), (1, 3, 2), (2, 2, 3)), 16),
+            (((2, 2, 0), (1, 3, 0), (3, 1, 0)), 0),
+            (((2, 2, 1), (1, 3, 2), (3, 1, 1)), 9),
+        ],
+    )
+    def test_actual_three_dimensional_front_matches_independent_box_union(
+        points: tuple[tuple[int, ...], ...], expected: int
+    ) -> None:
+        reference = (0, 0, 0)
+        independently_computed = _box_union(points, reference)
+        assert independently_computed == expected
+        promoter = ParetoPromoter(_policies((1, 1, 1)))
+        evaluations = [_evaluation(index, point) for index, point in enumerate((*points, reference))]
+        for ordered in permutations(evaluations):
+            front = promoter.compute_front(list(ordered))
+>           _assert_volume(front, independently_computed)
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+front = ParetoFront(schema_version='2.0', members=[ParetoMember(candidate_ref_id='sha256:0000000000000000000000000000000000000... input_assessment=ParetoInputAssessment(status='complete', input_count=4, assessed_count=4, unassessed_evaluations=()))
+expected = Fraction(0, 1)
+
+    def _assert_volume(front: ParetoFront, expected: Fraction) -> None:
+        assert front.hypervolume is not None, "numerical geometry positive remains UNRUN if unavailable"
+>       assert front.hypervolume == pytest.approx(float(expected), rel=1e-12, abs=1e-12)
+E       assert 8.0 == 0.0 ± 1.0e-12
+E         
+E         comparison failed
+E         Obtained: 8.0
+E         Expected: 0.0 ± 1.0e-12
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:75: AssertionError
+_ test_actual_three_dimensional_front_matches_independent_box_union[points1-16] _
+
+points = ((3, 1, 2), (1, 3, 2), (2, 2, 3)), expected = 16
+
+    @pytest.mark.parametrize(
+        ("points", "expected"),
+        [
+            (((2, 0, 0), (0, 2, 0), (0, 0, 2)), 0),
+            (((3, 1, 2), (1, 3, 2), (2, 2, 3)), 16),
+            (((2, 2, 0), (1, 3, 0), (3, 1, 0)), 0),
+            (((2, 2, 1), (1, 3, 2), (3, 1, 1)), 9),
+        ],
+    )
+    def test_actual_three_dimensional_front_matches_independent_box_union(
+        points: tuple[tuple[int, ...], ...], expected: int
+    ) -> None:
+        reference = (0, 0, 0)
+        independently_computed = _box_union(points, reference)
+        assert independently_computed == expected
+        promoter = ParetoPromoter(_policies((1, 1, 1)))
+        evaluations = [_evaluation(index, point) for index, point in enumerate((*points, reference))]
+        for ordered in permutations(evaluations):
+            front = promoter.compute_front(list(ordered))
+>           _assert_volume(front, independently_computed)
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+front = ParetoFront(schema_version='2.0', members=[ParetoMember(candidate_ref_id='sha256:0000000000000000000000000000000000000... input_assessment=ParetoInputAssessment(status='complete', input_count=4, assessed_count=4, unassessed_evaluations=()))
+expected = Fraction(16, 1)
+
+    def _assert_volume(front: ParetoFront, expected: Fraction) -> None:
+        assert front.hypervolume is not None, "numerical geometry positive remains UNRUN if unavailable"
+>       assert front.hypervolume == pytest.approx(float(expected), rel=1e-12, abs=1e-12)
+E       assert 27.0 == 16.0 ± 1.6e-11
+E         
+E         comparison failed
+E         Obtained: 27.0
+E         Expected: 16.0 ± 1.6e-11
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:75: AssertionError
+_ test_actual_three_dimensional_front_matches_independent_box_union[points3-9] _
+
+points = ((2, 2, 1), (1, 3, 2), (3, 1, 1)), expected = 9
+
+    @pytest.mark.parametrize(
+        ("points", "expected"),
+        [
+            (((2, 0, 0), (0, 2, 0), (0, 0, 2)), 0),
+            (((3, 1, 2), (1, 3, 2), (2, 2, 3)), 16),
+            (((2, 2, 0), (1, 3, 0), (3, 1, 0)), 0),
+            (((2, 2, 1), (1, 3, 2), (3, 1, 1)), 9),
+        ],
+    )
+    def test_actual_three_dimensional_front_matches_independent_box_union(
+        points: tuple[tuple[int, ...], ...], expected: int
+    ) -> None:
+        reference = (0, 0, 0)
+        independently_computed = _box_union(points, reference)
+        assert independently_computed == expected
+        promoter = ParetoPromoter(_policies((1, 1, 1)))
+        evaluations = [_evaluation(index, point) for index, point in enumerate((*points, reference))]
+        for ordered in permutations(evaluations):
+            front = promoter.compute_front(list(ordered))
+>           _assert_volume(front, independently_computed)
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+front = ParetoFront(schema_version='2.0', members=[ParetoMember(candidate_ref_id='sha256:0000000000000000000000000000000000000... input_assessment=ParetoInputAssessment(status='complete', input_count=4, assessed_count=4, unassessed_evaluations=()))
+expected = Fraction(9, 1)
+
+    def _assert_volume(front: ParetoFront, expected: Fraction) -> None:
+        assert front.hypervolume is not None, "numerical geometry positive remains UNRUN if unavailable"
+>       assert front.hypervolume == pytest.approx(float(expected), rel=1e-12, abs=1e-12)
+E       assert 18.0 == 9.0 ± 9.0e-12
+E         
+E         comparison failed
+E         Obtained: 18.0
+E         Expected: 9.0 ± 9.0e-12
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:75: AssertionError
+_ test_mixed_directions_affine_references_preserve_physical_product_units[signs0] _
+
+signs = (1, 1, 1)
+
+    @pytest.mark.parametrize("signs", [(1, 1, 1), (1, -1, 1), (-1, 1, -1)])
+    def test_mixed_directions_affine_references_preserve_physical_product_units(
+        signs: tuple[int, ...],
+    ) -> None:
+        points = ((3, 1, 2), (1, 3, 2), (2, 2, 3))
+        reference = (10, 100, 1000)
+        scales = (2, 5, 10)
+        physical_points = [
+            tuple(
+                lower + sign * scale * value
+                for lower, sign, scale, value in zip(reference, signs, scales, point, strict=True)
+            )
+            for point in (*points, (0, 0, 0))
+        ]
+        expected = _box_union(points, (0, 0, 0)) * prod(scales)
+        assert expected == 1600
+        front = ParetoPromoter(_policies(signs)).compute_front(
+            [_evaluation(index, point) for index, point in enumerate(physical_points)]
+        )
+>       _assert_volume(front, expected)
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+front = ParetoFront(schema_version='2.0', members=[ParetoMember(candidate_ref_id='sha256:0000000000000000000000000000000000000... input_assessment=ParetoInputAssessment(status='complete', input_count=4, assessed_count=4, unassessed_evaluations=()))
+expected = Fraction(1600, 1)
+
+    def _assert_volume(front: ParetoFront, expected: Fraction) -> None:
+        assert front.hypervolume is not None, "numerical geometry positive remains UNRUN if unavailable"
+>       assert front.hypervolume == pytest.approx(float(expected), rel=1e-12, abs=1e-12)
+E       assert 2700.0 == 1600.0 ± 1.6e-09
+E         
+E         comparison failed
+E         Obtained: 2700.0
+E         Expected: 1600.0 ± 1.6e-09
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:75: AssertionError
+_ test_mixed_directions_affine_references_preserve_physical_product_units[signs1] _
+
+signs = (1, -1, 1)
+
+    @pytest.mark.parametrize("signs", [(1, 1, 1), (1, -1, 1), (-1, 1, -1)])
+    def test_mixed_directions_affine_references_preserve_physical_product_units(
+        signs: tuple[int, ...],
+    ) -> None:
+        points = ((3, 1, 2), (1, 3, 2), (2, 2, 3))
+        reference = (10, 100, 1000)
+        scales = (2, 5, 10)
+        physical_points = [
+            tuple(
+                lower + sign * scale * value
+                for lower, sign, scale, value in zip(reference, signs, scales, point, strict=True)
+            )
+            for point in (*points, (0, 0, 0))
+        ]
+        expected = _box_union(points, (0, 0, 0)) * prod(scales)
+        assert expected == 1600
+        front = ParetoPromoter(_policies(signs)).compute_front(
+            [_evaluation(index, point) for index, point in enumerate(physical_points)]
+        )
+>       _assert_volume(front, expected)
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+front = ParetoFront(schema_version='2.0', members=[ParetoMember(candidate_ref_id='sha256:0000000000000000000000000000000000000... input_assessment=ParetoInputAssessment(status='complete', input_count=4, assessed_count=4, unassessed_evaluations=()))
+expected = Fraction(1600, 1)
+
+    def _assert_volume(front: ParetoFront, expected: Fraction) -> None:
+        assert front.hypervolume is not None, "numerical geometry positive remains UNRUN if unavailable"
+>       assert front.hypervolume == pytest.approx(float(expected), rel=1e-12, abs=1e-12)
+E       assert 2700.0 == 1600.0 ± 1.6e-09
+E         
+E         comparison failed
+E         Obtained: 2700.0
+E         Expected: 1600.0 ± 1.6e-09
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:75: AssertionError
+_ test_mixed_directions_affine_references_preserve_physical_product_units[signs2] _
+
+signs = (-1, 1, -1)
+
+    @pytest.mark.parametrize("signs", [(1, 1, 1), (1, -1, 1), (-1, 1, -1)])
+    def test_mixed_directions_affine_references_preserve_physical_product_units(
+        signs: tuple[int, ...],
+    ) -> None:
+        points = ((3, 1, 2), (1, 3, 2), (2, 2, 3))
+        reference = (10, 100, 1000)
+        scales = (2, 5, 10)
+        physical_points = [
+            tuple(
+                lower + sign * scale * value
+                for lower, sign, scale, value in zip(reference, signs, scales, point, strict=True)
+            )
+            for point in (*points, (0, 0, 0))
+        ]
+        expected = _box_union(points, (0, 0, 0)) * prod(scales)
+        assert expected == 1600
+        front = ParetoPromoter(_policies(signs)).compute_front(
+            [_evaluation(index, point) for index, point in enumerate(physical_points)]
+        )
+>       _assert_volume(front, expected)
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+front = ParetoFront(schema_version='2.0', members=[ParetoMember(candidate_ref_id='sha256:0000000000000000000000000000000000000... input_assessment=ParetoInputAssessment(status='complete', input_count=4, assessed_count=4, unassessed_evaluations=()))
+expected = Fraction(1600, 1)
+
+    def _assert_volume(front: ParetoFront, expected: Fraction) -> None:
+        assert front.hypervolume is not None, "numerical geometry positive remains UNRUN if unavailable"
+>       assert front.hypervolume == pytest.approx(float(expected), rel=1e-12, abs=1e-12)
+E       assert 2700.0 == 1600.0 ± 1.6e-09
+E         
+E         comparison failed
+E         Obtained: 2700.0
+E         Expected: 1600.0 ± 1.6e-09
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:75: AssertionError
+____________ test_empty_input_does_not_publish_computed_zero_volume ____________
+
+    def test_empty_input_does_not_publish_computed_zero_volume() -> None:
+        front = ParetoPromoter(_policies((1, 1, 1))).compute_front([])
+        assert front.input_assessment is not None
+        assert front.input_assessment.status == "no_usable_inputs"
+>       assert front.hypervolume is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = ParetoFront(schema_version='2.0', members=[], hypervolume=0.0, hypervolume_assessment=None, reference_point={}, coordi...ssessment=ParetoInputAssessment(status='no_usable_inputs', input_count=0, assessed_count=0, unassessed_evaluations=())).hypervolume
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:251: AssertionError
+_ test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("invalid", [float("nan"), float("inf"), 10**400, True, "broken"])
+    def test_malformed_present_axis_is_omitted_without_crashing_valid_subfront(invalid: object) -> None:
+        evaluations = [
+            _evaluation(index, point) for index, point in enumerate(((3, 1, 2), (1, 3, 2), (0, 0, 0)))
+        ]
+        evaluations[1].holdout_metrics["axis-0"] = invalid  # type: ignore[assignment]
+>       front = ParetoPromoter(_policies((1, 1, 1))).compute_front(evaluations)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:263: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/pareto.py:360: in compute_front
+    vector, missing, non_finite = self._assess_objective_vector(evaluation)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/pareto.py:487: in _assess_objective_vector
+    value = ev.primary_value(split=policy.compare_split, metric=policy.primary_metric)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = BenchmarkEvaluation(loop_id='box-union', suite_id='declared-geometric-fixture', suite_version='1.0', candidate_ref=Art...valuation_ref=None, comparison_predecessor_candidate_ref=None, comparison_predecessor_evaluation_ref=None, metadata={})
+
+    def primary_value(self, *, split: BenchmarkSplit, metric: str) -> float | None:
+        metrics = self.metrics_for_split(split)
+        value = metrics.get(metric)
+>       return float(value) if value is not None else None
+               ^^^^^^^^^^^^
+E       OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/autotune/models.py:282: OverflowError
+_ test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[True] _
+
+invalid = True
+
+    @pytest.mark.parametrize("invalid", [float("nan"), float("inf"), 10**400, True, "broken"])
+    def test_malformed_present_axis_is_omitted_without_crashing_valid_subfront(invalid: object) -> None:
+        evaluations = [
+            _evaluation(index, point) for index, point in enumerate(((3, 1, 2), (1, 3, 2), (0, 0, 0)))
+        ]
+        evaluations[1].holdout_metrics["axis-0"] = invalid  # type: ignore[assignment]
+        front = ParetoPromoter(_policies((1, 1, 1))).compute_front(evaluations)
+        assert front.input_assessment is not None
+>       assert front.input_assessment.status == "partial"
+E       AssertionError: assert 'complete' == 'partial'
+E         
+E         - partial
+E         + complete
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:265: AssertionError
+_ test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[broken] _
+
+invalid = 'broken'
+
+    @pytest.mark.parametrize("invalid", [float("nan"), float("inf"), 10**400, True, "broken"])
+    def test_malformed_present_axis_is_omitted_without_crashing_valid_subfront(invalid: object) -> None:
+        evaluations = [
+            _evaluation(index, point) for index, point in enumerate(((3, 1, 2), (1, 3, 2), (0, 0, 0)))
+        ]
+        evaluations[1].holdout_metrics["axis-0"] = invalid  # type: ignore[assignment]
+>       front = ParetoPromoter(_policies((1, 1, 1))).compute_front(evaluations)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py:263: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/pareto.py:360: in compute_front
+    vector, missing, non_finite = self._assess_objective_vector(evaluation)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/pareto.py:487: in _assess_objective_vector
+    value = ev.primary_value(split=policy.compare_split, metric=policy.primary_metric)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = BenchmarkEvaluation(loop_id='box-union', suite_id='declared-geometric-fixture', suite_version='1.0', candidate_ref=Art...valuation_ref=None, comparison_predecessor_candidate_ref=None, comparison_predecessor_evaluation_ref=None, metadata={})
+
+    def primary_value(self, *, split: BenchmarkSplit, metric: str) -> float | None:
+        metrics = self.metrics_for_split(split)
+        value = metrics.get(metric)
+>       return float(value) if value is not None else None
+               ^^^^^^^^^^^^
+E       ValueError: could not convert string to float: 'broken'
+
+src/polisyos/scientist/methods/autotune/models.py:282: ValueError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_actual_three_dimensional_front_matches_independent_box_union[points0-0]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_actual_three_dimensional_front_matches_independent_box_union[points1-16]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_actual_three_dimensional_front_matches_independent_box_union[points3-9]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_mixed_directions_affine_references_preserve_physical_product_units[signs0]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_mixed_directions_affine_references_preserve_physical_product_units[signs1]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_mixed_directions_affine_references_preserve_physical_product_units[signs2]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_empty_input_does_not_publish_computed_zero_volume
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[True]
+FAILED tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py::test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[broken]

@@ -1,0 +1,1295 @@
+{
+  "schema": "policyos.e02.independent_author_receipt_binding_audit.v1",
+  "author_receipt": {
+    "commit": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-consumer.json",
+    "sha256": "6a630796c9dbd5076fd1c37d20782c01466bc000f02b729f02a1f082a949ccb1",
+    "bytes": 182845
+  },
+  "all_source_cells": 9,
+  "source_cell_errors": [],
+  "complete_changed_paths_MATCH": true,
+  "lossless_member_references": 182,
+  "member_reference_errors": [],
+  "references": [
+    {
+      "json_pointer": "/checks/0/run_metadata",
+      "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/run.json",
+      "bytes": 2858,
+      "sha256": "e6cd223ccb61c0a21f3ee424e1cd6ee1487a44c786d2e08975f21c99b97c3264",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/0/complete_output",
+      "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/complete.txt",
+      "bytes": 1984,
+      "sha256": "8a35e8dd112412c2c19f37261c5d744ea746810993dd532fad97eebf4c143dd4",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/0/junit.xml",
+      "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/junit.xml",
+      "bytes": 1987,
+      "sha256": "dadaeefa651642a68c6cb98451a104ad7484bc72a81932f0373a620b617d5aad",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/0/origins.json",
+      "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/origins.json",
+      "bytes": 200290,
+      "sha256": "81ef6a78fd02b1f5a2ef63ed4eb2aad77daf218f0135290cdbbec0e8272ec70c",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/0/native-calls.json",
+      "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/native-calls.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/0/registry_capture.py",
+      "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/1/run_metadata",
+      "member": "e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/run.json",
+      "bytes": 2867,
+      "sha256": "8eb406c33e111371617b708e0089a49cf91d49ae9e204fa240358817cea8524f",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/1/complete_output",
+      "member": "e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/1/registry_capture.py",
+      "member": "e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/run_metadata",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/run.json",
+      "bytes": 3454,
+      "sha256": "e1168b1e35fda6dcfa93b9845a1153fecf9a49af62a847865fe3f96f1e2c558c",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/complete_output",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/complete.txt",
+      "bytes": 73490,
+      "sha256": "3c09b6e7ffbb0a9dd80dda5cfa71e0500638388509181976f6b99e905f10cbf5",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/environment.json",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/environment.stderr",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/junit.xml",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/junit.xml",
+      "bytes": 76275,
+      "sha256": "77ab3c595ceb987e2c73940f90eca73665184a8d65f90ade7c15bc00988a8298",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/events.jsonl",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/events.jsonl",
+      "bytes": 84091,
+      "sha256": "a8588674f5410198326c99e0a477e5bebcac25301ab265eda38b3e03d0e57d6c",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/origins.json",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/origins.json",
+      "bytes": 346713,
+      "sha256": "51086f9f692eee475bc5b4c660ef61c4b8b9d502d04d2b91e4722185256bcb6b",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/native-calls.json",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/native-calls.json",
+      "bytes": 13215,
+      "sha256": "8b2d127d9f971e51951c534b56513ea97b28200eb646d6a7ea421af0f99d570c",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/capture_parent.py",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/2/registry_capture.py",
+      "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/run_metadata",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/run.json",
+      "bytes": 3472,
+      "sha256": "a8396f799e39379f1f589b134988342265d8899c63a4b56ac06d3c6adc432b92",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/complete_output",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/complete.txt",
+      "bytes": 17956,
+      "sha256": "86ef8e1427b44a742b5788792028467e1c1aca2b9fda21842542b1f73c3421d2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/environment.json",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/environment.stderr",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/junit.xml",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/junit.xml",
+      "bytes": 18449,
+      "sha256": "378f7c350a646ac96a08615e9398c3f1018ca9fd96977e58119515f222f24234",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/events.jsonl",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/events.jsonl",
+      "bytes": 26533,
+      "sha256": "edf039c77521052855af698a89bdf1f4f17047faa9a2ea622cbc2463894d4336",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/origins.json",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/origins.json",
+      "bytes": 346713,
+      "sha256": "0d091db48cbccc1ac266ba900aa0cf4e0ad98d107ed89631f5d1bd43d90af32f",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/native-calls.json",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/native-calls.json",
+      "bytes": 23829,
+      "sha256": "6aa9e0acd8128b2138b70e5bb4caf560a794b72816b3100bf7cd7603d7524f63",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/capture_parent.py",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/3/registry_capture.py",
+      "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/4/run_metadata",
+      "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/run.json",
+      "bytes": 3396,
+      "sha256": "3a3d9c34895f7d560aeba9680d9e7c575977ea84af1c8694ddbd38f07de355e4",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/4/complete_output",
+      "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/4/environment.json",
+      "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/4/environment.stderr",
+      "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/4/capture_parent.py",
+      "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/4/registry_capture.py",
+      "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/run_metadata",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/run.json",
+      "bytes": 3556,
+      "sha256": "241622ff87208e8f29776c5a43778ffbf1e7d02b7f1df5841eaa54caa9bafb2b",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/complete_output",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/complete.txt",
+      "bytes": 4279,
+      "sha256": "c68bb1ce60f64ad9d06abb6f3a44d3572b611e53d6333b61745d8dfbb3d76330",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/environment.json",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/environment.stderr",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/junit.xml",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/junit.xml",
+      "bytes": 3705,
+      "sha256": "8000acd9b22a8ca0f81721880cba1c25a199a75ffe2e9e7faf9ea46c1f0acaf3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/events.jsonl",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/events.jsonl",
+      "bytes": 7560,
+      "sha256": "69092b9da03fe6934c915a2f74d7af162a117a79f1881ce838a79c6e17148e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/origins.json",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/origins.json",
+      "bytes": 346713,
+      "sha256": "25e3b256fc8ea73eae2acf96bed226c96376888234a4b7681bb0c9c4ed789e74",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/native-calls.json",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/native-calls.json",
+      "bytes": 12433,
+      "sha256": "0ebe861198d90da2eaa3f47573a1ed99f119a33ea8090e62d721ac065fd459bf",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/capture_parent.py",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/5/registry_capture.py",
+      "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/run_metadata",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/run.json",
+      "bytes": 3532,
+      "sha256": "eb89a327f77f932481f3c30a7a0aa20a2d7a93ea121518c0cb10f964efec24e5",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/complete_output",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/complete.txt",
+      "bytes": 2433,
+      "sha256": "e55026c2aaa1f469d2b27c01c200b52a033feac5f18283736e1a6179efa9dee8",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/environment.json",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/environment.stderr",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/junit.xml",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/junit.xml",
+      "bytes": 2496,
+      "sha256": "9ba87b7ebcde800d5f1257472601a79aa9f4ae62e8f31b1056cc1cc319caf479",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/events.jsonl",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/events.jsonl",
+      "bytes": 2769,
+      "sha256": "83fddd6bf335cd865bb7c1421c04f2b39d88a07fe2246881ad177f82f1a9a6f7",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/origins.json",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/origins.json",
+      "bytes": 346713,
+      "sha256": "25e3b256fc8ea73eae2acf96bed226c96376888234a4b7681bb0c9c4ed789e74",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/native-calls.json",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/native-calls.json",
+      "bytes": 297,
+      "sha256": "ee85e1720b194d90404a19978422df63d0f310e8a81208288f2c185b1c3958eb",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/actual-node-outcome.json",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/actual-node-outcome.json",
+      "bytes": 208,
+      "sha256": "7ecf20d955df499b661998d75ecba42a2809bb54a2e1ce5b532277953aa292e3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/capture_parent.py",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/capture_parent.py",
+      "bytes": 4134,
+      "sha256": "bb607a9a981bfe9c903ff365d6d391330d8fce24eeed6cbf7aa35a21dea1e8a2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/6/registry_capture.py",
+      "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/registry_capture.py",
+      "bytes": 2455,
+      "sha256": "684143d6f35a61a9ff1b93d93164f5616913523c225ab5e2ec951ca7a931aede",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/run_metadata",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/run.json",
+      "bytes": 3539,
+      "sha256": "71597648955304ee7e0970dd77ad4bf9acf7c56310033814ead3c6cac63a4665",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/complete_output",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/complete.txt",
+      "bytes": 4722,
+      "sha256": "56a4830c918fdf0ea67ca6c8c7d34fad9a60947b1c88871a49fa37c1653cd6a4",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/environment.json",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/environment.stderr",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/junit.xml",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/junit.xml",
+      "bytes": 4842,
+      "sha256": "0a689744146d36f6026323e55c4c47eb17ccda9f363e2edc90fe454bde155a5f",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/events.jsonl",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/events.jsonl",
+      "bytes": 6335,
+      "sha256": "fe0363b8172f5b9aa8a680038a7ad823c2920f20b896055dec46cd977d152248",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/origins.json",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/origins.json",
+      "bytes": 346713,
+      "sha256": "25e3b256fc8ea73eae2acf96bed226c96376888234a4b7681bb0c9c4ed789e74",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/native-calls.json",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/native-calls.json",
+      "bytes": 2438,
+      "sha256": "29536d19b762645fc858ade9e155f70330bbb804959da059a0d55005f5fc010e",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/capture_parent.py",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/7/registry_capture.py",
+      "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/run_metadata",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/run.json",
+      "bytes": 3443,
+      "sha256": "7fca26abbf539a05aa415e247144ab7c128c45584416d3cc15be3157df785810",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/complete_output",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/complete.txt",
+      "bytes": 15055,
+      "sha256": "ac597dc1498462480d7856003e2ce04793f73d162fcb29d3bcd4b8836c97fd69",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/environment.json",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/environment.stderr",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/junit.xml",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/junit.xml",
+      "bytes": 14983,
+      "sha256": "299e0073d7ad0f5459d9493fc2377978c45d536351c71e7d9174b3c6ec9f15a4",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/events.jsonl",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/events.jsonl",
+      "bytes": 32739,
+      "sha256": "59b6ace820f0fe1de833cd37afbfcdd993ad609db65b4763ce8153c9518e5327",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/origins.json",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/origins.json",
+      "bytes": 346713,
+      "sha256": "2a4b6cc0db0acfa91c478a5663e1e3287729ee3095eb564d160f58e7e05d571c",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/native-calls.json",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/native-calls.json",
+      "bytes": 29882,
+      "sha256": "566dca610609ab1ae529f1ea236cee0113f60c12e2565b75947d507a0154d5d7",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/capture_parent.py",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/8/registry_capture.py",
+      "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/run_metadata",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/run.json",
+      "bytes": 3510,
+      "sha256": "d47d704d4413a26d1ba0174fc90e4cceb0df6ccb9a2c2ff966f74a70f02dab65",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/complete_output",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/complete.txt",
+      "bytes": 482,
+      "sha256": "cd385bf946747519ccf51a2453fc196acd67ba4c7096d54e69c463de18a21811",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/environment.json",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/environment.stderr",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/junit.xml",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/junit.xml",
+      "bytes": 449,
+      "sha256": "0e8d37900d74a38a8520d07e73e69f5bfff5ae201b1e9f88447d3a445be92088",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/origins.json",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/origins.json",
+      "bytes": 346480,
+      "sha256": "15da03725f1f57955d3ae5f547b9c1d3b23c1b34b25b8c3cff095c6c04b9284e",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/native-calls.json",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/native-calls.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/capture_parent.py",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/9/registry_capture.py",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/run_metadata",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/run.json",
+      "bytes": 3442,
+      "sha256": "afa085ac793fdaa05ebca9f467ff57018c5343b9f370b0e6ea6996c29f24af37",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/complete_output",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/complete.txt",
+      "bytes": 7811,
+      "sha256": "9c9211ee231b80d6b87d83bdf0cf990d5ffd109898a4f0ff95af9c052a402854",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/environment.json",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/environment.stderr",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/junit.xml",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/junit.xml",
+      "bytes": 7404,
+      "sha256": "86e1d13f7cc22c81d29e7e346c12841985bd72865f0533e172c31c275a5699ed",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/events.jsonl",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/events.jsonl",
+      "bytes": 28320,
+      "sha256": "3c842c9c89fa868e8b2baab611df06fc9673f69a9a413ae52421a124195210fa",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/origins.json",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/origins.json",
+      "bytes": 346713,
+      "sha256": "f9b34c9a0d69c5226075814f8ebd7307cec85e8ce2f74a915438120f674be56a",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/native-calls.json",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/native-calls.json",
+      "bytes": 40371,
+      "sha256": "9f68e7eaa7c8c4b373b3d7cf8e2e429b61844b531ddebf96d5fc059947701bcc",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/capture_parent.py",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/capture_parent.py",
+      "bytes": 4126,
+      "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/10/registry_capture.py",
+      "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/run_metadata",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/run.json",
+      "bytes": 3726,
+      "sha256": "872cd14df323d894282a88fb6507c8a6c4c3b71c1eac5261405eb4871d6f3009",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/complete_output",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/complete.txt",
+      "bytes": 3297,
+      "sha256": "02c5efdb6c036ea23ef7dab190c8a4b67557c4e86adae6ae8ff6dfe032b408b6",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/environment.json",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/environment.stderr",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/junit.xml",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/junit.xml",
+      "bytes": 3021,
+      "sha256": "7af47fd7012872bad18e2b83b7b3c09b8e67e61d472e6212880feca99d6c21e9",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/events.jsonl",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/events.jsonl",
+      "bytes": 3062,
+      "sha256": "0dc0ec189632044f10f5ecc0005bc54fcda42c2fad39835d2ddfcc92cbd42fcf",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/origins.json",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/origins.json",
+      "bytes": 346713,
+      "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/native-calls.json",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/native-calls.json",
+      "bytes": 3209,
+      "sha256": "3c25fb673b9c061fab2ae95ae887d315fc473f677a4c8ca677d8a749a66e552a",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/retained-markers.json",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/retained-markers.json",
+      "bytes": 740,
+      "sha256": "9b981d198925bf497f7598e99be28dd3bdff6014d3fca2947536bad980c98d0e",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/capture_parent.py",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/capture_parent.py",
+      "bytes": 4385,
+      "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/registry_capture.py",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/11/registry_removal.py",
+      "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/registry_removal.py",
+      "bytes": 5034,
+      "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/run_metadata",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/run.json",
+      "bytes": 3809,
+      "sha256": "e03457e7606b66afb7bd5aa29d960659258762c19bae63cbf1f4d2eca34f9841",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/complete_output",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/complete.txt",
+      "bytes": 2753,
+      "sha256": "f0ff686a13703a0de69172f06cc6441def8127f0bd6778fe0e991d1c727454e6",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/environment.json",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/environment.stderr",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/junit.xml",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/junit.xml",
+      "bytes": 3055,
+      "sha256": "fed7016c86108635e2700b4fe3a217a3e0e9fb8a4e640eec1d9806397b42cac2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/events.jsonl",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/events.jsonl",
+      "bytes": 3082,
+      "sha256": "13a6195a8009d580ad1309785440e7f184d53098644454f880590074ba5704da",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/origins.json",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/origins.json",
+      "bytes": 346713,
+      "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/native-calls.json",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/native-calls.json",
+      "bytes": 701,
+      "sha256": "0903156e56bd3cc343477c9d723fa8e155c22a5dcf913ce484475f43e329b367",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/retained-markers.json",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/retained-markers.json",
+      "bytes": 1463,
+      "sha256": "a79d7a6579da286851f639feee0933a581045ca58b1d73a3692faf9ed7f85bc4",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/capture_parent.py",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/capture_parent.py",
+      "bytes": 4385,
+      "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/registry_capture.py",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/12/registry_removal.py",
+      "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/registry_removal.py",
+      "bytes": 5034,
+      "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/run_metadata",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/run.json",
+      "bytes": 3725,
+      "sha256": "746a2d23abdbd4834be1cc12548d0d4834ed5d1ab869ba7fab81df3ecce7e437",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/complete_output",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/complete.txt",
+      "bytes": 2996,
+      "sha256": "2450bf81c831ea9c0af1699014b04cf009a1ec35c052e760a3dc61a0cf4f0e87",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/environment.json",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/environment.stderr",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/junit.xml",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/junit.xml",
+      "bytes": 2587,
+      "sha256": "9d3e001596c020d8eeb04fc19a7188caea63100b853232f7ff35ab722fe4c1a0",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/events.jsonl",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/events.jsonl",
+      "bytes": 2783,
+      "sha256": "a87cc731a8e118072bc61dc39da8b3a8e4d382ecb455880f04ef89ea13011d02",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/origins.json",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/origins.json",
+      "bytes": 346713,
+      "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/native-calls.json",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/native-calls.json",
+      "bytes": 4692,
+      "sha256": "2e0014919e8522b4e40ba08ffd198365bb4010d341cbb3acc4d6bd69f2c6afba",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/retained-markers.json",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/retained-markers.json",
+      "bytes": 464,
+      "sha256": "11104dbc15817ae693916bf8f3a0a3b30b107515b149c967d4840d504cecb5cf",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/capture_parent.py",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/capture_parent.py",
+      "bytes": 4385,
+      "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/registry_capture.py",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/13/registry_removal.py",
+      "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/registry_removal.py",
+      "bytes": 5034,
+      "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/run_metadata",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/run.json",
+      "bytes": 3776,
+      "sha256": "026c740d3078492334144a4f8fbd38d9e2088251cc0b8a7784b33f812440bda5",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/complete_output",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/complete.txt",
+      "bytes": 1720,
+      "sha256": "935892d91d41991eda6f51470bac391151dac0353800b309fb513c7c0d53de30",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/environment.json",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/environment.stderr",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/junit.xml",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/junit.xml",
+      "bytes": 1194,
+      "sha256": "ebd6538d603fcf8aa91cf9db5cf2ff2d75fbed571f4a2b16a5e0e720d23fc861",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/events.jsonl",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/events.jsonl",
+      "bytes": 1443,
+      "sha256": "57c2f3af6e23f77d977b1ae3827768f27d7924e5fcb231ab0232d53e0eda39df",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/origins.json",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/origins.json",
+      "bytes": 346713,
+      "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/native-calls.json",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/native-calls.json",
+      "bytes": 3689,
+      "sha256": "82c254b79736234aab714f184a4ab6650135a47742a422067cf1ed6aac1d5317",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/retained-markers.json",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/retained-markers.json",
+      "bytes": 1090,
+      "sha256": "d1fb776fca498d31dd3e184d0a515d44dfe4b153a5ced97bddcd678bdf881396",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/capture_parent.py",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/capture_parent.py",
+      "bytes": 4385,
+      "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/registry_capture.py",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/14/registry_removal.py",
+      "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/registry_removal.py",
+      "bytes": 5034,
+      "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/run_metadata",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/run.json",
+      "bytes": 3740,
+      "sha256": "02c162f7d217cd550c5d08b3995f9a0103aaf8378a6bd50174f606151beffade",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/complete_output",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/complete.txt",
+      "bytes": 2432,
+      "sha256": "ff9ff629afc90a55482d597fad0921dabd08ef0d8c9747a569a337691a286c66",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/environment.json",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/environment.stderr",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/junit.xml",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/junit.xml",
+      "bytes": 2495,
+      "sha256": "48a194cf42b1d333d1ecfeb8c61b404dc699838a9a4f095f98c31d6d05d33196",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/events.jsonl",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/events.jsonl",
+      "bytes": 2768,
+      "sha256": "3978a50cf62c9966363a02851375000d4518faa2c1640b1f97cb7be058313ca5",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/origins.json",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/origins.json",
+      "bytes": 346713,
+      "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/native-calls.json",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/native-calls.json",
+      "bytes": 297,
+      "sha256": "ee85e1720b194d90404a19978422df63d0f310e8a81208288f2c185b1c3958eb",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/retained-markers.json",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/retained-markers.json",
+      "bytes": 27346,
+      "sha256": "e5cc053e55b7502788907534eee31d008329ed255c68099f853a924f59d6e61b",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/capture_parent.py",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/capture_parent.py",
+      "bytes": 4385,
+      "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/registry_capture.py",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/15/registry_removal.py",
+      "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/registry_removal.py",
+      "bytes": 5034,
+      "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/run_metadata",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/run.json",
+      "bytes": 3727,
+      "sha256": "5ce33a7a734c2758511edbd479ce7487af2e2da0cb29f3b29ecf3afb2d8b19b9",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/complete_output",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/complete.txt",
+      "bytes": 4733,
+      "sha256": "095c6fa5572b4179fc41233709745815b300d3a0ac36d3efb17e9b757671581d",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/environment.json",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/environment.stderr",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/junit.xml",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/junit.xml",
+      "bytes": 4853,
+      "sha256": "829d087cb33e6a0b85d4ab96cb3f8019c2d074f7a9770240835c196987acd60a",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/events.jsonl",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/events.jsonl",
+      "bytes": 6348,
+      "sha256": "76fd7a5070d5904352a39cd3f3b0295f9df1754f93b9b4607798618312989ac9",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/origins.json",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/origins.json",
+      "bytes": 346713,
+      "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/native-calls.json",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/native-calls.json",
+      "bytes": 2150,
+      "sha256": "f597ec6ac93d5c26aca7ce944b7ab5218ff88a27a5d7da321b463c3879009f4d",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/retained-markers.json",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/retained-markers.json",
+      "bytes": 2722,
+      "sha256": "89e00c971e217d95f81695d541f9c68dda90882c7511a6c15e20570d0a92cfac",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/capture_parent.py",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/capture_parent.py",
+      "bytes": 4385,
+      "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/registry_capture.py",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/16/registry_removal.py",
+      "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/registry_removal.py",
+      "bytes": 5034,
+      "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/run_metadata",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/run.json",
+      "bytes": 3605,
+      "sha256": "fd8f6f22f3b4bebe6007230d9bff6345584e5523d2bc8dc139ad149f81509552",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/complete_output",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/complete.txt",
+      "bytes": 1924,
+      "sha256": "1feb62ec86347f786e1360248a11c51d1437017d11766d275487544271b1be3c",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/environment.json",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/environment.json",
+      "bytes": 291,
+      "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/environment.stderr",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/environment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/junit.xml",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/junit.xml",
+      "bytes": 2014,
+      "sha256": "0f458d1e8794213cf3fcecb0163b7b04f41cf87e7cfb3146416fff425239d8cb",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/events.jsonl",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/events.jsonl",
+      "bytes": 2905,
+      "sha256": "95b08e4913228c0b2341efa4043e04015490100548ead4d4900173c07b573d97",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/origins.json",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/origins.json",
+      "bytes": 346480,
+      "sha256": "960290e475b2559c075351045baf7136ac1bfd950dcea6391d3b78524f754c30",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/native-calls.json",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/native-calls.json",
+      "bytes": 257,
+      "sha256": "fe03daabbd1efb40b469ae50a3ab491ac603eb88de50a8c9c59d03985b844d37",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/capture_parent.py",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/capture_parent.py",
+      "bytes": 4238,
+      "sha256": "5cc23095ffb37ae8989e85a60cf74b617ba09e8b52a2a289cd3b5c264561d0d6",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/checks/17/registry_capture.py",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/registry_capture.py",
+      "bytes": 2041,
+      "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/baseline_cells/lower_overhead_direct_attempt/metadata",
+      "member": "extras/e02-D-registry-direct-0df096b08bb0442783fe89b2d514f861.run.json",
+      "bytes": 298,
+      "sha256": "c51130670712a8849648828e5f654b8d049416874b5d44b7f2e6ce5f001d1fcd",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/baseline_cells/lower_overhead_direct_attempt/complete_output",
+      "member": "extras/e02-D-registry-direct-0df096b08bb0442783fe89b2d514f861.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/companion_checks/source_ast_and_constructor_inventory",
+      "member": "extras/e02-D-hierarchical-final-static-f471.json",
+      "bytes": 346,
+      "sha256": "70643063daedd2ca1339cb1c239a30a6ad675978097b63a5d8e51162931a0518",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/companion_checks/structured_fragment_validation",
+      "member": "extras/e02-D-hierarchical-fragment-f471.json",
+      "bytes": 188,
+      "sha256": "ac89dbc22ecb7a078f7cb4706bc1b9af4d6315af41544315f2226aa3280d6dec",
+      "MATCH": true
+    },
+    {
+      "json_pointer": "/supplier_dependency/native_run_context_red",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/complete.txt",
+      "bytes": 1924,
+      "sha256": "1feb62ec86347f786e1360248a11c51d1437017d11766d275487544271b1be3c",
+      "MATCH": true
+    }
+  ],
+  "metadata_successor": "dbae7fd942db37afd75ed37ed35e509dc8a1e3b6",
+  "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "source_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+  "closure_ids": [],
+  "scope": "All receipt source-object and nested deciding-output bindings recomputed. Runtime/source interpretation is in the independent original-criterion delta review."
+}

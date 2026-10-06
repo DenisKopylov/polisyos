@@ -1,0 +1,89 @@
+{
+  "receipt_commit": "38bf35c1a0e954a25cabcccafd99ad4c056e590e",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+  "receipt_sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56",
+  "checked_git_bindings": [
+    {
+      "pointer": "/source_target/selected_inputs",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-input-manifest.json",
+      "sha256": "aba93ef24df8a402b4e21a448712141a9c8698a6aa36470ce25fd7395ca95cd6",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/source_cells",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-source-cells.txt",
+      "sha256": "2a30bbeaafa1fa5677e1a69c2781d5b787e6c675f00dbd4b1fe32ab657d50f14",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/source_review/diff",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-production-review.diff",
+      "sha256": "7163259e224f9d5921486a8c090edb74662c2836a6d63836f82c3944f6113c13",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/unchanged_CLI/probe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+      "sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/unchanged_CLI/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-green.txt",
+      "sha256": "9ff71338bd478738198d6535a921543a775eef02175ce01fdb97ca69ec3a412c",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/unchanged_CLI/red_output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-independent-audit.txt",
+      "sha256": "7741d8956cffb1a5f0b87a165bbda77f339665e63809ebd015b6350b48a739d6",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/native_pytest/input",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-893-input.json",
+      "sha256": "8ad399cbda22215af7b5c4d40113f55a23d2466ca79c9593b27248538d14e73e",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/native_pytest/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-893-green.txt",
+      "sha256": "ac77be67b1a26fff030f3974fa8f0ae86534c91c9ee8da7d8455e702baf961b8",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/native_pytest/red_input",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-ebeb-input.json",
+      "sha256": "2c42c6745ee1f968094d92502e0b0ed43776d22661f5b6e5f0a4ccf5a4159ded",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/native_pytest/red_output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-ebeb-red.txt",
+      "sha256": "627452a167114cd37692cf61d1faa4ab2d663429f651d2d548b289eb64bffb92",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

@@ -1,0 +1,219 @@
+{
+  "schema": "polisyos.e02.independent_corrective_final_transport_binding.v1",
+  "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "metadata_only": true,
+  "new_runtime": false,
+  "carrier_commit": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+  "carrier_tree": "2118de2cda05638a91c428886621057d32d18fe6",
+  "carrier": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+    "bytes": 783012,
+    "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+  },
+  "manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/manifest.json",
+    "bytes": 2669,
+    "sha256": "b3d3aec3484166ba24504ab50348d6ebd50636b961a93ca2e84ed6b35fc66d4b"
+  },
+  "decoded_transport": {
+    "bytes": 7196498,
+    "sha256": "549dd1eb4b6c59ee1a4d07cdc6cf63ab2e1fb1875de600931e8bd5ab2090ea18"
+  },
+  "member_count": 13,
+  "original_raw_bytes": 5395382,
+  "members": [
+    {
+      "index": 0,
+      "name": "after.json",
+      "bytes": 1618218,
+      "sha256": "073999e770b0e66a2541ae1f989d2bf9b3429e500cfeea85caad1d6a2ecf87df",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 1,
+      "name": "before.json",
+      "bytes": 1618218,
+      "sha256": "1e8a02fb06ccb7f1f3866f9afbc778660ed1bbc8a0cdcae6ae8870551cb3dc4c",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 2,
+      "name": "collected-nodeids.json",
+      "bytes": 191631,
+      "sha256": "52b0f5385e4e68a9093d1a45624ef6369b3ba991898e34eed2f72a9393084c2a",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 3,
+      "name": "complete.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 4,
+      "name": "complete.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 5,
+      "name": "events.jsonl",
+      "bytes": 1731587,
+      "sha256": "1a0b74a36c541e74dee8a56259e5c71fc5b5c02d41b7b54d86026cf14ae5bebc",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 6,
+      "name": "execution-manifest.json",
+      "bytes": 34461,
+      "sha256": "fe9956570b8d2981d7a58f0d00b43f763e4000c759770548563addc662567e96",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 7,
+      "name": "plan.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 8,
+      "name": "plan.stdout.txt",
+      "bytes": 895,
+      "sha256": "c439260cd740d70d6bdc04c566c689562a28a8eeb676cb44002d44ffce9f546e",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 9,
+      "name": "result.json",
+      "bytes": 45623,
+      "sha256": "aaf25a7f8b9bb0f163c1ddd6c98cab138183a0ab6b27ff440d3eb31736aa2359",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 10,
+      "name": "retained-fixture-file-identities.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 11,
+      "name": "selector-plan.argv.json",
+      "bytes": 7350,
+      "sha256": "3e9f2855b19e39aa1faecadf2f64f8cc5f26089a990cc96158eba36b9d4c2249",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    },
+    {
+      "index": 12,
+      "name": "selector-plan.json",
+      "bytes": 147396,
+      "sha256": "690feb39c4c1a5f5ba94c59c1b82256a71a58885542235bd3a01121fdbc89f56",
+      "encoding": "base64",
+      "body_identity_MATCH": true,
+      "manifest_record_MATCH": true,
+      "original_capture_MATCH": true
+    }
+  ],
+  "retained_regular_file_names_MATCH": true,
+  "existing_external_input_git_refs": [
+    {
+      "source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-wave-input/runner.py.txt",
+      "bytes": 20589,
+      "sha256": "02ff94cbf1f2bc01af5f9687c7a31339802f5cde36cb9829b01f0f182702cd9b",
+      "original_path": "/tmp/e02-D-broad-wave-final.py",
+      "captured_identity_MATCH": true,
+      "retained_original_MATCH": true
+    },
+    {
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt",
+      "bytes": 20492,
+      "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+      "original_path": "/tmp/e02-D-broad-wave.py",
+      "captured_identity_MATCH": true,
+      "retained_original_MATCH": true
+    },
+    {
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt",
+      "bytes": 12753,
+      "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81",
+      "original_path": "/tmp/e02_broad_observer.py",
+      "captured_identity_MATCH": true,
+      "retained_original_MATCH": true
+    },
+    {
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+      "member_pointer": "/members/11/content",
+      "member_name": "harness/e02-D-final-selector-plan.py",
+      "bytes": 12531,
+      "sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8",
+      "original_path": "/tmp/e02-D-final-selector-plan.py",
+      "captured_identity_MATCH": true,
+      "retained_original_MATCH": true
+    }
+  ],
+  "discrepancies": [],
+  "integrity_verdict": "PASS",
+  "runtime_verdict": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+  "runtime_source_is_carrier_source": true,
+  "limitations": [
+    "Integrity PASS only; no new pytest/backend execution was performed.",
+    "The child SIGKILL (-9) ended before any case phase or completed collection event; all1249 recorded cases remain UNRUN.",
+    "A recorded collected-nodeids artifact does not establish completed collection, session success, JUnit or numerical fitting.",
+    "All thirteen retained regular outputs were checked; no additional retained regular fixture file was present.",
+    "Existing tracked helper bodies are referenced via exact Git and never recopied in this review.",
+    "Original runtime paths and metadata describe main-process partial observations, not full subprocess provenance."
+  ],
+  "P41": "not_established",
+  "formal_closed": 0,
+  "G_accepted": false,
+  "verifier_preparation": [
+    {
+      "status": "ERROR_METADATA_PREPARATION",
+      "detail": "An earlier interactive inspection used manifest['complete_members']; this carrier uses manifest['members']. The KeyError occurred before a binding verdict and was corrected without runtime or payload mutation."
+    }
+  ]
+}

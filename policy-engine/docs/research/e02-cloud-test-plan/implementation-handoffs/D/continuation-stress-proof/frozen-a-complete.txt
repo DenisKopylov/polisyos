@@ -1,0 +1,436 @@
+...............................FFFF.................................FFFF [ 69%]
+F...............................                                         [100%]
+=================================== FAILURES ===================================
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing] _
+
+invalid_result = None
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+>       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric] _
+
+invalid_result = {'simulation_results': {'budget_deficit': 'not-a-number'}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+>       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan] _
+
+invalid_result = {'simulation_results': {'budget_deficit': nan}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+>       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError
+_ test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf] _
+
+invalid_result = {'simulation_results': {'budget_deficit': inf}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -> None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+>       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError
+_ test_real_level5_consumes_adequacy_scope_without_probability_claim[2-0-2-complete] _
+
+finite = 2, unknown = 0, planned = 2, status = 'complete'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+>       assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+E       assert False is True
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:57: AssertionError
+_ test_real_level5_consumes_adequacy_scope_without_probability_claim[1-1-2-partial] _
+
+finite = 1, unknown = 1, planned = 2, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+>       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError
+_ test_real_level5_consumes_adequacy_scope_without_probability_claim[1-0-2-partial] _
+
+finite = 1, unknown = 0, planned = 2, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+>       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError
+_ test_real_level5_consumes_adequacy_scope_without_probability_claim[0-2-2-partial] _
+
+finite = 0, unknown = 2, planned = 2, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+>       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError
+_ test_real_level5_consumes_adequacy_scope_without_probability_claim[0-0-0-partial] _
+
+finite = 0, unknown = 0, planned = 0, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+>       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing]
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric]
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan]
+FAILED tests/unit/scientist/search/test_adversarial.py::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf]
+FAILED tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py::test_real_level5_consumes_adequacy_scope_without_probability_claim[2-0-2-complete]
+FAILED tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py::test_real_level5_consumes_adequacy_scope_without_probability_claim[1-1-2-partial]
+FAILED tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py::test_real_level5_consumes_adequacy_scope_without_probability_claim[1-0-2-partial]
+FAILED tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py::test_real_level5_consumes_adequacy_scope_without_probability_claim[0-2-2-partial]
+FAILED tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py::test_real_level5_consumes_adequacy_scope_without_probability_claim[0-0-0-partial]
+RUNTIME_ENVIRONMENT={"executable": "/workspace/e02-D-locked-env/bin/python", "exit_code": 1, "modules": [{"module": "polisyos.scientist.methods.doe.designs", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py", "sha256": "1e976f5d6a0d880aaf99a069c2149331a1095befa86b90b8ccbfc9584403db06"}, {"module": "polisyos.scientist.methods.doe.stress_report", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py", "sha256": "29c6e085365c02853b6ad2e7f2a90012816c660ef9fac2c41c12a228983a9b49"}, {"module": "polisyos.scientist.methods.doe.sampling", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py", "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"}, {"module": "polisyos.scientist.methods.search.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py", "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"}, {"module": "polisyos.scientist.policy_design.adversary", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "a057c4c59e9bcac81f1892e289b8999293814ecd6d333d843d81f92a839ac87e"}, {"module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "3b56afa1f0fcb32d1871fc7e6465164651314a9130c22945330b4287fe0932e6"}, {"module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py", "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4"}, {"module": "polisyos.scientist.methods.search.funnel.orchestrator", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"}], "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"}

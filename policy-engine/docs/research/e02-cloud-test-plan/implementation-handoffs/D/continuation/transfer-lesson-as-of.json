@@ -1,0 +1,93 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-lesson-as-of",
+  "closure_ids": [],
+  "finding_ids": [
+    "B136",
+    "B137"
+  ],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "source_sha": "c6f81474329af28c3e8b8c1a134c223f16502de6",
+  "source_tree": "0cad8c994701d3bac6d374b52397a6d9617d13c5",
+  "branch": "codex/e02-D-published-transfer",
+  "role": "TRN production author; independent root/G review pending",
+  "canonical_criteria": {
+    "cards": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203#SOURCE_BEGIN-B:B136/B:B137",
+    "accounting": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203#/criterion_occurrences",
+    "fresh_G_audit": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md@363e7ae0cb2929a92d9667334fdc0ac3087daf5e"
+  },
+  "delta": {
+    "intentional": "One shared evidence-time admission precedes local/aggregate return, transfer discovery and materialization. Future created_at/evidence_anchor is refused; no age-zero substitution. Caller TransferContext.timestamp binds transfer; optional serialized LessonQuery.as_of binds ordinary queries; conflicts/naive query time refuse. Retention access stays separate.",
+    "equivalent": "Ruff formatting on touched source/test paths; existing positive transfer fixture now creates target context after its evidence occurrence.",
+    "schema_compatibility": "LessonQuery remains extra=forbid and gains optional datetime as_of default None. JSON round-trip preserves explicit timestamp; old payloads use current query time. No persisted card/index schema or evidence timestamp is synthesized.",
+    "footprint": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-as-of.toml",
+      "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+      "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py"
+    ]
+  },
+  "runtime_trace": "Explicit producer LessonCard -> actual FileSystemCAS/card+index -> reopen LessonRegistry -> query/query_with_transfer/find_transfer_candidates/materialize_transfer -> shared _aged_card admission -> returned card or empty/None, with no destination index entry for rejected evidence.",
+  "property_basis": "recomputed against actual persisted occurrence/version time and explicit caller as-of; institutional time/evidence validity not established",
+  "checks": [
+    {
+      "outcome": "PASS",
+      "tests": 25,
+      "skipped": 0,
+      "execution_record": "transfer-lesson-as-of-output.json.gz#lesson-as-of-frozen.json",
+      "full_output_sha256": "abf75195fac43fb2dee94dbe1643753b7c37e3d79299c1792b28d5ab708b69af",
+      "consumer": "Whole test_lessons.py + whole test_lesson_transfer.py +14 new as-of controls, actual CAS, warm/cold/restart/retention/boundary/conflict/version controls",
+      "actual_module_origins": "transfer-lesson-as-of-output.json.gz#lesson-as-of-frozen.txt:ACTUAL_RUNTIME_ORIGINS"
+    },
+    {
+      "outcome": "EXPECTED_PROPERTY_FAILURE",
+      "tests": 14,
+      "failed": 7,
+      "passed_valid_controls": 7,
+      "skipped": 0,
+      "execution_record": "transfer-lesson-as-of-output.json.gz#lesson-as-of-removal-corrected.json",
+      "full_output_sha256": "20bf487220ffe5c6c096c74e3077e665a8b1a765349867e5d236a346b266b7c6",
+      "mutation": "Only future-evidence branch removed from isolated single-file source; as_of, refs, timestamps, query filters and unchanged test assertions remain. Negative controls fail while seven valid controls pass. Actual mutated module origin/hash appears in full output. No publisher production mutation."
+    }
+  ],
+  "non_deciding_attempts": [
+    "Initial exploratory base8FAIL/3PASS used an uncommitted earlier characterization fixture, not immutable test evidence; one future transfer negative was masked by mismatched global tenant labels and corrected to explicit same-tenant fixture before frozen run.",
+    "Transient candidate24PASS/1FAIL detected existing target timestamp preceding evidence; fixture timeline corrected.",
+    "First isolated removal attempt ERROR before test collection due parent-package import cycle; complete output retained. Corrected loader initializes canonical parent first, then loads isolated changed module."
+  ],
+  "limits": {
+    "B136": "Shared caller threshold/trust/source filters retained; no institutional access authorization inferred.",
+    "B137": "Future/current/stale evidence timing and retention separation verified for supported technical caller profile; genuine authorized revalidation event/grounds/time issuer remains absent.",
+    "history": "Refuses current version whose evidence is later than as-of; does not reconstruct older historical versions automatically.",
+    "numerical": "No native GP fit/proposal or empirical confidence truth claim. Eager existing shared imports load torch2.10.0/botorch0.16.1/gpytorch1.15.1 in Python3.14.7. Strong unchanged GP26 is not repeated.",
+    "environment": "No numeric worker/thread/CPU/process caps, no environment installations/deletions; complete source before/after SHA unchanged during frozen and removal runs."
+  },
+  "owner_input_requests": [
+    {
+      "id": "D-TRN-B137-evidence-freshness",
+      "status": "absent/unallocated",
+      "owner": "Lesson lifecycle / authorized revalidation-event issuer, appointment by G",
+      "existing_input": "A new actual LessonCard occurrence/version with exact failure_card_refs/trace_refs, authenticated producer time, grounds and authorization; caller as-of must come from execution owner.",
+      "required_witness": "Persist supplied actual evidence -> restart -> same shared admission on local/transfer; genuine later revalidation changes evidence version, ordinary access does not.",
+      "prohibition": "This slice does not create an issuer, copy access time into evidence, or manufacture confirmation."
+    },
+    {
+      "id": "D-TRN02-B-CAS-minimum-dependency",
+      "status": "requested root composition",
+      "owner": "B CAS source owner / root integrator",
+      "source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-verification-snapshot.json@01129503d3cbfd6d77ef5dab85ac08e5c2e4a644",
+      "existing_api": "VerifiedSnapshotArtifactStore.get_verified_snapshot / FileSystemCAS.get_verified_snapshot, exact ArtifactRef -> one owned immutable byte/manifest snapshot. D96eb lacks public snapshot port.",
+      "required_witness": "Second process reopen exact generated CAS ArtifactRef and vector generation; no second ANN for addressing, same-ref mutated bytes refuse. No institutional source or split authority inferred."
+    }
+  ],
+  "output_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-lesson-as-of-output.json.gz",
+    "encoding": "gzip of UTF-8 JSON mapping filenames to lossless complete contents",
+    "sha256": "ced7219cbd8c5b0209f7b9e54525ce3d4c05b74b35772ab6706ca6117d2317da",
+    "uncompressed_sha256": "4722a9ade1ddef21111f8acd6e6e841980637e91c6b88778dec9228587200b8f",
+    "retained_scratch": "/workspace/e02-D2-receipts/transfer-continuation"
+  },
+  "preservation": "No deletion; original outputs/basetemps and isolated single-file mutation retained. Native Trash unavailable per root retained environment record; no cleanup performed."
+}

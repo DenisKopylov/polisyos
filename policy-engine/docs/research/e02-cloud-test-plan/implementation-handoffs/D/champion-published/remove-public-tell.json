@@ -1,0 +1,34 @@
+{
+  "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "source_tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--confcutdir=/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search",
+    "-q",
+    "-rA",
+    "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py::test_public_call_removal_trap_is_reached_before_history_acceptance[tell]"
+  ],
+  "cwd": "/workspace/e02-D-published-champion/policy-engine",
+  "export": "/dev/shm/e02-D2-champion-base-export",
+  "mode": "property_removal",
+  "mutation": "Replace public driver.tell call with direct existing controller._accept_tell using same real detached evaluation and same state acceptance owner",
+  "source_file_sha256": {
+    "models": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed",
+    "registry": "826f26622532517d13b9742b65cfb8e7f8cac6a6531843cfd4e67893e461b655",
+    "runtime": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1",
+    "calibration": "ea8b5f83db75356a07550b63c833a3b45f5396dbcff8a84be3a230a88a48f865"
+  },
+  "test_path": "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+  "test_sha256": "2165e66a5f5e0262128ba74d575b5888f5e143005626ae5b6ba55a55a9430969",
+  "exit_code": 1,
+  "wall_seconds": 14.136194574006367,
+  "log": "/workspace/e02-D2-receipts/champion/remove-public-tell.txt",
+  "log_sha256": "9099983a8c971671a62015c3926ba067ec97ca325dc6663e5c9b88cc45c6ed3c"
+}

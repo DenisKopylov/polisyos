@@ -1,0 +1,236 @@
+"""Verify published DOE deciding bytes and their immutable source bindings."""
+
+from __future__ import annotations
+
+import base64
+import gzip
+import hashlib
+import json
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+REPO = "/workspace/e02-D-published-oracle"
+TRANSPORT = "2451bb94188a262b4525595310e120be9e7aa520"
+SOURCE = "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61"
+CORE = "d38f94c8a8095abb00052b8e78f7b8a470453ed4"
+BASE = "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203"
+D = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/"
+PACK = D + "checks/search-doe-coordinate-order/"
+CACHE: dict[tuple[str, str], bytes] = {}
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(["git", *args], cwd=REPO)
+
+
+def blob(commit: str, path: str) -> bytes:
+    key = (commit, path)
+    if key not in CACHE:
+        CACHE[key] = git("show", f"{commit}:{path}")
+    return CACHE[key]
+
+
+def sha(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+receipt_path = D + "search-doe-coordinate-order-continuation.json"
+receipt_raw = blob(TRANSPORT, receipt_path)
+receipt = json.loads(receipt_raw)
+header_path = PACK + "deciding-outputs.header.json"
+header_raw = blob(TRANSPORT, header_path)
+header = json.loads(header_raw)
+compressed = blob(TRANSPORT, PACK + "deciding-outputs.json.gz")
+assert sha(compressed) == header["compressed_sha256"]
+assert len(compressed) == header["compressed_bytes"]
+raw_json = gzip.decompress(compressed)
+assert sha(raw_json) == header["uncompressed_json_sha256"]
+assert len(raw_json) == header["uncompressed_json_bytes"]
+bundle = json.loads(raw_json)
+assert bundle["candidate_sha"] == SOURCE == header["candidate_sha"]
+members: dict[str, bytes] = {}
+originals = []
+for meta, item in zip(header["members"], bundle["members"], strict=True):
+    assert {k: v for k, v in item.items() if k != "data_base64"} == meta
+    raw = base64.b64decode(item["data_base64"], validate=True)
+    assert len(raw) == meta["raw_bytes"] and sha(raw) == meta["raw_sha256"]
+    assert item["name"] not in members
+    members[item["name"]] = raw
+    original = Path(item["original_path"])
+    exists = original.is_file()
+    if exists:
+        assert original.read_bytes() == raw
+    originals.append({"member": item["name"], "original_present_and_exact": exists})
+assert len(members) == header["member_count"] == 81
+assert sum(map(len, members.values())) == header["raw_member_byte_total"] == 392440
+
+
+def locator(text: str) -> tuple[str, str]:
+    left, right = text.split("!/", 1)
+    assert left == PACK + "deciding-outputs.json.gz"
+    member, sep, pointer = right.partition("#")
+    assert member in members, member
+    if sep:
+        value = json.loads(members[member])
+        for key in pointer.lstrip("/").split("/"):
+            key = key.replace("~1", "/").replace("~0", "~")
+            value = value[int(key)] if isinstance(value, list) else value[key]
+    return member, pointer if sep else ""
+
+
+locators = []
+
+
+def walk(value: object) -> None:
+    if isinstance(value, dict):
+        for item in value.values():
+            walk(item)
+    elif isinstance(value, list):
+        for item in value:
+            walk(item)
+    elif isinstance(value, str) and value.startswith(PACK) and "!/" in value:
+        locators.append(locator(value))
+
+
+walk(receipt)
+origin_raw = blob(TRANSPORT, PACK + "source-origin-reconciliation.json")
+walk(json.loads(origin_raw))
+
+checks = []
+origins = []
+backend_files = []
+input_bindings = []
+temporary_dirs = []
+runtime = []
+for check in receipt["checks"]:
+    metadata_member, _ = locator(check["metadata"])
+    meta = json.loads(members[metadata_member])
+    candidate = check["target_sha"]
+    actual_tree = git("rev-parse", candidate + "^{tree}").decode().strip()
+    assert check.get("target_tree", actual_tree) == actual_tree
+    assert meta.get("source_sha", meta.get("target_sha")) == candidate
+    assert meta.get("source_tree", meta.get("tree", actual_tree)) == actual_tree
+    assert meta["source_after"] == candidate
+    assert meta["status_after"] == ""
+    assert check["returncode"] == meta["returncode"]
+    output_member, _ = locator(check["output"])
+    assert sha(members[output_member]) == meta["output_sha256"]
+    if "command_ref" in check:
+        command_member, command_pointer = locator(check["command_ref"])
+        assert command_member == metadata_member and command_pointer == "/argv"
+    for path, expected in meta.get("changed_file_sha256", {}).items():
+        assert sha(blob(candidate, path)) == expected
+        input_bindings.append({"check": check["id"], "path": path, "sha256": expected})
+    for selector, expected in meta.get("selector_sha256", {}).items():
+        path = "policy-engine/" + selector.split("::", 1)[0]
+        assert sha(blob(candidate, path)) == expected
+    parent = metadata_member.rsplit("/", 1)[0]
+    junit_member = parent + "/junit.xml"
+    counts = None
+    if junit_member in members:
+        testcases = list(ET.fromstring(members[junit_member]).iter("testcase"))
+        counts = {"tests": len(testcases), "failure": sum(t.find("failure") is not None for t in testcases), "error": sum(t.find("error") is not None for t in testcases), "skip": sum(t.find("skipped") is not None for t in testcases)}
+        counts["pass"] = counts["tests"] - counts["failure"] - counts["error"] - counts["skip"]
+        assert counts == check["counts"], (check["id"], counts, check["counts"])
+    elif "counts" in check:
+        assert check["counts"] is None
+    if metadata_member.endswith("/run.json"):
+        if meta["returncode"] == -9:
+            assert junit_member not in members
+            assert parent + "/junit.native.json" not in members
+        native_member = parent + "/junit.native.json"
+        if native_member in members:
+            native = json.loads(members[native_member])
+            assert native["exitstatus"] == meta["returncode"]
+            assert native["python"] == "3.14.7"
+            for module, info in native["modules"].items():
+                if module.startswith("polisyos."):
+                    path = "policy-engine/" + info["path"].split("/policy-engine/", 1)[1]
+                    assert sha(blob(candidate, path)) == info["sha256"]
+                    origins.append({"check": check["id"], "module": module, "path": path, "sha256": info["sha256"]})
+                else:
+                    file = Path(info["path"])
+                    assert file.is_file() and sha(file.read_bytes()) == info["sha256"]
+                    backend_files.append({"check": check["id"], "module": module, **info})
+            native_calls = native["native_calls"]
+        else:
+            native_calls = None
+        for arg in meta["argv"]:
+            if arg.startswith("--basetemp="):
+                path = arg.split("=", 1)[1]
+                temporary_dirs.append({"check": check["id"], "path": path, "currently_exists": Path(path).exists(), "absence_does_not_establish_deletion": True})
+        runtime.append({"check": check["id"], "source": candidate, "tree": actual_tree, "returncode": meta["returncode"], "counts": counts, "outcome": check["outcome"], "wall_seconds": meta["wall_seconds"], "complete_output_bytes": len(members[output_member]), "complete_output_sha256": sha(members[output_member]), "argv": meta["argv"], "cwd": meta["cwd"], "environment_overrides": meta["environment_overrides"], "native_calls": native_calls})
+    checks.append({"check": check["id"], "metadata_member": metadata_member, "source": candidate, "source_before_after_match": True, "after_status_clean_recorded": True, "returncode": meta["returncode"], "counts": counts, "outcome": check["outcome"]})
+assert len(runtime) == 10
+assert len(origins) == 91 and len(backend_files) == 21
+assert all(item["original_present_and_exact"] for item in originals)
+
+# Reconcile the published annotation with the underlying seven native reports.
+declared_origins = json.loads(origin_raw)
+assert len(declared_origins) == 7
+for item in declared_origins:
+    got = [o for o in origins if o["check"] == item["check"]]
+    assert len(got) == item["polisyos_module_count"] == 13
+    assert not item["git_byte_mismatches"]
+
+criterion_path = D + "continuation/criterion-ledger.json"
+ledger = json.loads(blob("50b74c312a11d7a712969ca147a94013c5857125", criterion_path))
+criteria = []
+for row in ledger["criterion_occurrences"]:
+    if row["id"] in {"B112@OPT-02", "B113@OPT-02", "B127@OPT-02", "LA-014@SRV-01"}:
+        binding = row["original_acceptance_binding"]
+        card = binding["canonical_card"]
+        raw = blob(card["source_sha"], card["path"])
+        assert len(raw) == card["bytes"] and sha(raw) == card["sha256"]
+        criteria.append({"id": row["id"], "canonical_card": card, "canonical_content": row["canonical_content"], "scope": "bounded ordinary factory/caller companion; original complete criterion remains unchanged"})
+assert len(criteria) == 4
+
+core = []
+for path in ["policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "policy-engine/src/polisyos/common/serialization.py"]:
+    raw = blob(SOURCE, path)
+    assert raw == blob(CORE, path)
+    core.append({"path": path, "sha256": sha(raw), "same_as_independent_GP23_source": CORE})
+
+product_diff = git("diff", "--name-only", BASE, SOURCE, "--", "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py", "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py", "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py").decode().splitlines()
+source_inputs = [{"path": path, "bytes": len(blob(SOURCE, path)), "sha256": sha(blob(SOURCE, path))} for path in receipt["changed_paths"]]
+masking = receipt["historical_scope_corrections"]
+assert masking["profile_refusal_only_total"] == 14
+assert receipt["closure_ids"] == []
+assert receipt["evidence_denominator"]["all_raw_members_transferred"] == 81
+
+result = {
+    "schema": "polisyos.e02.independent-doe-binding.v1",
+    "binding_verdict": "PASS",
+    "runtime_review_verdict": "PASS_BOUNDED_MECHANISM; composite/default activation and affected legacy E execution remain PARTIAL/UNRUN",
+    "transport": {"sha": TRANSPORT, "tree": git("rev-parse", TRANSPORT + "^{tree}").decode().strip(), "receipt_path": receipt_path, "receipt_sha256": sha(receipt_raw), "header_path": header_path, "header_sha256": sha(header_raw), "compressed_sha256": sha(compressed), "compressed_bytes": len(compressed), "uncompressed_sha256": sha(raw_json), "uncompressed_bytes": len(raw_json)},
+    "source": {"sha": SOURCE, "tree": git("rev-parse", SOURCE + "^{tree}").decode().strip(), "base": BASE, "reviewed_owned_product_paths": product_diff, "inputs": source_inputs},
+    "member_count": len(members),
+    "raw_member_bytes": sum(map(len, members.values())),
+    "all_original_capture_files_present_and_exact": True,
+    "explicit_member_and_json_pointer_locators_resolved": len(locators),
+    "source_input_bindings": input_bindings,
+    "selected_actual_polisyos_origin_bindings": origins,
+    "selected_actual_backend_file_bindings": backend_files,
+    "checks": checks,
+    "runtime_cells": runtime,
+    "temporary_directory_observations": temporary_dirs,
+    "historical_masked_pass_correction": masking,
+    "criteria": criteria,
+    "unchanged_GP_core": core,
+    "limitations": [
+        "91 product bindings are 13 selected modules across seven completed reports, not an inventory of every imported product module.",
+        "21 backend file hashes are static identity recensus of three selected modules per completed report, not a fresh optional-backend import, provisioning, or whole-environment equivalence proof.",
+        "No reviewer backend execution, numerical fit, new snapshot, thread/process/worker/time cap, cleanup, or production mutation was performed.",
+        "Existing temporary directory observations do not establish full fixture preservation; two killed jobs' basetemp paths are absent and may never have been created.",
+        "Killed scopes remain ERROR/UNRUN with no JUnit verdict; 12 progress dots are not 12 completed passes.",
+        "Current source has exactly four completed affected cases, not a fresh aggregate 16/43 result. Historical 944 11PASS/1FAIL negatives and current correction are separate cells.",
+        "The actual default loop witness uses an explicit resolved adapter and custom typed codec; default SearchLoopSpec metadata activation/default technical codec projection is a separate pending writer dependency.",
+        "Native physical Sobol assignment is proved before any fitted GP exists. Ordering does not prove GP quality, statistical efficacy, calibrated population law, or deployment eligibility.",
+        "Declared metres/seconds and uniform input law are experimental consumer assertions, not institutionally verified scientific provenance.",
+        "Ruff and structured fragment outputs are scoped; B04/B19/B23, mypy, frontend, and other full quality gates are not promoted or waived.",
+    ],
+    "closure_ids": [],
+}
+sys.stdout.write(json.dumps(result, indent=2) + "\n")

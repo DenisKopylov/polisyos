@@ -11,21 +11,26 @@ persists a frontier report plus the selected champion Trinity bundle.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import nullcontext
+from copy import deepcopy
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from pydantic import ValidationError
+from pydantic import PrivateAttr, ValidationError, model_serializer
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.trinity import TrinityBundleRef
+from polisyos.core.security import tenant_scope
 from polisyos.data_forge.read_api.academic import SKGQuery
+from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
-from polisyos.lex.interventions import HierarchicalPolicySearchPlan
+from polisyos.lex.interventions import HierarchicalPolicySearchPlan, _resolve_param_path
 from polisyos.pdc import WorldModelRecord
 from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.methods.search.contracts import (
@@ -37,6 +42,10 @@ from polisyos.scientist.methods.search.controller import (
     SearchIteration,
     SearchResult,
     SearchStatus,
+)
+from polisyos.scientist.methods.search.transfer_context import (
+    anonymize_tenant_id,
+    resolve_transfer_context,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
@@ -88,6 +97,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
@@ -115,6 +125,55 @@ from polisyos.scientist.policy_design.search import (
     HierarchicalSearchResult,
     PolicySearchLevel,
 )
+
+
+class _MoneyParameterTransport(MoneyValue):
+    """Kernel money fields with only their admitted wire-null presence retained."""
+
+    _wire_year_present: bool | None = PrivateAttr(default=None)
+
+    @model_serializer(mode="wrap")
+    def _serialize_transport(self, handler: Any) -> dict[str, Any]:
+        # Model-copy action updates serialize current validated fields. A saved
+        # presentation flag cannot conceal changed amounts, units, or years.
+        if not isinstance(self.amount, Decimal):
+            raise ValueError("Money transport amount must retain its validated Decimal type")
+        MoneyValue.model_validate(
+            {"amount": self.amount, "currency": self.currency, "nominal_year": self.nominal_year}
+        )
+        payload = handler(self)
+        if self._wire_year_present is True or (
+            self._wire_year_present is False and self.nominal_year is not None
+        ):
+            payload["nominal_year"] = self.nominal_year
+        elif self._wire_year_present is False:
+            payload.pop("nominal_year", None)
+        return payload
+
+
+def _restore_money_parameter_value(value: Any) -> MoneyValue:
+    if isinstance(value, MoneyValue):
+        parsed = MoneyValue.model_validate(value.model_dump(mode="python"))
+        year_present = (
+            value._wire_year_present if isinstance(value, _MoneyParameterTransport) else None
+        )
+    else:
+        parsed = MoneyValue.model_validate(value)
+        year_present = "nominal_year" in value
+    restored = _MoneyParameterTransport.model_validate(parsed.model_dump(mode="python"))
+    restored._wire_year_present = year_present
+    if isinstance(value, Mapping):
+        wire = dict(value)
+        if isinstance(wire.get("amount"), Decimal):
+            # The canonical CAS decoder restores its Decimal tag before the
+            # Any-valued ParamValue carrier reaches this same money boundary.
+            wire["amount"] = parsed.model_dump(mode="json")["amount"]
+        if restored.model_dump(mode="json") != wire:
+            raise ValueError(
+                "Money parameter input is outside the canonical wire transport profile"
+            )
+    return restored
+
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_hierarchical_policy_search@1.0.0"),
@@ -184,6 +243,14 @@ class HierarchicalPolicySearchAdapter:
     """Bridge Lex policy bundles into Scientist-owned hierarchical search."""
 
     coordinator_fqn = "polisyos.scientist.policy_design.search.HierarchicalSearchCoordinator"
+
+    def __init__(self, *, pareto_registry: ParetoRegistry | None = None) -> None:
+        """Use an explicitly configured registry; never create a default provider or basis."""
+        from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+
+        if pareto_registry is not None and not isinstance(pareto_registry, ParetoRegistry):
+            raise TypeError("pareto_registry must be a canonical ParetoRegistry")
+        self._pareto_registry = pareto_registry
 
     def build_request(
         self,
@@ -320,7 +387,8 @@ class HierarchicalPolicySearchAdapter:
             else HierarchicalPolicySearchPlan.model_validate(plan)
         )
         return HierarchicalSearchCoordinator(
-            config=self.instantiate_search_config(resolved_plan.search_config)
+            config=self.instantiate_search_config(resolved_plan.search_config),
+            pareto_registry=self._pareto_registry,
         )
 
     def validate_policy_design_api(
@@ -340,7 +408,8 @@ class HierarchicalPolicySearchAdapter:
             metadata=metadata,
         )
         coordinator = HierarchicalSearchCoordinator(
-            config=self.instantiate_search_config(search_config)
+            config=self.instantiate_search_config(search_config),
+            pareto_registry=self._pareto_registry,
         )
         try:
             coordinator.build_parameter_search_spec(resolved_candidate)
@@ -423,7 +492,8 @@ class HierarchicalPolicySearchAdapter:
             metadata=metadata,
         )
         coordinator = HierarchicalSearchCoordinator(
-            config=self.instantiate_search_config(search_config)
+            config=self.instantiate_search_config(search_config),
+            pareto_registry=self._pareto_registry,
         )
         runtime_context = self.build_runtime_context(
             resolved_candidate,
@@ -432,29 +502,55 @@ class HierarchicalPolicySearchAdapter:
             metadata=metadata,
         )
         merged_context = {**runtime_context, **dict(initial_context or {})}
-        try:
-            coordinator.build_parameter_search_spec(resolved_candidate)
-        except ValueError as exc:
-            if "No tunable policy parameters" not in str(exc):
-                raise
-            return self._run_parameterless_search(
-                coordinator,
+        tenant_id = merged_context.get("tenant_id")
+        cell_id = merged_context.get("cell_id")
+        if tenant_id is not None:
+            if not isinstance(tenant_id, str) or not tenant_id.strip():
+                raise ValueError("tenant_id must be a nonempty string when present")
+            if cell_id is not None and (not isinstance(cell_id, str) or not cell_id.strip()):
+                raise ValueError("cell_id must be a nonempty string when present")
+            tenant_hash = anonymize_tenant_id(tenant_id)
+            if "tenant_hash" in merged_context and merged_context["tenant_hash"] != tenant_hash:
+                raise ValueError("tenant_hash does not match the configured tenant_id")
+            transfer_context = merged_context.get("transfer_context")
+            prior_hash = (
+                transfer_context.get("tenant_hash")
+                if isinstance(transfer_context, Mapping)
+                else getattr(transfer_context, "tenant_hash", None)
+            )
+            if prior_hash is not None and prior_hash != tenant_hash:
+                raise ValueError("transfer context does not match the configured tenant_id")
+            merged_context["tenant_hash"] = tenant_hash
+        scope = (
+            tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id)
+            if tenant_id is not None
+            else nullcontext()
+        )
+        # This routes identity through the existing context, without granting access authority.
+        with scope:
+            try:
+                coordinator.build_parameter_search_spec(resolved_candidate)
+            except ValueError as exc:
+                if "No tunable policy parameters" not in str(exc):
+                    raise
+                return self._run_parameterless_search(
+                    coordinator,
+                    resolved_candidate,
+                    loop_id=loop_id,
+                    stage_b_evaluator=stage_b_evaluator,
+                    structure_validator=structure_validator,
+                    narrative_input_builder=narrative_input_builder,
+                    initial_context=merged_context,
+                )
+            return coordinator.run(
                 resolved_candidate,
                 loop_id=loop_id,
                 stage_b_evaluator=stage_b_evaluator,
+                stage_a_evaluator=stage_a_evaluator,
                 structure_validator=structure_validator,
                 narrative_input_builder=narrative_input_builder,
                 initial_context=merged_context,
             )
-        return coordinator.run(
-            resolved_candidate,
-            loop_id=loop_id,
-            stage_b_evaluator=stage_b_evaluator,
-            stage_a_evaluator=stage_a_evaluator,
-            structure_validator=structure_validator,
-            narrative_input_builder=narrative_input_builder,
-            initial_context=merged_context,
-        )
 
     def _resolve_candidate_payload(
         self,
@@ -465,7 +561,14 @@ class HierarchicalPolicySearchAdapter:
         policy_family: str | None,
         metadata: Mapping[str, Any] | None,
     ) -> PolicyCandidateSchema:
+        if (
+            isinstance(candidate, Mapping)
+            and "candidate_id" in candidate
+            and "trinity_bundle" in candidate
+        ):
+            candidate = PolicyCandidateSchema.model_validate(candidate)
         if isinstance(candidate, PolicyCandidateSchema):
+            candidate = _restore_policy_money_parameters(candidate)
             if policy_family is None and not metadata:
                 return candidate
             updated_metadata = {
@@ -475,10 +578,8 @@ class HierarchicalPolicySearchAdapter:
             if policy_family is not None:
                 updated_metadata["policy_family"] = policy_family
             return candidate.model_copy(update={"metadata": updated_metadata})
-        return self.build_candidate(
-            candidate,
-            policy_family=policy_family,
-            metadata=metadata,
+        return _restore_policy_money_parameters(
+            self.build_candidate(candidate, policy_family=policy_family, metadata=metadata)
         )
 
     def _run_parameterless_search(
@@ -522,6 +623,34 @@ class HierarchicalPolicySearchAdapter:
                     },
                 }
                 stage_b_result = stage_b_evaluator(candidate_payload, context)
+                if not isinstance(stage_b_result, Mapping):
+                    raise ValueError("Parameterless stage-B result must be a mapping")
+                evaluation = None
+                if "policy_evaluation" in stage_b_result:
+                    try:
+                        evaluation = _normalize_policy_evaluation_vector(
+                            stage_b_result["policy_evaluation"], allow_mapping=True
+                        )
+                    except (TypeError, ValueError) as exc:
+                        raise ValueError("Parameterless policy evaluation is invalid") from exc
+                    if self._pareto_registry is not None:
+                        claimed_hash = evaluation.metadata.get("candidate_hash")
+                        actual_hash = structure.candidate.candidate_hash()
+                        if (
+                            evaluation.candidate_id is not None
+                            and evaluation.candidate_id != structure.candidate.candidate_id
+                        ):
+                            raise ValueError(
+                                "Parameterless evaluation candidate subject does not match"
+                            )
+                        if "candidate_hash" in evaluation.metadata and claimed_hash != actual_hash:
+                            raise ValueError(
+                                "Parameterless evaluation candidate hash does not match"
+                            )
+                        if evaluation.candidate_id is None and claimed_hash is None:
+                            raise ValueError(
+                                "Parameterless evaluation has no candidate subject binding"
+                            )
                 state.parameter_search_results[structure.structure_id] = SearchResult(
                     search_id=f"{loop_id}:{structure.structure_id}",
                     status=SearchStatus.CONVERGED,
@@ -538,7 +667,7 @@ class HierarchicalPolicySearchAdapter:
                             stage_a_passed=True,
                             stage_b_result=stage_b_result,
                             duration_seconds=0.0,
-                            policy_evaluation=stage_b_result.get("policy_evaluation"),
+                            policy_evaluation=evaluation,
                         )
                     ],
                     stopping_reason="parameter_search_not_required",
@@ -547,6 +676,21 @@ class HierarchicalPolicySearchAdapter:
                     stage_b_evaluations=1,
                     telemetry={"parameterless_candidate": True},
                 )
+                result = state.parameter_search_results[structure.structure_id]
+                evaluation = result.history[0].policy_evaluation
+                if self._pareto_registry is not None and evaluation is not None:
+                    self._pareto_registry.update(
+                        loop_id,
+                        candidate_hash=structure.candidate.candidate_hash(),
+                        evaluation=evaluation,
+                        candidate_id=evaluation.candidate_id,
+                        policy_family=structure.policy_family,
+                        seed_payload=candidate_payload,
+                        transfer_context=resolve_transfer_context(
+                            candidate=structure.candidate, context=context, run_id=loop_id
+                        ),
+                        metadata={"structure_id": structure.structure_id},
+                    )
         if narrative_input_builder is not None:
             state.current_level = PolicySearchLevel.NARRATIVE
             bundles: list[tuple[str, Any]] = []
@@ -558,7 +702,20 @@ class HierarchicalPolicySearchAdapter:
                 bundles.append((structure.candidate_hash, bundle))
             state.narrative_variants = coordinator.run_narrative_search(bundles)
         state_payload = state.model_dump(mode="python") if hasattr(state, "model_dump") else state
-        return HierarchicalSearchResult(state=state_payload, shared_frontier=[])
+        if self._pareto_registry is None:
+            return HierarchicalSearchResult(state=state_payload, shared_frontier=[])
+        from polisyos.scientist.methods.search.pareto_registry import ParetoView
+
+        projection = self._pareto_registry.get_snapshot(loop_id).project_view(
+            ParetoView.GLOBAL_FEASIBLE
+        )
+        frontier = self._pareto_registry.as_legacy_frontier_payload(loop_id)
+        for result in state.parameter_search_results.values():
+            result.pareto_front = frontier
+            result.pareto_projection = projection
+        return HierarchicalSearchResult(
+            state=state, shared_frontier=frontier, pareto_projection=projection
+        )
 
 
 def _coerce_lex_policy_bundle_input(
@@ -647,7 +804,17 @@ class RunHierarchicalPolicySearchNode:
             inner candidate evaluation raises, otherwise `ok` with the champion
             Trinity ref and optional frontier report ref.
         """
-        candidate = _resolve_search_candidate(ctx, state)
+        try:
+            candidate = _resolve_search_candidate(ctx, state)
+        except _POLICY_SEARCH_VALIDATION_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Hierarchical policy candidate intake failed: {exc}",
+                ),
+            )
         if candidate is None:
             return NodeOutcome(
                 status="skip",
@@ -669,7 +836,11 @@ class RunHierarchicalPolicySearchNode:
                 candidate,
                 loop_id=loop_id,
                 search_config=search_config,
-                initial_context={"run_id": state.run_id},
+                initial_context={
+                    "run_id": state.run_id,
+                    "tenant_id": ctx.run.tenant_id,
+                    "cell_id": ctx.run.cell_id,
+                },
                 stage_b_evaluator=lambda candidate_payload, context: _evaluate_candidate_payload(
                     ctx,
                     state,
@@ -1060,15 +1231,107 @@ def _objective_value(
     return 0.0 if channel is None else float(channel.higher_is_better)
 
 
+def _restore_policy_money_parameters(candidate: PolicyCandidateSchema) -> PolicyCandidateSchema:
+    """Restore the declared money-parameter transport shape using its kernel DTO.
+
+    This is a bounded transport profile, not a generic ParamValue type inference
+    or a unit registry. Unrelated and non-tunable object values stay untouched.
+    """
+    original_hash = candidate.candidate_hash()
+
+    def restore_bundle(bundle: TrinityBundle) -> tuple[TrinityBundle, dict[str, Any]]:
+        policy = bundle.policy_spec
+        parameters = []
+        interventions = {item.intervention_id: item for item in policy.interventions}
+        money_by_param = {}
+        for parameter in policy.parameters:
+            default = parameter.default_value
+            declared_money = isinstance(default, MoneyValue) or (
+                isinstance(default, Mapping) and {"amount", "currency"} <= set(default)
+            )
+            if not parameter.tunable or not declared_money:
+                parameters.append(parameter)
+                continue
+            money = _restore_money_parameter_value(default)
+            basis = (money.currency, money.nominal_year)
+
+            def bound(value: Any, *, declared_basis: tuple[str, int | None] = basis) -> MoneyValue:
+                restored = _restore_money_parameter_value(value)
+                if (restored.currency, restored.nominal_year) != declared_basis:
+                    raise ValueError(
+                        "Money parameter currency/year differs from its declared basis"
+                    )
+                return restored
+
+            values = {"default_value": money}
+            for key in ("min_value", "max_value"):
+                value = getattr(parameter, key)
+                values[key] = None if value is None else bound(value)
+            intervention = interventions[parameter.intervention_id]
+            params = deepcopy(intervention.params)
+            current, present = _resolve_param_path(params, parameter.param_path)
+            if not present:
+                raise ValueError("Money parameter has no actual intervention value")
+            restored = bound(current)
+            target = params
+            parts = parameter.param_path.removeprefix("params.").split(".")
+            for part in parts[:-1]:
+                target = target[part]
+            target[parts[-1]] = restored
+            interventions[parameter.intervention_id] = intervention.model_copy(
+                update={"params": params}
+            )
+            parameters.append(parameter.model_copy(update=values))
+            money_by_param[parameter.param_id] = money
+        restored_policy = policy.model_copy(
+            update={
+                "parameters": parameters,
+                "interventions": [
+                    interventions[item.intervention_id] for item in policy.interventions
+                ],
+            }
+        )
+        return bundle.model_copy(update={"policy_spec": restored_policy}), money_by_param
+
+    bundle, money_by_param = restore_bundle(candidate.trinity_bundle)
+    schedules = []
+    for entry in candidate.parameter_schedule:
+        money = money_by_param.get(entry.param_id)
+        if money is None:
+            schedules.append(entry)
+            continue
+        scheduled = _restore_money_parameter_value(entry.scheduled_value)
+        if (scheduled.currency, scheduled.nominal_year) != (money.currency, money.nominal_year):
+            raise ValueError("Scheduled money parameter currency/year differs from its basis")
+        schedules.append(entry.model_copy(update={"scheduled_value": scheduled}))
+    fallbacks = [
+        variant.model_copy(update={"trinity_bundle": restore_bundle(variant.trinity_bundle)[0]})
+        for variant in candidate.fallback_variants
+    ]
+    restored = candidate.model_copy(
+        update={
+            "trinity_bundle": bundle,
+            "parameter_schedule": schedules,
+            "fallback_variants": fallbacks,
+        }
+    )
+    restored = PolicyCandidateSchema.model_validate(
+        {name: getattr(restored, name) for name in PolicyCandidateSchema.model_fields}
+    )
+    if restored.candidate_hash() != original_hash:
+        raise ValueError("Money parameter transport changed the canonical candidate identity")
+    return restored
+
+
 def _coerce_policy_candidate(payload: Any) -> PolicyCandidateSchema | None:
     if payload is None:
         return None
     if isinstance(payload, PolicyCandidateSchema):
-        return payload
-    try:
-        return PolicyCandidateSchema.model_validate(payload)
-    except _POLICY_SEARCH_VALIDATION_ERRORS:
-        return None
+        return _restore_policy_money_parameters(payload)
+    # Missing is optional; a present malformed rich candidate cannot select a
+    # different source or be relabeled as no candidate.
+    candidate = PolicyCandidateSchema.model_validate(payload)
+    return _restore_policy_money_parameters(candidate)
 
 
 def _coerce_lex_bundle(payload: Any) -> LexPolicyBundleInput | None:
@@ -1094,6 +1357,16 @@ def _coerce_policy_evaluation(payload: Any) -> PolicyEvaluationVector | None:
 def _candidate_payload_without_hash(payload: dict[str, Any]) -> dict[str, Any]:
     cleaned = dict(payload)
     cleaned.pop("candidate_hash", None)
+    # The native parameter generator retains this technical envelope in history.
+    # Only its exact empty semantic payload can be projected into a policy DTO.
+    if "semantic" in cleaned:
+        if cleaned["semantic"] != {"interventions": []}:
+            raise ValueError("Native policy candidate has meaningful or unknown semantic fields")
+        cleaned.pop("semantic")
+    if "_strategy_metadata" in cleaned:
+        if not isinstance(cleaned["_strategy_metadata"], dict):
+            raise ValueError("Native policy candidate strategy metadata must be a mapping")
+        cleaned.pop("_strategy_metadata")
     return cleaned
 
 

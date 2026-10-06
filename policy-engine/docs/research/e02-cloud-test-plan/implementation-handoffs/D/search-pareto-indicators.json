@@ -1,0 +1,174 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-pareto-indicators",
+  "finding_ids": [
+    "B108",
+    "B109",
+    "B110",
+    "B111"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "OPT-01"
+  ],
+  "slice_base_sha": "2c2bf1f0f0ef1a0c699764b59138f6696f353a38",
+  "published_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "12ee3c730f6ac9b6cff292e70eef4437f8c37b22"
+  ],
+  "candidate_tree_sha": "2229e35bd74f80baffee0a63da4d38a76f062dff",
+  "branch": "codex/e02-D-published-search",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-frontier-dependency.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-patch-apply-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-unapplied-hypervolume-export.patch",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-baseline-198.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-pareto-indicators.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/tests/unit/remediation/test_opt_01_hypervolume_consumers.py"
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Finite membership/typed indicator representability and supported disk-reader profile; actual A supplier/export failure remains explicit",
+  "environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "PYTHONPATH": "src:."
+  },
+  "checks": [
+    {
+      "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+      "outcome": "PASS",
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_opt_01_hypervolume_consumers.py tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/search/test_pareto_transfer.py tests/unit/scientist/methods/search/test_objective.py tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "source_execution": "immutable git archive; actual module origins in full output",
+      "deciding_output": "67 passed, 2 warnings in 9.43s",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-12ee.txt",
+      "sha256": "336581ad339f62fde5ef4db6d257fcf829314a9d0d4c5ed20b86534b84ed7639",
+      "bytes": 1507
+    },
+    {
+      "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+      "outcome": "FAIL_DECLARED_DEPENDENCY",
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py",
+      "deciding_output": "2 failed, 2 warnings in 9.65s",
+      "failure_meaning": [
+        "A builder metadata omits typed unavailable assessment; actual CAS read retains null scalar but loses reason.",
+        "A builder copies registry eligible IDs into its source-feasible denominator without the required independent run/tenant/cell supplier."
+      ],
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency-12ee.txt",
+      "sha256": "9b07286b3bee5d65cfe0911e7f8d6ab2691cd10588d9758d4fa98428191ac977",
+      "bytes": 4231
+    },
+    {
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "FAIL",
+      "scope": "new ten defining consumers on immutable original published base",
+      "deciding_output": "4 failed, 6 passed, 1 warning in 0.56s",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-baseline-198.txt",
+      "sha256": "fba3b304706908be35e3c2fd091070e0905b44bae05a319f2097549c4f7a5eb3",
+      "bytes": 13375
+    },
+    {
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "PASS_APPLY_CHECK_ONLY",
+      "command": "git apply --check A-unapplied-hypervolume-export.patch on complete isolated base archive",
+      "deciding_output": "EXIT_CODE=0; PATCH_NOT_APPLIED=true",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-patch-apply-check.txt",
+      "sha256": "4585d1f922e5ee19370c3a0cb5efed1147ee6824979559e22bfec35750437377",
+      "bytes": 335
+    }
+  ],
+  "inputs_and_oracle": {
+    "metric_axes": [
+      "policy_value",
+      "employment"
+    ],
+    "directions": [
+      "maximize",
+      "maximize"
+    ],
+    "finite_extremes": [
+      -1e+308,
+      1e+308
+    ],
+    "actual_candidate_ids": "two distinct complete sha256 IDs",
+    "canonical_membership": "higher point strictly dominates lower; complete finite original coordinates survive JSON/disk/VOI readers",
+    "known_schema_controls": [
+      "1.0",
+      "2.0"
+    ],
+    "unknown_profile_controls": [
+      "3.0",
+      "0.0",
+      null,
+      true,
+      1.0
+    ],
+    "negative_controls": [
+      "retain membership and unavailable markers but replace null with0/Inf ->refuse",
+      "observed axis union without configured basis ->rank empty/unassessed",
+      "catalog union hypervolume ->null with catalog_union_not_recomputed"
+    ],
+    "existing_native_oracle": "fresh small direct quadratic Pareto comparator, mixed directions/ties/full coordinate identity, alias/conflict/nonfinite objective cases; exact original native tests reused, no accepted historical PASS inherited",
+    "seeds": "new scalar/disk fixtures deterministic, no random source inputs; existing native fixtures as pinned test bytes"
+  },
+  "property": "Nonfinite derived hypervolume is null+typed limitation independent of finite membership; registry readers refuse unsupported profiles; catalog unions do not inherit a single loop indicator.",
+  "A_dependency_contract": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-frontier-dependency.json",
+    "proposed_patch": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-unapplied-hypervolume-export.patch",
+      "sha256": "5cdf3b7cdbb2f1cebe365eda4e4a56e5f6af0090d7c3cd6606828fed2d51918a",
+      "bytes": 750
+    },
+    "status": "UNAPPLIED; independent provider ABSENT; runtime recipe FAIL",
+    "next_owner": "A canonical producer/builder and G intake"
+  },
+  "limitations_and_next_owner": [
+    "The existing hypervolume algorithm and its higher-dimensional approximation are preserved; no new exact high-dimensional volume convention is asserted.",
+    "A output reason propagation and independent source eligibility/unknown denominator are engineering dependencies, not relabeled as mere local data debt.",
+    "B108 typed admissible units and actual served deficit caller remain unavailable; finite alias fixtures are conditional on supplied units, not a guessed mapping.",
+    "B110 accepted historical selector reconciliation/four-base replay is a G acceptance task, not completed by this candidate test run.",
+    "Technical snapshot basis_ref declarations do not prove actual institutional source truth/authorization or production completeness."
+  ],
+  "diagnostic_outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate.txt",
+      "sha256": "0bcdd9e1783d39a53758f45ac37f780b002670533aecfc59afc998dee1c2ae2d",
+      "bytes": 3330,
+      "predicate_basis": "not_established",
+      "scope": "intermediate uncommitted exact source identity not captured"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate-2.txt",
+      "sha256": "24ee80ad0e1a2008fa0fb72343c00f69552e711400f6146e96228b9a49e9331c",
+      "bytes": 2344,
+      "predicate_basis": "not_established",
+      "scope": "intermediate uncommitted exact source identity not captured"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-final.txt",
+      "sha256": "5c36641fb4622f4708d2c4638dda58ee9369c66bf4594d1fa83382162cb9d35a",
+      "bytes": 666,
+      "predicate_basis": "not_established",
+      "scope": "intermediate uncommitted exact source identity not captured"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency.txt",
+      "sha256": "6ad33731b6cc349345e12d4e0834833f68ae4e26cb078d28ebb136d58019c2ab",
+      "bytes": 3522,
+      "predicate_basis": "not_established",
+      "scope": "intermediate uncommitted exact source identity not captured"
+    }
+  ]
+}

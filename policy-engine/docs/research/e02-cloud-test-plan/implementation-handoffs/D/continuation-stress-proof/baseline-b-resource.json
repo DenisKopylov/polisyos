@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+    "-q",
+    "--basetemp",
+    "/dev/shm/e02-D-STR-baseline-20261006-b",
+    "--junitxml=/workspace/e02-D3-receipts/stress/baseline-b-junit.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 20.282620114987367,
+  "max_rss_kib": 1217624,
+  "source_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203"
+}

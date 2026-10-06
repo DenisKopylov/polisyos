@@ -1,0 +1,8 @@
+type = "fixed"
+summary = "Refuse boolean and unrepresentable scalar fiscal aliases and history measurements before numerical comparison instead of treating them as measured zero or raising an uncaught overflow."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "execution-contract"
+compatibility = "Declared primary/null/zero/alias/conflict/sign semantics and existing numeric text remain supported; boolean measurements are unavailable."
+migration = "Provide finite measured scalar values. Existing objective and evaluation invalid-outcome status propagates to the caller; no fabricated scalar substitute is added."
+limitations = "This technical numeric intake does not define fiscal units or verify institutional economic source truth."

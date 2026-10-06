@@ -1,0 +1,278 @@
+{
+  "schema": "polisyos.e02.independent_final_corrective_wave_handoff.v1",
+  "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "review_scope": "Independent read-only final corrective broad capture, exact carrier bindings, phase/identity denominator, source/input integrity and bounded historical target compatibility",
+  "proof_commit": "8f3d5585f0102a05f59b71fddc6d154bd74c6fd1",
+  "proof_tree": "4e5c9df1db22eda9ac3434159974fb9be6e745d0",
+  "proof_parent": "8c0970e164bc427cc1a223922018dcaa50b5ca6e",
+  "proof_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/README.md",
+      "git_blob": "d084aa91e4d5168b1708a74abf7704f3091e5a56",
+      "bytes": 2181,
+      "sha256": "f14d733ef5a306ffa80f8c4e3055175989b3cf81eb4db2c6bb6f2ac62c486e98",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/carrier-audit.py.txt",
+      "git_blob": "0bd1882335fb19d214a29d2db9e2ccec6e699cab",
+      "bytes": 8121,
+      "sha256": "edd0fdefd60bdc45d4eee1de169de1fc727f2151dac380af790272d4e5c7f930",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/carrier-binding-review.json",
+      "git_blob": "2cdb07997ba7ea1d551762fbf5ca55e2b790cca6",
+      "bytes": 8464,
+      "sha256": "d4bb35573ba52ce36f4a6462ec409bc735899d0917509ee2439b08a70de0d1e5",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/partial-audit-wrapper.py.txt",
+      "git_blob": "f5fcb0d78da95c50c71a240c0ba270bc74c2437f",
+      "bytes": 3974,
+      "sha256": "c909f0f3755e699ec970c3d9a4fca246abb4a7e5c7112769c8fe97b3db8427a2",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/partial-runtime-review.json",
+      "git_blob": "185e0d253c11957da9488d084e4ab886a9dbebfa",
+      "bytes": 13574,
+      "sha256": "d5e619671676570d383e32232ff73edc633350eef4cc292254910bd8838ea030",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/preparation-record.json",
+      "git_blob": "fad9cde5232ad7fd7668b4b1ce71fb95f9be2cac",
+      "bytes": 1049,
+      "sha256": "e75e7018df8113b42d85211660d0539a93f01b924173f7e317b811330ad819da",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/targeted-compatibility-original-draft.py.txt",
+      "git_blob": "90fa4ea73ef6e93a317cf01d977db729aeb6a7bc",
+      "bytes": 4781,
+      "sha256": "bc9e070f3fa80e0f645de9c4aee0ea00194e21106023569076fbeb2ff653c9f9",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/targeted-compatibility.py.txt",
+      "git_blob": "cec83a6bb971f37f97236357293290d5b57b9d95",
+      "bytes": 4911,
+      "sha256": "efd6da09dccf87efcf123a85519b1f0409455adec959df6e5839216ea7b357ed",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/targeted-source-compatibility.json",
+      "git_blob": "a1152b431935dbf43a688a3b637e587da114368d",
+      "bytes": 9719,
+      "sha256": "6dad2d7a002dda200a091cfdc4dcf6d7aa4b17475ee3f400c3e9697f1763927a",
+      "raw_blob_readback": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/verdict.json",
+      "git_blob": "81399c6d1077e3db1292de0e24a4b75958742858",
+      "bytes": 5188,
+      "sha256": "2790b4a2c20070f91661a08515827e944b1bfb57d3a8fa4acda1b73ce459c0d7",
+      "raw_blob_readback": "MATCH"
+    }
+  ],
+  "proof_file_count": 10,
+  "proof_total_bytes": 61962,
+  "declared_decision": {
+    "whole_wave": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "all_recorded_cases_UNRUN": 1249,
+    "completed_collection_event": false,
+    "case_start": 0,
+    "case_report": 0,
+    "case_finish": 0,
+    "session_finish": 0,
+    "recorded_unique_ids": 1249,
+    "module_collection_skips_native_UNRUN": 15,
+    "observed_assertion_failures": 0,
+    "assertion_failure_classes": {},
+    "JUnit": "MISSING_INCOMPLETE_UNRUN",
+    "observer_summary": "MISSING_INCOMPLETE_UNRUN",
+    "child": {
+      "pid": 450477,
+      "exit": -9,
+      "signal": 9,
+      "wall_seconds": 85.5190040430025,
+      "maxrss_KiB_linux": 540448
+    },
+    "cause_scope": "SIGKILL was observed; global memory counters do not establish PID-specific cause",
+    "zero_failures_is_PASS": false,
+    "numeric_backend_acceptance": "UNRUN",
+    "P41": "not_established",
+    "formal_closed": 0,
+    "G_accepted": false,
+    "closure_ids": []
+  },
+  "exact_capture": {
+    "carrier_commit": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+    "carrier_tree": "2118de2cda05638a91c428886621057d32d18fe6",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+    "bytes": 783012,
+    "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88",
+    "member_count": 13,
+    "original_raw_bytes": 5395382,
+    "all_original_regular_files": "MATCH",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/manifest.json",
+    "manifest_bytes": 2669,
+    "manifest_sha256": "b3d3aec3484166ba24504ab50348d6ebd50636b961a93ca2e84ed6b35fc66d4b",
+    "collection_ids": {
+      "member_pointer": "/members/2/data",
+      "unique": 1249,
+      "count_scope": "Artifact was written before the observer collection-finish census; no collection_complete event exists"
+    },
+    "deciding_cells": {
+      "before": "/members/1/data",
+      "after": "/members/0/data",
+      "events": "/members/5/data",
+      "manifest": "/members/6/data",
+      "result": "/members/9/data",
+      "recorded_ids": "/members/2/data"
+    },
+    "transport_integrity": "PASS_WITHIN_EXACT_CAPTURE_SCOPE",
+    "runtime_pass": false
+  },
+  "original_inputs": {
+    "source_root": "/workspace/e02-D-published-root",
+    "capture": "/tmp/e02-D-final-root-wave-258a6c89-20261006",
+    "command": "python3 /tmp/e02-D-broad-wave-final.py --python /tmp/e02-D-runtime-minimal-20261006/bin/python --run",
+    "canonical_plan_counts": {
+      "canonical_commands": 17,
+      "canonical_raw_selectors": 53,
+      "canonical_unique_paths": 38,
+      "changed_test_inputs": 79,
+      "changed_pytest_files": 73,
+      "unique_union_selectors": 100,
+      "non_pytest_probes": 4,
+      "worker_helpers": 2
+    },
+    "extra_selectors": [],
+    "inherited_numeric_caps_and_addopts": {},
+    "snapshot": {
+      "captured_Git_inputs": 5568,
+      "all_tracked_src_python": 2701,
+      "all_tracked_tests_python": 2860,
+      "source_input_discrepancies": 0,
+      "before_after_files_equal": true,
+      "external_inputs_equal": true,
+      "git_state_equal": true,
+      "clean": true
+    },
+    "observed_origins": {
+      "main_process_product_unique_paths": 1366,
+      "exec_and_census_rows": 2732,
+      "Git_discrepancies": 0,
+      "scope": "Partial main-process observations only; no final census or subprocess provenance enforcement"
+    },
+    "existing_measurement_helpers": {
+      "binding_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/carrier-binding-review.json",
+      "copies_added": false
+    },
+    "previous_partial_verifier": {
+      "source_sha": "2fa4074df4e2aee923cb3b233dbe8f9963884b84",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/partial-audit.py.txt",
+      "sha256": "91d8f13791eef486362d258f62e8c91f91cde1e47a623797db2cb3015cd4dfe2"
+    }
+  },
+  "environment": {
+    "Python": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "profile": "Genuine148 locked core/runtime/test minimal profile",
+    "Python_version": "3.14.7",
+    "actually_absent_optional_packages": [
+      "torch",
+      "botorch",
+      "gpytorch",
+      "hnswlib",
+      "SALib"
+    ],
+    "configure_sample": {
+      "numpy": "2.3.5 (loaded)",
+      "scipy": "1.16.3 (not loaded at configure)",
+      "pytest": "9.0.2 (loaded)"
+    },
+    "final_backend_census": "UNRUN",
+    "existing_profile_receipt": {
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "bytes": 11996,
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859"
+    },
+    "native_fitting_or_statistical_history_equivalence": "No claim"
+  },
+  "historical_target_compatibility": {
+    "review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/targeted-source-compatibility.json",
+    "property": "All production Python and specifically listed selected test/config input blobs match the final source",
+    "scopes": [
+      "optional38",
+      "paid_cache13",
+      "stress57",
+      "root44"
+    ],
+    "source_pin_qualifier": "Each prior actual runtime source is retained in the review; source identity equality does not supply new execution, a full historical conftest proof or aggregate PASS",
+    "new_or_inherited_aggregate_PASS": false,
+    "old_source_failures_and_limits_preserved": true,
+    "native_GP26_replayed": false
+  },
+  "verification_cells": {
+    "partial_audit": {
+      "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/partial-audit-wrapper.py.txt",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/partial-runtime-review.json",
+      "type": "Executed independent metadata-only verifier"
+    },
+    "carrier_audit": {
+      "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/carrier-audit.py.txt",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/carrier-binding-review.json",
+      "type": "Executed independent metadata-only verifier"
+    },
+    "compatibility": {
+      "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/targeted-compatibility.py.txt",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/targeted-source-compatibility.json",
+      "type": "Executed static immutable Git comparison"
+    },
+    "preparation_errors": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-258-independent/preparation-record.json",
+      "scope": "Retained metadata-only errors; no product/runtime/backend verdict"
+    }
+  },
+  "publication": {
+    "repository": "DenisKopylov/polisyos",
+    "branch": "codex/e02-D-published-oracle",
+    "method": "Git API existing topic branch append-only commit and leased update_ref force=false",
+    "expected_proof_parent": "8c0970e164bc427cc1a223922018dcaa50b5ca6e",
+    "expected_receipt_parent": "8f3d5585f0102a05f59b71fddc6d154bd74c6fd1",
+    "proof_readback": {
+      "branch": "MATCH",
+      "commit_parent": "MATCH",
+      "tree": "MATCH",
+      "directory_entries": 10,
+      "all_raw_blobs": "MATCH"
+    },
+    "local_checkout": {
+      "path": "/workspace/e02-D-published-oracle",
+      "HEAD": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+      "status_porcelain": "",
+      "HEAD_advanced": false
+    },
+    "normal_native_hooks_or_push_claimed": false,
+    "root_writes": false,
+    "production_or_test_writes": false,
+    "new_backend_execution": false,
+    "children": false,
+    "caps_added": false,
+    "permanent_deletion": false,
+    "receipt_final_ref_readback": "Verified after this separate commit; retained original local publication report provides exact receipt SHA/tree/branch"
+  },
+  "limitations": [
+    "No full collection/session verdict, case phase completion, JUnit or final summary. All1,249 recorded cases remain UNRUN.",
+    "The15 observed module skips are native UNRUN and are not added to testcase identities or interpreted as numerical PASS.",
+    "Main-process source/integrity matching cannot establish subprocess native behavior or actual model fitting.",
+    "The original historical targeted results stay bound to prior actual source/environment/denominator/custody limitations, including individually uncaptured root44 helper scope.",
+    "Formal closure remains0 and G acceptance false; P41 is not_established. This review does not replace original45/46 criteria or the root ledger.",
+    "No test/backend rerun, numerical kernel/posterior calculation, dependency install, code change or cleanup was performed."
+  ]
+}

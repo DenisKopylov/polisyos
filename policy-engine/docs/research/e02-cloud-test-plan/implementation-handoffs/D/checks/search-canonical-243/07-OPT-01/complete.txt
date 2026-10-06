@@ -1,0 +1,246 @@
+..F..................F..FF...F.......................................... [ 96%]
+...                                                                      [100%]
+=================================== FAILURES ===================================
+_ TestParetoFront.test_unassessed_candidate_cannot_be_reported_as_not_dominated _
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f69cb56f100>
+
+    def test_unassessed_candidate_cannot_be_reported_as_not_dominated(self):
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        front = promoter.compute_front([_eval(acc=0.9, speed=0.8)])
+    
+>       for candidate in (_eval(acc=0.5), _eval(acc=0.5, speed=math.inf)):
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_pareto.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+loop_id = 'loop1', metrics = {'acc': 0.5, 'speed': inf}
+
+    def _eval(loop_id: str = "loop1", **metrics: float) -> BenchmarkEvaluation:
+>       return BenchmarkEvaluation(
+            loop_id=loop_id,
+            suite_id="suite1",
+            candidate_ref=_ref(),
+            holdout_metrics=metrics,
+            promotable=True,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for BenchmarkEvaluation
+E       speed
+E         Input should be a finite number [type=finite_number, input_value=inf, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/finite_number
+
+tests/unit/scientist/methods/autotune/test_pareto.py:37: ValidationError
+_ TestParetoFront.test_empty_and_invalid_front_preserves_schema_as_incomplete __
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f69cb3941d0>
+
+    def test_empty_and_invalid_front_preserves_schema_as_incomplete(self):
+        """Empty producer output retains known coordinates with an incomplete state."""
+        # Catches the production mutation that returns a fresh empty schema and
+        # discards the promoter's known coordinate contract for no valid rows.
+        promoter = ParetoPromoter(_policies("score"))
+        complete = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+        expected_coordinates = complete["coordinate_schema"]["coordinates"]
+    
+>       for evaluations in ([], [_eval(score=math.nan)]):
+                                 ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_pareto.py:505: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+loop_id = 'loop1', metrics = {'score': nan}
+
+    def _eval(loop_id: str = "loop1", **metrics: float) -> BenchmarkEvaluation:
+>       return BenchmarkEvaluation(
+            loop_id=loop_id,
+            suite_id="suite1",
+            candidate_ref=_ref(),
+            holdout_metrics=metrics,
+            promotable=True,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for BenchmarkEvaluation
+E       score
+E         Input should be a finite number [type=finite_number, input_value=nan, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/finite_number
+
+tests/unit/scientist/methods/autotune/test_pareto.py:37: ValidationError
+_ TestParetoFront.test_non_finite_and_missing_metrics_are_excluded_from_numeric_front _
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f69cb53a970>
+
+    def test_non_finite_and_missing_metrics_are_excluded_from_numeric_front(self):
+        """Unusable metrics cannot become infinite best/worst Pareto values."""
+        # Catches the production mutation that maps missing/non-finite values
+        # to +/-infinity and lets them affect dominance or hypervolume.
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        valid = _eval(acc=0.9, speed=0.8)
+>       invalid_nan = _eval(acc=math.nan, speed=0.9)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_pareto.py:549: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+loop_id = 'loop1', metrics = {'acc': nan, 'speed': 0.9}
+
+    def _eval(loop_id: str = "loop1", **metrics: float) -> BenchmarkEvaluation:
+>       return BenchmarkEvaluation(
+            loop_id=loop_id,
+            suite_id="suite1",
+            candidate_ref=_ref(),
+            holdout_metrics=metrics,
+            promotable=True,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for BenchmarkEvaluation
+E       acc
+E         Input should be a finite number [type=finite_number, input_value=nan, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/finite_number
+
+tests/unit/scientist/methods/autotune/test_pareto.py:37: ValidationError
+_ TestParetoFront.test_mixed_objective_coverage_is_typed_and_keeps_finite_front _
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f69cb54aed0>
+
+    def test_mixed_objective_coverage_is_typed_and_keeps_finite_front(self):
+        """Omitted inputs retain provenance while complete rows still form a front."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        best = _eval(acc=0.9, speed=0.8)
+        dominated = _eval(acc=0.8, speed=0.7)
+        missing = _eval(acc=0.7)
+>       non_finite = _eval(acc=0.8, speed=math.inf)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_pareto.py:568: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+loop_id = 'loop1', metrics = {'acc': 0.8, 'speed': inf}
+
+    def _eval(loop_id: str = "loop1", **metrics: float) -> BenchmarkEvaluation:
+>       return BenchmarkEvaluation(
+            loop_id=loop_id,
+            suite_id="suite1",
+            candidate_ref=_ref(),
+            holdout_metrics=metrics,
+            promotable=True,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for BenchmarkEvaluation
+E       speed
+E         Input should be a finite number [type=finite_number, input_value=inf, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/finite_number
+
+tests/unit/scientist/methods/autotune/test_pareto.py:37: ValidationError
+_ TestParetoFront.test_duplicate_invalid_candidate_refs_keep_distinct_input_positions _
+
+self = <tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f69cb52b930>
+
+    def test_duplicate_invalid_candidate_refs_keep_distinct_input_positions(self) -> None:
+        """Repeated evaluation identity is legal when positions are distinct."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        finite = _eval(acc=0.9, speed=0.8)
+>       invalid = _eval(acc=math.nan, speed=0.7)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_pareto.py:645: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+loop_id = 'loop1', metrics = {'acc': nan, 'speed': 0.7}
+
+    def _eval(loop_id: str = "loop1", **metrics: float) -> BenchmarkEvaluation:
+>       return BenchmarkEvaluation(
+            loop_id=loop_id,
+            suite_id="suite1",
+            candidate_ref=_ref(),
+            holdout_metrics=metrics,
+            promotable=True,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for BenchmarkEvaluation
+E       acc
+E         Input should be a finite number [type=finite_number, input_value=nan, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/finite_number
+
+tests/unit/scientist/methods/autotune/test_pareto.py:37: ValidationError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_two_objective_front
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_dominated_candidate
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_three_dimensional_same_first_group_uses_local_strict_dominance[points0-expected_indices0]
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_three_dimensional_same_first_group_uses_local_strict_dominance[points1-expected_indices1]
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_three_dimensional_minimize_direction_keeps_lower_raw_cost
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_empty_evaluations
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_single_objective
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_non_dominated_on_empty_front
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_requires_at_least_one_policy
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_two_objective_front_preserves_duplicate_ties
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_coordinate_identity_keeps_split_unit_and_direction
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_single_axis_identity_preserves_split_and_direction_without_unit
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_single_axis_identity_distinguishes_absent_and_present_unit
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_coordinate_schema_round_trips_and_labels_reference_point
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_tampered_coordinate_id_is_rejected
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_complete_v1_payload_has_exact_coordinate_and_reference_keys
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_duplicate_full_coordinate_is_rejected
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices0]
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices1]
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_validated_input_assessment_cannot_gain_an_omission_after_validation
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_invalid_reference_point_does_not_emit_non_finite_hypervolume
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_fast_front_matches_independent_slow_oracle[metric_names0-points0]
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_fast_front_matches_independent_slow_oracle[metric_names1-points1]
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_fast_front_matches_independent_slow_oracle[metric_names2-points2]
+PASSED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_three_objective_front_matches_slow_reference
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions0]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions1]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions2]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions3]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions4]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions5]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions6]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions7]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions8]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions9]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions10]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions11]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions12]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions13]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions14]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions15]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions16]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions17]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions18]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions19]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions20]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions21]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions22]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions23]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions24]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions25]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions26]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions27]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions28]
+PASSED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions29]
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_observed_axes_without_configured_basis_cannot_create_rank
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_actual_disk_reader_refuses_unsupported_schema_profile[3.0]
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_actual_disk_reader_refuses_unsupported_schema_profile[0.0]
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_actual_disk_reader_refuses_unsupported_schema_profile[None]
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_actual_disk_reader_refuses_unsupported_schema_profile[True]
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_actual_disk_reader_refuses_unsupported_schema_profile[1.0]
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_known_historical_finite_schema_reader_remains_supported[1.0]
+PASSED tests/unit/scientist/methods/search/test_hypervolume_limitations.py::test_known_historical_finite_schema_reader_remains_supported[2.0]
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_unassessed_candidate_cannot_be_reported_as_not_dominated
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_empty_and_invalid_front_preserves_schema_as_incomplete
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_non_finite_and_missing_metrics_are_excluded_from_numeric_front
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_mixed_objective_coverage_is_typed_and_keeps_finite_front
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_duplicate_invalid_candidate_refs_keep_distinct_input_positions
+5 failed, 70 passed, 2 warnings in 8.89s

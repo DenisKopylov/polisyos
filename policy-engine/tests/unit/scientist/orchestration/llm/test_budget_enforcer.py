@@ -4,17 +4,23 @@ from __future__ import annotations
 
 import asyncio
 from decimal import Decimal
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetLimit, BudgetState
+
+from polisyos.scientist.orchestration.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 
 
 def _make_response_mock(prompt_tokens: int = 100, completion_tokens: int = 50):
-    """Create a mock LLM response with usage data."""
-    response = MagicMock()
-    response.usage = MagicMock()
+    """Create an SDK-shaped response with only explicitly declared fields."""
+    response = SimpleNamespace()
+    response.usage = SimpleNamespace()
     response.usage.prompt_tokens = prompt_tokens
     response.usage.completion_tokens = completion_tokens
     response.usage.total_tokens = prompt_tokens + completion_tokens
@@ -411,12 +417,14 @@ class TestLLMBudgetEnforcer:
         assert len(release_calls) >= 1
 
     @pytest.mark.asyncio
-    async def test_releases_reservation_when_task_is_cancelled(self):
+    async def test_caller_cancellation_retains_live_producer_reservation(self):
         started = asyncio.Event()
+        release = asyncio.Event()
 
         async def _generate(**kwargs):
             started.set()
-            await asyncio.Future()
+            await release.wait()
+            return _make_response_with_provider_cost(cost_usd=0.6)
 
         client = AsyncMock()
         client.generate.side_effect = _generate
@@ -442,6 +450,10 @@ class TestLLMBudgetEnforcer:
                 await task
 
         assert budget_state.spent.get("run", Decimal(0)) == Decimal(0)
+        assert budget_state.reserved["run"] == Decimal("0.4")
+        release.set()
+        await asyncio.gather(*list(enforcer._owned_calls))
+        assert budget_state.spent["run"] == Decimal("0.6")
         assert budget_state.reserved.get("run", Decimal(0)) == Decimal(0)
 
     @pytest.mark.asyncio

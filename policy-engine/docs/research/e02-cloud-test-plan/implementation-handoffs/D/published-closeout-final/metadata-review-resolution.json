@@ -1,0 +1,20 @@
+{
+  "schema": "e02.D.metadata_review_resolution.v1",
+  "reviewed_payload": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+  "runtime_candidate": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "review_verdict_for_old_payload": "CORRECTIONS_REQUIRED",
+  "corrections": [
+    {
+      "pointer": "/quality/ruff108/scope",
+      "resolved_value": "108 changed existing Python files in the complete frozen target list, including tracked handoff probes; archived .py.txt measurement artifacts excluded"
+    },
+    {
+      "pointer": "/limitations/3",
+      "resolved_value": "No reviewer CPU/process/test-worker quota was added in the final reported executions. The earlier neural test-level torch.set_num_threads(1) profile deviation was removed in83889657e13d37fe11e048c5298b2f8c64044c08; original capped receipts and the independent7 uncapped replay remain disclosed. Actual reclaim/cgroup events and exact-owned terminations are recorded without per-PID causal claims."
+    }
+  ],
+  "other_delta": "Read-only exact83 cleanup candidates from19 tracked owner receipts; source/test/runtime results unchanged. Candidate list is preservation review only, not authority to delete.",
+  "source_test_delta": [],
+  "predicate_basis": "recomputed",
+  "scope": "Actual metadata correction only; independent successor review is separate."
+}

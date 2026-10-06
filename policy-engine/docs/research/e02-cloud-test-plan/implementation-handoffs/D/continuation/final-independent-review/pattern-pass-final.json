@@ -1,0 +1,122 @@
+{
+  "schema": "policyos.e02.independent_pattern_disposition.v1",
+  "unit": "D",
+  "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "source_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "patterns": {
+    "P01": {
+      "disposition": "PARTIAL_CHAIN_VERIFICATION",
+      "evidence": "Native factory, real CAS state/frontier, configured transfer and actual funnel/B-ledger consumers have bounded immutable receipts. Five positives and current B decoder/final wave remain unresolved.",
+      "falsifier": "Remove ordinary bridge or settlement while keeping typed markers/tracecost: consumer must fail; import and persisted-state existence alone cannot pass.",
+      "residual": "A ordinary frontier/served hierarchical caller and five actual original positive inputs remain separate missing producer/authority edges.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P02": {
+      "disposition": "BOUNDED_BRIDGES_PRESENT_FINAL_EXECUTION_PENDING",
+      "evidence": "Existing SearchConfig.transfer_manager/fingerprint configures WarmStartBridge; native runner uses NativeSearchService; actual resource response/receipt flows to funnel and stopping.",
+      "falsifier": "Remove configured bridge/default native caller/same-owner forwarding with labels intact; actual training corpus/history/frontier/debit must cease and the respective consumer fail.",
+      "residual": "Actual A default frontier provider/export and appointed served hierarchical context are not established.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P05": {
+      "disposition": "BOUNDARIES_EXPLICIT_AUTHORITY_POSITIVES_HELD",
+      "evidence": "Provider-reported versus estimated/cache/recorded accounting retained; controller budget_evidence explicitly denies receipt revision/provider-origin. Numeric metadata, technical champion and callback/bool markers confer no institutional authority.",
+      "falsifier": "Fake an owner/permit/ref label without actual verified content/current writer admission; effect/training authority must not increase.",
+      "residual": "Real tenant/split reuse, evidence revalidation, sample law, refinement law and permit issuer positives remain held.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P09": {
+      "disposition": "OWNED_RESIDUALS_NO_GREEN_WARNING_SUBSTITUTION",
+      "evidence": "Current B120 FAIL, direct-model format FAIL, incomplete killed waves and requested-owner packets retain concrete causes/scopes. Missing thresholds/units/unknown outcomes propagate typed unavailable/partial rather than established scores.",
+      "falsifier": "Leave warning/status labels unchanged while removing threshold, basis or settlement; downstream robustness/cost/terminal status cannot stay established.",
+      "residual": "G must appoint/adjudicate the requested owner contracts; this review supplies no waiver or automatic acceptance.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P10": {
+      "disposition": "BOUNDED_SEMANTIC_EVIDENCE_RETAINED_NOT_FULL_PASS",
+      "evidence": "Independent analytic GP mean/full covariance, box-union geometry, actual fresh ledger/CAS/readers, temporal partial and cancellation cleanup negatives test effects. AST/inventory and field existence are diagnostic only.",
+      "falsifier": "Preserve state/profile/assessment/ref markers while removing conditioning, exact union, settlement, temporal admission or primary-error preservation; the matching actual oracle must fail.",
+      "residual": "No final composed semantic run or unreceived actual native scientific/authority positive is claimed.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P14": {
+      "disposition": "LINEAGE_AND_PHYSICAL_EVENT_DENOMINATORS_PRESERVED",
+      "evidence": "Original lesson evidence dedup precedes quotas but newer substantive created_at remains distinct; GP row IDs distinguish replicas; physical provider events count once across keys/stages and observed scenario fraction is not population probability.",
+      "falsifier": "Present one evidence row via both local/transfer or same paid event twice; quota/confidence/physical charge cannot double. Distinct replicas/new evidence remain eligible.",
+      "residual": "No population independence, invoice truth or authorized new revalidation law is invented.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P27": {
+      "disposition": "CANONICAL_PLACEMENT_RETAINED",
+      "evidence": "D extends existing search/autotune/lesson/vector/funnel/controller owners. B canonical CAS/ledger/middleware/Gateway/cache and E DOE changes are supplier history, not a second D ledger/GP/authority subsystem.",
+      "falsifier": "Trace ordinary caller against configured canonical owner; a parallel latest registry/ledger or substitute GP would break exact owner/ref/consumer checks.",
+      "residual": "B decoder, durable multi-key/public snapshot/API/history and E mutable-cardinality disposition require canonical owner work; D cannot declare those implemented.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P29": {
+      "disposition": "REAL_RUN_RECEIPTS_QUALIFIED_NO_SELF_ATTESTED_CLOSURE",
+      "evidence": "Exact complete old runtime carriers/origins and marker-preserving removals are retained; actual8c observer1052 byte matches only proves provenance. Four standalone probes and final broad assertions remain UNRUN.",
+      "falsifier": "Delete the semantic property while retaining markers or corrupt raw ref/content; effect-based oracle must fail. A PASS receipt shape or imported backend cannot replace execution.",
+      "residual": "Final deciding tests/quality checks absent; no package PASS/fresh full replay/617-old-execution reuse.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P32": {
+      "disposition": "EXACT_REF_AND_RECEIPT_INTAKE_BOUNDED_AUTHORITY_HELD",
+      "evidence": "Qualified immutable ArtifactRef/manifest/data binding and reopened B receipts replace field/class/marker shortcuts. Bool/callback promotion is denied without a real permit owner.",
+      "falsifier": "Keep same ref/receipt/permit label while changing content, split, owner, scope, context or revocation; numeric transfer/free reuse/write must refuse.",
+      "residual": "Technical content custody is not scientific legality or write authority; B164 valid owner-issued positive is UNRUN.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P35": {
+      "disposition": "COMPLETE_CENSUS_RECOMPUTED",
+      "evidence": "All45 IDs/46 original occurrences/17bundles and282 finding-owner/127bundle-owner full rows reconciled; final815delta paths=64src+74tests+677other, all74 changed test paths included. Final selector99/68pytestfiles/17canonical commands;1052 actual module execution events independently Git-bound.",
+      "falsifier": "Add a changed test/criterion/source input omitted from the complete Git walk: count/membership checks must report mismatch rather than generalize from query/index summary.",
+      "residual": "493 declared test functions/2257 literal asserts are static census, not runtime case counts or adequacy; no missing backend/suite absence is inferred from imports.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P37": {
+      "disposition": "PREDICATE_BASIS_FROZEN_FAIL_CLOSED",
+      "evidence": "Original byte bindings/source census recomputed; old actual outputs independently reconciled; current owner appointment and final runtime not_established. Institutionally supplied law and consumer_asserted labels cannot give a positive.",
+      "falsifier": "Make declared threshold, corpus identity, payment, owner, time or permission premise false with labels retained; actual consumer degrades/refuses.",
+      "residual": "Formal closure0 and G acceptancefalse; final runtime and required issuer positives do not borrow their producer labels as proof.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P38": {
+      "disposition": "DIVERGENT_CASES_NAMED",
+      "evidence": "Named divergences: bounding box8 vs exact axis-union0; tiny positive volume underflow vs genuine0; rawJSON1e-1000 vs normalized0; tracecost1 without debit; last_accessed without new evidence; booltrue without current permit; imported backend without fit; RUNNING manifest without deciding tests.",
+      "falsifier": "Replace adjacent proxy while holding property fixed, then change property with proxy unchanged; gates must track exact geometry/debit/evidence/current permit/runtime effect.",
+      "residual": "Raw Gateway divergence remains current product FAIL; unsupported dimensional/serialization/scientific profiles remain explicit rather than hidden.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P40": {
+      "disposition": "CLASS_BUCKETS_WIDENED_OR_NAMED_OPEN_OWNER_WORK",
+      "evidence": "Quantity class widened to shared finite admission/exact supported box union/content-bound axes and typed availability; batch cancellation class widened to acknowledged-state/primary-error preservation with publication fence; GP state class reconciles full source-row association before model construction; lesson time/dedup class shares real route admission.",
+      "falsifier": "Second same-class escape is tested at the actual quantity boundary, not patched by one more label/helper. Raw-cost boundary requires canonical lossless decoder and unchanged24 cases; removal of that seam must fail.",
+      "residual": "Cost parse_float capability exists in stdlib and this is OPEN B-owned implementation work, not absent scientific capability. Unsupported GP/backend/profile/serialization and missing real law/authority are declared bounded limitations; no endless fixture ladder or invented authority.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    },
+    "P41": {
+      "disposition": "NOT_ESTABLISHED_NO_INHERITED_WAIVER",
+      "evidence": "No exact command on continuation slice-basecae plus complete input zero-overlap proves inherited provenance. B120 current actual FAIL, previous temporal/fixture/source-removal red and killed broad ERROR stay separately classified.",
+      "falsifier": "Replay exact candidate failure at slice-basecae and compare against complete consumed-input denominator. A nearer base that already contains a defect or nonzero overlap cannot export it as another team inherited debt.",
+      "residual": "No replay/backend job here and no inherited attribution; final stopped-run cause remains not_established, not assumed OOM.",
+      "fresh_full_test_verdict": "UNRUN",
+      "predicate_basis": "independently_reconciled for cited old evidence; recomputed for own identity/census; not_established for unreceived owner/final runtime"
+    }
+  },
+  "formal_closed": 0,
+  "accepted_in_G": false
+}

@@ -1,0 +1,203 @@
+{
+  "schema": "e02.optional_native_profile_proof.v1",
+  "test_implementation_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+  "runtime_source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+  "runtime_tree_sha": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+  "source_checks": [
+    {
+      "baseline": {
+        "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "blob_sha": "6f20060b0c539ae17c1400ca922ea0123480c150",
+        "bytes": 7515,
+        "raw_sha256": "5e1592f5644b33957fa26ac71462ebe5f64b9502ddcbed158f5dc646c16d6cb0"
+      },
+      "implementation": {
+        "source_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "blob_sha": "88753b5536a0cc4dc8121e4b016d29102745861b",
+        "bytes": 7692,
+        "raw_sha256": "25532fa88855916951a4bb2782a723616c4c23157da3a09a059d823ac22a4bae"
+      },
+      "runtime_source": {
+        "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "blob_sha": "88753b5536a0cc4dc8121e4b016d29102745861b",
+        "bytes": 7692,
+        "raw_sha256": "25532fa88855916951a4bb2782a723616c4c23157da3a09a059d823ac22a4bae"
+      },
+      "existing_assertions": 9,
+      "all_original_AST_after_only_new_admission_removal": "MATCH"
+    },
+    {
+      "baseline": {
+        "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "blob_sha": "08fd09a1712a64f22793968a0253301f12c79ee1",
+        "bytes": 4648,
+        "raw_sha256": "108ccd62281295cb4e03455f9f1c491d22140ab9f00e5970b8ae506f039808dc"
+      },
+      "implementation": {
+        "source_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "blob_sha": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+        "bytes": 4718,
+        "raw_sha256": "187850e3147bd294bf20eadf151a834fa6ccc65fa938f7ab403074acba0698b6"
+      },
+      "runtime_source": {
+        "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "blob_sha": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+        "bytes": 4718,
+        "raw_sha256": "187850e3147bd294bf20eadf151a834fa6ccc65fa938f7ab403074acba0698b6"
+      },
+      "existing_assertions": 11,
+      "all_original_AST_after_only_new_admission_removal": "MATCH"
+    },
+    {
+      "baseline": {
+        "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "blob_sha": "69cb0a6db63a4598a646259269d5c13512c7f58f",
+        "bytes": 14993,
+        "raw_sha256": "a802505e0b79fa1e156b130b26ebda1a920ff4d0679c37fd9052bd9aa7d39d64"
+      },
+      "implementation": {
+        "source_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "blob_sha": "7355d1f768b15b6a087639272b4eec9ae73c1aac",
+        "bytes": 15063,
+        "raw_sha256": "eb1fa3c1389eb3a9286195bb187e02af5da9fc31a88187821a8407ee8c27c752"
+      },
+      "runtime_source": {
+        "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "blob_sha": "7355d1f768b15b6a087639272b4eec9ae73c1aac",
+        "bytes": 15063,
+        "raw_sha256": "eb1fa3c1389eb3a9286195bb187e02af5da9fc31a88187821a8407ee8c27c752"
+      },
+      "existing_assertions": 37,
+      "all_original_AST_after_only_new_admission_removal": "MATCH"
+    }
+  ],
+  "transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/complete-data.json.gz",
+    "encoding": "gzip-json",
+    "encoded_bytes": 637147,
+    "encoded_sha256": "4dcd692301dfb28eef60f36098697ad7ad84ac0db01926f76818e1591e2d7822",
+    "decoded_bytes": 2919804,
+    "decoded_sha256": "72d43b4e1e9c539fbb394e107eff9dc8fb647cd02206bdd81c5d9cfd5b002ae7",
+    "members": 10,
+    "all_member_data_and_references_reconciled": true
+  },
+  "run": {
+    "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+    "source_tree": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+    "actual_exit": 0,
+    "child_pid": 444886,
+    "wall_seconds": 7.318935567003791,
+    "maxrss_KiB_linux": 245848,
+    "input_and_git_unchanged": true,
+    "outcomes": {
+      "PASS": 17,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 21
+    },
+    "actual_collected": 38,
+    "observer_origin_mismatches": [],
+    "observer_errors": [],
+    "observed_backend_state": {
+      "torch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "botorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "gpytorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "hnswlib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "SALib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "numpy": {
+        "installed_version": "2.3.5",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+        "module_version": "2.3.5",
+        "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+        "module_file_bytes": 25919
+      },
+      "scipy": {
+        "installed_version": "1.16.3",
+        "actually_loaded_in_main_process": false
+      },
+      "pytest": {
+        "installed_version": "9.0.2",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+        "module_version": "9.0.2",
+        "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+        "module_file_bytes": 5582
+      },
+      "numpy._core._multiarray_umath:binary": {
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+        "bytes": 10800697,
+        "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+      }
+    },
+    "scope": "Native skipped properties UNRUN. PASS counts apply only to actually executed fallback/DTO cases. No native GP/HNSW/fit acceptance or inherited broad-wave closure."
+  },
+  "metadata_initial_errors": [
+    "First Ruff format --check reported one existing multiline assertion formatting difference; formatter corrected it with unchanged Assert AST.",
+    "Initial author AST comparator stripped existing later TRN importorskip expressions as well as new ones; comparator narrowed to only edited functions and original AST equality then passed. No product/source/test assertion change was made for the comparator."
+  ],
+  "checks": {
+    "ruff_check": "PASS: All checks passed!",
+    "ruff_format_check": "PASS: 3 files already formatted",
+    "git_diff_check": "PASS",
+    "original_assertions_total": 57,
+    "actual_collected_and_finished": 38,
+    "deselections": 0,
+    "origin_modules": 249,
+    "module_exec_origins": 249
+  },
+  "environment_profile_git_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json@6a157f301b400fe46268bcc53610359bb9ee4a71",
+  "baseline_evidence": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "run_scope": "Original broad run was SIGKILL9 partial ERROR; not a completed baseline suite or inherited-red waiver.",
+    "events_path": "/tmp/e02-D-final-root-wave-c17db434-20261006/events.jsonl",
+    "events_raw_sha256": "20b1377b538a1a1f32ef41156a4f3e18c7f6f5f4593903f1361050a745fee34d",
+    "relevant_call_event_lines": [
+      2383,
+      2728
+    ],
+    "independent_reviewer_reported_relevant_native_failures": 18,
+    "failure_distribution": {
+      "TRN_first_two": 2,
+      "vector_native": 15,
+      "first_native_Sobol": 1
+    },
+    "predicate_basis": "institutionally_supplied",
+    "reviewer": "/root/numerical_oracle",
+    "independent_partial_review_path": "/tmp/e02-oracle-final-partial-audit-c17-review.json",
+    "independent_partial_review_raw_sha256": "e66b2e9373d656b3a199cb6a6ca43ea3d922329e594d3ec37b375835687da556",
+    "git_carrier": null,
+    "limitation": "Root lossless historical carrier publication pending when this proof is written; no receipt SHA invented, no retroactive baseline PASS."
+  },
+  "scope_limitations": [
+    "38 actual cases =17 executed PASS and21 native SKIP/UNRUN; not38 native passes.",
+    "Missing Torch/BoTorch/GPyTorch/HNSW/SALib are actual absent extras in supported148 distribution profile.",
+    "No full backend execution, numerical fit or GP26 replay occurred here; unchanged positive-body numerical evidence remains separately historical.",
+    "Canonical root conftest/config used; only supported pytest cache_dir option moved local cache to unique output. Internal framework cleanup scope remains unknown; listed output files and source identities are preserved.",
+    "Linked minimal environment/targets retained; no deletion, cleanup, new environment, mock backend, selector filter or cap."
+  ]
+}

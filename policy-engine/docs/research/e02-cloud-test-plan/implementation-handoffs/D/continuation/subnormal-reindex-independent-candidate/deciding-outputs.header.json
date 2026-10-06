@@ -1,0 +1,54 @@
+{
+  "schema": "polisyos.e02.lossless-oracle-output-header.v1",
+  "compressed_bytes": 35491,
+  "compressed_sha256": "b4b142a62fe427825b9ed7e104bebd2f737b7398accacebbeaf86074c55fcfb2",
+  "decoded_json_bytes": 133388,
+  "decoded_json_sha256": "04fa7ed6098c7679e5c28f0f9d7064725fc05819d9ca762c9026226610a3b217",
+  "member_count": 7,
+  "raw_bytes": 98739,
+  "members": [
+    {
+      "name": "complete.txt",
+      "original_path": "/dev/shm/e02-oracle-subnormal-explicit-null-4bdb8a1d35a14e8296b9c21a50673df6/complete.txt",
+      "bytes": 1464,
+      "sha256": "4995acd8e243eeff267925eaf05a733ff376e56a45b228365cae1aaf28c65f38"
+    },
+    {
+      "name": "inputs.json",
+      "original_path": "/dev/shm/e02-oracle-subnormal-explicit-null-4bdb8a1d35a14e8296b9c21a50673df6/inputs.json",
+      "bytes": 1837,
+      "sha256": "0bd65f6f5dc0776ea7d3fcbc491e4c6aa31516a79c64e1e8f3bac67f9d6b92e8"
+    },
+    {
+      "name": "junit.xml",
+      "original_path": "/dev/shm/e02-oracle-subnormal-explicit-null-4bdb8a1d35a14e8296b9c21a50673df6/junit.xml",
+      "bytes": 1920,
+      "sha256": "3f1b1c1b8bd931435c494baa0652f721e1d2cd22fdadd36356c458b17a0f9168"
+    },
+    {
+      "name": "native.json",
+      "original_path": "/dev/shm/e02-oracle-subnormal-explicit-null-4bdb8a1d35a14e8296b9c21a50673df6/native.json",
+      "bytes": 84560,
+      "sha256": "ebe9669f8e47336e4ab8ec90d30f6b89efc4fbc45ec12430116af0862544e9de"
+    },
+    {
+      "name": "run.json",
+      "original_path": "/dev/shm/e02-oracle-subnormal-explicit-null-4bdb8a1d35a14e8296b9c21a50673df6/run.json",
+      "bytes": 2290,
+      "sha256": "523446edd18d2f737dd64505225cefd038c93f152a1c17fda82a6350f4bdbb37"
+    },
+    {
+      "name": "subnormal_observer.py",
+      "original_path": "/dev/shm/e02-oracle-subnormal-explicit-null-4bdb8a1d35a14e8296b9c21a50673df6/subnormal_observer.py",
+      "bytes": 1423,
+      "sha256": "73b5b5500df9d72c52e711dff7240874f3ccd41d46265e77fa8da8960499916a"
+    },
+    {
+      "name": "instruments/capture-explicit-null.py.txt",
+      "original_path": "/dev/shm/e02-oracle-subnormal-capture-explicit-null.py",
+      "bytes": 5245,
+      "sha256": "71bba033b04bfa79a4947b7e65f7df6e18c898eea164670eff883e83e21e7866"
+    }
+  ],
+  "omitted_mutable_runtime_files": "Unique pytest-cache only; not a deciding source/test/result input. Preserved at its original path, no deletion."
+}

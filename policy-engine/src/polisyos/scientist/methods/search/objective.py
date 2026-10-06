@@ -21,9 +21,11 @@ def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> o
         raw_value = results.get(alias, _MISSING)
         if raw_value is _MISSING or raw_value is None:
             continue
+        if isinstance(raw_value, bool):
+            return _INVALID
         try:
             value = float(raw_value)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             return _INVALID
         if not math.isfinite(value):
             return _INVALID

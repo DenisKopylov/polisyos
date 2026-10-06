@@ -1,0 +1,188 @@
+{
+  "schema_version": "e02.D.independent-fiscal-intake-correction-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "57ed33266bcf292549dc843a6831baf671a65047",
+  "proof_tree": "0d9df67f124c483116f61c2c4878246fc738af45",
+  "production_writes": false,
+  "source_target": {
+    "commit": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+    "tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa",
+    "snapshot_root": "/dev/shm/e02-oracle-fiscal-893/archive",
+    "selected_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-input-manifest.json",
+      "sha256": "aba93ef24df8a402b4e21a448712141a9c8698a6aa36470ce25fd7395ca95cd6",
+      "bytes": 1842854
+    },
+    "tracked_selected_inputs": 7634,
+    "omitted_scope": "Docs/apps/data/examples/vendor/release omitted, apart from exact unique CLI probe overlay; no claim for tests requiring omitted inputs"
+  },
+  "environment": {
+    "source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+    "source_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa",
+    "python": "3.14.7",
+    "versions": {
+      "torch": "2.10.0",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5"
+    },
+    "modules": [
+      {
+        "name": "polisyos.scientist.methods.search.objective",
+        "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+        "bytes": 10078
+      },
+      {
+        "name": "polisyos.scientist.methods.autotune.bayesian_generator",
+        "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "sha256": "00551f51c14fbdd1e0589a7b2f79f2e1d31a3cc0f208b05853489f35daee8aeb",
+        "bytes": 21235
+      },
+      {
+        "name": "polisyos.scientist.methods.search.controller",
+        "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+        "bytes": 50528
+      },
+      {
+        "name": "polisyos.scientist.methods.search.service",
+        "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+        "bytes": 11909
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.bayesian",
+        "origin": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+        "bytes": 48512
+      }
+    ]
+  },
+  "source_cells": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-source-cells.txt",
+    "sha256": "2a30bbeaafa1fa5677e1a69c2781d5b787e6c675f00dbd4b1fe32ab657d50f14",
+    "bytes": 1880
+  },
+  "source_review": {
+    "diff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-production-review.diff",
+      "sha256": "7163259e224f9d5921486a8c090edb74662c2836a6d63836f82c3944f6113c13",
+      "bytes": 1604
+    },
+    "compared_from": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+    "changed_production_paths": 2,
+    "result": "PASS bounded",
+    "detail": "Reviewed entire production delta: _read_metric_aliases and BGC._finite_float reject Boolean and handle OverflowError during float conversion. Existing numeric-string/null/zero/alias/conflict/sign law retained; no units, scale conversion, receiver state, or GP numerical law added."
+  },
+  "unchanged_CLI": {
+    "test_commit": "9221a2591a44a978ba105da1fc85379690f24be8",
+    "probe": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+      "sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+      "bytes": 8551
+    },
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py --source-root /dev/shm/e02-oracle-fiscal-893/archive/policy-engine --source-sha 893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+    "cwd": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-green.txt",
+      "sha256": "9ff71338bd478738198d6535a921543a775eef02175ce01fdb97ca69ec3a412c",
+      "bytes": 9845
+    },
+    "exit_code": 0,
+    "deciding_cases": 27,
+    "passed": 27,
+    "failed": 0,
+    "observations_only": 3,
+    "result": "PASS",
+    "red_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-independent-audit.txt",
+      "sha256": "7741d8956cffb1a5f0b87a165bbda77f339665e63809ebd015b6350b48a739d6",
+      "bytes": 9562
+    },
+    "red_summary": "19PASS8FAIL at ebeb, preserved"
+  },
+  "native_pytest": {
+    "test_commit": "57d5ae63bb1c4fec25a0451ef40402db922e84c8",
+    "test_path": "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "test_sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-893-input.json",
+      "sha256": "8ad399cbda22215af7b5c4d40113f55a23d2466ca79c9593b27248538d14e73e",
+      "bytes": 890
+    },
+    "command": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "--basetemp=/dev/shm/e02-oracle-fiscal-893-native30-47db582183564666b98fab07c8c2fd32",
+      "-o",
+      "addopts=",
+      "-q",
+      "-s",
+      "-rA"
+    ],
+    "cwd": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine",
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-893-green.txt",
+      "sha256": "ac77be67b1a26fff030f3974fa8f0ae86534c91c9ee8da7d8455e702baf961b8",
+      "bytes": 6758
+    },
+    "exit_code": 0,
+    "summary": "30 passed,2 warnings in9.47s",
+    "result": "PASS",
+    "red_input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-ebeb-input.json",
+      "sha256": "2c42c6745ee1f968094d92502e0b0ed43776d22661f5b6e5f0a4ccf5a4159ded",
+      "bytes": 932
+    },
+    "red_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-native-ebeb-red.txt",
+      "sha256": "627452a167114cd37692cf61d1faa4ab2d663429f651d2d548b289eb64bffb92",
+      "bytes": 47918
+    },
+    "red_summary": "11 failed,19 passed,2 warnings in9.71s at ebeb",
+    "denominator": {
+      "same_CLI_raw_value_cases_reauthored_directly_in_pytest": 24,
+      "same_CLI_public_native_controller_cases_reauthored_directly_in_pytest": 3,
+      "new_public_BGC_actual_receiver_cases": 3
+    },
+    "independence": "Direct actual production calls and independent expected raw values; no CLI wrapper or alias-pass marker. No test expectation changed between red and green."
+  },
+  "actual_consumers": {
+    "controller": "Public SearchController.run\u2192_NativeSearchServiceDriver\u2192_evaluate_candidate\u2192CompositeObjective; two actual fixture Stage B outputs seed balance-10 then missing/bool/overflow challenger. Unusable challenger now remains NaN/unsatisfied and cannot replace seed10; no unhandled overflow.",
+    "public_BGC": "Public BayesianCandidateGenerator.generate actual history decoding and BayesianOptimizer._effective_training_corpus. Independent measured row candidate measured/x.2/score5 plus unmeasured x.8 boolFalse/boolTrue/10**400. Actual consumed numerical corpus now contains measured only. Configured n_initial100 makes real cold-start Sobol receiver before fit, an MLL tripwire verifies no fit, and model remains absent. No model or optimizer replacement."
+  },
+  "classification": "P40 existing raw numerical intake Boolean/nonrepresentable conversion class; no invented fiscal semantic or dimensional basis",
+  "bounds": {
+    "metric_presence": "Explicit numerical zero present; absent/null primary uses documented deficit alias; invalid present primary cannot fall back into a favorable measured score.",
+    "units": "not_established",
+    "served_input_owner": "consumer_missing",
+    "fiscal_scale": "No percent/currency or cross-family balance/deficit conversion invented",
+    "legacy_numeric_string_codec": "Retained and OBSERVED_ONLY, not claimed strict typed input",
+    "other_consumers": "Whole registry/frontier/promotion/served policy, real observation authority and GP fit on fiscal history are outside this before-fit intake cell"
+  },
+  "runtime_profile": {
+    "no_reviewer_CPU_process_test_worker_cap": true,
+    "production_settings": "Existing native Torch runtime settings unchanged; no global unlimited-thread claim",
+    "basetemp": "/dev/shm/e02-oracle-fiscal-893-native30-47db582183564666b98fab07c8c2fd32",
+    "nonexisting_before_pytest": true,
+    "observed_exists_after_run": false,
+    "absence_interpretation": "These cases use no tmp_path/tmpdir; path may never be created. Missing path is not evidence of deletion.",
+    "manual_deletion": false
+  },
+  "source_successor_note": "Owner reported test-only checkpoint ab7577cc807050735d1cd57c751299095ee899aa. This receipt executes exact893 only and makes no independent relocation or successor runtime claim.",
+  "closure_ids": [],
+  "verdict": "PASS for the bounded B108 Boolean/overflow raw-value and actual native-controller/public-BGC intake correction. Full B108 remains partial because typed fiscal units and served owner input are absent.",
+  "cleanup_candidates": [
+    "/dev/shm/e02-oracle-fiscal-893/archive",
+    "/dev/shm/e02-oracle-search-ebeb/archive"
+  ]
+}

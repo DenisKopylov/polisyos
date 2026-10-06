@@ -1,0 +1,225 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-stress-funnel-actual-consumer",
+  "closure_ids": [],
+  "finding_ids": [
+    "B106",
+    "B107"
+  ],
+  "companion_finding_ids": [
+    "B120",
+    "B160",
+    "B165"
+  ],
+  "bundle_ids": [
+    "STR-01"
+  ],
+  "companion_bundle_ids": [
+    "CTL-03",
+    "FUN-02"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "implementation_commits": [
+    "420d3ab6bc63ef3088e5fa32c04ed5e618edc208"
+  ],
+  "source_sha": "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+  "candidate_tree_sha": "9c9d39b313f47a97735c85bd47b913d0b6f04146",
+  "branch": "codex/e02-D-published-stress",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796-proof/output.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-L5-evidence.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py"
+  ],
+  "prior_scoped_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-ordinary-DOE-and-absent-basis.json",
+    "source_sha": "f8ebe5f714d42398d07d9797f853c03553ec1603",
+    "sha256": "ae16a277dba3170265fdc5a6f58cac885a9e0f9da6912ee3160cb7670514ff64",
+    "bytes": 31368
+  },
+  "criterion_bindings_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-ordinary-DOE-and-absent-basis.json",
+    "source_sha": "f8ebe5f714d42398d07d9797f853c03553ec1603",
+    "sha256": "ae16a277dba3170265fdc5a6f58cac885a9e0f9da6912ee3160cb7670514ff64",
+    "bytes": 31368,
+    "json_pointer": "/criterion_bindings"
+  },
+  "original_criteria_unchanged": true,
+  "original_baseline_acceptance": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+    "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+    "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+    "index_acceptance": "transfer_and_navigation_only",
+    "product_closure": "not_established"
+  },
+  "complete_census_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+    "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+    "sha256": "b35d8860e60d926f4b99cd464cfb141fb1166a7318ea7a12147e28348e55ca11",
+    "bytes": 79975
+  },
+  "baseline_cells": [
+    "F02-P067",
+    "F04-P120",
+    "F06-P088",
+    "F08-P120",
+    "F09-P068",
+    "F10-P068",
+    "F15-P079",
+    "F15-P142"
+  ],
+  "dependency": {
+    "owner": "D FUN-02",
+    "supplier_selected_commit": "82c83630fea342e99d92cd7d35c83cee24a47217",
+    "supplier_source_commit": "64e7db6114d9da3abd3831f828ac7e6a5a4e8efd",
+    "ordinary_merge_commit": "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+    "own_producer_blueprint_bytes_preserved": "Actual entire source delta from f8 to420 has only funnel/level5_refutation_governance.py. No new stress/report/blueprint/E source modifications.",
+    "production_delta": [
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py"
+    ],
+    "property": "L5 uses actual report.scenario_complete, including declared empty/unknown components, rather than only aggregate sums."
+  },
+  "checks": [
+    {
+      "name": "After-dependency actual affected consumer replay",
+      "target_sha": "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/workspace/e02-D3-receipts/stress/funnel_affected_runner.py",
+        "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+        "-q",
+        "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+        "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+        "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+        "--basetemp",
+        "/dev/shm/e02-D-stress-funnel-affected-99bfd65021044e92a7d3c7bd8d8d00db",
+        "--junitxml",
+        "/workspace/e02-D3-receipts/stress/funnel-affected-junit.xml"
+      ],
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "wall_seconds": 23.572345652995864,
+      "peak_rss_kib": 835616,
+      "input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/inputs.json",
+        "source_sha": "392760dffceec50d790de10d36dd68149406c640",
+        "sha256": "74c13b8ea45c6234e25fa77b31e10f40c3ecdbcdc541545e2a2d2d4fda218e97",
+        "bytes": 3508
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/funnel-affected-complete.txt",
+        "source_sha": "392760dffceec50d790de10d36dd68149406c640",
+        "sha256": "3d6c4d97e5022f10f77374e54e9b60c1828c75931519cfbed14847c5df6603c2",
+        "bytes": 6914
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/funnel-affected-junit.xml",
+        "source_sha": "392760dffceec50d790de10d36dd68149406c640",
+        "sha256": "70d1930273d3c1602eae94c437eb616d94a26a423469665aa43af64fae8387f8",
+        "bytes": 1677
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/funnel-affected-resource.json",
+        "source_sha": "392760dffceec50d790de10d36dd68149406c640",
+        "sha256": "d673f1882000556e4f38dfc584e691066eed4805b4b0450fb25ac96909384dfe",
+        "bytes": 1344
+      },
+      "runner": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/runner.py.txt",
+        "source_sha": "392760dffceec50d790de10d36dd68149406c640",
+        "sha256": "29761f38463a74c2e3eea1f845bc3ac31a71f5ba1470fa9296eacd3053b515b6",
+        "bytes": 1833
+      },
+      "actual_boundary_origin_count": 17,
+      "origin_binding_predicate_basis": "independently_reconciled",
+      "scope": "Three complete/empty/unknown declared-case L5 controls; two genuine configured native paid full/partial paths; two genuine unknownACK paths with/without committed write. Actual producer→node serializer→ordinary ExperimentState JSON→CAS→fresh readback. Existing official tokenizer bytes reused; no default-node provider/deployed acceptance claim."
+    }
+  ],
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "profile_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/inputs.json",
+      "source_sha": "392760dffceec50d790de10d36dd68149406c640",
+      "sha256": "74c13b8ea45c6234e25fa77b31e10f40c3ecdbcdc541545e2a2d2d4fda218e97",
+      "bytes": 3508
+    },
+    "json_pointer": "/environment",
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "compute_caps": null
+  },
+  "property": {
+    "statement": "Complete and partial observed finite fractions remain scoped observations through the real L5 consumer; unavailable/missing components cannot become complete robustness or model uncertainty. Exact provider-reported Decimal values, None, committed/unknown settlement evidence and original feedback survive actual blueprint JSON/CAS projections.",
+    "runtime_path": [
+      "Existing declared-case producer -> typed schema1.1 scenario evidence",
+      "actual blueprint _merge/_recompute -> CAS -> fresh report reader -> L5",
+      "configured native translator/adversary and existing resource owner/ledger -> FunnelOutcome",
+      "actual blueprint serializer -> ordinary ExperimentState JSON -> CAS -> fresh state reader"
+    ],
+    "proxy_divergence": "Four complete cases plus a declared empty component retain observed fraction1 while L5 says partial and MODEL uncertainty remains1. Unknown ACK with committed write carries observed charge1; uncommitted unknown retains None and its pending event/digest/amount rather than inventing a charge.",
+    "negative_controls": [
+      "Actual empty/unknown component controls alongside complete finite observations",
+      "Actual settlement ACK loss before and after canonical owner write",
+      "Earlier defining no-synthetic-count removal fails with schema/status/unknown markers preserved (prior handoff)"
+    ],
+    "schema_version": "StressTestReport1.1; bounded legacy1.0 without new evidence fields"
+  },
+  "criterion_disposition_proposals": [
+    {
+      "finding_id": "B106",
+      "canonical_closure_owner": "STR-01",
+      "proposed_disposition": "closed_bounded_engineering",
+      "admission_status": "pending_independent_review",
+      "criterion_content": "Original paragraph and canonical STR-01 path unchanged; see exact byte/hash anchors above.",
+      "basis": "Actual finite-stream/reference and cap/grouping controls, direction/invalid-evidence controls, native typed report/blueprint/CAS consumer and property-removal evidence in original handoff plus current E/no-prior addendum.",
+      "excluded_claims": "No population probability, model uncertainty, empirical product performance or combined/local G acceptance is asserted. These are separate claims, not extra required inputs to this finite engineering criterion."
+    },
+    {
+      "finding_id": "B107",
+      "canonical_closure_owner": "STR-01",
+      "proposed_disposition": "closed_bounded_engineering",
+      "admission_status": "pending_independent_review",
+      "criterion_content": "Original paragraph and canonical STR-01 path unchanged; see exact byte/hash anchors above.",
+      "basis": "Actual finite-stream/reference and cap/grouping controls, direction/invalid-evidence controls, native typed report/blueprint/CAS consumer and property-removal evidence in original handoff plus current E/no-prior addendum.",
+      "excluded_claims": "No population probability, model uncertainty, empirical product performance or combined/local G acceptance is asserted. These are separate claims, not extra required inputs to this finite engineering criterion."
+    }
+  ],
+  "predicate_basis": "not_established",
+  "predicate_scope": "Author proposes finite B106/B107 engineering closure for independent admission using original criteria plus prior/current actual evidence. This is not independent author review or a G combined/local acceptance verdict. Criterion statements and known held/open owners are unchanged.",
+  "capability_state_or_finding_state": "implemented_and_verified_author_scope; independent_admission_pending",
+  "limitations_and_next_owner": [
+    {
+      "owner": "Independent numerical oracle/G STR-01 admission",
+      "input": "Independent admission of exact2af E/no-prior and420 L5 consumer lineage against original B106/B107 criteria",
+      "ref": null,
+      "state": "No further mechanism gap observed in completed bounded author controls; reviewer admission pending."
+    },
+    {
+      "owner": "A evaluation-admission/runtime factory + D FUN-02",
+      "input": "Authorized certificate/context/verifier and deployed caller mapping for actual default blueprint paid-provider execution",
+      "ref": null,
+      "state": "Separate deployed-factory capability not established; configured native paid serializer proof is bounded and does not invent default-provider reachability."
+    },
+    {
+      "owner": "G combined/local acceptance",
+      "input": "Actual authorized combined/local acceptance inputs and complete required gates",
+      "ref": null,
+      "state": "not_established; no population/billing/deployment authority asserted."
+    }
+  ],
+  "original_killed_outputs": "Earlier pre/post fallback pytest and typecheck SIGKILL evidence remains ERROR/uncompleted UNRUN at original immutable refs. Seven current PASS tests do not replace those complete gate outcomes.",
+  "retention_scope": "Every pytest uses its fresh previously nonexistent --basetemp; this run uses isolated real ledger/CAS fixtures. No permanent deletion/cleanup and no global framework retention assertion.",
+  "original_receipts_preserved": true
+}

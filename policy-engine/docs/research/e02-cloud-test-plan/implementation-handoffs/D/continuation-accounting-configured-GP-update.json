@@ -1,0 +1,435 @@
+{
+  "schema": "policyos.e02.D.configured_GP_accounting_update_handoff.v1",
+  "unit": "D",
+  "role": "PRELIMINARY_METADATA_ONLY; FINAL_SEARCH_FREEZE_PENDING",
+  "closure_ids": [],
+  "accepted_in_G": false,
+  "formal_closed": 0,
+  "branch": "codex/e02-D-continuation-accounting",
+  "implementation_sha": "874a1ecc5427efbb95d58bf3c4e693c49a6aa7ab",
+  "implementation_tree": "f8becbb23f52b41b7a8b37f3496d755313a6870f",
+  "parent_sha": "ed991c1f523c45dba9d1cc71c0ad3767f09457ac",
+  "current_runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "current_runtime_source_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "final_candidate_source_ref": null,
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Receipt/member/source/JUnit/fit-event subsets and artifact bytes only. Full configured positive and next Search/final acceptance remain unestablished.",
+  "denominator": {
+    "finding_ids": 45,
+    "criterion_occurrences": 46,
+    "canonical_owner_occurrences": 45,
+    "supplier_companion_occurrences": 1,
+    "bundles": 17,
+    "baseline_routes": 456,
+    "baseline_unique_cells": 115
+  },
+  "disposition_counts": {
+    "OPEN_VERIFICATION_PENDING": 39,
+    "LIMITED_UPSTREAM_CURRENT_FAIL": 1,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5
+  },
+  "conditional_engineering_proposals": 39,
+  "original_owner_packets": 16,
+  "new_separate_G_verification_packet": 1,
+  "original_criterion_text_and_binding_unchanged": {
+    "occurrences": 46,
+    "findings": 45,
+    "bundles": 17,
+    "errors": []
+  },
+  "configured_receipt": {
+    "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+    "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+    "bytes": 52230,
+    "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+  },
+  "configured_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/deciding-inputs-and-outputs.json.xz",
+    "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+    "encoding": "xz(json UTF-8; each raw member base64)",
+    "encoded_bytes": 479592,
+    "encoded_sha256": "94fcc74d8d36e111e8d0f6190af9f6350f97f1af2ca79af6ac6d3e3fa73bb8b8",
+    "decoded_bytes": 8016158,
+    "decoded_sha256": "cace28f63a8c02c8c9ac71b1888d1518aae64ed26204de871f01c3e762fbd896",
+    "members": 510,
+    "complete_capture_members": 26,
+    "actual_fixture_members": 484,
+    "all_510_members_exactly_match_retained_originals": true,
+    "measurement_inputs": [
+      {
+        "kind": "unique_original_measurement_input",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/run-five.py.txt",
+        "git_blob": "df783b3b507bdf9a4b7853803527c5f3ccf2c75b",
+        "sha256": "5bea4b64e700b2518d29942610283d6bb22e559843866aa66076d7730e14741e",
+        "bytes": 7234,
+        "actual_original_input_path": "/tmp/e02-D-configured-transfer-run.py"
+      },
+      {
+        "kind": "unique_original_measurement_input",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/run-four-prefit-negatives.py.txt",
+        "git_blob": "1f37acfbe115c4347cd996875e326c080e4b2010",
+        "sha256": "4112a38ae388b154b99819c43c75adc3892dfa8cc250dfc2895fd4004240557f",
+        "bytes": 7694,
+        "actual_original_input_path": "/tmp/e02-D-configured-transfer-negative4-run.py"
+      },
+      {
+        "kind": "unique_original_measurement_input",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/passive-fit-probe.py.txt",
+        "git_blob": "26df42cd501cfe0eb1fb9deb7976c4ce0d62de07",
+        "sha256": "e88d13d77481230c658c5523340a1ccdc9e17d4d68e25e627ddd2188cb7875ed",
+        "bytes": 5313,
+        "actual_original_input_path": "/tmp/e02_configured_transfer_probe.py"
+      },
+      {
+        "kind": "unique_original_measurement_input",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt",
+        "git_blob": "435096b0e79f2fe6e2d6df3b518c245189420f0a",
+        "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81",
+        "bytes": 12753,
+        "actual_original_input_path": "/tmp/e02_broad_observer.py"
+      },
+      {
+        "kind": "unique_original_measurement_input",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt",
+        "git_blob": "18bb8a8042ca864e5a7a98901eade4fa4b5d3ab6",
+        "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+        "bytes": 20492,
+        "actual_original_input_path": "/tmp/e02-D-broad-wave.py"
+      }
+    ],
+    "already_tracked_product_test_docs_config_body_copies": 0,
+    "lossless_encoding_record": {
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/transport-encoding.json",
+      "git_blob": "79bba959f04d8a5a797e6cdbdc18dd553f8adbcb",
+      "sha256": "f77b44880f2a3328d58d21bab0e64baee44d6b456ffb97c31afefd2fd74dcddb",
+      "bytes": 744,
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/transport-encoding.json@e038bca98f9e33dca33cc49221a85311a5ab5704"
+    }
+  },
+  "actual_output_accounting": {
+    "schema": "policyos.e02.configured_transfer_output_binding_accounting.v1",
+    "receipt_source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+    "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "compressed_bytes": 479592,
+    "compressed_sha256": "94fcc74d8d36e111e8d0f6190af9f6350f97f1af2ca79af6ac6d3e3fa73bb8b8",
+    "raw_bytes": 8016158,
+    "raw_sha256": "cace28f63a8c02c8c9ac71b1888d1518aae64ed26204de871f01c3e762fbd896",
+    "member_count": 510,
+    "member_all_hash_matches": true,
+    "receipt_member_refs": [
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/complete.stdout.txt",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/complete.stderr.txt",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/execution-manifest.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/actual-fit-events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/before.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/after.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/result.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/retained-fixture-identities.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/partial-evidence-reconciliation.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/complete.stdout.txt",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/complete.stderr.txt",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/execution-manifest.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/actual-fit-events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/before.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/after.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/result.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/retained-fixture-identities.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/negative-evidence-reconciliation.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/junit.xml",
+        "MATCH": true
+      }
+    ],
+    "source_references": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/serialization.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      }
+    ],
+    "four_negative_JUnit_cases": 4,
+    "four_negative_JUnit_outcomes": {
+      "PASS": 4
+    },
+    "fit_event_subsets": {
+      "five-interrupted": {
+        "native_call_counts": {
+          "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:call": 1,
+          "botorch.models.gp_regression.__init__:call": 1,
+          "botorch.models.gp_regression.__init__:return": 1,
+          "botorch.fit.fit_gpytorch_mll:call": 1,
+          "botorch.fit.fit_gpytorch_mll:return": 1,
+          "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:return": 1
+        },
+        "records": 7
+      },
+      "four-prefit-negatives": {
+        "native_call_counts": {},
+        "records": 5
+      }
+    },
+    "five_positive_JUnit_present": false,
+    "errors": [],
+    "scope": "Output/source byte and JUnit/event subset accounting only; numerical scientific/consumer acceptance remains separate parent-routed independent review.",
+    "predicate_basis": "independently_reconciled"
+  },
+  "runtime_scope": {
+    "positive": "ERROR_PARTIAL_UNRUN; native constructor/MLL/_fit_full_gp returned on8originalCASrows, but no completed positive controller/acquisition outcome or JUnit",
+    "negative_only": {
+      "PASS": 4,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "constructor_or_fit_calls": 0
+    },
+    "independent_numerical_acceptance_ref": null,
+    "termination_cause": "not_established",
+    "new_backend_test_invocations_here": 0
+  },
+  "next_search_bridge": {
+    "state": "ENGINEERING_WORK_IN_PROGRESS; A minimal owner context/API input requested",
+    "source_ref": null,
+    "root_reported_docs_checkpoint": "f055e68f87bf9ce465528e1d7e6225f8dfd16d94",
+    "source_state": "Current accounting stays8c; wait for new immutable Search candidate before FINAL"
+  },
+  "G_verification_input": {
+    "source_sha": "874a1ecc5427efbb95d58bf3c4e693c49a6aa7ab",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/verification-owner-input.json",
+    "sha256": "66b7aa8c6bdd0f33c86d9f18475f7bab6a2982ca712193800fa04fd04d2c9d84",
+    "prepared_old_commands": 17,
+    "prepared_old_union_selectors": 99,
+    "actual_old_result": "ERROR_UNRUN",
+    "next_freeze_ref": null,
+    "next_wave_manifest_ref": null,
+    "scope": "Precise root/G complete-native-output request; not scientific law/authority, no fake availability absence or artificial quota. Original99 is an exact historical attempted denominator, not a future cap."
+  },
+  "readback": [
+    {
+      "source_sha": "874a1ecc5427efbb95d58bf3c4e693c49a6aa7ab",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json",
+      "git_blob": "760ccce03b994f0176800bb4168f768485042b0e",
+      "bytes": 393760,
+      "sha256": "901a232c90e2dd433d9adf241fb8da8f49816aa6e2fd4d3b1995191019b29e96",
+      "MATCH": true
+    },
+    {
+      "source_sha": "874a1ecc5427efbb95d58bf3c4e693c49a6aa7ab",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/owner-inputs.json",
+      "git_blob": "7a0c298c828bd1cb86a8b14dace64f5ab07278c0",
+      "bytes": 281070,
+      "sha256": "17bb8e6482adfb7f1726c13f3379751f197df4dd00bce6e9064bf8db6941f6b2",
+      "MATCH": true
+    },
+    {
+      "source_sha": "874a1ecc5427efbb95d58bf3c4e693c49a6aa7ab",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+      "git_blob": "94fbc454c2837a1518bc480a3117e75ef08c4058",
+      "bytes": 146628,
+      "sha256": "29c04e7465ba7c1d9b1e44f93eab5fe0cb52bf6b182a2ad2716ee784269fb760",
+      "MATCH": true
+    },
+    {
+      "source_sha": "874a1ecc5427efbb95d58bf3c4e693c49a6aa7ab",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/README.md",
+      "git_blob": "29330ad6637a3314b68f8a69b47813ce11acc144",
+      "bytes": 3882,
+      "sha256": "3aaa82691e9bb072b76939a671c9c8cbbe871a0858296bd60f5db26d5cc1fcc5",
+      "MATCH": true
+    },
+    {
+      "source_sha": "874a1ecc5427efbb95d58bf3c4e693c49a6aa7ab",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/verification-owner-input.json",
+      "git_blob": "b183fff9b6bf555dc28cccc6555673fb79c384a8",
+      "bytes": 38274,
+      "sha256": "66b7aa8c6bdd0f33c86d9f18475f7bab6a2982ca712193800fa04fd04d2c9d84",
+      "MATCH": true
+    }
+  ],
+  "metadata_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/owner-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/verification-owner-input.json"
+  ],
+  "publication": {
+    "method": "Root-authorized GitHub metadata-only nonforce topic update",
+    "expected_parent_sha": "ed991c1f523c45dba9d1cc71c0ad3767f09457ac",
+    "force": false,
+    "local_checkout_or_worktree_created": false,
+    "local_hooks_executed": false,
+    "no_root_PR_G_ref_mutation": true,
+    "no_source_or_test_mutations": true,
+    "no_cleanup_or_resource_mutation": true
+  }
+}

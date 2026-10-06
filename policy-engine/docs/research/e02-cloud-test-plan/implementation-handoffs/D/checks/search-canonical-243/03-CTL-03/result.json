@@ -1,0 +1,139 @@
+{
+  "ordinal": 3,
+  "bundle": "CTL-03",
+  "canonical_line": 144,
+  "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+  "canonical_pytest_arguments": [
+    "-q",
+    "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+    "tests/unit/scientist/search/test_cost_stopping.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "-ra"
+  ],
+  "selectors": [
+    "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+    "tests/unit/scientist/search/test_cost_stopping.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+  ],
+  "source_before": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:22:27.466191+00:00"
+  },
+  "metadata": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py",
+      "/workspace/e02-D-published-root",
+      "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 10.876066214012098,
+    "output": {
+      "bytes": 6955,
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/events.jsonl",
+    "-q",
+    "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+    "tests/unit/scientist/search/test_cost_stopping.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-03-CTL-03-915d6a0e10b44c019cc42f7bc096ed15",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/junit.xml",
+    "-rA"
+  ],
+  "equivalent_pytest_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+    "tests/unit/scientist/search/test_cost_stopping.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-03-CTL-03-915d6a0e10b44c019cc42f7bc096ed15",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/03-CTL-03/junit.xml",
+    "-rA"
+  ],
+  "basetemp": "/dev/shm/search-canonical-243-03-CTL-03-915d6a0e10b44c019cc42f7bc096ed15",
+  "basetemp_existed_before": false,
+  "exit_code": 0,
+  "wall_seconds": 16.712218992004637,
+  "source_after": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:22:55.090403+00:00"
+  },
+  "complete_output": {
+    "bytes": 13091,
+    "sha256": "4b73aa3d9f80392390680d93c09e6f17eb759a2c9d80b5a615badd54a64c1bc4"
+  },
+  "max_rss_kib": 1179276,
+  "rss_scope": "cumulative high-water of completed metadata and pytest children in this stdlib-only parent; not isolated per-child peak",
+  "completed_call_outcomes": {
+    "passed": 90
+  },
+  "failed_reports": [],
+  "skipped_reports": [],
+  "event_stream": {
+    "bytes": 224911,
+    "sha256": "28566d39ed14250ccef14d7d15a28a3ebcf909543897e142260b57bb7f243379"
+  },
+  "junit": {
+    "file": {
+      "bytes": 15335,
+      "sha256": "b24a806f9604f329a3c3eea99cb65d28c75a89ff76db4c3409fc68bddc26155b"
+    },
+    "counts": {
+      "tests": 90,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "outcome": "PASS",
+  "limit": "Any skipped optional/native-backend query scope remains UNRUN, even if other tests passed. A crash retains actual completed failing reports but supplies no complete command verdict. No inherited-red/P41 waiver. Native Python call entries are observations, not standalone fit/numerical acceptance.",
+  "event_stream_git_filename": "events.jsonl.txt"
+}

@@ -1,0 +1,210 @@
+{
+  "schema": "polisyos.e02.independent_final_partial_optional_handoff.v1",
+  "status": "PARTIAL_ERROR_RETAINED_AND_BOUNDED_OPTIONAL_DISCOVERY_REVIEWED",
+  "proof_commit": "2fa4074df4e2aee923cb3b233dbe8f9963884b84",
+  "proof_tree": "efdc919a731a75044b5d0f0250a257211ff90742",
+  "proof_parent": "672384852a3b9fedb0cbb8fa4019d4df7dc6845b",
+  "artifacts": [
+    {
+      "name": "B19-raw-carrier-label-correction.json",
+      "bytes": 1777,
+      "sha256": "fc1134dd6a2fa5ffd909b8ae7d200aa40ec8be72935dee7589c9c1b5b79f1fce",
+      "git_blob": "747c03dcfeee8e95a91e0b04c1b5e211d2f2ce59",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/B19-raw-carrier-label-correction.json"
+    },
+    {
+      "name": "README.md",
+      "bytes": 1614,
+      "sha256": "b86c66eb7cf38ff5e70224aa3ed85e6584eefc305bddfbbb59d33d4b1fff19f0",
+      "git_blob": "96e1810e27f97729cbdbc8c461a5de91916334cb",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/README.md"
+    },
+    {
+      "name": "carrier-audit.py.txt",
+      "bytes": 6304,
+      "sha256": "170a89c5ef283b71ab1c5368aa42c95585e53aa2c0c97d92c3f1379cf31d4996",
+      "git_blob": "99efc5ce1adb7788c5de1dedec666abd2d8d9d6d",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/carrier-audit.py.txt"
+    },
+    {
+      "name": "denominator-audit.py.txt",
+      "bytes": 9380,
+      "sha256": "711a108f896c94a500b3894a7b6240014497cee7e1543f5364d9a7379d019fd4",
+      "git_blob": "994f76311774874501c7397d853a92a116e28895",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/denominator-audit.py.txt"
+    },
+    {
+      "name": "optional-carrier-binding.json",
+      "bytes": 1460,
+      "sha256": "05fd13ae93003a5bf8b2c29336d1d5e8113f7fd7ed3aca710eeaf3856b03d668",
+      "git_blob": "09e8f6cd899245cdd67c5d251c83032b4884accb",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/optional-carrier-binding.json"
+    },
+    {
+      "name": "optional-guard-runtime-review.json",
+      "bytes": 15644,
+      "sha256": "83ef6e93272d6b42b06ad76f07a05a4f0d75340048075bd4a1ae85f2a7f3a4dc",
+      "git_blob": "a7f4bc983afb380e45e240253adcd1d41c231ad4",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/optional-guard-runtime-review.json"
+    },
+    {
+      "name": "optional-guard-source-review.json",
+      "bytes": 2400,
+      "sha256": "586028a054e32a1189af33b09b14f80dda87bd7c47d5f5afb54263c5469849e6",
+      "git_blob": "7cced776fb30ca2a6973c4a57321fe3d569f6259",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/optional-guard-source-review.json"
+    },
+    {
+      "name": "partial-audit.py.txt",
+      "bytes": 12324,
+      "sha256": "91d8f13791eef486362d258f62e8c91f91cde1e47a623797db2cb3015cd4dfe2",
+      "git_blob": "6204fb2de470f0fa5e82ce8a4a0526e3d96f4073",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/partial-audit.py.txt"
+    },
+    {
+      "name": "partial-carrier-binding.json",
+      "bytes": 3641,
+      "sha256": "5474492d2f5ec6a1bd027b44eba14a3b4692b0dc920b536b5e047523b9454f9d",
+      "git_blob": "997328369cb87e97659d4e2bd4296ea342af4670",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/partial-carrier-binding.json"
+    },
+    {
+      "name": "partial-runtime-review.json",
+      "bytes": 37871,
+      "sha256": "eb10f22e13ab4f765a6a3b33be62cede57065455ee4b96eccb2523f0bc94c332",
+      "git_blob": "ed9a37b819d49e2ae11f19ba4bcdfa7362210abc",
+      "raw_readback_equal": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/partial-runtime-review.json"
+    }
+  ],
+  "frozen_runtime": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "source_tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+    "actual_child_exit": -9,
+    "complete_observed_cases": 279,
+    "unique_collected_cases": 1244,
+    "call_PASS": 229,
+    "call_FAIL": 45,
+    "call_SKIP_UNRUN": 5,
+    "collected_cases_UNRUN": 965,
+    "module_collection_SKIP_UNRUN": 15,
+    "whole_suite_verdict": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "raw_output_commit": "f5642cca00f084ddbc195c98541a30df058612db",
+    "raw_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial/complete-output.json.xz",
+    "raw_output_sha256": "2be4574286b788bfcb280d123054550407568891843e4c6267e877e6a8cea87a",
+    "raw_members_verified": 682,
+    "raw_bytes": 7858094,
+    "nonregular_descriptors_verified": 56,
+    "captured_inputs_verified": 5568,
+    "tracked_source_python_verified": 2701,
+    "tracked_test_python_verified": 2860,
+    "observed_partial_main_product_paths_verified": 1368,
+    "frozen_git_or_body_discrepancies": 0,
+    "missing": [
+      "junit.xml",
+      "observer-summary.json",
+      "session_finish"
+    ],
+    "failure_classes": {
+      "provider_decimal_lexeme": 21,
+      "nonregular_child_timeout": 4,
+      "cache_reuse_receipt_contract": 2,
+      "unguarded_native_hnsw_transfer": 2,
+      "unguarded_native_hnsw_generation": 15,
+      "unguarded_native_bayesian_candidate": 1
+    }
+  },
+  "guard_successor": {
+    "implementation_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+    "original_Assert_AST_nodes_preserved": 57,
+    "original_statements_and_decorators_preserved": true,
+    "actual_composed_source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+    "actual_composed_tree": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+    "collected_started_finished_and_JUnit_rows": 38,
+    "PASS_backend_independent_fallback_and_DTO": 17,
+    "native_SKIP_UNRUN": 21,
+    "FAIL": 0,
+    "ERROR": 0,
+    "deselected": 0,
+    "phase_or_JUnit_identity_gaps": 0,
+    "captured_inputs_verified": 5567,
+    "main_product_paths_verified": 249,
+    "transient_exec_entries_verified": 249,
+    "snapshot_or_origin_discrepancies": 0,
+    "raw_output_commit": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+    "raw_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/complete-data.json.gz",
+    "raw_output_sha256": "4dcd692301dfb28eef60f36098697ad7ad84ac0db01926f76818e1591e2d7822",
+    "raw_members_verified": 10,
+    "exact_after_json_reference_reconstruction": true,
+    "author_handoff_sha": "415621e89b059d432f1b24a00262b73b3fe99e22",
+    "scope": "Supported optional discovery and actually executed fallback/DTO cases; native skipped predicates remain UNRUN."
+  },
+  "historical_B19_label_correction": {
+    "review_json_pointer": "/B19/encoded_bundle/sha256",
+    "actual_gzip_carrier_bytes": 276469,
+    "actual_gzip_carrier_sha256": "3b43811027e728a29773621628325adedaa4605a229edf6cda18f31cb0893b96",
+    "decoded_raw_member_bytes": 24136,
+    "decoded_raw_member_sha256": "2e6241fe1267ca64582cd1a78542b69048c025694cb1196d5539ce4d6799658a",
+    "contract_error_count": 77,
+    "class_counts": [
+      53,
+      9,
+      15
+    ],
+    "report_only_count": 6,
+    "historical_outcomes_or_criteria_changed": false
+  },
+  "environment": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "CPython": "3.14.7",
+    "locked_profile_distributions": 148,
+    "native_optional_backends_absent": [
+      "torch",
+      "botorch",
+      "gpytorch",
+      "hnswlib",
+      "SALib"
+    ],
+    "missing_backend_outcome": "SKIP/UNRUN, never numerical PASS",
+    "profile_handoff_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71"
+  },
+  "reviewer_actions": {
+    "product_writes": false,
+    "test_writes": false,
+    "new_pytest_or_backend_runtime": false,
+    "stdlib_metadata_verifiers_executed": true,
+    "children_spawned": false,
+    "snapshots_or_checkouts_created": false,
+    "CPU_or_worker_quota_added": false,
+    "cleanup_or_deletion": false,
+    "existing_topic_branch": "codex/e02-D-published-oracle",
+    "publication_route": "Git API append-only commits; expected parent lease and force=false",
+    "proof_ref_update_success": true,
+    "all_10_proof_blobs_raw_readback_equal": true,
+    "local_head": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+    "local_status": "clean",
+    "local_HEAD_advanced": false,
+    "native_hooks_commit_or_push_success_claimed": false
+  },
+  "limitations": [
+    "Historical 45 call failures remain FAIL. Guard successor does not retrospectively change c17 results.",
+    "The broad denominator is partial: 964 cases never started and one case completed setup only.",
+    "No whole-suite PASS, final observer census, subprocess origin enforcement, native model construction/fit or numerical acceptance is inferred.",
+    "Global memory counters do not prove a PID-specific cause for SIGKILL.",
+    "Four nonregular child cases hit their existing five-second timeout before any retained CAS fixture; refusal behavior was not observed.",
+    "B19 metadata distinguishes carrier and decoded-member hashes without changing its 77 contract errors or six report-only findings.",
+    "Formal closure and G acceptance require separate authorized accounting; this reviewer creates no criterion waiver."
+  ],
+  "formal_closed": 0,
+  "G_accepted": false,
+  "publication_preparation_note": "A metadata output-only byte-count print attempted unavailable V8 TextEncoder after receipt preparation; no Git mutation or runtime verdict occurred. Corrected ASCII receipt count separately."
+}

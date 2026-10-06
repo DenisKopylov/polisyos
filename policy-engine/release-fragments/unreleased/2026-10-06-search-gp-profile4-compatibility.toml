@@ -1,0 +1,22 @@
+type = "changed"
+summary = "Internal GP profile 4 retains and re-admits original fitted rows before restoring the saved model."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "runtime-state-format"
+surface_classification = "internal: search checkpoint child modules"
+compatibility = "GP versions 1 through 3 lack the supported original fitted-row custody and are refused by the current receiver; generator wrapper v1 is also unsupported. Historical profile-3 execution receipts remain historical evidence."
+migration = "Retain original bytes and the refusal. Continue with the originally supported implementation/backend or create an explicit fresh receiver and re-admit original observations before its ordinary fit; never relabel an old profile as version 4."
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+generated_client_compatibility = "not_applicable"
+limitations = "This records the internal format boundary; it does not establish source authority, automatic migration, cross-backend replay or fresh numerical execution by itself."
+
+[[compatibility_change]]
+id = "gp-checkpoint-profile4-original-fitted-row-custody"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.search.strategies.bayesian StrategyState"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable: internal exact-version checkpoint profile"
+release_note = "Version 4 resolves original fitted evaluations, recomputes ordered row IDs and raw X/Y before model restoration, and refuses incomplete profile-3 checkpoints."

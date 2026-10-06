@@ -1,0 +1,14 @@
+from polisyos.scientist.methods.autotune import pareto
+original = pareto.compute_hypervolume_assessed
+
+def retained_markers_removed_geometry(points, reference):
+    result=original(points,reference)
+    if len(reference)>2 and result.value is not None and points:
+        value=1.0
+        for index, ref in enumerate(reference):
+            value *= max(0.0,max(point[index] for point in points)-ref)
+        return result.model_copy(update={'value':value})
+    return result
+
+def pytest_configure(config):
+    pareto.compute_hypervolume_assessed=retained_markers_removed_geometry

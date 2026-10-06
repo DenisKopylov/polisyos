@@ -1,0 +1,10 @@
+id = "2026-10-06-D-frontier-quantity-export"
+title = "Preserve quantity availability through the policy frontier report"
+type = "fixed"
+component = "scientist-policy-design"
+owner = "team-polisyos"
+surface_classification = "internal"
+summary = "The ordinary PolicyArtifactBuilder frontier report retains the existing typed hypervolume assessment beside its scalar. Native registry and CAS readback preserve computed zero, positive quantity and unavailable reasons."
+evidence = ["tests/unit/scientist/policy_design/test_phase_b_output.py::test_frontier_quantity_assessment_survives_ordinary_export_and_cas"]
+compatibility = "Additive metadata only; existing scalar and frontier membership schema remain unchanged."
+limitations = "Quantity availability does not establish a complete candidate source universe or appoint a scientific metric provider."

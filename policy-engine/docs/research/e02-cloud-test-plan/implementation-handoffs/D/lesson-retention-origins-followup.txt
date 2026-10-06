@@ -1,0 +1,16 @@
+{
+  "python": "/workspace/e02-D-locked-env/bin/python",
+  "python_version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "source_sha": "5239df01fb7e6a1c66c9b7453556fd3009f022f0",
+  "capture_context": "Follow-up capture after successful immutable test run; not contemporaneous pytest instrumentation.",
+  "modules": {
+    "lessons": "/dev/shm/e02-D2-transfer-retention-final/policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+    "vector_memory": "/dev/shm/e02-D2-transfer-retention-final/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "artifacts": "/dev/shm/e02-D2-transfer-retention-final/policy-engine/src/polisyos/core/artifacts/__init__.py"
+  },
+  "versions": {
+    "hnswlib": "0.8.0",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5"
+  }
+}

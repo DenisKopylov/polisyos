@@ -1,0 +1,14 @@
+{
+  "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "command": [
+    "python",
+    "/workspace/e02-D2-receipts/criterion-accounting-delta/audit_delta.py",
+    "/workspace/e02-D-published-stress",
+    "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+  ],
+  "exit_code": 0,
+  "wall_and_rss": "not_instrumented",
+  "complete_output_sha256": "5faf01a1ba9455a5cd0acdfa3262fc913d69ec80e5870fee7add89ca79a70ae5",
+  "complete_output_bytes": 5396,
+  "scope": "Complete original45/17/46 static owner/criterion/hash join and declared execution-module/Gateway-output binding. No backend execution or global gate verdict."
+}

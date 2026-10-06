@@ -1,0 +1,190 @@
+{
+  "schema": "D.batch_control_evidence_header.v1",
+  "bundle": "deciding-outputs.json.xz",
+  "encoding": "XZ compressed UTF-8 JSON/base64",
+  "encoded_bytes": 289476,
+  "encoded_sha256": "9818fbad66b3317a2a604954bb161224140c6bf19df9d656fcfd1a93d6b94739",
+  "decoded_bytes": 7709637,
+  "decoded_sha256": "f86d68dcb3d0eaadc72c1a978ef0a21cc6a21a06589d6876263dbc921856e9ba",
+  "member_count": 1533,
+  "actual_member_bytes": 5163768,
+  "member_index": "/members within lossless payload, all retained paths/roles/sizes/raw hashes/content",
+  "run_index": "/runs within lossless payload, all exact argv/environment/source/testhash/JUnit/origin/version cells",
+  "summaries": {
+    "baseline-six": {
+      "source": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "exit_code": 1,
+      "wall_seconds": 13.363983532995917,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "6",
+        "time": "7.263",
+        "timestamp": "2026-10-06T18:58:16.480947+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_sha256": "f23850fd79dbac75f5b1496f52cdf5c95c61309ead79596c7f328dbacae91093",
+      "actual_loaded_product_origins": 829,
+      "origin_errors": [],
+      "backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      }
+    },
+    "baseline-paid-four": {
+      "source": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "exit_code": 1,
+      "wall_seconds": 12.854450497994549,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "4",
+        "time": "6.754",
+        "timestamp": "2026-10-06T19:00:58.806466+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_sha256": "de19c19be2725564deb5920fc536a1bbe38619f0687b2ddf3cfead0b0f878b1e",
+      "actual_loaded_product_origins": 836,
+      "origin_errors": [],
+      "backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      }
+    },
+    "baseline-secondary-two": {
+      "source": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "exit_code": 1,
+      "wall_seconds": 12.39792649699666,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "2",
+        "skipped": "0",
+        "tests": "2",
+        "time": "6.555",
+        "timestamp": "2026-10-06T19:04:25.459961+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_sha256": "1bb47b6b9dd3f9a2f5ab15c625d27e9f7de7eed5e9901bb343dc16e406b4ba40",
+      "actual_loaded_product_origins": 801,
+      "origin_errors": [],
+      "backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      }
+    },
+    "candidate-twelve": {
+      "source": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "exit_code": 0,
+      "wall_seconds": 13.212587836998864,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "6.960",
+        "timestamp": "2026-10-06T19:13:53.810623+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_sha256": "0045f3664a9892f5d277f3a71448cf7e8d22be23616772d1f58f26b9e701c102",
+      "actual_loaded_product_origins": 836,
+      "origin_errors": [],
+      "backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      }
+    },
+    "affected-eighty-seven": {
+      "source": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "exit_code": 1,
+      "wall_seconds": 23.317276366011356,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "87",
+        "time": "14.467",
+        "timestamp": "2026-10-06T19:15:12.636841+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_sha256": "79909176c8311b3207f36f54e063b96e921ea5f161a9d5404a65c4927c3cdff2",
+      "actual_loaded_product_origins": 864,
+      "origin_errors": [],
+      "backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "pytest": "9.0.2"
+      }
+    },
+    "guard-removal-four": {
+      "source": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "exit_code": 1,
+      "wall_seconds": 13.10149022200494,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "4",
+        "skipped": "0",
+        "tests": "4",
+        "time": "7.016",
+        "timestamp": "2026-10-06T19:16:32.844513+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_sha256": "15fa87e7ea246c606431ba3f61d272ba18450399ef0c7b4e0aba856ea6fb9145",
+      "actual_loaded_product_origins": 808,
+      "origin_errors": [],
+      "backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      }
+    },
+    "paid-profile-corrective-one": {
+      "source": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "source_tree": "aad7d3d9b7cc3068d2f825b94d91997ded562d43",
+      "exit_code": 0,
+      "wall_seconds": 12.686999359997571,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "1",
+        "time": "6.583",
+        "timestamp": "2026-10-06T19:20:31.412828+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_sha256": "9e1a0cc3bce19a392a72d7e0903e4a4ac3a0b2c22ec117d077d1e7d518abe8f7",
+      "actual_loaded_product_origins": 809,
+      "origin_errors": [],
+      "backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      }
+    }
+  }
+}

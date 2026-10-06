@@ -1,0 +1,97 @@
+{
+  "schema": "polisyos.e02.independent-public-inventory-review.v1",
+  "reviewer": "numerical_oracle",
+  "verdict": "PASS_WITHIN_STATIC_SOURCE_AND_RENDER_SCOPE",
+  "closure_ids": [],
+  "source": "5eca5d0df09f3296aefe20a0797aa14837da01ff",
+  "tree": "1630ec1bd82f73335745e9e859bee3ee1a00951c",
+  "parent": "ab36ca8f077b7aa5bad482f1e91b964a9b520149",
+  "binding_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/public-inventory-independent-binding-output.json",
+    "sha256": "0d02950b7dc78ee5ef7c9c5907bd77bf1882298958b568503c16ee2186319f7e"
+  },
+  "deciding": "Root Scientist literal __all__ and its dependency-light facade body independently produce exactly42 unique names. Inventory root/entrypoint lists and both rendered42-name blocks match exactly; new three mappings resolve to class definitions in canonical service/contracts/runtime Git source.",
+  "added_public_exports": [
+    {
+      "export": "NativeSearchService",
+      "canonical_target": [
+        "polisyos.scientist.methods.search.service",
+        "NativeSearchService"
+      ],
+      "definition_line": 106,
+      "source": {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "bytes": 40669,
+        "sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720"
+      }
+    },
+    {
+      "export": "SearchServiceCheckpoint",
+      "canonical_target": [
+        "polisyos.scientist.methods.search.contracts",
+        "SearchServiceCheckpoint"
+      ],
+      "definition_line": 53,
+      "source": {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "bytes": 14342,
+        "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+      }
+    },
+    {
+      "export": "SearchLoopRunner",
+      "canonical_target": [
+        "polisyos.scientist.methods.autotune.runtime",
+        "SearchLoopRunner"
+      ],
+      "definition_line": 210,
+      "source": {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "bytes": 14518,
+        "sha256": "d910fc2bb151ef1725edf2ffc70e19a1b5f51931092f6327000e2ea5c92b2dbd"
+      }
+    }
+  ],
+  "internal_children": [
+    {
+      "module": "polisyos.scientist.methods.search",
+      "declared_exports": 130,
+      "classification": "internal",
+      "reason": "Any polisyos module path not listed in this manifest is internal by default.",
+      "source": {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+        "bytes": 12980,
+        "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7"
+      }
+    },
+    {
+      "module": "polisyos.scientist.methods.autotune",
+      "declared_exports": 32,
+      "classification": "internal",
+      "reason": "Any polisyos module path not listed in this manifest is internal by default.",
+      "source": {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+        "bytes": 3639,
+        "sha256": "d5ec3c1bdece0f56cd12fa60ce646434d8cf9f859bb48809799615e413306062"
+      }
+    }
+  ],
+  "supplementary_literal_source_inventory": {
+    "checked_entrypoints": 37,
+    "nonliteral_dynamic_entrypoints_outside_check": [
+      "polisyos.ir.analytics"
+    ]
+  },
+  "source_delta": "Only inventory.json and public-surface.md change at5eca; product/tests/contract classification unchanged. Existing39 names retain order and three new names are prepended. Generated family inventory is unchanged; deep import baseline/generated artifact files are outside this diff.",
+  "scope_limits": [
+    "Lazy target classes were verified as canonical source definitions; no runtime target object identity or numerical behavior was tested.",
+    "The canonical sync author's PASS is not promoted to a full architecture, README, module-budget, public-link, or quality-gate PASS.",
+    "Child __all__ declarations do not change their internal contract classification.",
+    "Nonliteral dynamic __all__ entrypoints are explicitly outside the supplementary literal inventory check; the Scientist facade has an explicit literal list and was executed directly.",
+    "The attempted nonexistent autotune README read was preparation-only and produced no runtime verdict; no such README is required by this scoped inventory check.",
+    "The first supplementary inventory verifier stopped on an unrelated dynamic __all__ expression; it was corrected to exclude such expressions without changing the literal Scientist export check. No backend execution occurred."
+  ],
+  "canonical_sync_author_outcome": "Root reports actual canonical UV engine sync PASS after two CLI-console startup errors. This review independently verifies committed generated identities; it does not rerun or convert sync into whole-gate acceptance.",
+  "quality": "B04/B19/B23 and full architecture/readme/deep-import quality remain separate. Public stable root aliases do not promote the internal child packages.",
+  "no_new_backend_or_gate_execution": true
+}

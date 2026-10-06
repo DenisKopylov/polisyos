@@ -27,6 +27,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEstimate,
 )
 from polisyos.scientist.methods.search.stages import CorrelationTracker
+from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
@@ -110,9 +111,12 @@ def test_same_scope_refinement_is_current_while_history_keeps_unknown_risk() -> 
     assert current.uncertainty_envelope.uncertainties[UncertaintyType.MODEL].level == pytest.approx(
         0.8
     )
-    assert _uncertainty_level(
-        current.feedback["uncertainty_historical_max"], UncertaintyType.STATISTICAL
-    ) == 1.0
+    assert (
+        _uncertainty_level(
+            current.feedback["uncertainty_historical_max"], UncertaintyType.STATISTICAL
+        )
+        == 1.0
+    )
     assert _uncertainty_level(
         current.feedback["uncertainty_current"], UncertaintyType.STATISTICAL
     ) == pytest.approx(0.1)
@@ -152,9 +156,7 @@ def test_scope_identity_prevents_cross_scope_continuation(scope_key: str) -> Non
     assert ticket_b.stage_results == {}
     outcome_b = orchestrator.advance(ticket_b, policy="full")
     assert stage.evaluate.call_count == 2
-    assert outcome_a.uncertainty_envelope.uncertainties[
-        UncertaintyType.STATISTICAL
-    ].level == 1.0
+    assert outcome_a.uncertainty_envelope.uncertainties[UncertaintyType.STATISTICAL].level == 1.0
     assert outcome_b.final_result is not None
     assert outcome_b.final_result.uncertainty_envelope.uncertainties[
         UncertaintyType.STATISTICAL
@@ -189,10 +191,13 @@ def test_persisted_empty_report_fails_closed_over_stale_normal_mode(tmp_path) ->
     assert metrics["sample_count"] == 0
     assert metrics["calibration_state"] == "not_established"
     assert metrics["routing_mode"] == "no_promotion"
-    assert runtime._resolve_degradation_mode(
-        state,
-        calibration_report=loaded_report,
-    ) == "no_promotion"
+    assert (
+        runtime._resolve_degradation_mode(
+            state,
+            calibration_report=loaded_report,
+        )
+        == "no_promotion"
+    )
 
 
 def test_statistically_bad_tracker_is_observed_drift_not_empty_state() -> None:
@@ -259,7 +264,8 @@ def test_level6_owner_recheck_happens_before_effectful_runner() -> None:
     )
 
 
-def test_level6_normal_path_calls_runner_after_owner_recheck() -> None:
+def test_level6_normal_path_bool_preflight_cannot_admit_runner_effects() -> None:
+    """A bool preflight cannot replace the missing promotion-purpose permit port."""
     calls: list[str] = []
 
     def recheck(_candidate: dict[str, Any], _context: dict[str, Any]) -> bool:
@@ -270,19 +276,35 @@ def test_level6_normal_path_calls_runner_after_owner_recheck() -> None:
         calls.append("runner")
         return {"decision": "complete"}
 
-    result = Level6PromotionStage(
+    stage = Level6PromotionStage(
         promotion_runner=runner,
         promotion_owner_recheck=recheck,
-    ).evaluate({"candidate_id": "fun-03"}, {"funnel_degradation_mode": "normal"})
+    )
+    result = stage.evaluate({"candidate_id": "fun-03"}, {"funnel_degradation_mode": "normal"})
 
-    assert calls == ["recheck", "runner"]
-    assert result.terminal_action == "complete"
+    assert calls == []
+    assert result.terminal_action == "defer_to_human"
+    assert result.feedback["promotion_admission_status"] == "bridge_missing"
+    assert result.feedback["promotion_required_contract"] == (
+        "owner_issued_promotion_permit_and_revoke_serialized_commit"
+    )
+    # Completion here interprets a prepared result; it grants no callback/write authority.
+    prepared = {"decision": "complete", "reason": "already calculated"}
+    read_only = stage.evaluate(
+        {"candidate_id": "fun-03"},
+        {"funnel_degradation_mode": "normal", "promotion_result": prepared},
+    )
+    assert calls == []
+    assert read_only.terminal_action == "complete"
+    assert read_only.feedback["promotion_result_read_only"] is True
+    assert read_only.feedback["promotion_result"] == prepared
 
 
 def test_production_owner_recheck_requires_explicit_write_permission(monkeypatch) -> None:
     candidate_ref = _artifact_ref("a")
     evidence_ref = _artifact_ref("b")
     state = ExperimentState(run_id="fun-03-owner-run")
+
     class _EvidenceBundle:
         def __init__(self, bound_candidate_ref: ArtifactRef) -> None:
             self.candidate_ref = bound_candidate_ref
@@ -301,18 +323,24 @@ def test_production_owner_recheck_requires_explicit_write_permission(monkeypatch
     ctx = MagicMock(store=MagicMock())
 
     assert runtime._policy_promotion_owner_recheck(ctx, state, candidate_ref, context) is False
-    assert runtime._policy_promotion_owner_recheck(
-        ctx,
-        state,
-        candidate_ref,
-        {**context, "promotion_write_allowed": False},
-    ) is False
-    assert runtime._policy_promotion_owner_recheck(
-        ctx,
-        state,
-        candidate_ref,
-        {**context, "promotion_write_allowed": True},
-    ) is True
+    assert (
+        runtime._policy_promotion_owner_recheck(
+            ctx,
+            state,
+            candidate_ref,
+            {**context, "promotion_write_allowed": False},
+        )
+        is False
+    )
+    assert (
+        runtime._policy_promotion_owner_recheck(
+            ctx,
+            state,
+            candidate_ref,
+            {**context, "promotion_write_allowed": True},
+        )
+        is True
+    )
     assert bundle.compatible_runs == [state.run_id]
 
 
@@ -323,9 +351,7 @@ def test_orchestrator_honors_persisted_no_promotion_projection_without_tracker()
         calls.append("runner")
         return {"decision": "complete"}
 
-    orchestrator = FunnelOrchestrator(
-        [Level6PromotionStage(promotion_runner=runner)]
-    )
+    orchestrator = FunnelOrchestrator([Level6PromotionStage(promotion_runner=runner)])
     ticket = orchestrator.submit(
         {"candidate_id": "fun-03"},
         {
@@ -367,7 +393,7 @@ def _install_actual_runtime_node_dependencies(
     tmp_path,
     *,
     mode: str,
-    revoke_permission_at_commit: bool = False,
+    revoke_legacy_marker_on_callback: bool = False,
 ) -> dict[str, Any]:
     """Stub non-funnel boundaries while retaining node, L4, orchestrator, and L6."""
     run_id = f"fun-03-node-{mode}"
@@ -482,16 +508,7 @@ def _install_actual_runtime_node_dependencies(
         def record(self, *_args: Any, **_kwargs: Any) -> None:
             return None
 
-    class _VOIScheduler:
-        def update_calibration_state(self, _state: dict[str, Any]) -> None:
-            return None
-
-        def model_status(self) -> list[Any]:
-            return []
-
-        def report_for_decisions(self, **_kwargs: Any) -> Any:
-            return SimpleNamespace()
-
+    voi_scheduler = PredictiveVOIScheduler()
     strategic_output = SimpleNamespace(
         strategic_scm_ref=None,
         strategic_response_bundle_ref=None,
@@ -537,7 +554,7 @@ def _install_actual_runtime_node_dependencies(
         candidate_ref: ArtifactRef,
         context: dict[str, Any],
     ) -> tuple[object, ArtifactRef]:
-        if revoke_permission_at_commit:
+        if revoke_legacy_marker_on_callback:
             context["promotion_write_allowed"] = False
         return object(), candidate_ref
 
@@ -584,7 +601,7 @@ def _install_actual_runtime_node_dependencies(
             "routing_mode": mode,
         },
         "_resolve_runtime_correlation_tracker": lambda *_args, **_kwargs: None,
-        "load_predictive_voi_scheduler": lambda *_args, **_kwargs: _VOIScheduler(),
+        "load_predictive_voi_scheduler": lambda *_args, **_kwargs: voi_scheduler,
         "persist_predictive_voi_scheduler": lambda *_args, **_kwargs: None,
         "_resolve_runtime_policy_evaluation": lambda *args, **kwargs: (
             kwargs["fallback"],
@@ -649,20 +666,24 @@ def test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_wor
     assert "degraded_mode_promotion_cap" in {
         card["failure_type"] for card in level6["failure_cards"]
     }
-    assert outcome.state.params["_funnel_outcome"]["stage_results"]["4"]["feedback"][
-        "policy_runtime_fidelity"
-    ] == "full"
+    assert (
+        outcome.state.params["_funnel_outcome"]["stage_results"]["4"]["feedback"][
+            "policy_runtime_fidelity"
+        ]
+        == "full"
+    )
 
 
-def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
+def test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work(
     tmp_path,
     monkeypatch,
 ) -> None:
+    """Typed permit/serialized writer positive is UNRUN; legacy markers admit zero effects."""
     harness = _install_actual_runtime_node_dependencies(
         monkeypatch,
         tmp_path,
         mode="normal",
-        revoke_permission_at_commit=True,
+        revoke_legacy_marker_on_callback=True,
     )
 
     outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
@@ -672,10 +693,13 @@ def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
 
     assert outcome.status == "ok"
     assert harness["backend_calls"] == ["full"]
-    assert harness["runner_calls"] == ["runner"]
-    assert harness["owner_checks"] == [True, False]
+    assert harness["runner_calls"] == []
+    assert harness["owner_checks"] == []
     assert harness["promotion_writes"] == []
-    assert outcome.state.params["policy_promotion_result"]["reason"] == (
-        "promotion_owner_recheck_failed"
-    )
     assert outcome.state.params["_funnel_outcome"]["final_action"] == "defer_to_human"
+    assert "policy_promotion_result" not in outcome.state.params
+    level6 = outcome.state.params["_funnel_outcome"]["stage_results"]["6"]
+    assert level6["feedback"]["promotion_admission_status"] == "bridge_missing"
+    assert level6["feedback"]["promotion_required_contract"] == (
+        "owner_issued_promotion_permit_and_revoke_serialized_commit"
+    )

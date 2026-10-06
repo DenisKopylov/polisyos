@@ -1,0 +1,3 @@
+These four files are byte-for-byte copies of the original accounting drafts from `/tmp/e02-D-final-accounting-jks4a3d1`. They target source `5050a940d990198f17de2b5dd9a3be691e153c05` and retain their original conditional proposals. They are draft accounting inputs, not a final verdict for root `8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47`. The originals remain untouched.
+
+The 39 engineering recommendations require final verification. Five original positive edges remain held, and B120 has a current upstream decoder limitation. No formal finding closure or G acceptance is established. The additive transport receipt records current verification-pending status and the interrupted root wave without changing any draft criterion or source binding.

@@ -1,0 +1,29 @@
+import json,os,sys,time
+from collections import Counter
+from pathlib import Path
+import pytest
+ROOT=Path('/dev/shm/e02-D2-receiver-review-fac5')
+base=ROOT/'pytest-negative-02'
+assert not base.exists(), 'fresh basetemp must not preexist'
+import polisyos.scientist.methods.autotune.models as models
+import polisyos.scientist.methods.autotune.registry as registry
+import polisyos.scientist.methods.autotune.bayesian_generator as generator
+import polisyos.scientist.methods.search.strategies.bayesian as bayesian
+origin={name:module.__file__ for name,module in {'models':models,'registry':registry,'generator':generator,'bayesian':bayesian}.items()}
+for path in origin.values():assert Path(path).is_relative_to(ROOT/'policy-engine'/'src')
+print('SOURCE_ORIGINS='+json.dumps({'production_sha':'fac5c77a31aa1b392a33f93730e76703478870f0','modules':origin,'python':sys.executable,'cwd':os.getcwd(),'PYTHONPATH':os.environ.get('PYTHONPATH'),'basetemp':str(base),'basetemp_preexisted':False}),flush=True)
+counts=Counter()
+def observe(frame,event,arg):
+ if event=='call' and frame.f_code.co_name=='fit_gpytorch_mll' and frame.f_code.co_filename.endswith('/botorch/fit.py'):counts['actual_native_fit_gpytorch_mll']+=1
+class Observer:
+ @pytest.hookimpl(hookwrapper=True)
+ def pytest_runtest_call(self,item):
+  sys.setprofile(observe)
+  try:yield
+  finally:sys.setprofile(None)
+args=['-c','/dev/null','-p','no:cacheprovider','--confcutdir=tests/unit','--basetemp='+str(base),'-q','tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py','-k','cold_registry','-ra']
+print('PYTEST_ARGS='+json.dumps(args),flush=True)
+start=time.monotonic()
+code=pytest.main(args,plugins=[Observer()])
+print('MEASUREMENT='+json.dumps({'exit_code':code,'wall_seconds':time.monotonic()-start,'native_observed_calls':dict(counts),'basetemp_preserved':base.exists()}),flush=True)
+raise SystemExit(code)

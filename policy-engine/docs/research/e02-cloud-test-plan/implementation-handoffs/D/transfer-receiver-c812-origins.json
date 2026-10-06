@@ -1,0 +1,31 @@
+{
+  "production_sha": "c812510541c898d7118004661ce07335823d2209",
+  "modules": {
+    "models": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+    "registry": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+    "generator": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "bayesian": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "transfer": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+    "warm_start": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+  },
+  "native_modules": {
+    "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+    "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+    "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+    "hnswlib": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+  },
+  "versions": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5"
+  },
+  "python": "/workspace/e02-D-locked-env/bin/python",
+  "python_version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "cwd": "/dev/shm/e02-D2-receiver-review-c812/policy-engine",
+  "PYTHONPATH": "src:.",
+  "basetemp": "/dev/shm/e02-D2-receiver-review-c812/pytest-negative-01",
+  "basetemp_preexisted": false
+}

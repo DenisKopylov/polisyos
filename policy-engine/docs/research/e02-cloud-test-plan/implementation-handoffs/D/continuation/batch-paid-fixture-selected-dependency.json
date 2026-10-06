@@ -1,0 +1,18 @@
+{
+  "schema": "D.paid_fixture_profile_migration.v1",
+  "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+  "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+  "selected_path": "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+  "selected_blob": "1d8fbc094bd0539d2a542a904420a34f87c3a8a8",
+  "selected_sha256": "4e8f64605802917a07771af519cd665490aa099452d258ab0cc000a3074776af",
+  "old_leaf_sha256": "4e8f64605802917a07771af519cd665490aa099452d258ab0cc000a3074776af",
+  "leaf_was_identical": true,
+  "sole_modified_test": "test_measured_provider_charge_drives_stopping_and_detached_report",
+  "preserved": "Actual producer transport/enforcer/ledger invocation, iteration1/cost1/remaining4 and detached prior result assertions; source/revision expectation migrated to actual typed recorded-owner profile; real ledger receipt assertions added independently of unavailable public revision/provider-origin authority.",
+  "original_actual_failure": {
+    "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "output_sha256": "79909176c8311b3207f36f54e063b96e921ea5f161a9d5404a65c4927c3cdff2",
+    "outcome": "86PASS/1FAIL; stalepersisted_owner marker after actualiteration/cost passed"
+  },
+  "production_changes": []
+}

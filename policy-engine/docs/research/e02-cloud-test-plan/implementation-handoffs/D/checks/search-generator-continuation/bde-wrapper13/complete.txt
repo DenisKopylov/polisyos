@@ -1,0 +1,36 @@
+.............                                                            [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_owner_configured_bridge_reaches_real_gp_and_wrapper_resume_without_mll_fit
+tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_owner_configured_bridge_reaches_real_gp_and_wrapper_resume_without_mll_fit
+tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_owner_configured_bridge_reaches_real_gp_and_wrapper_resume_without_mll_fit
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[False]
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[True]
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_public_checkpoint_preserves_next_actual_sobol_action
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_wrapper_refusal_is_atomic_for_actual_native_rng[metric]
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_wrapper_refusal_is_atomic_for_actual_native_rng[bool_seed]
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_wrapper_refusal_is_atomic_for_actual_native_rng[flag]
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_wrapper_refusal_is_atomic_for_actual_native_rng[schema]
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_wrapper_refusal_is_atomic_for_actual_native_rng[rng]
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_changed_processed_history_refuses_before_next_native_suggest
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_configure_transfer_requires_pre_activity_pair
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_owner_configured_bridge_reaches_real_gp_and_wrapper_resume_without_mll_fit
+PASSED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_missing_configured_pair_refuses_without_changing_native_receiver
+PASSED tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[False]
+PASSED tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[True]
+PASSED tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_configured_origin_mismatch_remains_discovery_only_and_cannot_fit_gp
+13 passed, 7 warnings in 28.52s

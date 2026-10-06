@@ -1,0 +1,32 @@
+{
+  "receipt_commit": "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-frontend-ci-243.json",
+  "receipt_sha256": "89eab51d784d1a124a47f6a98d2f029d2f4d9752a0d320ed0206796cea5395e8",
+  "checked_git_bindings": [
+    {
+      "pointer": "/publication/payload_manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/manifest.json",
+      "sha256": "0be01280170b3cf9383286902b3d39b404d8f93cdb2cca7d2c3771b560c95c13",
+      "matching_git_sources": [
+        "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da"
+      ]
+    },
+    {
+      "pointer": "/canonical_plan",
+      "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+      "matching_git_sources": [
+        "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da"
+      ]
+    }
+  ],
+  "external_path_scope": [
+    {
+      "pointer": "/actual_native_browser/engine",
+      "path": "/workspace/e02-D2-receipts/browser-chromium-243/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell",
+      "scope": "External path not counted as Git binding"
+    }
+  ],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

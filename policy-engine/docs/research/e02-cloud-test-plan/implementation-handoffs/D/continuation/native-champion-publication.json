@@ -1,0 +1,1959 @@
+{
+  "schema": "e02-D-continuation-handoff.v1",
+  "implementation_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+  "implementation_tree": "34d0333d489d065c78bbc4bbf9a9214283a4cb33",
+  "predecessor_sha": "769a8dac89450dc54c1caeef69b217685bf983f8",
+  "initial_correction_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+  "initial_correction_tree": "4c628ace2f5b8a5a2e26d51637a0115179aec36f",
+  "new_defining_test_red_sha": "81eb4c5ac560ee423a18731385dca36e9d95bf8c",
+  "evidence_commit": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+  "source_supplier": "28231314770215be0e646d33d8c1f567211f6c19",
+  "status": "actual local native/CAS properties verified at individually bound sources; final153 interrupted, no final153 PASS claim",
+  "footprint": [
+    {
+      "path": "policy-engine/README.md",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "b06a2939093cb141c816b4d2e68bb12231de7ae7",
+      "bytes": 17786,
+      "sha256": "545542370e8835bc8ae384dcb3cdf42e5d2deaa677eca065248d90c2ed611c92"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "7eae5c91ef67da770b3d0ea7b9bb51063184a9fc",
+      "bytes": 6148,
+      "sha256": "fab54b89d826219f3bc98b56d53802254d1da848ffab889979fda0d89446cc6f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "1f50f305dc5c4035965983cdd77b63cfb824c71c",
+      "bytes": 29375,
+      "sha256": "eebcabb87e906c582ce5906dcef3e64f608150c2618010179636da8265fbd970"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+      "bytes": 27732,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "900b894d588b40626082d6bc975d72be25779818",
+      "bytes": 14518,
+      "sha256": "d910fc2bb151ef1725edf2ffc70e19a1b5f51931092f6327000e2ea5c92b2dbd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "729b174caee729b012c04e948319b70232c175e5",
+      "bytes": 55051,
+      "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+      "bytes": 17782,
+      "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "8e7a6793bdd3fef3f2b4787a4b9158ff4fd0e470",
+      "bytes": 40669,
+      "sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "e5db88df8a2f115d886c592bdf291d4013d3f21a",
+      "bytes": 15755,
+      "sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "d888eb10cc7d45111c9ad7a960313e61bf8aca59",
+      "bytes": 28366,
+      "sha256": "adad9a5ea8c326703b0424c1820a77b7449dd962e399a1a7f31948efdf360cb2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "blob": "51ab4ce016ecf132bcbd61c6b9292d3bbc7429a4",
+      "bytes": 43260,
+      "sha256": "27ca58db276560aa8dec8f19684aebcb0cf638f6111bd258340fefbbd757d7e3"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "f3f5f10ae44da849891eec43d16044541e0a84f1",
+      "bytes": 46610,
+      "sha256": "ea70125803614ea4b401766d0932c26db7ed54045c0657935caf22516f410b83",
+      "encoding": "gzip",
+      "decoded_bytes": 843248,
+      "decoded_sha256": "feb4b4ea57b99eb40a1def9093abbe24528dd6417e58c53c358d23980c4bdfec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-ask-precommit-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "95e7b26ff209707103b48868d79ff02bc9dc4d1f",
+      "bytes": 759,
+      "sha256": "607bc4d4514e39651f012f5a494ea10603a661c98d057d54707eb087a25a0b88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "ad0621b33650ff2e263ebe71ae1e040150bc93c3",
+      "bytes": 6867,
+      "sha256": "c24e3c8a443209d26d5c3851e1f5e3abed0c0ee392f5f5f9124433890660c456"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "c56a170070e44ff3027b0596d1a05e8ea53a5699",
+      "bytes": 7744,
+      "sha256": "f22afccf1af40e1bc57f5af99841ea8e7b8bc1970e1ad188cbd94c95e5f2a1fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "b64873f528b30a71ed9893e5e3f2e4e5b1467060",
+      "bytes": 21,
+      "sha256": "a9685a0c9db42a4e9dfa410a0951569c430ab99d6f70eb15b161026d48977cc2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "78f6c32ba468cb010e5350ddbf850404c2232c29",
+      "bytes": 623,
+      "sha256": "efa880bf1e2bffe1e1f576942992b1a732456bc561b32cd691d85fbd50988d46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-current-positive-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "2ee06f5b0e05894d6a891a41d1cae3916fe3cb6f",
+      "bytes": 7509,
+      "sha256": "c36194a2f62fba0e705646ff7424447061fff4eac6761bf7cb3702494109062d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-current-verify.py.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "a532859a7e03966577269d12c6249e6dff6eeaa2",
+      "bytes": 2720,
+      "sha256": "01626d847b2355b5d8c04d961433535ecbea8861e88c03589d76273774ef49b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "4020734b5e32942d926d05af363e842c25d3e71c",
+      "bytes": 21736,
+      "sha256": "46bcd0ed9a62d756e745b26e06279a474f91dd4394f2eb42d03cabb05b7782bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "db3f730cfc9585d2d5d81a980671823b20f565cc",
+      "bytes": 29439,
+      "sha256": "47e6150750e3403318e5791389b921dc6c120c60ffd8500364e8f640c21c0842"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-verify.py.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "a509adbb886c53570a10476e8dfd3f9393bdd808",
+      "bytes": 2716,
+      "sha256": "7db02f048b6e4fab1d0b73282339c6a349f90c29fbc0730f406d37c22906f6aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "c4d613c51aa03e173b6fc784372b1c3de543987c",
+      "bytes": 20168,
+      "sha256": "e4bc31719cd1844115911e4f4d21f20f607e4ff27eab64977e86e325875842e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "dfc03ac384985d4a945f8846f281897ce776acb3",
+      "bytes": 32789,
+      "sha256": "67ccc5390221829063642c70f3a61fa8934bf57be7d393e312e48232a5abc911"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-verify.py.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "576ba9ec7b4e533346cc76b335aaeb546e1abb32",
+      "bytes": 2190,
+      "sha256": "2761c40d8d3a95e26a644156764161993418e65c566c94e7e4520bc1d17bb69a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "ee9351a1e3f4cc6087f042a16a925ec1d19efe71",
+      "bytes": 6355,
+      "sha256": "3e4d99f219bea320c8cb23fba0ad6e9bf87d4fca7d795244690193aa9f533b1c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-fresh-reader.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "0f9c92a13ea610e0969a998351b68e1c2a5fdd19",
+      "bytes": 4293,
+      "sha256": "93452dfcf416a00c57ca451d18179a6e399758c96af1ad1f1244dbe9664e66a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-junit.xml",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "88cdffc082cd0f0ffaaf8d013a5e0b3072754d3c",
+      "bytes": 6377,
+      "sha256": "9bc642f84044acd66b8c7733b1a1e0ffd5b58b74d852b36c45694e4866806c0f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-positive-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "f0e3d81a07664380fe0cf0e296881ab34a93f7f3",
+      "bytes": 12425,
+      "sha256": "0f57e50a76817e480c80c3037256f112fcd5498f18141cca3cd84901e08737fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-precommit-2-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "a96961ce3b62d6e34d6612428ffbd7cdcf9e250a",
+      "bytes": 2917,
+      "sha256": "3bead0e27bf8cfc3f93269d438008ad4047bfc6611f95a893c534184a4c401a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-precommit-complete.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "d3b7fc1043154846e2ff81c74200c31eec16ccf9",
+      "bytes": 14344,
+      "sha256": "ff573abcbbe1eacf03a7f024421ae45711491d100c0eced7e1efe88d6e15a5f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-removal.py.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "bc4d345b15d3a74ec9852e68269b89e312bdf18c",
+      "bytes": 1835,
+      "sha256": "2126e5469ebcb842aa16945d8dd02dbf1d73b629d5c539769ef85d3172419fe0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-verify.py.txt",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "008913b675d7427bc725b85db4f877e19a5197d5",
+      "bytes": 2723,
+      "sha256": "7c0b552e21edb02445ab16016ff42a5dfde9036ee90dd7314b6fc8bbf4452f2b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/current-full-run-status.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "6440916e3d75896bfcac885bd52a4b5abeb75406",
+      "bytes": 562,
+      "sha256": "3d60e3ad03e8459c9b450fa8d49918416eab8d09c9c8dbb1f77a331e01a0a948"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/fixture-assertion-preservation.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "8f2973930a228a1811fa851d0d1448c0dab4114c",
+      "bytes": 411,
+      "sha256": "895890717613c65868394bd258806b30ed3d54a448f05a1ce078912b583a5b60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/focused-run-status.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "1f42d50c9fedb30f8f612f470a89991927a3d032",
+      "bytes": 616,
+      "sha256": "3b6328b1f5ae3deeb5c3f0b4d1ba3223e8e2f85e1e2a32dcdb3ed14af75de664"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/lossless-output-encoding.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "6ef04adcdb1381d528975212f3d0b0dbf2442d53",
+      "bytes": 2586,
+      "sha256": "dc89a36930edf1e3fa2be272e68863d0ae29bcbc3abfe530bb8e03fbf6453eb9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "2dc9127326921a8da55d65df1b622fe9b6161a78",
+      "bytes": 89116,
+      "sha256": "a590b4df8c4fa93a0724b8738521f726992b2afbdcee343efee20a62a23552b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "14ea322e98c897adb91df43382871a18925a3415",
+      "bytes": 75932,
+      "sha256": "f86d0dd050cb89c3aec068df19bdcd6362b9f3ebc89f9f424c1a45a6da8b0ad4",
+      "encoding": "gzip",
+      "decoded_bytes": 1034528,
+      "decoded_sha256": "35c838aeffeadae45db3602852f4a55fa79987cfbe7dc846cfd50ad7ca18df5d"
+    }
+  ],
+  "original_criteria": {
+    "criteria_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "full_original_fragments_and_cards": [
+      {
+        "id": "B116@OPT-04",
+        "finding_id": "B116",
+        "criterion_card": "OPT-04",
+        "canonical_closure_owner": "OPT-04",
+        "role": "canonical_owner",
+        "task_anchor": "D.md#bundle-opt-04",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3011,
+            3024
+          ],
+          "byte_offset": 677489,
+          "bytes": 3727,
+          "sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98",
+          "text": "## B116. Технический champion может получить оценку другого кандидата или несопоставимого испытания\n\n**Основание и область:** generic `ChampionRegistry.consider_promotion`, `BenchmarkEvaluation`, вызов из `SearchLoopRunner._evaluate_candidate`; C01–C04. Особый `claim_adjudication` путь не исполнялся. [C10.R03, C10.R07, C10.R11]\n\n**Проблема.** API отдельно получает candidate_ref и evaluation_ref. Загруженная оценка содержит собственные candidate_ref, loop_id, suite_id/version и runtime split, но перед созданием pointer они не сопоставляются с эффективным запросом. Проверяются guardrails, promotable, sample count и число метрики; этого недостаточно для установления предмета доказательства. Текущий champion хранит suite_version, однако совместимость старой и новой базы сравнения также не проверяется в этой функции.\n\n**Локальное воспроизведение.** Полный registry на fixture-store с настоящими временными JSON-файлами записал candidate B с evaluation, описывающей A. Отдельно прошла оценка из другого loop и смена suite/version при лучшем числе. Контроль `promotable=False` правильно отказал: защита не отсутствует целиком, она не закрывает идентичность. В нормальном caller candidate передаётся evaluator, но результат затем сохраняется и рассматривается без обнаруженной проверки соответствия внутри прочитанного участка.\n\n**Рекомендуемое решение.** До использования числа связать candidate, evaluation и активную политику; подтвердить применимую версию suite, split, методику метрики и data basis. Не сравнивать два числа только потому, что ключ метрики одинаков. Для новой suite — переоценить текущий champion на новой базе либо явно начать новое сравнение; не запрещать развитие benchmark вообще.\n\n**Сохранить границы полномочий.** Это проверка технической привязки, не добавление нового институционального допуска. Не следует ослаблять специализированные guards, выдавать подпись за валидность оценки или считать этот опыт обходом всех tenant/authentication/CAS-проверок. Fixture-store здесь не воспроизводит их.\n\n**Приёмка.** Перепутанная пара A/B, чужой loop, неверный split и несовместимая suite не меняют pointer; одинаковая подтверждённая база допускает честное улучшение; ошибка возвращает конкретную несовместимость, а не общий low score. Проверить cache-replay оценки и штатный evaluator-to-registry путь.\n\n"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Перепутанная пара A/B, чужой loop, неверный split и несовместимая suite не меняют pointer; одинаковая подтверждённая база допускает честное улучшение; ошибка возвращает конкретную несовместимость, а не общий low score. Проверить cache-replay оценки и штатный evaluator-to-registry путь.",
+          "byte_offset": 680728,
+          "bytes": 486,
+          "sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab"
+        },
+        "canonical_card_pointer": "/canonical_cards/OPT-04",
+        "evidence_keys": [
+          "original_243_delta",
+          "canonical_17"
+        ],
+        "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+        "missing_input_pointer": "/findings/10/unreceived_inputs_or_APIs",
+        "canonical_card_binding": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+          "bytes": 13217,
+          "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684"
+        },
+        "canonical_card_text_ref": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+          "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+          "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+          "bytes": 13217,
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+        }
+      },
+      {
+        "id": "B117@OPT-04",
+        "finding_id": "B117",
+        "criterion_card": "OPT-04",
+        "canonical_closure_owner": "OPT-04",
+        "role": "canonical_owner",
+        "task_anchor": "D.md#bundle-opt-04",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3025,
+            3038
+          ],
+          "byte_offset": 681216,
+          "bytes": 3986,
+          "sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d",
+          "text": "## B117. Атомарная запись champion-файла не делает атомарным сравнение с предшественником\n\n**Основание и область:** `get → compare → _write_pointer` и `_write_json`; R01–R02. Полный registry, настоящий файловый ввод-вывод и управляемая конкурентная последовательность. [C10.R07, C10.E02]\n\n**Проблема.** Указатель читается, улучшение вычисляется, затем файл атомарно заменяется. Между чтением и записью другой вызов может установить более сильный вариант. Второй писатель не проверяет, что сравнивавшийся предшественник всё ещё актуален. Atomic replace защищает целостность одного файла, не изоляцию всей операции read–compare–publish.\n\n**Локальное воспроизведение.** Исходный score=1. Писатель B со score=2 прочитал его и остановлен непосредственно перед записью. Писатель C со score=3 прочитал тот же 1 и опубликовал 3. После освобождения B записал 2. Обе операции вернули promoted=True, окончательный pointer содержит 2. При последовательном контроле C→B значение осталось 3, а B отвергнут. Синхронизация событий обеспечивает порядок; случайная гонка не используется как доказательство.\n\n**Рекомендуемое решение.** Сделать conditional publish относительно конкретной версии predecessor под существующим владельцем: транзакция/compare-and-swap или подходящий стабильный lock вокруг чтения, сравнения и фиксации. На конфликте заново сравнить с актуальным pointer, а не слепо повторять старую запись. Дорогой benchmark исполняется вне критической секции; под ней остаётся короткая проверка неизменяемых артефактов и перехода.\n\n**Два обязательных уточнения.** In-process lock недостаточен для нескольких процессов, если такой режим разрешён. Для специализированного claim-пути pointer и promotion_basis должны оставаться согласованными; просто добавить блокировку одной записи недостаточно. История конфликтовавшего кандидата/оценки сохраняется независимо от того, стал ли он текущим.\n\n**Приёмка и предел.** Управляемая последовательность B/C не ухудшает лучший актуальный результат по одной принятой политике; conflicting predicate возвращается явно. Авария на границе публикации даёт старое или новое согласованное состояние. На production workload конкурентное обращение к этому registry не измерялось; карточка применима при разрешении нескольких писателей. Новый распределённый реестр ради одного локального сценария не нужен.\n\n"
+        },
+        "canonical_content": {
+          "text": "**Приёмка и предел.** Управляемая последовательность B/C не ухудшает лучший актуальный результат по одной принятой политике; conflicting predicate возвращается явно. Авария на границе публикации даёт старое или новое согласованное состояние. На production workload конкурентное обращение к этому registry не измерялось; карточка применима при разрешении нескольких писателей. Новый распределённый реестр ради одного локального сценария не нужен.",
+          "byte_offset": 684423,
+          "bytes": 777,
+          "sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319"
+        },
+        "canonical_card_pointer": "/canonical_cards/OPT-04",
+        "evidence_keys": [
+          "original_243_delta",
+          "canonical_17"
+        ],
+        "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+        "missing_input_pointer": "/findings/11/unreceived_inputs_or_APIs",
+        "canonical_card_binding": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+          "bytes": 13217,
+          "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684"
+        },
+        "canonical_card_text_ref": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+          "git_blob": "4737f64519f897b306f61b6a3340ce5fb7797410",
+          "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+          "bytes": 13217,
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@198076863e143dea9f89f02734b13d50dae3eed5"
+        }
+      },
+      {
+        "id": "LA-014@SRV-01",
+        "finding_id": "LA-014",
+        "criterion_card": "SRV-01",
+        "canonical_closure_owner": "SRV-01",
+        "role": "canonical_owner",
+        "task_anchor": "D.md#bundle-srv-01",
+        "original_fragment": {
+          "document_key": "LA_r09",
+          "lines": [
+            455,
+            481
+          ],
+          "byte_offset": 52637,
+          "bytes": 2835,
+          "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2",
+          "text": "## LA-014. Search contracts импортируют и изменяют legacy runtime\n\n**Слияние / разделение ответственности**\n\n**Статус.** Смешение контрактов и реализации подтверждено.\n\n**Точная область:**\n\n`src/polisyos/scientist/methods/search/contracts.py`\n\n**Что установлено и почему это legacy-кандидат.** Рядом с CandidateProposal, EvaluationBundle, SearchService и FunnelService находятся concrete adapters. Импорт contracts тянет SearchController и FunnelOrchestrator. LegacySearchServiceAdapter.tell вручную пишет _history, _best_objective и _best_candidate контроллера. Это отдельный путь обновления состояния, а не чистая декларация интерфейса.\n\n**Что сохранить.** Стабильные DTO/protocols и переходный доступ к действующему controller. Сохранить семантику policy_evaluation/frontier/registry feedback, а не лишь scalar minimum.\n\n**Куда перенести / с чем объединить.** В contracts.py оставить DTO/protocols; предлагаемый новый adapters.py в том же существующем methods/search/ принимает LegacySearchServiceAdapter и OrchestratorFunnelService. Конкретную операцию tell-state transition предоставляет владелец search state, не обход приватных полей.\n\n**Порядок миграции.** Сначала разорвать import dependency, затем централизовать переход состояния; временно сохранить старый export только если подтверждён публичный контракт. Перемещение dataclass без устранения ручной мутации не завершает смысловую миграцию.\n\n**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.\n\n**Приоритет.** Высокая архитектурная отдача; средняя цена.\n\n**Граница вывода.** Новый native SearchService не показан как готовая замена: в прочитанном contracts присутствуют protocol и adapter. Нельзя удалить controller потому, что интерфейс уже назван canonical.\n\n**Основания:** E27, E28.\n\n<!-- PAGEBREAK -->\n"
+        },
+        "canonical_content": {
+          "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+          "byte_offset": 54712,
+          "bytes": 284,
+          "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+        },
+        "canonical_card_pointer": "/canonical_cards/SRV-01",
+        "evidence_keys": [
+          "original_243_delta",
+          "canonical_17"
+        ],
+        "command_outcome_pointer": "/canonical_command_outcomes/SRV-01",
+        "missing_input_pointer": "/findings/43/unreceived_inputs_or_APIs",
+        "canonical_card_binding": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+          "bytes": 8706,
+          "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0"
+        },
+        "canonical_card_text_ref": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+          "git_blob": "d865853fc8410b64892cbb9763b651f2f55d91ad",
+          "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0",
+          "bytes": 8706,
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+        }
+      },
+      {
+        "id": "LA-015@CTL-01",
+        "finding_id": "LA-015",
+        "criterion_card": "CTL-01",
+        "canonical_closure_owner": "SRV-03",
+        "role": "supplier_companion_only",
+        "task_anchor": "D.md#bundle-ctl-01",
+        "original_fragment": {
+          "document_key": "LA_r09",
+          "lines": [
+            482,
+            512
+          ],
+          "byte_offset": 55472,
+          "bytes": 3232,
+          "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+          "text": "## LA-015. SearchController: живое legacy-ядро, требующее поэтапного замещения\n\n**Слияние / разделение ответственности**\n\n**Статус.** Legacy-роль и production-source caller подтверждены.\n\n**Точная область:**\n\n`src/polisyos/scientist/methods/search/controller.py`\n\n`src/polisyos/scientist/methods/search/frontier.py`\n\n`src/polisyos/scientist/methods/autotune/runtime.py`\n\n**Что установлено и почему это legacy-кандидат.** Контроллер поддерживает старый монолитный loop; autotune/runtime действительно создаёт SearchController. Protocol ask/tell не доказывает наличия второго полноценного loop, уже покрывающего stopping, warm-start, sentinels и историю. Сохранение старого драйвера лишь ради зрелого consumer — типичный случай живого legacy, а не unused code.\n\n**Что сохранить.** Проверенные сценарии, историю, причины остановки, evaluator ports, sentinel roles, бюджетные ограничения и частичные результаты. Стратегии и funnel не нужно выносить или переписывать вместе с driver.\n\n**Куда перенести / с чем объединить.** Текущий владелец methods/search/ и SearchService-contract. Предлагаемая extraction: state transition и run state под тем же владельцем, затем native ask/tell driver; autotune/runtime переводится на этот сервис. Это план миграции, не ссылка на якобы уже готовый advanced implementation.\n\n**Порядок миграции.** Снять characterization traces по фактически используемым сценариям. Выделять операции без смены поведения, переключать одного consumer и только затем выводить full-loop API. Отдельный retirement для старых serialized histories и import names.\n\n**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.\n\n**Приоритет.** Высокая полезность, высокая цена; не первая cleanup-волна.\n\n**Граница вывода.** В этом проходе перечитан contract и подтверждён caller; весь controller/runtime повторно не исполнен. Нет основания удалить весь methods/search, содержащий работающие современные компоненты.\n\n**Основания:** E27, E28, E37.\n\n<!-- PAGEBREAK -->\n"
+        },
+        "canonical_content": {
+          "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+          "byte_offset": 57790,
+          "bytes": 384,
+          "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+        },
+        "canonical_card_pointer": "/canonical_cards/CTL-01",
+        "evidence_keys": [
+          "original_243_delta",
+          "canonical_17"
+        ],
+        "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+        "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs",
+        "canonical_card_binding": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+          "bytes": 17621,
+          "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f"
+        },
+        "canonical_card_text_ref": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+          "git_blob": "500da588ba34cac6939898a11d5510d24d8f4aeb",
+          "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+          "bytes": 17621,
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+        }
+      },
+      {
+        "id": "LA-015@SRV-03",
+        "finding_id": "LA-015",
+        "criterion_card": "SRV-03",
+        "canonical_closure_owner": "SRV-03",
+        "role": "canonical_owner",
+        "task_anchor": "D.md#bundle-srv-03",
+        "original_fragment": {
+          "document_key": "LA_r09",
+          "lines": [
+            482,
+            512
+          ],
+          "byte_offset": 55472,
+          "bytes": 3232,
+          "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+          "text": "## LA-015. SearchController: живое legacy-ядро, требующее поэтапного замещения\n\n**Слияние / разделение ответственности**\n\n**Статус.** Legacy-роль и production-source caller подтверждены.\n\n**Точная область:**\n\n`src/polisyos/scientist/methods/search/controller.py`\n\n`src/polisyos/scientist/methods/search/frontier.py`\n\n`src/polisyos/scientist/methods/autotune/runtime.py`\n\n**Что установлено и почему это legacy-кандидат.** Контроллер поддерживает старый монолитный loop; autotune/runtime действительно создаёт SearchController. Protocol ask/tell не доказывает наличия второго полноценного loop, уже покрывающего stopping, warm-start, sentinels и историю. Сохранение старого драйвера лишь ради зрелого consumer — типичный случай живого legacy, а не unused code.\n\n**Что сохранить.** Проверенные сценарии, историю, причины остановки, evaluator ports, sentinel roles, бюджетные ограничения и частичные результаты. Стратегии и funnel не нужно выносить или переписывать вместе с driver.\n\n**Куда перенести / с чем объединить.** Текущий владелец methods/search/ и SearchService-contract. Предлагаемая extraction: state transition и run state под тем же владельцем, затем native ask/tell driver; autotune/runtime переводится на этот сервис. Это план миграции, не ссылка на якобы уже готовый advanced implementation.\n\n**Порядок миграции.** Снять characterization traces по фактически используемым сценариям. Выделять операции без смены поведения, переключать одного consumer и только затем выводить full-loop API. Отдельный retirement для старых serialized histories и import names.\n\n**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.\n\n**Приоритет.** Высокая полезность, высокая цена; не первая cleanup-волна.\n\n**Граница вывода.** В этом проходе перечитан contract и подтверждён caller; весь controller/runtime повторно не исполнен. Нет основания удалить весь methods/search, содержащий работающие современные компоненты.\n\n**Основания:** E27, E28, E37.\n\n<!-- PAGEBREAK -->\n"
+        },
+        "canonical_content": {
+          "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+          "byte_offset": 57790,
+          "bytes": 384,
+          "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+        },
+        "canonical_card_pointer": "/canonical_cards/SRV-03",
+        "evidence_keys": [
+          "original_243_delta",
+          "canonical_17"
+        ],
+        "command_outcome_pointer": "/canonical_command_outcomes/SRV-03",
+        "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs",
+        "canonical_card_binding": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+          "bytes": 9440,
+          "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0"
+        },
+        "canonical_card_text_ref": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+          "git_blob": "a65d6feeaf669dd46677abe6a7b258980da180cd",
+          "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0",
+          "bytes": 9440,
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md@198076863e143dea9f89f02734b13d50dae3eed5"
+        }
+      }
+    ]
+  },
+  "runtime": {
+    "argv": [
+      "tests/unit/scientist/methods/search/test_service_persistence.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/remediation/test_srv_01.py",
+      "tests/unit/remediation/test_srv_03.py",
+      "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py::test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis",
+      "/workspace/e02-D-continuation-receipts/immutable-service-test-dcae/test_service_ask_publication_review.py",
+      "-s",
+      "--basetemp=/workspace/e02-D-continuation-receipts/champion-verified-final-positive-9a5e9c45fd1c485d8a1bd940f1e8a97a",
+      "--junitxml=/workspace/e02-D-continuation-receipts/champion-verified-final-positive-junit.xml"
+    ],
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "native_origins": {
+      "polisyos.common.serialization": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/common/serialization.py",
+        "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852"
+      },
+      "polisyos.core.artifacts._integrity_ops": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+      },
+      "polisyos.core.artifacts.store": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+      },
+      "polisyos.scientist": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/__init__.py",
+        "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3"
+      },
+      "polisyos.scientist.methods.autotune.models": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "sha256": "eebcabb87e906c582ce5906dcef3e64f608150c2618010179636da8265fbd970"
+      },
+      "polisyos.scientist.methods.autotune.registry": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+      },
+      "polisyos.scientist.methods.autotune.runtime": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "sha256": "461339ef4b35a1220f8e8396d90d9a0013d2deb88e75a2828e496a84e6ba4a0a"
+      },
+      "polisyos.scientist.methods.search": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+        "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7"
+      },
+      "polisyos.scientist.methods.search.contracts": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+      },
+      "polisyos.scientist.methods.search.controller": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "sha256": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5"
+      },
+      "polisyos.scientist.methods.search.run_state": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"
+      },
+      "polisyos.scientist.methods.search.service": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720"
+      },
+      "polisyos.scientist.methods.search.stopping": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+      },
+      "polisyos.scientist.orchestration.engine.budget_ledger": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+      },
+      "polisyos.scientist.orchestration.engine.budget_middleware": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+      }
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "source": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+    "tree": "4c628ace2f5b8a5a2e26d51637a0115179aec36f"
+  },
+  "runs": {
+    "initial_frozen_positive": {
+      "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+      "status": "PASS",
+      "junit": "champion-verified-final-positive-junit.xml",
+      "tests": 151,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 120.681,
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[version]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[counter_bool]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[history_count]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[generator_cursor]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_order]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_huge]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_origin_claim]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[stage_a_integer]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_carrier]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[initial_carrier]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_generator_without_checkpoint_contract_refuses_public_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_pending_batch_order_survives_canonical_json_key_sorting",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_initial_sentinel_failure_resume_preserves_initial_termination",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_registered_checkpoint_facade_and_normal_contract_imports_do_not_load_runtime",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_readback]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_custom_parameterized_objective_checkpoint_refuses_resume_instead_of_build_identity",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[warm_corpus]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[policy_stack]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[external_arbiter]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_history",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_checkpoint_requires_exact_public_snapshot_profile_on_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_split_reads",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[nan]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[inf]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[-1]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[0]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[maximum6]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[invalid1]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[nan]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[inf]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[-1]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[None]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[cost6]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_recorded_cost_public_owner_port_reopens_without_receipt_or_provider_origin_authority",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_recorded_memory_zero_is_available_without_durable_identity_or_measured_zero",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[evaluator]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[context]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[callback]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[codec]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[opaque]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_same_content_configuration_and_context_fresh_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[canonical_tag]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_native_failure_leaves_only_pending_candidate_then_same_instance_tell_continues",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_native_partial_batch_stop_retains_unaccepted_pending_without_double_count",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[ask]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[tell]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_public_runner_two_runs_detach_history_and_preserve_actual_cas_evaluation",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_public_runner_refuses_zero_iteration_budget_before_any_evaluation",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+          "name": "test_native_empty_supplier_exhausts_without_accepting_history",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_contracts_import_without_runtime_controller_or_funnel",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_legacy_adapter_alias_is_lazy_and_points_to_canonical_bridge",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_ask_tell_uses_owner_transition_and_resumes_frontier",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_ask_tell_stage_a_rejection_does_not_count_stage_b",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_ask_tell_disabled_stage_a_keeps_stage_b_counting",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_unknown_and_duplicate_candidate_ids_do_not_create_history",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_malformed_typed_feedback_cannot_fall_back_to_scalar_best",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_01",
+          "name": "test_run_search_compatibility_path_remains_available",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_03",
+          "name": "test_current_controller_trace_preserves_warm_sentinel_empty_error_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_03",
+          "name": "test_native_service_rejects_explicit_falsy_candidate_id[0]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_03",
+          "name": "test_native_service_rejects_explicit_falsy_candidate_id[]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_03",
+          "name": "test_native_service_preserves_negative_string_candidate_id",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_03",
+          "name": "test_native_service_generates_id_only_when_candidate_id_is_absent",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.remediation.test_srv_03",
+          "name": "test_current_autotune_runner_characterizes_real_cas_consumer_path",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-100-99-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-100-98-False]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--100--99-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--100--98-False]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_unit_conversion_also_scales_absolute_tolerance",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_custom_coefficients_use_their_declared_tolerance",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_present_invalid_observation_cannot_establish_plateau[None]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_present_invalid_observation_cannot_establish_plateau[1.0]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_present_invalid_observation_cannot_establish_plateau[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_present_invalid_observation_cannot_establish_plateau[nan]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_present_invalid_observation_cannot_establish_plateau[inf]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_absent_observation_does_not_shorten_plateau_basis",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+          "name": "test_declared_plateau_stops_native_controller_and_preserves_best",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+          "name": "test_missing_unit_cannot_claim_objective_convergence",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+          "name": "test_missing_profile_cannot_claim_objective_convergence",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+          "name": "test_standard_preset_still_honors_budget_without_objective_unit",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+          "name": "test_malformed_patience_is_rejected[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+          "name": "test_malformed_patience_is_rejected[False]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+          "name": "test_malformed_patience_is_rejected[1.5]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+          "name": "test_malformed_patience_is_rejected[2]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_default_store_uses_storage_factory",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_autotune_persistence_helpers_accept_protocol_backed_store",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_search_loop_runner_promotes_and_runtime_loader_reads_champion",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_is_idempotent_for_same_candidate_and_evaluation",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_omitted_suite_binding",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_evaluation_for_different_candidate",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_evaluation_for_different_loop",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_policy_for_different_loop",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_incompatible_suite[foreign_suite-1.0-suite_mismatch]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_incompatible_suite[dummy_suite-2.0-suite_version_mismatch]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_evaluation_from_different_suite_basis",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_wrong_comparison_split",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_keeps_newer_champion_when_stale_score_arrives",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_champion_registry_serializes_compare_and_publish_against_new_predecessor",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+          "name": "test_search_loop_runner_rejects_evaluator_from_foreign_suite",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_receiver_preserved_basis_review",
+          "name": "test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[selection_metrics-score-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_receiver_preserved_basis_review",
+          "name": "test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[sample_counts-selection-True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_receiver_preserved_basis_review",
+          "name": "test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis[guardrails-finite-1]",
+          "status": "PASS"
+        },
+        {
+          "class": "",
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[None]",
+          "status": "PASS"
+        },
+        {
+          "class": "",
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[put]",
+          "status": "PASS"
+        },
+        {
+          "class": "",
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[readback]",
+          "status": "PASS"
+        }
+      ]
+    },
+    "property_removal": {
+      "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+      "status": "EXPECTED_FAIL",
+      "junit": "champion-verified-negative-junit.xml",
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "time": 4.424,
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write]",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback]",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+          "status": "FAIL"
+        }
+      ]
+    },
+    "new_real_controls_before_correction": {
+      "source_sha": "81eb4c5ac560ee423a18731385dca36e9d95bf8c",
+      "status": "FAIL",
+      "junit": "champion-seed-negative-junit.xml",
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "time": 6.849,
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell",
+          "status": "FAIL"
+        }
+      ]
+    },
+    "new_real_controls_after_correction": {
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "status": "PASS",
+      "junit": "champion-seed-positive-junit.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 6.817,
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell",
+          "status": "PASS"
+        }
+      ]
+    },
+    "final_full_scope": {
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "source_tree": "34d0333d489d065c78bbc4bbf9a9214283a4cb33",
+      "exit_code": 137,
+      "status": "ERROR_PROCESS_SIGKILL_NO_SUITE_VERDICT",
+      "requested_cases": 153,
+      "junit_produced": false,
+      "observed_after_kill": {
+        "memory_current": 17178898432,
+        "memory_max": 17179869184,
+        "oom": 240,
+        "oom_kill": 33,
+        "scope": "post-kill counters only, no specific causality assignment"
+      },
+      "descendant_305392": "zombie after parent death; no active descendant",
+      "no_identical_retry": true
+    },
+    "final_focused_scope": {
+      "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+      "status": "ERROR_FIXTURE_SETUP",
+      "junit": "champion-verified-focused-junit.xml",
+      "tests": 81,
+      "failures": 0,
+      "errors": 11,
+      "skipped": 0,
+      "time": 55.819,
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[version]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[counter_bool]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[history_count]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[generator_cursor]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_order]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_huge]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_origin_claim]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[stage_a_integer]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_carrier]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[initial_carrier]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_generator_without_checkpoint_contract_refuses_public_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_pending_batch_order_survives_canonical_json_key_sorting",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_initial_sentinel_failure_resume_preserves_initial_termination",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_registered_checkpoint_facade_and_normal_contract_imports_do_not_load_runtime",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_readback]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_custom_parameterized_objective_checkpoint_refuses_resume_instead_of_build_identity",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[warm_corpus]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[policy_stack]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[external_arbiter]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_history",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_checkpoint_requires_exact_public_snapshot_profile_on_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_split_reads",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[nan]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[inf]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[-1]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[0]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[maximum6]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-min_improvement]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-absolute_tolerance]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[invalid1]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[True]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[nan]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[inf]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[-1]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[None]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[cost6]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_recorded_cost_public_owner_port_reopens_without_receipt_or_provider_origin_authority",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_recorded_memory_zero_is_available_without_durable_identity_or_measured_zero",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[evaluator]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[context]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[callback]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[codec]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[opaque]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_same_content_configuration_and_context_fresh_resume",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]",
+          "status": "ERROR"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[canonical_tag]",
+          "status": "ERROR"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+          "status": "ERROR"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+          "status": "ERROR"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite",
+          "status": "ERROR"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+          "status": "ERROR"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]",
+          "status": "ERROR"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+          "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]",
+          "status": "ERROR"
+        },
+        {
+          "class": "",
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[None]",
+          "status": "ERROR"
+        },
+        {
+          "class": "",
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[put]",
+          "status": "ERROR"
+        },
+        {
+          "class": "",
+          "name": "test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[readback]",
+          "status": "ERROR"
+        }
+      ]
+    }
+  },
+  "behavior": [
+    "All four canonical autotune producer helpers return actual B profile-qualified references; existing seed_loop_baseline now passes its exact candidate view rather than adding an unqualified conflicting input.",
+    "Typed input readers consume a single held get_verified_snapshot byte/manifest pair; protocol proxies without this optional public proof port refuse. Actual split-read traps observe no get_bytes/get_manifest/verify use in the defining new consumer.",
+    "Native SearchLoopRunner consumes immutable CAS data/split bytes after mutable input paths are overwritten; actual evaluator-to-registry effects and OS-cold pointer readback retain full candidate/evaluation/suite profiles.",
+    "Same candidate bytes with two actual persisted manifest profiles retain distinct views: wrong candidate/evaluation pair refuses without pointer effect, the exact old qualified view can still promote.",
+    "Two actual native writers use the existing lock-held canonical reread: B becomes current before slower C publication, C refuses incumbent_changed_during_evaluation and fresh pointer remains B.",
+    "Actual os._exit72/73 immediately before/after os.replace yields complete old/new pointer/evaluation pairs to a fresh reader; no power-loss or distributed persistence inference.",
+    "Native ask publication rolls back supported generator cursor, pending/completed IDs, initial proposal, sole ledger and prior checkpoint reference after real CAS put/readback failures. Unrestorable custody blocks further live publication until reopening the last acknowledged reference.",
+    "Pending and initial nonfinite carriers decode before native generator/live state restore. Malformed late payloads refuse without cursor mutation.",
+    "Current typed evaluator vector is canonicalized in live acceptance and rebuilt/reconciled in nested stage-B feedback during fresh ledger readback; actual public fresh history/frontier/next tell equality is verified."
+  ],
+  "property_removal": {
+    "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+    "changes": [
+      "replace ask with actual unwrapped _ask_proposals",
+      "retain the slow actual writer canonical predecessor instead of fresh reread"
+    ],
+    "observed": "2 real CAS publication controls and1 competing native writer control fail; fresh separate observer reads actually persisted stale C score3 instead of B2",
+    "service_blob_equal_at_final": true,
+    "registry_blob_equal_at_final": true
+  },
+  "preliminary_and_environment_errors": [
+    "Development26=21PASS5FAIL retained: four legacy unqualified comparison-input fixtures and one proxy missing public proof delegation. Parent-granted fixture migration preserves every original Assert AST; corrected affected25PASS retained.",
+    "Immutable attempted absolute ca7 test path loaded two conftests and duplicated --run-quarantine registration before tests. Exact unchanged ca7 blob was then run from existing standalone scratch, recorded full SHA0becdae0dd7f8008b1f2b39e40dc44c25f114006c5bae1ec53877d5438d041bc.",
+    "Final153 process exit137 before XML/final summary; post-kill cgroup near max and oom counters observed, without pre-counter causal attribution. No suite verdict or hidden pass aggregation.",
+    "Distinct focused81 ended70PASS11tmpdir setupERROR with zero filesystem free space observed; underlying errno is not printed by pytest. No identical153 retry, worker/thread quotas or cleanup.",
+    "Initial new81eb2FAIL is retained and corrected by d8852PASS; typed history and actual seed failures are product findings, not environment setup errors."
+  ],
+  "criterion_recommendation": {
+    "B116": "finite engineering criterion eligible for root adjudication using actual immutable evaluator/registry, profile mismatch/cache-view controls and preserved old basis/split/suite predicates; no scientific appointment claim",
+    "B117": "finite original local POSIX writer and crash-boundary criterion eligible for root adjudication; production workload concurrency measurement remains explicitly unmeasured as in original card",
+    "LA-014": "actual supported public ask/tell/run/resume/typed frontier mechanism verified at separate pinned runs; final composed canonical replay remains root-owned",
+    "LA-015": "actual native factory finite known lifecycle cases in prior151 plus final typed fresh-read2; final composed canonical replay remains root-owned"
+  },
+  "limitations": [
+    "Served hierarchical node still uses its separate coordinator; exact scoped served-owner input packet is retained. This does not introduce an unused appointed service or assert deployment appointment.",
+    "External evaluator/registry effects and search checkpoint publication are separate atomic boundaries, without external exactly-once semantics.",
+    "Supported checkpoint v2 and replay profile only; opaque custom objectives/evaluators/generators, enabled diversity custody and old-version artifacts fail closed as documented.",
+    "Budget metadata remains recorded primary-key accounting; provider aggregates do not establish physical reported invoice origin or receipt/revision authority.",
+    "No actual hypervolume-to-stopping caller was found in scoped production inventory; no unused bridge or threshold law was introduced.",
+    "The ordinary configured DOE metadata/default typed codec caller is the next available owned task, not established by this receipt.",
+    "Optional torch/botorch/gpytorch presence in151 final log is only import presence; no GP numerical/replay authority claimed and unchanged GP23/26 not rerun.",
+    "This receipt does not declare final153, CI or G acceptance PASS. Parent independently composes and adjudicates original finite criteria."
+  ],
+  "preservation": {
+    "index_binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "14ea322e98c897adb91df43382871a18925a3415",
+      "bytes": 75932,
+      "sha256": "f86d0dd050cb89c3aec068df19bdcd6362b9f3ebc89f9f424c1a45a6da8b0ad4",
+      "encoding": "gzip",
+      "decoded_bytes": 1034528,
+      "decoded_sha256": "35c838aeffeadae45db3602852f4a55fa79987cfbe7dc846cfd50ad7ca18df5d"
+    },
+    "actual_input_binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json.gz",
+      "source_sha": "eb5e5fe59d73e5eb46325a754675a04b6dd2a7cd",
+      "blob": "f3f5f10ae44da849891eec43d16044541e0a84f1",
+      "bytes": 46610,
+      "sha256": "ea70125803614ea4b401766d0932c26db7ed54045c0657935caf22516f410b83",
+      "encoding": "gzip",
+      "decoded_bytes": 843248,
+      "decoded_sha256": "feb4b4ea57b99eb40a1def9093abbe24528dd6417e58c53c358d23980c4bdfec"
+    },
+    "scope": "2770 currently present regular files3483367B hashed;444 full actual fixture files614367B additionally preserved in gzip-decoded output; symlinks excluded",
+    "lossless_rewrite": "Two fresh untracked output copies only were backed up in /dev/shm, roundtrip/hash verified, same inodes rewritten to gzip and renamed to recover1753088B. Every indexed original source was verified before rewrite; no fixture/env/source/tracked-file deletion. Exact operation source-bound in evidence.",
+    "framework_scope": "No manual cleanup. Fresh unique basetemps never reused. Pytest current symlinks and normal producer temporary-file lifecycle are framework behavior; no repository-wide or permanent-preservation claim."
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "observed_utc": "2026-10-06T22:46:50.265848+00:00",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "exit": 0,
+      "complete_stdout": "## codex/e02-D-published-root\n",
+      "complete_stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/main:refs/remotes/origin/main",
+        "refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration"
+      ],
+      "exit": 0,
+      "complete_stdout": "",
+      "complete_stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main",
+        "origin/main^{tree}"
+      ],
+      "exit": 0,
+      "complete_stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n2b754a92c27959e2e747738d47ed0b419f3b6dd8\n",
+      "complete_stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-integration",
+        "origin/codex/e02-integration^{tree}"
+      ],
+      "exit": 0,
+      "complete_stdout": "ff277db7798fc312654704fa51c52e00f53f10f4\n618e17b5da96a623d5e57f30d265e245a2b277eb\n",
+      "complete_stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "origin/main"
+      ],
+      "exit": 0,
+      "complete_stdout": "",
+      "complete_stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "exit": 0,
+      "complete_stdout": "## codex/e02-D-published-root\n",
+      "complete_stderr": ""
+    }
+  ],
+  "fetched_main_sha_tree": [
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  ],
+  "fetched_G_sha_tree": [
+    "ff277db7798fc312654704fa51c52e00f53f10f4",
+    "618e17b5da96a623d5e57f30d265e245a2b277eb"
+  ],
+  "anchor_ancestor_exit": 0,
+  "root_status_unchanged": true,
+  "authorization": "Own topic publication only; no main publication, reset/rebase/switch/force/prune or messages to other chats"
+}

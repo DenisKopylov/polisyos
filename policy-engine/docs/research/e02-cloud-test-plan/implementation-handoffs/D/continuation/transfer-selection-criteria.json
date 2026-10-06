@@ -1,0 +1,763 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "original-TRN-criterion-reassessment-and-admitted-source-limit",
+  "role": "TRN production author; closure proposals only, independent reviewer/root/G decide acceptance",
+  "recorded_at": "2026-10-06T17:31:42.452436+00:00",
+  "closure_ids": [],
+  "G_accepted": false,
+  "author_closure_proposed_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136"
+  ],
+  "held_ids": [
+    "B131",
+    "B137"
+  ],
+  "finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137"
+  ],
+  "base_source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+  "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+  "source_tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+  "implementation_commits": [
+    "05850c83c77f2d38a3c42cb31f370dd3c7db1074",
+    "24e8083dff3e3b48a96f030d652b1ceaf8cd63d4",
+    "4ac49418289a31e77329bf92b1c2bf990cf2a087"
+  ],
+  "branch": "codex/e02-D-published-transfer",
+  "source_remote_readback": "MATCH4ac via ordinary push/ls-remote before receipt",
+  "source_identities": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 14094,
+      "raw_file_sha256": "1067af38eca416779e2c67684e3ec9904dd4d5c675526ae0eb29d463e256f870"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 33891,
+      "raw_file_sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 4897,
+      "raw_file_sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 43584,
+      "raw_file_sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 10087,
+      "raw_file_sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 8035,
+      "raw_file_sha256": "52b224c045395b34f750f19c86e696dbb7433d41882b918faab0c4a6b9d2fe31"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_transfer_context_criteria.py",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 1729,
+      "raw_file_sha256": "d22edd4e3a5fe5032f9d92ac0b1e184285358bdd0c2479c587e9a25ed30161d1"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-transfer-admitted-source-limit.toml",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 1378,
+      "raw_file_sha256": "af9d2223fe213903602449c6d050ac9add14ee523665d72351fbb1e5eaacb2ad"
+    }
+  ],
+  "full_original_cards_read": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 21441,
+      "raw_file_sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 17678,
+      "raw_file_sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "bytes": 16604,
+      "raw_file_sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+    }
+  ],
+  "findings": [
+    {
+      "id": "B128",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-01",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B128",
+        "acceptance_text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла.",
+        "acceptance_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "actual_mechanism_and_consumer": "register_run -> exact v2 history -> strict _deserialize_evaluation/_admit -> existing WarmStartBridge -> receiving Evaluation; constructor uses raw_value/direction and preserves typed outcome, timestamp, duration, stage result and provenance.",
+      "oracle": "Full native 60 CAS/bridge run in prior transfer-vector-second-process receipt; historical actual configured bridge/GP48 trace at8eb remains separately bounded. New32 actual CAS admission refuses four malformed/incompatible rows before selecting valid source.",
+      "negative_control": "Typed outcome/scalar/vector/codec/original candidate-content controls and report loaded/accepted/rejected/unavailable distinctions.",
+      "criterion_specific_residual_or_limit": "No representative institutional corpus or new4ac GP fit claimed; those are separate B131/ordinary-composition inputs, not prerequisites invented for faithful DTO rehydration."
+    },
+    {
+      "id": "B129",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B129",
+        "acceptance_text": "**Приёмка:** история, найденная в индексе размером более 1000, читается без второго ANN; изменение `top_k` discovery не меняет адресуемость уже выбранного артефакта; повреждённая ссылка не подменяется другой похожей историей. Строгие фильтры применимости учитывать до окончательного лимита, но не смешивать их с адресным чтением.",
+        "acceptance_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py"
+      ],
+      "actual_mechanism_and_consumer": "One ANN discovers complete captured catalog for numerical bridge; exact discovered ArtifactRef and metadata_for_key alias address history directly; max_runs counts only content-admitted nonempty groups, then max_evals applies fair final row quota.",
+      "oracle": "Prior two-OS1002-entry actual Bsnapshot/HNSW proof; current32 includes compatible source behind incompatible/malformed neighbors, source-cap valid control, no-ANN replay and whole-catalog old2/new3 native barrier.",
+      "negative_control": "Base058 9PASS/1FAIL; corrected32PASS; sole discovery-argument removal1FAIL/1validPASS preserves refs, markers, CAS and all admission code.",
+      "criterion_specific_residual_or_limit": "Idea API finite top_k intentionally remains bounded; no globally exact ANN ranking, tenant rights or new GP verdict inferred."
+    },
+    {
+      "id": "B130",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-01",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B130",
+        "acceptance_text": "**Приёмка:** минимум и максимум исходных целей после нормализации приводят к правильному порядку; полные равенства не создают ложных различий; ограничение объёма не превышается, а свободная квота заполняется согласно объявленной политике. Миграция старого корпуса должна установить значение scalar, не угадывать его по имени.",
+        "acceptance_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+      ],
+      "actual_mechanism_and_consumer": "Admitted groups sort ascending minimized scalar; stable equal values retain explicit independent-replica identity; round-robin drains short histories and redistributes remaining admitted row quota.",
+      "oracle": "Original real CAS min/max direction controls in prior60; new five quota limits0/1/3/4/10 +complete tie/independent persisted replica control pass baseline058 and corrected32.",
+      "negative_control": "Unknown history codec refuses instead of guessing old scalar meaning; bad rows consume no admitted source/row quota.",
+      "criterion_specific_residual_or_limit": "No acceleration or optimization-quality result required by this ordering/quota criterion and none claimed."
+    },
+    {
+      "id": "B131",
+      "author_status": "held",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-01",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B131",
+        "acceptance_text": "**Приёмка:** различающиеся пространства не считаются численно тождественными; разрешённый адаптер преобразует действительные параметры; несовместимая оценка остаётся доступной как идея с ограничением. Новая версия данных может требовать переоценки, но не полного запрета межзадачного обучения. Проверить tenant/split у действительного владельца, а не доверять тексту метаданных.",
+        "acceptance_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "actual_mechanism_and_consumer": "Configured numeric_transfer_basis.v1 and actual raw physical parameters, normalized encoding, metric/unit/direction plus complete data/model/evaluator/split/scalarizer/owner refs are content-bound before numerical admission; incompatible histories remain discoverable ideas.",
+      "oracle": "Prior actual configured receiving GP/NN numerical traces and strict complete-basis/content matrix are technical witnesses; new32 tests compatible-source selection without relaxing this reader.",
+      "negative_control": "Changed basis/ref/content/physical input/malformed outcome refuses; no first source can establish the target basis.",
+      "criterion_specific_residual_or_limit": "Actual institutional tenant/split/source reuse decision from appointed owner remains absent/unallocated. Fixture owner_ref/content equality establishes technical identity only."
+    },
+    {
+      "id": "B132",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-01",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B132",
+        "acceptance_text": "**Приёмка:** разные кандидаты сохраняют разные настоящие ссылки; координаты не попадают в метрики; direction round-trip не меняет смысл; отсутствующий holdout остаётся отсутствующим; nonpromotable продолжает действовать. Прежние placeholder-записи не повышать автоматически при миграции.",
+        "acceptance_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+      ],
+      "actual_mechanism_and_consumer": "evaluations_to_benchmarks re-resolves original candidate/BenchmarkEvaluation and preserved raw selection metric; coordinates stay out of metrics, holdout stays empty and warm replay remains nonpromotable.",
+      "oracle": "Prior native whole warm_start file within60, both directions and two original real candidate refs; current source reverse method unchanged from cba, load routing changes only discovery/source limits.",
+      "negative_control": "Modified/unresolved observations and invented primary metric refuse; placeholder/unknown codecs are not silently promoted or repaired.",
+      "criterion_specific_residual_or_limit": "No target-suite re-evaluation, source authority or promotion claimed; original criterion does not require those as prerequisites for faithful nonpromoting reverse replay."
+    },
+    {
+      "id": "B133",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B133",
+        "acceptance_text": "**Приёмка:** новый допустимый snapshot одинаково читается холодным и тёплым путями; replay конкретной старой ссылки остаётся старым; мутация потребителя не меняет общий результат; ограничение памяти не скрывает действительный артефакт. B129 должен передать точную ссылку, иначе этот ремонт останется неполным.",
+        "acceptance_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py"
+      ],
+      "actual_mechanism_and_consumer": "Exact complete ArtifactRef identity +codec keys local copy-return LRU128entries/32MiB; hits still verify selected bytes/manifest, known aliases use metadata_for_key without ANN.",
+      "oracle": "Prior native60 cache cold/warm/new-ref/copy/eviction/bypass and two-OS proof; current32 includes unchanged remediation cache/snapshot controls and exact replay.",
+      "negative_control": "Same-run new-ref stays distinct; old exact ref stays old; consumer mutation cannot change cached result; oversized bypass remains addressable; same-ref altered bytes refuses.",
+      "criterion_specific_residual_or_limit": "Original local criterion has no principal/distributed latest-pointer requirement. No such requirement is retained as a hold."
+    },
+    {
+      "id": "B134",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B134",
+        "acceptance_text": "**Приёмка:** отказ добавления не портит старые запросы; failed load оставляет прежнее полностью согласованное поколение; загрузка без нужных bytes не публикуется частично; проверены capacity, неверная форма и настоящие нативные исключения. Resize допустим только внутри выделенного ресурса. Не снимать лимиты и не перестраивать весь индекс на каждом нормальном запросе.",
+        "acceptance_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py"
+      ],
+      "actual_mechanism_and_consumer": "One frozen {dim,index,keys,metadata,key-map,ref/version} generation pointer; writer prepares private native candidate; query captures once; only successful complete validation swaps pointer.",
+      "oracle": "Prior actual two-OS Bsnapshot producer/reader +real corrupted native load RuntimeError; current32 includes whole15 vector native tests +5remediation controls +new whole-catalog reader barrier.",
+      "negative_control": "Real native capacity RuntimeError, partial native mutation failure, controlled load error, missing/tampered byte identity, foreign/version/header dimension/count/capacity/truncated payload controls preserve old coherent queries.",
+      "criterion_specific_residual_or_limit": "Original local native failure/shape/capacity/coherence criterion has no institutional metadata issuer requirement. Add keeps declared capacity; normal query never rebuilds index; no distributed/power-loss guarantee claimed."
+    },
+    {
+      "id": "B135",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-03",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B135",
+        "acceptance_text": "**Приёмка:** вложенный объект, сериализованный объект и равнозначные явные поля ведут к одному эффективному предметному контексту; настоящее разрешённое override работает; невалидный base имеет адресный результат; isolated-fallback остаётся для действительно неизвестной области.",
+        "acceptance_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py"
+      ],
+      "actual_mechanism_and_consumer": "resolve_transfer_context uses explicit task/domain, then valid nested object/serialized base before defaults; invalid base is discarded as a whole, explicit caller scope remains addressed and unknown domain keeps isolated::<run>.",
+      "oracle": "Existing typed-base/allowed override consumer controls; new three exact original context cases pass baseline058 and corrected32 without changing resolver source.",
+      "negative_control": "Invalid base with extra field/emptyrun cannot leak partial task/domain/tenant; genuinely unknown domain stays isolated; explicit domain override preserves source run.",
+      "criterion_specific_residual_or_limit": "No new tenant policy or security authorization invented; unchanged resolver is characterized rather than rewritten unnecessarily."
+    },
+    {
+      "id": "B136",
+      "author_status": "closed_proposed",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-03",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B136",
+        "acceptance_text": "**Приёмка:** переданный threshold и trust-filter соблюдаются независимо от маршрута; локальный промах не меняет требования; действительно допустимая transferred-карточка возвращается; несоответствующая не материализуется зря. Проверить source_run_id и политику частичного ответа, не только два численных примера.",
+        "acceptance_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py"
+      ],
+      "actual_mechanism_and_consumer": "Shared _matches_query used by local entry/card, projected transferred card before expensive materialization, and materialized card afterward; source_run/trust/confidence/stage/fidelity/tags/domain/candidate filters precede final limit.",
+      "oracle": "Prior immutable lessons whole4+transfer7 and as-of16 cases within47; local weak/strong/source misses, transferred threshold/trust/source misses, eligible cross-domain partial response and same-domain local positives.",
+      "negative_control": "Ineligible projected candidates are excluded before materialize; invalidated/future evidence refuses with no destination entry; caller limits and partial return remain explicit.",
+      "criterion_specific_residual_or_limit": "Declared query filter semantics close locally; no institutional tenant permission or evidence authority is inferred from labels. Such authorization is not added as a prerequisite for this filter-coherence criterion."
+    },
+    {
+      "id": "B137",
+      "author_status": "held",
+      "G_accepted": false,
+      "original_criterion": {
+        "card": "TRN-03",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "source_block": "B137",
+        "acceptance_text": "**Приёмка:** любое число обычных чтений не повышает доверие; настоящая разрешённая ревалидация создаёт новую версию с новыми основаниями; повторный холодный и тёплый запрос дают одинаковую содержательную степень актуальности. Retention может учитывать популярность, evidence sufficiency — нет. Проверить восстановление после restart и перенос, а не только пару запросов в одной памяти.",
+        "acceptance_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f"
+      },
+      "production_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py"
+      ],
+      "actual_mechanism_and_consumer": "Evidence anchor/version/created time drive shared age/future admission; actual wall access updates retention sidecar only, never evidence clock/confidence; cold/warm/restart/transfer use same semantics.",
+      "oracle": "Prior47 including sixteen as-of/current/future controls, cold/warm/restart/transfer, real wall-time retention control; future-branch removal7expectedFAIL/7validPASS retained separately.",
+      "negative_control": "Repeated old reads remain demoted; old access cannot archive freshly produced evidence; future occurrence/version refuses at caller as-of.",
+      "criterion_specific_residual_or_limit": "Genuine authorized revalidation occurrence with new grounds/refs/time/issuer remains absent/unallocated. Local fresh-card/version fixtures do not manufacture that evidence event."
+    }
+  ],
+  "pattern_pass": {
+    "P40": "Exact original B129 final-limit mechanism repaired, not metadata-only prefilter. Real content-admission falsifier and algorithm-removal keep refs/markers.",
+    "P38": "Actual CAS/HNSW binary, catalog reader barrier, all350productorigins Git-reconciled. Native-all-extras attempts remain ERROR/UNRUN; no GP equivalent claim.",
+    "P41": "Every deciding check has exact before/after SHA/tree/config and complete output. No base waiver or inherited native verdict on4ac."
+  },
+  "checks": [
+    {
+      "name": "trn-original-base",
+      "outcome": "CHARACTERIZATION_9_PASS_1_EXPECTED_FAIL",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "--basetemp=/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-base-8dfc213757444afcb28954b6997271b0",
+        "--junitxml=/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 12.277342557907104,
+      "before": {
+        "sha": "05850c83c77f2d38a3c42cb31f370dd3c7db1074",
+        "tree": "3bbdf51370377391335ae1637612d3b11fc9fc37",
+        "status": ""
+      },
+      "after": {
+        "sha": "05850c83c77f2d38a3c42cb31f370dd3c7db1074",
+        "tree": "3bbdf51370377391335ae1637612d3b11fc9fc37",
+        "status": ""
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D3-receipts/transfer-criteria-review",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "resources_before": {
+        "memory.current": "17002663936\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 22738135\noom 142\noom_kill 31\noom_group_kill 0\n"
+      },
+      "resources_after": {
+        "memory.current": "16684191744\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 22752410\noom 142\noom_kill 31\noom_group_kill 0\n"
+      },
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "10",
+        "time": "7.840",
+        "timestamp": "2026-10-06T17:08:45.041149+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_member": "trn-original-base.txt",
+      "complete_output_sha256": "e2bb83f8a38fc8b826308b9695ac87682df656289223767ef0babc7e04c3ed60",
+      "retained_basetemp": "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-base-8dfc213757444afcb28954b6997271b0"
+    },
+    {
+      "name": "trn-original-corrected",
+      "outcome": "ERROR_SIGKILL_INCOMPLETE",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "--basetemp=/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-corrected-08c38c884c594453a669b7654541dec9",
+        "--junitxml=/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-corrected.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": -9,
+      "wall_seconds": 83.21611976623535,
+      "before": {
+        "sha": "24e8083dff3e3b48a96f030d652b1ceaf8cd63d4",
+        "tree": "19705dca2ea5e0a0afa2a42c5e82879e3d5d279b",
+        "status": ""
+      },
+      "after": {
+        "sha": "24e8083dff3e3b48a96f030d652b1ceaf8cd63d4",
+        "tree": "19705dca2ea5e0a0afa2a42c5e82879e3d5d279b",
+        "status": ""
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D3-receipts/transfer-criteria-review",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "resources_before": {
+        "memory.current": "16906637312\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 22756971\noom 142\noom_kill 31\noom_group_kill 0\n"
+      },
+      "resources_after": {
+        "memory.current": "17052540928\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 23677015\noom 239\noom_kill 32\noom_group_kill 0\n"
+      },
+      "junit": null,
+      "complete_output_member": "trn-original-corrected.txt",
+      "complete_output_sha256": "ee3707bcc8eb259af9c0a7807a88ceff0b461d07506062497ef97e8f2279c40f",
+      "retained_basetemp": "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-corrected-08c38c884c594453a669b7654541dec9"
+    },
+    {
+      "name": "trn-original-native-final",
+      "outcome": "ERROR_SIGKILL_INCOMPLETE",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "--basetemp=/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-native-final-e611bef2312b4db597bc86a0d09f947a",
+        "--junitxml=/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-native-final.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": -9,
+      "wall_seconds": 43.52490854263306,
+      "before": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "after": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D3-receipts/transfer-criteria-review",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "resources_before": {
+        "memory.current": "17175564288\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 24382887\noom 240\noom_kill 33\noom_group_kill 0\n"
+      },
+      "resources_after": {
+        "memory.current": "16955707392\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 24841485\noom 241\noom_kill 34\noom_group_kill 0\n"
+      },
+      "junit": null,
+      "complete_output_member": "trn-original-native-final.txt",
+      "complete_output_sha256": "d09f0ad06d6e59b908037317d6c044f7ababd3466cb46d5b901cf6f0855baf04",
+      "retained_basetemp": "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-native-final-e611bef2312b4db597bc86a0d09f947a"
+    },
+    {
+      "name": "trn-cas-hnsw-only",
+      "outcome": "ERROR_ENVIRONMENT_ENOSPC_4_PASS_28_SETUP_ERRORS",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "-p",
+        "deny_numeric_backends",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "--basetemp=/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-cas-hnsw-only-50a0d32b8a1047799610529f58e03fc6",
+        "--junitxml=/workspace/e02-D3-receipts/transfer-criteria-review/trn-cas-hnsw-only.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 6.478541612625122,
+      "before": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "after": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D3-receipts/transfer-criteria-review",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "resources_before": {
+        "memory.current": "16639938560\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 25968003\noom 257\noom_kill 36\noom_group_kill 0\n"
+      },
+      "resources_after": {
+        "memory.current": "16964558848\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 25968701\noom 257\noom_kill 36\noom_group_kill 0\n"
+      },
+      "junit": {
+        "name": "pytest",
+        "errors": "28",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "32",
+        "time": "3.808",
+        "timestamp": "2026-10-06T17:20:24.834318+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_member": "trn-cas-hnsw-only.txt",
+      "complete_output_sha256": "e287290c0f586e0d1ba56439bbfad7ef9279cc6fa67fbf093d670ef094608710",
+      "retained_basetemp": "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-cas-hnsw-only-50a0d32b8a1047799610529f58e03fc6"
+    },
+    {
+      "name": "trn-cas-hnsw-tmp",
+      "outcome": "PASS_CAS_HNSW_ONLY",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "-p",
+        "deny_numeric_backends",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "--basetemp=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-cas-hnsw-tmp-acf0eca9484442e381b08907ca31bf7d",
+        "--junitxml=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 6.859033584594727,
+      "before": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "after": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "resources_before": {
+        "memory.current": "17175658496\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 25988690\noom 257\noom_kill 36\noom_group_kill 0\n"
+      },
+      "resources_after": {
+        "memory.current": "17104351232\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 26002262\noom 257\noom_kill 36\noom_group_kill 0\n"
+      },
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "32",
+        "time": "4.350",
+        "timestamp": "2026-10-06T17:22:11.060189+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_member": "trn-cas-hnsw-tmp.txt",
+      "complete_output_sha256": "2dba4ee786c9c802cb6772fd45adc91fcf4a9776fdd3b5a4f01fe93bfc83ad95",
+      "retained_basetemp": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-cas-hnsw-tmp-acf0eca9484442e381b08907ca31bf7d"
+    },
+    {
+      "name": "trn-discovery-property-removal",
+      "outcome": "EXPECTED_PROPERTY_FAILURE_1_FAIL_1_VALID_PASS",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "-p",
+        "deny_numeric_backends",
+        "-p",
+        "remove_whole_catalog",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py::test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py::test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources",
+        "--basetemp=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-discovery-property-removal-e5c2068dcea842e199d8acda8441cc79",
+        "--junitxml=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 5.724459171295166,
+      "before": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "after": {
+        "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+        "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+        "status": ""
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "resources_before": {
+        "memory.current": "16933412864\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 26011028\noom 257\noom_kill 36\noom_group_kill 0\n"
+      },
+      "resources_after": {
+        "memory.current": "16954376192\n",
+        "memory.max": "17179869184\n",
+        "memory.events": "low 0\nhigh 0\nmax 26013295\noom 257\noom_kill 36\noom_group_kill 0\n"
+      },
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "2",
+        "time": "0.274",
+        "timestamp": "2026-10-06T17:23:39.435023+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output_member": "trn-discovery-property-removal.txt",
+      "complete_output_sha256": "257b67603f29f60fccc311c7027e3d36a95ebbe66a6a376e7c789b6cd8e68e1c",
+      "retained_basetemp": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-discovery-property-removal-e5c2068dcea842e199d8acda8441cc79"
+    }
+  ],
+  "current_supported_verification_profile": {
+    "quantity": "CAS/HNSW-only optional-backend-absence diagnostic",
+    "python": "/workspace/e02-D-locked-env/bin/python Python3.14.7",
+    "hnswlib_version": "0.8.0",
+    "hnswlib_binary": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+    "hnswlib_raw_file_sha256": "ea123b43bd033c696f997d7f2fb5cee74fc2d6334c5de56346dab7c22fa13ceb",
+    "numeric_backends": "Torch/BoTorch/GPyTorch imports explicitly denied through public import hook; canonical optional absence handling executes unchanged. No tensor/model operation requested or executed.",
+    "GP": "UNRUN on4ac; historical native GP/NN traces stay source-specific, not new source verdicts.",
+    "native_all_extras": "Two natural SIGKILL attempts retain full partial output with no JUnit/complete verdict; no retry of identical killed wave.",
+    "origin_reconciliation": "All350loaded product module raw byte hashes MATCH corresponding source Git. Property removal records intentionally replaced method code separately; module files remain canonical."
+  },
+  "quality": {
+    "ruff": "0.14.10 checkPASS/formatcheckPASS five owned Python paths",
+    "fragment": "TOMLsyntaxPASS only; no broader release-governance gate claimed"
+  },
+  "output_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria-output.json.gz",
+    "raw_file_sha256": "bdc33ea2b137e0397a216484346e9fc034c3777dc5959b35f577616a1136a102",
+    "compressed_bytes": 380743,
+    "uncompressed_bytes": 2785467,
+    "complete_output_member_count": 31,
+    "actual_material_input_path_count": 708,
+    "distinct_actual_material_bytes_count": 155,
+    "retained_scratch": [
+      "/workspace/e02-D3-receipts/transfer-criteria-review",
+      "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a"
+    ],
+    "scope": "Lossless deciding fulloutputs/capture/config/argv/source-footers +actual positive/removal generated CAS bytes, deduplicated by actual raw hash; no production source copies."
+  },
+  "prior_evidence": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-vector-second-process.json@82c3194d3ac106d225ad5b7a88fdfc85ae7f7d1f",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-neural-state.json@82c3194d3ac106d225ad5b7a88fdfc85ae7f7d1f",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-lesson-retention.json@82c3194d3ac106d225ad5b7a88fdfc85ae7f7d1f",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json"
+  ],
+  "accounting_correction": "Supersedes generic production-authority/second-process holds in old transfer-final-ten-finding-matrix for B128/129/130/132/133/134/135/136 only as scoped author proposals. B134 original native failure/shape/capacity/coherence acceptance is distinct from B131 permission and B137 authorized revalidation. G acceptance remains false.",
+  "ordinary_activation": "New4ac ordinary SearchConfig->configured bridge->GP execution awaits composed root native verification; no fresh ordinary/default GP fit claimed here. Existing configured entry and historical explicit receiving GP evidence remain separately source-bound.",
+  "preservation": {
+    "manual_deletion": "NONE; native Trash unavailable, no cleanup/metadata workaround",
+    "resource_limits": "No thread/CPU/worker/process caps; observed physical cgroup/mount saturation preserved",
+    "ENOSPC": "Initial optional profile32 completed4PASS/28setupERROR at basetemp mkdir, before28bodies. Fresh separate /tmp basetemp resolved measured setup problem; old data retained.",
+    "preparation_error": "Initial short SHA rejected before pytest child; full exact SHA corrected, preserved preparation-error.json.",
+    "cleanup_candidates": [
+      "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-base-8dfc213757444afcb28954b6997271b0",
+      "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-corrected-08c38c884c594453a669b7654541dec9",
+      "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-native-final-e611bef2312b4db597bc86a0d09f947a",
+      "/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-cas-hnsw-only-50a0d32b8a1047799610529f58e03fc6",
+      "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-cas-hnsw-tmp-acf0eca9484442e381b08907ca31bf7d",
+      "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-discovery-property-removal-e5c2068dcea842e199d8acda8441cc79"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "check": "183-first40",
+    "target_sha": "18321a109efd539f798ff9c3d7dae2f09bddea57",
+    "native_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/183-first40/junit.native.json",
+    "polisyos_module_count": 13,
+    "git_byte_mismatches": []
+  },
+  {
+    "check": "3ced-fixture-red",
+    "target_sha": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+    "native_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-fixture-red/junit.native.json",
+    "polisyos_module_count": 13,
+    "git_byte_mismatches": []
+  },
+  {
+    "check": "944-fixture-successor",
+    "target_sha": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+    "native_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-fixture-successor/junit.native.json",
+    "polisyos_module_count": 13,
+    "git_byte_mismatches": []
+  },
+  {
+    "check": "944-native-positive",
+    "target_sha": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+    "native_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-positive/junit.native.json",
+    "polisyos_module_count": 13,
+    "git_byte_mismatches": []
+  },
+  {
+    "check": "944-native-negative",
+    "target_sha": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+    "native_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-negative/junit.native.json",
+    "polisyos_module_count": 13,
+    "git_byte_mismatches": []
+  },
+  {
+    "check": "9fb-affected-four",
+    "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+    "native_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/junit.native.json",
+    "polisyos_module_count": 13,
+    "git_byte_mismatches": []
+  },
+  {
+    "check": "9fb-removal-two",
+    "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+    "native_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/junit.native.json",
+    "polisyos_module_count": 13,
+    "git_byte_mismatches": []
+  }
+]

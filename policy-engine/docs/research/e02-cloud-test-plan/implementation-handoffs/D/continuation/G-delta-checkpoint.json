@@ -1,0 +1,66 @@
+{
+  "schema": "policyos.e02.D.adjacent-checkpoint.v1",
+  "observed_at": "2026-10-06T16:31:10.855194+00:00",
+  "slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "D_checkpoint": "51ba5ea417a00bc52f0f32ca1c057182702c8162",
+  "G_checkpoint": {
+    "previous": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "sha": "53b309019913b938909d6dc0fc13f8edb409f368",
+    "tree": "747b718b03ab93e1dea03c50338ef8514a962cc4",
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-admission-attempt1.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-main.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-main.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-probe.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/cleanup-native-trash.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md"
+    ],
+    "product_paths_changed": [],
+    "D_source_accepted": false
+  },
+  "B_refs": {
+    "codex/e02-B-current-adapters": {
+      "sha": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+      "tree": "01c65637362066b9525dc3bc9a6a397499ade7ac"
+    },
+    "codex/e02-B-current-runtime": {
+      "sha": "7cbde21de57765c37af5384cb80b85267119a4f5",
+      "tree": "3ec603d24b85bb192347c55d9655a81c0c1b8ce8"
+    },
+    "codex/e02-B-current-durability": {
+      "sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+      "tree": "9771539fd295edf4e2b2512b8edb5a4e0bb16892"
+    }
+  },
+  "B_shared_production_delta": "No changed src paths on current runtime/durability successors; durability adds its owner stream-cleanup oracle only. D ledger remains exact adopted1.1, no oldD1.0 overlay.",
+  "read_full_reviews": [
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md"
+  ],
+  "relevant_owner_actions": [
+    {
+      "owner": "B-W07",
+      "input": "Nested mutable-model state isolation unresolved in B execution source. D does not adopt those unaccepted execution files or claim complete protected state."
+    },
+    {
+      "owner": "E DOE-01",
+      "input": "041db owner packet supplies recomputed persisted analysis_ref. Mutable-plan cap residual remains exact E owner action; D combined old cap runs ERROR/UNRUN."
+    },
+    {
+      "owner": "D Search/autotune",
+      "input": "Existing metadata-only sensitivity decorator has no proposal effect; D writer assigned minimal explicit exploratory ranking consumer through existing native SearchLoopRunner. Runtime and generator writers coordinated; no new GP/optimizer or population-law claim."
+    }
+  ],
+  "no_publication_in_main_or_G": true,
+  "delivery": "Git only; no other-chat messages"
+}

@@ -5,21 +5,24 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
 from decimal import Decimal
 from enum import Enum
+from functools import partial
 from typing import Any, Literal
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelEvaluationStatus,
+    FunnelResourceAccountingFailure,
     FunnelStage,
     FunnelStageResult,
     TypedFailureCard,
     UncertaintyEnvelope,
+    funnel_resource_receipt_context,
+    funnel_resource_response_observer,
 )
 from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
@@ -38,6 +41,8 @@ from polisyos.scientist.methods.search.voi_scheduler import (
     SchedulingDecision,
     SimpleVOIScheduler,
 )
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
 logger = get_logger(__name__)
 
@@ -220,6 +225,11 @@ class FunnelTraceStep:
     voi_priority: float | None = None
     failure_count: int = 0
     blocker_count: int = 0
+    compute_cost_source: Literal["estimated", "provider_reported_only", "cache_reuse", "mixed"] = (
+        "estimated"
+    )
+    provider_spend_usd: Decimal | None = None
+    resource_event_ids: tuple[str, ...] = ()
 
 
 @dataclass(slots=True)
@@ -247,6 +257,8 @@ class FunnelTicket:
     lineage: tuple[str, ...] = ()
     continuation_reason: str | None = None
     terminal_basis: str | None = None
+    terminal_budget_remaining: dict[str, Decimal | None] = field(default_factory=dict)
+    terminal_degradation_mode: DegradationMode | None = None
 
     @property
     def last_result(self) -> FunnelStageResult | None:
@@ -278,6 +290,11 @@ class FunnelOutcome:
     lineage: tuple[str, ...] = ()
     continuation_reason: str | None = None
     evaluation_status: FunnelEvaluationStatus = "evaluated"
+    compute_cost_source: Literal["estimated", "provider_reported_only", "cache_reuse", "mixed"] = (
+        "estimated"
+    )
+    provider_spend_usd: Decimal | None = None
+    resource_event_ids: tuple[str, ...] = ()
 
 
 class FunnelOrchestrator:
@@ -294,6 +311,7 @@ class FunnelOrchestrator:
         frontier: ParetoSnapshot | None = None,
         correlation_tracker: CorrelationTracker | None = None,
         lesson_registry: LessonRegistry | None = None,
+        budget_middleware: BudgetMiddleware | None = None,
     ) -> None:
         self._stages = sorted(stages, key=lambda stage: stage.fidelity_level)
         self._max_level = max_level
@@ -302,7 +320,12 @@ class FunnelOrchestrator:
             raise ValueError("FunnelOrchestrator requires unique fidelity levels")
         self._stages_by_level = {stage.fidelity_level: stage for stage in self._stages}
         self._stage_a_max_level = int(stage_a_max_level)
-        self._budget_state = budget_state or BudgetState()
+        self._budget_middleware = budget_middleware
+        self._budget_state = (
+            budget_middleware.budget_state
+            if budget_middleware is not None
+            else budget_state or BudgetState()
+        )
         self._frontier = frontier or ParetoSnapshot()
         self._correlation_tracker = correlation_tracker
         self._lesson_registry = lesson_registry
@@ -374,8 +397,7 @@ class FunnelOrchestrator:
             ):
                 self._carry_forward_continuation(previous_ticket, ticket)
             elif (
-                previous_ticket.is_terminal
-                and previous_ticket.final_action in _CONTINUABLE_ACTIONS
+                previous_ticket.is_terminal and previous_ticket.final_action in _CONTINUABLE_ACTIONS
             ):
                 ticket.continuation_reason = "effective_context_changed"
         self._tickets[ticket.ticket_id] = ticket
@@ -401,6 +423,7 @@ class FunnelOrchestrator:
         )
 
         while not resolved_ticket.is_terminal:
+            self._refresh_resource_budget()
             next_level = self._resolve_next_level(resolved_ticket)
             if next_level is None:
                 self._mark_terminal(resolved_ticket)
@@ -412,10 +435,7 @@ class FunnelOrchestrator:
                 resolved_ticket.is_terminal = True
                 break
 
-            if (
-                resolved_ticket.current_level in (2, 3)
-                and resolved_ticket.next_level == next_level
-            ):
+            if resolved_ticket.current_level in (2, 3) and resolved_ticket.next_level == next_level:
                 scheduling_action = self._maybe_schedule_transition(
                     resolved_ticket,
                     execution_target=execution_target,
@@ -426,10 +446,146 @@ class FunnelOrchestrator:
                     break
 
             stage = self._stages_by_level[next_level]
-            result = stage.evaluate(
-                resolved_ticket.candidate,
-                self._build_stage_context(resolved_ticket),
+            stage_context = self._build_stage_context(resolved_ticket)
+            evaluation_id = f"{resolved_ticket.ticket_id}:L{next_level}"
+            stage_context["_resource_evaluation_id"] = evaluation_id
+            if self._budget_middleware is not None:
+                stage_context["_resource_budget_middleware"] = self._budget_middleware
+            settlements: dict[str, Any] = {}
+            observer = (
+                partial(self._reconcile_stage_settlement, observed=settlements)
+                if self._budget_middleware is not None
+                else None
             )
+            with (
+                funnel_resource_receipt_context(self._budget_middleware),
+                funnel_resource_response_observer(observer),
+            ):
+                result = stage.evaluate(
+                    resolved_ticket.candidate,
+                    stage_context,
+                )
+            if self._budget_middleware is not None:
+                failures = [
+                    value
+                    for value in settlements.values()
+                    if isinstance(value, FunnelResourceAccountingFailure)
+                ]
+                events = [
+                    value.event
+                    for value in settlements.values()
+                    if not isinstance(value, FunnelResourceAccountingFailure)
+                ]
+                pending = []
+                readback = []
+                for failure in failures:
+                    if self._resolve_failed_resource_event(failure):
+                        events.append(failure.event)
+                        readback.append(failure.event.event_id)
+                    else:
+                        pending.append(failure)
+                if failures:
+                    feedback = dict(result.feedback)
+                    feedback["resource_settlement_status"] = (
+                        "unknown" if pending else "committed_after_unknown_ack"
+                    )
+                    feedback["resource_unknown_ack_readback_ids"] = readback
+                    feedback["resource_settlement_pending"] = [
+                        {
+                            "event": {**asdict(value.event), "amount": str(value.event.amount)},
+                            "payload_digest": value.event.payload_digest,
+                            "budget_keys": list(value.budget_keys),
+                        }
+                        for value in pending
+                    ]
+                    # This is observed provider input, distinct from settled spend.
+                    feedback["resource_reported_input_usd"] = str(
+                        sum(
+                            (
+                                value.event.amount
+                                for value in failures
+                                if value.event.cost_origin == "reported"
+                            ),
+                            Decimal(0),
+                        )
+                    )
+                    result = replace(result, feedback=feedback)
+                if events:
+                    known_payloads = {
+                        event_id: previous.feedback.get("resource_settlement_payloads", {}).get(
+                            event_id
+                        )
+                        for ticket in self._tickets.values()
+                        for previous in ticket.stage_results.values()
+                        for event_id in previous.resource_event_ids
+                    }
+                    replayed = [event for event in events if event.event_id in known_payloads]
+                    fresh = [event for event in events if event.event_id not in known_payloads]
+                    reported = [event for event in fresh if event.cost_origin == "reported"]
+                    has_reported = any(event.cost_origin == "reported" for event in events)
+                    has_reuse = any(event.kind == "reuse" for event in events)
+                    recorded = sum((event.amount for event in fresh), Decimal(0))
+                    feedback = dict(result.feedback)
+                    # This is confirmed local accounting, including any amount
+                    # the existing producer explicitly estimated. Only the
+                    # reported subset below is provider-reported spend.
+                    feedback["resource_local_recorded_spend_usd"] = str(recorded)
+                    feedback["resource_settlement_sources"] = {
+                        event.event_id: event.cost_origin for event in events
+                    }
+                    feedback["resource_settlement_payloads"] = {
+                        event.event_id: event.payload_digest for event in events
+                    }
+                    if replayed:
+                        feedback["resource_replayed_event_ids"] = [
+                            event.event_id for event in replayed
+                        ]
+                        conflicts = [
+                            event.event_id
+                            for event in replayed
+                            if known_payloads[event.event_id] != event.payload_digest
+                        ]
+                        feedback["resource_replay_payload_conflicts"] = conflicts
+                        result = replace(
+                            result,
+                            is_promising=False,
+                            terminal_action="reject",
+                            failure_cards=[
+                                *result.failure_cards,
+                                TypedFailureCard(
+                                    judge_name=result.stage_name,
+                                    failure_type="resource_provider_event_replayed",
+                                    severity="blocker",
+                                    description="A resource event was already attributed to a prior funnel stage; its producer does not establish fresh stage scope.",
+                                    metadata={
+                                        "event_ids": feedback["resource_replayed_event_ids"],
+                                        "payload_conflicts": conflicts,
+                                        "required_contract": "producer_bound_run_evaluation_scope_and_reuse_lineage",
+                                    },
+                                ),
+                            ],
+                        )
+                    measured = sum((event.amount for event in reported), Decimal(0))
+                    result = replace(
+                        result,
+                        feedback=feedback,
+                        compute_actual_usd=float(recorded),
+                        resource_event_ids=tuple(event.event_id for event in events),
+                        provider_spend_usd=measured if has_reported or has_reuse else None,
+                        compute_cost_source="mixed" if has_reported or has_reuse else "estimated",
+                    )
+                    if not pending and all(
+                        event.cost_origin == "reported" or event.kind == "reuse" for event in events
+                    ):
+                        result = replace(
+                            result,
+                            compute_actual_usd=float(measured),
+                            compute_cost_source="provider_reported_only"
+                            if has_reported
+                            else "cache_reuse",
+                            provider_spend_usd=measured,
+                            resource_event_ids=tuple(event.event_id for event in events),
+                        )
             resolved_ticket.stage_results[next_level] = result
             resolved_ticket.current_level = next_level
             resolved_ticket.next_level = self._level_after(next_level)
@@ -447,6 +603,9 @@ class FunnelOrchestrator:
                 routing_decision=routing_decision,
                 failure_count=len(result.failure_cards),
                 blocker_count=sum(1 for card in result.failure_cards if card.is_blocker),
+                compute_cost_source=result.compute_cost_source,
+                provider_spend_usd=result.provider_spend_usd,
+                resource_event_ids=result.resource_event_ids,
             )
             resolved_ticket.trace.append(trace_step)
             self._maybe_record_voi_observation(resolved_ticket, result, next_level)
@@ -490,25 +649,10 @@ class FunnelOrchestrator:
                     )
                     self._maybe_record_correlation(resolved_ticket)
                     continue
-                rejected_result = FunnelStageResult(
-                    policy_candidate=result.policy_candidate,
-                    objective_value=result.objective_value,
+                rejected_result = replace(
+                    result,
                     is_promising=False,
-                    stage_name=result.stage_name,
-                    duration_seconds=result.duration_seconds,
-                    timestamp=result.timestamp,
-                    simulation_results=result.simulation_results,
-                    feedback=result.feedback,
-                    predicted_score=result.predicted_score,
-                    actual_score=result.actual_score,
-                    uncertainty_envelope=result.uncertainty_envelope,
-                    cheap_signal=result.cheap_signal,
-                    failure_cards=result.failure_cards,
-                    compute_actual_usd=result.compute_actual_usd,
-                    fidelity_level=result.fidelity_level,
                     audit_refs=list(result.audit_refs),
-                    actionable_side_information_ref=result.actionable_side_information_ref,
-                    terminal_action=result.terminal_action,
                 )
                 resolved_ticket.stage_results[next_level] = rejected_result
                 trace_step.is_promising = False
@@ -554,6 +698,10 @@ class FunnelOrchestrator:
             and resolved_ticket.terminal_basis is None
         ):
             resolved_ticket.terminal_basis = self._continuation_basis(resolved_ticket)
+            resolved_ticket.terminal_budget_remaining = {
+                key: self._budget_state.remaining(key) for key in self._budget_state.limits
+            }
+            resolved_ticket.terminal_degradation_mode = resolved_ticket.degradation_mode
         self._maybe_record_lessons(resolved_ticket)
         return self.get_outcome(resolved_ticket)
 
@@ -619,6 +767,31 @@ class FunnelOrchestrator:
             lineage=resolved_ticket.lineage,
             continuation_reason=resolved_ticket.continuation_reason,
             evaluation_status=self._evaluation_status(resolved_ticket),
+            compute_cost_source=(
+                ordered_results[0].compute_cost_source
+                if ordered_results
+                and len({result.compute_cost_source for result in ordered_results}) == 1
+                else "mixed"
+                if any(result.provider_spend_usd is not None for result in ordered_results)
+                else "estimated"
+            ),
+            provider_spend_usd=(
+                sum(
+                    (
+                        result.provider_spend_usd
+                        for result in ordered_results
+                        if result.provider_spend_usd is not None
+                    ),
+                    Decimal(0),
+                )
+                if any(result.provider_spend_usd is not None for result in ordered_results)
+                else None
+            ),
+            resource_event_ids=tuple(
+                dict.fromkeys(
+                    event_id for result in ordered_results for event_id in result.resource_event_ids
+                )
+            ),
         )
 
     def evaluate(
@@ -669,10 +842,13 @@ class FunnelOrchestrator:
                 sentinel_meta=sentinel_meta,
                 routing_mode=routing_mode,
             )
-            cache_hit = self._cached_ticket_for_key(
-                cache_key,
-                routing_mode=routing_mode,
-            ) is not None
+            cache_hit = (
+                self._cached_ticket_for_key(
+                    cache_key,
+                    routing_mode=routing_mode,
+                )
+                is not None
+            )
             ticket = self.submit(candidate, context)
             outcome = self.advance(ticket, policy="full")
             stage_result = outcome.final_result or self._empty_result(candidate)
@@ -736,9 +912,7 @@ class FunnelOrchestrator:
         if (
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
-            and ticket.terminal_basis is not None
-            and ticket.terminal_basis
-            != self._continuation_basis(ticket, routing_mode=routing_mode)
+            and self._has_new_continuation_basis(ticket, routing_mode=routing_mode)
         ):
             return None
         return ticket
@@ -770,11 +944,102 @@ class FunnelOrchestrator:
         return bool(
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
-            and self._continuation_context_key(ticket.candidate, ticket.context)
-            == continuation_key
-            and ticket.terminal_basis is not None
-            and ticket.terminal_basis
-            != self._continuation_basis(ticket, routing_mode=routing_mode)
+            and self._continuation_context_key(ticket.candidate, ticket.context) == continuation_key
+            and self._has_new_continuation_basis(ticket, routing_mode=routing_mode)
+        )
+
+    def _reconcile_stage_settlement(self, settlement: Any, observed: dict[str, Any]) -> None:
+        """Read back actual B receipts for a response produced inside this stage.
+
+        This establishes bounded local accounting, not external billing or a
+        permission grant. Each producer event contributes once even when its
+        declared budget scope has multiple accounting keys.
+        """
+        from polisyos.core.llm.settlement import LLMProducerSettlement
+        from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
+
+        if isinstance(settlement, FunnelResourceAccountingFailure):
+            previous = observed.get(settlement.event.event_id)
+            if previous is not None and previous != settlement:
+                raise ValueError("funnel resource producer ID conflicts within stage")
+            observed[settlement.event.event_id] = settlement
+            return
+        if not isinstance(settlement, LLMProducerSettlement):
+            raise ValueError("funnel resource settlement must be producer typed")
+        event, ack = settlement.event, settlement.ack
+        if ack.status != "committed" or ack.durability != "ledger":
+            raise ValueError("funnel resource settlement lacks durable acknowledgment")
+        assert self._budget_middleware is not None
+        if event.kind == "provider" and not ack.receipts:
+            raise ValueError("provider settlement has no persisted receipt")
+        for receipt in ack.receipts:
+            if not isinstance(receipt, BudgetLedgerSpendReceipt):
+                raise ValueError("provider settlement contains a malformed ledger receipt")
+            event_id = f"{event.event_id}:budget:{hashlib.sha256(receipt.key.encode()).hexdigest()}"
+            digest = hashlib.sha256(f"{event.payload_digest}:{receipt.key}".encode()).hexdigest()
+            if (
+                receipt.event_id != event_id
+                or receipt.payload_digest != digest
+                or receipt.amount != event.amount
+                or receipt.provider != event.provider
+                or self._budget_middleware.resolve_spend_safe(event_id) != receipt
+            ):
+                raise ValueError("funnel resource settlement does not bind reopened local receipt")
+        previous = observed.get(event.event_id)
+        if previous is not None and previous != settlement:
+            raise ValueError("funnel resource producer ID conflicts within stage")
+        observed[event.event_id] = settlement
+
+    def _resolve_failed_resource_event(self, failure: FunnelResourceAccountingFailure) -> bool:
+        """Read actual local receipts after an unknown ACK; never retry or release."""
+        from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
+
+        if not failure.budget_keys or self._budget_middleware is None:
+            return False
+        event = failure.event
+        for key in failure.budget_keys:
+            event_id = f"{event.event_id}:budget:{hashlib.sha256(key.encode()).hexdigest()}"
+            digest = hashlib.sha256(f"{event.payload_digest}:{key}".encode()).hexdigest()
+            try:
+                receipt = self._budget_middleware.resolve_spend_safe(event_id)
+            except (OSError, RuntimeError, ValueError):
+                return False
+            if not isinstance(receipt, BudgetLedgerSpendReceipt) or (
+                receipt.event_id != event_id
+                or receipt.payload_digest != digest
+                or receipt.key != key
+                or receipt.amount != event.amount
+                or receipt.provider != event.provider
+            ):
+                return False
+        return True
+
+    def _refresh_resource_budget(self) -> None:
+        if self._budget_middleware is not None:
+            self._budget_state = self._budget_middleware.budget_state
+
+    def _has_new_continuation_basis(
+        self, ticket: FunnelTicket, *, routing_mode: DegradationMode
+    ) -> bool:
+        """Reevaluate the existing owner condition; changed spend is not permission."""
+        self._refresh_resource_budget()
+        if ticket.terminal_degradation_mode == "freeze_frontier":
+            return routing_mode != "freeze_frontier"
+        decision = ticket.last_scheduling_decision
+        if (
+            decision is None
+            or decision.recommended_action != "defer"
+            or decision.reason
+            not in {"budget_exhausted_for_next_level", "reserved_calibration_budget"}
+        ):
+            return False
+        return any(
+            previous is not None
+            and (
+                self._budget_state.remaining(key) is None
+                or self._budget_state.remaining(key) > previous
+            )
+            for key, previous in ticket.terminal_budget_remaining.items()
         )
 
     @staticmethod
@@ -799,9 +1064,7 @@ class FunnelOrchestrator:
                 }
                 for key, limit in sorted(self._budget_state.limits.items())
             },
-            "spent": {
-                key: str(value) for key, value in sorted(self._budget_state.spent.items())
-            },
+            "spent": {key: str(value) for key, value in sorted(self._budget_state.spent.items())},
             "reserved": {
                 key: str(value) for key, value in sorted(self._budget_state.reserved.items())
             },
@@ -837,7 +1100,6 @@ class FunnelOrchestrator:
             or ticket.next_level is None
             or ticket.next_level > execution_target
             or ticket.last_result is None
-            or ticket.last_result.cheap_signal is None
             or (
                 ticket.last_scheduling_decision is not None
                 and ticket.last_scheduling_decision.next_level == ticket.next_level
@@ -846,6 +1108,7 @@ class FunnelOrchestrator:
             return None
 
         self._maybe_update_voi_calibration_state()
+        self._refresh_resource_budget()
         scheduling = self._voi_scheduler.prioritize(
             [ticket],
             self._budget_state,
@@ -854,6 +1117,13 @@ class FunnelOrchestrator:
         if not scheduling:
             return None
         decision = scheduling[0]
+        if ticket.last_result.cheap_signal is None and decision.reason not in {
+            "budget_exhausted_for_next_level",
+            "reserved_calibration_budget",
+        }:
+            # Native L3 may have no L2 signal. Resource admission still applies,
+            # while value/ROI/timeout routing retains its signal prerequisite.
+            return None
         ticket.last_scheduling_decision = decision
         decision_trace = trace_step
         if decision_trace is None and ticket.trace:
@@ -1094,25 +1364,12 @@ class FunnelOrchestrator:
         feedback["verdict"] = compatibility_verdict
         feedback["funnel_action"] = outcome.final_action
         feedback["funnel_evaluation_status"] = outcome.evaluation_status
-        return FunnelStageResult(
-            policy_candidate=stage_result.policy_candidate,
-            objective_value=stage_result.objective_value,
+        return replace(
+            stage_result,
             is_promising=compatibility_promising,
-            stage_name=stage_result.stage_name,
-            duration_seconds=stage_result.duration_seconds,
-            timestamp=stage_result.timestamp,
-            simulation_results=stage_result.simulation_results,
             feedback=feedback,
-            predicted_score=stage_result.predicted_score,
-            actual_score=stage_result.actual_score,
-            uncertainty_envelope=stage_result.uncertainty_envelope,
-            cheap_signal=stage_result.cheap_signal,
             failure_cards=list(stage_result.failure_cards),
-            compute_actual_usd=stage_result.compute_actual_usd,
-            fidelity_level=stage_result.fidelity_level,
             audit_refs=list(stage_result.audit_refs),
-            actionable_side_information_ref=stage_result.actionable_side_information_ref,
-            terminal_action=stage_result.terminal_action,
         )
 
     @staticmethod

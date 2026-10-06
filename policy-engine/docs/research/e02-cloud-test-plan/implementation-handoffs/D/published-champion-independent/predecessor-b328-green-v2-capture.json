@@ -1,0 +1,57 @@
+{
+  "archive_git_pathspecs": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/unit/scientist/conftest.py"
+  ],
+  "archive_sha256": "3a25604f67f8138feeb3c892571ded67763889f4b8ba2fbb6d835b4b9b149d1c",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+    "-q",
+    "-s",
+    "tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py"
+  ],
+  "cwd": "/dev/shm/immutable-b328bb9abee3-predecessor-b328-green-v2/policy-engine",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:."
+  },
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "origins": {
+      "calibration": "/dev/shm/immutable-b328bb9abee3-predecessor-b328-green-v2/policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+      "models": "/dev/shm/immutable-b328bb9abee3-predecessor-b328-green-v2/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "registry": "/dev/shm/immutable-b328bb9abee3-predecessor-b328-green-v2/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "runtime": "/dev/shm/immutable-b328bb9abee3-predecessor-b328-green-v2/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+    },
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "exit_code": 0,
+  "log_sha256": "a13d8fa98d72997ddb1a984b6ca7514e6a446563f22618e7a99228dc3f89a435",
+  "max_rss_kib": 1130104,
+  "max_rss_scope": "cumulative_high_water_of_completed_children_in_this_capture_process",
+  "production_hashes": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py": "ea8b5f83db75356a07550b63c833a3b45f5396dbcff8a84be3a230a88a48f865",
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed",
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py": "826f26622532517d13b9742b65cfb8e7f8cac6a6531843cfd4e67893e461b655",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1"
+  },
+  "source_role": "immutable_production_source_with_independent_review_test_only",
+  "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "test_input_role": "uncommitted_independent_review_proof_exact_bytes",
+  "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py",
+  "test_sha256": "6198fa3cd865c1d212e0c0875b443e06566691409dc88501478108477c660bc8",
+  "test_source_sha": "4b4965e9a486252b5e6f69a1f0dc83e5689b5ac4",
+  "tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+  "wall_seconds": 14.355090961005772
+}

@@ -1,0 +1,27 @@
+{
+  "source_sha": "f59fe9f3c76799f9590c391f3812e237a6aad84f",
+  "export_dir": "/dev/shm/e02-D-schema-red-inputs-o40bjvng",
+  "git_input_selectors": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/unit/scientist/conftest.py",
+    "policy-engine/tests/unit/scientist/search/conftest.py"
+  ],
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py::test_anonymous_report_retry_is_counted_once_at_actual_cas_path",
+    "--basetemp",
+    "/dev/shm/e02-D-retry-red-ea580ad91a23483e81ae2f03ec8abd27",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/retry-fixture-red-junit.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 0.9482600929914042,
+  "peak_rss_kib": 134356
+}

@@ -1,0 +1,1654 @@
+{
+  "status": "FROZEN_READY",
+  "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "source_identities": [
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/tools/devx/workspace/verify.py",
+      "rawfile_sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+      "bytes": 12277
+    },
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/tools/devx/workspace/ci_parity.py",
+      "rawfile_sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+      "bytes": 11939
+    },
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/tools/devx/workspace/doctor.py",
+      "rawfile_sha256": "6d71f9367e0680b0b3799e94df7b0b6249c4ca41f669d62a6982c924dcdeb58b",
+      "bytes": 22715
+    },
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/tools/devx/workspace/_common.py",
+      "rawfile_sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "bytes": 7324
+    },
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/tools/quality/validation/check_extension_examples.py",
+      "rawfile_sha256": "ff61698d5cd82893d79d1199fb60e4bc7ccdcaa0d0cdb10c52d7965b6cef3c58",
+      "bytes": 17431
+    },
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+      "rawfile_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021
+    },
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/uv.lock",
+      "rawfile_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    },
+    {
+      "path": "/workspace/e02-D-published-root/policy-engine/pyproject.toml",
+      "rawfile_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    }
+  ],
+  "python": "/dev/shm/e02-D-parity-env/bin/python",
+  "prefix": "/dev/shm/e02-D-parity-env",
+  "canonical_uv": "/dev/shm/e02-D-parity-env/bin/uv",
+  "command_count": 25,
+  "commands": [
+    {
+      "group": "verify_backend",
+      "label": "lint imports",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check package import gates (shell-package closure)",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.cli",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "lint foundry",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check state reads",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check scholar imports",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check connector contracts",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "polisyos-tools",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.cli",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check schema freshness",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "ml",
+        "python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "ml"
+      ],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check runtime API contract",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "runtime",
+        "ml"
+      ],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check last-mile inventory baseline",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "build honest diagnostics coverage dashboard",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check honest diagnostics substrate drift",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check extension example contract coverage",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check schemas pure-data closure",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "verify_backend",
+      "label": "pytest fast backend gate",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1"
+      },
+      "removed_only_wrapper_numeric_caps": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1"
+      },
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "pytest runtime/http",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "pytest",
+        "tests/unit/runtime/http"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/http"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check directory health ratchet",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "_build/.tmp/last-mile/directory-health.json",
+        "--markdown-output",
+        "_build/.tmp/last-mile/directory-health.md",
+        "--fail-on-regression"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "_build/.tmp/last-mile/directory-health.json",
+        "--markdown-output",
+        "_build/.tmp/last-mile/directory-health.md",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check test ratchets and helper topology",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "_build/.tmp/last-mile/test-ratchets.json",
+        "--fail-on-regression"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "_build/.tmp/last-mile/test-ratchets.json",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check architecture phase6-1 report-only contracts",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "_build/.tmp/last-mile/architecture-phase6-1.json",
+        "--fail-on-contract-errors"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "_build/.tmp/last-mile/architecture-phase6-1.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check validator module-size budget",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "_build/.tmp/last-mile/module-size.json",
+        "--fail-on-contract-errors"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "_build/.tmp/last-mile/module-size.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "report debt ledger reconciliation",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check extension example installability",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_extension_examples.py"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check ADR thematic index freshness",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check docs accuracy",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "build docs in strict mode",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check semantic docstring quality",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "direct_argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "canonical_env": {},
+      "removed_only_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "state": "UNRUN pending parent freeze; no executable verdict"
+    }
+  ],
+  "doctor": {
+    "baseline_checks": "Call existing doctor _check_python/_check_node/_check_uv and default empty optional surfaces directly, without invoking hidden uv run sync.",
+    "chromium_argv": [
+      "node",
+      "-e",
+      "const { chromium } = require(\"playwright\");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});"
+    ],
+    "chromium_cwd": "/workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard",
+    "uv_lock_argv": [
+      "/dev/shm/e02-D-parity-env/bin/uv",
+      "lock",
+      "--check"
+    ],
+    "pnpm_lock_argv": [
+      "corepack",
+      "pnpm",
+      "install",
+      "--frozen-lockfile",
+      "--lockfile-only",
+      "--ignore-scripts"
+    ],
+    "frontend_contract_argv": [
+      "corepack",
+      "pnpm",
+      "run",
+      "contracts:verify"
+    ],
+    "frontend_contract_cwd": "/workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard",
+    "schema_and_runtime_api_checks": "Reuse identical exact direct commands already present in the25 backend commands once final source/env are fixed."
+  },
+  "literal_wrappers": "UNRUN/incompatible with cloud instruction: verify.PYTEST_NUMERICAL_ENV injects6 caps=1. Direct exact commands remove only those wrapper overrides and avoid implicit uv sync.",
+  "frozen_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "frozen_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "repo_root": "/workspace/e02-D-published-root",
+  "execution_gates": [
+    {
+      "id": "B01",
+      "label": "lint imports",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B02",
+      "label": "check package import gates (shell-package closure)",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.cli",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B03",
+      "label": "lint foundry",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B04",
+      "label": "check state reads",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B05",
+      "label": "check scholar imports",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B06",
+      "label": "check connector contracts",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "polisyos-tools",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "tools.cli",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B07",
+      "label": "check schema freshness",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "ml",
+        "python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [
+        "ml"
+      ],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B08",
+      "label": "check runtime API contract",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [
+        "runtime",
+        "ml"
+      ],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B09",
+      "label": "check last-mile inventory baseline",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/.tmp/last-mile/inventory.json"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B10",
+      "label": "build honest diagnostics coverage dashboard",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/honest-diagnostics/coverage/coverage.json",
+        "_build/honest-diagnostics/coverage/coverage.md"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B11",
+      "label": "check honest diagnostics substrate drift",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B12",
+      "label": "check extension example contract coverage",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B13",
+      "label": "check schemas pure-data closure",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/.tmp/last-mile/schemas-python-residue.txt"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B14",
+      "label": "pytest fast backend gate",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http",
+        "--basetemp=/dev/shm/e02-D-parity-B14-3f4bdb667c174b31a11d66bdf6d6e8f1"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ],
+        [
+          "root-pytest-cache-benchmarks",
+          "exclusive"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1"
+      },
+      "fresh_basetemp": "/dev/shm/e02-D-parity-B14-3f4bdb667c174b31a11d66bdf6d6e8f1"
+    },
+    {
+      "id": "B15",
+      "label": "pytest runtime/http",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "pytest",
+        "tests/unit/runtime/http"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/http",
+        "--basetemp=/dev/shm/e02-D-parity-B15-aceccfb84e37408a86fc04e617aa5110"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ],
+        [
+          "root-pytest-cache-benchmarks",
+          "exclusive"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {},
+      "fresh_basetemp": "/dev/shm/e02-D-parity-B15-aceccfb84e37408a86fc04e617aa5110"
+    },
+    {
+      "id": "B16",
+      "label": "check directory health ratchet",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "_build/.tmp/last-mile/directory-health.json",
+        "--markdown-output",
+        "_build/.tmp/last-mile/directory-health.md",
+        "--fail-on-regression"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "_build/.tmp/last-mile/directory-health.json",
+        "--markdown-output",
+        "_build/.tmp/last-mile/directory-health.md",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/.tmp/last-mile/directory-health.json",
+        "_build/.tmp/last-mile/directory-health.md"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B17",
+      "label": "check test ratchets and helper topology",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "_build/.tmp/last-mile/test-ratchets.json",
+        "--fail-on-regression"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "_build/.tmp/last-mile/test-ratchets.json",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/.tmp/last-mile/test-ratchets.json"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B18",
+      "label": "check architecture phase6-1 report-only contracts",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "_build/.tmp/last-mile/architecture-phase6-1.json",
+        "--fail-on-contract-errors"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "_build/.tmp/last-mile/architecture-phase6-1.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/.tmp/last-mile/architecture-phase6-1.json"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B19",
+      "label": "check validator module-size budget",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "_build/.tmp/last-mile/module-size.json",
+        "--fail-on-contract-errors"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "_build/.tmp/last-mile/module-size.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [
+        "_build/.tmp/last-mile/module-size.json"
+      ],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B20",
+      "label": "report debt ledger reconciliation",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B21",
+      "label": "check extension example installability",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_extension_examples.py"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "exclusive"
+        ],
+        [
+          "root-pytest-cache-benchmarks",
+          "exclusive"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {},
+      "child_pytest_basetemp": "/dev/shm/e02-D-parity-extension-child-5cbc8c52b3bb42baaf389f86af6058da",
+      "execution_precondition": "Wait parent root pytest release AND all overlay consumers, including frontend. Canonical installer only writable overlay."
+    },
+    {
+      "id": "B22",
+      "label": "check ADR thematic index freshness",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B23",
+      "label": "check docs accuracy",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "B24",
+      "label": "build docs in strict mode",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "removed_only_wrapper_numeric_caps": {},
+      "preserve_absent_site": true
+    },
+    {
+      "id": "B25",
+      "label": "check semantic docstring quality",
+      "canonical_argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": [],
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "removed_only_wrapper_numeric_caps": {}
+    },
+    {
+      "id": "D01",
+      "label": "doctor baseline versions and default optional surfaces",
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/python",
+        "-c",
+        "from dataclasses import asdict; import json; from tools.devx.workspace import doctor; results=[doctor._check_python(),doctor._check_node(),doctor._check_uv(),*doctor._check_optional_surfaces([])]; print(json.dumps({'source':doctor.__file__,'results':[asdict(x) for x in results]},indent=2)); raise SystemExit(int(any(not x.ok for x in results)))"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": []
+    },
+    {
+      "id": "D02",
+      "label": "doctor Chromium launch",
+      "argv": [
+        "node",
+        "-e",
+        "const { chromium } = require(\"playwright\");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": []
+    },
+    {
+      "id": "D03",
+      "label": "doctor uv lock freshness",
+      "argv": [
+        "/dev/shm/e02-D-parity-env/bin/uv",
+        "lock",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": []
+    },
+    {
+      "id": "D04",
+      "label": "doctor pnpm lock freshness",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "install",
+        "--frozen-lockfile",
+        "--lockfile-only",
+        "--ignore-scripts"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": []
+    },
+    {
+      "id": "D05",
+      "label": "doctor frontend generated contracts",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "run",
+        "contracts:verify"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard",
+      "resource_locks": [
+        [
+          "overlay-entry-point-metadata",
+          "shared"
+        ]
+      ],
+      "output_paths": []
+    }
+  ],
+  "canonical_backend_gate_count": 25,
+  "expanded_doctor_additional_command_count": 5,
+  "doctor_contract_reuse": {
+    "schemas": "B07 identical source argv/profile/environment",
+    "runtime-openapi": "B08 identical source argv/profile/environment"
+  },
+  "root_pytest_resource_state": "HELD_BY_ROOT until explicit parent release",
+  "literal_wrapper_status": "UNRUN/incompatible six forced numeric caps; no wrapper PASS",
+  "source_configuration_retained": "pytest.ini complete addopts/import-mode/strict-markers/benchmark-storage/cache_dir/testpaths, source default markers and ignore only; no worker override"
+}

@@ -1,0 +1,5 @@
+
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:15: UNRUN: native numerical adapter requires Torch
+SKIPPED [1] tests/unit/scientist/methods/autotune/test_transfer_workflow.py:37: UNRUN: native transfer workflow requires Torch
+SKIPPED [1] tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py:41: UNRUN: native receiver review requires Torch

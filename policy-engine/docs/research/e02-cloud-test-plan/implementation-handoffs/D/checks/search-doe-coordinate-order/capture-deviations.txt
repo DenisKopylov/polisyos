@@ -1,0 +1,7 @@
+Observed capture deviations (no product waiver):
+1. One attempted typed-codec run used a nonexistent scratch path and failed before pytest; correct path then executed.
+2. A commit attempt overlapped the still-running git add under actual I/O pressure and returned index.lock exists. git add naturally completed; ordinary commit retry succeeded. No lock/file deletion occurred.
+3. Outer stdlib run_all parent exited 0 even when its inner child returned 1/-9. An early message incorrectly said all16 passed; that claim was withdrawn immediately after inspecting run.json. Deciding counts in this receipt come only from actual inner returncode/JUnit.
+4. Fresh /workspace evidence mkdir returned ENOSPC; source correction was already committed. Small current proof stored under /dev/shm, no source archive/worktree or deletion.
+5. A fresh release-helper startup omitted PYTHONPATH and returned ModuleNotFoundError tools; exact full error retained. Configured PYTHONPATH=src:. rerun passed with errors/findings empty.
+No artificial numerical/process/thread/time cap or permanent cleanup was used. SIGKILL does not establish a product failure or acceptance.

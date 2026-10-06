@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.append_only_packaging_correction.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "change_class": "packaging_only",
+  "publication_base_sha": "803cb5084d8c1d733d908de3989c81c564a0357f",
+  "observed_utc": "2026-10-06T20:08:41.448661+00:00",
+  "supersedes": {
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json",
+    "json_pointer": "/complete_output_bundle",
+    "scope": "Current transport/hash/decoder only. Original runtime source, inputs, checks, counts, failures, limitations and scientific dispositions remain unchanged.",
+    "receipt_source_sha": "803cb5084d8c1d733d908de3989c81c564a0357f"
+  },
+  "original_transport": {
+    "source_sha": "3475b78d9a22e512277f0f348d0acf7432a16f54",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796-proof/output.json.gz",
+    "git_blob": "133577cc9238cfda3ea00cbe32635179648ce526",
+    "gzip_bytes": 27937,
+    "gzip_sha256": "05e93fa822624864130f1de4796f05392ea4824334b0210d566853f820a40a67",
+    "uncompressed_bytes": 342549,
+    "uncompressed_sha256": "d4068294a710341f93f0fc3cc067014af34d9935ef1ffc3d285216b73058a5c9",
+    "member_count": 36,
+    "retention": "Immutable original Git commit/blob remains authoritative for legacy complete-text transport and original hashes."
+  },
+  "current_transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796-proof/output.json.gz",
+    "git_blob": "64bba701fdcbbdeea4827e12ab60ef40e5795eec",
+    "gzip_bytes": 28115,
+    "gzip_sha256": "7db778f1176db58878da0a2c3109ba8e8c1af82e7b27f1070477428ad1928d16",
+    "uncompressed_bytes": 341414,
+    "uncompressed_sha256": "476d9f6c3ccdfe94079d864b4242b43cfa53e19e2c18621e1809df7c1d906522",
+    "member_count": 36,
+    "format": "Original complete_output_bundle.v1 root envelope retained;35 complete UTF8 text member values plus one explicit tracked_git_input_ref object. Decoder resolves only that reference via exact source_sha/path, verifies git_blob/sha256/bytes, then restores original text-map semantics."
+  },
+  "replaced_member": {
+    "json_pointer": "/members/funnel-default-scopes-actual~1runner.py",
+    "member_name": "funnel-default-scopes-actual/runner.py",
+    "original_UTF8_bytes": 1657,
+    "original_UTF8_sha256": "24d15b46939627ffcc6245d038d69b38f2bebadd29baa0aeb378045dcea188fa",
+    "reference": {
+      "kind": "tracked_git_input_ref",
+      "source_sha": "9d6169fe182590bbfebcde7f4f75dedc65aa41a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/runner.py",
+      "git_blob": "0ec178b3612c989cdb3aeda6cee5b8f45a0bf093",
+      "sha256": "24d15b46939627ffcc6245d038d69b38f2bebadd29baa0aeb378045dcea188fa",
+      "bytes": 1657,
+      "encoding": "utf-8",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/runner.py@9d6169fe182590bbfebcde7f4f75dedc65aa41a3"
+    }
+  },
+  "independent_discovery": {
+    "author": "GP witness read-only ALL-tracked-carrier audit",
+    "audit_path": "/tmp/e02-D-packaging-audit-alltracked-1ff.json",
+    "audit_sha256": "0eb9174a51f7850b24fc370d1d0ec079805f44d1789f108a54994d98ddb8b1a7",
+    "qualification": "Exact member/path/ref/hash confirmed by GP; packaging author independently verified actual Git bytes and all35 other member bytes. No runtime review is inferred."
+  },
+  "validation": {
+    "old_member_count": 36,
+    "current_member_count": 36,
+    "changed_member_count": 1,
+    "changed_json_pointer": "/members/funnel-default-scopes-actual~1runner.py",
+    "unchanged_text_members": 35,
+    "all_other_member_UTF8_bytes_identical": true,
+    "all_other_member_order_identical": true,
+    "root_schema_identical": true,
+    "replacing_only_new_reference_token_with_original_text_token_recovers_old_uncompressed_bytes": true,
+    "resolving_exact_Git_reference_recovers_complete_original_member_map": true,
+    "runtime_executed": false
+  },
+  "complete_packaging_verification_output": "{\n  \"packaging_check\": \"PASS\",\n  \"source_bytes\": 1657,\n  \"source_git_blob\": \"0ec178b3612c989cdb3aeda6cee5b8f45a0bf093\",\n  \"source_sha256\": \"24d15b46939627ffcc6245d038d69b38f2bebadd29baa0aeb378045dcea188fa\",\n  \"original_gzip_bytes\": 27937,\n  \"original_gzip_sha256\": \"05e93fa822624864130f1de4796f05392ea4824334b0210d566853f820a40a67\",\n  \"current_gzip_bytes\": 28115,\n  \"current_gzip_sha256\": \"7db778f1176db58878da0a2c3109ba8e8c1af82e7b27f1070477428ad1928d16\",\n  \"validation\": {\n    \"old_member_count\": 36,\n    \"current_member_count\": 36,\n    \"changed_member_count\": 1,\n    \"changed_json_pointer\": \"/members/funnel-default-scopes-actual~1runner.py\",\n    \"unchanged_text_members\": 35,\n    \"all_other_member_UTF8_bytes_identical\": true,\n    \"all_other_member_order_identical\": true,\n    \"root_schema_identical\": true,\n    \"replacing_only_new_reference_token_with_original_text_token_recovers_old_uncompressed_bytes\": true,\n    \"resolving_exact_Git_reference_recovers_complete_original_member_map\": true,\n    \"runtime_executed\": false\n  }\n}\n",
+  "runtime_status": "UNRUN; packaging verification only. No product/test/runtime/root source edits or reruns.",
+  "retention": {
+    "author_verification_directory": "/tmp/e02-D-funnel-d796-packaging-l5gw1y0x",
+    "original_current_carriers_and_complete_verification": "All retained; no cleanup/deletion."
+  }
+}

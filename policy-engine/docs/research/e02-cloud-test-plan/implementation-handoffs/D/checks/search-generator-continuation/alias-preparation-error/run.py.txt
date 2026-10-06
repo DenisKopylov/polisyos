@@ -1,0 +1,13 @@
+import json, os, subprocess, time, uuid, hashlib
+from pathlib import Path
+root=Path('/workspace/e02-D-published-search'); product=root/'policy-engine'; output=Path(__file__).parent
+selectors=['tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_standalone_current_transferred_rows_are_readmitted_before_model_restore']
+sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+paths=subprocess.check_output(['git','diff','--name-only','96eb9b9fb7f2acfa872dc741cbfdd96949c5d203',sha],cwd=root,text=True).splitlines()
+argv=['/workspace/e02-D-locked-env/bin/python','-B','-m','pytest','-p','native_observer','-o','addopts=','--import-mode=importlib','--strict-markers','--basetemp=/dev/shm/search-quantity-final-'+uuid.uuid4().hex,'--junitxml='+str(output/'junit.xml'),'-q','-rA',*selectors]
+env=dict(os.environ,PYTHONPATH='src:.:/workspace/e02-D2-receipts/search-generator-id-binding-9e30d3e15807428faf4a5c1ede269e95',PYTHONDONTWRITEBYTECODE='1',TIKTOKEN_CACHE_DIR='/workspace/e02-D2-receipts/tokenizer')
+metadata={'source_sha':sha,'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=root,text=True).strip(),'argv':argv,'environment_overrides':{key:env[key] for key in ['PYTHONPATH','PYTHONDONTWRITEBYTECODE','TIKTOKEN_CACHE_DIR']},'cwd':str(product),'changed_paths':paths,'changed_file_sha256':{path:hashlib.sha256((root/path).read_bytes()).hexdigest() for path in paths},'selector_sha256':{path:hashlib.sha256((product/path).read_bytes()).hexdigest() for path in selectors}}
+start=time.monotonic()
+with (output/'complete.txt').open('w') as f: completed=subprocess.run(argv,cwd=product,env=env,stdout=f,stderr=subprocess.STDOUT)
+metadata.update({'returncode':completed.returncode,'wall_seconds':time.monotonic()-start,'source_after':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'status_after':subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True),'output_sha256':hashlib.sha256((output/'complete.txt').read_bytes()).hexdigest()})
+(output/'run.json').write_text(json.dumps(metadata,indent=2));print(json.dumps(metadata,indent=2));print((output/'complete.txt').read_text()[-6500:])

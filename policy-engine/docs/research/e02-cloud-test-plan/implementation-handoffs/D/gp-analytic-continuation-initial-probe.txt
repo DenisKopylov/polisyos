@@ -1,0 +1,305 @@
+{"cell": "initial-ten-point-independent-oracle", "x": [0.08, 0.16, 0.23, 0.35, 0.42, 0.5, 0.61, 0.7, 0.82, 0.93], "queries": [0.015, 0.12, 0.29, 0.465, 0.655, 0.885, 0.99], "expected_cost_mean": [51.220611204076114, 55.76687061700047, 60.684535524147506, 59.35440333401588, 52.70605962786771, 46.73648272853531, 46.85234144659217], "expected_full_covariance": [[0.17317904502470396, 0.009105499745477471, -0.006389090989147274, 0.00424819165590797, -0.0036783241255462034, 0.0011271662030837937, -0.003541913008444169], [0.009105499745477471, 0.014612615065934345, 0.0007010457558238904, -0.0006968686692412852, 0.0007143735744187361, -0.00014445914765266477, 0.00046077109647747343], [-0.006389090989147274, 0.0007010457558238904, 0.014849819050029382, 0.0014627078441481216, -0.001499386221432719, 0.00019539416884123997, -0.0006479002117888702], [0.00424819165590797, -0.0006968686692412852, 0.0014627078441481216, 0.012440705487005481, 0.0016039546817556063, 0.0001806904753823028, -0.0004319246867534123], [-0.0036783241255462034, 0.0007143735744187361, -0.001499386221432719, 0.0016039546817556063, 0.01484039901650943, -0.0019136639521406943, 0.004779946184748788], [0.0011271662030837937, -0.00014445914765266477, 0.00019539416884123997, 0.0001806904753823028, -0.0019136639521406943, 0.019035635949027505, 0.002184141592151432], [-0.003541913008444169, 0.00046077109647747343, -0.0006479002117888702, -0.0004319246867534123, 0.004779946184748788, 0.002184141592151432, 0.1563373102853658]], "real_mll_calls": 1}
+.F{"cell": "actual-eleven-point-conditioning", "append": 0.975, "expected_cost_mean": [51.214820133112056, 55.767763134831476, 60.68303083184559, 59.35473516983018, 52.71064166369189, 46.74824585717241, 47.07477954384701], "expected_full_covariance": [[0.17309859759260965, 0.00911789827556917, -0.006409993622275315, 0.004252801397230837, -0.0036146721658102928, 0.001290575268207315, -0.00045188461197643117], [0.00911789827556917, 0.014610704208813515, 0.000704267262327516, -0.0006975791209614152, 0.0007045635566523642, -0.00016964369560263214, -1.5462998964768005e-05], [-0.006409993622275315, 0.000704267262327516, 0.014844387924871374, 0.001463905591911645, -0.0014828475510543098, 0.00023785269920071516, 0.00015498097714615732], [0.004252801397230837, -0.0006975791209614152, 0.001463905591911645, 0.012440441342896805, 0.0016003073425937052, 0.00017132692578387775, -0.0006089872880521373], [-0.0036146721658102928, 0.0007045635566523642, -0.0014828475510543098, 0.0016003073425937052, 0.014790036041921705, -0.002042957168371802, 0.002335040760817827], [0.001290575268207315, -0.00016964369560263214, 0.00023785269920071516, 0.00017132692578387775, -0.002042957168371802, 0.0187037108413199, -0.004092486987550572], [-0.00045188461197643117, -1.5462998964768005e-05, 0.00015498097714615732, -0.0006089872880521373, 0.002335040760817827, -0.004092486987550572, 0.037647685992742756]], "extra_real_mll_calls": 0}
+..FFF..FF..FFFF.F
+=================================== FAILURES ===================================
+______________ test_warm_target_basis_is_explicitly_configurable _______________
+
+    def test_warm_target_basis_is_explicitly_configurable() -> None:
+>       assert "numerical_basis" in inspect.signature(BayesianOptimizer).parameters, "A warm row cannot choose its own receiver target basis"
+E       AssertionError: A warm row cannot choose its own receiver target basis
+E       assert 'numerical_basis' in mappingproxy(OrderedDict({'space': <Parameter "space">, 'config': <Parameter "config: 'BayesianConfig | None' = None">, 'resource_arbiter': <Parameter "resource_arbiter: 'ResourceArbiter | None' = None">}))
+E        +  where mappingproxy(OrderedDict({'space': <Parameter "space">, 'config': <Parameter "config: 'BayesianConfig | None' = None">, 'resource_arbiter': <Parameter "resource_arbiter: 'ResourceArbiter | None' = None">})) = <Signature (space, config: 'BayesianConfig | None' = None, resource_arbiter: 'ResourceArbiter | None' = None)>.parameters
+E        +    where <Signature (space, config: 'BayesianConfig | None' = None, resource_arbiter: 'ResourceArbiter | None' = None)> = <function signature at 0x7fc8947ebab0>(BayesianOptimizer)
+E        +      where <function signature at 0x7fc8947ebab0> = inspect.signature
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:308: AssertionError
+____________ test_restored_warm_corpus_noop_and_append_do_not_refit ____________
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+
+    def test_restored_warm_corpus_noop_and_append_do_not_refit(analytic_case: AnalyticCase) -> None:
+        case = analytic_case
+        with patch.object(bayesian_module, "fit_gpytorch_mll", wraps=bayesian_module.fit_gpytorch_mll) as fit:
+            restored = _restore(case)
+>           assert restored.suggest(copy.deepcopy(case.current)).source_strategy == "bayesian_acquisition"
+E           AssertionError: assert 'sobol_init' == 'bayesian_acquisition'
+E             
+E             - bayesian_acquisition
+E             + sobol_init
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:337: AssertionError
+______________ test_changed_existing_outcome_requires_real_refit _______________
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+
+    def test_changed_existing_outcome_requires_real_refit(analytic_case: AnalyticCase) -> None:
+        case = analytic_case
+        restored = _restore(case)
+        changed = copy.deepcopy(case.current)
+        changed[-1].scalar_score += 2.0
+        changed[-1].objectives = [ObjectiveValue("analytic_cost", changed[-1].scalar_score, OptimizationDirection.MINIMIZE)]
+        with patch.object(bayesian_module, "fit_gpytorch_mll", wraps=bayesian_module.fit_gpytorch_mll) as fit:
+>           assert restored.suggest(changed).source_strategy == "bayesian_acquisition"
+E           AssertionError: assert 'sobol_init' == 'bayesian_acquisition'
+E             
+E             - bayesian_acquisition
+E             + sobol_init
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:351: AssertionError
+_____ test_same_checkpoint_acquisition_is_independent_of_ambient_torch_rng _____
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+
+    def test_same_checkpoint_acquisition_is_independent_of_ambient_torch_rng(analytic_case: AnalyticCase) -> None:
+        case = analytic_case
+        torch = require_torch()
+        ambient = torch.get_rng_state()
+        try:
+            proposals = []
+            with patch.object(bayesian_module, "fit_gpytorch_mll", wraps=bayesian_module.fit_gpytorch_mll) as fit:
+                for seed in (4101, 9917):
+                    restored = _restore(case)
+                    torch.manual_seed(seed)
+                    candidate = restored.suggest(copy.deepcopy(case.current))
+>                   assert candidate.source_strategy == "bayesian_acquisition"
+E                   AssertionError: assert 'sobol_init' == 'bayesian_acquisition'
+E                     
+E                     - bayesian_acquisition
+E                     + sobol_init
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:366: AssertionError
+_ test_same_marker_fitted_parameter_or_transform_changes_prediction_or_refuses[input_transform._offset] _
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+field = 'input_transform._offset'
+
+    @pytest.mark.parametrize("field", ["covar_module.raw_lengthscale", "outcome_transform.means", "input_transform._offset"])
+    def test_same_marker_fitted_parameter_or_transform_changes_prediction_or_refuses(analytic_case: AnalyticCase, field: str) -> None:
+        case = analytic_case
+        changed = copy.deepcopy(case.initial)
+        weights = _weights(changed)
+        weights[field] = weights[field] + (0.15 if "lengthscale" in field else 0.2)
+        buffer = io.BytesIO()
+        require_torch().save(weights, buffer)
+        changed.model_state = buffer.getvalue()
+        restored = _restore(case)
+        before = restored.get_state()
+        try:
+            restored.set_state(changed)
+        except ValueError:
+            _assert_unchanged(restored, before)
+            return
+        expected_mean, expected_covariance = _dense_expected(case.initial, POINTS)
+        actual_mean, actual_covariance = _actual(restored._model)
+>       assert not (
+            np.allclose(actual_mean, expected_mean, rtol=RTOL, atol=ATOL)
+            and np.allclose(actual_covariance, expected_covariance, rtol=RTOL, atol=ATOL)
+        ), "Changed fitted state was ignored despite unchanged identity markers"
+E       AssertionError: Changed fitted state was ignored despite unchanged identity markers
+E       assert not (True and True)
+E        +  where True = <function allclose at 0x7fc8911c8030>(array([51.2206112 , 55.76687062, 60.68453552, 59.35440333, 52.70605963,\n       46.73648273, 46.85234145]), array([51.2206112 , 55.76687062, 60.68453552, 59.35440333, 52.70605963,\n       46.73648273, 46.85234145]), rtol=2e-07, atol=2e-08)
+E        +    where <function allclose at 0x7fc8911c8030> = np.allclose
+E        +  and   True = <function allclose at 0x7fc8911c8030>(array([[ 1.73179045e-01,  9.10549975e-03, -6.38909099e-03,\n         4.24819166e-03, -3.67832413e-03,  1.12716620e-03,\n... 4.60771096e-04, -6.47900212e-04,\n        -4.31924687e-04,  4.77994618e-03,  2.18414159e-03,\n         1.56337310e-01]]), array([[ 1.73179045e-01,  9.10549975e-03, -6.38909099e-03,\n         4.24819166e-03, -3.67832413e-03,  1.12716620e-03,\n... 4.60771096e-04, -6.47900212e-04,\n        -4.31924687e-04,  4.77994618e-03,  2.18414159e-03,\n         1.56337310e-01]]), rtol=2e-07, atol=2e-08)
+E        +    where <function allclose at 0x7fc8911c8030> = np.allclose
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:392: AssertionError
+________ test_same_marker_warm_row_changes_corpus_or_refuses_atomically ________
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+
+    def test_same_marker_warm_row_changes_corpus_or_refuses_atomically(analytic_case: AnalyticCase) -> None:
+        case = analytic_case
+        changed = copy.deepcopy(case.initial)
+        row = _warm_row(changed.metadata)
+>       assert row is not None, "Checkpoint must persist its actual typed warm rows, not just a compatibility marker"
+E       AssertionError: Checkpoint must persist its actual typed warm rows, not just a compatibility marker
+E       assert None is not None
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:418: AssertionError
+_ test_checkpoint_type_mutations_are_refused_without_partial_restore[model-state-bool] _
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+mutation = 'model-state-bool'
+
+    @pytest.mark.parametrize("mutation", ["iteration-bool", "model-state-bool", "python-codec-bool", "sobol-algorithm-bool", "torch-byte-bool"])
+    def test_checkpoint_type_mutations_are_refused_without_partial_restore(analytic_case: AnalyticCase, mutation: str) -> None:
+        case = analytic_case
+        payload = json.loads(case.initial.to_artifact())
+        if mutation == "iteration-bool":
+            payload["iteration"] = True
+        elif mutation == "model-state-bool":
+            payload["model_state"] = False
+        elif mutation == "python-codec-bool":
+            payload["rng_state"]["python"]["codec_version"] = True
+        elif mutation == "sobol-algorithm-bool":
+            payload["rng_state"]["sobol"]["algorithm_version"] = True
+        else:
+            payload["rng_state"]["torch"][0] = True
+        restored = _restore(case)
+        before = restored.get_state()
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:469: Failed
+_ test_checkpoint_type_mutations_are_refused_without_partial_restore[python-codec-bool] _
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+mutation = 'python-codec-bool'
+
+    @pytest.mark.parametrize("mutation", ["iteration-bool", "model-state-bool", "python-codec-bool", "sobol-algorithm-bool", "torch-byte-bool"])
+    def test_checkpoint_type_mutations_are_refused_without_partial_restore(analytic_case: AnalyticCase, mutation: str) -> None:
+        case = analytic_case
+        payload = json.loads(case.initial.to_artifact())
+        if mutation == "iteration-bool":
+            payload["iteration"] = True
+        elif mutation == "model-state-bool":
+            payload["model_state"] = False
+        elif mutation == "python-codec-bool":
+            payload["rng_state"]["python"]["codec_version"] = True
+        elif mutation == "sobol-algorithm-bool":
+            payload["rng_state"]["sobol"]["algorithm_version"] = True
+        else:
+            payload["rng_state"]["torch"][0] = True
+        restored = _restore(case)
+        before = restored.get_state()
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:469: Failed
+_ test_checkpoint_type_mutations_are_refused_without_partial_restore[sobol-algorithm-bool] _
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+mutation = 'sobol-algorithm-bool'
+
+    @pytest.mark.parametrize("mutation", ["iteration-bool", "model-state-bool", "python-codec-bool", "sobol-algorithm-bool", "torch-byte-bool"])
+    def test_checkpoint_type_mutations_are_refused_without_partial_restore(analytic_case: AnalyticCase, mutation: str) -> None:
+        case = analytic_case
+        payload = json.loads(case.initial.to_artifact())
+        if mutation == "iteration-bool":
+            payload["iteration"] = True
+        elif mutation == "model-state-bool":
+            payload["model_state"] = False
+        elif mutation == "python-codec-bool":
+            payload["rng_state"]["python"]["codec_version"] = True
+        elif mutation == "sobol-algorithm-bool":
+            payload["rng_state"]["sobol"]["algorithm_version"] = True
+        else:
+            payload["rng_state"]["torch"][0] = True
+        restored = _restore(case)
+        before = restored.get_state()
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:469: Failed
+_ test_checkpoint_type_mutations_are_refused_without_partial_restore[torch-byte-bool] _
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+mutation = 'torch-byte-bool'
+
+    @pytest.mark.parametrize("mutation", ["iteration-bool", "model-state-bool", "python-codec-bool", "sobol-algorithm-bool", "torch-byte-bool"])
+    def test_checkpoint_type_mutations_are_refused_without_partial_restore(analytic_case: AnalyticCase, mutation: str) -> None:
+        case = analytic_case
+        payload = json.loads(case.initial.to_artifact())
+        if mutation == "iteration-bool":
+            payload["iteration"] = True
+        elif mutation == "model-state-bool":
+            payload["model_state"] = False
+        elif mutation == "python-codec-bool":
+            payload["rng_state"]["python"]["codec_version"] = True
+        elif mutation == "sobol-algorithm-bool":
+            payload["rng_state"]["sobol"]["algorithm_version"] = True
+        else:
+            payload["rng_state"]["torch"][0] = True
+        restored = _restore(case)
+        before = restored.get_state()
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:469: Failed
+______ test_invalid_outcomes_are_excluded_instead_of_fabricated_penalties ______
+
+analytic_case = AnalyticCase(space=SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS...)
+  )
+  (outcome_transform): Standardize()
+  (input_transform): Normalize()
+), initial_fit_calls=1, append_fit_calls=0)
+
+    def test_invalid_outcomes_are_excluded_instead_of_fabricated_penalties(analytic_case: AnalyticCase) -> None:
+        case = analytic_case
+        restored = _restore(case)
+        bad = [
+            _evaluation(case.space, 0.30, "invalid-nonfinite"),
+            _evaluation(case.space, 0.55, "invalid-stage-a"),
+            _evaluation(case.space, 0.76, "invalid-stage-b"),
+        ]
+        bad[0].scalar_score = math.nan
+        bad[1].stage_a_passed = False
+        bad[2].status = EvaluationStatus.STAGE_B_ERROR
+        with patch.object(bayesian_module, "fit_gpytorch_mll", wraps=bayesian_module.fit_gpytorch_mll) as fit:
+            candidate = restored.suggest([*copy.deepcopy(case.current), *bad])
+>           assert candidate.source_strategy == "bayesian_acquisition"
+E           AssertionError: assert 'sobol_init' == 'bayesian_acquisition'
+E             
+E             - bayesian_acquisition
+E             + sobol_init
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:501: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_warm_target_basis_is_explicitly_configurable
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_restored_warm_corpus_noop_and_append_do_not_refit
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_changed_existing_outcome_requires_real_refit
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_checkpoint_acquisition_is_independent_of_ambient_torch_rng
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_fitted_parameter_or_transform_changes_prediction_or_refuses[input_transform._offset]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_same_marker_warm_row_changes_corpus_or_refuses_atomically
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[model-state-bool]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[python-codec-bool]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[sobol-algorithm-bool]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_checkpoint_type_mutations_are_refused_without_partial_restore[torch-byte-bool]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_invalid_outcomes_are_excluded_instead_of_fabricated_penalties

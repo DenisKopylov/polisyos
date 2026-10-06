@@ -1,0 +1,243 @@
+{
+  "schema": "selected-immutable-dependency.v1",
+  "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+  "source_tree": "e2d788db3917bbade79ae024fb52481fda0521b0",
+  "predecessor_sha": "b2fefca972c4fddb8cd372a3c4cef0f0de94fca0",
+  "authorization": "parent smallest additive selected Git adoption to preserve own topic history without unrelated historical raw docs",
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "d559d8182b5fc6b5deaafbb7dbcae8267cf2214b",
+      "bytes": 13294,
+      "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": false,
+      "previous_bytes": 13294,
+      "previous_sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+      "bytes": 39125,
+      "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 31634,
+      "previous_sha256": "c270e62c580f42031e28b67d848f11a79df528b66eaf09a008d48ae888c49f6f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+      "bytes": 7148,
+      "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 3926,
+      "previous_sha256": "09023227c07f9da03ffb1abc0afe6eba5cc8971f4564a72c5a3957fafdc14a45"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+      "bytes": 8472,
+      "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 2723,
+      "previous_sha256": "72d6bee16e249c4d1c0fdf9661ba42c783da3587005380417f0629a5d67562dd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+      "bytes": 12118,
+      "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 12041,
+      "previous_sha256": "9dbafe98111b04b926b4473beb76eda8b6241f8ce84f5beee09a814ad96e0a0e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+      "bytes": 8448,
+      "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 8350,
+      "previous_sha256": "17b0816b851c3c2c278587a7953c7ae3c408cb199d7b1e7bed844281aff5a956"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+      "bytes": 3768,
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+      "bytes": 19279,
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 15293,
+      "previous_sha256": "51c12e1e665184113ae1eafc5ec44e08e306c6265e7fb7f7c939692a47e03171"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+      "bytes": 14391,
+      "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 14207,
+      "previous_sha256": "f4392a54cf0898e213fa59fb084f55f596462e78842b71fa9bccb67ae20205f5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "bytes": 3949,
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 3927,
+      "previous_sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "a24805e9abefb4b3826f424c0c6dfd529c2ea338",
+      "bytes": 6384,
+      "sha256": "5ceaaa52de62ed0723a522a3b500100c8571409a55d961bad3f3eb0756fba24e",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 4720,
+      "previous_sha256": "90919724445055814ffd862d3f4e2673627cbeaf3adf5771cc9e827ef80f278d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "2e36f3eed57f5f20e6221d685b168e0819f148a5",
+      "bytes": 7496,
+      "sha256": "def483b2be73f87f912c8d75fb2805ce9d6d0dc5c6447753ba1160775bff3b00",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 5036,
+      "previous_sha256": "ff801a0527c294c140118af549ca5e1d8e539add6057279e68be4b9517911922"
+    },
+    {
+      "path": "policy-engine/docs/how-to/search-exploratory-coordinate-order.md",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "a767eec7957a33c92d561abcd68525ad42aac016",
+      "bytes": 3052,
+      "sha256": "337c090f80f1077d3463343b16a26cbb75d630fae7912dcb6f1038727a942270",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-D-exploratory-coordinate-order.toml",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "6d4f1e28651f5908e2e55ff482867cbc3599ca1b",
+      "bytes": 1902,
+      "sha256": "f12476d1f9bd955195543b1db5b813d37b866aceb4656d07ee6a40a48f41845a",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+      "bytes": 1211,
+      "sha256": "e197a9245b43a638c8350d40ff06ce49fdd5b976f1525588085fcc6d19bb464c",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "538ee91fe204b9588c9aa9be00b071c9e76c4f0b",
+      "bytes": 13164,
+      "sha256": "1c71cd158bee77610026fb2f9eda36200064d81dc885d4b12f47451b9b7d50e2",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "5ad3ff55e491f270a145f21becc376053cf2604f",
+      "bytes": 2180,
+      "sha256": "15c36e5b510be10cbfb9b08cacedb38b2daecddd3550b1f80965ae8ccc0a18cb",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 2122,
+      "previous_sha256": "817200d26b9366c69a2e36a0a372b634b1d18b4d98b7c6c235fd2786888aacfc"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "bytes": 12547,
+      "sha256": "66a3482c1f54f768287a907f0809e5e061d204de2db80cd4467be840908fdf98",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+      "bytes": 6731,
+      "sha256": "eb2ab3f3a1b72402685bb5d386be57b4f42de5e64a3eeb679d320fc9cc277a28",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": 6074,
+      "previous_sha256": "451b18624814af0e459f9940fd7f4ff3fdcfe66d019c68c173773cbbaca1b33b"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "adc92646413d42b9fe027e6f88f9fdab7cc35ed2",
+      "bytes": 4265,
+      "sha256": "f6dbbacce844d0a7945fcf82fe2785491296d894aae45a041e5f86d8be8ff0ac",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-D-space-numeric-admission.toml",
+      "source_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "source_blob": "7f18ddc32fe474342fb352625a82323faf89154b",
+      "bytes": 1159,
+      "sha256": "deded7362b65a24dd5bf2b62f63cd9a2c2e76992d5d401f897806cab8b045b6f",
+      "adopted_byte_identical": true,
+      "changed_in_this_lane": true,
+      "previous_bytes": null,
+      "previous_sha256": null
+    }
+  ],
+  "core_gp_implementation_changed": false,
+  "source_selection_only_no_runtime_acceptance": true,
+  "no_new_checkout_or_archive": true
+}

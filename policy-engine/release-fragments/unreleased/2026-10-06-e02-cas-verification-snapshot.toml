@@ -1,0 +1,13 @@
+id = "2026-10-06-e02-cas-verification-snapshot"
+title = "Bind CAS verification and audit projection to one immutable snapshot"
+type = "fixed"
+component = "artifacts"
+owner = "team-runtime"
+summary = "Live and staged verification derive digest, size and selected metadata from the same loaded bytes; audit reports consume that verified snapshot without reopening metadata."
+evidence = ["tests/unit/core/artifacts/test_verification_snapshot_report.py", "tests/unit/remediation/test_cas_03.py", "tests/unit/core/artifacts/test_cas_integrity_report.py"]
+compatibility = "FileSystemCAS exposes an additive get_verified_snapshot port. Audit builders require that optional port; backend implementations need equivalent owned snapshot behavior before emitting proof. Nonregular members refuse before blocking reads."
+change_class = "python-public-api"
+surface_classification = "internal: polisyos.core.artifacts and its optional snapshot protocol"
+migration = "Proof producers should use VerifiedSnapshotArtifactStore rather than separate verify/get_manifest calls. Ordinary store read/write protocol remains unchanged."
+public_surface_inventory_reviewed = true
+limitations = "A snapshot holds one blob in memory and does not claim constant-memory verification, hostile parent protection, or prevention of noncooperating later filesystem mutation. Signature trust/revocation checks remain separate and current."

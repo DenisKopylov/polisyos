@@ -1,0 +1,168 @@
+{
+  "schema": "policyos.e02.root_wave_interruption.v1",
+  "classification": "INTERRUPTED_UNRUN_NO_COMPLETED_COLLECTION_OR_TEST_VERDICT",
+  "recorded_at_utc": "2026-10-06T20:26:13.908035+00:00",
+  "source_target": {
+    "sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+    "cwd": "/workspace/e02-D-published-root/policy-engine",
+    "status_porcelain_v2": ""
+  },
+  "closure_ids": [],
+  "G_accepted": false,
+  "payload": {
+    "git_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+    "git_tree": "e88f3f4cce7dbcfa6bfeb24b981c469b5f9f6eae",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+    "sha256": "fcc80b440442249eec6fd550499e990833ae819c6f2deb0b46c38d944113420e",
+    "bytes": 621446,
+    "raw_sha256": "c276bbfb3fc779f22a3af5986f832b73a711f5ba545a7689f373fd56cdfe0db8",
+    "raw_bytes": 2594247,
+    "member_count": 14,
+    "encoding": "gzip JSON with base64 members; full original bytes retained"
+  },
+  "original_wave_directory": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4",
+  "originals_preserved": true,
+  "root_mutations": 0,
+  "runtime_retries": 0,
+  "original_launch": {
+    "member": "original-wave/execution-manifest.json",
+    "complete_argv_pointer": "/complete_argv",
+    "argv_sha256": "8311e62cf690acdcdc0c6163311d999e4498f6b7694eb9da2114c6bad074d16c",
+    "started_wall_ns": 1791315364946453066,
+    "started_at_utc": "2026-10-06T19:36:04.946453066Z",
+    "termination_at_utc": null,
+    "total_wall_seconds": null,
+    "harness_input_member": "harness/e02-D-broad-wave.py",
+    "observer_input_member": "harness/e02_broad_observer.py",
+    "selector_generator_input_member": "harness/e02-D-final-selector-plan.py",
+    "union_selectors": 99,
+    "canonical_commands": 17,
+    "canonical_unique_paths": 38,
+    "changed_pytest_files": 68,
+    "configured_caps_or_skip_filters": null,
+    "four_separate_standalone_probes": "UNRUN; exact commands retained under manifest /separate_standalone_probes",
+    "status_RUNNING_is_stale": true
+  },
+  "actual_process_observation": {
+    "member": "read-only-observer/observations.json",
+    "pointer": "/processes",
+    "observed_at_utc": "2026-10-06T20:26:13.908035+00:00",
+    "child": {
+      "pid": 385226,
+      "state": "Z",
+      "raw_linux_wait_status": 9,
+      "interpreted_returncode": -9,
+      "signal": "SIGKILL"
+    },
+    "harness": {
+      "pid": 384932,
+      "state": "Z",
+      "raw_linux_wait_status": 15,
+      "interpreted_returncode": -15,
+      "signal": "SIGTERM"
+    },
+    "live_backend_or_root_python_processes": [],
+    "source_and_cache_writer_released": true,
+    "cause": "not_established",
+    "limits": "Zombie exit status establishes the signal, not who sent it, an exact end timestamp, peak memory, or an OOM attribution."
+  },
+  "actual_events": {
+    "member": "original-wave/events.jsonl",
+    "records": 1055,
+    "counts": {
+      "observer_loaded": 1,
+      "polisyos_module_exec": 1052,
+      "polisyos_module_census": 1,
+      "configure": 1
+    },
+    "configure_record_zero_based": 247,
+    "module_census_record_zero_based": 246,
+    "last_import_event_wall_ns": 1791315387532452806,
+    "last_import_event_elapsed_seconds": 22.294476341005065,
+    "last_event_is_not_termination_time": true,
+    "completed_collection": false,
+    "recorded_test_reports": 0,
+    "recorded_case_starts": 0,
+    "GP_fit_or_numerical_result": "UNRUN_NOT_ESTABLISHED",
+    "actual_import_source_reconciliation": {
+      "event_count": 1052,
+      "unique_paths": 1052,
+      "checked_against_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "matches": 1052,
+      "errors": []
+    },
+    "stdout_bytes": 0,
+    "stderr_bytes": 0,
+    "missing_completion_files": [
+      "result.json",
+      "after.json",
+      "junit.xml",
+      "observer-summary.json",
+      "collected-nodeids.json"
+    ],
+    "basetemp_created": false
+  },
+  "backend": {
+    "actual_configure_details": "original-wave/events.jsonl record247; includes installed/loaded versions, binary origins, RNG snapshots, pytest settings and inherited environment",
+    "python_executable": "/workspace/e02-D-doe-env/bin/python",
+    "python_version": "3.14.7",
+    "pytest": "9.0.2",
+    "actually_loaded": [
+      "torch 2.10.0+cu128",
+      "botorch 0.16.1",
+      "gpytorch 1.15.1",
+      "numpy 2.3.5",
+      "scipy 1.16.3"
+    ],
+    "imported_does_not_establish_fit": true,
+    "SALib_and_hnswlib": "Installed; not loaded at configure. No result claim.",
+    "observed_torch_threads": {
+      "intraop": 5,
+      "interop": 5,
+      "agent_assigned_limit": false
+    }
+  },
+  "resource_diagnosis": {
+    "member": "read-only-observer/observations.json",
+    "cgroup_current_bytes": 16781692928,
+    "cgroup_max_bytes": 17179869184,
+    "cgroup_remaining_bytes": 398176256,
+    "shmem_bytes": 15096152064,
+    "file_bytes": 15397588992,
+    "anon_bytes": 46317568,
+    "kernel_bytes": 1336807424,
+    "disk": {
+      "/workspace": {
+        "available_bytes": 6774784,
+        "free_bytes": 1741537280,
+        "total_bytes": 33770192896
+      },
+      "/tmp": {
+        "available_bytes": 476151808,
+        "free_bytes": 476151808,
+        "total_bytes": 9441349632
+      },
+      "/dev/shm": {
+        "available_bytes": 3310395392,
+        "free_bytes": 3310395392,
+        "total_bytes": 9441349632
+      }
+    },
+    "global_events_before": "original-wave/before.json /resources",
+    "global_events_at_observation": "read-only-observer/observations.json /cgroup/memory.events",
+    "interpretation": "Retained tmpfs pages dominate current cgroup usage. tmpfs free disk space does not add physical memory headroom. Global OOM counts cannot attribute either signal to this wave.",
+    "harness_read": "One ordinary uncapped pytest child imports 99 union selectors; import/collection loads scientific binaries and 1052 product modules. The passive observer does not replace the scientific computation. wait4/result/JUnit finalization did not complete after the harness terminated.",
+    "peak_child_memory": "not_recorded",
+    "feasible_now": "Metadata-only source/output review and transport; no heavy backend retry is established feasible under the observed headroom.",
+    "targeted_path_after_capacity_admission": "Use the existing DOE backend and immutable current source for one actual configured-transfer/default GP consumer with ordinary fixture and fresh retained basetemp; no mock fit, quota, skip filter, copied source, or altered oracle.",
+    "final_broad_path_after_capacity_admission": "Run the exact manifest 99-selector ordinary single pytest child against the frozen candidate with the same real DOE environment and passive observer. Preserve old interruption, raw outputs and originals; record complete actual result or another interruption. Do not blindly rerun while pressure remains.",
+    "cleanup_or_moves": 0
+  },
+  "source_review_qualification": {
+    "plan_stdout_member": "original-wave/plan.stdout.txt",
+    "historical_GP_6fe_service_vs_current_8c": "The retained plan output reports different service source hashes. Historical default-factory runtime cannot be relabeled current8c unchanged-service proof.",
+    "offline_scope": "Earlier root/numerical tools reported environment_offline while this leaf could read the same filesystem. Root later reported route recovery. This tool-status history is separate from the observed child signals."
+  },
+  "deciding_output": "Child and harness terminated by signals; no completed collection/JUnit/test or GP fit verdict. Preserve UNKNOWN runtime as interrupted UNRUN, with no formal finding closure or inherited waiver."
+}

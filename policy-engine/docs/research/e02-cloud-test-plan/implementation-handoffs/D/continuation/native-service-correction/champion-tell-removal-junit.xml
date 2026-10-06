@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="6.212" timestamp="2026-10-06T16:00:28.843016+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]" time="3.326"><failure message="AssertionError: assert [SearchIterat...n_error=None)] == []&#10;  &#10;  Left contains one more item: SearchIteration(iteration=0, candidate={'cost': 2}, objective_value=2.0, objective_details=[ObjectiveValue(name='budge... 6, 16, 0, 34, 962049, tzinfo=datetime.timezone.utc), policy_evaluation_status='missing', policy_evaluation_error=None)&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2/test_failed_tell_publication_r0')
+failure = 'fail_write'
+
+    @pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+    def test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view(
+        tmp_path, failure
+    ):
+        store = _FailingCAS(tmp_path / "cas")
+        service = _direct(store)
+        proposal = service.ask(None, None, {})[0]
+        pending_ref = service.checkpoint_ref
+        evaluation = service.controller._evaluate_for_tell(proposal.payload, iteration=0, context={})
+        setattr(store, failure, True)
+        with pytest.raises(OSError, match="actual checkpoint"):
+            service.tell(proposal.candidate_id, evaluation)
+        assert service.checkpoint_ref == pending_ref
+&gt;       assert service.controller._history == []
+E       AssertionError: assert [SearchIterat...n_error=None)] == []
+E         
+E         Left contains one more item: SearchIteration(iteration=0, candidate={'cost': 2}, objective_value=2.0, objective_details=[ObjectiveValue(name='budge... 6, 16, 0, 34, 962049, tzinfo=datetime.timezone.utc), policy_evaluation_status='missing', policy_evaluation_error=None)
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_persistence.py:444: AssertionError</failure></testcase></testsuite></testsuites>

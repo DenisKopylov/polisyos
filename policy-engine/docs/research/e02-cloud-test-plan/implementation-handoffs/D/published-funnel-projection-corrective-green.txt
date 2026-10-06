@@ -1,0 +1,64 @@
+SOURCE_BASE 653ba2ac07b9bb67310175f428c9433c22d427ae
+INPUT src/polisyos/scientist/methods/search/funnel/orchestrator.py SHA256 693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff
+INPUT tests/integration/scientist/methods/search/funnel/test_orchestrator.py SHA256 cf78bd437629e1df2b1baa868fb415b686d33fbb1e0201630ff7027f5772ff70
+COMMAND ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "-vv", "tests/integration/scientist/methods/search/funnel/test_orchestrator.py", "tests/unit/scientist/search/funnel/test_orchestrator.py"]
+PYTHONPATH src:. TIKTOKEN_CACHE_DIR /workspace/e02-D2-receipts/tokenizer
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-D-published-funnel/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-D-published-funnel/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 37 items
+
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen PASSED [  2%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_foundry_consumer_uses_reduced_draws_with_independent_numeric_oracle PASSED [  5%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_zero_measurement_and_paid_failed_stage_are_distinct[0.0-False] PASSED [  8%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_zero_measurement_and_paid_failed_stage_are_distinct[1.0-True] PASSED [ 10%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_trace_cost_one_without_settlement_fails_accounting_control PASSED [ 13%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_removing_reduced_config_fails_actual_draw_oracle_with_marker_retained PASSED [ 16%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work PASSED [ 18%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_removing_signal_absent_budget_guard_fails_zero_downstream_effects PASSED [ 21%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-False] PASSED [ 24%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[0.0-True] PASSED [ 27%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-False] PASSED [ 29%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections[1.0-True] PASSED [ 32%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_runs_all_stages_on_passing_candidate PASSED [ 35%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stops_on_blocker PASSED [ 37%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stops_on_not_promising PASSED [ 40%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_respects_max_level PASSED [ 43%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_fast_track_skips_to_final PASSED [ 45%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_reject_routing_stops_funnel PASSED [ 48%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stages_sorted_by_fidelity PASSED [ 51%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_empty_stages_returns_not_evaluated_result PASSED [ 54%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_context_enriched_with_level_results PASSED [ 56%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_as_stage_a_callable PASSED [ 59%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_as_stage_b_callable PASSED [ 62%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_b_reuses_cached_stage_a_progress PASSED [ 64%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_b_cache_miss_falls_back_to_full_execution PASSED [ 67%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context PASSED [ 70%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_freeze_mode_continuation_preserves_partial_progress PASSED [ 72%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_retry_cheaper_spend_only_does_not_resume PASSED [ 75%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_defer_without_discriminator_does_not_resume PASSED [ 78%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_interleaved_context_continuation_uses_exact_context_predecessor PASSED [ 81%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_burn_in_policy_bypasses_cheap_rejection_until_level4 PASSED [ 83%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_records_failure_lessons_on_terminal_reject PASSED [ 86%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_records_success_lesson_on_level4_success PASSED [ 89%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_predictive_scheduler_receives_stage_observations PASSED [ 91%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_and_level6_runtime_generalization_collects_audit_refs PASSED [ 94%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level6_respects_no_promotion_degraded_mode PASSED [ 97%]
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_blocks_runtime_split_type_mismatch PASSED [100%]
+
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 37 passed, 2 warnings in 9.92s ========================
+EXIT 0 WALL_SECONDS 14.819944877992384 MAXRSS_KIB 1300776

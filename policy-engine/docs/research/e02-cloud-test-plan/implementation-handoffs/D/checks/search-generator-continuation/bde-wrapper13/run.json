@@ -1,0 +1,65 @@
+{
+  "source_sha": "bde05d6f4848f87326a9d01113a42c1101a06181",
+  "source_tree": "a1aec2dd7d1912c768210ab23cd698bb09a08be6",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "native_observer",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp=/dev/shm/search-quantity-final-b7d8b8be4f1d487bb85ec464be660de6",
+    "--junitxml=/workspace/e02-D2-receipts/search-generator-final-cc6b9f2a73484350bff628fdedfdc280/junit.xml",
+    "-q",
+    "-rA",
+    "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-generator-final-cc6b9f2a73484350bff628fdedfdc280",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "cwd": "/workspace/e02-D-published-search/policy-engine",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-generator-resume.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py"
+  ],
+  "changed_file_sha256": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml": "2a1b7d4c306fdce60e7df635a5d13f656e5c604e855895d87c5b1b8ab8039713",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-generator-resume.toml": "bf18525da0e28625c260e2c3295cfe71ed630e4d60df75629848068f06d548d3",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": "9118b78b8462fba27ca7af39e0e0c3a4ceed4b4e5ac86c8dec7f15eaf550b10c",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": "ad369ca3657d5a797c385ec1b7a70440cea78f9daf3b0b3c85404e08107c99e6",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py": "ecca7c958ca3b050c679a60edcd1483cad1618cd3ad57d51d73af4789c5904d0",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py": "af36c6cb9647e9271aca81c993068eaff759fb01270ff36c8147cc565fa7be3b",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py": "1a2f7b4e752b8011df82731c708a0afd46eb75068f9caf11ef8c18d99530cf04",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py": "be321b0a0fc446f7d44179b10a4f020c4f942d67d306697a8ed9f513b74aff3e",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071"
+  },
+  "selector_sha256": {
+    "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py": "af36c6cb9647e9271aca81c993068eaff759fb01270ff36c8147cc565fa7be3b",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885"
+  },
+  "returncode": 0,
+  "wall_seconds": 34.003464781999355,
+  "source_after": "bde05d6f4848f87326a9d01113a42c1101a06181",
+  "status_after": "",
+  "output_sha256": "9d2d01bbd13671b92d1611f6b71c294ccc4cfd096c2f22b93658fbfdf1ac0e1a"
+}

@@ -1,0 +1,123 @@
+[
+  {
+    "key": "eco",
+    "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+    "bytes": 127652,
+    "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+    "implementation_commits": [
+      "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3"
+    ],
+    "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251"
+  },
+  {
+    "key": "eco_dtype",
+    "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006.json",
+    "bytes": 58922,
+    "sha256": "cb9efb8452c6446d78d19225dcae4c69dadaa817810e16fcc9c8741dee8ad6c7",
+    "implementation_commits": [
+      "c003bd673fd672726db18773bf888357a468d901"
+    ],
+    "candidate_tree_sha": "16927b18be300fc6c1723c2af4bb8a421ccac357"
+  },
+  {
+    "key": "fry",
+    "git_ref": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+    "bytes": 97248,
+    "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf",
+    "implementation_commits": [
+      "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "3e1819173f0593ce93d257c3c62cdb2fa627e426"
+    ],
+    "candidate_tree_sha": "45852a68bb786a96d6d23c52cea790f13d3489d3"
+  },
+  {
+    "key": "scm_version",
+    "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+    "bytes": 131648,
+    "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+    "implementation_commits": [
+      "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "e94a40e78416b7392edf96f1f24c7846a808c8d0"
+    ],
+    "candidate_tree_sha": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd"
+  },
+  {
+    "key": "scm_static",
+    "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+    "bytes": 50088,
+    "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+    "implementation_commits": [
+      "5182825c190aa403bee765e339a119bb53e805e0"
+    ],
+    "candidate_tree_sha": "87e2bc0e426a2e1cc41fdb3adb340a70ed0c8b1e"
+  },
+  {
+    "key": "scm_poly",
+    "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+    "bytes": 44860,
+    "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4",
+    "implementation_commits": [
+      "6f95f55ca7d9c5cd9489256a354a27da058b46b9"
+    ],
+    "candidate_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5"
+  },
+  {
+    "key": "cau",
+    "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+    "bytes": 162688,
+    "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+    "implementation_commits": [
+      "759c984f475d07c982c0f22f747588706ac752e8",
+      "856caddfa71423a439b1257d947d9657b6a29ff3",
+      "0b522ed173730b4ec744253bb75b6ee260bfcebb"
+    ],
+    "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72"
+  },
+  {
+    "key": "cau_science",
+    "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+    "bytes": 216928,
+    "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+    "implementation_commits": [
+      "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+      "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "0a25f3afee4c12ba8079c781618229589ef8af75",
+      "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+    ],
+    "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9"
+  },
+  {
+    "key": "rdd",
+    "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+    "bytes": 68616,
+    "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+    "implementation_commits": [
+      "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+    ],
+    "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7"
+  },
+  {
+    "key": "root",
+    "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+    "bytes": 13477,
+    "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+    "implementation_commits": [
+      "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+      "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77"
+    ],
+    "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a"
+  }
+]

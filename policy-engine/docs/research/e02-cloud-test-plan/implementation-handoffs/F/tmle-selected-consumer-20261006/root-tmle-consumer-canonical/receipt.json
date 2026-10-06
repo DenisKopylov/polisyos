@@ -1,0 +1,40 @@
+{
+  "source_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+  "source_tree": "ede8862d0204d6d8d34fceb4f425929bd5c093ed",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/cache",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/tmp",
+    "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp"
+  },
+  "exit_code": 1,
+  "wall_seconds": 69.22238871800073,
+  "ending_head": "179e50bd0b694e3862d8b00648bcd812f15ee430",
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/stdout",
+      "bytes": 11356,
+      "sha256": "4112e56bae9015b92b16d7f5836c54874e1514c0a8130641883b9ba3fbe4f6a3"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

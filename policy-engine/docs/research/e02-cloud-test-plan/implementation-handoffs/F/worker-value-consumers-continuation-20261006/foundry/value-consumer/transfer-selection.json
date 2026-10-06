@@ -1,0 +1,234 @@
+{
+  "schema": "policyos.e02.transfer-selection.v1",
+  "source_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/review.json",
+      "bytes": 34031,
+      "sha256": "eb84b4e31dc64d605595746d19e1700df1bc21eb88b692cd5aee1e77130f5e17"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py",
+      "bytes": 10456,
+      "sha256": "df82bf06472e9a0a64fc977f882c3a78ebbcb84218fe1cc7dbda9248d871195a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.json",
+      "bytes": 1637,
+      "sha256": "0231fc594bb3d7bbcad74dbe8a9cbbc8bd4483ff36d39ffee4bffd60ff952d08"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.stdout.txt",
+      "bytes": 413,
+      "sha256": "e89934c8bbf194f323c79a1a19affd6df460a3018e822086c701985c31337a79"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.json",
+      "bytes": 1259,
+      "sha256": "16177a65e956accbeb1bfc488d4373af7b3458ebaa182e61310460b23fc5c45a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stderr.txt",
+      "bytes": 130,
+      "sha256": "de4ff766e8e63f84ea33c29b2e18ac75927abbc47c90379ecd1c3f6fbe5bfccf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.json",
+      "bytes": 5985,
+      "sha256": "0bd8e3c577ea956677df7bf6c3b3d9843b5b23d490877768945c81d47094b84b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.stdout.txt",
+      "bytes": 3735,
+      "sha256": "ebfa3e073090fb7b1ae578bff52d9848cb292f0fe10b809edb64eff8b259d759"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.json",
+      "bytes": 5946,
+      "sha256": "a5aad372dfd238f3601c1397f9fe6e90a474ace3b215ffbcd84eb4d75c397ee5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.stdout.txt",
+      "bytes": 4922,
+      "sha256": "30bbe789c2ea7491e644a6b0506431465f4c47fdcec12b5e4434cc78de2f2271"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/replay_value_consumer.py",
+      "bytes": 3405,
+      "sha256": "0b96a04008c4ff79a55589c695afb17b2dea4f7f3ff3689ae7257c478d0abed6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.json",
+      "bytes": 5897,
+      "sha256": "f73b27e1758f432619b6026c72dbe8345fcc6d8cb1b99bbe2d0d8beb65ae92e4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.stdout.txt",
+      "bytes": 3004,
+      "sha256": "cf234931448e25e592001c8b07b34fca3943933034a89e4f59da345fdace73a9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.json",
+      "bytes": 5857,
+      "sha256": "51d96d40694c6aebbf3daf68d759c23e7862e3e5e9754e0496a9d0ef34ee1034"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.stdout.txt",
+      "bytes": 3240,
+      "sha256": "8da97001752b431ebcd59d3080f5d730d70e1a1aa18265f1352229afcfe24ea0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/run_value_checks.py",
+      "bytes": 5305,
+      "sha256": "a70eddd1b53404b9b2b98fbb2ec372e5ed4db1fa7fef8cce137234f128a710de"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.json",
+      "bytes": 5902,
+      "sha256": "afce344ffe0545ca10746e03e420f8986978b46aa76e75d5ff6e131ff15559b6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.stdout.txt",
+      "bytes": 1582,
+      "sha256": "cfee9bd851913cc6903d9f0f5815f44203b40a498b701901021c61d24e4cc370"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.json",
+      "bytes": 5864,
+      "sha256": "24671cbde00b770a141491db15e8bb81f774860e6504e503b93805bb6bc2b5a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.stdout.txt",
+      "bytes": 1485,
+      "sha256": "76566823ad56f17c9a82b05bba5d58a17a4847e37b9f0834e9964ae9bdf61927"
+    }
+  ],
+  "source_refs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 76411,
+      "sha256": "76919f3009f48af4c908f0e79a225ed260494119155a57f61e4afdd4f70814fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 84428,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 20746,
+      "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 18448,
+      "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/consensus.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 90337,
+      "sha256": "0c9728683790eb07557362634ceaf4869767ed7bf35472f8be11caba9fed4ace"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 37674,
+      "sha256": "3a90df93dcb75cd6bab79abbd10f57f438913bb9aed11e07074c29b38418e259"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 7869,
+      "sha256": "e3e321c42a649e914fc6a24aec4dd1969fa293fc8eb926c610839331eb274555"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 14826,
+      "sha256": "e678cf8c5131318578cb38aa3cd25ef3ba895f1035b6c480322c62fd85b7bbbf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 26555,
+      "sha256": "1e13e98fa6238f76b545c8597b03ae1eff648807e17609713ad084c21701e009"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/timeseries.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 17044,
+      "sha256": "7383972ceaa43c1562217fedd2002e9f07e38ffa9c5036904a0e7aaaca5052a4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/protocols.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 41802,
+      "sha256": "57f7138520f65b8bc22ad5848ae20d85326db1d4c1196568d3431418209f137e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/history.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 16636,
+      "sha256": "a0a9a0c93add75627431a9801423c079f361c3b95ec965f0a9b1e0e22397b270"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_value_evidence.py",
+      "git_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "bytes": 19771,
+      "sha256": "d81e7d908c3eeebde6fcee02b0a32e888cac031ab9b0ebf1e1ab86aae5416f7e"
+    }
+  ],
+  "excluded": "Tracked source/code/catalog bodies, duplicate generated views, temporaryCAS/test caches and source-moved root latest identities are not copied.",
+  "total_unique_bytes": 110055
+}

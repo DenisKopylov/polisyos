@@ -1,0 +1,82 @@
+{
+  "candidate_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+  "candidate_tree": "18711c5732863a4e50672112c7f3c5ba4a1b229b",
+  "check": "PASS",
+  "decision": "GO_bounded_docs_only",
+  "unique_full_files": 12,
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/review.json",
+      "bytes": 10014,
+      "sha256": "065c08b809176d46fe0e4b8ba468bcd000b0f4d0430757d886daf961f491e30d",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/deciding-output.json",
+      "bytes": 36794,
+      "sha256": "bb473ea653133231678dec64f0e988a55f2c394050b5e150b55e318c02ce0f61",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/review_docs.py",
+      "bytes": 10118,
+      "sha256": "ff3cd0357294b9de621036eb0ad03855f0758efe04e8623b8626f1773d7ec8a0",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/finish_review.py",
+      "bytes": 7780,
+      "sha256": "86510c979c7ca575767a771a1d6159f5831be0b10a8734cbfbfca11705633071",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/coverage.stdout.txt",
+      "bytes": 435,
+      "sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/coverage.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation.stdout.txt",
+      "bytes": 474,
+      "sha256": "5e9ad30ff6f71ba0b7b041d0551a76c5b25badf9948e5db8f35ff7b2f5b1a2b5",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-initial.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-initial.stderr.txt",
+      "bytes": 386,
+      "sha256": "08ca6d7e47342ad4ff6c960c1b4b2ebbab3703d50e09a23e03d5c45dfcff58f4",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-citation-harness.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation-citation-harness.stderr.txt",
+      "bytes": 210,
+      "sha256": "0b18057e9366e8d00647e53cb247b1f22904110b6be30b1693d64de69cd3a2be",
+      "full": true
+    }
+  ],
+  "full_bytes": 66211
+}

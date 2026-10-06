@@ -1,0 +1,39 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native",
+  "tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251",
+  "source_status_before": "",
+  "elapsed_seconds": 29.74324631690979,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.stdout",
+    "bytes": 700,
+    "sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": []
+}

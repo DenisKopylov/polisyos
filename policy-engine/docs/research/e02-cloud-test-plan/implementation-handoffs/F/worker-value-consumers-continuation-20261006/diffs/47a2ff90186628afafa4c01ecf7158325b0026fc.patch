@@ -1,0 +1,26 @@
+commit 47a2ff90186628afafa4c01ecf7158325b0026fc
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 16:05:17 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 16:05:17 2026 +0000
+
+    test(causal): preserve real worker CI without identification admission
+    
+    The actual Python3.12 worker still produces its bound SUCCESS point and95percent CI; the fresh Python3.14 reader must retain them as a non-gating candidate. Update the real reader companion after the shared report boundary changed.
+
+diff --git a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
+index 5f41c64d6..3c63255bd 100644
+--- a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
++++ b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
+@@ -174,7 +174,10 @@ assert worker['source']['artifact_ref']==source.model_dump(mode='json')
+ assert worker['source']['content_sha256']==hashlib.sha256(store.get_bytes(source)).hexdigest()
+ assert report.confidence_level==.95 and abs(report.point_estimate-2.016134929864521)<1e-10
+ assert list(report.confidence_interval)==worker['result']['interval']
+-assert report.to_uncertainty_envelope().gate_eligible
++envelope=report.to_uncertainty_envelope()
++assert not envelope.gate_eligible
++assert envelope.metadata['gate_eligibility_reason']=='causal_identification_admission_not_established'
++assert envelope.confidence_level==.95 and list(envelope.ci)==worker['result']['interval']
+ print(json.dumps({'python':sys.version,'report':report.model_dump(mode='json')},sort_keys=True))
+ """
+     fresh = subprocess.run(

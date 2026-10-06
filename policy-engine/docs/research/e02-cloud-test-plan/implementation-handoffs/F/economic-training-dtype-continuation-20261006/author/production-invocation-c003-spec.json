@@ -1,0 +1,22 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "JAX_ENABLE_X64": "true",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:tools:."
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_production_invocation.py",
+    "--repo-root",
+    ".",
+    "--base",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+    "--receipt",
+    "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003.json"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/production-invocation-c003-run",
+  "artifact_paths": []
+}

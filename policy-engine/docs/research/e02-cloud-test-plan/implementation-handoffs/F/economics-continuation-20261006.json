@@ -1,0 +1,2009 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "economics-continuation-20261006",
+  "closure_ids": [
+    "LA-004"
+  ],
+  "related_finding_ids": [
+    "LA-003",
+    "LA-004",
+    "LA-035"
+  ],
+  "bundle_ids": [
+    "ECO-01",
+    "FRY-03"
+  ],
+  "slice_base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+  "implementation_commits": [
+    "964c76dad1dc9f56bd89e2216bded373f0e66883",
+    "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3"
+  ],
+  "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251",
+  "branch": "codex/e02-F-economics-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-economic-gini-domain.toml",
+    "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+    "policy-engine/src/polisyos/foundry/plugins/economics/README.md",
+    "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+    "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+    "policy-engine/tests/unit/foundry/agent_sim/test_gini_consumers.py",
+    "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+    "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+    "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+    "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py"
+  ],
+  "baseline_cells": [
+    "F01-P101",
+    "F03-P050",
+    "F03-P095",
+    "F04-P040",
+    "F04-P049",
+    "F04-P067",
+    "F08-P104",
+    "F09-P097",
+    "F15-P110",
+    "F15-P119"
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/agent_sim/test_gini_domain.py",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py",
+        "tests/unit/foundry/agent_sim/test_gini_science.py",
+        "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+        "tests/unit/foundry/plugins/test_economic_profiles.py",
+        "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+        "tests/unit/foundry/agent_sim/test_distributions.py",
+        "tests/unit/foundry/agent_sim/test_agent_simulation_step3.py",
+        "tests/unit/remediation/test_eco_01.py",
+        "tests/unit/remediation/test_fry_03.py",
+        "-q",
+        "-ra",
+        "--tb=short"
+      ],
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "315 native finite tests; canonical admission/current readers; original economic laws and real spec/compiler/CAS consumer.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.stdout.txt",
+        "bytes": 400,
+        "sha256": "bcd6f65b59021aa58b201549958787393061d0f74e50b6f66be9ca47bcd981c5",
+        "raw_bytes": 400,
+        "raw_sha256": "bcd6f65b59021aa58b201549958787393061d0f74e50b6f66be9ca47bcd981c5",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 315,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 130.205
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.xml",
+        "bytes": 55241,
+        "sha256": "3da259dea83defc17b1d431293b286b80f2c5e206be823ab1a808336b82d642a",
+        "raw_bytes": 55241,
+        "raw_sha256": "3da259dea83defc17b1d431293b286b80f2c5e206be823ab1a808336b82d642a",
+        "encoding": "raw"
+      },
+      "command_provenance": "Replay argv reconstructed from the complete retained JUnit module census; original shell flag order is not retained. Results and all cases are bound to complete original stdout/XML and exact source. Do not treat reconstructed argv as a new execution."
+    },
+    {
+      "command": "python replay_economic_controls.py base -q -ra --tb=short",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "119 current test definitions with native canonical function bodies restored from exact slice base; 112FAIL7PASS, no ERROR. Mixed fixture restoration scope/source blobs printed in full output.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-wide-base.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-wide-base.stdout.txt",
+        "bytes": 60754,
+        "sha256": "98412460f1d36d24662c1698fcb2df496967a2197b3dfd514515630c0e6fdde3",
+        "raw_bytes": 60754,
+        "raw_sha256": "98412460f1d36d24662c1698fcb2df496967a2197b3dfd514515630c0e6fdde3",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 119,
+        "failures": 112,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 26.868
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-wide-base.xml",
+        "bytes": 65854,
+        "sha256": "54ab93b61b396ceabe7b7cc0aaaf7b3f8deb96a119b97d04f7dbc9352d163b43",
+        "raw_bytes": 65854,
+        "raw_sha256": "54ab93b61b396ceabe7b7cc0aaaf7b3f8deb96a119b97d04f7dbc9352d163b43",
+        "encoding": "raw"
+      },
+      "restored_source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": "python replay_economic_controls.py admission-removal -q -ra --tb=short",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Canonical native in-memory removal; markers/names/state fields preserved. Real admission/objective or fiscal consumer property deleted.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-admission-removal.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-admission-removal.stdout.txt",
+        "bytes": 14335,
+        "sha256": "22a4b9f8b2b354fc05eddbfe4337ca77145e9cb5ce4b7db9606304e2265a9624",
+        "raw_bytes": 14335,
+        "raw_sha256": "22a4b9f8b2b354fc05eddbfe4337ca77145e9cb5ce4b7db9606304e2265a9624",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 30,
+        "failures": 30,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 4.992
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-admission-removal.xml",
+        "bytes": 16070,
+        "sha256": "9634d07fcf159d589e79e61cbef11a9b2af53ba00da6eba66038937c382f0f87",
+        "raw_bytes": 16070,
+        "raw_sha256": "9634d07fcf159d589e79e61cbef11a9b2af53ba00da6eba66038937c382f0f87",
+        "encoding": "raw"
+      },
+      "expected_outcome": "FAIL",
+      "bucket": "Same class removal; FAIL is the required discriminator, not an unmodified candidate failure."
+    },
+    {
+      "command": "python replay_economic_controls.py cache-removal -q -ra --tb=short",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Canonical native in-memory removal; markers/names/state fields preserved. Real admission/objective or fiscal consumer property deleted.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-cache-removal.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-cache-removal.stdout.txt",
+        "bytes": 4521,
+        "sha256": "34a33f04cc148605d9ef27660a37d36bb9a71bc7fca57a53417cf61683766e5a",
+        "raw_bytes": 4521,
+        "raw_sha256": "34a33f04cc148605d9ef27660a37d36bb9a71bc7fca57a53417cf61683766e5a",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 13.046
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-cache-removal.xml",
+        "bytes": 4543,
+        "sha256": "98232f40e0d66fc197de26a79a66e7204a6a46f92be629ec0f1d4bf1c6f52e42",
+        "raw_bytes": 4543,
+        "raw_sha256": "98232f40e0d66fc197de26a79a66e7204a6a46f92be629ec0f1d4bf1c6f52e42",
+        "encoding": "raw"
+      },
+      "expected_outcome": "FAIL",
+      "bucket": "Same class removal; FAIL is the required discriminator, not an unmodified candidate failure."
+    },
+    {
+      "command": "python replay_economic_controls.py fiscal-removal -q -ra --tb=short",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Canonical native in-memory removal; markers/names/state fields preserved. Real admission/objective or fiscal consumer property deleted.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/fiscal-patch-removal-corrected.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/fiscal-patch-removal-corrected.stdout.txt",
+        "bytes": 7173,
+        "sha256": "7eab47154fc3b18dda489be2f06bdae34e97948b478f2beb4d6f31e7e7bc9acc",
+        "raw_bytes": 7173,
+        "raw_sha256": "7eab47154fc3b18dda489be2f06bdae34e97948b478f2beb4d6f31e7e7bc9acc",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 7,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 23.342
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/fiscal-patch-removal-corrected.xml",
+        "bytes": 7220,
+        "sha256": "a37e5c92c5d6790475adef197f939c3ec4103df736cbce95b2a7442df803aaf1",
+        "raw_bytes": 7220,
+        "raw_sha256": "a37e5c92c5d6790475adef197f939c3ec4103df736cbce95b2a7442df803aaf1",
+        "encoding": "raw"
+      },
+      "expected_outcome": "FAIL",
+      "bucket": "Same class removal; FAIL is the required discriminator, not an unmodified candidate failure."
+    },
+    {
+      "command": "EQX_ON_ERROR=nan python gini_jit_refusal_probe.py",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Fresh process, actual JIT signed populations [-2,1]/[-1,2]; explicit on_error=raise rejects despite ambient nan setting.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-jit-explicit-refusal.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-jit-explicit-refusal.stdout.txt",
+        "bytes": 630,
+        "sha256": "a92263f5eb617e2ec752b71a0119960bd9ba48e41b3f54fbb1c357010c43805b",
+        "raw_bytes": 630,
+        "raw_sha256": "a92263f5eb617e2ec752b71a0119960bd9ba48e41b3f54fbb1c357010c43805b",
+        "encoding": "raw"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-jit-explicit-refusal.stderr.txt",
+        "bytes": 2688,
+        "sha256": "e43e5ebac9db8bc09b5d85f078e0a8663e9d8ec9bba514911b2370186aa16bc2",
+        "raw_bytes": 2688,
+        "raw_sha256": "e43e5ebac9db8bc09b5d85f078e0a8663e9d8ec9bba514911b2370186aa16bc2",
+        "encoding": "raw"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/agent_sim/test_gini_domain.py",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py",
+        "tests/unit/foundry/agent_sim/test_gini_science.py",
+        "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+        "tests/unit/foundry/plugins/test_economic_profiles.py",
+        "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+        "tests/unit/foundry/agent_sim/test_distributions.py",
+        "tests/unit/foundry/agent_sim/test_agent_simulation_step3.py",
+        "tests/unit/remediation/test_eco_01.py",
+        "tests/unit/remediation/test_fry_03.py",
+        "-q",
+        "-ra",
+        "--tb=short"
+      ],
+      "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "399 native finite cases; actual active population readers, mixed consumer dtype, reward/welfare scans, profiles and CAS replay; no skips/errors.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.stdout.txt",
+        "bytes": 480,
+        "sha256": "69352274abf5e639614fbba73f2496c9b16c1daf31b406ddf5c6103c865ef2d6",
+        "raw_bytes": 480,
+        "raw_sha256": "69352274abf5e639614fbba73f2496c9b16c1daf31b406ddf5c6103c865ef2d6",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 399,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 112.2
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.xml",
+        "bytes": 71341,
+        "sha256": "132162b1d5c852ed58ce1cf98336052c216ab543188d64a0f260b8e6467fca46",
+        "raw_bytes": 71341,
+        "raw_sha256": "132162b1d5c852ed58ce1cf98336052c216ab543188d64a0f260b8e6467fca46",
+        "encoding": "raw"
+      },
+      "command_provenance": "Replay argv reconstructed from the complete retained JUnit module census; original shell flag order is not retained. Results and all cases are bound to complete original stdout/XML and exact source. Do not treat reconstructed argv as a new execution."
+    },
+    {
+      "command": "python replay_economic_dtype.py -q -ra --tb=short",
+      "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "84 current native dtype cases; exact964 consumer function bodies restored, retaining live population math. 24FAIL60PASS; type metadata bridge is deciding.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-pre-ABI.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-pre-ABI.stdout.txt",
+        "bytes": 19132,
+        "sha256": "383b3d6b9bda138f8eb67e105b519abaabffd20dbc55123d16b708a802e543d4",
+        "raw_bytes": 19132,
+        "raw_sha256": "383b3d6b9bda138f8eb67e105b519abaabffd20dbc55123d16b708a802e543d4",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 84,
+        "failures": 24,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 23.616
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-pre-ABI.xml",
+        "bytes": 30891,
+        "sha256": "d5e69ed099a2eaf2c944057bc63ef90ba9dc34e91beab93a7c689feb72ef521c",
+        "raw_bytes": 30891,
+        "raw_sha256": "d5e69ed099a2eaf2c944057bc63ef90ba9dc34e91beab93a7c689feb72ef521c",
+        "encoding": "raw"
+      },
+      "restored_source_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": "Independent API native/oracle/restored/removal commands recorded verbatim in independent-api/*-spec.json",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Independent full source read: native79PASS, independent3PASS, restored7PASS, marker-kept cache removal7FAIL. Initial harness2FAIL1PASS retained and corrected seeded snapshot premise; no source edit.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/review.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/review.json",
+        "bytes": 20226,
+        "sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+        "raw_bytes": 20226,
+        "raw_sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+        "encoding": "raw"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi",
+        "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Independent exact412 native84PASS, zero skip/error, 20.08s; all8diffpaths reviewed.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stdout",
+        "bytes": 700,
+        "sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f",
+        "raw_bytes": 700,
+        "raw_sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f",
+        "encoding": "raw"
+      },
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-review.json",
+        "bytes": 5443,
+        "sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+        "raw_bytes": 5443,
+        "raw_sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+        "encoding": "raw"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw"
+      }
+    },
+    {
+      "command": "Recorded broader97 native importer suite; complete source case set in JUnit companion",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "93PASS3FAIL1SKIP. Fiscal .10 exact-budget precision, actual temporal JIT trainer and ES carry mismatch. Plotly unavailable is SKIP, not PASS.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.stdout.txt",
+        "bytes": 5780,
+        "sha256": "fe166f98399bfd8f715b98796f4a5c987a3e02f7c87d2d5f2622cfa72406d1c5",
+        "raw_bytes": 5780,
+        "raw_sha256": "fe166f98399bfd8f715b98796f4a5c987a3e02f7c87d2d5f2622cfa72406d1c5",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 97,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 1,
+        "pytest_seconds": 194.345
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.xml",
+        "bytes": 22535,
+        "sha256": "272f4ee5f4de8749f44e716ec7aefbd2b91f382401df7bdd1a6b6612bcacd10c",
+        "raw_bytes": 22535,
+        "raw_sha256": "272f4ee5f4de8749f44e716ec7aefbd2b91f382401df7bdd1a6b6612bcacd10c",
+        "encoding": "raw"
+      },
+      "inherited_red": "not_established: complete overall changed-input intersection is not zero."
+    },
+    {
+      "command": "python run_baseline_consumers.py",
+      "target_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Exact slice base native archive replay of the full same97; same93PASS3FAIL1SKIP. All919 imported Polisyos source modules individually Git-byte verified. First absent-architecture collection ERROR retained.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-exact-base-consumer.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-exact-base-consumer.stdout.txt",
+        "bytes": 6357,
+        "sha256": "715dfbb4b3514a64510ceb486ea1648069f73b2525186a6a28f9d4e9b7ab8ac0",
+        "raw_bytes": 6357,
+        "raw_sha256": "715dfbb4b3514a64510ceb486ea1648069f73b2525186a6a28f9d4e9b7ab8ac0",
+        "encoding": "raw"
+      },
+      "counts": {
+        "tests": 97,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 1,
+        "pytest_seconds": 63.272
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-exact-base-consumer.xml",
+        "bytes": 22560,
+        "sha256": "fd053fb347c63230d39f07f24d966c792d3b3f8a1d0e79b1f7b07084887f9c43",
+        "raw_bytes": 22560,
+        "raw_sha256": "fd053fb347c63230d39f07f24d966c792d3b3f8a1d0e79b1f7b07084887f9c43",
+        "encoding": "raw"
+      },
+      "inherited_red": "not_established: replay reproduces, but broad input denominator intersects own changed paths."
+    },
+    {
+      "command": "python -m tools.ops_runners.release.check_compatibility_release_gates",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Completed global report has two other-fragment contract errors; own fragment has zero. Process exit0 is not semantic PASS.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/compatibility-frozen.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/compatibility-frozen.json",
+        "bytes": 1265,
+        "sha256": "be3a4a75f2e23da1fd5ae9f70c4ad4b19d8527f6d2e89081d65ddaa1b45c2a38",
+        "raw_bytes": 1265,
+        "raw_sha256": "be3a4a75f2e23da1fd5ae9f70c4ad4b19d8527f6d2e89081d65ddaa1b45c2a38",
+        "encoding": "raw"
+      },
+      "returncode": 0
+    },
+    {
+      "command": "PYTHONPATH=src:tools:. python tools/quality/validation/check_production_invocation.py --repo-root . --base fb51511fef60c5123875e99ab2f19a9a0bd5d16f --receipt <production-invocation-412.json>",
+      "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Completed static partial coverage, five regressions/eight new unresolved;401roots; actual callbacks/runtime/authority not measured. Full170884383B report losslessly transported.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-412.json.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-412.json.xz",
+        "bytes": 3829776,
+        "sha256": "f3658db77b2b4179f1ec162404ed5352d48edb706ee2a5979f573310711cc8a1",
+        "raw_bytes": 170884383,
+        "raw_sha256": "d93289213b703577f3cca834d41511378e323f79f05f48bc86110bb4bfc37abb",
+        "encoding": "xz",
+        "decode": "Builtin Python lzma.decompress(read_bytes()); verify raw_bytes/raw_sha256 before parsing."
+      },
+      "stdout_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-412.stdout.txt",
+        "bytes": 2345,
+        "sha256": "49b0a6f1a7644e0f00cbfb58991de7f7f814dc39cdb5f97c86eeed958018c440",
+        "raw_bytes": 2345,
+        "raw_sha256": "49b0a6f1a7644e0f00cbfb58991de7f7f814dc39cdb5f97c86eeed958018c440",
+        "encoding": "raw"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-412.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw"
+      },
+      "runtime_invocation_established": false,
+      "actual_cli_spelling_provenance": "Recorded report base and full scanner inputs are authoritative; CLI spelling is the documented replay route, not a new run."
+    },
+    {
+      "command": "python -m ruff check <owned source/test paths>",
+      "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Owned source/test lint; actual runtime witnesses are separate. Lint is not a semantic discriminator.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/lint-frozen.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/lint-frozen.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "raw"
+      }
+    },
+    {
+      "command": "Local G production/profile run on candidate 4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+      "input_closure": "Admitted production data/history and named LA035 optimizer/profile/semantic decision are absent in cloud; no fabricated objective or calibration witness.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economic-owner-packet.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economic-owner-packet.json",
+        "bytes": 17733,
+        "sha256": "f88eaae9a4608f293042bb006b0b5d7336ad524b534420fa410c61ab0691e515",
+        "raw_bytes": 17733,
+        "raw_sha256": "f88eaae9a4608f293042bb006b0b5d7336ad524b534420fa410c61ab0691e515",
+        "encoding": "raw"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Classical Gini only admits finite nonnegative active resources under the existing ratified domain; every enumerated current population reader recomputes the canonical statistic before publication, retaining its prior dtype metadata. Distinct fiscal/labor native and plugin laws are explicitly paired and deliberately falsified; normalized-income baseline is preserved.",
+    "runtime_path": [
+      "native current wealth/income+active",
+      "canonical hard/soft/proxy active admission",
+      "aggregate/PureExecutor/registered objectives/report API",
+      "CompositeExecutor/plugin visualization and actual baseline spec/compiler/CAS state consumer"
+    ],
+    "proxy_divergence": "A finite cached Gini may remain valid while a later interaction changes current wealth to [-2,1]; current signed resources must refuse. A dated DistributionAwareExecutor snapshot remains a truthful earlier metric with last_update_step, not a claim about the current population. Matching model names or two selected observables never establishes whole model equivalence.",
+    "negative_controls": [
+      "30 admission-removal FAIL",
+      "7 objective/cache-removal FAIL",
+      "5 fiscal-debit-removal FAIL,2 controls PASS",
+      "112 exact-base canonical-function FAIL",
+      "24 pre-ABI dtype FAIL"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited",
+  "per_id_outcomes": [
+    {
+      "finding_id": "LA-003",
+      "bundle_id": "FRY-03",
+      "outcome": "FAIL",
+      "finding_state": "limited",
+      "original_criterion_ref": {
+        "finding_id": "LA-003",
+        "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          136,
+          166
+        ],
+        "bytes": 3450,
+        "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+        "original_full_criterion": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей\n\n**Перемещение по смысловой роли**\n\n**Статус.** Живой код; кандидат на уточнение профиля и перенос, не прямое удаление.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/mechanisms/__init__.py`\n\n**Что установлено и почему это legacy-кандидат.** IncomeTax/TaxSubsidy эмитируют PatchMap; LaborMarketMechanism заново выбирает занятость по threshold и фирму из равномерного распределения. Это узкие модели, а не универсальный рынок труда. Но каталог уже вызывает эти классы через runtime_mechanism_class_path: это backend зарегистрированных методов, а не забытый независимый методовый каталог.\n\n**Что сохранить.** Patch-first ABI, active/target masks, фискальный баланс, employer IDs, firm labor counts, PRNG key progression и дешёвые контрольные модели. Существующий runtime-каталог уже ограничивает evidence/authority-scope этих методов.\n\n**Куда перенести / с чем объединить.** Предлагаемый src/polisyos/foundry/execute/mechanisms/{fiscal,labor}.py под существующим execute/ как низкоуровневый доменный backend. Методовые adapters остаются в methods/catalog/mechanism/runtime.py. До согласования import-direction допустимо оставить текущий путь, но явно назвать профиль baseline.\n\n**Порядок миграции.** Разделить relocation и изменение модели. Сначала эквивалентный перенос со старым method ID, затем при желании новая версия модели с иной динамикой. Обновить строковые class paths, registry descriptors и exports; не переносить численный код внутрь обёртки ради одного файла.\n\n**Приёмочная проверка.** Регистрация, создание по spec, одинаковые patches/key при фиксированных входах, masked/inactive cases, compiler/replay и существующие fiscal/labor/gradient tests. Новый содержательный закон требует отдельной версии, а не тех же fingerprints.\n\n**Приоритет.** Средняя цена. Выше приоритета косметического выравнивания дерева — точный статус baseline-модели.\n\n**Граница вывода.** Простая модель не является legacy только из-за простоты. Доказательств готовой эквивалентной замены и всех production-вызовов нет; смысловая граница уже частично защищена metadata.\n\n**Основания:** E01, E04, E05, E06.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "check_indices": [
+        0,
+        4,
+        6,
+        10,
+        11
+      ],
+      "consumer": "foundry._registry.create_mechanism_from_spec → compile.api.compile → FileSystemCAS → execute.api.execute → apply_patch_map/load_state_snapshot",
+      "recommendation": "Canonical relocation and registered class paths, full PatchMap/mask/accounting/employer/count/key and fresh CAS replay pass. Existing broader fiscal decimal-rate precision failure remains explicit; numerical carry failures are a separate forward companion. Do not label the mixed broader gate PASS or full migration universal."
+    },
+    {
+      "finding_id": "LA-004",
+      "bundle_id": "ECO-01",
+      "outcome": "PASS",
+      "finding_state": "closed",
+      "original_criterion_ref": {
+        "finding_id": "LA-004",
+        "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          167,
+          197
+        ],
+        "bytes": 3498,
+        "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+        "original_full_criterion": "## LA-004. Две экономические реализации: согласовать, но не подменять\n\n**Слияние / разделение ответственности**\n\n**Статус.** Пересечение предмета подтверждено; эквивалентность опровергается кодом.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/plugins/economics/mechanisms.py`\n\n**Что установлено и почему это legacy-кандидат.** Одинаковый класс LaborMarketMechanism означает разные модели: threshold-пересэмплирование с фирмами против find/separation transitions, wage shocks и EconomicState. Налоговая реализация plugin прогрессивная и меняет wealth; IncomeTax использует reported_income, меняет income и government.balance. Более богатая модель не является drop-in replacement.\n\n**Что сохранить.** Обе явно определённые модельные гипотезы, полезные численные операции и проверки законов сохранения. Уникальные fields и state contracts должны сохраниться до доказанной миграции.\n\n**Куда перенести / с чем объединить.** Общий доменный владелец может оставаться foundry/plugins/economics; shared pure kernels размещать там или в нижнем execution-слое только после выявления действительно одинаковой операции. Два adapter-слоя сохраняют PatchMap и EconomicState. Имена моделей/профилей следует развести.\n\n**Порядок миграции.** Сначала таблица соответствия состояния, единиц, временного шага, tax base, RNG и учета бюджета. Извлекать общий алгоритм лишь там, где контракты совпали. Остальные отличия оформить версиями модели. Старый профиль выводить после миграции сценариев, а не после механического переименования импортов.\n\n**Приёмочная проверка.** Сравнить специально заданные одинаковые regimes; отдельно проверить, что различающиеся regimes не стали считаться эквивалентными. Проверить бухгалтерские равенства, использование seed и сохранение наблюдаемых выходов.\n\n**Приоритет.** Средняя/высокая цена; полезнее локального объединения имён.\n\n**Граница вывода.** Не доказано, что plugin лучше откалиброван или подходит всем пользователям базового ABI. Полная миграция двух исполнителей в этом проходе не проектировалась.\n\n**Основания:** E04, E05, E07.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "check_indices": [
+        0,
+        4,
+        6,
+        8
+      ],
+      "consumer": "Native fiscal/labor producer → PatchMap/state; EconomicsPlugin.get_mechanisms → CompositeExecutor → EconomicState",
+      "recommendation": "Original finite criterion established: explicit state/units/step/taxbase/RNG/budget mapping; deliberately equivalent one-period regimes and deliberate law/unit divergences; actual registered consumers and full observed state. No welfare normative choice is a prerequisite to model non-equivalence. No universal drop-in replacement/calibration claim."
+    },
+    {
+      "finding_id": "LA-035",
+      "bundle_id": "ECO-01",
+      "outcome": "UNRUN",
+      "finding_state": "held",
+      "original_criterion_ref": {
+        "finding_id": "LA-035",
+        "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          2066,
+          2102
+        ],
+        "bytes": 7176,
+        "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+        "original_full_criterion": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца\n\n**R — перемещение по смысловой роли с отдельной идентичностью objective**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/_internal/loss.py`\n\n`src/polisyos/foundry/methods/loss.py`\n\n**Статус.** Конкретная экономическая функция и её legacy facade подтверждены; найден consumer-test. Готовая эквивалентная замена современным economic objective не установлена.\n\n**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]\n\nCharacterization уточняет смысл самого критерия. До бюджетного штрафа он равен `-mean(income) / max(mean(abs(income)), 1)`. При неотрицательных доходах и среднем не меньше единицы это `-1`, независимо от абсолютного уровня дохода. На `[1000,2000,3000]`, десятикратном наборе и `[2,2,2]` получен тот же результат; локальный градиент в первом случае нулевой в пределах float32 tolerance. Это **математическое свойство нормализации**, не доказательство, что любой пользователь хотел максимизировать ненормированный доход. Но оно не позволяет безоговорочно называть функцию общим доходным optimization objective.\n\nБюджетный штраф и invalid-input checks действительно работают в проверенных локальных случаях: при balance `-2000` и min `-1000` итог `9`, при NaN-входе — infinity. Существующий repository-test проверяет finiteness и non-finite case, не сохранение ранжирования положительных доходов.\n\n**Что сохранить.** Определённый baseline-критерий, его sign/scale regimes, бюджетный штраф, numeric guardrails, поддержанные callers. Сохранить тесты численной защиты: переезд предметного loss не означает удаление общего `finite_loss_or_inf` или его публичного runtime facade.\n\n**Куда перенести / с чем объединить.** Семантический адрес — действующий economic objective-владелец `foundry/plugins/economics`. Предлагаемый `baselines.py` с явно названным GlobalState-profile — новый файл, не существующая готовая замена. При малом объёме допустим отдельный явно типизированный baseline в существующем `objectives.py`, если это не смешивает ABI и не утяжеляет импорт. Не переносить функцию в глобальный Common.\n\nПрочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]\n\n**Порядок миграции.** Сначала назвать и зафиксировать текущую формулу как baseline, затем найти все source/config/FQN consumers и перенести тело без изменения численного поведения. Для подтверждённого требования максимизировать доход ввести отдельный objective/version; исправление ранжирования не маскировать под переименование файла. Если полный census покажет, что функция нужна исключительно numeric fixtures, поместить соответствующий пример у тестов или benchmark-владельца, сохранив проверяемую numeric обязанность. Сам факт двух тестов не разрешает уже сейчас удалить функцию.\n\n**Фактическая проверка.** r04-P18–P22 исполняют точный loss-blob с настоящим JAX 0.9.0.1; state — простая fixture с нужными полями, `finite_loss_or_inf` — явно обозначенный identity helper. Поэтому проверены собственная формула и invalid-ветка loss, **не native GlobalState, JIT workflow или реальная реализация numeric guardrail**. Нативный autodiff использован только для выбранного локального input.\n\n**Приёмка.** Положительные/нулевые/отрицательные и смешанные доходы, размер популяции, scales, min_balance, breach, NaN/Inf; native State и guardrail, JIT/grad там, где это обещано. Различать equivalent relocation и новый критерий выбора политик. Проверить import side effects выбранного economic package.\n\n**Приоритет.** Умеренная цена, высокая семантическая ясность. Уточнение профиля и устранение misleading generic address можно отделить от содержательной переработки цели.\n\n**Граница вывода.** Не установлен production optimizer, фактически использующий этот loss, и не доказана потеря дохода в реальном решении. Полный caller census не выполнялся. Нормализация не удаляется лишь потому, что найден более богатый objective API.\n\n**Основания:** E106–E110. Локальные проверки: r04-P18–P22.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "check_indices": [
+        0,
+        6,
+        15
+      ],
+      "consumer": "methods.loss.policy_loss_fn/internal alias → economics.baselines.normalized_income_budget_loss; no named production optimizer admitted",
+      "recommendation": "Historical formula, aliases, native state, JIT/grad/guardrails, all-entry population and -1 positive scales pass. New optimizer intent/units/population/time/sign are not established; exact minimum owner packet required. No new welfare convention."
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "versions": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "equinox": "0.13.2",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "chex": "0.1.91",
+      "optax": "0.2.6",
+      "scipy": "1.16.3",
+      "matplotlib": "3.10.8"
+    },
+    "backend": "cpu",
+    "devices": [
+      "TFRT_CPU_0"
+    ],
+    "source_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+    "source_tree": "d9c6ba34e1a4cfae1b06d8b5d8d26e28a165b7e5",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "pythonpath": "src:tools:.",
+    "profile": "baseline-Python-3.14 native JAX CPU; DoWhy/EconML not exercised",
+    "production_inputs": "finite synthetic profiles only; no admitted real inputs or local production history"
+  },
+  "source_identity": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-economic-gini-domain.toml",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 2613,
+      "sha256": "6e12826ba159cdd975a83d4e8a2bbb3e65a197280412acc5514be56cac4a0a51"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 9393,
+      "sha256": "0ff782e2d9828701012bb6708e4eea3c462d257af1fe717ebf9557310ab58223"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 6354,
+      "sha256": "a02de06376ebbba07ab2c726d211c5b709f98bbaf9a3198e99fd44054a058b63"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 29885,
+      "sha256": "4cb032845cf53f16415b483a1b7dd8d266d49cd12339677e13f41ccccdfea291"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 7146,
+      "sha256": "a1090d78fea6f2982c2595b93cd717a7e18eaa24186dab81102733bb886e54dc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 9343,
+      "sha256": "7c6dc4955a85f3fa5d11061590e983c7093fc99662f7fc58c2dc10b8ba99e146"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 12644,
+      "sha256": "3e6833aec7c1fb6a6862f6cbff8473720256fea3f001ddf4ad041fb6d820f640"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 37839,
+      "sha256": "63a2e796d1a279a4191b267599d1f344a36e3e944e1c238c2935b06aca132c96"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 4276,
+      "sha256": "71a89f0b55eac0d420ee74db09f06f23d8174c93e79428a4929e5181726b25fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 6966,
+      "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_consumers.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 13310,
+      "sha256": "c85b6bb49851d438497b2de0d781836a7cb4ea1a625e10357a556608b221914b"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 7130,
+      "sha256": "e076b7e0f996d579d711e4f3fb20e4171f7933001e64ba08050e48db5ba8bed0"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 8660,
+      "sha256": "226fcfed7c9b7ab818147d01795cfcb6d8b7368cecba9e6cc696563f31dc166c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 6222,
+      "sha256": "c28802cfbebd494c323bfc8de61c7f902b6fe8a201d409b66c1ca06a39e54872"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+      "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+      "bytes": 10844,
+      "sha256": "0d9fa74a4e4fa35946a4a36d11541fc48d14edc121b3652b29a7e162745abed4"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/review.json",
+      "bytes": 20226,
+      "sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+      "raw_bytes": 20226,
+      "raw_sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+      "encoding": "raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-review.json",
+      "bytes": 5443,
+      "sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+      "raw_bytes": 5443,
+      "raw_sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+      "encoding": "raw"
+    }
+  ],
+  "original_criterion_correction": {
+    "previous": "Gini norm hold under LA-004",
+    "corrected": "Distinct native PatchMap fiscal/labor vs EconomicState plugin profiles, matched regimes and deliberate non-equivalence; state/units/timestep/taxbase/RNG/budget/observed outputs. No welfare prerequisite.",
+    "G_acceptance": "not_claimed"
+  },
+  "authority_purpose": "F scientific/consumer bounded implementation evidence and per-ID recommendation; G acceptance or protected production authority is not claimed.",
+  "time_roles": "Native/plugin explicit one-step finite fixture; composite and domain clocks remain distinct. Dated distribution snapshots/history/compression retain their own last_update_step semantics.",
+  "evidence_transfer": {
+    "manifest": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/G-fresh-dependent-locators.json",
+        "bytes": 86247,
+        "sha256": "a65f23358e2e3fd140d7d069c550e9f44467622ae915192acbaea4f1a5d30695",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/G-fresh-dependent-locators.json",
+        "raw_bytes": 86247,
+        "raw_sha256": "a65f23358e2e3fd140d7d069c550e9f44467622ae915192acbaea4f1a5d30695",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/LA-003-baseline-query.json",
+        "bytes": 7971,
+        "sha256": "88d431394e80338d2df457c57d6f80afbbd44f4eecdc7139362a783818fa60ac",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/LA-003-baseline-query.json",
+        "raw_bytes": 7971,
+        "raw_sha256": "88d431394e80338d2df457c57d6f80afbbd44f4eecdc7139362a783818fa60ac",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/LA-003-frozen-binding.json",
+        "bytes": 2434,
+        "sha256": "063136c653b828c259a30fcd0edc3bdc82c81c1a0cdc74c9469f35820912edce",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/LA-003-frozen-binding.json",
+        "raw_bytes": 2434,
+        "raw_sha256": "063136c653b828c259a30fcd0edc3bdc82c81c1a0cdc74c9469f35820912edce",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/LA-004-baseline-query.json",
+        "bytes": 7855,
+        "sha256": "32b276ec2102ecfe9dd004ea69c58464d87a4c24d69d92016621edb8770ff4be",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/LA-004-baseline-query.json",
+        "raw_bytes": 7855,
+        "raw_sha256": "32b276ec2102ecfe9dd004ea69c58464d87a4c24d69d92016621edb8770ff4be",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/LA-004-frozen-binding.json",
+        "bytes": 2483,
+        "sha256": "c4e68244693f3eb08cab24bb53f2102276b3d4748b1b5709e21861b3ca0ad503",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/LA-004-frozen-binding.json",
+        "raw_bytes": 2483,
+        "raw_sha256": "c4e68244693f3eb08cab24bb53f2102276b3d4748b1b5709e21861b3ca0ad503",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/LA-035-baseline-query.json",
+        "bytes": 7855,
+        "sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/LA-035-baseline-query.json",
+        "raw_bytes": 7855,
+        "raw_sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/LA-035-frozen-binding.json",
+        "bytes": 2469,
+        "sha256": "810147b1addb6700505689345b72017c2448d188f5beb64d308602ee26fb9f66",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/LA-035-frozen-binding.json",
+        "raw_bytes": 2469,
+        "raw_sha256": "810147b1addb6700505689345b72017c2448d188f5beb64d308602ee26fb9f66",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/author-lint-initial.txt",
+        "bytes": 1807,
+        "sha256": "cf3e99c28f33fd1ff8a5251c3cbd4302c022f2d518e3048a28dc4abef105e838",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/author-lint-initial.txt",
+        "raw_bytes": 1807,
+        "raw_sha256": "cf3e99c28f33fd1ff8a5251c3cbd4302c022f2d518e3048a28dc4abef105e838",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/base-architecture-input.json",
+        "bytes": 398,
+        "sha256": "ea85315ce8e898e4f1159f2eab14eb014f9a08baf4e693164010ee1c86fac417",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/base-architecture-input.json",
+        "raw_bytes": 398,
+        "raw_sha256": "ea85315ce8e898e4f1159f2eab14eb014f9a08baf4e693164010ee1c86fac417",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/base-consumer-import-provenance.json",
+        "bytes": 298645,
+        "sha256": "e26b3afca2f0732ffc7d14901b98518f050a5882d3c57b69af920aed6567b3a6",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/base-consumer-import-provenance.json",
+        "raw_bytes": 298645,
+        "raw_sha256": "e26b3afca2f0732ffc7d14901b98518f050a5882d3c57b69af920aed6567b3a6",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/base-source-archive.json",
+        "bytes": 534,
+        "sha256": "fff387b9b71f1b08ebfb452bf637156a1e57ec53ed65efcb52adfa7e3b4434b8",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/base-source-archive.json",
+        "raw_bytes": 534,
+        "raw_sha256": "fff387b9b71f1b08ebfb452bf637156a1e57ec53ed65efcb52adfa7e3b4434b8",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/baseline-replay.stdout.txt",
+        "bytes": 80,
+        "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/baseline-replay.stdout.txt",
+        "raw_bytes": 80,
+        "raw_sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/baseline-replay.xml",
+        "bytes": 875,
+        "sha256": "5e423198f07a729edabe8194b1c510cbdbea1c4935bd1058b56e7d82582d2e5e",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/baseline-replay.xml",
+        "raw_bytes": 875,
+        "raw_sha256": "5e423198f07a729edabe8194b1c510cbdbea1c4935bd1058b56e7d82582d2e5e",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/broader-disjoint-source-proof.json",
+        "bytes": 2716,
+        "sha256": "3c717dcf219c3531ca4ff3c9c239bd5130ed3075520b1502252cda1d3f34e5b4",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/broader-disjoint-source-proof.json",
+        "raw_bytes": 2716,
+        "raw_sha256": "3c717dcf219c3531ca4ff3c9c239bd5130ed3075520b1502252cda1d3f34e5b4",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/canonical-import-identity.json",
+        "bytes": 5862,
+        "sha256": "d43b952ee0bf2cb3322841b7bd5a4a10a90154c2b953240c219472f85616a611",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/canonical-import-identity.json",
+        "raw_bytes": 5862,
+        "raw_sha256": "d43b952ee0bf2cb3322841b7bd5a4a10a90154c2b953240c219472f85616a611",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/changed-paths-before-freeze.txt",
+        "bytes": 987,
+        "sha256": "9c24c381ffa14296ad08834a93bb288a16197c312cc43640db413585b1600474",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/changed-paths-before-freeze.txt",
+        "raw_bytes": 987,
+        "raw_sha256": "9c24c381ffa14296ad08834a93bb288a16197c312cc43640db413585b1600474",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/compatibility-frozen.json",
+        "bytes": 1265,
+        "sha256": "be3a4a75f2e23da1fd5ae9f70c4ad4b19d8527f6d2e89081d65ddaa1b45c2a38",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/compatibility-frozen.json",
+        "raw_bytes": 1265,
+        "raw_sha256": "be3a4a75f2e23da1fd5ae9f70c4ad4b19d8527f6d2e89081d65ddaa1b45c2a38",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/compatibility-frozen.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/compatibility-frozen.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/compatibility-frozen.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/compatibility-frozen.stdout.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/current-reader-dtype-baseline-probe.json",
+        "bytes": 1631,
+        "sha256": "9b316423083f669aa0b46c27f0d08df3f2a85285d935754bad062f8e865d9ff5",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/current-reader-dtype-baseline-probe.json",
+        "raw_bytes": 1631,
+        "raw_sha256": "9b316423083f669aa0b46c27f0d08df3f2a85285d935754bad062f8e865d9ff5",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/domain-decision-proof.json",
+        "bytes": 2809,
+        "sha256": "b0c4f0ed2713b675ef097b33384d5ef2c91a24ed06765db091b99b292cd53fb2",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/domain-decision-proof.json",
+        "raw_bytes": 2809,
+        "raw_sha256": "b0c4f0ed2713b675ef097b33384d5ef2c91a24ed06765db091b99b292cd53fb2",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economic-owner-packet.json",
+        "bytes": 17733,
+        "sha256": "f88eaae9a4608f293042bb006b0b5d7336ad524b534420fa410c61ab0691e515",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economic-owner-packet.json",
+        "raw_bytes": 17733,
+        "raw_sha256": "f88eaae9a4608f293042bb006b0b5d7336ad524b534420fa410c61ab0691e515",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.stdout.txt",
+        "bytes": 480,
+        "sha256": "69352274abf5e639614fbba73f2496c9b16c1daf31b406ddf5c6103c865ef2d6",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-412-native.stdout.txt",
+        "raw_bytes": 480,
+        "raw_sha256": "69352274abf5e639614fbba73f2496c9b16c1daf31b406ddf5c6103c865ef2d6",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.xml",
+        "bytes": 71341,
+        "sha256": "132162b1d5c852ed58ce1cf98336052c216ab543188d64a0f260b8e6467fca46",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-412-native.xml",
+        "raw_bytes": 71341,
+        "raw_sha256": "132162b1d5c852ed58ce1cf98336052c216ab543188d64a0f260b8e6467fca46",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-exact-base-consumer.stdout.txt",
+        "bytes": 6357,
+        "sha256": "715dfbb4b3514a64510ceb486ea1648069f73b2525186a6a28f9d4e9b7ab8ac0",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-exact-base-consumer.stdout.txt",
+        "raw_bytes": 6357,
+        "raw_sha256": "715dfbb4b3514a64510ceb486ea1648069f73b2525186a6a28f9d4e9b7ab8ac0",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-exact-base-consumer.xml",
+        "bytes": 22560,
+        "sha256": "fd053fb347c63230d39f07f24d966c792d3b3f8a1d0e79b1f7b07084887f9c43",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-exact-base-consumer.xml",
+        "raw_bytes": 22560,
+        "raw_sha256": "fd053fb347c63230d39f07f24d966c792d3b3f8a1d0e79b1f7b07084887f9c43",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-exact-base-incomplete-profile.stdout.txt",
+        "bytes": 2080,
+        "sha256": "8fee250cd1849ca55a34358f54e226ac03d5721c9ba4a9d4d7b87d27da19fbb4",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-exact-base-incomplete-profile.stdout.txt",
+        "raw_bytes": 2080,
+        "raw_sha256": "8fee250cd1849ca55a34358f54e226ac03d5721c9ba4a9d4d7b87d27da19fbb4",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.stdout.txt",
+        "bytes": 5780,
+        "sha256": "fe166f98399bfd8f715b98796f4a5c987a3e02f7c87d2d5f2622cfa72406d1c5",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-frozen-consumer-corrected.stdout.txt",
+        "raw_bytes": 5780,
+        "raw_sha256": "fe166f98399bfd8f715b98796f4a5c987a3e02f7c87d2d5f2622cfa72406d1c5",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.xml",
+        "bytes": 22535,
+        "sha256": "272f4ee5f4de8749f44e716ec7aefbd2b91f382401df7bdd1a6b6612bcacd10c",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-frozen-consumer-corrected.xml",
+        "raw_bytes": 22535,
+        "raw_sha256": "272f4ee5f4de8749f44e716ec7aefbd2b91f382401df7bdd1a6b6612bcacd10c",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer.stdout.txt",
+        "bytes": 95,
+        "sha256": "a75c4bc8ba2ddfad758c7c8c4ec4c55d5a7e820ea4d2cb088cdd8b71750f2b67",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-frozen-consumer.stdout.txt",
+        "raw_bytes": 95,
+        "raw_sha256": "a75c4bc8ba2ddfad758c7c8c4ec4c55d5a7e820ea4d2cb088cdd8b71750f2b67",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer.xml",
+        "bytes": 238,
+        "sha256": "dfa978b8ed06adf7c895d249c7ac06419f103b7365258de952211daf6ad14d8b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-frozen-consumer.xml",
+        "raw_bytes": 238,
+        "raw_sha256": "dfa978b8ed06adf7c895d249c7ac06419f103b7365258de952211daf6ad14d8b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.stdout.txt",
+        "bytes": 400,
+        "sha256": "bcd6f65b59021aa58b201549958787393061d0f74e50b6f66be9ca47bcd981c5",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-frozen-native.stdout.txt",
+        "raw_bytes": 400,
+        "raw_sha256": "bcd6f65b59021aa58b201549958787393061d0f74e50b6f66be9ca47bcd981c5",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.xml",
+        "bytes": 55241,
+        "sha256": "3da259dea83defc17b1d431293b286b80f2c5e206be823ab1a808336b82d642a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-frozen-native.xml",
+        "raw_bytes": 55241,
+        "raw_sha256": "3da259dea83defc17b1d431293b286b80f2c5e206be823ab1a808336b82d642a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-pre-freeze.stdout.txt",
+        "bytes": 160,
+        "sha256": "0860aa696823117a9e1eea6fbe9c18a32cd798589dca38f7e5855c5116dce316",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-pre-freeze.stdout.txt",
+        "raw_bytes": 160,
+        "raw_sha256": "0860aa696823117a9e1eea6fbe9c18a32cd798589dca38f7e5855c5116dce316",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-pre-freeze.xml",
+        "bytes": 23478,
+        "sha256": "4516d859f8f150d625b29295487a538f5851792b00e4f653d9d297302a263102",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-pre-freeze.xml",
+        "raw_bytes": 23478,
+        "raw_sha256": "4516d859f8f150d625b29295487a538f5851792b00e4f653d9d297302a263102",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-wide-base.stdout.txt",
+        "bytes": 60754,
+        "sha256": "98412460f1d36d24662c1698fcb2df496967a2197b3dfd514515630c0e6fdde3",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-wide-base.stdout.txt",
+        "raw_bytes": 60754,
+        "raw_sha256": "98412460f1d36d24662c1698fcb2df496967a2197b3dfd514515630c0e6fdde3",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-wide-base.xml",
+        "bytes": 65854,
+        "sha256": "54ab93b61b396ceabe7b7cc0aaaf7b3f8deb96a119b97d04f7dbc9352d163b43",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/economics-wide-base.xml",
+        "raw_bytes": 65854,
+        "raw_sha256": "54ab93b61b396ceabe7b7cc0aaaf7b3f8deb96a119b97d04f7dbc9352d163b43",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/environment-frozen.json",
+        "bytes": 837,
+        "sha256": "1d58af2ec6472fb44fdbca09fd6959803fbdb1f7b306210b594045584f782a96",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/environment-frozen.json",
+        "raw_bytes": 837,
+        "raw_sha256": "1d58af2ec6472fb44fdbca09fd6959803fbdb1f7b306210b594045584f782a96",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/fiscal-patch-removal-corrected.stdout.txt",
+        "bytes": 7173,
+        "sha256": "7eab47154fc3b18dda489be2f06bdae34e97948b478f2beb4d6f31e7e7bc9acc",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/fiscal-patch-removal-corrected.stdout.txt",
+        "raw_bytes": 7173,
+        "raw_sha256": "7eab47154fc3b18dda489be2f06bdae34e97948b478f2beb4d6f31e7e7bc9acc",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/fiscal-patch-removal-corrected.xml",
+        "bytes": 7220,
+        "sha256": "a37e5c92c5d6790475adef197f939c3ec4103df736cbce95b2a7442df803aaf1",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/fiscal-patch-removal-corrected.xml",
+        "raw_bytes": 7220,
+        "raw_sha256": "a37e5c92c5d6790475adef197f939c3ec4103df736cbce95b2a7442df803aaf1",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/fiscal-patch-removal.stdout.txt",
+        "bytes": 328,
+        "sha256": "c37082131dd10d947977524eef7c1a2d0faa6e6498af7c7fdbfd2cddb33f318e",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/fiscal-patch-removal.stdout.txt",
+        "raw_bytes": 328,
+        "raw_sha256": "c37082131dd10d947977524eef7c1a2d0faa6e6498af7c7fdbfd2cddb33f318e",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/frozen-transfer-dependent-locators.json",
+        "bytes": 124024,
+        "sha256": "3f49587460b5589c6329c0b475d69c3c9d2bcd9309c416b8d8de8f0f5fab4f14",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/frozen-transfer-dependent-locators.json",
+        "raw_bytes": 124024,
+        "raw_sha256": "3f49587460b5589c6329c0b475d69c3c9d2bcd9309c416b8d8de8f0f5fab4f14",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-admission-removal.stdout.txt",
+        "bytes": 14335,
+        "sha256": "22a4b9f8b2b354fc05eddbfe4337ca77145e9cb5ce4b7db9606304e2265a9624",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-admission-removal.stdout.txt",
+        "raw_bytes": 14335,
+        "raw_sha256": "22a4b9f8b2b354fc05eddbfe4337ca77145e9cb5ce4b7db9606304e2265a9624",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-admission-removal.xml",
+        "bytes": 16070,
+        "sha256": "9634d07fcf159d589e79e61cbef11a9b2af53ba00da6eba66038937c382f0f87",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-admission-removal.xml",
+        "raw_bytes": 16070,
+        "raw_sha256": "9634d07fcf159d589e79e61cbef11a9b2af53ba00da6eba66038937c382f0f87",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-cache-removal.stdout.txt",
+        "bytes": 4521,
+        "sha256": "34a33f04cc148605d9ef27660a37d36bb9a71bc7fca57a53417cf61683766e5a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-cache-removal.stdout.txt",
+        "raw_bytes": 4521,
+        "raw_sha256": "34a33f04cc148605d9ef27660a37d36bb9a71bc7fca57a53417cf61683766e5a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-cache-removal.xml",
+        "bytes": 4543,
+        "sha256": "98232f40e0d66fc197de26a79a66e7204a6a46f92be629ec0f1d4bf1c6f52e42",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-cache-removal.xml",
+        "raw_bytes": 4543,
+        "raw_sha256": "98232f40e0d66fc197de26a79a66e7204a6a46f92be629ec0f1d4bf1c6f52e42",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-census-frozen.json",
+        "bytes": 211122,
+        "sha256": "11d7e7118cff077d81a8d969958cc3cdc91f3aa2b70c2fc2a1baad1ab63b80f7",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-census-frozen.json",
+        "raw_bytes": 211122,
+        "raw_sha256": "11d7e7118cff077d81a8d969958cc3cdc91f3aa2b70c2fc2a1baad1ab63b80f7",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-corrected.stdout.txt",
+        "bytes": 2564,
+        "sha256": "a8b95ecd4f05ea13ec9f7c380e294ae8deb46c89840c1a9aeb489769e6a73771",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-corrected.stdout.txt",
+        "raw_bytes": 2564,
+        "raw_sha256": "a8b95ecd4f05ea13ec9f7c380e294ae8deb46c89840c1a9aeb489769e6a73771",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-corrected.xml",
+        "bytes": 17342,
+        "sha256": "1e87c2cd25629485e7c2623e323cd57ecc9c62eab949dea3b568457567e90d14",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-corrected.xml",
+        "raw_bytes": 17342,
+        "raw_sha256": "1e87c2cd25629485e7c2623e323cd57ecc9c62eab949dea3b568457567e90d14",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-final.stdout.txt",
+        "bytes": 160,
+        "sha256": "20f5f27046a7bba4f1632529723920cb0714405e7c436f83ff72626e3a37131b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-final.stdout.txt",
+        "raw_bytes": 160,
+        "raw_sha256": "20f5f27046a7bba4f1632529723920cb0714405e7c436f83ff72626e3a37131b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-final.xml",
+        "bytes": 16350,
+        "sha256": "dae80a6712894023685024a10083271956c682cd8c8507b148a94fd9c5ff232a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-final.xml",
+        "raw_bytes": 16350,
+        "raw_sha256": "dae80a6712894023685024a10083271956c682cd8c8507b148a94fd9c5ff232a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-fixed.stdout.txt",
+        "bytes": 24906,
+        "sha256": "f605bf7aac6568c6cde49bf6d886c76ef1a2af51546bee6ff730f74dc5a52871",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-fixed.stdout.txt",
+        "raw_bytes": 24906,
+        "raw_sha256": "f605bf7aac6568c6cde49bf6d886c76ef1a2af51546bee6ff730f74dc5a52871",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-fixed.xml",
+        "bytes": 45339,
+        "sha256": "06e3db06efa3ef518a2f70758ba171803a6a281c9dda63ad9085825dfc6b1dba",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-fixed.xml",
+        "raw_bytes": 45339,
+        "raw_sha256": "06e3db06efa3ef518a2f70758ba171803a6a281c9dda63ad9085825dfc6b1dba",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-pre-ABI.stdout.txt",
+        "bytes": 19132,
+        "sha256": "383b3d6b9bda138f8eb67e105b519abaabffd20dbc55123d16b708a802e543d4",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-pre-ABI.stdout.txt",
+        "raw_bytes": 19132,
+        "raw_sha256": "383b3d6b9bda138f8eb67e105b519abaabffd20dbc55123d16b708a802e543d4",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumer-dtype-pre-ABI.xml",
+        "bytes": 30891,
+        "sha256": "d5e69ed099a2eaf2c944057bc63ef90ba9dc34e91beab93a7c689feb72ef521c",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumer-dtype-pre-ABI.xml",
+        "raw_bytes": 30891,
+        "raw_sha256": "d5e69ed099a2eaf2c944057bc63ef90ba9dc34e91beab93a7c689feb72ef521c",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumers-native.stdout.txt",
+        "bytes": 2196,
+        "sha256": "153c741f688cb7a3133b5db4b5cea869d53b4872657df48c9aa200761ebc1571",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumers-native.stdout.txt",
+        "raw_bytes": 2196,
+        "raw_sha256": "153c741f688cb7a3133b5db4b5cea869d53b4872657df48c9aa200761ebc1571",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-consumers-native.xml",
+        "bytes": 25007,
+        "sha256": "97d856848b751832dc97291d612145657c5c676bbf180e7dbaad2fbf4d92c517",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-consumers-native.xml",
+        "raw_bytes": 25007,
+        "raw_sha256": "97d856848b751832dc97291d612145657c5c676bbf180e7dbaad2fbf4d92c517",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-current-population-fixed.stdout.txt",
+        "bytes": 11583,
+        "sha256": "0d009f1ddd152d63b645e99e38995aac124df89e5bf02436cad0a5bb3fe9bb9f",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-current-population-fixed.stdout.txt",
+        "raw_bytes": 11583,
+        "raw_sha256": "0d009f1ddd152d63b645e99e38995aac124df89e5bf02436cad0a5bb3fe9bb9f",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-current-population-fixed.xml",
+        "bytes": 27478,
+        "sha256": "434e362ed65a7a652ceeea3d9edbfb7feac6cc9cf37e2ac53e4e54bb1e4b5baf",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-current-population-fixed.xml",
+        "raw_bytes": 27478,
+        "raw_sha256": "434e362ed65a7a652ceeea3d9edbfb7feac6cc9cf37e2ac53e4e54bb1e4b5baf",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-current-population-seam.stdout.txt",
+        "bytes": 6950,
+        "sha256": "a51f679e1f9270cd38619c677d53066f499e84b5d72d01a1e63683196ef67e50",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-current-population-seam.stdout.txt",
+        "raw_bytes": 6950,
+        "raw_sha256": "a51f679e1f9270cd38619c677d53066f499e84b5d72d01a1e63683196ef67e50",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-domain-base-corrected.stdout.txt",
+        "bytes": 60007,
+        "sha256": "4855ff35806edabd1a4d6e13003afe89b70d86827472de9a0dd96ea7476799ee",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-domain-base-corrected.stdout.txt",
+        "raw_bytes": 60007,
+        "raw_sha256": "4855ff35806edabd1a4d6e13003afe89b70d86827472de9a0dd96ea7476799ee",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-domain-base.stdout.txt",
+        "bytes": 65927,
+        "sha256": "978271790284bbb571d6a968668fc1c246e8293a7694ff6aebbaee1d4fd00640",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-domain-base.stdout.txt",
+        "raw_bytes": 65927,
+        "raw_sha256": "978271790284bbb571d6a968668fc1c246e8293a7694ff6aebbaee1d4fd00640",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-domain-native.stdout.txt",
+        "bytes": 320,
+        "sha256": "f56c1e271a803f276a81f99e2c8d453ccad85adaa01263c24681e6ee8f29594f",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-domain-native.stdout.txt",
+        "raw_bytes": 320,
+        "raw_sha256": "f56c1e271a803f276a81f99e2c8d453ccad85adaa01263c24681e6ee8f29594f",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-domain-native.xml",
+        "bytes": 38529,
+        "sha256": "a6f5635fa49c8cddd3b247ba6dcf9e8f451b2178156f83853e9fe3db4b590d9b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-domain-native.xml",
+        "raw_bytes": 38529,
+        "raw_sha256": "a6f5635fa49c8cddd3b247ba6dcf9e8f451b2178156f83853e9fe3db4b590d9b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-jit-explicit-refusal.stderr.txt",
+        "bytes": 2688,
+        "sha256": "e43e5ebac9db8bc09b5d85f078e0a8663e9d8ec9bba514911b2370186aa16bc2",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-jit-explicit-refusal.stderr.txt",
+        "raw_bytes": 2688,
+        "raw_sha256": "e43e5ebac9db8bc09b5d85f078e0a8663e9d8ec9bba514911b2370186aa16bc2",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-jit-explicit-refusal.stdout.txt",
+        "bytes": 630,
+        "sha256": "a92263f5eb617e2ec752b71a0119960bd9ba48e41b3f54fbb1c357010c43805b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-jit-explicit-refusal.stdout.txt",
+        "raw_bytes": 630,
+        "raw_sha256": "a92263f5eb617e2ec752b71a0119960bd9ba48e41b3f54fbb1c357010c43805b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-reader-census-base.txt",
+        "bytes": 6954,
+        "sha256": "801012883e3c47f2849d6c907f48aa7ff54aeeb6ed60353c7ff72c2b0551e72b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-reader-census-base.txt",
+        "raw_bytes": 6954,
+        "raw_sha256": "801012883e3c47f2849d6c907f48aa7ff54aeeb6ed60353c7ff72c2b0551e72b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini-snapshot-corrected.stdout.txt",
+        "bytes": 80,
+        "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini-snapshot-corrected.stdout.txt",
+        "raw_bytes": 80,
+        "raw_sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/gini_jit_refusal_probe.py",
+        "bytes": 774,
+        "sha256": "282ef27b0a8f35a94c5a3e68cb8b73f46ba6e2bdb060b07b877387557ba389bf",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/gini_jit_refusal_probe.py",
+        "raw_bytes": 774,
+        "raw_sha256": "282ef27b0a8f35a94c5a3e68cb8b73f46ba6e2bdb060b07b877387557ba389bf",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/lint-frozen.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/lint-frozen.stdout.txt",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/lint-wide-initial.txt",
+        "bytes": 1909,
+        "sha256": "c57db80f1a788736797b8d346cdc259c31f4f375122af1e7fd276a6d0e414204",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/lint-wide-initial.txt",
+        "raw_bytes": 1909,
+        "raw_sha256": "c57db80f1a788736797b8d346cdc259c31f4f375122af1e7fd276a6d0e414204",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/own-base-dependent-locators.json",
+        "bytes": 113454,
+        "sha256": "807e87aeb76b161e8127dc9133f185f0742a63fdde90976f7654c2016adf8127",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/own-base-dependent-locators.json",
+        "raw_bytes": 113454,
+        "raw_sha256": "807e87aeb76b161e8127dc9133f185f0742a63fdde90976f7654c2016adf8127",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-412.json.xz",
+        "bytes": 3829776,
+        "sha256": "f3658db77b2b4179f1ec162404ed5352d48edb706ee2a5979f573310711cc8a1",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-412.json",
+        "raw_bytes": 170884383,
+        "raw_sha256": "d93289213b703577f3cca834d41511378e323f79f05f48bc86110bb4bfc37abb",
+        "normalization": "none",
+        "encoding": "xz",
+        "decode": "Builtin Python lzma.decompress(read_bytes()); verify raw_bytes/raw_sha256 before parsing."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-412.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-412.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-412.stdout.txt",
+        "bytes": 2345,
+        "sha256": "49b0a6f1a7644e0f00cbfb58991de7f7f814dc39cdb5f97c86eeed958018c440",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-412.stdout.txt",
+        "raw_bytes": 2345,
+        "raw_sha256": "49b0a6f1a7644e0f00cbfb58991de7f7f814dc39cdb5f97c86eeed958018c440",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-frozen.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-frozen.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/production-invocation-frozen.stdout.txt",
+        "bytes": 2348,
+        "sha256": "49916513cb758f7dacf841821ea925f3e88385a601ea0969b1a59555f0ba3db8",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-frozen.stdout.txt",
+        "raw_bytes": 2348,
+        "raw_sha256": "49916513cb758f7dacf841821ea925f3e88385a601ea0969b1a59555f0ba3db8",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/profile-consumer-corrected.stdout.txt",
+        "bytes": 80,
+        "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/profile-consumer-corrected.stdout.txt",
+        "raw_bytes": 80,
+        "raw_sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/profile-consumer-corrected.xml",
+        "bytes": 979,
+        "sha256": "a5ceeaad8c53f40034bfe5a2d74e557f32508717b1b47b28567cec2570195359",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/profile-consumer-corrected.xml",
+        "raw_bytes": 979,
+        "raw_sha256": "a5ceeaad8c53f40034bfe5a2d74e557f32508717b1b47b28567cec2570195359",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/profiles-complete.stdout.txt",
+        "bytes": 80,
+        "sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/profiles-complete.stdout.txt",
+        "raw_bytes": 80,
+        "raw_sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/profiles-complete.xml",
+        "bytes": 1161,
+        "sha256": "2769f0d574d478589e068e463be6432755c71240c8d5361b02edaa524ed54e98",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/profiles-complete.xml",
+        "raw_bytes": 1161,
+        "raw_sha256": "2769f0d574d478589e068e463be6432755c71240c8d5361b02edaa524ed54e98",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/profiles-native.stdout.txt",
+        "bytes": 6720,
+        "sha256": "6a907ac4593eb8d51ece343ab93d1ea73cf226eb2d7e5dfa1ce21f9389a6d27a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/profiles-native.stdout.txt",
+        "raw_bytes": 6720,
+        "raw_sha256": "6a907ac4593eb8d51ece343ab93d1ea73cf226eb2d7e5dfa1ce21f9389a6d27a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/profiles-native.xml",
+        "bytes": 15984,
+        "sha256": "dae0aa1b9d5ae2e036b1d97b65abb0251abc494e926b9fe269a3f1dd97b49d01",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/profiles-native.xml",
+        "raw_bytes": 15984,
+        "raw_sha256": "dae0aa1b9d5ae2e036b1d97b65abb0251abc494e926b9fe269a3f1dd97b49d01",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/replay_economic_controls.py",
+        "bytes": 5405,
+        "sha256": "fc58d0a8d3d97d128856e929bd3e7281b9f843500199aff495a614df142879fc",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/replay_economic_controls.py",
+        "raw_bytes": 5405,
+        "raw_sha256": "fc58d0a8d3d97d128856e929bd3e7281b9f843500199aff495a614df142879fc",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/replay_economic_dtype.py",
+        "bytes": 1591,
+        "sha256": "7d40015b38e33ea117324f6bdf324bd0de7d79f3108b39c8593c32133aa2b447",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/replay_economic_dtype.py",
+        "raw_bytes": 1591,
+        "raw_sha256": "7d40015b38e33ea117324f6bdf324bd0de7d79f3108b39c8593c32133aa2b447",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/run_baseline_consumers.py",
+        "bytes": 2048,
+        "sha256": "ea33dfadfe29a2165d14a8b035b8e7b8486f832902a5f5bb82f35ec6901af76e",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/economics/run_baseline_consumers.py",
+        "raw_bytes": 2048,
+        "raw_sha256": "ea33dfadfe29a2165d14a8b035b8e7b8486f832902a5f5bb82f35ec6901af76e",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/LA-004-original-card.txt",
+        "bytes": 3498,
+        "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/LA-004-original-card.txt",
+        "raw_bytes": 3498,
+        "raw_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/cache-removal-spec.json",
+        "bytes": 678,
+        "sha256": "7e0c48f794fee2e264a43bde67be1059830183345ce7da608f856e8313a45ca5",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal-spec.json",
+        "raw_bytes": 678,
+        "raw_sha256": "7e0c48f794fee2e264a43bde67be1059830183345ce7da608f856e8313a45ca5",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/cache-removal.json",
+        "bytes": 1267,
+        "sha256": "3c96649af6b3cbf9f5fb34ec95567a24a4635549ef3ee1558221f7e9433d05ba",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.json",
+        "raw_bytes": 1267,
+        "raw_sha256": "3c96649af6b3cbf9f5fb34ec95567a24a4635549ef3ee1558221f7e9433d05ba",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/cache-removal.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/cache-removal.stdout",
+        "bytes": 9873,
+        "sha256": "92bb1f7689f8114189e67b84ae931ec7d30666ab1c0954bb482f65bf6a47f77b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/cache-removal.stdout",
+        "raw_bytes": 9873,
+        "raw_sha256": "92bb1f7689f8114189e67b84ae931ec7d30666ab1c0954bb482f65bf6a47f77b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native-spec.json",
+        "bytes": 841,
+        "sha256": "962e342e48901a37e28ff3afa11ff139e491fe902bf4d79e00d8dbed28693c3b",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native-spec.json",
+        "raw_bytes": 841,
+        "raw_sha256": "962e342e48901a37e28ff3afa11ff139e491fe902bf4d79e00d8dbed28693c3b",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.json",
+        "bytes": 1457,
+        "sha256": "7b5991801711b929113928d4a3cefb8967fe9191e492737ff66edaf20e02eab0",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.json",
+        "raw_bytes": 1457,
+        "raw_sha256": "7b5991801711b929113928d4a3cefb8967fe9191e492737ff66edaf20e02eab0",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stdout",
+        "bytes": 700,
+        "sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-native.stdout",
+        "raw_bytes": 700,
+        "raw_sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-review.json",
+        "bytes": 5443,
+        "sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/dtype-delta-review.json",
+        "raw_bytes": 5443,
+        "raw_sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles-corrected-spec.json",
+        "bytes": 687,
+        "sha256": "3cd8c7510d6d684599f7093cc86aca4a78af5a238c3491f288532b1b2d702f48",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected-spec.json",
+        "raw_bytes": 687,
+        "raw_sha256": "3cd8c7510d6d684599f7093cc86aca4a78af5a238c3491f288532b1b2d702f48",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles-corrected.json",
+        "bytes": 1306,
+        "sha256": "bb6f90ad00181567982ddc1cdef3bb0e411ee5652a413f6cca118dfabf7d0df1",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.json",
+        "raw_bytes": 1306,
+        "raw_sha256": "bb6f90ad00181567982ddc1cdef3bb0e411ee5652a413f6cca118dfabf7d0df1",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles-corrected.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles-corrected.stdout",
+        "bytes": 98,
+        "sha256": "2cd599857581c394be2851bc475648e12476e7e3ad73daa7ee11b34f2bf90d02",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-corrected.stdout",
+        "raw_bytes": 98,
+        "raw_sha256": "2cd599857581c394be2851bc475648e12476e7e3ad73daa7ee11b34f2bf90d02",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles-spec.json",
+        "bytes": 677,
+        "sha256": "26b4030abbae13b519c8017937496a2b777d093d4e903d4513820a8c5dd9132a",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles-spec.json",
+        "raw_bytes": 677,
+        "raw_sha256": "26b4030abbae13b519c8017937496a2b777d093d4e903d4513820a8c5dd9132a",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles.json",
+        "bytes": 1278,
+        "sha256": "cdc8f8b80d6a1e77135cf55b16e91b624f3079f1f9b8fafb6b129e47c9309d58",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.json",
+        "raw_bytes": 1278,
+        "raw_sha256": "cdc8f8b80d6a1e77135cf55b16e91b624f3079f1f9b8fafb6b129e47c9309d58",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/independent-oracles.stdout",
+        "bytes": 3817,
+        "sha256": "4856d53ce18110e32194a1b203050868f3e8cf428f0420fcd52a54594f5f1e33",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stdout",
+        "raw_bytes": 3817,
+        "raw_sha256": "4856d53ce18110e32194a1b203050868f3e8cf428f0420fcd52a54594f5f1e33",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/native-spec.json",
+        "bytes": 1371,
+        "sha256": "a814291b6bef899cbc52b0731fa771152bfbd3631c56c400a0caf7b9cd5b8b79",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native-spec.json",
+        "raw_bytes": 1371,
+        "raw_sha256": "a814291b6bef899cbc52b0731fa771152bfbd3631c56c400a0caf7b9cd5b8b79",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/native.json",
+        "bytes": 1943,
+        "sha256": "6194c29f767a9045a2591facf68de1d7cb04905364a132490b249830163a4164",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.json",
+        "raw_bytes": 1943,
+        "raw_sha256": "6194c29f767a9045a2591facf68de1d7cb04905364a132490b249830163a4164",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/native.stdout",
+        "bytes": 700,
+        "sha256": "1338e02762b4ba65c86a5307b9f1192b5ff7bb9cb8894df419229734c2eddd9e",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stdout",
+        "raw_bytes": 700,
+        "raw_sha256": "1338e02762b4ba65c86a5307b9f1192b5ff7bb9cb8894df419229734c2eddd9e",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/restored-control-native-spec.json",
+        "bytes": 998,
+        "sha256": "43bbde8cd147e820ed0c5e0279abfdf5bc37cf7cae718a4d52f179646514e8dc",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native-spec.json",
+        "raw_bytes": 998,
+        "raw_sha256": "43bbde8cd147e820ed0c5e0279abfdf5bc37cf7cae718a4d52f179646514e8dc",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/restored-control-native.json",
+        "bytes": 1606,
+        "sha256": "5df11e5c5b83317e6fd49b0c3150d7c5350a6f30aeaab92b40e2265b1afad772",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.json",
+        "raw_bytes": 1606,
+        "raw_sha256": "5df11e5c5b83317e6fd49b0c3150d7c5350a6f30aeaab92b40e2265b1afad772",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/restored-control-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.stderr",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/restored-control-native.stdout",
+        "bytes": 618,
+        "sha256": "cc6ac3f27664b989d6032bb078bbab876869c1c258ece6713cb3ba9788184d90",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/restored-control-native.stdout",
+        "raw_bytes": 618,
+        "raw_sha256": "cc6ac3f27664b989d6032bb078bbab876869c1c258ece6713cb3ba9788184d90",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/review.json",
+        "bytes": 20226,
+        "sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/review.json",
+        "raw_bytes": 20226,
+        "raw_sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/run_check.py",
+        "bytes": 1697,
+        "sha256": "4ce67fea4d76423165ba42c13cbaf9dfec58486a0bf3878a4f4c0425bc8cc363",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/run_check.py",
+        "raw_bytes": 1697,
+        "raw_sha256": "4ce67fea4d76423165ba42c13cbaf9dfec58486a0bf3878a4f4c0425bc8cc363",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/test_current_reader_first_harness_error.py",
+        "bytes": 3104,
+        "sha256": "529d7343f50c290a2c216992b62fc1f7ac37c64bb57a879c174130f3afedabcf",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_first_harness_error.py",
+        "raw_bytes": 3104,
+        "raw_sha256": "529d7343f50c290a2c216992b62fc1f7ac37c64bb57a879c174130f3afedabcf",
+        "normalization": "none",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/test_current_reader_independent.py",
+        "bytes": 3360,
+        "sha256": "d847d6e8c09370f35c9a7c47cb024f0d17fb9570bd9dde38e2786f3973a13b77",
+        "raw_local_path": "/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py",
+        "raw_bytes": 3360,
+        "raw_sha256": "d847d6e8c09370f35c9a7c47cb024f0d17fb9570bd9dde38e2786f3973a13b77",
+        "normalization": "none",
+        "encoding": "raw"
+      }
+    ],
+    "decode_verified_members": 116,
+    "reason": "Root recovered canonical active Git object storage losslessly after measured0Boverlay. Full moderate logs/JUnit/specs/replayers are committed as normal bytes alongside receipt. Huge complete scanner uses explicitlosslessXZ; raw/encodedsize/hash/decoding are bound. No excerpts or whitespace normalization.",
+    "prepublication_storage_boundary": "Source c003 had already been published before storage preflightERROR; no lost or rewritten commits. Root verification retained4583Gitobjects/217064927B and allHEAD/trees/refs."
+  },
+  "local_not_admitted": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/production-invocation-frozen.json",
+      "bytes": 170880975,
+      "sha256": "f9d1f700bf526aa3d0eeafbb0926ba94874b0120b2471f72c06edcd15c99daba",
+      "role": "Historical964 static diagnostic, nondeciding after full current412 report; concise complete stdout transported. No positive witness inferred."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/base-source-archive",
+      "role": "Exact Git base code/architecture extraction; reconstruct from base SHA. Archive/root itself not transferred; full919module provenance and same97output are transferred."
+    }
+  ],
+  "root_common_view_locator_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/own-base-dependent-locators.json",
+      "bytes": 113454,
+      "sha256": "807e87aeb76b161e8127dc9133f185f0742a63fdde90976f7654c2016adf8127",
+      "raw_bytes": 113454,
+      "raw_sha256": "807e87aeb76b161e8127dc9133f185f0742a63fdde90976f7654c2016adf8127",
+      "encoding": "raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/G-fresh-dependent-locators.json",
+      "bytes": 86247,
+      "sha256": "a65f23358e2e3fd140d7d069c550e9f44467622ae915192acbaea4f1a5d30695",
+      "raw_bytes": 86247,
+      "raw_sha256": "a65f23358e2e3fd140d7d069c550e9f44467622ae915192acbaea4f1a5d30695",
+      "encoding": "raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/frozen-transfer-dependent-locators.json",
+      "bytes": 124024,
+      "sha256": "3f49587460b5589c6329c0b475d69c3c9d2bcd9309c416b8d8de8f0f5fab4f14",
+      "raw_bytes": 124024,
+      "raw_sha256": "3f49587460b5589c6329c0b475d69c3c9d2bcd9309c416b8d8de8f0f5fab4f14",
+      "encoding": "raw"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G must fetch exact topic receipt/head, review and admit before integration; no previous acceptance promotion.",
+    "LA004 prior Gini-norm held label was bound to the wrong original criterion; root owns all common-index/ledger/binding corrections forward; preserve frozen421historical artifacts.",
+    "LA035 owner must supply named optimizer/FQN/config and versioned intent, stock/flow unit/period, population and sign/penalty provenance. Historical normalization remains -1 for nonnegative mean>=1; no changed norm.",
+    "Native finite DGP/analytic profiles do not establish calibration or effects on admitted real data.",
+    "DoWhy/EconML are not exercised in this native Python3.14 profile; absence is not a positive backend witness.",
+    "Broader97 remains93PASS3FAIL1SKIP on964 and exactbase. P41 inherited status not established because overall input intersection is nonzero. A separate approved forward dtype companion is frozen c003; its tests/receipt are not retrospectively claimed for412.",
+    "Fiscal .10 exact-value difference1000.0000149011612 vs1000 retained; no tolerance/decimal law patch.",
+    "Static production scanner partialFAIL is separate from actual native current-reader witnesses; callback/reflection/runtime authority gaps retained."
+  ]
+}

@@ -34,6 +34,7 @@ from polisyos.foundry.methods.causal import (
     RDDObservationalData,
     StaggeredDifferenceInDifferences,
     StandardDifferenceInDifferences,
+    TMLEEstimator,
 )
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
@@ -313,7 +314,11 @@ def _is_rdd_method(method_fqn: str) -> bool:
 
 
 def _is_hte_method(method_fqn: str) -> bool:
-    return method_fqn.startswith("causal.hte.") or method_fqn.startswith("causal.targeting.")
+    return (
+        method_fqn.startswith("causal.hte.")
+        or method_fqn.startswith("causal.targeting.")
+        or method_fqn.split("@", 1)[0] == "causal.treatment_effects.tmle"
+    )
 
 
 def _is_dowhy_method(method_fqn: str) -> bool:
@@ -478,6 +483,15 @@ def _run_primary_causal_job(
         raise ValueError("primary causal job source reference mismatch")
     refs[role] = source
     bound_spec = spec.model_copy(update={"input_refs": refs})
+    tmle_data = None
+    if (spec.method_fqn or "").split("@", 1)[0] == "causal.treatment_effects.tmle":
+        tmle_data = _load_observational_data(ctx, state, spec.method_fqn)
+        if not isinstance(observational_data, HTEObservationalData) or not isinstance(
+            tmle_data, HTEObservationalData
+        ):
+            raise ValueError("selected TMLE requires its typed observational source")
+        if observational_data.model_dump(mode="json") != tmle_data.model_dump(mode="json"):
+            raise ValueError("selected TMLE materialization/source mismatch")
     if is_dowhy:
         with causal_worker_execution_context(store=ctx.store, source_ref=source):
             result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
@@ -490,7 +504,7 @@ def _run_primary_causal_job(
             saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
             report = CausalEffectReport.model_validate(saved["report"])
             offered = CausalEffectReport.model_validate(result.final_state["report"])
-            if report != offered:
+            if report.model_dump(mode="json") != offered.model_dump(mode="json"):
                 raise ValueError("selected DoWhy persisted/offered report mismatch")
             response = report.metadata.get("worker")
             if response is not None:
@@ -511,6 +525,14 @@ def _run_primary_causal_job(
     else:
         result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
     did_method = (spec.method_fqn or "").split("@", 1)[0]
+    if not result.issues and did_method == "causal.treatment_effects.tmle":
+        _reconcile_selected_causal_output(ctx=ctx, result=result)
+        assert isinstance(tmle_data, HTEObservationalData)
+        _verify_selected_tmle_projection(
+            result.final_state,
+            observational_data=tmle_data,
+            params=spec.method_params,
+        )
     if not result.issues and did_method in {
         "causal.inference.did.standard",
         "causal.inference.did.staggered",
@@ -532,6 +554,28 @@ def _run_primary_causal_job(
     return result
 
 
+def _verify_selected_tmle_projection(
+    output: dict[str, Any],
+    *,
+    observational_data: HTEObservationalData,
+    params: dict[str, Any],
+) -> None:
+    """Reconcile the report with its persisted native numerical result.
+
+    This uses the maintained producer's projection, preserving its regular iid
+    profile and unsupported-profile refusals. It establishes no identification,
+    execution permission, or shared production resource admission.
+    """
+    report = CausalEffectReport.model_validate(output["report"])
+    expected = TMLEEstimator.report_from_result(
+        data=observational_data, params=params, result=output["result"]
+    )
+    if report.model_dump(mode="json") != expected.model_dump(mode="json"):
+        raise ValueError("selected TMLE numerical report projection mismatch")
+    if UncertaintyEnvelope.model_validate(output["envelope"]) != expected.to_uncertainty_envelope():
+        raise ValueError("selected TMLE uncertainty projection mismatch")
+
+
 def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResult) -> None:
     """Read the canonical method artifact before consuming its peer projection."""
     if result.method_result_ref is None:
@@ -539,7 +583,7 @@ def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResul
     saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
     report = CausalEffectReport.model_validate(saved["report"])
     offered = CausalEffectReport.model_validate(result.final_state["report"])
-    if report != offered:
+    if report.model_dump(mode="json") != offered.model_dump(mode="json"):
         raise ValueError("selected causal persisted/offered report mismatch")
     derived = report.to_uncertainty_envelope()
     if (
@@ -560,7 +604,7 @@ def _verify_dowhy_worker_projection(
     expected = DoWhyIdentifyEstimate.report_from_worker_result(
         data=observational_data, params=params, response=response
     )
-    if report != expected:
+    if report.model_dump(mode="json") != expected.model_dump(mode="json"):
         raise ValueError("selected DoWhy report does not project its validated worker result")
 
 

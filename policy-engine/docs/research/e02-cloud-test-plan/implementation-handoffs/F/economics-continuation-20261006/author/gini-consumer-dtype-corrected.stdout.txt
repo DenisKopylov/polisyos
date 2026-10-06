@@ -1,0 +1,25 @@
+..............F.......................................F................. [ 85%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:250: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    assert actual.dtype == expected_dtype
+E   AssertionError: assert dtype('float64') == <class 'jax.numpy.float32'>
+E    +  where dtype('float64') = Array(0.25, dtype=float64).dtype
+_ test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:250: in test_current_population_gini_preserves_existing_consumer_dtype_abi
+    assert actual.dtype == expected_dtype
+E   AssertionError: assert dtype('float64') == <class 'jax.numpy.float32'>
+E    +  where dtype('float64') = Array(0.25, dtype=float64).dtype
+=============================== warnings summary ===============================
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-metric]
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float64-float64-metric]
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-metric]
+tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float64-float64-metric]
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[eager-float32-float64-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi[jit-float32-float64-government]

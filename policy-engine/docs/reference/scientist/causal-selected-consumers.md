@@ -50,6 +50,17 @@ readers. A changed diagnostic window can preserve theta_sel and its entire targe
 contract while failing diagnostic reconciliation. This is descriptive diagnostic
 custody, not causal-identification or evaluation authority.
 
+The canonical cross-sectional TMLE method uses the existing typed HTE route.
+The primary consumer preserves the full covariate/confounder materialization,
+compares it with the actual selected CAS source, and reconciles the complete
+report and envelope with the maintained producer's projection of its persisted
+native `result`. Regular iid inference retains the numerical interval;
+unsupported profiles retain the descriptive result and a point-free failure
+report. Both remain non-gating until the existing authority contract is admitted.
+`test_tmle_selected_consumer.py` exercises configured native jobs and fresh CAS
+readers, changed adjustment inputs and substituted report quantities. This
+numerical bridge does not prove a production common-pool workload or budget.
+
 The defining numerical tests are
 `tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py`.
 They run genuine method jobs and CAS readers, compare the DoWhy interval against

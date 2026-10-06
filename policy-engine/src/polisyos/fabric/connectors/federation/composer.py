@@ -381,7 +381,20 @@ class DataComposer:
             resolved_rows.append(pd.Series(resolution.chosen_candidate.value))
 
         if not resolved_rows:
-            return combined.drop(columns=[source_column]).iloc[:0].copy()
+            empty_result = combined.drop(columns=[source_column]).iloc[:0].copy()
+            if request.schema is not None:
+                declared_dtypes = request.schema.to_pandas_dtypes()
+                for column in empty_result.columns:
+                    dtype = declared_dtypes.get(column)
+                    if dtype is None:
+                        continue
+                    try:
+                        empty_result[column] = empty_result[column].astype(dtype)
+                    except (TypeError, ValueError) as exc:
+                        raise SchemaIncompatibilityError(
+                            f"Empty UNION field {column!r} cannot use declared dtype {dtype!r}"
+                        ) from exc
+            return empty_result
 
         result = pd.DataFrame(resolved_rows)
         result = result.sort_values(by=key_columns, kind="mergesort").reset_index(drop=True)

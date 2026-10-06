@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -271,6 +272,67 @@ def test_join_preserves_cell_lineage_across_three_sources():
     assert row_two[-1].source_b_id == meta_c.connector_id
 
 
+def test_join_mixed_cell_lineage_survives_saved_result_readback(tmp_path: Path):
+    """Per-cell producer lineage selects values correctly through a later JOIN."""
+    duckdb = pytest.importorskip("duckdb")
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("lineage_a", TrustLevel.HIGH, now)
+    meta_b = _make_source_metadata("lineage_b", TrustLevel.LOW, now)
+    meta_c = _make_source_metadata("lineage_c", TrustLevel.MEDIUM, now)
+    sources = [
+        (pd.DataFrame({"key": [1, 2], "value": [10, None]}), meta_a),
+        (pd.DataFrame({"key": [1, 2], "value": [None, 20]}), meta_b),
+        (pd.DataFrame({"key": [1, 2], "value": [100, 200]}), meta_c),
+    ]
+    request = CompositionRequest(
+        dataset_pattern="test.lineage-readback",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        audit_level=AuditLevel.FULL,
+    )
+
+    results: list[pd.DataFrame] = []
+    for source_order in (sources, [sources[0], sources[2], sources[1]]):
+        composer = DataComposer(
+            conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+        )
+        result, merge_log = composer.compose(
+            sources=source_order,
+            strategy=request.strategy,
+            request=request,
+        )
+        results.append(result.sort_values("key").reset_index(drop=True))
+        if source_order[1][1] is meta_b:
+            row_two_conflict = next(
+                entry for entry in merge_log if entry.row_key == {"key": 2}
+            )
+            assert row_two_conflict.source_a_id == meta_b.connector_id
+            assert row_two_conflict.source_b_id == meta_c.connector_id
+
+    expected = pd.DataFrame(
+        {"key": pd.Series([1, 2], dtype="int64"), "value": pd.Series([10.0, 200.0])}
+    )
+    pd.testing.assert_frame_equal(results[0], expected)
+    pd.testing.assert_frame_equal(results[1], expected)
+
+    database = tmp_path / "mixed-lineage.duckdb"
+    with duckdb.connect(str(database)) as connection:
+        connection.register("mixed_result", results[0])
+        connection.execute("CREATE TABLE composed_result AS SELECT * FROM mixed_result")
+    with duckdb.connect(str(database), read_only=True) as connection:
+        persisted = connection.execute(
+            "SELECT key, value FROM composed_result ORDER BY key"
+        ).df()
+        schema = connection.execute("DESCRIBE composed_result").fetchall()
+
+    pd.testing.assert_frame_equal(persisted, expected)
+    assert [(row[0], row[1]) for row in schema] == [
+        ("key", "BIGINT"),
+        ("value", "DOUBLE"),
+    ]
+
+
 def test_join_rejects_undeclared_many_to_many_before_materialization():
     left = pd.DataFrame({"key": [1, 1], "left_value": [10, 20]})
     right = pd.DataFrame({"key": [1, 1], "right_value": [100, 200]})
@@ -326,6 +388,162 @@ def test_join_does_not_match_unknown_null_keys():
     )
 
     assert result.empty
+
+
+def test_join_declared_cardinality_matches_independent_relational_oracle():
+    """A declared many-to-one left JOIN preserves the left grain and unknown keys."""
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    left = pd.DataFrame(
+        {
+            "observation": ["a", "b", "c", "d"],
+            "key": [1, 2, None, 1],
+            "amount": [10, 20, 30, 40],
+        }
+    )
+    right = pd.DataFrame(
+        {"key": [1, 3, None], "region": ["north", "west", "unknown"]}
+    )
+    meta_left = _make_source_metadata("grain_left", TrustLevel.HIGH, now)
+    meta_right = _make_source_metadata("grain_right", TrustLevel.MEDIUM, now)
+    request = CompositionRequest(
+        dataset_pattern="test.join-grain",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="left",
+        join_validate="many_to_one",
+        join_max_rows=4,
+        audit_level=AuditLevel.NONE,
+    )
+
+    result, _ = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    ).compose(
+        sources=[(left, meta_left), (right, meta_right)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    # This nested-loop oracle does not call pandas merge or composer helpers.
+    right_by_key = {1: "north", 3: "west"}
+    expected = [
+        (
+            row.observation,
+            row.key if pd.notna(row.key) else None,
+            row.amount,
+            right_by_key.get(row.key) if pd.notna(row.key) else None,
+        )
+        for row in left.itertuples(index=False)
+    ]
+    observed = [
+        (
+            row[0],
+            None if pd.isna(row[1]) else row[1],
+            row[2],
+            None if pd.isna(row[3]) else row[3],
+        )
+        for row in result[["observation", "key", "amount", "region"]].itertuples(
+            index=False, name=None
+        )
+    ]
+    assert observed == expected
+    assert len(result) == len(left)
+    assert int(result["amount"].sum()) == int(left["amount"].sum())
+    assert pd.isna(result.loc[result["observation"] == "c", "region"]).all()
+
+
+def test_join_explicit_many_to_many_is_bounded_before_materialization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Declared expansion succeeds within its bound and fails before merge above it."""
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    left = pd.DataFrame({"key": [1, 1], "amount": [10, 20]})
+    right = pd.DataFrame({"key": [1, 1], "label": ["x", "y"]})
+    meta_left = _make_source_metadata("m2m_left", TrustLevel.HIGH, now)
+    meta_right = _make_source_metadata("m2m_right", TrustLevel.MEDIUM, now)
+    request = CompositionRequest(
+        dataset_pattern="test.declared-m2m",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        join_validate="many_to_many",
+        join_max_rows=4,
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    result, _ = composer.compose(
+        sources=[(left, meta_left), (right, meta_right)],
+        strategy=request.strategy,
+        request=request,
+    )
+    assert list(result[["amount", "label"]].itertuples(index=False, name=None)) == [
+        (10, "x"),
+        (10, "y"),
+        (20, "x"),
+        (20, "y"),
+    ]
+    assert int(result["amount"].sum()) == 60
+
+    too_small = CompositionRequest(
+        **{
+            **request.__dict__,
+            "join_max_rows": 3,
+        }
+    )
+    merge_calls = 0
+    original_merge = pd.DataFrame.merge
+
+    def count_merge(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+        nonlocal merge_calls
+        merge_calls += 1
+        return original_merge(self, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "merge", count_merge)
+    with pytest.raises(SchemaIncompatibilityError, match="join_max_rows"):
+        composer.compose(
+            sources=[(left, meta_left), (right, meta_right)],
+            strategy=too_small.strategy,
+            request=too_small,
+        )
+    assert merge_calls == 0
+
+
+def test_join_explicit_null_category_is_the_only_null_match_control() -> None:
+    """Unknown nulls stay separate unless the request declares one shared category."""
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    left = pd.DataFrame({"key": [None], "left_value": [10]})
+    right = pd.DataFrame({"key": [None], "right_value": [20]})
+    sources = [
+        (left, _make_source_metadata("null_left", TrustLevel.HIGH, now)),
+        (right, _make_source_metadata("null_right", TrustLevel.MEDIUM, now)),
+    ]
+    base = CompositionRequest(
+        dataset_pattern="test.null-category",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        join_validate="one_to_one",
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    unknown_result, _ = composer.compose(sources, base.strategy, base)
+    explicit_category = CompositionRequest(**{**base.__dict__, "join_nulls_match": True})
+    categorized_result, _ = composer.compose(
+        sources, explicit_category.strategy, explicit_category
+    )
+
+    assert unknown_result.empty
+    assert len(categorized_result) == 1
+    assert categorized_result.loc[0, "left_value"] == 10
+    assert categorized_result.loc[0, "right_value"] == 20
 
 
 def test_union_preserves_user_source_id_column():
@@ -388,6 +606,183 @@ def test_join_preserves_user_suffix_like_column_names():
     assert result["value_left"].tolist() == [777]
 
 
+def test_join_generated_internal_name_families_remain_user_data():
+    """Generated-looking fields survive a real join with their input dtypes."""
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    left_fields = {
+        "__source_id": "left-source",
+        "__policyos_source_id": "left-transport-like",
+        "__policyos_lineage": "left-lineage-like",
+        "__policyos_right_key": "left-right-key-like",
+        "__policyos_join_key": "left-join-key-like",
+        "x_left": "left-suffix",
+        "x": "left-x",
+    }
+    right_fields = {
+        "__policyos_right_lineage": "right-lineage-like",
+        "__policyos_right_column": "right-column-like",
+        "__policyos_join_key_1": "right-join-key-like",
+        "__policyos_source_id": "right-source-like",
+        "__source_id_right": "right-source-suffix",
+        "x_right": "right-suffix",
+        "x": "right-x",
+    }
+    left = pd.DataFrame({"key": pd.Series([1], dtype="int64"), **left_fields})
+    right = pd.DataFrame({"key": pd.Series([1], dtype="int64"), **right_fields})
+    left = left.astype(dict.fromkeys(left_fields, "string"))
+    right = right.astype(dict.fromkeys(right_fields, "string"))
+    request = CompositionRequest(
+        dataset_pattern="test.internal-families",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        audit_level=AuditLevel.NONE,
+    )
+
+    result, _ = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    ).compose(
+        [
+            (left, _make_source_metadata("names_left", TrustLevel.HIGH, now)),
+            (right, _make_source_metadata("names_right", TrustLevel.MEDIUM, now)),
+        ],
+        request.strategy,
+        request,
+    )
+
+    expected = pd.DataFrame({"key": pd.Series([1], dtype="int64"), **left_fields})
+    expected = expected.astype(dict.fromkeys(left_fields, "string"))
+    expected["__policyos_right_lineage"] = pd.Series(["right-lineage-like"], dtype="string")
+    expected["__policyos_right_column"] = pd.Series(["right-column-like"], dtype="string")
+    expected["__policyos_join_key_1"] = pd.Series(["right-join-key-like"], dtype="string")
+    expected["__source_id_right"] = pd.Series(["right-source-suffix"], dtype="string")
+    expected["x_right"] = pd.Series(["right-suffix"], dtype="string")
+    right_only_fields = [column for column in right_fields if column not in left_fields]
+    expected = expected[[*left.columns, *right_only_fields]]
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_generated_looking_fields_survive_all_strategies_and_sql_readback(
+    tmp_path: Path,
+) -> None:
+    """User columns resembling transport aliases survive all composer strategies."""
+    duckdb = pytest.importorskip("duckdb")
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    aliases = [
+        "__source_id",
+        "__policyos_source_id",
+        "__policyos_lineage",
+        "__policyos_lineage_1",
+        "__policyos_right_key",
+        "__policyos_right_key_1",
+        "__policyos_right_column",
+        "__policyos_right_column_1",
+        "__policyos_right_lineage",
+        "__policyos_join_key",
+        "__policyos_join_key_1",
+        "value_left",
+        "value_right",
+    ]
+    source = pd.DataFrame(
+        {"key": pd.Series([1], dtype="int64"), **{name: [i + 10] for i, name in enumerate(aliases)}}
+    )
+    metadata = _make_source_metadata("reserved_names", TrustLevel.HIGH, now)
+    secondary_metadata = _make_source_metadata("reserved_names_secondary", TrustLevel.LOW, now)
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    union_request = CompositionRequest(
+        dataset_pattern="test.reserved-union",
+        strategy=CompositionStrategy.UNION,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        key_columns=["key"],
+        audit_level=AuditLevel.NONE,
+    )
+    union_result, _ = composer.compose(
+        [(source, metadata)], union_request.strategy, union_request
+    )
+
+    right = source.copy()
+    right[aliases] = right[aliases] + 100
+    join_request = CompositionRequest(
+        dataset_pattern="test.reserved-join",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        audit_level=AuditLevel.NONE,
+    )
+    join_result, _ = composer.compose(
+        [(source, metadata), (right, secondary_metadata)],
+        join_request.strategy,
+        join_request,
+    )
+
+    overlay_request = CompositionRequest(
+        dataset_pattern="test.reserved-overlay",
+        strategy=CompositionStrategy.OVERLAY,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        key_columns=["key"],
+        primary_source=metadata.connector_id,
+        audit_level=AuditLevel.NONE,
+    )
+    overlay_result, _ = composer.compose(
+        [(source, metadata), (right, secondary_metadata)],
+        overlay_request.strategy,
+        overlay_request,
+    )
+
+    consensus_request = CompositionRequest(
+        dataset_pattern="test.reserved-consensus",
+        strategy=CompositionStrategy.CONSENSUS,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        key_columns=["key"],
+        aggregation_func="mean",
+        audit_level=AuditLevel.NONE,
+    )
+    consensus_result, _ = composer.compose(
+        [(source, metadata), (right, secondary_metadata)],
+        consensus_request.strategy,
+        consensus_request,
+    )
+    consensus_expected = pd.DataFrame(
+        {
+            "key": pd.Series([1], dtype="int64"),
+            **{name: pd.Series([float(i + 60)], dtype="float64") for i, name in enumerate(aliases)},
+        }
+    )
+    consensus_expected = consensus_expected[["key", *sorted(aliases)]]
+
+    expected_by_strategy = {
+        "union": source,
+        "join": source,
+        "overlay": source,
+        "consensus": consensus_expected,
+    }
+    actual_by_strategy = {
+        "union": union_result,
+        "join": join_result,
+        "overlay": overlay_result,
+        "consensus": consensus_result,
+    }
+    for strategy, expected in expected_by_strategy.items():
+        pd.testing.assert_frame_equal(actual_by_strategy[strategy], expected)
+
+    database = tmp_path / "reserved-columns.duckdb"
+    with duckdb.connect(str(database)) as connection:
+        for strategy, frame in actual_by_strategy.items():
+            connection.register(f"frame_{strategy}", frame)
+            connection.execute(
+                f"CREATE TABLE result_{strategy} AS SELECT * FROM frame_{strategy}"
+            )
+    with duckdb.connect(str(database), read_only=True) as connection:
+        for strategy, expected in expected_by_strategy.items():
+            persisted = connection.execute(f"SELECT * FROM result_{strategy}").df()
+            pd.testing.assert_frame_equal(persisted, expected)
+
+
 def test_consensus_strict_rejects_non_finite_candidates():
     source_a = pd.DataFrame({"key": [1], "value": [10.0]})
     source_b = pd.DataFrame({"key": [1], "value": [float("inf")]})
@@ -438,6 +833,73 @@ def test_consensus_strict_rejects_invalid_numeric_candidates():
             strategy=request.strategy,
             request=request,
         )
+
+
+def test_consensus_reports_exact_finite_participants_and_exclusions():
+    """CONSENSUS counts only finite numeric contributors and names each exclusion."""
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("consensus_a", TrustLevel.HIGH, now)
+    meta_b = _make_source_metadata("consensus_b", TrustLevel.MEDIUM, now)
+    request = CompositionRequest(
+        dataset_pattern="test.consensus-admissibility",
+        strategy=CompositionStrategy.CONSENSUS,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        key_columns=["key"],
+        aggregation_func="mean",
+        audit_level=AuditLevel.SUMMARY,
+    )
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.MEDIAN)
+    )
+    valid_result, _ = composer.compose(
+        [
+            (pd.DataFrame({"key": ["r1"], "value": [10]}), meta_a),
+            (pd.DataFrame({"key": ["r1"], "value": [14]}), meta_b),
+        ],
+        request.strategy,
+        request,
+    )
+    valid_summary = composer.get_last_merge_summary()
+    assert valid_summary is not None
+    assert valid_result.loc[0, "value"] == 12.0
+    valid_stats = valid_summary.extra["consensus"]["value"]
+    assert valid_stats["participants"] == 2
+    assert valid_stats["excluded"] == 0
+    assert valid_stats["participant_sources"] == {
+        json.dumps({"key": "r1"}, sort_keys=True): [meta_a.connector_id, meta_b.connector_id]
+    }
+
+    meta_bad = _make_source_metadata("consensus_bad", TrustLevel.LOW, now)
+    meta_inf = _make_source_metadata("consensus_inf", TrustLevel.LOW, now)
+    meta_missing = _make_source_metadata("consensus_missing", TrustLevel.LOW, now)
+    partial_result, _ = composer.compose(
+        [
+            (pd.DataFrame({"key": ["r1"], "value": [10]}), meta_a),
+            (pd.DataFrame({"key": ["r1"], "value": ["bad"]}), meta_bad),
+            (pd.DataFrame({"key": ["r1"], "value": [float("inf")]}), meta_inf),
+            (pd.DataFrame({"key": ["r1"], "value": [None]}), meta_missing),
+        ],
+        request.strategy,
+        request,
+    )
+    partial_summary = composer.get_last_merge_summary()
+    assert partial_summary is not None
+    assert partial_result.loc[0, "value"] == 10.0
+    partial_stats = partial_summary.extra["consensus"]["value"]
+    row_id = json.dumps({"key": "r1"}, sort_keys=True)
+    assert partial_stats["participants"] == 1
+    assert partial_stats["excluded"] == 2
+    assert partial_stats["excluded_by_reason"] == {
+        "non_numeric": 1,
+        "non_finite": 1,
+    }
+    assert partial_stats["participant_sources"] == {row_id: [meta_a.connector_id]}
+    assert partial_stats["exclusions"] == {
+        row_id: [
+            {"source_id": meta_bad.connector_id, "reason": "non_numeric"},
+            {"source_id": meta_inf.connector_id, "reason": "non_finite"},
+        ]
+    }
 
 
 def test_full_audit_is_truncated_with_summary_metadata():

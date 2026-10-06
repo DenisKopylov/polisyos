@@ -79,9 +79,7 @@ class _PostgresFixture:
                     self.driver.sql.Identifier(self.schema),
                     self.driver.sql.Identifier(table),
                 )
-                result[table] = tuple(
-                    sorted(connection.execute(query).fetchall(), key=repr)
-                )
+                result[table] = tuple(sorted(connection.execute(query).fetchall(), key=repr))
             assert "control_jobs" in result and "control_job_events" in result
             return result
 
@@ -98,9 +96,7 @@ def postgres_fixture(
 
     schema = "e02_b38_" + uuid4().hex
     with driver.connect(dsn, autocommit=True) as connection:
-        connection.execute(
-            driver.sql.SQL("CREATE SCHEMA {}").format(driver.sql.Identifier(schema))
-        )
+        connection.execute(driver.sql.SQL("CREATE SCHEMA {}").format(driver.sql.Identifier(schema)))
         identity = connection.execute(
             "SELECT version(), current_database(), inet_server_addr()::text, inet_server_port()"
         ).fetchone()
@@ -134,9 +130,7 @@ def _create_job(store: ControlPlaneStore, job_id: str) -> None:
     )
 
 
-def _current_child(
-    fixture: _PostgresFixture, job_id: str, action: str
-) -> dict[str, Any]:
+def _current_child(fixture: _PostgresFixture, job_id: str, action: str) -> dict[str, Any]:
     import polisyos.runtime.http.services.control_plane_store as store_module
 
     source = Path(store_module.__file__).resolve().parents[4]
@@ -184,9 +178,7 @@ def _assert_terminal(fixture: _PostgresFixture, job_id: str, terminal: str) -> N
     assert outbox[0].payload["attempt"] == 2
     assert outbox[0].payload["progress"] == record.progress
     dead_letters = store.list_dead_letter_jobs(acknowledged=None)
-    assert [row.job_id for row in dead_letters] == (
-        [job_id] if terminal == "failed" else []
-    )
+    assert [row.job_id for row in dead_letters] == ([job_id] if terminal == "failed" else [])
 
 
 @pytest.mark.parametrize("current_state", ["running", "completed"])
@@ -219,9 +211,7 @@ def test_postgres_stale_bound_worker_cannot_mutate_any_table(
         before = fixture.rows()
         instant = datetime.now(UTC)
         operations = {
-            "complete": lambda: store.complete_job(
-                job_id=job.job_id, progress={"stale": True}
-            ),
+            "complete": lambda: store.complete_job(job_id=job.job_id, progress={"stale": True}),
             "fail": lambda: store.fail_job(job_id=job.job_id, error_message="stale"),
             "progress": lambda: store.update_progress_state(
                 job_id=job.job_id, state="failed", progress={"stale": True}
@@ -230,9 +220,7 @@ def test_postgres_stale_bound_worker_cannot_mutate_any_table(
                 job_id=job.job_id, capability_manifest_ref="sha256:" + "a" * 64
             ),
             "current_record": store.current_execution_job_record,
-            "upsert": lambda: store.upsert_progress(
-                job_id=job.job_id, progress={"stale": True}
-            ),
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
             "event": lambda: store.append_event(
                 job_id=job.job_id, event_type="stale", payload={"stale": True}
             ),
@@ -246,9 +234,7 @@ def test_postgres_stale_bound_worker_cannot_mutate_any_table(
                 topic="stale", payload={"stale": True}, job_id="pending-child"
             ),
             "create": lambda: _create_job(store, "stale-created-child"),
-            "mark_running": lambda: store.mark_running(
-                job_id=job.job_id, worker_id="worker-A"
-            ),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
             "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
             "scenario": lambda: store.compare_and_set_scenario_head(
                 scenario_id="stale",
@@ -286,9 +272,7 @@ def test_postgres_stale_bound_worker_cannot_mutate_any_table(
     worker = ControlWorker(
         store=store, handler=stale_handler, worker_id="worker-A", lease_seconds=300
     )
-    worker._heartbeat_interval_s = (
-        60  # Fixture renewal must not race the persisted expiry input.
-    )
+    worker._heartbeat_interval_s = 60  # Fixture renewal must not race the persisted expiry input.
     assert worker.dispatch_once()
     if current_state == "running":
         assert _current_child(fixture, job_id, "finish")["state"] == "completed"
@@ -328,15 +312,11 @@ def test_postgres_current_worker_publishes_coherent_terminal_generation(
                 progress={"phase": "failed-B"},
             )
         with pytest.raises(ControlJobLeaseLostError):
-            store.append_event(
-                job_id=job.job_id, event_type="after-terminal", payload={}
-            )
+            store.append_event(job_id=job.job_id, event_type="after-terminal", payload={})
 
     current = store.get_job(first.job_id)
     assert current is not None and current.lease_owner == "worker-B"
-    worker = ControlWorker(
-        store=store, handler=handler, worker_id="worker-B", lease_seconds=300
-    )
+    worker = ControlWorker(store=store, handler=handler, worker_id="worker-B", lease_seconds=300)
     worker._run_with_lease_heartbeat(current)
     _assert_terminal(fixture, first.job_id, terminal)
 
@@ -352,9 +332,7 @@ def test_postgres_real_statement_fault_rolls_back_all_terminal_rows(
     job = store.lease_next_job(worker_id="worker-A", lease_seconds=300)
     assert job is not None
     event_type = "job_completed" if terminal == "completed" else "job_failed"
-    table = (
-        "control_job_events" if fault_boundary == "event" else "control_outbox_events"
-    )
+    table = "control_job_events" if fault_boundary == "event" else "control_outbox_events"
     column = "event_type" if fault_boundary == "event" else "event_key"
     value = event_type if fault_boundary == "event" else "fault-job:" + event_type
     with fixture.driver.connect(fixture.dsn) as connection:
@@ -373,14 +351,8 @@ def test_postgres_real_statement_fault_rolls_back_all_terminal_rows(
             )
         )
     before = fixture.rows()
-    with (
-        store.job_execution_fence(
-            job_id=job.job_id, worker_id="worker-A", attempt=job.attempt
-        ),
-        pytest.raises(
-            fixture.driver.errors.RaiseException, match="actual PostgreSQL publication"
-        ),
-    ):
+
+    def operation() -> None:
         if terminal == "completed":
             store.complete_job(job_id=job.job_id, progress={"phase": "must-rollback"})
         else:
@@ -389,6 +361,12 @@ def test_postgres_real_statement_fault_rolls_back_all_terminal_rows(
                 error_message="must-rollback",
                 progress={"phase": "must-rollback"},
             )
+
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt),
+        pytest.raises(fixture.driver.errors.RaiseException, match="actual PostgreSQL publication"),
+    ):
+        operation()
     assert fixture.rows() == before
     reopened = ControlPlaneStore(
         backend="postgres", sqlite_path="unused.sqlite3", postgres_dsn=fixture.dsn

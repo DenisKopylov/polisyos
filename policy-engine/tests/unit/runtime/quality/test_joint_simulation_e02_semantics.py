@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
+import numpy as np
 import pytest
 
 import polisyos.runtime.quality.joint_simulation_horizon as joint_simulation_horizon_module
@@ -22,7 +23,9 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationRequest,
     SimulationTrajectory,
     TrajectoryPoint,
+    _aggregate_replicated_trajectory,
     _atom_subsets,
+    _coupled_outcomes,
     _coupled_queue_value,
     _interaction_coverage,
     _ncm_run_once,
@@ -348,6 +351,114 @@ def test_shared_required_output_projection_rejects_invalid_values(
             non_finite_code="output_non_finite",
         )
     assert raised.value.code == expected_code
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param([True, 1.0], id="mixed-python-bool-float"),
+        pytest.param((np.bool_(True), 1.0), id="mixed-numpy-bool-float"),
+        pytest.param(np.array([True, 1.0], dtype=object), id="object-bool-float"),
+        pytest.param([[True, 1.0]], id="nested-bool-float"),
+        pytest.param(np.array([None, 1.0], dtype=object), id="object-none-float"),
+        pytest.param(np.array(["1", 1.0], dtype=object), id="object-string-float"),
+        pytest.param(np.array([b"1", 1.0], dtype=object), id="object-bytes-float"),
+        pytest.param(np.array([1.0 + 0j, 1.0], dtype=object), id="object-complex-float"),
+    ],
+)
+def test_shared_required_output_projection_rejects_invalid_original_elements(
+    value: object,
+) -> None:
+    with pytest.raises(JointSimulationControllerError) as raised:
+        _required_finite_scalar(
+            value,
+            field="mixed_output",
+            missing_code="output_missing",
+            malformed_code="output_non_numeric",
+            non_finite_code="output_non_finite",
+            allow_array_mean=True,
+        )
+
+    assert raised.value.code == "output_non_numeric"
+
+
+def test_shared_required_output_projection_preserves_zero_and_finite_arrays() -> None:
+    assert (
+        _required_finite_scalar(
+            0.0,
+            field="zero_output",
+            missing_code="output_missing",
+            malformed_code="output_non_numeric",
+            non_finite_code="output_non_finite",
+        )
+        == 0.0
+    )
+    assert (
+        _required_finite_scalar(
+            [0.0, 2.0],
+            field="finite_replicates",
+            missing_code="output_missing",
+            malformed_code="output_non_numeric",
+            non_finite_code="output_non_finite",
+            allow_array_mean=True,
+        )
+        == 1.0
+    )
+
+    # Once an upstream caller has already coerced the mixed sequence to floats,
+    # its original Boolean element is no longer recoverable at this boundary.
+    already_coerced = np.asarray([True, 1.0])
+    assert already_coerced.dtype.kind == "f"
+    assert (
+        _required_finite_scalar(
+            already_coerced,
+            field="already_coerced_replicates",
+            missing_code="output_missing",
+            malformed_code="output_non_numeric",
+            non_finite_code="output_non_finite",
+            allow_array_mean=True,
+        )
+        == 1.0
+    )
+
+
+def test_coupled_output_adapter_rejects_mixed_boolean_sequence() -> None:
+    with pytest.raises(JointSimulationControllerError) as raised:
+        _coupled_outcomes(
+            {"y": [True, 1.0]},
+            ("y",),
+            0,
+            terminal_index=0,
+        )
+
+    assert raised.value.code == "coupled_outcome_non_numeric"
+
+
+def test_replication_cache_aggregator_rejects_mixed_boolean_sequence() -> None:
+    malformed_point = TrajectoryPoint.model_construct(
+        step=0,
+        outcomes={"y": [True, 1.0]},
+        effect={"y": 0.0},
+        engine_state={},
+    )
+    malformed_trajectory = SimulationTrajectory.model_construct(
+        run_level="joint",
+        atom_ids=("atom-a",),
+        engine_kind="ncm_parallel_worlds",
+        method_fqn="polisyos.foreign.test_ncm@1.0.0",
+        objective_ref="objective://mixed-boolean-output",
+        points=(malformed_point,),
+        diagnostics={},
+    )
+
+    with pytest.raises(JointSimulationControllerError) as raised:
+        _aggregate_replicated_trajectory(
+            (malformed_trajectory,),
+            (17,),
+            "sha256:physical-run",
+        )
+
+    assert raised.value.code == "simulation_output_non_numeric"
 
 
 def test_shared_cache_executor_rejects_nonfinite_adapter_output() -> None:

@@ -598,6 +598,9 @@ class _StaticExportResolver:
     def __init__(self, source_file: Path, tree: ast.Module) -> None:
         self._trees = {source_file: tree}
         self._active: set[tuple[Path, str]] = set()
+        self._resolved: dict[tuple[Path, str], int] = {}
+        self._allowed_reads: set[tuple[Path, int]] = set()
+        self._allowed_calls: set[tuple[Path, int]] = set()
 
     def _tree(self, source: Path) -> ast.Module:
         if source not in self._trees:
@@ -663,7 +666,9 @@ class _StaticExportResolver:
                             f"Unresolved mutated export declaration: {source}:{symbol}"
                         )
             if len(declarations) == 1 and not imported:
-                return self._value(source, declarations[0])
+                value = self._value(source, declarations[0])
+                self._resolved[key] = declarations[0].end_lineno
+                return value
             if len(imported) == 1 and not declarations:
                 node, imported_name = imported[0]
                 info = _module_name_for_path(source)
@@ -672,13 +677,16 @@ class _StaticExportResolver:
                 module = _resolve_import_module(*info, node)
                 if module is None or not module.startswith("polisyos."):
                     raise ValueError(f"Unresolved export import: {source}:{symbol}")
-                return self.resolve(_facade_source_for(module), imported_name)
+                value = self.resolve(_facade_source_for(module), imported_name)
+                self._resolved[key] = node.end_lineno
+                return value
             raise ValueError(f"Unresolved or ambiguous export declaration: {source}:{symbol}")
         finally:
             self._active.remove(key)
 
     def _value(self, source: Path, node: ast.AST) -> object:
         if isinstance(node, ast.Name):
+            self._allowed_reads.add((source, id(node)))
             return self.resolve(source, node.id)
         if isinstance(node, ast.Dict):
             # Only keys contribute to iterating/sorting a manifest map. Its values
@@ -712,11 +720,77 @@ class _StaticExportResolver:
             if isinstance(value, (dict, list, tuple)) and all(
                 isinstance(item, str) for item in value
             ):
+                self._allowed_calls.add((source, id(node)))
                 return sorted(value) if node.func.id == "sorted" else list(value)
         strings = _string_list_value(node)
         if strings is not None:
             return strings
         raise ValueError(f"Unresolved export expression: {source}:{ast.unparse(node)}")
+
+    @staticmethod
+    def _passive_container(node: ast.AST) -> bool:
+        if isinstance(node, (ast.Constant, ast.Name)):
+            return True
+        if isinstance(node, (ast.List, ast.Tuple)):
+            return all(_StaticExportResolver._passive_container(item) for item in node.elts)
+        if isinstance(node, ast.Dict):
+            return all(
+                isinstance(key, ast.Constant) and _StaticExportResolver._passive_container(value)
+                for key, value in zip(node.keys, node.values, strict=True)
+            )
+        return False
+
+    def _admit_passive_alias(self, source: Path, read: ast.Name) -> bool:
+        tree = self._tree(source)
+        for declaration in tree.body:
+            if not isinstance(declaration, (ast.Assign, ast.AnnAssign)):
+                continue
+            value = declaration.value
+            if value is None or not any(node is read for node in ast.walk(value)):
+                continue
+            targets = declaration.targets if isinstance(declaration, ast.Assign) else [declaration.target]
+            if not all(isinstance(target, ast.Name) for target in targets):
+                return False
+            if not self._passive_container(value):
+                return False
+            for target in targets:
+                bindings = list(_symbol_binding_nodes(tree, target.id))
+                if len(bindings) != 1 or bindings[0] is not declaration:
+                    return False
+            for target in targets:
+                self._resolved[(source, target.id)] = declaration.end_lineno
+            self._allowed_reads.add((source, id(read)))
+            return True
+        return False
+
+    def audit_consumers(self) -> None:
+        """A finite binding must not escape the selected declaration grammar."""
+        for source in {path for path, _ in self._resolved}:
+            # Passive aliases/containers are finite only if their own complete
+            # module-level consumer closure is audited as well.
+            while True:
+                symbols = {symbol for path, symbol in self._resolved if path == source}
+                changed = False
+                for node in _module_level_nodes(self._tree(source)):
+                    if (
+                        isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
+                        and node.id in symbols and (source, id(node)) not in self._allowed_reads
+                    ):
+                        if not self._admit_passive_alias(source, node):
+                            raise ValueError(f"Unresolved export binding consumer: {source}:{node.id}")
+                        changed = True
+                if not changed:
+                    break
+            symbols = {symbol for path, symbol in self._resolved if path == source}
+            first_bound_line = min(
+                line for (path, _), line in self._resolved.items() if path == source
+            )
+            for node in _module_level_nodes(self._tree(source)):
+                if (
+                    isinstance(node, ast.Call) and node.lineno >= first_bound_line
+                    and (source, id(node)) not in self._allowed_calls
+                ):
+                    raise ValueError(f"Unresolved call after export binding: {source}:{ast.unparse(node)}")
 
 
 class _IncompleteExportDeclarationError(ValueError):
@@ -747,6 +821,7 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call)
     }
     allowed_names = {id(targets[0])}
+    allowed_calls: set[int] = set()
     for node in bindings:
         if node is declaration:
             continue
@@ -764,10 +839,16 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
         ):
             return None
         allowed_names.add(id(node.func.value))
+        allowed_calls.add(id(node))
     # An alias or other use may mutate the prefix indirectly; do not claim it.
     if any(
         isinstance(node, ast.Name) and node.id == "__all__" and id(node) not in allowed_names
         for node in _module_level_nodes(tree)
+    ):
+        return None
+    if any(
+        isinstance(node, ast.Call) and node.lineno > declaration.end_lineno
+        and id(node) not in allowed_calls for node in _module_level_nodes(tree)
     ):
         return None
     return prefix
@@ -780,7 +861,9 @@ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple
     if prefix is not None:
         raise _IncompleteExportDeclarationError(prefix)
     source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
-    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+    resolver = _StaticExportResolver(source, tree)
+    exports = resolver.resolve(source, "__all__")
+    resolver.audit_consumers()
     if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
         raise ValueError(f"Export declaration must resolve to string sequence: {source}")
     return tuple(exports)

@@ -141,8 +141,8 @@ def test_static_literal_mapping_is_read_without_executing_module(
     _, mapping = _fixture(tmp_path, monkeypatch)
     mapping.write_text(
         'raise RuntimeError("module execution forbidden")\n'
-        'BASE = {"A": unknown_runtime_owner()}\n'
-        'PUBLIC_NAMES = {**BASE, "B": object()}\n',
+        'BASE = {"A": unknown_runtime_owner}\n'
+        'PUBLIC_NAMES = {**BASE, "B": object}\n',
     )
     assert guardrails._entrypoint_inventory("polisyos.fixture").exports == ("A", "B")
 
@@ -219,7 +219,7 @@ def test_conditional_extension_exposes_prefix_and_fails_complete_contract(
     tmp_path: Path, monkeypatch,
 ) -> None:
     facade, _ = _fixture(tmp_path, monkeypatch)
-    facade.write_text('__all__ = ["Prefix"]\nif backend():\n    __all__.extend(runtime_names())\n')
+    facade.write_text('__all__ = ["Prefix"]\nif available:\n    __all__.extend(runtime_names)\n')
     policy = guardrails.PackagePolicy(
         module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
         owner="test-owner", readme=facade, reference_doc=facade,
@@ -246,7 +246,7 @@ def test_conditional_extension_exposes_prefix_and_fails_complete_contract(
 @pytest.mark.parametrize("mutation", [
     '__all__ = ["Replacement"]', '__all__.clear()', 'alias = __all__',
     '__all__[0] = "Replacement"', 'if runtime():\n    __all__ = ["Replacement"]',
-    'from owner import __all__', '__all__.extend(*runtime_names())',
+    'from owner import __all__', '__all__.extend(*runtime_names())', 'mutate()',
 ])
 def test_unproved_prefix_rebind_or_mutation_still_refuses(mutation: str) -> None:
     source = '__all__ = ["Prefix"]\n' + mutation + '\n__all__.extend(runtime_names())\n'
@@ -275,3 +275,37 @@ def test_current_world_optional_profile_has_unknown_static_total() -> None:
         assert len(world.__all__) == 59 > row.known_export_count
     else:
         assert len(world.__all__) == row.known_export_count
+
+
+@pytest.mark.parametrize("source", [
+    'M = {"x": 1}\nmutate(M)\n__all__ = sorted(M)',
+    'M = {"x": 1}\nA = M\nA["y"] = 2\n__all__ = sorted(M)',
+    '__all__ = ["x"]\nmutate(__all__)',
+    'M = {"x": 1}\nA = [M]\nconsume(A)\n__all__ = sorted(M)',
+    'M = {"x": 1}\n__all__ = sorted(M)\nconsume(M)',
+    'M = {"x": 1}\nglobals()["M"]["y"] = 2\n__all__ = sorted(M)',
+    'M = {"x": 1}\nexec("M[\\\"y\\\"] = 2")\n__all__ = sorted(M)',
+    'M = {"x": 1}\ndef mutate():\n    M["y"] = 2\nmutate()\n__all__ = sorted(M)',
+])
+def test_bindings_cannot_escape_finite_declaration_consumers(source: str) -> None:
+    with pytest.raises(ValueError, match="Unresolved"):
+        guardrails._extract_exports(ast.parse(source))
+
+
+def test_finite_selected_alias_chain_has_audited_consumers() -> None:
+    tree = ast.parse('M = {"B": None, "A": None}\nA = M\nN = sorted(A)\n__all__ = tuple(N)\n')
+    assert guardrails._extract_exports(tree) == ("A", "B")
+
+
+def test_passive_map_alias_table_is_audited_without_calling_runtime_lookup() -> None:
+    tree = ast.parse(
+        'M = {"B": None, "A": None}\nTABLE = {"package": M}\n'
+        'def runtime_lookup():\n    return TABLE["package"]\n__all__ = sorted(M)\n'
+    )
+    assert guardrails._extract_exports(tree) == ("A", "B")
+    mutated = ast.parse(
+        'M = {"A": None}\nTABLE = {"package": M}\n'
+        'TABLE["package"]["B"] = None\n__all__ = sorted(M)\n'
+    )
+    with pytest.raises(ValueError, match="consumer"):
+        guardrails._extract_exports(mutated)

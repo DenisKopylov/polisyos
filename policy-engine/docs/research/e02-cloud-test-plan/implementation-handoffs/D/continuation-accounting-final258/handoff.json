@@ -1,0 +1,383 @@
+{
+  "schema": "policyos.e02.D.final_criterion_accounting_handoff.v1",
+  "unit": "D",
+  "slice": "final-original-criterion-accounting",
+  "author": "/root/baseline_census",
+  "review_scope": "Complete original criterion/owner/input/outcome accounting and actual source/output-byte reconciliation; authored Q5 mechanism is not author-self-reviewed.",
+  "original_slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+  "implementation_tree": "83c70095bdc2c4e73fde6d65cb2ce94ad029ffd7",
+  "implementation_parent": "e2e0f1677ebdc9c270d85cf148a6094086c2f9b4",
+  "runtime_candidate": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "branch": "codex/e02-D-continuation-accounting",
+  "closure_ids": [],
+  "finding_ids": [
+    "B41",
+    "B106",
+    "B107",
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B116",
+    "B117",
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B122",
+    "B123",
+    "B124",
+    "B125",
+    "B126",
+    "B127",
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165",
+    "LA-014",
+    "LA-015"
+  ],
+  "canonical_bundle_ids": [
+    "CTL-01",
+    "CTL-02",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03",
+    "OPT-01",
+    "OPT-02",
+    "OPT-03",
+    "OPT-04",
+    "SRV-01",
+    "SRV-03",
+    "STP-01",
+    "STR-01",
+    "TRN-01",
+    "TRN-02",
+    "TRN-03"
+  ],
+  "denominator": {
+    "schema": "policyos.e02.D.final_accounting_validation.v1",
+    "candidate_source": {
+      "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+    },
+    "predicate_basis": "independently_reconciled",
+    "predicate_scope": "Actual canonical literal/hash/owner/role/input binding and output metadata reconciliation; no formal closure.",
+    "original_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+    "findings": 45,
+    "criteria": 46,
+    "bundles": 17,
+    "queues": 5,
+    "owner_packets": 16,
+    "original46_literals_owners_roles_fragments_and_hashes": "ALL_MATCH",
+    "distribution": {
+      "OPEN_VERIFICATION_PENDING": 39,
+      "OPEN_CURRENT_UPSTREAM_FAIL": 1,
+      "HELD_ORIGINAL_POSITIVE_INPUT": 5
+    },
+    "LA015_supplier_companion": "CTL-01 supplier_companion_only; canonical closure SRV-03",
+    "full_changed_paths": 973,
+    "original15_input_occurrences": 92,
+    "current258_input_equal": 76,
+    "current258_input_changed": 16,
+    "current258_changed_unique_test_paths": 11,
+    "actual_final_wave_predicates": 1249,
+    "actual_final_wave_test_reports": 0,
+    "all13_final_carrier_members_MATCH": true,
+    "current_declared_input_bindings": 5568,
+    "current_observed_exec_bindings": 1366,
+    "current_tree_path_errors": 0,
+    "errors": [],
+    "backend_runs": 0,
+    "root_source_test_writes": 0,
+    "children": 0
+  },
+  "implementation_members": [
+    {
+      "name": "ledger.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "git_blob": "adc82dcdb7ead904acd99aba8af3dde82d5d7221",
+      "bytes": 555218,
+      "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4",
+      "exact_prepared_bytes_MATCH": true
+    },
+    {
+      "name": "source-bindings.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/source-bindings.json",
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "git_blob": "49769fe52a4a3c27dd13838622ec0cd0ddec6e10",
+      "bytes": 116230,
+      "sha256": "63baca73e6c0691daf537c9d4dafa3db83533ab92d62e110aa0339b24baf7b7f",
+      "exact_prepared_bytes_MATCH": true
+    },
+    {
+      "name": "root-G-verification-packet.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "git_blob": "4986c08e4dd0520615da45a5a5535380e3ef284e",
+      "bytes": 71761,
+      "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a",
+      "exact_prepared_bytes_MATCH": true
+    },
+    {
+      "name": "validation.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/validation.json",
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "git_blob": "141af10ad37d9694a714cb494abf62833f0c499d",
+      "bytes": 1352,
+      "sha256": "29bc5339324c5fecd50f49162d11ed077755f99f9fb54d0e5128e068a52f6fca",
+      "exact_prepared_bytes_MATCH": true
+    },
+    {
+      "name": "owner-inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "git_blob": "3b6b1e55e5a5e8b670fcfc0a5d70f3a2a62e229b",
+      "bytes": 135805,
+      "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a",
+      "exact_prepared_bytes_MATCH": true
+    },
+    {
+      "name": "summary.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/summary.json",
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "git_blob": "90830af47830e3a7efbd570ec7bd08c0a7fb3ff9",
+      "bytes": 5034,
+      "sha256": "26b73fc5397134e38ee3e1ce4338c8767985aa1240888f61f782caf8076edad9",
+      "exact_prepared_bytes_MATCH": true
+    },
+    {
+      "name": "README.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/README.md",
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "git_blob": "ec42f31261151dda11e74d8e36786cd716846a7c",
+      "bytes": 2549,
+      "sha256": "0ee16757250475fa3291696d6f3fba699b4935986d7176ced2a25abf5660c784",
+      "exact_prepared_bytes_MATCH": true
+    }
+  ],
+  "metadata_only_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/source-bindings.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/validation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/README.md"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "root_worktree_changed_paths": [],
+  "environment_and_inputs": {
+    "administrative_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "administrative_python_version": "3.12.14",
+    "backend_tests_launched_here": 0,
+    "actual_runtime_profiles": "Existing exact receipt profiles only, each pinned with its actual source/input/output. Final258 minimal148 Python3.14.7 with absent native extras remains ERROR/UNRUN.",
+    "unknown_owner_positive_refs": null,
+    "owner_appointments": "not_established"
+  },
+  "checks": [
+    {
+      "name": "exact46_original_literals_bindings_owners_roles",
+      "outcome": "ALL_MATCH",
+      "source": "cae published-final-criterion-accounting.json with198 coverage/TSV/cards",
+      "counts": {
+        "findings": 45,
+        "criteria": 46,
+        "bundles": 17,
+        "queues": 5
+      },
+      "method": "Exact equality of id/finding/card/closureowner/role/taskanchor/originalfragment/canonical_content/originalbinding and each literal UTF8 bytes/SHA256; no text rewriting.",
+      "output": {
+        "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/validation.json",
+        "sha256": "29bc5339324c5fecd50f49162d11ed077755f99f9fb54d0e5128e068a52f6fca"
+      }
+    },
+    {
+      "name": "complete_original15_input_byte_comparison",
+      "outcome": "MATCH_OLD_DECLARATIONS_WITH_CHANGED_CURRENT_INPUTS",
+      "counts": {
+        "occurrences": 92,
+        "original_declared_hashes_MATCH": 92,
+        "current258_equal": 76,
+        "current258_changed": 16,
+        "changed_unique_paths": 11
+      },
+      "method": "git show exact3f38:path and exact258:path, raw SHA256/bytes and git rev-parse blob; historical617 execution count bound to exact243, no semantic/runtime equivalence inferred.",
+      "output": {
+        "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/source-bindings.json",
+        "sha256": "63baca73e6c0691daf537c9d4dafa3db83533ab92d62e110aa0339b24baf7b7f"
+      }
+    },
+    {
+      "name": "complete973_changed_paths",
+      "outcome": "ALL_GIT_TUPLES_MATCH",
+      "counts": {
+        "paths": 973,
+        "A": 880,
+        "M": 93,
+        "source_paths": 67,
+        "production_Python_paths": 60,
+        "test_inputs": 79
+      },
+      "method": "git diff --raw --no-abbrev --no-renames -z cae258 and all tuple comparison with root2e0a complete pathset; root zero Git blob and explicit null both denote absence.",
+      "existing_output_ref": {
+        "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+        "bytes": 345835,
+        "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+        "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+      }
+    },
+    {
+      "name": "final258_actual_carrier_and_frozen_input_integrity",
+      "outcome": "ALL_RAW_BINDINGS_MATCH_WITH_ZERO_TEST_PREDICATES_EXECUTED",
+      "counts": {
+        "members": 13,
+        "raw_member_bytes": 5395382,
+        "declared_inputs": 5568,
+        "observed_execs": 1366,
+        "unique_Git_blobs_checked": 5493,
+        "errors": 0
+      },
+      "method": "git show ba9:carrier, XZ decode, base64 decode every member, compare declared size/SHA256 and actual retained originals; stream actual Git blobs through cat-file; verify tree path/blob type for all5568 declared paths and1366 observed execs.",
+      "existing_output_ref": {
+        "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+        "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+        "bytes": 783012,
+        "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+      },
+      "recorded_testcase_predicates": 1249,
+      "all_recorded_testcase_predicates": "UNRUN",
+      "observer_events": {
+        "observer_loaded": 1,
+        "polisyos_module_exec": 1366,
+        "polisyos_module_census": 2,
+        "configure": 1,
+        "collection_report": 15
+      },
+      "whole_suite": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+      "cause": "not_established"
+    },
+    {
+      "name": "latest_native_scope_source_relations",
+      "outcome": "ALL15_CURRENT_BLOB_BYTES_MATCH",
+      "counts": {
+        "cache_ports": 8,
+        "cache_test": 1,
+        "optional_guard_tests": 3,
+        "stress_tests": 3
+      },
+      "method": "Exact defining receipt source blobs and SHA256 checked against258; source/test equality is lineage metadata, not new runtime.",
+      "actual_scoped_results": "Cache13PASS source06; profile17PASS21nativeSKIP/UNRUN sourceb9; stress57PASS, example/rawbool mutations53PASS4FAIL each sourceb9. Historical raw39NOT_DETECTED and c17 failures retained."
+    },
+    {
+      "name": "remote_implementation_raw_readback",
+      "outcome": "ALL7_EXACT_PREPARED_BYTES_MATCH",
+      "implementation_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "files": 7,
+      "branch_ref_check": {
+        "branch": "codex/e02-D-continuation-accounting",
+        "ledger_blob": "adc82dcdb7ead904acd99aba8af3dde82d5d7221",
+        "expected_blob": "adc82dcdb7ead904acd99aba8af3dde82d5d7221",
+        "MATCH": true,
+        "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4"
+      }
+    }
+  ],
+  "predicate_basis": "not_established",
+  "predicate_scope": "Formal combined/original acceptance. The checks above independently reconcile actual Git/bytes/owners/output quantities only; no metadata count or receipt shape confers criterion authority.",
+  "subordinate_byte_assertion": {
+    "predicate_basis": "independently_reconciled",
+    "scope": "All46 original literal bindings, current exact Git/path/output checks and seven metadata publication readbacks."
+  },
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "conditional_engineering_proposals": 39,
+  "formal_dispositions": {
+    "OPEN_VERIFICATION_PENDING": 39,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+    "OPEN_CURRENT_UPSTREAM_FAIL": 1
+  },
+  "LA015_scope": "CTL-01 supplier_companion_only occurrence; canonical closure owner SRV-03.",
+  "original_five_positive_holds": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "current_B120": "Open fixable canonical B response-text numeric decoder defect:21FAIL3PASS rawGateway controls. Existing B paid/cache capability is available;13PASS D consumer correction does not fix decoder.",
+  "G_minimum_packet": {
+    "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+    "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a",
+    "scope": "Same complete100-selector/17canonical recipe, actual native backend/profile readiness and complete true output; no blind unchanged repeat or artificial compute policy."
+  },
+  "compatibility": {
+    "historical_acceptance_text_unchanged": true,
+    "original5050_drafts_untouched": true,
+    "immutable_historical_receipts_untouched": true,
+    "no_source_body_copies": true,
+    "no_raw_carrier_duplicate": true,
+    "original617_is_execution_count_not_revision": true
+  },
+  "publication": {
+    "method": "Existing GitHub Git-data API topic, ordinary single-parent implementation commit followed by separate receipt commit",
+    "expected_parent": "e2e0f1677ebdc9c270d85cf148a6094086c2f9b4",
+    "force": false,
+    "implementation_ref_update": "SUCCESS",
+    "implementation_remote_bytes": "ALL7_MATCH",
+    "new_checkout_worktree_created": false,
+    "source_test_root_changes": false,
+    "local_hooks": "UNRUN: remote metadata-only API invokes no local hooks; no hook PASS asserted",
+    "scope": "User/parent-authorized metadata-only continuation on existing topic. Root alone merges/publishes PR/integration."
+  },
+  "limitations": [
+    "Final258 wave endsSIGKILL with zero observed test starts/reports/finishes and noJUnit/final observer/session finish; all1249 recorded predicates remainUNRUN.",
+    "Source integrity/collected IDs/current function bodies/old assertion preservation cannot replace actual completed defining native or composed consumer verification.",
+    "Five actual original positive/law/authority inputs remain unreceived; requested_canonical_owner is not appointed authority and all unknown minimum refs staynull.",
+    "Additional A default/foreign context, B two-key/API/history adoption, E mutable-cardinality and scientific fiscal-issuer contracts remain separately scoped; they do not rewrite finite original criteria.",
+    "Earlier targeted runtime sources and original15lineages/617 executions are not relabeled as new258 execution. P41 inherited attribution isnot_established.",
+    "Immutable2e0a root profile locator points to8391 proof commit where receipt path absent; canonical actual profile receipt6a is used here. Root confirmed append-only correction; actual148 runtime unchanged.",
+    "Independent final45/46 acceptance review and numerical root audit publication are parent-owned and may be appended separately; no unreceived review verdict is invented."
+  ],
+  "next_owner": "Root/G composed acceptance and canonical named producer/API/bridge owners; final reviewer reads exact implementation SHA before root metadata merge.",
+  "actions": {
+    "backend_runs": 0,
+    "children": 0,
+    "tracked_source_test_root_writes": 0,
+    "new_checkouts_worktrees": 0,
+    "cleanup_deletion": 0
+  }
+}

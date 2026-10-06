@@ -53,6 +53,9 @@ class SearchRunState:
     budget_spent: float = 0.0
     budget_available: bool = False
     budget_snapshot: dict[str, float] = field(default_factory=dict)
+    budget_snapshot_source: str = "unavailable"
+    budget_ledger_id: str | None = None
+    budget_ledger_revision: int | None = None
     policy_evaluation_errors: int = 0
     generation_transition: GenerationTransition | None = None
     pareto_projection: ParetoViewProjection | None = None

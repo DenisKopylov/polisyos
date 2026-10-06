@@ -13,6 +13,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError,
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedger,
     BudgetLedgerMutationResult,
+    BudgetLedgerSnapshot,
     BudgetResourceEvent,
     BudgetResourceReservation,
 )
@@ -163,3 +164,10 @@ class BudgetMiddleware:
         if self._ledger is None:
             raise ValueError("measured resource accounting requires a persisted budget ledger")
         return self._ledger
+
+    def resource_snapshot(self) -> BudgetLedgerSnapshot:
+        """Return the existing persisted owner's detached resource accounting snapshot."""
+        with self._lock:
+            snapshot = self._resource_ledger().snapshot()
+            self._budget = snapshot.state
+            return snapshot

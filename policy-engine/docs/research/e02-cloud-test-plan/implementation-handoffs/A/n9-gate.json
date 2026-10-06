@@ -156,5 +156,57 @@
       "n9-gate/run-output.txt",
       "n9-gate/test_cyc_02_n9.py"
     ]
+  },
+  "current_candidate_addendum": {
+    "supersedes_historical_evidence_for_affected_consumer_only": true,
+    "implementation_commit": "41d0f31561ea6ab63821dc3096bf55be207c94de",
+    "implementation_commit_scope": "Adds the canonical integration witness only; no runtime production source changed.",
+    "test_source": {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_n9_refusal.py",
+      "git_blob": "248b1c2c115fbf0cb3a15c7d883acc40067e7684",
+      "sha256": "48595d5d42806c699de72f932a19049b9fd928dabcba17a54f340fbba2f4c721"
+    },
+    "candidate": {
+      "branch": "codex/e02-A-n5-verify-current",
+      "commit": "6993641ac6f879b676a48378b52c8743bd138a95",
+      "tree": "a8e37dff9320c28288a5d9ba3a217216696065dd"
+    },
+    "check": {
+      "outcome": "PASS",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/cyc-n9-wave-6993/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/cyc-n9-wave-6993/junit.xml tests/unit/remediation/test_cyc_02.py tests/integration/core_runtime/test_e02_n9_refusal.py",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+      "exit_code": 0,
+      "tests": 16,
+      "passed": 16,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "suite_seconds": 91.552,
+      "wall_seconds": 95.66357520897873,
+      "n9_case_seconds": 35.397,
+      "junit_timestamp": "2026-10-06T17:57:44.726234+03:00",
+      "environment_and_complete_input_identity": "current-wave-6993/environment-and-inputs.json@sha256:5fc30a012bebde51cecc45de3ab81503a09065291e5fbf9dd08c4bd187ede3e2",
+      "stdout": "current-wave-6993/stdout.txt@sha256:d0313c2a55413d2843ccb2301be8987284a9bee0542b3dd7ca2b54831698a386 (5251 bytes)",
+      "stderr": "current-wave-6993/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 (0 bytes)",
+      "junit": "current-wave-6993/junit.xml@sha256:0a7683735b6c0e4d3faa0f31ef404c1efc41ab62fd4de4fb8dd60698b91915d6 (2569 bytes)"
+    },
+    "behavior_asserted_by_integration_test": {
+      "n5": "Owner-selected NCM passed through the actual N5 port with the canonical HorizonSpec(start=0,end=0,step=1); result persisted and reopened with K_sim uncertainty.",
+      "n8": "Actual default N8 returned value_conditional/simulate_only/low, preserved the N5 result ref and simulation-only blocker, and carried no ValueGateReceipt.",
+      "production_pre_n9": "Actual GenerationCycleController production gate was invoked once and refused policy_admission_missing; controller CanonicalN9 call count remained zero after that refusal.",
+      "public_n9_test_only_admission": "The existing explicitly test-only admission fixture reached public CanonicalN9PromotionPort twice; both calls returned not_promoted with failed n8_value obligation because N8 ValueGateReceipt was missing.",
+      "r1_remove_ksim_bytes": "The second direct N9 call denied reads of the exact N5 artifact; attempted N5 reads remained zero and status, value obligation, and refusal reasons matched baseline.",
+      "production_signed_currentness_positive": false
+    },
+    "disposition": {
+      "B05": "limited; verification_missing remains because no genuine production signed/currentness positive control was available. The actual production pre-N9 gate short-circuited on missing policy admission.",
+      "B08": "limited; actual N5 to conditional N8 path is verified, but this does not establish an empirical-negative through the downstream consumer or the ordinary served route.",
+      "property_divergence": "For the exercised public-N9 refusal branch, the missing N8 ValueGateReceipt determines the result; denying K_sim bytes does not change it. This bounds the observed branch and does not establish N9 behavior after the early value refusal or prove a production N9 defect."
+    },
+    "ownership_boundary": {
+      "A_consumer": "A owns the CYC-02 public cycle consumer and the N5/N8/N9 integration witness.",
+      "B_RES03": "B owns the CYC-02 to RES-03 async executor/checkpoint producer contract; it is result-lifecycle evidence, not an N9 currentness issuer.",
+      "missing_owner_input": "No genuine production N9 signed/currentness issuer and bound positive receipt was supplied; do not synthesize one from the test-only appointment or B154 CAS signature-completeness contract."
+    }
   }
 }

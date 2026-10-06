@@ -1,0 +1,3658 @@
+{
+  "archive_member_scan": [
+    {
+      "blob": "3771e76be29036eb71470a783e813e3191afd5af",
+      "member_count": 1612,
+      "path": "policy-engine/design/atlas-v15/PolicyOS_Atlas_Design_System-15_Best_in_Class_Readiness.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "9b81b16110f9b32c5cb8c4b28ce6715a8ae9427e",
+      "member_count": 18,
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/references/PolicyOS_E02_Architecture_Decisions_2026-10-01.docx",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "602715473af0a73d868be02da5076cf9443a46ac",
+      "member_count": 121,
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/parent/E01_launch_kit.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "245b407846b22852e6409374f748dbae33a09c0c",
+      "member_count": 42,
+      "path": "policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-3e479--admitted-growth-adds-pages-chromium/trace.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "862426e285457d2344f65afaf8d411c8383179a1",
+      "member_count": 88,
+      "path": "policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-6953b-iew-and-report-paper-egress-chromium/trace.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "0d2294ad0df9a1af6c70438d862162dc0500c434",
+      "member_count": 44,
+      "path": "policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-9b382-r-bounded-identity-A4-print-chromium/trace.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "5a22edb9090832bd2b786f3711bac663a3e251bb",
+      "member_count": 73,
+      "path": "policy-engine/docs/superpowers/journals/receipts/2026-09-01-debt-p-dashboard-evidence/c13-passing/run-1/runtime-dashboard.visual-r-6953b-iew-and-report-paper-egress-chromium/trace.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "6f6cf1c13469c84c705ec6e0f9bbbf9f69f96488",
+      "member_count": 72,
+      "path": "policy-engine/docs/superpowers/journals/receipts/2026-09-01-debt-p-dashboard-evidence/c13/run-1/runtime-dashboard.visual-r-6953b-iew-and-report-paper-egress-chromium/trace.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "81b9019f9bd870f1e785ac36f07269f81c249ed0",
+      "member_count": 41,
+      "path": "policy-engine/docs/superpowers/journals/receipts/2026-09-01-debt-p-dashboard-evidence/c13/run-1/runtime-dashboard.visual-r-9b382-r-bounded-identity-A4-print-chromium/trace.zip",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    },
+    {
+      "blob": "9af70f7c287bbbd0bf4ca1d3fa68653d68f3c449",
+      "member_count": 62,
+      "path": "policy-engine/vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl",
+      "uncertainty_envelope_marker_members": [],
+      "v1_1_envelope_shape_marker_members": []
+    }
+  ],
+  "complete_tracked_file_denominator": {
+    "complete_suffix_inventory": {
+      ".blob": {
+        "distinct_git_blob_bytes": 13958,
+        "distinct_git_blobs": 11,
+        "distinct_paths": 11,
+        "path_blob_version_bytes": 13958,
+        "path_blob_versions": 11
+      },
+      ".cfg": {
+        "distinct_git_blob_bytes": 260,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 260,
+        "path_blob_versions": 1
+      },
+      ".cjs": {
+        "distinct_git_blob_bytes": 33070,
+        "distinct_git_blobs": 9,
+        "distinct_paths": 9,
+        "path_blob_version_bytes": 33070,
+        "path_blob_versions": 9
+      },
+      ".css": {
+        "distinct_git_blob_bytes": 119644,
+        "distinct_git_blobs": 17,
+        "distinct_paths": 17,
+        "path_blob_version_bytes": 119644,
+        "path_blob_versions": 17
+      },
+      ".csv": {
+        "distinct_git_blob_bytes": 537790,
+        "distinct_git_blobs": 15,
+        "distinct_paths": 15,
+        "path_blob_version_bytes": 537790,
+        "path_blob_versions": 15
+      },
+      ".cypher": {
+        "distinct_git_blob_bytes": 734,
+        "distinct_git_blobs": 2,
+        "distinct_paths": 2,
+        "path_blob_version_bytes": 734,
+        "path_blob_versions": 2
+      },
+      ".docx": {
+        "distinct_git_blob_bytes": 112216,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 112216,
+        "path_blob_versions": 1
+      },
+      ".duckdb": {
+        "distinct_git_blob_bytes": 169,
+        "distinct_git_blobs": 4,
+        "distinct_paths": 4,
+        "path_blob_version_bytes": 169,
+        "path_blob_versions": 4
+      },
+      ".example": {
+        "distinct_git_blob_bytes": 1597,
+        "distinct_git_blobs": 3,
+        "distinct_paths": 3,
+        "path_blob_version_bytes": 1597,
+        "path_blob_versions": 3
+      },
+      ".fixture": {
+        "distinct_git_blob_bytes": 45905,
+        "distinct_git_blobs": 2,
+        "distinct_paths": 2,
+        "path_blob_version_bytes": 45905,
+        "path_blob_versions": 2
+      },
+      ".gz": {
+        "distinct_git_blob_bytes": 45655201,
+        "distinct_git_blobs": 32,
+        "distinct_paths": 36,
+        "path_blob_version_bytes": 45655281,
+        "path_blob_versions": 36
+      },
+      ".html": {
+        "distinct_git_blob_bytes": 36093,
+        "distinct_git_blobs": 3,
+        "distinct_paths": 3,
+        "path_blob_version_bytes": 36093,
+        "path_blob_versions": 3
+      },
+      ".ini": {
+        "distinct_git_blob_bytes": 74930,
+        "distinct_git_blobs": 11,
+        "distinct_paths": 11,
+        "path_blob_version_bytes": 74930,
+        "path_blob_versions": 11
+      },
+      ".js": {
+        "distinct_git_blob_bytes": 42139,
+        "distinct_git_blobs": 4,
+        "distinct_paths": 4,
+        "path_blob_version_bytes": 42139,
+        "path_blob_versions": 4
+      },
+      ".json": {
+        "distinct_git_blob_bytes": 247633243,
+        "distinct_git_blobs": 3711,
+        "distinct_paths": 3819,
+        "path_blob_version_bytes": 250868036,
+        "path_blob_versions": 3834
+      },
+      ".jsonc": {
+        "distinct_git_blob_bytes": 572,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 572,
+        "path_blob_versions": 1
+      },
+      ".jsonl": {
+        "distinct_git_blob_bytes": 4723023,
+        "distinct_git_blobs": 15,
+        "distinct_paths": 15,
+        "path_blob_version_bytes": 4723023,
+        "path_blob_versions": 15
+      },
+      ".lock": {
+        "distinct_git_blob_bytes": 957936,
+        "distinct_git_blobs": 3,
+        "distinct_paths": 3,
+        "path_blob_version_bytes": 957936,
+        "path_blob_versions": 3
+      },
+      ".log": {
+        "distinct_git_blob_bytes": 605752,
+        "distinct_git_blobs": 36,
+        "distinct_paths": 36,
+        "path_blob_version_bytes": 605752,
+        "path_blob_versions": 36
+      },
+      ".md": {
+        "distinct_git_blob_bytes": 70161895,
+        "distinct_git_blobs": 2206,
+        "distinct_paths": 2177,
+        "path_blob_version_bytes": 70212302,
+        "path_blob_versions": 2208
+      },
+      ".mdc": {
+        "distinct_git_blob_bytes": 1767,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 1767,
+        "path_blob_versions": 1
+      },
+      ".mjs": {
+        "distinct_git_blob_bytes": 388632,
+        "distinct_git_blobs": 40,
+        "distinct_paths": 40,
+        "path_blob_version_bytes": 388632,
+        "path_blob_versions": 40
+      },
+      ".patch": {
+        "distinct_git_blob_bytes": 9729,
+        "distinct_git_blobs": 3,
+        "distinct_paths": 3,
+        "path_blob_version_bytes": 9729,
+        "path_blob_versions": 3
+      },
+      ".pkl": {
+        "distinct_git_blob_bytes": 2311,
+        "distinct_git_blobs": 2,
+        "distinct_paths": 2,
+        "path_blob_version_bytes": 2311,
+        "path_blob_versions": 2
+      },
+      ".png": {
+        "distinct_git_blob_bytes": 15935022,
+        "distinct_git_blobs": 40,
+        "distinct_paths": 42,
+        "path_blob_version_bytes": 16371092,
+        "path_blob_versions": 42
+      },
+      ".py": {
+        "distinct_git_blob_bytes": 105346767,
+        "distinct_git_blobs": 6677,
+        "distinct_paths": 6625,
+        "path_blob_version_bytes": 105358611,
+        "path_blob_versions": 6764
+      },
+      ".pyi": {
+        "distinct_git_blob_bytes": 18338,
+        "distinct_git_blobs": 5,
+        "distinct_paths": 5,
+        "path_blob_version_bytes": 18338,
+        "path_blob_versions": 5
+      },
+      ".rego": {
+        "distinct_git_blob_bytes": 38559,
+        "distinct_git_blobs": 17,
+        "distinct_paths": 23,
+        "path_blob_version_bytes": 45771,
+        "path_blob_versions": 23
+      },
+      ".reproducible": {
+        "distinct_git_blob_bytes": 3494,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 3494,
+        "path_blob_versions": 1
+      },
+      ".retired": {
+        "distinct_git_blob_bytes": 345,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 345,
+        "path_blob_versions": 1
+      },
+      ".sh": {
+        "distinct_git_blob_bytes": 146015,
+        "distinct_git_blobs": 46,
+        "distinct_paths": 46,
+        "path_blob_version_bytes": 146015,
+        "path_blob_versions": 46
+      },
+      ".sha256": {
+        "distinct_git_blob_bytes": 2990,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 2990,
+        "path_blob_versions": 1
+      },
+      ".sql": {
+        "distinct_git_blob_bytes": 24179,
+        "distinct_git_blobs": 6,
+        "distinct_paths": 6,
+        "path_blob_version_bytes": 24179,
+        "path_blob_versions": 6
+      },
+      ".sqlite": {
+        "distinct_git_blob_bytes": 4096,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 2,
+        "path_blob_version_bytes": 8192,
+        "path_blob_versions": 2
+      },
+      ".sqlite-wal": {
+        "distinct_git_blob_bytes": 255504,
+        "distinct_git_blobs": 2,
+        "distinct_paths": 2,
+        "path_blob_version_bytes": 255504,
+        "path_blob_versions": 2
+      },
+      ".stderr": {
+        "distinct_git_blob_bytes": 15177,
+        "distinct_git_blobs": 21,
+        "distinct_paths": 118,
+        "path_blob_version_bytes": 15177,
+        "path_blob_versions": 118
+      },
+      ".stdout": {
+        "distinct_git_blob_bytes": 3329194,
+        "distinct_git_blobs": 84,
+        "distinct_paths": 111,
+        "path_blob_version_bytes": 3358810,
+        "path_blob_versions": 111
+      },
+      ".svg": {
+        "distinct_git_blob_bytes": 8775,
+        "distinct_git_blobs": 18,
+        "distinct_paths": 18,
+        "path_blob_version_bytes": 8775,
+        "path_blob_versions": 18
+      },
+      ".tf": {
+        "distinct_git_blob_bytes": 1675,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 1675,
+        "path_blob_versions": 1
+      },
+      ".tmpl": {
+        "distinct_git_blob_bytes": 6551,
+        "distinct_git_blobs": 7,
+        "distinct_paths": 7,
+        "path_blob_version_bytes": 6551,
+        "path_blob_versions": 7
+      },
+      ".toml": {
+        "distinct_git_blob_bytes": 1862599,
+        "distinct_git_blobs": 303,
+        "distinct_paths": 299,
+        "path_blob_version_bytes": 1862599,
+        "path_blob_versions": 303
+      },
+      ".tpl": {
+        "distinct_git_blob_bytes": 729,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 729,
+        "path_blob_versions": 1
+      },
+      ".ts": {
+        "distinct_git_blob_bytes": 4818317,
+        "distinct_git_blobs": 519,
+        "distinct_paths": 519,
+        "path_blob_version_bytes": 4818317,
+        "path_blob_versions": 519
+      },
+      ".tsv": {
+        "distinct_git_blob_bytes": 772852,
+        "distinct_git_blobs": 6,
+        "distinct_paths": 6,
+        "path_blob_version_bytes": 772852,
+        "path_blob_versions": 6
+      },
+      ".tsx": {
+        "distinct_git_blob_bytes": 3393028,
+        "distinct_git_blobs": 720,
+        "distinct_paths": 720,
+        "path_blob_version_bytes": 3393028,
+        "path_blob_versions": 720
+      },
+      ".txt": {
+        "distinct_git_blob_bytes": 8905950,
+        "distinct_git_blobs": 467,
+        "distinct_paths": 638,
+        "path_blob_version_bytes": 8951070,
+        "path_blob_versions": 638
+      },
+      ".typed": {
+        "distinct_git_blob_bytes": 1,
+        "distinct_git_blobs": 2,
+        "distinct_paths": 2,
+        "path_blob_version_bytes": 1,
+        "path_blob_versions": 2
+      },
+      ".webm": {
+        "distinct_git_blob_bytes": 2533664,
+        "distinct_git_blobs": 6,
+        "distinct_paths": 6,
+        "path_blob_version_bytes": 2533664,
+        "path_blob_versions": 6
+      },
+      ".whl": {
+        "distinct_git_blob_bytes": 162367,
+        "distinct_git_blobs": 1,
+        "distinct_paths": 1,
+        "path_blob_version_bytes": 162367,
+        "path_blob_versions": 1
+      },
+      ".xml": {
+        "distinct_git_blob_bytes": 604527,
+        "distinct_git_blobs": 43,
+        "distinct_paths": 43,
+        "path_blob_version_bytes": 604527,
+        "path_blob_versions": 43
+      },
+      ".yaml": {
+        "distinct_git_blob_bytes": 815429,
+        "distinct_git_blobs": 78,
+        "distinct_paths": 85,
+        "path_blob_version_bytes": 834217,
+        "path_blob_versions": 85
+      },
+      ".yml": {
+        "distinct_git_blob_bytes": 265328,
+        "distinct_git_blobs": 71,
+        "distinct_paths": 71,
+        "path_blob_version_bytes": 265328,
+        "path_blob_versions": 71
+      },
+      ".zip": {
+        "distinct_git_blob_bytes": 14826464,
+        "distinct_git_blobs": 8,
+        "distinct_paths": 8,
+        "path_blob_version_bytes": 14826464,
+        "path_blob_versions": 8
+      },
+      "[no suffix]": {
+        "distinct_git_blob_bytes": 38779,
+        "distinct_git_blobs": 24,
+        "distinct_paths": 30,
+        "path_blob_version_bytes": 38833,
+        "path_blob_versions": 30
+      }
+    },
+    "distinct_git_blob_bytes": 535222757,
+    "distinct_git_blobs": 15285,
+    "distinct_paths": 15654,
+    "path_blob_version_bytes": 539133361,
+    "path_blob_versions": 15843,
+    "suffix_counts_by_path_blob_version": {
+      ".blob": 11,
+      ".cfg": 1,
+      ".cjs": 9,
+      ".css": 17,
+      ".csv": 15,
+      ".cypher": 2,
+      ".docx": 1,
+      ".duckdb": 4,
+      ".example": 3,
+      ".fixture": 2,
+      ".gz": 36,
+      ".html": 3,
+      ".ini": 11,
+      ".js": 4,
+      ".json": 3834,
+      ".jsonc": 1,
+      ".jsonl": 15,
+      ".lock": 3,
+      ".log": 36,
+      ".md": 2208,
+      ".mdc": 1,
+      ".mjs": 40,
+      ".patch": 3,
+      ".pkl": 2,
+      ".png": 42,
+      ".py": 6764,
+      ".pyi": 5,
+      ".rego": 23,
+      ".reproducible": 1,
+      ".retired": 1,
+      ".sh": 46,
+      ".sha256": 1,
+      ".sql": 6,
+      ".sqlite": 2,
+      ".sqlite-wal": 2,
+      ".stderr": 118,
+      ".stdout": 111,
+      ".svg": 18,
+      ".tf": 1,
+      ".tmpl": 7,
+      ".toml": 303,
+      ".tpl": 1,
+      ".ts": 519,
+      ".tsv": 6,
+      ".tsx": 720,
+      ".txt": 638,
+      ".typed": 2,
+      ".webm": 6,
+      ".whl": 1,
+      ".xml": 43,
+      ".yaml": 85,
+      ".yml": 71,
+      ".zip": 8,
+      "[no suffix]": 30
+    }
+  },
+  "database_and_opaque_serialized_path_versions": [
+    {
+      "blob": "4d0f4d75c0c482c3485d3529b474a8f56497a2ca",
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/checkpoint.sqlite",
+      "suffix": ".sqlite"
+    },
+    {
+      "blob": "b57d89d511a3f90e8511ae9e676f458250c11b54",
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/checkpoint.sqlite-wal",
+      "suffix": ".sqlite-wal"
+    },
+    {
+      "blob": "4d0f4d75c0c482c3485d3529b474a8f56497a2ca",
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/minimax-throughput-primary/concurrency-1/checkpoint.sqlite",
+      "suffix": ".sqlite"
+    },
+    {
+      "blob": "9550bde895e205438d43b8226ce6299e02b1108c",
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/minimax-throughput-primary/concurrency-1/checkpoint.sqlite-wal",
+      "suffix": ".sqlite-wal"
+    },
+    {
+      "blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "path": "policy-engine/src/polisyos/data_forge/py.typed",
+      "suffix": ".typed"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/src/polisyos/py.typed",
+      "suffix": ".typed"
+    },
+    {
+      "blob": "cf773119d403e00296050b3956518f584ebbc3a4",
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/academic/graph/scholar_knowledge.duckdb",
+      "suffix": ".duckdb"
+    },
+    {
+      "blob": "9efa44f6fdd6788915eac80b7bca8e4a1bad6798",
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/academic_candidate/graph/scholar_knowledge.duckdb",
+      "suffix": ".duckdb"
+    },
+    {
+      "blob": "bd43c0a3b9c03987f0059528ede81352b376fbe9",
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/catalog/graph/dataset_catalog.duckdb",
+      "suffix": ".duckdb"
+    },
+    {
+      "blob": "c31c8e505b8a0c927a23f14acb23d210fdb6d7ad",
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/catalog_candidate/graph/dataset_catalog.duckdb",
+      "suffix": ".duckdb"
+    },
+    {
+      "blob": "74de2a3f00c83336c14645344496bd9a6430e2dc",
+      "path": "policy-engine/tests/unit/runtime/quality/fixtures/generation_cycle_controller_v3.json.fixture",
+      "suffix": ".fixture"
+    },
+    {
+      "blob": "e6761602fa3ded710ec05f3483d744f9c45ad8b6",
+      "path": "policy-engine/tests/unit/runtime/quality/fixtures/generation_cycle_controller_v3_identity.json.fixture",
+      "suffix": ".fixture"
+    }
+  ],
+  "distinct_tree_count": 21,
+  "embedded_json_v1_1_envelope_objects": [
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": null,
+      "blob": "8c043060d5f8d21aa545d99af5fde956f6067320",
+      "confidence_interval": [
+        1.826502319056,
+        2.205767540673
+      ],
+      "confidence_level": 0.95,
+      "embedded_source": "line:14",
+      "execution_evidence_authority": "execution_reproducibility_only",
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "json_pointer": "/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-witness.txt",
+      "persisted_result_ref": {
+        "artifact_id": "sha256:34f0db6b5444f7fd865bc3257759a9b842b8dd49bb3dd0e4ba145b882a2febdc",
+        "kind": "scientist.method_result.causal.inference",
+        "media_type": "application/json"
+      },
+      "point_estimate": 2.016134929865,
+      "production_value_eligible": null,
+      "proof_scope": null,
+      "report_authoritative_for": null,
+      "report_authority": "candidate_computation_only",
+      "report_authority_purpose": null,
+      "report_execution_profile": "dowhy-014",
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": "declared graph; IID full-rank constant-effect Gaussian linear profile",
+      "schema_version": "1.1",
+      "scientific_authority": "not_established",
+      "source": "causal",
+      "source_ref": {
+        "artifact_id": "sha256:602a8b50802419fae8a23eba69ee241a21099c0f4fb7aa34f038902725fc0cd3",
+        "kind": "tests.graph_causal_data",
+        "media_type": "application/json"
+      },
+      "status": null
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": null,
+      "blob": "636fa1177378dcd300f32685ca5796cac7c19107",
+      "confidence_interval": [
+        1.826502319056,
+        2.205767540673
+      ],
+      "confidence_level": 0.95,
+      "embedded_source": "line:14",
+      "execution_evidence_authority": "execution_reproducibility_only",
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "json_pointer": "/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-witness.txt",
+      "persisted_result_ref": {
+        "artifact_id": "sha256:7f2dbbca1d14c2d1bbc491c0b1da5290896319f35dd889cfcc4947517d230145",
+        "kind": "scientist.method_result.causal.inference",
+        "media_type": "application/json"
+      },
+      "point_estimate": 2.016134929865,
+      "production_value_eligible": null,
+      "proof_scope": null,
+      "report_authoritative_for": null,
+      "report_authority": "candidate_computation_only",
+      "report_authority_purpose": null,
+      "report_execution_profile": "dowhy-014",
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": "declared graph; IID full-rank constant-effect Gaussian linear profile",
+      "schema_version": "1.1",
+      "scientific_authority": "not_established",
+      "source": "causal",
+      "source_ref": {
+        "artifact_id": "sha256:602a8b50802419fae8a23eba69ee241a21099c0f4fb7aa34f038902725fc0cd3",
+        "kind": "tests.graph_causal_data",
+        "media_type": "application/json"
+      },
+      "status": null
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": null,
+      "blob": "77448d693b11b16bad44b69ada32b97aa6109118",
+      "confidence_interval": [
+        1.826502319056,
+        2.205767540673
+      ],
+      "confidence_level": 0.95,
+      "embedded_source": "line:14",
+      "execution_evidence_authority": "execution_reproducibility_only",
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "json_pointer": "/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numerical-witness.txt",
+      "persisted_result_ref": {
+        "artifact_id": "sha256:4028b90140965f3b2f62a10172094a95cc9fd079823388630d5d4f9834b5c044",
+        "kind": "scientist.method_result.causal.inference",
+        "media_type": "application/json"
+      },
+      "point_estimate": 2.016134929865,
+      "production_value_eligible": null,
+      "proof_scope": null,
+      "report_authoritative_for": null,
+      "report_authority": "candidate_computation_only",
+      "report_authority_purpose": null,
+      "report_execution_profile": "dowhy-014",
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": "declared graph; IID full-rank constant-effect Gaussian linear profile",
+      "schema_version": "1.1",
+      "scientific_authority": "not_established",
+      "source": "causal",
+      "source_ref": {
+        "artifact_id": "sha256:602a8b50802419fae8a23eba69ee241a21099c0f4fb7aa34f038902725fc0cd3",
+        "kind": "tests.graph_causal_data",
+        "media_type": "application/json"
+      },
+      "status": null
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": null,
+      "blob": "b6c8f23dfc5a189e948b978ea4b408d057bfe98b",
+      "confidence_interval": [
+        1.826502319056,
+        2.205767540673
+      ],
+      "confidence_level": 0.95,
+      "embedded_source": "line:14",
+      "execution_evidence_authority": "execution_reproducibility_only",
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "json_pointer": "/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
+      "persisted_result_ref": {
+        "artifact_id": "sha256:34f0db6b5444f7fd865bc3257759a9b842b8dd49bb3dd0e4ba145b882a2febdc",
+        "kind": "scientist.method_result.causal.inference",
+        "media_type": "application/json"
+      },
+      "point_estimate": 2.016134929865,
+      "production_value_eligible": null,
+      "proof_scope": null,
+      "report_authoritative_for": null,
+      "report_authority": "candidate_computation_only",
+      "report_authority_purpose": null,
+      "report_execution_profile": "dowhy-014",
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": "declared graph; IID full-rank constant-effect Gaussian linear profile",
+      "schema_version": "1.1",
+      "scientific_authority": "not_established",
+      "source": "causal",
+      "source_ref": {
+        "artifact_id": "sha256:602a8b50802419fae8a23eba69ee241a21099c0f4fb7aa34f038902725fc0cd3",
+        "kind": "tests.graph_causal_data",
+        "media_type": "application/json"
+      },
+      "status": null
+    }
+  ],
+  "gzip_source_scan": [
+    {
+      "blob": "af78400131ea3929590aec39bbfb26102c9cce3d",
+      "compressed_bytes": 6004399,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/production-invocation.raw.json.gz",
+      "uncompressed_size_from_gzip_trailer": 171393890
+    },
+    {
+      "blob": "bfec12513268018fd30b9ed9bc899b7e851b0e74",
+      "compressed_bytes": 9156,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 118097,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.stdout.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 118097,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "30996368e3efa2b342001e5975b92f0a439d3067",
+      "compressed_bytes": 230763,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 763813,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings.json.gz",
+      "uncompressed_size_from_gzip_trailer": 763813,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "0ce0e2cae7f4f058d6f50179a29d893acf8a0c2e",
+      "compressed_bytes": 55602,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 1270378,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census-candidate.json.gz",
+      "uncompressed_size_from_gzip_trailer": 1270378,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "800b3a02f7411e04eac567a2328f574d9b56dd7d",
+      "compressed_bytes": 13123,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 184777,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed-proof.json.gz",
+      "uncompressed_size_from_gzip_trailer": 184777,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "714a719a5226b2f08b405bde3f11da07b8ad4453",
+      "compressed_bytes": 13126,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 184777,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed-proof.json.gz",
+      "uncompressed_size_from_gzip_trailer": 184777,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "a6b54b76f12ac89014ab0aa53c8e7752e3b37d54",
+      "compressed_bytes": 5997252,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006/raw/final-invocation.raw.json.gz",
+      "uncompressed_size_from_gzip_trailer": 171072626
+    },
+    {
+      "blob": "67eaeb62b9e7db52f73aa5523e922567ac36a56a",
+      "compressed_bytes": 5987375,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.json.gz",
+      "uncompressed_size_from_gzip_trailer": 170902551
+    },
+    {
+      "blob": "9bf27d5eaddc5e4bbd09a65dad317d240a4ca16c",
+      "compressed_bytes": 1754,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 10143,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.xml.raw.gz",
+      "uncompressed_size_from_gzip_trailer": 10143,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "498f9aeafa52d1df388b01e8f0ca4b25dc98d70d",
+      "compressed_bytes": 2998,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 41541,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.xml.raw.gz",
+      "uncompressed_size_from_gzip_trailer": 41541,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "eb5ab2d922c5912265299ddd8086f83020896e42",
+      "compressed_bytes": 3104,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 104323,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.txt.raw.gz",
+      "uncompressed_size_from_gzip_trailer": 104323,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "2dfa7f0ba579be83722970da5473a169473bf354",
+      "compressed_bytes": 1283,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 4926,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.txt.raw.gz",
+      "uncompressed_size_from_gzip_trailer": 4926,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "7daa6a67b4f94829d8e1f57a374efc9baa72ed9c",
+      "compressed_bytes": 1469,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 5030,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.txt.raw.gz",
+      "uncompressed_size_from_gzip_trailer": 5030,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "b1625d648a8c4603249b5a822a5ec5b33b6f1175",
+      "compressed_bytes": 1328,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 4654,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.txt.raw.gz",
+      "uncompressed_size_from_gzip_trailer": 4654,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "16e97b049c9625da33282728fb4b330e65312ee9",
+      "compressed_bytes": 942,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 4125,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.txt.raw.gz",
+      "uncompressed_size_from_gzip_trailer": 4125,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "262a405ab7b2ceb082a748f6107709eb33925cdc",
+      "compressed_bytes": 1567719,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/published-protocol-audit.json.gz",
+      "uncompressed_size_from_gzip_trailer": 23635982
+    },
+    {
+      "blob": "88cc709a1345739c4bce18476666b9730d3b63df",
+      "compressed_bytes": 5985614,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.raw.json.gz",
+      "uncompressed_size_from_gzip_trailer": 170879136
+    },
+    {
+      "blob": "33e1516cca9d236fc21475b8584c203e23b48c43",
+      "compressed_bytes": 1735,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 3831,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/B220-card.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 3831,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "a17fa17b9300df8937bd659720db9b7f86638826",
+      "compressed_bytes": 265751,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 1368033,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/archive-source-bindings.json.gz",
+      "uncompressed_size_from_gzip_trailer": 1368033,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "93b9f0b70bb5429ccdc909616f20f16f8dac61e0",
+      "compressed_bytes": 344106,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 2462440,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/installed-source-bindings.json.gz",
+      "uncompressed_size_from_gzip_trailer": 2462440,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "80a80a6349dc85f96ef54e9ec056aa9d87d95e1b",
+      "compressed_bytes": 1095,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 2976,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/wheel-b220-remove-freeze.stdout.gz",
+      "uncompressed_size_from_gzip_trailer": 2976,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "f463f7b20a5edde15473e75b2b34ced00b5abc76",
+      "compressed_bytes": 1208,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 3106,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/wheel-b220-remove-rows.stdout.gz",
+      "uncompressed_size_from_gzip_trailer": 3106,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "4bfc17dc2ce675a7d3088947c7ac4389a3c2977d",
+      "compressed_bytes": 564783,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 3390541,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/full-source-archive-installed-bindings.json.gz",
+      "uncompressed_size_from_gzip_trailer": 3390541,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "dec38a0a086ab2dda71ea13050eda849031cc784",
+      "compressed_bytes": 265764,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 1368045,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive-source-bindings.json.gz",
+      "uncompressed_size_from_gzip_trailer": 1368045,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "3ff5432f801c407a6098ea2bfa47f6915ba033eb",
+      "compressed_bytes": 344152,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 2462440,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed-source-bindings.json.gz",
+      "uncompressed_size_from_gzip_trailer": 2462440,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "30ddcdb6422877d1ca0155b0544b87db14ebbd5f",
+      "compressed_bytes": 5994183,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/production-invocation-report.json.gz",
+      "uncompressed_size_from_gzip_trailer": 171016994
+    },
+    {
+      "blob": "a93703ed8367490c318910328133c2b78b42f046",
+      "compressed_bytes": 5984903,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/invocation.json.gz",
+      "uncompressed_size_from_gzip_trailer": 170873422
+    },
+    {
+      "blob": "19faae26cfc5296c5272ea6cbfa00faa235078bb",
+      "compressed_bytes": 5985485,
+      "content_scan": "UNRUN; large compressed source left opaque during this review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.raw.json.gz",
+      "uncompressed_size_from_gzip_trailer": 170878325
+    },
+    {
+      "blob": "d4b9926df0b7defceb6caf0b474c4a190c5ca8f0",
+      "compressed_bytes": 20,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 0,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stderr.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 0,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "7fcd8e77bdbb6fc469eb894649dbf3bb624ea01f",
+      "compressed_bytes": 9157,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 118099,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stdout.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 118099,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "d4b9926df0b7defceb6caf0b474c4a190c5ca8f0",
+      "compressed_bytes": 20,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 0,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.stderr.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 0,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "b6404fa7d739211f0521055808aeb0363786133c",
+      "compressed_bytes": 7928,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 1011946,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.stdout.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 1011946,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "d4b9926df0b7defceb6caf0b474c4a190c5ca8f0",
+      "compressed_bytes": 20,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 0,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-release.stderr.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 0,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "9f8d51dccdcaf19a3fb00c8bad6603da20b3a893",
+      "compressed_bytes": 7924,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 1011946,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-release.stdout.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 1011946,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "d4b9926df0b7defceb6caf0b474c4a190c5ca8f0",
+      "compressed_bytes": 20,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 0,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.stderr.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 0,
+      "v1_1_envelope_shapes": []
+    },
+    {
+      "blob": "d4b9926df0b7defceb6caf0b474c4a190c5ca8f0",
+      "compressed_bytes": 20,
+      "content_scan": "scanned; bounded to at most 5 MB by trailer size",
+      "decompressed_bytes": 0,
+      "marker_present": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.stdout.txt.gz",
+      "uncompressed_size_from_gzip_trailer": 0,
+      "v1_1_envelope_shapes": []
+    }
+  ],
+  "interpretation": "This is a source/path inventory, not an authority oracle. Owner appointment and ratification require explicit tracked declaration by the appointed owner; keyword presence, status adjacency, and source shape do not establish either.",
+  "json": {
+    "malformed_versions": [],
+    "parsed_versions": 3834,
+    "path_blob_versions": 3834
+  },
+  "jsonl": {
+    "malformed_records": [],
+    "parsed_records": 6049,
+    "path_blob_versions": 15
+  },
+  "opaque_serialized_byte_scan": [
+    {
+      "blob": "eb8ef26878d46d696a3fddbc2e168bb1db438faf",
+      "content_bytes": 1084,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "d8c7d645920bd8dc2d3661857b587c0d3e48aec7",
+      "content_bytes": 85,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "59a9af577f26e72f79c4b6541372630452eb53c6",
+      "content_bytes": 756,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "a7f53d3e25b4a4fd7fd3729362940fbdd76f6b83",
+      "content_bytes": 514,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "ea8e1d06369dace35cb2faab509699ab2acb7ffd",
+      "content_bytes": 1893,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "b0e8abe482319d9046650ca5137083a6d6ebed3b",
+      "content_bytes": 536,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "6cd50eb943a89c49c16ea72bf3adb8b99bdc264a",
+      "content_bytes": 6266,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "ae18bff56324781285bad197a41f895b8c260ea4",
+      "content_bytes": 856,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "dd2d8d041b55742d119627bc02fa9464932f6e85",
+      "content_bytes": 917,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "77f6d6674faa4720d4760c01a0df9e219151fc40",
+      "content_bytes": 515,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "d21137500485ce8cc2a98f961541117173411b7e",
+      "content_bytes": 536,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.blob",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "4d0f4d75c0c482c3485d3529b474a8f56497a2ca",
+      "content_bytes": 4096,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/checkpoint.sqlite",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "b57d89d511a3f90e8511ae9e676f458250c11b54",
+      "content_bytes": 127752,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/checkpoint.sqlite-wal",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "4d0f4d75c0c482c3485d3529b474a8f56497a2ca",
+      "content_bytes": 4096,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/minimax-throughput-primary/concurrency-1/checkpoint.sqlite",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "9550bde895e205438d43b8226ce6299e02b1108c",
+      "content_bytes": 127752,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/minimax-throughput-primary/concurrency-1/checkpoint.sqlite-wal",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "e85ef35577b99fa475893d47c534b0dd4f0ede2a",
+      "content_bytes": 520,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/tests/_data/checkpoint_compat/foundry/agent_sim_experiment_result.pkl",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "e999c7b694cf136fe522b7e684ca295b2e99fc91",
+      "content_bytes": 1791,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/tests/_data/checkpoint_compat/scientist/engine_checkpoint_artifact.pkl",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "cf773119d403e00296050b3956518f584ebbc3a4",
+      "content_bytes": 29,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/academic/graph/scholar_knowledge.duckdb",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "9efa44f6fdd6788915eac80b7bca8e4a1bad6798",
+      "content_bytes": 53,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/academic_candidate/graph/scholar_knowledge.duckdb",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "bd43c0a3b9c03987f0059528ede81352b376fbe9",
+      "content_bytes": 28,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/catalog/graph/dataset_catalog.duckdb",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    },
+    {
+      "blob": "c31c8e505b8a0c927a23f14acb23d210fdb6d7ad",
+      "content_bytes": 59,
+      "interpretation": "byte scan only; database/pickle/blob was not deserialized",
+      "marker_present_in_raw_bytes": false,
+      "path": "policy-engine/tests/_data/data_forge/non_lex_split/catalog_candidate/graph/dataset_catalog.duckdb",
+      "v1_1_shape_markers_present_in_raw_bytes": false
+    }
+  ],
+  "owner_decision_source_identities": {
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/research/development-programs/2026-09-30-post-e02/decisions.json": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/research/development-programs/2026-09-30-post-e02/decisions.md": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv": {
+      "byte_identical_across_listed_refs": true,
+      "distinct_blobs_with_refs": [
+        {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "refs": [
+            "origin/codex/e02-E-backtest-20261006",
+            "origin/codex/e02-E-cal-20261006",
+            "origin/codex/e02-E-cal05-20261006",
+            "origin/codex/e02-E-continuation-20261006",
+            "origin/codex/e02-E-ddm-20261006",
+            "origin/codex/e02-E-doe-20261006",
+            "origin/codex/e02-E-frc-20261006",
+            "origin/codex/e02-E-mc-20261006",
+            "origin/codex/e02-E-pcl-20261006",
+            "origin/codex/e02-F-api-20261006",
+            "origin/codex/e02-F-cau-20261006",
+            "origin/codex/e02-F-closeout-20261006",
+            "origin/codex/e02-F-dowhy-20261006",
+            "origin/codex/e02-F-economics-20261006",
+            "origin/codex/e02-F-fry-20261006",
+            "origin/codex/e02-F-graph-20261006",
+            "origin/codex/e02-F-graph-intake-20261006",
+            "origin/codex/e02-F-installed-worker-20261006",
+            "origin/codex/e02-F-lex-20261006",
+            "origin/codex/e02-F-rdd-20261006",
+            "origin/codex/e02-F-tmle-20261006"
+          ]
+        }
+      ],
+      "per_ref": {
+        "origin/codex/e02-E-backtest-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+          "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+        },
+        "origin/codex/e02-E-cal-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+        },
+        "origin/codex/e02-E-cal05-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+          "tree": "11bea57924adacca4b80358013331c6a072f6967"
+        },
+        "origin/codex/e02-E-continuation-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "514824ca60913601b796d492e99b754368569d8e",
+          "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+        },
+        "origin/codex/e02-E-ddm-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+          "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+        },
+        "origin/codex/e02-E-doe-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+          "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+        },
+        "origin/codex/e02-E-frc-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+          "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+        },
+        "origin/codex/e02-E-mc-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+        },
+        "origin/codex/e02-E-pcl-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+          "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+        },
+        "origin/codex/e02-F-api-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+        },
+        "origin/codex/e02-F-cau-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+        },
+        "origin/codex/e02-F-closeout-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "421f1dd977b237307394c68820caab4156716eb2",
+          "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+        },
+        "origin/codex/e02-F-dowhy-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+        },
+        "origin/codex/e02-F-economics-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+        },
+        "origin/codex/e02-F-fry-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+        },
+        "origin/codex/e02-F-graph-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+        },
+        "origin/codex/e02-F-graph-intake-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+        },
+        "origin/codex/e02-F-installed-worker-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+        },
+        "origin/codex/e02-F-lex-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+          "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+        },
+        "origin/codex/e02-F-rdd-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+        },
+        "origin/codex/e02-F-tmle-20261006": {
+          "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "tree": "3a392defad301686740f27a246e747540b55332a"
+        }
+      },
+      "present_in_every_listed_ref": true
+    }
+  },
+  "refs": [
+    {
+      "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+      "ref": "origin/codex/e02-E-backtest-20261006",
+      "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+    },
+    {
+      "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+      "ref": "origin/codex/e02-E-cal-20261006",
+      "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+    },
+    {
+      "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+      "ref": "origin/codex/e02-E-cal05-20261006",
+      "tree": "11bea57924adacca4b80358013331c6a072f6967"
+    },
+    {
+      "commit": "514824ca60913601b796d492e99b754368569d8e",
+      "ref": "origin/codex/e02-E-continuation-20261006",
+      "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+    },
+    {
+      "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+      "ref": "origin/codex/e02-E-ddm-20261006",
+      "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+    },
+    {
+      "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "ref": "origin/codex/e02-E-doe-20261006",
+      "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+    },
+    {
+      "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "ref": "origin/codex/e02-E-frc-20261006",
+      "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+    },
+    {
+      "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+      "ref": "origin/codex/e02-E-mc-20261006",
+      "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+    },
+    {
+      "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+      "ref": "origin/codex/e02-E-pcl-20261006",
+      "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+    },
+    {
+      "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "ref": "origin/codex/e02-F-api-20261006",
+      "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+    },
+    {
+      "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "ref": "origin/codex/e02-F-cau-20261006",
+      "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+    },
+    {
+      "commit": "421f1dd977b237307394c68820caab4156716eb2",
+      "ref": "origin/codex/e02-F-closeout-20261006",
+      "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+    },
+    {
+      "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "ref": "origin/codex/e02-F-dowhy-20261006",
+      "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+    },
+    {
+      "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "ref": "origin/codex/e02-F-economics-20261006",
+      "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+    },
+    {
+      "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "ref": "origin/codex/e02-F-fry-20261006",
+      "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+    },
+    {
+      "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "ref": "origin/codex/e02-F-graph-20261006",
+      "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+    },
+    {
+      "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "ref": "origin/codex/e02-F-graph-intake-20261006",
+      "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+    },
+    {
+      "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "ref": "origin/codex/e02-F-installed-worker-20261006",
+      "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+    },
+    {
+      "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+      "ref": "origin/codex/e02-F-lex-20261006",
+      "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+    },
+    {
+      "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "ref": "origin/codex/e02-F-rdd-20261006",
+      "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+    },
+    {
+      "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "ref": "origin/codex/e02-F-tmle-20261006",
+      "tree": "3a392defad301686740f27a246e747540b55332a"
+    }
+  ],
+  "review_source_snapshot": {
+    "changed_source_paths_since_comparison": [
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+    ],
+    "compared_paths": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+        "comparison_blob": "f5bda4e76768ad1d19ae496ddecf78f40f9a06ee",
+        "review_blob": "f5bda4e76768ad1d19ae496ddecf78f40f9a06ee"
+      }
+    },
+    "comparison_commit": "33dfb99210eb4457263fde7f92b3479ebac75b02",
+    "comparison_source_subtree": "7ecc0dc16cd26d299b59d65ba792e86b429f7794",
+    "review_commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+    "review_source_subtree": "e7116ad6fda8832db4efb99abae193c425a41e78",
+    "review_tree": "a5c268e023720c5afc97af75a285b63e7f943528"
+  },
+  "serialized_source_denominator": {
+    "distinct_git_blob_bytes": 401355300,
+    "distinct_git_blobs": 7127,
+    "distinct_paths": 7532,
+    "path_blob_version_bytes": 404810724,
+    "path_blob_versions": 7582,
+    "suffix_counts_by_path_blob_version": {
+      ".blob": 11,
+      ".cfg": 1,
+      ".csv": 15,
+      ".docx": 1,
+      ".duckdb": 4,
+      ".example": 3,
+      ".fixture": 2,
+      ".gz": 36,
+      ".ini": 11,
+      ".json": 3834,
+      ".jsonc": 1,
+      ".jsonl": 15,
+      ".log": 36,
+      ".md": 2208,
+      ".mdc": 1,
+      ".patch": 3,
+      ".pkl": 2,
+      ".reproducible": 1,
+      ".retired": 1,
+      ".sql": 6,
+      ".sqlite": 2,
+      ".sqlite-wal": 2,
+      ".stderr": 118,
+      ".stdout": 111,
+      ".toml": 303,
+      ".tsv": 6,
+      ".txt": 638,
+      ".typed": 2,
+      ".whl": 1,
+      ".xml": 43,
+      ".yaml": 85,
+      ".yml": 71,
+      ".zip": 8
+    },
+    "suffix_set": [
+      ".blob",
+      ".cfg",
+      ".csv",
+      ".docx",
+      ".duckdb",
+      ".example",
+      ".fixture",
+      ".gz",
+      ".ini",
+      ".json",
+      ".jsonc",
+      ".jsonl",
+      ".log",
+      ".md",
+      ".mdc",
+      ".patch",
+      ".pkl",
+      ".reproducible",
+      ".retired",
+      ".sql",
+      ".sqlite",
+      ".sqlite-wal",
+      ".stderr",
+      ".stdout",
+      ".toml",
+      ".tsv",
+      ".txt",
+      ".typed",
+      ".whl",
+      ".xml",
+      ".yaml",
+      ".yml",
+      ".zip"
+    ]
+  },
+  "serialized_test_source_denominator": {
+    "distinct_git_blobs": 509,
+    "distinct_paths": 514,
+    "opaque_byte_marker_matches": [],
+    "path_blob_versions": 514,
+    "suffix_counts_by_path_blob_version": {
+      ".duckdb": 4,
+      ".fixture": 2,
+      ".json": 390,
+      ".md": 104,
+      ".pkl": 2,
+      ".toml": 1,
+      ".yaml": 11
+    },
+    "text_marker_matches": [],
+    "v1_1_envelope_shaped_json_objects": []
+  },
+  "serialized_text_marker_candidates": [
+    {
+      "blob": "e86d49007c139051a7058b76806913149426deeb",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json"
+    },
+    {
+      "blob": "07a1b4fadded69fc3435be9eca235eb85c4c24d4",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json"
+    },
+    {
+      "blob": "18d4cac049193373d592002a6e0dbf1189df0ed1",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json"
+    },
+    {
+      "blob": "4198448d810b49c95753f98b4cab28666ef96b05",
+      "path": "policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json"
+    },
+    {
+      "blob": "94bc220fe8d0f0da4446df8629a9a4a178f3e1f3",
+      "path": "policy-engine/architecture/policy_design_case/layer3_g3_ir_catalog_coverage.json"
+    },
+    {
+      "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    },
+    {
+      "blob": "cd0e84ca70273b275cd4df01ceffe95f025a71b5",
+      "path": "policy-engine/docs/archive/specs/scm-implementation-spec-v3.md"
+    },
+    {
+      "blob": "dbdf99d723ce223577e2261ca662b4bd16b6c56c",
+      "path": "policy-engine/docs/plans/archive/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md"
+    },
+    {
+      "blob": "1aeebf1485bfe2d0e9ec27d89c3eb537e19e1c98",
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md"
+    },
+    {
+      "blob": "d8b83ba604471afba082af4e245a82aab81a9a63",
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md"
+    },
+    {
+      "blob": "b242397fb26eaf0bee86a867aed6e21768d094e2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md"
+    },
+    {
+      "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md"
+    },
+    {
+      "blob": "ff9b394666bc458fe19aec861bcc8e3b8f7047d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/bounded-properties.stdout.txt"
+    },
+    {
+      "blob": "f990b4664d875e082d23146a91ab93e394a144db",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006/patches/assembled-fifty-paths.patch.text.json"
+    },
+    {
+      "blob": "e499add3e7b98ab940c854b10b3237a200f49b1a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stdout.txt.json"
+    },
+    {
+      "blob": "8c043060d5f8d21aa545d99af5fde956f6067320",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-witness.txt"
+    },
+    {
+      "blob": "636fa1177378dcd300f32685ca5796cac7c19107",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-witness.txt"
+    },
+    {
+      "blob": "77448d693b11b16bad44b69ada32b97aa6109118",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numerical-witness.txt"
+    },
+    {
+      "blob": "b6c8f23dfc5a189e948b978ea4b408d057bfe98b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt"
+    },
+    {
+      "blob": "fd836d0cd2614c0cf7edb924b1d81bbcfda3e396",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer.stdout.text.json"
+    },
+    {
+      "blob": "ac9c6638fd07ce197ed33bd7f9430a3b2c517a5a",
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/c3/return/recorded-growth-actual-method-growth-diagnostic-and-removal.json"
+    },
+    {
+      "blob": "73e48e9892cd622ec026d07a38bfb1d4e64f7a49",
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/c3/return/scm-actual-owner-growth.json"
+    },
+    {
+      "blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json"
+    },
+    {
+      "blob": "90dac87dd6b500615108c7095a00a45032aca9f6",
+      "path": "policy-engine/schemas/snapshots/ir/abm_result.schema.json"
+    }
+  ],
+  "structured_source_denominator": {
+    "distinct_git_blobs": 4376,
+    "distinct_paths": 4675,
+    "path_blob_versions": 4690,
+    "suffix_counts_by_path_blob_version": {
+      ".blob": 11,
+      ".csv": 15,
+      ".duckdb": 4,
+      ".fixture": 2,
+      ".json": 3834,
+      ".jsonl": 15,
+      ".sqlite": 2,
+      ".sqlite-wal": 2,
+      ".txt": 638,
+      ".typed": 2,
+      ".whl": 1,
+      ".yaml": 85,
+      ".yml": 71,
+      ".zip": 8
+    }
+  },
+  "test_source_denominator": {
+    "distinct_paths": 407,
+    "path_blob_versions": 407,
+    "suffix_counts_by_path_blob_version": {
+      ".duckdb": 4,
+      ".fixture": 2,
+      ".json": 390,
+      ".yaml": 11
+    },
+    "uncertainty_envelope_marker_matches": [],
+    "v1_1_envelope_shaped_json_objects": []
+  },
+  "tracked_blob_payloads_and_manifests": [
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "polisyos.runtime.derived-economic-series",
+            "version": "2.0.0"
+          },
+          "kind": "polisyos.runtime.derived_economic_series",
+          "manifest_blob": "c158021a7bab8e01d3da18174a3705cec4f22580"
+        }
+      ],
+      "payload_blob": "eb8ef26878d46d696a3fddbc2e168bb1db438faf",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": null,
+          "kind": "fabric.acquisition.raw_evidence",
+          "manifest_blob": "7f161d6191dfa2aa513e1498cc6d246b9308e405"
+        }
+      ],
+      "payload_blob": "d8c7d645920bd8dc2d3661857b587c0d3e48aec7",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": null,
+          "kind": "fabric.acquisition.raw_evidence",
+          "manifest_blob": "79475f5ae7e3573faa3724a0900942d2ef0d5c90"
+        }
+      ],
+      "payload_blob": "59a9af577f26e72f79c4b6541372630452eb53c6",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "policyos.layer3.gy.n13b.series-input-evidence",
+            "version": "1.0.0"
+          },
+          "kind": "policyos.layer3.gy.n13b.series_input_evidence",
+          "manifest_blob": "5a4ac8f407a40003c3af3c1c0e5e96bf393c596d"
+        }
+      ],
+      "payload_blob": "a7f53d3e25b4a4fd7fd3729362940fbdd76f6b83",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "polisyos.runtime.transform-family-registry",
+            "version": "2.0.0"
+          },
+          "kind": "polisyos.runtime.transform_family_registry",
+          "manifest_blob": "e3a1a4746b1ba3eaad776515faf4147b5639fecc"
+        }
+      ],
+      "payload_blob": "ea8e1d06369dace35cb2faab509699ab2acb7ffd",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "policyos.layer3.gy.n13b.series-input-evidence",
+            "version": "1.0.0"
+          },
+          "kind": "policyos.layer3.gy.n13b.series_input_evidence",
+          "manifest_blob": "ee6fc247389ac5e065265a08c307c6ab1b7f8653"
+        }
+      ],
+      "payload_blob": "b0e8abe482319d9046650ca5137083a6d6ebed3b",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "polisyos.runtime.derivation-certificate",
+            "version": "2.0.0"
+          },
+          "kind": "polisyos.runtime.derivation_certificate",
+          "manifest_blob": "a1ed0e3759cce67e3c848ea24cbc87e6753418a5"
+        }
+      ],
+      "payload_blob": "6cd50eb943a89c49c16ea72bf3adb8b99bdc264a",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "polisyos.runtime.derivation-source-series",
+            "version": "2.0.0"
+          },
+          "kind": "polisyos.runtime.derivation_source_series",
+          "manifest_blob": "76fe9e901283b2c54e86ca4ce08b3534c829dcc8"
+        }
+      ],
+      "payload_blob": "ae18bff56324781285bad197a41f895b8c260ea4",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "polisyos.runtime.derivation-source-series",
+            "version": "2.0.0"
+          },
+          "kind": "polisyos.runtime.derivation_source_series",
+          "manifest_blob": "1ec4ae80dd54740e0f09677e32d202147adc5040"
+        }
+      ],
+      "payload_blob": "dd2d8d041b55742d119627bc02fa9464932f6e85",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "policyos.layer3.gy.n13b.series-input-evidence",
+            "version": "1.0.0"
+          },
+          "kind": "policyos.layer3.gy.n13b.series_input_evidence",
+          "manifest_blob": "034d306f229a437413b7b9b4acebc6b2dee71d25"
+        }
+      ],
+      "payload_blob": "77f6d6674faa4720d4760c01a0df9e219151fc40",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.blob"
+    },
+    {
+      "manifest_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.manifest.json",
+      "manifest_versions": [
+        {
+          "artifact_schema": {
+            "name": "policyos.layer3.gy.n13b.series-input-evidence",
+            "version": "1.0.0"
+          },
+          "kind": "policyos.layer3.gy.n13b.series_input_evidence",
+          "manifest_blob": "8141f24ad8bc6dbfd0d2701472c395bde663bd9f"
+        }
+      ],
+      "payload_blob": "d21137500485ce8cc2a98f961541117173411b7e",
+      "payload_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.blob"
+    }
+  ],
+  "v1_1_envelope_shaped_objects": [
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": "contract_only_nonproduction",
+      "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+      "confidence_interval": [
+        -2.0,
+        5.0
+      ],
+      "confidence_level": 0.9,
+      "execution_evidence_authority": null,
+      "gate_eligible": true,
+      "interval_semantics": "credible_interval",
+      "json_pointer": "/native_projector_contract_proofs/0/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "persisted_result_ref": null,
+      "point_estimate": 1.5,
+      "production_value_eligible": false,
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "report_authoritative_for": null,
+      "report_authority": null,
+      "report_authority_purpose": null,
+      "report_execution_profile": null,
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": null,
+      "schema_version": "1.1",
+      "scientific_authority": null,
+      "source": "calibration",
+      "source_ref": null,
+      "status": "contract_projection_ready"
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": "contract_only_nonproduction",
+      "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+      "confidence_interval": [
+        1.1,
+        2.9
+      ],
+      "confidence_level": 0.95,
+      "execution_evidence_authority": null,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "json_pointer": "/native_projector_contract_proofs/1/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "persisted_result_ref": null,
+      "point_estimate": 2.0,
+      "production_value_eligible": false,
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "report_authoritative_for": null,
+      "report_authority": null,
+      "report_authority_purpose": null,
+      "report_execution_profile": null,
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": null,
+      "schema_version": "1.1",
+      "scientific_authority": null,
+      "source": "causal",
+      "source_ref": null,
+      "status": "contract_projection_ready"
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": "contract_only_nonproduction",
+      "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+      "confidence_interval": [
+        8.0,
+        13.0
+      ],
+      "confidence_level": 0.9,
+      "execution_evidence_authority": null,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "json_pointer": "/native_projector_contract_proofs/2/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "persisted_result_ref": null,
+      "point_estimate": 10.0,
+      "production_value_eligible": false,
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "report_authoritative_for": null,
+      "report_authority": null,
+      "report_authority_purpose": null,
+      "report_execution_profile": null,
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": null,
+      "schema_version": "1.1",
+      "scientific_authority": null,
+      "source": "calibration",
+      "source_ref": null,
+      "status": "contract_projection_ready"
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": "contract_only_nonproduction",
+      "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+      "confidence_interval": [
+        -2.0,
+        4.0
+      ],
+      "confidence_level": null,
+      "execution_evidence_authority": null,
+      "gate_eligible": true,
+      "interval_semantics": "deterministic_bounds",
+      "json_pointer": "/native_projector_contract_proofs/3/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "persisted_result_ref": null,
+      "point_estimate": 1.0,
+      "production_value_eligible": false,
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "report_authoritative_for": null,
+      "report_authority": null,
+      "report_authority_purpose": null,
+      "report_execution_profile": null,
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": null,
+      "schema_version": "1.1",
+      "scientific_authority": null,
+      "source": "causal",
+      "source_ref": null,
+      "status": "contract_projection_ready"
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": "contract_only_nonproduction",
+      "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+      "confidence_interval": [
+        -0.5,
+        1.25
+      ],
+      "confidence_level": null,
+      "execution_evidence_authority": null,
+      "gate_eligible": true,
+      "interval_semantics": "deterministic_bounds",
+      "json_pointer": "/native_projector_contract_proofs/4/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "persisted_result_ref": null,
+      "point_estimate": 0.375,
+      "production_value_eligible": false,
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "report_authoritative_for": null,
+      "report_authority": null,
+      "report_authority_purpose": null,
+      "report_execution_profile": null,
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": null,
+      "schema_version": "1.1",
+      "scientific_authority": null,
+      "source": "causal",
+      "source_ref": null,
+      "status": "contract_projection_ready"
+    },
+    {
+      "authoritative_for": null,
+      "authority_purpose": null,
+      "authority_scope": "contract_only_nonproduction",
+      "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+      "confidence_interval": [
+        -1.0,
+        2.0
+      ],
+      "confidence_level": null,
+      "execution_evidence_authority": null,
+      "gate_eligible": true,
+      "interval_semantics": "deterministic_bounds",
+      "json_pointer": "/native_projector_contract_proofs/5/envelope",
+      "may_not_use_for": null,
+      "method_result_ref": null,
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "persisted_result_ref": null,
+      "point_estimate": 0.5,
+      "production_value_eligible": false,
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "report_authoritative_for": null,
+      "report_authority": null,
+      "report_authority_purpose": null,
+      "report_execution_profile": null,
+      "report_may_not_use_for": null,
+      "report_method_fqn": null,
+      "report_scientific_scope": null,
+      "schema_version": "1.1",
+      "scientific_authority": null,
+      "source": "causal",
+      "source_ref": null,
+      "status": "contract_projection_ready"
+    }
+  ]
+}

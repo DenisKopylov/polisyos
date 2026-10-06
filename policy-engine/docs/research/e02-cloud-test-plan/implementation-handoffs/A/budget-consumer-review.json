@@ -1,0 +1,234 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "budget-consumer-review",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [],
+  "candidate_sha": "4f968dd7b3e13126bb92ac7ab13bdfaa2b7592e2",
+  "candidate_tree_sha": "5b17ab8809b8694a89a1df5c7ddb97a0df579e9e",
+  "tested_source_commit": "4f968dd7b3e13126bb92ac7ab13bdfaa2b7592e2",
+  "review_snapshot": {
+    "sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+    "tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528",
+    "branch": "codex/e02-A-full-queue",
+    "relevant_blobs_match_tested_source": true,
+    "relevant_blobs": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "f5bda4e76768ad1d19ae496ddecf78f40f9a06ee",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": "8fed0f5dc4f523781e09524f252ada5d838df7be",
+      "policy-engine/tests/unit/remediation/test_cyc_04.py": "d4aa9bc73613b0351d49a3c82237e7e835bf5bc0"
+    }
+  },
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "closure_ids": [],
+  "finding_ids": [
+    "B10",
+    "B11"
+  ],
+  "proposed_criterion_ids": [
+    "B10",
+    "B11"
+  ],
+  "finding_outcomes": {
+    "B10": "open",
+    "B11": "limited"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/command.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/run.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/oracle-design.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/run-cyc04/junit.xml"
+  ],
+  "source_changed_paths": [],
+  "production_source_changes": false,
+  "checks": [
+    {
+      "command": "env PYTHONPATH=src:. .venv/bin/python -m pytest -o addopts= -q --basetemp=docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/run-cyc04/basetemp --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/run-cyc04/junit.xml tests/unit/remediation/test_cyc_04.py",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+      "target_sha": "4f968dd7b3e13126bb92ac7ab13bdfaa2b7592e2",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/environment.json",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/run.json",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "output": "6 passed in 12.42s; 6 tests, zero failures/errors/skips. Case-level JUnit: run-cyc04/junit.xml@sha256:6f580ba9389d9f5c1ed7c96acc187e502345e9aa16c302d84c44c4c0450e7024 (12.419 seconds)."
+    }
+  ],
+  "finding_assessment": [
+    {
+      "id": "B10",
+      "outcome": "open",
+      "capability_label": "verification_missing",
+      "predicate_basis": "not_established",
+      "bounded_evidence": "The CYC-04 suite drives the actual GenerationCycleController with a deterministic two-candidate fixture. A high-proxy first candidate is marked grounding_unavailable/missing_owner_input, the lower-proxy second candidate is simulated, and the first blocker remains in the returned run history. The suite also verifies a zero-available-budget refusal and an informative low-proxy advance.",
+      "not_established": [
+        "Complete hard-feasibility dimensions from their canonical owners are not evaluated before VOI/top-k; the fixture only supplies a grounding observation.",
+        "No independent direct-engine oracle compares a persisted second-candidate result to a fresh recomputation.",
+        "The public controller result is returned in memory; the test does not reopen a persisted rejection/result artifact.",
+        "Stale selected-flag, altered-result, all-infeasible, and sibling-candidate controls are absent from this six-test suite."
+      ],
+      "implementation_property_divergence": "_generate_node currently takes max(proxy_score) into selected_candidate before _ground_node runs. _ground_node evaluates each supplied candidate's grounding and can then choose a grounded alternative, which explains the bounded witness. That does not prove the A4 property of complete hard-applicability filtering before VOI/top-k, nor that a generator has not already truncated a feasible alternative."
+    },
+    {
+      "id": "B11",
+      "outcome": "limited",
+      "capability_label": "bridge_missing",
+      "predicate_basis": "not_established",
+      "bounded_evidence": "A bounded B66 producer candidate now exists with typed LLMProducerEvent cost_origin values and a path to the durable BudgetMiddleware settlement API. The separate G09 checkpoint accepts the exact-once local ledger slice, but not B66. A's served run route still constructs a fresh in-memory BudgetState from run_budget_usd and does not connect the B producer event to a durable ledger consumer.",
+      "cost_origin_semantics": {
+        "reported": "Provider response supplied cost_usd; provider-reported usage, institutionally supplied at this boundary, not independently reconciled billing.",
+        "estimated": "Estimated from model/token usage when cost_usd is absent; a budget estimate, not actual provider billing.",
+        "reuse": "Typed cache-hit event with amount zero and kind reuse; no new provider spend.",
+        "external_billing_reconciliation": "not_established: no independent provider invoice or billing reconciliation is present in the admitted A/B/G chain.",
+        "event_origin_enum": [
+          "reported",
+          "estimated",
+          "reuse"
+        ]
+      },
+      "durable_receipt_limit": "B37 BudgetLedgerSpendReceipt persists event_id, payload_digest, key, amount, provider, revision, and commit time. It accepts the event identity/digest/amount from its caller and does not independently measure provider billing or expose cost_origin as a receipt field. The paired producer event is required to preserve/verify the reported/estimated/reuse label.",
+      "not_established": [
+        "G has not admitted the B66 producer candidate; its G09 checkpoint admits B37's strict local ledger candidate only.",
+        "A served generation/run consumer has no BudgetMiddleware/FileBudgetLedger bridge or persisted before/after spend readback.",
+        "End-to-end run/job scoping, unknown-ack recovery through A, and exact-once debit from an observed provider event are not demonstrated on A's served path.",
+        "External provider invoice truth is outside the B66 and B37 evidence."
+      ]
+    }
+  ],
+  "property": {
+    "statement": "A candidate whose required inputs or other hard constraints fail must be typed and retained as rejected before information-value ranking/top-k can hide an executable alternative; any resulting candidate output must be persisted and independently recomputable. Information priority may order permitted work but must not stand in for resource measurement or authority. A served run must debit the canonical budget owner exactly once from an identified producer event, preserving whether the amount was provider-reported, estimated, or reuse.",
+    "runtime_path": [
+      "A canonical candidate generation and complete applicability owners",
+      "A GenerationCycleController hard-feasibility/VOI sequence",
+      "persisted typed rejection and selected result",
+      "fresh readback and direct-engine comparison",
+      "G-admitted B producer event and initialized durable ledger",
+      "A served run/job BudgetMiddleware consumer and spend readback"
+    ],
+    "proxy_divergence": "The green CYC-04 pytest result and an in-memory zero-dollar BudgetState test are not the requested properties: they measure a bounded grounding fallback and a configured limit, not the complete pre-VOI hard-feasibility set, durable candidate readback, or provider-event spend. Likewise, a durable ledger amount is the caller-supplied amount; it is not an independently measured bill.",
+    "negative_controls": [
+      "Existing bounded: first high-proxy candidate retains grounding_unavailable/missing_owner_input while the second receives simulation.",
+      "Existing bounded: a zero-available in-memory BudgetState prevents simulation; simulation/value blockers retain budget_exhausted_for_next_level.",
+      "Required next: remove an actual required input while preserving selected/ranking markers; feasibility must reject before VOI/top-k and the sibling eligible candidate must still persist and execute.",
+      "Required next: mutate the persisted selected result or stale selected flag; fresh readback/direct engine oracle must detect mismatch.",
+      "Required next: retry the same producer event/ack after an unknown outcome and prove one receipt/debit; same event ID with changed amount/digest must refuse; sibling run/job must not reuse the first run's debit.",
+      "Required next: provider-reported, estimated, and cache-reuse events retain distinct frozen origins; an estimated amount cannot be projected as actual bill; reuse produces no provider debit."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": {
+    "B10": "verification_missing: bounded grounding fallback exists in the A controller, but full hard feasibility before VOI/top-k plus persisted rejection/result and independent engine oracle are not established.",
+    "B11": "bridge_missing: B66 typed cost-event producer exists as a bounded candidate and B37 local exact-once ledger is G-admitted; B66 is not G-admitted and A's served run/job BudgetState is not bridged to that producer/ledger."
+  },
+  "source_contracts": {
+    "A_slice_base": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "B_r19_original": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a; B10 lines 313-324 and B11 lines 325-336",
+      "CYC-04_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-04.md@75194f0254c5a87f52fc73cbc8ee24511a64e7be",
+      "A4_decision": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md@68fcdf9337eb4b0f268d5c2c786e2900edf28a2b#L74-L79",
+      "coverage_rows": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a; B10=verification_missing and B11=bridge_missing, both closure_now=not_adjudicated",
+      "cross_unit_contracts": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md@b242397fb26eaf0bee86a867aed6e21768d094e2",
+      "method_decisions": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md@f3248e61065316f06f7b1dbe5476f09cb3a4588a",
+      "failure_repair_register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@7f4cc9ab9541a44c26e4648a2c08326e53743492 at review snapshot 3bd5dc0d9f0385fe2662024e173c7f75e25798db"
+    },
+    "A_current_code": {
+      "review_snapshot": "3bd5dc0d9f0385fe2662024e173c7f75e25798db/tree:a5c268e023720c5afc97af75a285b63e7f943528",
+      "generation_cycle": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@f5bda4e76768ad1d19ae496ddecf78f40f9a06ee; _generate_node lines 7982-8084, _ground_node lines 8086-8154, _joint_value_node lines 8156+",
+      "served_run_lifecycle": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@8fed0f5dc4f523781e09524f252ada5d838df7be#L5584-L5618; creates a new BudgetState from request run_budget_usd",
+      "budget_state": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py@1a2fbb73bb87d60674d168791a214f882e79347f at source snapshot 3bd5dc0d9f0385fe2662024e173c7f75e25798db; BudgetState holds in-memory limits/spent/provider_spent/reserved mappings",
+      "CYC04_test": "policy-engine/tests/unit/remediation/test_cyc_04.py@d4aa9bc73613b0351d49a3c82237e7e835bf5bc0; six behavioral controls, injected test ports",
+      "queue_row_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@4d39fd3510da864d83cc4a87d24e70acff70f16b at review snapshot; B11 remaining_work still has the stale producer-absent wording"
+    },
+    "B_producer_candidate": {
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json@4b941e402b794be604707a95560d682ba32f5e3f, containing candidate 126024b95fcac6400f5afc29a60596b88cdd5212/tree:937e0b35461d1daa2b0eacdd545660a40fcae182",
+      "handoff_commit": "7b2d5344a3b1c032e73755634350bb69d96c2f63",
+      "B66_disposition": "verified_bounded; finding_closure not asserted; only valid typed provider cost profile and initialized ledger proven",
+      "event_contract": "policy-engine/src/polisyos/core/llm/settlement.py@c2c631442a3ecf7587425445565d723598eaba81; LLMProducerEvent Literal cost_origin reported/estimated/reuse and payload digest binds origin",
+      "producer_adapter": "policy-engine/src/polisyos/core/llm/traced_client.py@da043259222ebeccf48e4fa8270a56fd2aa9bd62 and policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py@ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+      "producer_boundary": "B66 candidate uses provider cost_usd when present, otherwise estimates; cache-hit completion is amount 0/kind reuse. Its own limitation excludes external billing truth and unknown receipt/process death before observed completion."
+    },
+    "B_durable_ledger": {
+      "current_durability_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability.json@84e224fdfc72ee8b964ce3731dbabc05b91d0706 from commit cff9f2b684be4a7a938389caae8febd5525335a3; full candidate 4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d, no closure IDs",
+      "settlement_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json@84193b699b74713e0099ffe2d3a4423f44668256 from commit 71b1ce0c5d6e16704c90853fd884e63058481ce9; ledger candidate 2c52e1fe747627b227b5695e578b800cb7eade8b/tree:9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c",
+      "ledger_source": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py@48908cebc44656fc6b22105d8d7a99d3acf915b6; settle_spend takes caller-supplied event_id, key, Decimal amount, payload_digest, optional provider; exact retry returns same durable receipt, conflicting reuse refuses",
+      "receipt_fields": "event_id, payload_digest, key, amount, provider, revision, committed_at; no independent meter reading or cost_origin field"
+    },
+    "G_checkpoint_09": {
+      "record": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-09.json@7b5fe3a434db2eb62c35a86549bbc18a62f5c4cd at record commit 8ed2c08a96173a1235b4fc363fcbe07378a47750",
+      "admitted_ledger": "2c52e1fe747627b227b5695e578b800cb7eade8b/tree:9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c, GO_bounded_local_ledger; 95 tests passed; finding_closure=false",
+      "consumer_wave": "312e6d7c12e1d623f1ac9502c187e7cb92e48045/tree:11ffd482cf4324a25ca16e77d8b113c8bc9eebad, 58 tests passed including test_budget_middleware.py; finding_closure=false and broad_replay=false",
+      "finding_closures": [],
+      "boundary": "G09 accepted the ledger slice, not B66 candidate 126024b95fcac6400f5afc29a60596b88cdd5212. The B66 candidate is not an ancestor of the G09 integrated source; 2c52 is an ancestor. G records caller-supplied payload digest and no production assembly/external billing/source authority."
+    }
+  },
+  "upstream_receipts": [
+    {
+      "owner": "B",
+      "source_ref": "current-adapters.json@7b2d5344a3b1c032e73755634350bb69d96c2f63",
+      "candidate_sha": "126024b95fcac6400f5afc29a60596b88cdd5212",
+      "finding": "B66 verified_bounded; no closure asserted"
+    },
+    {
+      "owner": "G",
+      "source_ref": "checkpoint-09.json@8ed2c08a96173a1235b4fc363fcbe07378a47750",
+      "candidate_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "outcome": "bounded ledger admission; 95 tests PASS, no finding closure"
+    },
+    {
+      "owner": "G",
+      "source_ref": "checkpoint09-consumers.json@8ed2c08a96173a1235b4fc363fcbe07378a47750",
+      "candidate_sha": "312e6d7c12e1d623f1ac9502c187e7cb92e48045",
+      "outcome": "58 tests PASS on four affected consumer files; no B66 admission or finding closure"
+    }
+  ],
+  "predicate_basis_by_finding": {
+    "B10": "not_established for complete hard applicability and persisted result; the specific fixture's grounding outcome is recomputed by its test double and A controller.",
+    "B11": "provider cost_origin is producer-reported/typed; reported is institutionally supplied, estimated is an estimate, reuse is zero-provider-spend; independent external billing truth is not_established. Ledger idempotency is recomputed for a caller-supplied event tuple."
+  },
+  "limitations_and_next_owner": [
+    "A-W01 owns the CYC-04 controller and served run/lifecycle bridge. Close B10 only after a full-constraint owner rejects the high-ranked impossible candidate before VOI/top-k, persists the typed rejection and eligible result, and a fresh direct-engine oracle matches that result; include stale-selection, altered-result, and all-infeasible negatives.",
+    "A-W01 must wire the served run/job budget to the canonical admitted B producer/ledger path before claiming B11; preserve the producer event and origin beside its durable acknowledgement and read back before/after spend from the same run/job scope.",
+    "Do not consume B66 as G-admitted authority. G must admit its exact candidate or successor before A uses the contract; no producer or billing rule is inferred by this receipt.",
+    "Add exact-once retry/outcome-unknown, changed-payload false-charge, sibling run/job isolation, informative-under-budget, actual persisted exhaustion, and zero-charge cache reuse controls against real owners.",
+    "Provider-reported cost, estimated amount, cache reuse, and independent invoice reconciliation remain four different evidentiary states. No fixture amount or estimator value is called production money.",
+    "The full-queue-progress.json at review snapshot 3bd5dc0 still contains the stale B11 phrase that the producer/event bridge is absent; root should update its row reason to reflect bounded B66 existence, lack of G admission, and the unwired A consumer before queue closeout.",
+    "No model/SIM/full-dataset run, B-source integration, source modification, commit, or finding closure was performed in this leaf review."
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P10",
+      "P13",
+      "P29",
+      "P32",
+      "P33",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "found": [
+      "P01/P02: B producer/ledger and A controller exist separately, while the A served consumer bridge for B11 is absent.",
+      "P10/P29/P33: current CYC-04 tests are behavior-based at the controller seam, but their doubles and returned in-memory values do not prove complete applicability or persistence/readback.",
+      "P37/P38: the gate's spend predicate is not an invoice; B's typed provider-reported/estimated/reuse event and caller-supplied durable amount must retain distinct origin semantics. The A zero-budget test checks an in-memory limit, not a measured debit.",
+      "P13: keep this bounded to the CYC-04 consumer and exact-once owner path; a full model run adds no evidence for these gaps.",
+      "P40/P41: treat untested sibling applicability and served cost consumption as the same capability gap at the correct owner boundary; no inherited red or finding closure is asserted."
+    ],
+    "target_pattern": "Reuse the canonical A generation/applicability and budget owners, accept only a G-admitted B artifact/event contract, and prove producer-to-persisted-event-to-A-consumer behavior with fresh readback and discriminating negatives."
+  },
+  "closure_status": "not_adjudicated; B10 open, B11 limited; closure_ids remain empty",
+  "companion_footprint": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review",
+    "files": [
+      "command.txt",
+      "environment.json",
+      "run.json",
+      "oracle-design.md",
+      "run-cyc04/junit.xml"
+    ]
+  }
+}

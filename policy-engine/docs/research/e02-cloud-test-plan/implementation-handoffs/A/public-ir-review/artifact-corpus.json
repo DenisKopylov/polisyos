@@ -1,0 +1,173 @@
+{
+  "schema": "policyos.e02.public_ir.artifact_corpus.v1",
+  "ref_manifest": "current_20261006_refs.json",
+  "source_census_receipt": "current_source_census.json",
+  "full_tracked_tree": {
+    "distinct_paths": 15654,
+    "path_blob_versions": 15843,
+    "distinct_git_blobs": 15285,
+    "distinct_git_blob_bytes": 535222757,
+    "path_blob_version_bytes": 539133361,
+    "distinct_suffix_types": 54,
+    "all_suffix_counts_and_git_blob_denominators": "current_source_census.json#/complete_tracked_file_denominator/complete_suffix_inventory"
+  },
+  "structured_source_union": {
+    "distinct_paths": 4675,
+    "path_blob_versions": 4690,
+    "distinct_git_blobs": 4376,
+    "json_path_blob_versions_parsed": 3834,
+    "jsonl_path_blob_versions": 15,
+    "jsonl_records_parsed": 6049,
+    "malformed_json_or_jsonl": 0,
+    "complete_suffix_counts": "current_source_census.json#/structured_source_denominator/suffix_counts_by_path_blob_version"
+  },
+  "direct_v1_1_envelope_shaped_json_objects": {
+    "count": 6,
+    "path": "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+    "blob": "35f6109214d53d80ae6717583988fcdfb3f01005",
+    "json_pointer_prefix": "/native_projector_contract_proofs/",
+    "authority_scope": "contract_only_nonproduction",
+    "proof_scope": "contract_owner_probe_not_advisor_selection",
+    "production_value_eligible": false,
+    "classification": "contract-owner probes, not production artifacts"
+  },
+  "candidate_execution_envelope_witnesses": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-witness.txt",
+      "blob": "8c043060d5f8d21aa545d99af5fde956f6067320",
+      "persisted_result_id": "sha256:34f0db6b5444f7fd865bc3257759a9b842b8dd49bb3dd0e4ba145b882a2febdc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-witness.txt",
+      "blob": "636fa1177378dcd300f32685ca5796cac7c19107",
+      "persisted_result_id": "sha256:7f2dbbca1d14c2d1bbc491c0b1da5290896319f35dd889cfcc4947517d230145"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numerical-witness.txt",
+      "blob": "77448d693b11b16bad44b69ada32b97aa6109118",
+      "persisted_result_id": "sha256:4028b90140965f3b2f62a10172094a95cc9fd079823388630d5d4f9834b5c044"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
+      "blob": "b6c8f23dfc5a189e948b978ea4b408d057bfe98b",
+      "persisted_result_id": "sha256:34f0db6b5444f7fd865bc3257759a9b842b8dd49bb3dd0e4ba145b882a2febdc"
+    }
+  ],
+  "candidate_execution_witness_classification": {
+    "payload_schema_version": "1.1",
+    "payload_kind": "scientist.method_result.causal.inference",
+    "scientific_authority": "not_established",
+    "execution_evidence_authority": "execution_reproducibility_only",
+    "report_authority": "candidate_computation_only",
+    "profile": "dowhy-014",
+    "output_contract_error": "causal_effect_report declared output slot missing in worker output",
+    "cas_payload_bytes_in_this_tracked_source_set": false,
+    "classification": "candidate execution witnesses with referenced result IDs; not production authority or historical production replay evidence"
+  },
+  "other_schema_or_text_references": {
+    "serialized_text_marker_candidates": 24,
+    "candidate_path_blob_inventory": "current_source_census.json#/serialized_text_marker_candidates",
+    "g3_ir_catalog_coverage": "The UncertaintyEnvelope schema_version=1.1 entry is a Pydantic-model catalog row, not an envelope payload.",
+    "dashboard_locales": "ir.uncertainty_envelope translation labels only.",
+    "runtime_openapi_and_abm_schema": "kind const/default declarations only.",
+    "public_surface_pre_decomp": "legacy function signature metadata only.",
+    "other_research_documents_and_outputs": "The source census lists all serialized text marker paths/blobs; six direct objects and four embedded worker witness objects match the v1.1 envelope shape among scanned contents. Marker-only candidates are classifications, not payloads."
+  },
+  "test_candidate_set": {
+    "serialized_source_paths": 514,
+    "serialized_source_path_blob_versions": 514,
+    "serialized_source_git_blobs": 509,
+    "serialized_suffix_counts": {
+      ".duckdb": 4,
+      ".fixture": 2,
+      ".json": 390,
+      ".md": 104,
+      ".pkl": 2,
+      ".toml": 1,
+      ".yaml": 11
+    },
+    "structured_fixture_subset": {
+      "distinct_paths": 407,
+      "path_blob_versions": 407,
+      "suffix_counts": {
+        ".duckdb": 4,
+        ".fixture": 2,
+        ".json": 390,
+        ".yaml": 11
+      }
+    },
+    "uncertainty_envelope_marker_matches": 0,
+    "opaque_byte_marker_matches": 0,
+    "v1_1_envelope_shaped_json_objects": 0,
+    "full_serialized_test_census": "current_source_census.json#/serialized_test_source_denominator"
+  },
+  "tracked_blob_payload_corpus": {
+    "payload_count": 11,
+    "manifest_kinds": [
+      "fabric.acquisition.raw_evidence",
+      "policyos.layer3.gy.n13b.series_input_evidence",
+      "polisyos.runtime.derivation_certificate",
+      "polisyos.runtime.derivation_source_series",
+      "polisyos.runtime.derived_economic_series",
+      "polisyos.runtime.transform_family_registry"
+    ],
+    "uncertainty_envelope_kind_present": false
+  },
+  "tracked_archives": {
+    "zip_count": 8,
+    "wheel_count": 1,
+    "docx_count": 1,
+    "archive_members_scanned": true,
+    "archive_member_scans": "current_source_census.json#/archive_member_scan",
+    "ir_uncertainty_envelope_marker_members": 0,
+    "v1_1_envelope_shape_marker_members": 0
+  },
+  "historical_production_replay": "not_established: no tracked historical production UncertaintyEnvelope CAS payload was affirmatively identified among the scanned direct JSON/JSONL and serialized text, 28 bounded gzip sources, 10 ZIP/wheel/DOCX archives, or 11 .blob manifest-linked payloads. Eight large gzip sources (43,506,930 compressed bytes; 1,220,652,926 uncompressed bytes by trailer), including seven production-invocation outputs and one published-protocol audit, remain unscanned; external/untracked canonical CAS was not inventoried. No claim of a complete tracked production-output scan or historical replay is supported.",
+  "serialized_source_union": {
+    "distinct_paths": 7532,
+    "path_blob_versions": 7582,
+    "distinct_git_blobs": 7127,
+    "distinct_git_blob_bytes": 401355300,
+    "path_blob_version_bytes": 404810724,
+    "marker_scan_scope": "Serialized/document/archive/opaque-source suffix set; source code suffixes remain in the complete tracked-tree denominator but are not treated as artifact payloads.",
+    "all_33_suffix_counts_and_membership": "current_source_census.json#/serialized_source_denominator"
+  },
+  "compressed_source_inventory": {
+    "gzip_path_blob_versions": 36,
+    "small_sources_scanned": 28,
+    "small_source_markers": 0,
+    "small_source_v1_1_shapes": 0,
+    "large_sources_unscanned": 8,
+    "large_sources_compressed_bytes": 43506930,
+    "large_sources_uncompressed_bytes_from_trailers": 1220652926,
+    "per_path_blob_status": "current_source_census.json#/gzip_source_scan",
+    "unscanned_source_classes": [
+      "seven large production-invocation JSON gzip objects",
+      "one published-protocol-audit.json.gz"
+    ],
+    "reason_large_sources_remain_unscanned": "Eight tracked gzip sources exceed the bounded 5 MB scan limit; seven are roughly 171 MB each and one protocol audit is 23.6 MB uncompressed. The review did not expand this ~1.22 GB source corpus during the occupied local heavy-test slot."
+  },
+  "ref_manifest_sha256": "6abea309fcfd26c92d67c4c265fb70558dc5657cc3912805ff7b4154902a7039",
+  "source_census_sha256": "622d1b5efbf43f520714b6a2a61f48e3c1628df3e63a882546a36420b1937291",
+  "candidate_ir_kind_references": {
+    "count": 2,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/bounded-properties.stdout.txt",
+    "blob": "ff9b394666bc458fe19aec861bcc8e3b8f7047d3",
+    "references": [
+      {
+        "json_pointer": "/upstream/readbacks/exact/ref",
+        "artifact_id": "sha256:cb3602536960f1be6400a06878234aebb86be350376ab7228667287c00d1a3bf",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      {
+        "json_pointer": "/upstream/readbacks/rounded/ref",
+        "artifact_id": "sha256:d34f3d893ab7e694bb8cf942395043c8ba256b5a0957dab038c338fb2319fd91",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      }
+    ],
+    "classification": "Candidate synthetic finite-sampling-law test output; it labels refs but carries neither their payload bytes nor schema_version. Neither artifact ID occurs as a tracked .blob payload path among the 11 inventoried payloads. Output marks gate_eligible=false and original_law_faithful_carrier=not_established for the rounded profile. External/untracked CAS was not inventoried. Not a production envelope or historical replay artifact."
+  },
+  "source_census_script_sha256": "5ac020e68776bebe71f7891e3a12c6f1a39a1857ec3845fe6fd38620098d93e6"
+}

@@ -1,0 +1,116 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "A",
+  "slice": "s10-verifier",
+  "review_kind": "independent_source_review",
+  "reviewer_independent_of_author": true,
+  "reviewed_worktree": "/Users/deniskopylov/.codex/worktrees/e02-a-s10-verifier/polisyos",
+  "reviewed_branch": "codex/e02-A-s10-verifier",
+  "reviewed_head_receipt_commit": "320cecb698f9b1ebd7fd37350e3bf6da3086066f",
+  "candidate_implementation_commit": "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+  "candidate_tree_sha": "fc9321208b738924fb4118c8ce25f0ce130b2cd3",
+  "slice_base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "exact_e_producer_commit_reviewed": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+  "source_review_only": true,
+  "tests_or_numerics_run_by_reviewer": false,
+  "source_paths_reviewed": [
+    "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py",
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/src/polisyos/core/contracts/fabric.py",
+    "policy-engine/tests/unit/runtime/quality/test_forecast_verification.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-verifier.json"
+  ],
+  "findings": [
+    {
+      "id": "S10-REVIEW-01",
+      "classification": "P38 proxy boundary; blocking to any claim that model/policy scope was independently content-verified",
+      "property": "A verifies that the request's model and policy scope members exist as the expected CAS artifacts before treating the E report's model/policy binding as verified.",
+      "actual_predicate": "The code compares request IDs with report fields, metadata, and manifest edge IDs; it does not resolve the model/policy IDs from CAS.",
+      "source_locations": [
+        "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py:255-275",
+        "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py:481-503",
+        "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py:899-914"
+      ],
+      "divergent_case": "A content-valid report, E evidence, and scope-binding artifact can repeat the same model_spec_ref and policy_spec_ref IDs in all expected fields/edges while the referenced CAS objects are absent or have the wrong kinds. The current A path never requests their manifests or bytes, so the references remain markers rather than verified members.",
+      "context_and_limit": "The exact E producer at 5bd27323ecb0935a38908d2b09fa652762c5e4ea resolves the pair in forecast_owner.py:513-517 on its normal run path. That does not establish the property independently for a forged content-valid receipt. The result DTO currently keeps source_scope_status not_established and authority_scope predictive_only, so this finding does not invalidate the bounded numeric replay; it prevents claiming verified model/policy scope.",
+      "smallest_closure": "Resolve each supplied model/policy ArtifactID in A, verify manifest identity, application/json profile, expected ir.model_spec / ir.policy_spec kind, and actual bytes/content digest before accepting the scope binding. Add a removal/wrong-kind mutation that leaves report and scope-binding markers intact and must block.",
+      "test_evidence": "Source review only. Existing six tests do not exercise a CAS-backed content-valid missing/wrong-kind model-policy scope member."
+    },
+    {
+      "id": "S10-REVIEW-02",
+      "classification": "Declared source-admission boundary; no full C-admitted credibility claim",
+      "property": "The observed series is a source-owned, admitted profile with the needed scope, unit, valid-time, source version, and completeness bindings.",
+      "actual_predicate": "A resolves the DataSnapshot as fabric.data_snapshot, then resolves snapshot.data_ref without an expected kind or typed C profile; DataSnapshot.data_ref is the generic ArtifactRef contract.",
+      "source_locations": [
+        "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py:193-207",
+        "policy-engine/src/polisyos/core/contracts/fabric.py:161-173",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:519-532",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md:129-143"
+      ],
+      "divergent_case": "A hash-valid JSON artifact of an arbitrary kind that contains the requested metric vector can be referenced by a fabric.data_snapshot and used as the observed series. Numeric recomputation can succeed without resolving an admitted C profile or source evidence chain.",
+      "context_and_limit": "E at the exact reviewed commit uses the same generic snapshot.data_ref resolution, so this is a missing C/source-admission boundary, not an A-only regression. A explicitly reports source scope, unit, and source-time as not established and returns predictive_only / recomputed_predictive_limited. The closure document requires an admitted profile and states the positive served witness is UNRUN when no compatible series exists.",
+      "smallest_closure": "Keep this capability limited until the real C profile is admitted and the consumer binds its typed source, unit, scope, valid-time, source version, and completeness to the request; then add a negative where a different-kind/non-admitted series is substituted while numeric markers remain.",
+      "test_evidence": "Source review only. No actual C profile or positive CAS chain was executed by this reviewer."
+    }
+  ],
+  "numeric_replay_assessment": {
+    "finding": "No source-level bypass found in the train-only ETS replay and paired holdout/count/rate path.",
+    "basis": "The verifier slices train and holdout from the content-resolved source; dispatches the registered method on train only; checks the stored training slice against source bytes; compares each report prediction, interval, and held-out y_true against replay/source; recomputes hit numerator, horizon denominator, rate, threshold, and stored uncertainty values.",
+    "tests_run": false
+  },
+  "capability_state": "implemented_but_not_orchestrated; verification_missing for full CAS-backed positive; semantic_test_missing for served lifecycle",
+  "predicate_basis": "not_established",
+  "unrun_boundaries": [
+    "No real one-pass E empirical-evidence CAS positive with an admitted C series was run by this reviewer.",
+    "No served default HTTP POST-to-GET lifecycle or read-time re-verification was run by this reviewer.",
+    "No CAS-backed forged-count, leakage, foreign-scope, or temporal-role mutation was run by this reviewer.",
+    "The six unit tests were read as source only; this review did not replay them or any numerical ETS check."
+  ],
+  "report": "implementation-handoffs/A/s10-verifier-review/report.md",
+  "delta_reviews": [
+    {
+      "review_scope": "delta-only review of model/policy CAS resolution against S10-REVIEW-01",
+      "reviewed_worktree": "/Users/deniskopylov/.codex/worktrees/e02-a-s10-verifier/polisyos",
+      "worktree_branch": "codex/e02-A-s10-verifier",
+      "source_candidate_commit": "263729e956c74e123695bd97edee0001d970aae3",
+      "source_candidate_tree_sha": "e84673a5cc2439aab5e3af7f12986bc5778589b3",
+      "receipt_commit": "be8f8d53597b8cdd480a28b9ab023c34facf5726",
+      "slice_base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "receipt_parent": "263729e956c74e123695bd97edee0001d970aae3",
+      "worktree_clean_at_review": true,
+      "tests_or_numerics_run_by_reviewer": false,
+      "previous_finding_disposition": {
+        "finding_id": "S10-REVIEW-01",
+        "status": "closed_for_supplied_model_policy_pair",
+        "reason": "The delta resolves both request IDs from CAS, checks expected artifact kinds and content integrity through _resolve_json, and parses bytes with the strict canonical Trinity Core loaders before continuing. This supersedes the old candidate's marker-only model/policy content finding for a supplied complete pair; the historical finding above remains accurate for commit 331cffecd64a98152a9933e0f3f3d19caae53dfb."
+      },
+      "delta_assessment": {
+        "source_locations": [
+          "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py:189-192",
+          "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py:471-510",
+          "policy-engine/tests/unit/runtime/quality/test_forecast_verification.py:294-412"
+        ],
+        "property": "For a supplied complete pair, the actual model and policy CAS members must resolve as ir.model_spec and ir.policy_spec with matching manifest identity/media profile and byte digest/integrity, and both payloads must pass load_model_spec/load_policy_spec.",
+        "actual_predicate": "_validate_model_policy_content is called before report/evidence reconciliation; it refuses incomplete or duplicate pairs, constructs refs with canonical kinds, invokes _resolve_json (manifest identity, kind/media type, payload digest and manifest integrity), then calls each strict Core loader.",
+        "new_source_tests": [
+          "valid model/policy pair resolves under canonical loaders",
+          "model unknown-field payload refuses",
+          "wrong model manifest kind refuses",
+          "policy unknown-field payload refuses",
+          "incomplete pair refuses before CAS resolution"
+        ],
+        "test_receipt_as_recorded": "Updated handoff records 11 focused tests passed at candidate 263729e956c74e123695bd97edee0001d970aae3; reviewer did not run them.",
+        "finding": "No remaining P38 marker-only bypass found for a supplied model/policy pair in this delta. No tests or ETS/numerical checks were run by this reviewer."
+      },
+      "topic_disposition": {
+        "limited_predictive_recomputation_proposal": "GO, narrowly: the delta closes the previously reported model/policy CAS-content gap for supplied pairs, while the output remains predictive_only and recomputed_predictive_limited.",
+        "full_scoped_S10_credibility": "NO_GO: the admitted C source/profile still does not bind jurisdiction/scope, unit, source-time, version, or completeness to the request; full positive CAS-backed verification remains unrun.",
+        "default_served_post_get": "NO_GO: the verifier is still not wired as the default gateway/HTTP lifecycle consumer and GET does not yet demonstrate re-verification."
+      },
+      "unchanged_declared_boundary": "The older S10-REVIEW-02 finding remains open and unchanged. The added model/policy resolution does not establish C admission or default bridge orchestration.",
+      "publishability_recommendation": "source_pending_g_not_accepted"
+    }
+  ]
+}

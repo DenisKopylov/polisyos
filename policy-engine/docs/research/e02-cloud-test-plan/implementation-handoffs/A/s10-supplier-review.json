@@ -1,0 +1,215 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "A",
+  "slice": "s10-supplier-review",
+  "review_kind": "independent_supplier_and_bridge_trace",
+  "reviewer_independent_of_author": true,
+  "reviewed_at": "2026-10-06",
+  "reviewed_worktree": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+  "reviewed_head": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+  "reviewed_current_generation_cycle_blob": "e7565838dc5485893d3e2226083a79c9ae248f98",
+  "designated_g_checkpoint": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "g_local_merge_commit_examined": "acdc3536f93f085d665a7b53460935525373d015",
+  "fetched_g_remote_tip_examined": "6f869f39d04deaff7eda9b9047848912605beca5",
+  "e_onepass_commit": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+  "e_frc_source_checkpoint": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "c_continuation_commit": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+  "c_continuation_tip_examined": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+  "e_finite_sampling_checkpoint": "c4e8092d52cfff633465a8de1b8c93195388d401",
+  "source_review_only": true,
+  "tests_or_numerics_run_by_reviewer": false,
+  "git_mutations_or_fetches_performed": false,
+  "ancestry": {
+    "e_onepass_is_ancestor_of_e_frc": true,
+    "e_onepass_is_ancestor_of_designated_g_checkpoint": false,
+    "e_frc_is_ancestor_of_designated_g_checkpoint": false,
+    "c_continuation_is_ancestor_of_designated_g_checkpoint": false,
+    "e_onepass_is_ancestor_of_local_g_merge": false,
+    "e_frc_is_ancestor_of_local_g_merge": false,
+    "c_continuation_is_ancestor_of_local_g_merge": false,
+    "e_onepass_is_ancestor_of_fetched_g_remote_tip": false,
+    "e_frc_is_ancestor_of_fetched_g_remote_tip": false,
+    "c_continuation_is_ancestor_of_fetched_g_remote_tip": false,
+    "e_finite_sampling_is_ancestor_of_fetched_g_remote_tip": false,
+    "note": "The fetched origin/codex/e02-integration tip 6f869f3 is a later documentation checkpoint whose first parent is acdc353; neither E FRC/one-pass nor C continuation source is in its ancestry. Do not call acdc itself the integration checkpoint."
+  },
+  "producer_status": {
+    "initial_e_owner_at_g": {
+      "state": "implemented_but_not_orchestrated_for_s10",
+      "source": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py@0346fc656a45ff2cd43d37126992d8ddbb739d10",
+      "blob": "e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+      "bridge_source_blob": "db07beb895ca7c2262bcd945d3940bc46e008590",
+      "detail": "G already contains the earlier train/holdout ETS owner. Its ForecastOwnerRequest lacks the later configured empirical-evidence profile and explicit measurement unit/source-native binding."
+    },
+    "e_configured_empirical_owner": {
+      "state": "source_available_not_g_accepted",
+      "onepass_source": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "final_source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "source_blob_at_onepass": "74ea1741c38c216c882c65ecc1395baf792ea5f6",
+      "source_blob_at_frc": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "detail": "5bd adds the empirical profile, neutral evidence, and candidate receipt path; 8486 adds v2 metric/unit/schema measurement binding. Both commits are outside G checkpoint and later fetched G-tip ancestry."
+    },
+    "upstream_c_predictive_profile": {
+      "state": "not_established",
+      "detail": "The tracked active-observation projection is content-bound C evidence, but source time is literally not_established. A search of the complete production DataSnapshot constructor set finds no C-admitted predictive series/profile binding metric, unit, population/scope, source version/completeness, train/holdout and temporal roles together. No concrete admitted forecast-series fixture is available; do not fabricate row times or elevate the projection."
+    }
+  },
+  "c_source_census": {
+    "checkpoint": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+    "command": "git grep -n 'DataSnapshot(' 0346fc656a45ff2cd43d37126992d8ddbb739d10 -- policy-engine/src",
+    "denominator": "12 direct DataSnapshot(...) construction sites in tracked Python product source under policy-engine/src; the 13th grep hit is the DataSnapshot class declaration, not a producer.",
+    "construction_sites": [
+      "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py:691",
+      "policy-engine/src/polisyos/fabric/data_plane/modes.py:1000",
+      "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py:638",
+      "policy-engine/src/polisyos/foundry/_quickstart.py:158",
+      "policy-engine/src/polisyos/foundry/validation/release_acceptance.py:264",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py:4408",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py:4670",
+      "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py:1228",
+      "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py:500",
+      "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py:780",
+      "policy-engine/src/polisyos/scientist/adapters/fabric_bridge.py:202",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:729"
+    ],
+    "typed_contract": "policy-engine/src/polisyos/core/contracts/fabric.py@0346fc656a45ff2cd43d37126992d8ddbb739d10:161-177; DataSnapshot has generic data_ref and optional data_schema_ref/evidence/quality/uncertainty/warnings/input-binding refs plus stats/notes, but no scope/population/source-version/completeness/train-holdout/forecast-time profile fields.",
+    "only_reusable_c_projection": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py@0346fc656a45ff2cd43d37126992d8ddbb739d10:538-621; ActivatedAcquisitionObservationProjection binds active receipt/passport/admission/rows and recomputes row/projection hashes, while source_time_status is Literal['not_established'].",
+    "a_materialization": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py@0346fc656a45ff2cd43d37126992d8ddbb739d10:616-873; selects one projected member, materializes scalar acquisition.selected.value with only reported year/survey_year/wave, sets not_established source time, and emits DataSnapshot without data_schema_ref. It is not an ordered target-metric series and fails E-v2's required schema binding.",
+    "nonmatching_forecast_profile_types": [
+      "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py@0346fc656a45ff2cd43d37126992d8ddbb739d10:36-53 ForecastProfileContract is a constant_forecast/outcome_trajectory contract, not C admission.",
+      "policy-engine/src/polisyos/calibration/forecast_bridge.py@8486baad6fdef8063cfaad80b15f6b6d8532460a:229-245 ForecastCalibrationProfile is E candidate configuration (request_ref, threshold, predictive_calibration purpose), not a C-issued source profile."
+    ]
+  },
+  "e_request_and_execution_contract": {
+    "checkpoint": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "api": "ForecastOwner(store, empirical_profile_ref=profile_ref).run(request)",
+    "request_persist_api": "persist_forecast_owner_request(store, request) -> ir.forecast_owner_request / polisyos.calibration.forecast_owner_request, version 2.0",
+    "configured_profile": "ForecastCalibrationProfile v1: profile_id, profile_version, exact request_ref, calibration_threshold, purpose='predictive_calibration'; profile artifact kind ir.forecast_calibration_profile, schema polisyos.calibration.forecast_calibration_profile v1.0. The owner resolves it and requires loaded request equality; the convenience run_forecast_owner(store, request) does not accept a profile ref and does not produce configured empirical evidence.",
+    "method": {
+      "fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+      "params": {
+        "horizon": "integer >= 1, must equal holdout length",
+        "alpha": "finite float [1e-6, 1.0], default 0.3",
+        "beta": "finite float [1e-6, 1.0], default 0.1",
+        "additional_fields": "forbidden"
+      },
+      "split": "train_start, train_end, holdout_start, holdout_end, horizon; contiguous, explicit, horizon=holdout_end-holdout_start; at least eight train observations",
+      "execution": "MethodRegistry + MethodDispatcher; only train rows are passed as state.series, exact FQN required, ComputeBackend.NUMPY required; persisted report predictions/intervals are reconciled to the train-only replay and actual holdout rows.",
+      "implementation_note": "The ETS FQN uses the repository NumPy Holt-linear implementation; the local locked/installed statsmodels metadata is 0.14.6, but it is not the backend for this owner. No forecast or numeric call was run in this review."
+    },
+    "source_measurement": {
+      "snapshot_ref": "DataSnapshotRef kind=fabric.data_snapshot, application/json",
+      "required_snapshot": "schema_version=2.0; explicit target_unit and target_scale='source_native'; DataSnapshot.data_schema_ref required.",
+      "schema_ref": "fabric.data_schema / application/json / polisyos.fabric.DataSchema / schema 1.0; exactly one target_metric field; numeric scalar type; field unit.unit_id must equal target_unit.",
+      "scope_limit": "This source-schema check establishes one metric coordinate and source-native unit. It does not establish C source admission, population/scope, completeness/version, or per-row forecast-time alignment."
+    },
+    "rule": {
+      "kind": "ir.forecast_calibration_rule",
+      "media_type": "application/json",
+      "payload": "schema_version=1.0; rule_id=rolling-origin-residual-conformal.v1; rule_version=1.0; estimand=predictive_interval_coverage; algorithm=rolling_origin_residual_conformal; nominal_coverage in (0,1).",
+      "binding_note": "The E empirical-context field named rule_version_ref currently carries the rule_id string. Backtest metadata separately includes calibration_rule_version and the actual calibration_rule_ref. A must resolve and bind the CAS rule object; the matching string alone is not rule-content proof."
+    },
+    "temporal_roles": {
+      "fields": [
+        "data_valid_time",
+        "calibration_window_start",
+        "calibration_window_end",
+        "policy_effective_time",
+        "prediction_time",
+        "observation_time"
+      ],
+      "constraints": "all distinct and timezone-aware; data_valid_time < calibration_window_start < calibration_window_end <= prediction_time < observation_time; policy_effective_time <= prediction_time",
+      "limit": "These are request-level times and are copied into report/evidence. E does not map each indexed observation to an actual timestamp from DataSchema or establish C source-time semantics."
+    },
+    "scope": "Request model_spec_ref and policy_spec_ref are optional as a pair, distinct if present; configured empirical profile execution requires both, and E resolves them as ir.model_spec / ir.policy_spec. The E scope-binding payload binds those IDs, method, estimand, rule ID, authority_scope and threshold; it is not an admitted C source-population profile.",
+    "manifest_inputs": "Typed InputRef pairs, non-empty clean roles, no duplicate (artifact_id, role); the producer checks required source/data/schema/training/method/uncertainty/rule/model/policy/profile/request/evidence edges and resolves each report input.",
+    "train_only_and_holdout": "ForecastOwner.run dispatches the registered method with only train values. It then checks exact horizon interval points, pairs each interval with its indexed actual holdout value, and recomputes coverage numerator/denominator/rate. This is empirical predictive interval coverage for this configured holdout, not causal-effect calibration or a causal estimate."
+  },
+  "e_output_contract": {
+    "result_type": "ForecastOwnerResult",
+    "result_fields": [
+      "backtest_report_ref",
+      "empirical_evidence_ref",
+      "candidate_receipt_ref",
+      "observed_source_ref",
+      "training_slice_ref",
+      "method_artifact_ref",
+      "calibration_rule_ref",
+      "uncertainty_bundle_ref",
+      "calibration_diagnostics_ref",
+      "model_spec_ref",
+      "policy_spec_ref",
+      "temporal_roles",
+      "coverage_numerator",
+      "coverage_denominator",
+      "empirical_coverage",
+      "empirical_suitability"
+    ],
+    "report": "ir.backtest_report / ir.backtest_report schema 1.0; E returns its ref, so an A method-result adapter must resolve/read the persisted report through CAS.",
+    "empirical_evidence": "ir.empirical_calibration_evidence / polisyos.calibration.empirical_calibration_evidence schema 1.1. Eight role-bound artifacts use schema 1.0: scope_binding, calibration_threshold, observed_outcome, prediction, evaluation_design, credible_evaluation, source_lineage, method_lineage. Their kinds are ir.calibration.<role> and schema names polisyos.calibration.<role>.",
+    "candidate_receipt": "ir.forecast_candidate_receipt / polisyos.calibration.forecast_candidate_receipt v1.0; verifier_provenance is Literal['not_established']; predictive_only; immutable denials include causal_effect_authority, treatment_assignment_authority, and s10_authority.",
+    "status": "E output is predictive_only and bridge_pending. It is not an S10 authority result, causal-effect interval, or verifier-issued credibility finding."
+  },
+  "a_consumer_adapter": {
+    "current_s10_builder_input": "_build_real_s10_forecast_inputs reads method_result.report, output.empirical_calibration_evidence_ref, expected_rule_version_ref, and temporal_roles; it resolves evidence only through the configured _S10EmpiricalEvidenceResolver.",
+    "e_to_a_mapping": [
+      "Resolve result.backtest_report_ref from the same configured CAS with load_backtest_report and supply that typed report as the adapter's report field.",
+      "Map E result.empirical_evidence_ref to A's expected empirical_calibration_evidence_ref field; do not map candidate_receipt_ref into authority.",
+      "Bind expected_rule_version_ref to the exact configured request/rule context (the current E empirical evidence rule_version_ref wire value is the rule_id), while A independently resolves and checks the actual rule artifact/version.",
+      "Copy temporal_roles from the exact configured request/result; never accept HTTP-supplied replacements.",
+      "Inject A's same-CAS evidence resolver and A verifier into the default gateway; independently reconcile source/profile, scope, split, method, report predictions/intervals, actual holdout, counts/rate/threshold and temporal roles before returning limited predictive support."
+    ],
+    "requires_upstream_profile": "Do not construct or run this adapter positively until a C-owned admitted series supplies a real typed DataSnapshot + schema, metric/unit, scope/population, source version/completeness, outcome lineage, ordered valid-time and explicit split basis. Existing activated projection cannot supply this.",
+    "default_path_state_at_review": "A-only integration remains incomplete. RealValueOwnerGateway has produce_forecast_inputs and optional artifact_store/projection/evidence_resolver fields; the default FoundryValuePort forwards store/projection but leaves evidence resolver unconfigured. No source call site invokes produce_forecast_inputs; FoundryValuePort still returns treatment_assignment_not_owner_derived. Tracked runtime/http/control source has no ForecastOwner/forecast-owner-evidence resolver invocation. Preserve that causal/value refusal while adding any separate predictive branch.",
+    "capability_labels": [
+      "upstream C forecast-profile producer_missing / predicate not_established",
+      "E configured empirical producer present on fetched refs but not G-accepted",
+      "A bridge_missing / implemented_but_not_orchestrated",
+      "default HTTP surface_missing for this producer chain",
+      "served POST-to-GET semantic test UNRUN"
+    ]
+  },
+  "b21_finite_law_boundary": {
+    "source": "origin/codex/e02-E-mc-20261006@c4e8092d52cfff633465a8de1b8c93195388d401 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2.json",
+    "ancestry": "Not an ancestor of G 0346, acdc, or fetched G tip 6f869.",
+    "bounded_result": "E receipt describes explicit synthetic finite-machine fixtures with no production data. It supports a bounded finite-law sample path; it does not supply the configured owner law/estimand/source carrier required by B21.",
+    "limitation": "E's receipt records B202 held as a separate E/UQS-01 finding; the original-law-faithful carrier for the rounded profile remains not_established because upstream IR numeric policy may erase small weights. A faithful-production-law claim requires the source/numeric-policy owner.",
+    "a_allocation_status": "A's complete finding allocation records B21 as historical partial, closure_now=not_adjudicated, capability_label=producer_missing (closure-decisions/coverage.json, B21). The complete route allocation retains eight A/B21 route rows as partial in results/routes.tsv.",
+    "current_review_outcome": "limited",
+    "current_review_basis": "No E-admitted IID/QMC draw law is available for this consumer at the checked source pins.",
+    "separate_e_findings": "B201 and B202 are E-owned UQS-01 findings recorded held. Their state is not inherited by or substituted for A's B21 status.",
+    "disposition": "Do not ratify B21 from this branch. Preserve its historical partial status and record this supplier review's proposed outcome as limited. Keep iid SE conditional on an admitted independent IID design, and QMC uncertainty conditional on its independent scramble/error procedure and source-law admission."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P08",
+      "P10",
+      "P12",
+      "P14",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_failure_mode": "The initial E report/candidate artifacts can be mistaken for an admitted C source or A verifier decision by adjacency. The C projection's CAS/hash validity can be mistaken for temporal/source admission; the consumer currently has no configured default call path.",
+    "target_pattern": "Wire only an existing owner-backed C profile into the strict E request, preserve its source/metric/unit/time/scope binding, persist/read back E evidence, and let A independently recompute a scoped predictive result. Keep declared/unknown source predicates limited and preserve causal refusal.",
+    "remaining_labels": [
+      "producer_missing_for_C_predictive_profile",
+      "bridge_missing_for_A_default_S10_call",
+      "surface_missing_for_HTTP_C_to_E_to_A_chain",
+      "semantic_test_missing_for_served_positive_and_adversarial_controls"
+    ],
+    "acceptance_signal": "A bounded source-owned C series resolves from CAS; one configured E run persists the typed evidence/report; A independently verifies same-scope train-only replay and paired holdout on default path, with a fresh served read and content-valid forged-count/leakage/foreign-scope/time negative controls."
+  },
+  "verdict": {
+    "upstream_source_admission": "NOT_ESTABLISHED",
+    "supplier_state": "initial E train/holdout owner exists in G; configured E onepass/FRC revisions are source-pinned but not G-integrated; no admitted C S10 forecast profile is available",
+    "numerical_producer_assessment": "bounded predictive empirical calibration only; not causal, and not run in this review",
+    "a_consumer_readiness": "NO_GO for positive source-backed S10 capability until C profile and default A bridge exist; typed request/adapter can be wired to the exact E contract when upstream is admitted",
+    "publishability": "source_pending_g_acceptance"
+  },
+  "report": "implementation-handoffs/A/s10-supplier-review/report.md"
+}

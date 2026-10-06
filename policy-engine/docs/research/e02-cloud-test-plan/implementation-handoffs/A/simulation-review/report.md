@@ -1,0 +1,9 @@
+# Independent simulation review
+
+**Source-bounded review: GO. Temporal semantic closure: NO-GO.** ROOT candidate `3bd5dc0d9f0385fe2662024e173c7f75e25798db` carries the same six SIM path blobs as the handoff candidate at `c2200989612bcdc21b26c96eafb22526a54059ed`. Production source is unchanged across the test-fix tail. I independently compared the complete function bodies for the three B25 SMM tests in `test_sim_03.py` against slice base `198076863e143dea9f89f02734b13d50dae3eed5`; all match exactly.
+
+The retained evidence is a staged sequence, not one final full pass: broad run at `dd6fde7` = 85 passed / 5 failed; focused five-node run at `a6183e5` = 4 passed / 1 failed; final run at `c220098` = the single ProgramGraph witness passed. After the last test-only edit, the three coupling variants and coupling-removal probe were not rerun, and the other 85 broad-run cases were not rerun. No five-module broad run exists on the final test tree.
+
+B22 remains temporally unclosed under the existing P40 bucket. A registered StockFlow run with `dt=1` is projected onto request labels `[0,2,4,6]`, yielding `[10,9,8.1,7.29]` while `producer_time_grid_binding` is explicitly `not_established`. The one-point witness also puts initial `stock0=10` and terminal `final_stocks.0=9` in the same point. These are concrete output/time-role mismatches; the smallest missing capability is an owner-typed producer point/time binding. Keep the existing simulation-only authority blocker and do not infer a `dt` unit or equality rule.
+
+The final typed `StateSnapshotRef` ProgramGraph cache witness passes against real `FileSystemCAS`; the semantic cache snapshots and state fingerprint remain bounded source behavior. Cache identity does not establish physical-time alignment. Full machine-readable source IDs, body hashes, test receipts, and file/line references are in [simulation-review.json](../simulation-review.json).

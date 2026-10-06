@@ -216,5 +216,142 @@
     "capability_labels": ["bridge_missing", "verification_missing", "semantic_test_missing", "surface_missing for the composed chain"],
     "acceptance_signal": "A real admitted mapping, served C permission/action, native admission/readback, limited WMR, and same-case N5 consumer with an independent content-based oracle plus no-property/marker-retained controls."
   },
-  "delivery_note": "Evidence/reproducer only. No source or test file was changed, no code was committed, and no finding status was promoted."
+  "delivery_note": "Evidence/reproducer only. No source or test file was changed, no code was committed, and no finding status was promoted.",
+  "refresh_addendum": {
+    "schema": "policyos.e02.acquisition_compiler_refresh.v1",
+    "scope": "Read-only refresh of the canonical compiler → C L1 route and admitted observation → candidate WMR boundary; no numerical or production-data run.",
+    "refreshed_source_pins": {
+      "C_topic": {
+        "commit": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+        "tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f",
+        "subject": "fix(fabric): return the committed stream checkpoint artifact",
+        "changed_paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-06-c2-stream-admission.toml",
+          "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+        ],
+        "acquisition_scope": "The commit is streaming/checkpoint-only; it changes no compiler, acquisition-route, source-authority, native-admission, observation-readback, or WMR owner path."
+      },
+      "C_catalog_handoff": {
+        "commit": "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+        "tree": "158d1f359f11e44368063949aca81f5e1f8babdf",
+        "subject": "Clarify held catalog finding handoff scope",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006.json",
+        "git_blob": "a55309ba73dd3d02e92b140996db34e0bf99c88d",
+        "sha256": "6362f96f961b8436ff8044dd8134c9f0ba18878079b1c7b9f9227e7219915578",
+        "slice": "catalog-c2-20261006",
+        "bundle_ids": [
+          "DFK-02"
+        ],
+        "finding_ids": [
+          "LA-028"
+        ],
+        "candidate_source_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+        "scope_finding": "This is a catalog LA-028 handoff, not REQ-01/ACQ-01 evidence. Its final commit changes this handoff file only; its candidate source pin does not publish a compiler-to-L1 binding or an ObservationToWMRRule."
+      },
+      "same_owner_source_blobs_at_both_C_refs": {
+        "policy-engine/src/polisyos/data_requirement/compiler.py": {
+          "git_blob": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+          "sha256": "61dc374072c15e127db6bf91daa3199e96fbf5e583c9f0415dd7b73ee60a9d71"
+        },
+        "policy-engine/src/polisyos/data_requirement/_impl/models.py": {
+          "git_blob": "812a4ecdf1afa46f1f240053db452927e15df350",
+          "sha256": "2f0aa0fd8bdeaa041b8c4a30ed3825343fdc7cff38b93c91595e5da0731bc26c"
+        },
+        "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py": {
+          "git_blob": "da680b58a7d4bde1ddba87944f82912c52e9faa9",
+          "sha256": "d335ed8e0874c2a1cd89035b937f1dc1e461fb9e32b799e3d63614e541a9d60c"
+        },
+        "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py": {
+          "git_blob": "5f920c8ffa3ac0bb200d24b947df7f5228d86a87",
+          "sha256": "b0e6bd37b948136b8a4a6b2a52faab0f7ffdb341e58792b39089b027883147cd"
+        },
+        "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py": {
+          "git_blob": "e24b50c96dee37f9a10e9a5d982ad8ad1ba935e0",
+          "sha256": "8423f88932aa3192ff5dd47d90b593a8396ca6acb2934aa575d1bbe93c849e6f"
+        },
+        "policy-engine/src/polisyos/runtime/http/services/acquisition_action_service.py": {
+          "git_blob": "486ddf4a9fd036375e59b5d64ebedaebf853e085",
+          "sha256": "b5162adc207e9bb1ebae3fed6c7135bd4f29f8b89dddfa2af08c3166ddc59fde"
+        },
+        "policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py": {
+          "git_blob": "3d9dd1656aaa3bc7ca9d66bc4171a0f3a59f8011",
+          "sha256": "d7beab61333e15f5688dbf49d29f06499c593fec441be4568457a7b64c2b683c"
+        },
+        "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py": {
+          "git_blob": "4fb8915d22f669a1a11c7202341b6a2f494792f7",
+          "sha256": "04e5c70d450b297a50ad8936f72d5bf526b5a2520ee6de60fc92bbb1a1fd8bcf"
+        },
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py": {
+          "git_blob": "08d77fa061e22f3a4f4c1a10a0096dcf3255221b",
+          "sha256": "ed902ef5d990a9e352e70a196f4a1d13ac25f6778d46a79828252cc7a35674e5"
+        }
+      },
+      "A_current_committed_snapshot": {
+        "commit": "653b6be7c3cdc9dec0bbe4bd4fa3546a3f63f496",
+        "tree": "04f52e59c5c71e4e78388591b5ed4ee81c2127b1",
+        "generation_cycle_blob": "e7565838dc5485893d3e2226083a79c9ae248f98",
+        "generation_cycle_sha256": "ec35812a5fbad16cc543948964f7b6fa4c19712f03feb314969549f77e090376",
+        "n7_delta_from_prior_receipt_pin": "The diff from 20d72ee1dd5a6655e5dc65680650ed886dc65764 changes later N8 L1 profile/readback code; the N7 plan-only dispatch and _n7_data_requirement_specs blocks remain unchanged at this pin."
+      }
+    },
+    "mapping_verdict": {
+      "compiler_to_C_L1_variable": "not present as a typed mapping",
+      "canonical_public_contract": "DataRequirementSpec@policyos.data_requirement_spec.v1 has required_data_families, scope, facets, concept/authority refs and free-form metadata; it has no typed canonical_variable_id, C route, granted source permission, or acquisition-spend binding. The compiler resolves explicit construct/capability inputs to data-family requirements; its output is not C execution authority.",
+      "generic_gap_conversion": "requirement_gaps_from_compiled_specs() → _data_requirement_gap() emits required_data_family:* and mandatory_facet:* missing fields and carries compiler schema/rule provenance. It does not emit canonical_variable_observations:<id> or resolve an owner-measured L1VariableAvailability.",
+      "direct_L1_path_exists": "A separate path is implemented: N8 ValueOwnerAccessError.owner_gap_evidence is checked against the candidate outcome variable and passed to l1_variable_availability_requirement_gap(). That exact owner-produced L1 gap has schema policyos.runtime.l1_variable_availability_gap.v1 and is the shape the C WDI route accepts. This does not derive a variable from a compiler spec.",
+      "C_native_is_not_wholly_blocked": "The C native route exists for its supported typed L1 gap: _require_live_variable_route() accepts only one canonical_variable_observations:<variable> field, then route authority resolves the unique current live source entry, provision, connector and attempt receipt. The served action still requires BoundActionPermissionVerification; a compiler CapabilityBinding cannot be cast into that permission.",
+      "scope_purpose_rights_budget_boundary": "C binds country/year from the served DesignProblem jurisdiction_time and checks the route against current authority scope. Generic compiler scope remains generic unless explicitly declared; do not copy a jurisdiction or date from a route/profile. Compiler authority_profile_refs or claim_use are not source rights/purpose permission. C route authority and A planner cost records are separate; the existing budget_join limitation remains not_established.",
+      "missing_owner_contract": "C needs an owner-issued typed, content-bound mapping from an explicitly admitted construct/estimand and declared scope to a canonical L1 variable and its source/profile measurement contract, with variable/estimand relevance confirmation from F. It must preserve purpose, source rights, valid-time, and the applicable budget decision. No family name, topic proposal, scenario ID, or guessed measurement supplies that binding.",
+      "A_owned_bridge": "A owns the consumer bridge: the current GenerationCycleController.run plan_n7 branch stores plan/cost and skips _run_n7_acquisition_if_requested. After a real typed C/F mapping exists, A must route only that exact requirement through the served C action/permission boundary and native lifecycle. Generic family/facet gaps and unresolved any_of remain planning/unsatisfied; do not call them acquired or dispatch them by inference."
+    },
+    "admission_readback_and_WMR": {
+      "native_chain_reusable": "C has the current-route resolver, served permission/action boundary, WDI source execution, native semantic-epoch admission/passport, CatalogAcquisitionOverlay owner readback, and same-case re-entry receipt. Existing C integration selectors exercise a directly supplied C L1 gap; they do not begin at DataRequirementCompiler.",
+      "typed_candidate_slot_map_exists": "AcquisitionCandidateWorldRefresh is a strict configured route/profile/canonical-variable/target-slot mapping with mapping_semantics=candidate_value_forwarded_without_conversion. The candidate snapshot builder selects exactly one matching admitted row and emits FoundryInputBindingRule from acquisition.selected.value to the configured slot.",
+      "B09_ObservationToWMRRule": "No runtime ObservationToWMRRule contract was found in the pinned C source. The existing FoundryInputBindingRule is explicitly candidate-only and records source_time_not_established and source_to_target_measurement_contract_not_established; the snapshot records source_time_status=not_established and transaction time separately. Thus the narrow candidate slot adapter exists, but a B09-qualified observation-to-WMR semantic rule does not.",
+      "owner_scope": "The A closure decision proposes a C-issued ObservationToWMRRule and says F confirms variable/estimand relevance; that is a proposal/owner allocation, not an implemented source contract. The exact CYC-03 B09 criterion still requires real data to count as progress and same bytes renamed with a new UUID/time to remain no progress.",
+      "current_A_N8_readback_delta": "At the pinned A snapshot, FoundryValuePort can receive an ActivatedAcquisitionObservationProjection; _load_value_data_profile_from_l1_dcat revalidates it with the catalog owner, checks the exact selected member IDs and row content against current physical rows, requires the registered identity unit and rejects nonfinite rows. This is a downstream N8 consumer/readback improvement, not a DataRequirementCompiler→C L1 mapping, an ObservationToWMRRule, or a tested B12 closure.",
+      "C_test_boundary": "The C source tests include actual WDI admission/re-entry, a limited candidate world with source time unknown, and a served N5 refusal preventing N8. The WDI same-case selector ends with budget_exhausted_for_next_level; no changed dependent calculation under an owner-issued B09 rule is established here. No C tests were rerun."
+    },
+    "criterion_source_pins": {
+    "B09_original_CYC03": {
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-03.md",
+      "commit": "653b6be7c3cdc9dec0bbe4bd4fa3546a3f63f496",
+      "git_blob": "843735b238297037acab87b67bac734f921420d8",
+      "sha256": "1a5eedfe561bdff222dd474abd79f335a098b2344f7cfb0875ad8c007438f96c",
+      "lines": [44, 61],
+      "meaning": "same candidate plus real data may progress; same content under a new UUID/time may not"
+    },
+    "B09_owner_rule_decision": {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+      "commit": "653b6be7c3cdc9dec0bbe4bd4fa3546a3f63f496",
+      "git_blob": "68fcdf9337eb4b0f268d5c2c786e2900edf28a2b",
+      "sha256": "4905f83387849811bcea2410ce98b769aeed141ae9efe453b11aef55f556a1e3",
+      "lines": [62, 68],
+      "meaning": "C-issued ObservationToWMRRule is proposed; F confirms variable/estimand relevance; B09 remains open"
+    }
+  },
+  "criteria_refresh": {
+      "B12": "The pinned original ACQ-01 criterion/hash is unchanged. Current C native admission/re-entry does not by itself prove the accepted admitted data changed the dependent calculation; the current coverage disposition remains producer_missing.",
+      "B09": "CYC-03 requires semantic progress from new real data and forbids treating UUID/timestamp changes as progress. The A closure decision keeps B09 open pending the C/F owner-issued observation-to-WMR measurement rule; candidate slot wiring is insufficient.",
+      "LA-046": "REQ-01/ACQ-01 original source/hash is unchanged. Compiler explicit-empty, any_of, opaque-ID, negation, and generic-scope controls remain covered by the existing eight-check receipt; the actual compiler → real resolver/permission/native consumer witness remains verification_missing.",
+      "separate_S10_profile": "Still not established in this trace; retained as an independent limitation."
+    },
+    "existing_eight_check_receipt": {
+      "test_leaf_commit": "5650b7aed7991606d62cd8510b377698a778ce39",
+      "test_leaf_tree": "b03120869a77b27d02aba456fb7dfc88d582f832",
+      "compiler_source_blob": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+      "N7_dispatch_block_sha256": "da12d2ae61edc15986ae0fedb7a5f6facff33e8c8f1726ced71452ba2e6d9a9c",
+      "N7_specs_block_sha256": "abb7f94cacc3481c98446b9cbea549c7037747e233d82bca759293b2e116a5b4",
+      "stdout_sha256": "bdd6802e5de47a1120efe3e8dad9553253b2795d879937a51a52b7e1bf4bcb77",
+      "junit_sha256": "23cb24a6fa3d6e083482bed5f42ef30d55984572b36d40822911e52b317c8af5",
+      "readback": "Existing receipt command, environment, leaf/tree and all five source/test blobs were re-read and match; stdout/JUnit file hashes match the receipt. The eight checks were not rerun and remain pinned to the older leaf."
+    },
+    "proposed_unique_test_lease": {
+      "new_path": "policy-engine/tests/integration/core_runtime/test_n7_compiler_to_native_world_growth.py",
+      "owner": "A consumer bridge, using existing real C APIs/fixtures; no source-profile, rule, permission or variable may be invented by this test.",
+      "status": "not yet runnable as a positive compiler-to-C test until C publishes the typed construct/scope→L1 variable/source binding and C/F ratify the B09 measurement rule.",
+      "acceptance": "Use the canonical compiler and real resolver/index; prove explicit empty and unsatisfied any_of do not dispatch, and opaque IDs/negation/generic scope do not fabricate a variable. For the eventual positive, verify the content-bound owner mapping and scope/purpose/rights/budget decision, served C permission, native admission/passport/readback, candidate-limited WMR, then same-candidate N5 consumption whose independent content oracle changes only when admitted semantic content changes. Mutate bytes while retaining markers and vary UUID/time alone as distinguishing controls."
+    },
+    "unresolved_locator": "The supplied G0346… locator was abbreviated and did not resolve to an exact source/ref in the pinned runtime tree; no G0346 or ObservationToWMRRule runtime symbol exists at either pinned C source ref. It is not used as evidence."
+  }
 }

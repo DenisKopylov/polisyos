@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.simulation_review.v1",
+  "review_date": "2026-10-06",
+  "reviewer_role": "independent SIM source/test delta review",
+  "root_candidate": {
+    "branch": "codex/e02-A-full-queue",
+    "commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+    "tree": "a5c268e023720c5afc97af75a285b63e7f943528"
+  },
+  "simulation_handoff": {
+    "branch": "codex/e02-A-simulation-full",
+    "handoff_commit": "7c3423dd0ea5b5825810a8127bfeed0b50dbb790",
+    "candidate_commit": "c2200989612bcdc21b26c96eafb22526a54059ed",
+    "candidate_tree": "7a2729b235c3ae5050c44ea335db507beb830b11",
+    "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "outcomes": {
+    "source_bounded_review": {
+      "decision": "GO",
+      "scope": "The reviewed ROOT candidate's six SIM implementation/test paths have the same Git blobs as the SIM handoff candidate. Production source is byte-identical across dd6fde7 and ROOT candidate; only the two cited test files change in the a618/c220 test-only tail. This is a bounded source review, not finding closure or a claim of temporal semantic adequacy.",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "source_blob": "1f04cc5c8fc211be2a4926a2a9e7a4a87e7d61a6",
+      "b25_original_bodies_preserved": true
+    },
+    "temporal_semantic_closure": {
+      "decision": "NO_GO",
+      "finding": "B22",
+      "pattern": "P40 same class one level deeper",
+      "reason": "The adapter labels output rows with request steps by index but does not bind those rows to the registered producer's physical time grid. The retained real-StockFlow witness also places an initial stock and terminal scalar on the same one-point row.",
+      "disposition": "Keep producer-time binding not_established and the simulation-only authority blocker. No dt unit or dt-equals-request-step rule is inferred."
+    }
+  },
+  "candidate_path_blob_comparison": {
+    "denominator": 6,
+    "result": "all ROOT candidate blobs equal the SIM candidate blobs",
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "blob": "1f04cc5c8fc211be2a4926a2a9e7a4a87e7d61a6"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "blob": "e32b91d15ff90e42ca6cd24901a9cfa359054fc6"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "blob": "1f31d872027fe7d14338b59d8cb236b4e7ebc146"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+        "blob": "52628ed5703bdbbc16290ccfc8d92a4bcbf5567b"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+        "blob": "accd28a967752fb69342fb3acba3ceb0f4dec281"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+        "blob": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202"
+      }
+    ]
+  },
+  "b25_preservation": {
+    "criterion": "B25",
+    "baseline_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+    "source_ids": ["F02-P032", "F07-P031"],
+    "method": "Extract each named function's complete AST line interval at the baseline and ROOT candidate, then compare source bytes and SHA-256.",
+    "functions": [
+      {
+        "name": "test_summary_distance_requires_one_declared_metric_set",
+        "sha256": "486b691758a7c7df2db2c713cfbfb4c866107ce3b7a53301df849f1e6d1f1c81",
+        "exact_match": true
+      },
+      {
+        "name": "test_smm_missing_required_moment_cannot_win_calibration",
+        "sha256": "1873aa6bb514e093df38b7d08a7b72046b6051cb177cbf43076a46f86ce91c32",
+        "exact_match": true
+      },
+      {
+        "name": "test_smm_all_incomparable_candidates_are_explicitly_blocked",
+        "sha256": "6ebf3037a2dd2273368e4e5e26a1bbba8ac61eed7df1fbc981066da944f17bf2",
+        "exact_match": true
+      }
+    ],
+    "closure_scope": "The three required original SMM test bodies are preserved. This does not expand B25 to optional metrics, other estimators, or served API closure."
+  },
+  "test_receipt_composition": [
+    {
+      "target_commit": "dd6fde7d0d1635ca659c0c57e5db77c40559d0e2",
+      "target_tree": "a04248c3d57d57b1a8cc392a7292499b5fff9373",
+      "scope": "Five SIM test modules",
+      "result": {"tests": 90, "passed": 85, "failed": 5},
+      "failed_nodes": [
+        "test_program_graph_cache_binds_mutated_state_with_same_cas_refs",
+        "test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource]",
+        "test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback]",
+        "test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine]",
+        "test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation"
+      ],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/full-at-dd/junit.xml"
+    },
+    {
+      "target_commit": "a6183e54008fd5b36302937ae3b803ef3d8c2be0",
+      "scope": "The five originally failed nodes after the static-horizon fixture adjustment",
+      "result": {"tests": 5, "passed": 4, "failed": 1},
+      "failed_nodes": [
+        "test_program_graph_cache_binds_mutated_state_with_same_cas_refs"
+      ],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/focused-at-a618/junit.xml"
+    },
+    {
+      "target_commit": "c2200989612bcdc21b26c96eafb22526a54059ed",
+      "scope": "Only the ProgramGraph same-CAS-reference mutated-state witness after typed StateSnapshotRef conversion",
+      "result": {"tests": 1, "passed": 1, "failed": 0},
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/programgraph-at-c220/junit.xml"
+    }
+  ],
+  "verification_limit": {
+    "single_fresh_full_pass": false,
+    "not_rerun_after_c220": [
+      "The three unsupported-coupling parameter cases and the coupling-removal probe passed in the a618 focused run but were not rerun after the final c220 test-only edit.",
+      "The other 85 cases from the broad dd run were not rerun against the final c220 test tree.",
+      "No five-module broad run was recorded on the final c220 tree."
+    ],
+    "review_actions": "Read-only Git/blob, JUnit, and source inspection only; no tests or engine runs were started by this review."
+  },
+  "p40_boundary_review": {
+    "temporal_grid": {
+      "source": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:2005-2100",
+      "test": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:500-575",
+      "witness": "A real registered StockFlow request for steps [0,2,4,6] with producer dt=1 yields row values [10,9,8.1,7.29] under those request labels; diagnostics explicitly say producer_time_grid_binding=not_established. No producer-time contract establishes these as values at 0,2,4,6.",
+      "one_point_witness": "For HorizonSpec(0,0,1), the producer is asked for one transition and returns initial plus post-transition state. The sole output point is marked terminal by index and reports stock0=10 from the initial row alongside final_stocks.0=9 from the terminal scalar.",
+      "interpretation": "Concrete output/time-role mismatch, already retained as the same B22/P40 temporal-binding class. It is not evidence to invent a dt unit or equality law. The simulation-only authority blocker prevents treating this as established world evidence."
+    },
+    "cache": {
+      "source": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:652-675,817-875",
+      "test": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:580-875",
+      "boundary": "Semantic request/plan inputs are snapshotted for callback and invocation-local identity; process-owned handles are preserved; the final ProgramGraph witness uses typed StateSnapshotRef and a real FileSystemCAS state change under unchanged refs.",
+      "interpretation": "The c220 test-only typed-ref edit was rerun and passed. Cache identity/content evidence does not reconcile a producer's physical time grid and does not close B22."
+    }
+  },
+  "finding_decision": "Bounded source review GO; temporal semantic closure NO-GO and not adjudicated. Do not report a single fresh full-pass run or full A/SIM finding closure."
+}

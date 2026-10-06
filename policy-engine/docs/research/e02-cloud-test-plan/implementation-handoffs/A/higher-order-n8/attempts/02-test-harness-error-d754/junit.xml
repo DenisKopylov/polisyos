@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="15.273" timestamp="2026-10-06T17:09:08.483153+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_higher_order_n8_intake" name="test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer" time="1.033"><failure message="AttributeError: 'dict' object has no attribute 'artifact_id'">tests/integration/core_runtime/test_e02_higher_order_n8_intake.py:404: in test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer
+    assert persisted["cas_artifact_id"] == str(variant.simulation_result_ref.artifact_id)
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'dict' object has no attribute 'artifact_id'</failure></testcase></testsuite></testsuites>

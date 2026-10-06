@@ -1,0 +1,33 @@
+{
+  "branch": "codex/e02-A-full-queue",
+  "bytecode_disabled": true,
+  "checkout_head_before": "16f782e0bc9314464631d4fcff149b0637d3aabb",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+  "pytest_version": "pytest 9.0.2",
+  "python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "python_path": "src:.",
+  "python_version": "Python 3.14.3",
+  "recorded_at_utc": "2026-10-06T13:28:23.255388+00:00",
+  "selectors": [
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_terminal_projection_preserves_stop_budget_and_abstention",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_same_candidate_new_basis_preserves_history_and_current_front",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py::test_currentness_uses_ledger_observation_without_source_replay"
+  ],
+  "slice_base": "33dfb99210eb4457263fde7f92b3479ebac75b02",
+  "source_blobs_at_base": {
+    "src/polisyos/runtime/quality/generation_cycle.py": "f5bda4e76768ad1d19ae496ddecf78f40f9a06ee",
+    "src/polisyos/runtime/quality/recursive_generation_cycle.py": "71aa5c2956ba7033924f90be715ce3b8afb9f798",
+    "tests/unit/runtime/quality/test_generation_cycle.py": "5fb9c75d734a2398fd6639d983adafb8054d40da",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py": "cecafa6ff98f70269385ebe496a4668181a7d44c"
+  },
+  "source_blobs_at_head": {
+    "src/polisyos/runtime/quality/generation_cycle.py": "f5bda4e76768ad1d19ae496ddecf78f40f9a06ee",
+    "src/polisyos/runtime/quality/recursive_generation_cycle.py": "71aa5c2956ba7033924f90be715ce3b8afb9f798",
+    "tests/unit/runtime/quality/test_generation_cycle.py": "5fb9c75d734a2398fd6639d983adafb8054d40da",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py": "cecafa6ff98f70269385ebe496a4668181a7d44c"
+  },
+  "test_inputs": "Three existing local controller/history selectors with fake ports; history helper reads and hash-checks the two serialized v3 fixtures recorded in source-origin.json, selecting the identity fixture. No N5 execution, CAS run, numerical engine, or served request is invoked.",
+  "venv_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+  "venv_realpath": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+  "working_tree_status_before": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/"
+}

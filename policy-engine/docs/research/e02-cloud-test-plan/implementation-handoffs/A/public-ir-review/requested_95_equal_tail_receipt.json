@@ -1,0 +1,249 @@
+{
+  "execution": {
+    "actual_argv": [
+      ".venv/bin/python",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+    "elapsed_seconds": 0.3140175,
+    "exit_code": 0,
+    "numpy_version": "2.3.5",
+    "outcome": "PASS",
+    "python_version_output": "Python 3.14.3",
+    "source_context_captured_before_execution": {
+      "branch": "codex/e02-A-full-queue",
+      "candidate_head": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+      "candidate_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "pin": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "pinned_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "source_blobs_match": true,
+      "working_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+    },
+    "stderr_file": "requested_95_equal_tail_final_execution.stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_text": "",
+    "stdout_file": "requested_95_equal_tail_final_execution.stdout.json",
+    "stdout_json": {
+      "loaded_source_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "loaded_source_matches_pin": true,
+      "numpy_version": "2.3.5",
+      "oracle": {
+        "draw_count": 100,
+        "draw_profile": "99 zeros + one 100",
+        "equal_tail_q025": 0.0,
+        "equal_tail_q975": 0.0,
+        "mean": 1.0,
+        "nominal_interval_mass": 0.95,
+        "numeric_estimator_called": false,
+        "quantile_method": "numpy.quantile(method='inverted_cdf')",
+        "quantile_probabilities": [
+          0.025,
+          0.975
+        ],
+        "realized_coverage": 0.99
+      },
+      "pinned_source_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "python_version": "3.14.3",
+      "schema_version_default": "1.1",
+      "scope": [
+        "This finite-data oracle does not ratify public quantile semantics.",
+        "This validation control does not replay a historical production payload.",
+        "No v2 schema or identity is created or tested."
+      ],
+      "source_pin": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "v1_1_control": {
+        "expected_rejection": true,
+        "rejection": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate (1.0) must lie within confidence_interval [0.0, 0.0] [type=value_error, input_value={'point_estimate': 1.0, '...L: 'credible_interval'>}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+      }
+    },
+    "stdout_sha256": "b6bc89a926f19c950e98a4fe54a1fdd1ac9d4d6f14b1ca6d2f6cb3b1bf697529",
+    "thread_environment": {
+      "BLIS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "execution_source_binding": {
+    "executed_source_snapshot": "requested_95_equal_tail_oracle.final_executed_d3b4ee63d884.py",
+    "executed_source_snapshot_sha256": "d3b4ee63d884c8eabe95e44c14879016b0c3e67675189c9d29135b94af75460d",
+    "execution_source_sha256_after_run": "d3b4ee63d884c8eabe95e44c14879016b0c3e67675189c9d29135b94af75460d",
+    "execution_source_sha256_before_run": "d3b4ee63d884c8eabe95e44c14879016b0c3e67675189c9d29135b94af75460d",
+    "source_unchanged_across_execution": true,
+    "status": "bound_to_exact_final_source_sha256",
+    "working_reproduction_script": "requested_95_equal_tail_oracle.py",
+    "working_reproduction_script_sha256": "d3b4ee63d884c8eabe95e44c14879016b0c3e67675189c9d29135b94af75460d"
+  },
+  "failed_pre_oracle_attempt": {
+    "actual_argv": [
+      ".venv/bin/python",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py"
+    ],
+    "cause": "Git source path was relative to policy-engine while git ran from repository root; corrected docs-scoped script now passes repository-relative path.",
+    "elapsed_time": "not captured by the aborted receipt harness; outer tool wall time was approximately 0.3s",
+    "executed_source_snapshot": "requested_95_equal_tail_oracle.failed_attempt_701412270551.py",
+    "exit_code": 1,
+    "numeric_quantile_oracle_started": false,
+    "outcome": "FAIL_before_oracle_execution",
+    "pre_run_script_sha256": "7014122705517fa5c3835f1f4214035cbdb920a13e7055696a672409b1b9c078",
+    "stderr_text": "fatal: could not open 'src/polisyos/ir/analytics/uncertainty.py' for reading: No such file or directory\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py\", line 103, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py\", line 43, in main\n    loaded_blob = subprocess.check_output(\n                  ~~~~~~~~~~~~~~~~~~~~~~~^\n        [\"git\", \"hash-object\", str(PRODUCT_SOURCE)], cwd=REPO_ROOT, text=True\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ).strip()\n    ^\n  File \"/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/subprocess.py\", line 472, in check_output\n    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,\n           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n               **kwargs).stdout\n               ^^^^^^^^^\n  File \"/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/subprocess.py\", line 577, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['git', 'hash-object', 'src/polisyos/ir/analytics/uncertainty.py']' returned non-zero exit status 128.\n",
+    "stdout_text": ""
+  },
+  "final_oracle_interpretation": {
+    "interpretation": "For this discrete sample, the nominal equal-tail quantile levels produce an interval containing 99 of 100 draws; nominal interval mass is not the same as realized finite-sample coverage.",
+    "nominal_interval_mass": 0.95,
+    "realized_coverage": 0.99,
+    "returned_interval": [
+      0.0,
+      0.0
+    ],
+    "tail_quantile_probabilities": [
+      0.025,
+      0.975
+    ]
+  },
+  "limits": [
+    "This finite-data check exercises the requested nominal 95%-central equal-tail q0.025/q0.975 quantiles. The discrete returned interval [0,0] has realized empirical coverage 99/100 = 0.99; the arithmetic does not ratify public semantics.",
+    "The DTO rejection confirms current v1.1 containment behavior; byte-exact scratch read/reserialize is in historical_q05_q95_receipt.json, not this execution.",
+    "Historical production v1.1 replay remains UNRUN and not_established.",
+    "No v2 schema or $id was created or tested; no scientific owner ratification is inferred."
+  ],
+  "prior_source_bound_preclarification_binding": {
+    "current_reproduction_script_execution": "UNRUN_after_nominal_vs_realized_mass_label_clarification",
+    "current_reproduction_script_sha256_after_docstring_update": "5b84888aaa89d07eb68d7b0efc2f75d18524db44a183bb2307163131c2cae57c",
+    "current_reproduction_script_sha256_after_mass_label_correction": "315f0bdbb9e8c4773c137b26624f06d95608684f89fa159738ba8bb8af4719ae",
+    "executed_source_snapshot": "requested_95_equal_tail_oracle.executed_0f88bb15606f.py",
+    "executed_source_snapshot_sha256": "0f88bb15606fd9231ee5bf1c63eed20e732f50eb8b7496e02b94576b6a8c6772",
+    "execution_source_sha256": "0f88bb15606fd9231ee5bf1c63eed20e732f50eb8b7496e02b94576b6a8c6772",
+    "post_execution_edit": "After preserving the exact executed pre-run source snapshot, the current reproduction source was clarified to name nominal central mass and realized empirical coverage separately; only the exact snapshot was executed.",
+    "source_snapshot_matches_pre_run_script": true,
+    "status": "bound_to_pre_run_source_sha256",
+    "working_reproduction_script_at_execution": "requested_95_equal_tail_oracle.py",
+    "working_reproduction_script_sha256_before_execution": "0f88bb15606fd9231ee5bf1c63eed20e732f50eb8b7496e02b94576b6a8c6772"
+  },
+  "prior_source_bound_preclarification_execution": {
+    "actual_argv": [
+      ".venv/bin/python",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+    "elapsed_seconds": 0.214889041,
+    "exit_code": 0,
+    "numpy": "2.3.5",
+    "outcome": "PASS",
+    "python_version_output": "Python 3.14.3",
+    "result_interpretation": {
+      "closed_interval": [
+        0.0,
+        0.0
+      ],
+      "included_draws": 99,
+      "nominal_central_mass": 0.95,
+      "nominal_quantile_probabilities": [
+        0.025,
+        0.975
+      ],
+      "realized_empirical_mass": 0.99,
+      "stdout_interval_mass_field_interpretation": "The captured pre-clarification stdout field named interval_mass is the nominal requested central mass, not the realized mass of the discrete returned interval.",
+      "total_draws": 100
+    },
+    "source_context_captured_before_execution": {
+      "branch": "codex/e02-A-full-queue",
+      "candidate_head": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+      "candidate_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "pin": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "pinned_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "source_blobs_match": true,
+      "working_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+    },
+    "stderr_file": "requested_95_equal_tail_execution.stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_text": "",
+    "stdout_file": "requested_95_equal_tail_execution.stdout.json",
+    "stdout_json": {
+      "loaded_source_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "loaded_source_matches_pin": true,
+      "numpy_version": "2.3.5",
+      "oracle": {
+        "draw_count": 100,
+        "equal_tail_q025": 0.0,
+        "equal_tail_q975": 0.0,
+        "interval_mass": 0.95,
+        "mean": 1.0,
+        "numeric_estimator_called": false,
+        "quantile_method": "numpy.quantile(method='inverted_cdf')"
+      },
+      "pinned_source_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "schema_version_default": "1.1",
+      "scope": [
+        "This finite-data oracle does not ratify public quantile semantics.",
+        "This validation control does not replay a historical production payload.",
+        "No v2 schema or identity is created or tested."
+      ],
+      "source_pin": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "v1_1_control": {
+        "expected_rejection": true,
+        "rejection": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate (1.0) must lie within confidence_interval [0.0, 0.0] [type=value_error, input_value={'point_estimate': 1.0, '...L: 'credible_interval'>}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+      }
+    },
+    "stdout_sha256": "c0d7699b2f21c1dd68344537aca32292f4640e8d61101a478f336c8833701aec",
+    "thread_environment": {
+      "BLIS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "prior_unbound_inline_execution": {
+    "command": "From policy-engine, .venv/bin/python - with an inline NumPy oracle and UncertaintyEnvelope validation control; exact stdin was not retained.",
+    "elapsed_seconds": 0.338,
+    "environment": {
+      "numpy": "2.3.5",
+      "python": "3.14.0"
+    },
+    "input": {
+      "count": 100,
+      "draws": "99 zeros + one 100"
+    },
+    "oracle": {
+      "assertions": "PASS",
+      "equal_tail_quantile_probabilities": [
+        0.025,
+        0.975
+      ],
+      "equal_tail_values": [
+        0.0,
+        0.0
+      ],
+      "interval_mass": 0.95,
+      "mean": 1.0,
+      "numeric_estimator_called": false,
+      "quantile_method": "numpy.quantile(method='inverted_cdf')"
+    },
+    "outcome": "PASS_for_ephemeral_inline_execution",
+    "source_identity": {
+      "loaded_source_matches_pin": true,
+      "loaded_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "pinned_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "pinned_uncertainty_py_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "schema_version_default": "1.1"
+    },
+    "v1_1_dto_control": {
+      "confidence_interval": [
+        0.0,
+        0.0
+      ],
+      "confidence_level": 0.95,
+      "interval_semantics": "credible_interval",
+      "message": "point_estimate (1.0) must lie within confidence_interval [0.0, 0.0]",
+      "outcome": "PASS_expected_validation_rejection",
+      "point_estimate": 1.0,
+      "source": "calibration"
+    }
+  },
+  "schema": "policyos.e02.public_ir.equal_tail_oracle_receipt.v1"
+}

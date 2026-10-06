@@ -1,0 +1,184 @@
+{
+  "schema": "policyos.e02.review_source_lease.v1",
+  "lease_purpose": "Bind the independent read-only B26 N8 source review to the exact checkout and supporting evidence read.",
+  "branch": "codex/e02-A-full-queue",
+  "head_commit": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+  "head_tree": "19354fd6fb397d043c8b4d1e98f2386324c6256b",
+  "baseline_commit": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+  "working_tree_sources": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "sha256": "252e7bb15ab1931a4fe22d91fde8e111f103fdb7c8d03e93253e9cea444dc552",
+      "baseline_git_blob": "d6996306da8675f34568a1b53579bfd370d0b3d1",
+      "status": "modified_uncommitted"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+      "baseline_git_blob": "e7565838dc5485893d3e2226083a79c9ae248f98",
+      "status": "modified_uncommitted"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+      "baseline_git_blob": "8fed0f5dc4f523781e09524f252ada5d838df7be",
+      "status": "modified_uncommitted"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "sha256": "fb64303b3f6d37818762f514542e2c53c72840afe2815cbc7a6989ba54626e1a",
+      "baseline_git_blob": "c08a37fa4ac247dcb1c936e82f40fc661aa94fc2",
+      "status": "modified_uncommitted"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+      "baseline_git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a",
+      "status": "unchanged"
+    }
+  ],
+  "tests_and_controls": [
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+      "sha256": "3841a7859731ab085a41e8610db68c46b0c729667a2a28f1798b5dccd3f98df5",
+      "baseline_git_blob": "c66a6f001f8f0370fdc5d8d4767dea0fbf47d978",
+      "status": "unchanged_baseline_acceptance_test"
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+      "sha256": "1d2aa7cc165f85adcb8666b4836a7f24af34dd392b357554e23a57ed6d0d64f5",
+      "baseline_git_blob": "296ef6037ba0b0ea6c2ebdc3efbce08e9e9f2975",
+      "status": "unchanged; current GET assertion does not mention conditional_interaction_evidence"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "sha256": "89cd9e8dda50593ce02db09c9a279bcbe90d48d67b1e389c6dd5911b46c7f4f8",
+      "baseline_git_blob": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202",
+      "status": "unchanged; includes all three registered B25 regression bodies"
+    }
+  ],
+  "criterion_sources": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-03.md",
+      "sha256": "28cbb838c820efe0e08782c965d2a2558db3fbb06996038b1a22b69f0c57a945",
+      "binding": "B26 source criterion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "binding": "B26 finding row; coverage says served three-atom input is absent"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+      "sha256": "9dc26660a02a56f61de85859c2da927f02e61e6414536e207814db316f585015",
+      "binding": "B26 progress row at review time"
+    }
+  ],
+  "baseline_red_receipt": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/_build/e02-A-full-queue/higher-order-red-98e5/junit.xml",
+    "sha256": "b23c625a509f2543325333ed312c50f8c61cf4c0672091e6bb539329a0558195",
+    "command_path": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/_build/e02-A-full-queue/higher-order-red-98e5/command.txt",
+    "command_sha256": "0ad2e2b989ea558ee14b39d7ae65fa9853f8b94b47d73aca04047f52dddccaab",
+    "exit_code": 1,
+    "test_sha256": "3841a7859731ab085a41e8610db68c46b0c729667a2a28f1798b5dccd3f98df5",
+    "candidate_head": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+    "candidate_tree": "19354fd6fb397d043c8b4d1e98f2386324c6256b"
+  },
+  "reviewer_actions": "Initial static review used read-only source/hash inspection and read the baseline RED receipt. This addendum read the frozen 6f9e commit/tree, its committed source/test blobs, and the existing 10-test consumer-wave manifest/stdout/JUnit. No tests, numeric runs, source edits, commits, or network actions were performed.",
+  "snapshot_kind": "initial_uncommitted_static_review_pin_preserved_with_frozen_candidate_addendum",
+  "frozen_candidate": {
+    "branch": "codex/e02-A-full-queue",
+    "head_commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "head_tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+    "implementation_commit": "c6d977907195a9a86e4add2602155c1c33b41879",
+    "implementation_tree": "18fb52172d74ee050e0c0c4d5828a07588871267",
+    "related_commits": [
+      {
+        "commit": "cc080a7bb7f98a4e3b038bf9d968375a6963a7b0",
+        "tree": "22b3263bd0527a0533de62ce634749ab914cbb38"
+      },
+      {
+        "commit": "4716dec3486e4f3ac0a9ed92c1254eba9a8eda34",
+        "tree": "55c8d5cc56f52554c4494705438f7157ecb94f43"
+      },
+      {
+        "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+        "tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a"
+      }
+    ],
+    "source_files": [
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+        "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+        "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+        "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "sha256": "fb64303b3f6d37818762f514542e2c53c72840afe2815cbc7a6989ba54626e1a",
+        "git_blob": "eee719297ee0b011aac64eb33eaba2d70f6fa809"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+        "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+      }
+    ],
+    "test_files": [
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+        "sha256": "7dd0ea1d4867ad159afae4246c4e118d74523c56715007413202fda061fd45ba",
+        "git_blob": "9277e0f55a8529d86cdce45e315ae9ca6a05be1a"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "sha256": "cf4f91f18b33484e22ec11d83e575cbe2325b9b4d1478221c60db78706371308",
+        "git_blob": "6ab30561f0a4e2c22fd41985499661af1c1966a6"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "sha256": "6e495bb92c93b2c75f08500f37074972f5076b75de577916a832f1788870b842",
+        "git_blob": "1fa96c8dc88007f685e267b2d598772139205e64"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+        "sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+        "git_blob": "407df8f5136650a81095778ed8bf0a653b80d7fa"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+        "sha256": "89cd9e8dda50593ce02db09c9a279bcbe90d48d67b1e389c6dd5911b46c7f4f8",
+        "git_blob": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202"
+      }
+    ],
+    "consumer_wave": {
+      "receipt_directory": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e",
+      "environment_inputs_sha256": "c8855eeba307f88862a8b58c85be4f5d45726a84f97b435aaa9bf43ac3406278",
+      "junit_sha256": "bdfbe7656293f86fe90a53f59a7624bc925e231908f052c0c3295639cf2229e5",
+      "stdout_sha256": "9d631ec076c9c8332a5bd3389a9b97a7d85a8c07072d65ec3097d3157290d416",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "candidate_tree_sha": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+      "result": {
+        "tests": 10,
+        "passed": 10,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "junit_seconds": 71.275,
+        "wall_seconds": 74.86681695800507
+      },
+      "python": "3.14.3",
+      "method": "Read existing command, environment/input manifest, stdout, and JUnit; no replay was started."
+    }
+  }
+}

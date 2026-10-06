@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.higher_order_n8_review.v1",
+  "review_date": "2026-10-06",
+  "reviewer_role": "independent read-only B26 source review",
+  "baseline": {
+    "branch": "codex/e02-A-full-queue",
+    "commit": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+    "tree": "19354fd6fb397d043c8b4d1e98f2386324c6256b",
+    "working_tree_note": "This records the initial uncommitted static-review pin at 98e5. A later frozen candidate and recorded consumer-wave receipt are added below; the initial source hashes remain preserved in the source lease."
+  },
+  "verdict": {
+    "bounded_source_review": "GO",
+    "candidate_behavior": "PASS_RECORDED_CONSUMER_WAVE; NOT_RUN_BY_REVIEWER",
+    "B26_closure": "NOT_ADJUDICATED",
+    "remaining_capability_label": "verification_missing",
+    "summary": "The frozen candidate passes the recorded 10-test consumer wave, including the real cubic N5-to-CAS-to-fresh-default-N8 witness and EMP intake controls. The source remains simulation-only and reports time, unit, and sampling uncertainty as not_established. The ordinary served three-atom GET positive remains unverified, so B26 closure is still not adjudicated."
+  },
+  "criterion_review": [
+    {
+      "criterion": "B26 / SIM-03: the three-atom cubic case must not be described as globally additive; expose checked order and residual without identifying a mechanism.",
+      "source_result": "MET_BY_SOURCE_AND_RECORDED_CUBIC_CONSUMER_WAVE",
+      "evidence": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py:5062",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py:5157",
+        "policy-engine/tests/integration/core_runtime/test_e02_higher_order_n8_intake.py:1"
+      ]
+    },
+    {
+      "criterion": "Complete unique individual, pairwise, and joint scopes with trajectory step labels exactly matching the persisted N5 horizon.",
+      "source_result": "MET_BY_SOURCE",
+      "evidence": "_recompute_conditional_interaction_evidence builds the full scope set from atom cardinality, rejects duplicate/missing/extra scopes, and compares every trajectory's step tuple with result.horizon.steps()."
+    },
+    {
+      "criterion": "Recompute higher-order residual from numerical effects, and reconcile stored top-level and feedback residual copies plus the checked-order claim.",
+      "source_result": "MET_BY_SOURCE",
+      "evidence": "The helper calculates joint effect minus individual effects minus pairwise excess effects; it compares that result to both stored residual maps and compares feedback checked_interaction_orders to the recomputed order tuple. It does not consult PairwiseInteractionTerms or numeric_interaction."
+    },
+    {
+      "criterion": "Scope the typed diagnostic so it does not claim physical units/time or a causal maximum; report four-or-more atom remainder as aggregate three-plus.",
+      "source_result": "MET_BY_SOURCE",
+      "evidence": "ConditionalSimulationInteractionEvidence fixes predicate_provenance=recomputed, authority_purpose=conditional_simulation_only, unit_binding_status=not_established, and time_binding_status=not_established. max_checked_interaction_order reports the largest checked numerical order; for four-or-more atoms residual_scope is aggregate_three_plus and checked orders stop at two. The frozen contract also fixes sampling_uncertainty_status=not_established; this is only an explicit boundary literal, not an uncertainty estimate."
+    },
+    {
+      "criterion": "Preserve historical/partial N5 intake and keep the public GET projection typed.",
+      "source_result": "MET_BY_SOURCE; SERVED_THREE_ATOM_VERIFICATION_PENDING",
+      "evidence": "The canonical load_joint_simulation_result implementation is unchanged. The legacy v1/no-limitation path still returns to the pre-existing EvalSafety flow; partial or v2 candidate inputs pass through the new fail-closed reconciliation. run_lifecycle maps the evidence into ConditionalSimulationObservation, which is nested in the GET response projection."
+    },
+    {
+      "criterion": "Preserve the exact registered B25 SMM regression block.",
+      "source_result": "PRESERVED_BYTE_IDENTICALLY",
+      "evidence": "The complete test_sim_03.py Git blob at baseline and working tree is 7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202; all three required original function bodies are unchanged."
+    },
+    {
+      "criterion": "Preserve numerical uncertainty when the interaction residual is based on few repetitions.",
+      "source_result": "EXPLICIT_NOT_ESTABLISHED; NO_STATISTICS_INFERRED",
+      "evidence": "The new diagnostic recomputes a point residual from the persisted trajectory effects and carries no typed sampling-uncertainty estimate. SIM-03 B26 names this requirement; an E-owned producer uncertainty contract is outside this source delta and must supply any estimator. The frozen candidate adds a strict sampling_uncertainty_status Literal set to not_established, and the cubic test asserts it; no IID/QMC or precision claim is introduced."
+    }
+  ],
+  "residuals": [
+    {
+      "id": "B26-served-three-atom-positive",
+      "bucket": "same B26 class one level deeper (P40), not a new class",
+      "capability_label": "verification_missing",
+      "detail": "The new field is wired through the run lifecycle service and typed GET response. The recorded consumer wave passed the direct fresh-process cubic N5-to-N8 path, but it did not exercise an admitted three-atom ordinary served run followed by GET. The existing served-cycle GET assertion does not mention conditional_interaction_evidence; the progress ledger already describes this input as absent.",
+      "smallest_closure": "Add or extend one ordinary served-cycle test with an admitted three-atom cubic N5 result and assert the GET's recomputed residual, checked orders, aggregate/third-order scope, not_established unit/time, and simulation-only authority purpose.",
+      "evidence": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py:3756",
+        "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py:341",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json#B26"
+      ]
+    }
+  ],
+  "baseline_red": {
+    "command": "pytest -q --tb=long --junitxml=... tests/integration/core_runtime/test_e02_higher_order_n8_intake.py::test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer",
+    "candidate_head": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+    "candidate_tree": "19354fd6fb397d043c8b4d1e98f2386324c6256b",
+    "test_sha256": "3841a7859731ab085a41e8610db68c46b0c729667a2a28f1798b5dccd3f98df5",
+    "exit_code": 1,
+    "interpretation": "Expected RED: on the baseline, the fresh default N8 consumer returned no conditional interaction evidence and admitted content-valid false residual/order/scope variants. The test also contains real cubic NCM construction, fresh-process consumption, and property-removal controls. This is historical baseline evidence only."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P03",
+      "P05",
+      "P10",
+      "P40"
+    ],
+    "existing_pattern": "B26 pairwise-only classification could overstate additivity of a complete design.",
+    "target_pattern": "Recompute bounded numerical coverage from complete persisted trajectories at the actual default N8 consumer; project it as an expressly simulation-only diagnostic.",
+    "state": "The bounded consumer path has a 10/10 recorded pass. Source-level GET projection is present; served three-atom verification remains open. P40 classifies the remaining gap as the same B26 class one level deeper."
+  },
+  "limitations": [
+    "The diagnostic is numerical simulation evidence only; causal correctness and mechanism identity are not established.",
+    "Physical unit and producer-time binding remain not_established; no B19/B21 timing authority is inferred.",
+    "Sampling uncertainty is explicitly not_established; the new Literal is not an estimator and no IID/QMC or precision inference is made.",
+    "The 10-test consumer wave is a recorded receipt read during this addendum, not a run performed by this reviewer.",
+    "No admitted three-atom ordinary served run followed by public GET is evidenced; the singleton producer regression was not included in this wave."
+  ],
+  "source_hashes_ref": "higher-order-n8-review/source-hashes.json",
+  "frozen_candidate": {
+    "branch": "codex/e02-A-full-queue",
+    "head_commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "head_tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+    "implementation_commit": "c6d977907195a9a86e4add2602155c1c33b41879",
+    "source_review_delta": "The implementation source is unchanged from c6d at this frozen candidate. The typed sampling_uncertainty_status Literal is Literal[\"not_established\"]; it adds an honest status, no estimator or statistical claim.",
+    "related_commits": [
+      {
+        "commit": "c6d977907195a9a86e4add2602155c1c33b41879",
+        "role": "N8 interaction-evidence implementation"
+      },
+      {
+        "commit": "cc080a7bb7f98a4e3b038bf9d968375a6963a7b0",
+        "role": "assert sampling uncertainty remains not_established in the cubic consumer test"
+      },
+      {
+        "commit": "4716dec3486e4f3ac0a9ed92c1254eba9a8eda34",
+        "role": "singleton checked-order producer fix and regression test; predates the 98e5 review base"
+      },
+      {
+        "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+        "role": "EMP fixture red-team correction; included in the recorded consumer wave"
+      }
+    ],
+    "source_state": "The recorded consumer-wave environment reports the same 6f9e commit/tree on codex/e02-A-n5-verify-current; that checkout was clean when read.",
+    "consumer_wave": {
+      "receipt_directory": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e",
+      "result": {
+        "tests": 10,
+        "passed": 10,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_seconds": 71.275,
+      "runner_wall_seconds": 74.86681695800507,
+      "scope": [
+        "test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer",
+        "8 integration cases in test_e02_empirical_member_intake.py",
+        "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+      ],
+      "B26_witness": "The cubic case passed from registered N5 producer through CAS to a fresh default N8 process; assertions cover the recomputed third-order residual, requested/observed grid, checked orders, content-valid fake residual/order/scope variants, permutation, and property-removal probes.",
+      "not_in_scope": [
+        "No ordinary served three-atom run followed by public GET was in this wave.",
+        "The singleton-specific test test_registered_ncm_single_atom_checks_only_first_order from commit 4716 was not in this command; no separate receipt for it was inspected."
+      ]
+    }
+  }
+}

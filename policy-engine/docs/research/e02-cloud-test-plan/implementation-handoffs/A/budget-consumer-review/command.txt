@@ -1,0 +1,1 @@
+env PYTHONPATH=src:. .venv/bin/python -m pytest -o addopts= -q --basetemp=docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/run-cyc04/basetemp --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review/run-cyc04/junit.xml tests/unit/remediation/test_cyc_04.py

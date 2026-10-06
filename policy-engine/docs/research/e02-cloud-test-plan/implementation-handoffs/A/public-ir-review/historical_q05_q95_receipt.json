@@ -1,0 +1,41 @@
+{
+  "limits": [
+    "This verifies a scratch-generated v1.1 body roundtrip on pinned code, not replay of a historical production blob.",
+    "No v2 schema/$id was created or tested; only the current v1.1 model/writer defaults and stored manifest identity were checked."
+  ],
+  "loaded_module": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+  "loaded_source_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+  "oracle": {
+    "draw_count": 100,
+    "equal_tail_q05": 0,
+    "equal_tail_q95": 0,
+    "mean_fraction": "1",
+    "numeric_estimator_called": false,
+    "quantile_convention": "discrete empirical inverse CDF; left-continuous"
+  },
+  "pin": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "v1_1_control": {
+    "artifact_id": "sha256:fee89b5c8171d4734680cb522b42e9e7db76d99c41d73ca4c41c5327fbb38842",
+    "byte_exact_model_read_reserialize": true,
+    "is_historical_production_artifact": false,
+    "manifest_kind": "ir.uncertainty_envelope",
+    "manifest_schema_name": "ir.uncertainty_envelope",
+    "manifest_schema_version": "1.1",
+    "model_schema_default": "1.1",
+    "payload_path": "_build/e02-A-full-queue/public_ir/replay_oracle/baseline_generated_v1_1_payload.json",
+    "payload_schema_version": "1.1",
+    "payload_sha256": "fee89b5c8171d4734680cb522b42e9e7db76d99c41d73ca4c41c5327fbb38842",
+    "pydantic_json_schema_id": null,
+    "ref_kind": "ir.uncertainty_envelope",
+    "writer_schema_default": "1.1"
+  },
+  "v1_1_semantic_control": {
+    "expected_rejection": true,
+    "interval": [
+      0,
+      0
+    ],
+    "mean": 1,
+    "reason": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate (1.0) must lie within confidence_interval [0.0, 0.0] [type=value_error, input_value={'point_estimate': 1.0, '...L: 'credible_interval'>}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+  }
+}

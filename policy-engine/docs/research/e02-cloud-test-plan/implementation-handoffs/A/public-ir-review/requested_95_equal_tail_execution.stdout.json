@@ -1,0 +1,26 @@
+{
+  "loaded_source_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+  "loaded_source_matches_pin": true,
+  "numpy_version": "2.3.5",
+  "oracle": {
+    "draw_count": 100,
+    "equal_tail_q025": 0.0,
+    "equal_tail_q975": 0.0,
+    "interval_mass": 0.95,
+    "mean": 1.0,
+    "numeric_estimator_called": false,
+    "quantile_method": "numpy.quantile(method='inverted_cdf')"
+  },
+  "pinned_source_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+  "schema_version_default": "1.1",
+  "scope": [
+    "This finite-data oracle does not ratify public quantile semantics.",
+    "This validation control does not replay a historical production payload.",
+    "No v2 schema or identity is created or tested."
+  ],
+  "source_pin": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "v1_1_control": {
+    "expected_rejection": true,
+    "rejection": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate (1.0) must lie within confidence_interval [0.0, 0.0] [type=value_error, input_value={'point_estimate': 1.0, '...L: 'credible_interval'>}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+  }
+}

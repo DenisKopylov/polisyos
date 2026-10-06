@@ -1,0 +1,37 @@
+{
+  "outcome": "PASS",
+  "exit_code": 0,
+  "test_count": 6,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "duration_seconds": 12.419,
+  "tested_source_commit": "4f968dd7b3e13126bb92ac7ab13bdfaa2b7592e2",
+  "tested_source_tree": "5b17ab8809b8694a89a1df5c7ddb97a0df579e9e",
+  "test_blob": "d4aa9bc73613b0351d49a3c82237e7e835bf5bc0",
+  "generation_cycle_blob": "f5bda4e76768ad1d19ae496ddecf78f40f9a06ee",
+  "served_run_lifecycle_blob": "8fed0f5dc4f523781e09524f252ada5d838df7be",
+  "current_review_snapshot": {
+    "sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+    "tree": "a5c268e023720c5afc97af75a285b63e7f943528",
+    "test_blob_unchanged": true,
+    "generation_cycle_blob_unchanged": true,
+    "served_run_lifecycle_blob_unchanged": true
+  },
+  "command_ref": "command.txt",
+  "environment_ref": "environment.json",
+  "junit": {
+    "path": "run-cyc04/junit.xml",
+    "sha256": "6f580ba9389d9f5c1ed7c96acc187e502345e9aa16c302d84c44c4c0450e7024",
+    "bytes": 1135
+  },
+  "testcases": [
+    "test_generation_cycle_executes_next_grounded_candidate_after_first_blocker",
+    "test_public_run_retains_blocked_first_reason_after_executing_second",
+    "test_blocked_candidate_remains_in_history_with_typed_reason",
+    "test_n7_reentry_replaces_grounding_reason_and_report_ref",
+    "test_informative_candidate_is_not_rejected_by_unknown_monetary_proxy_inside_budget",
+    "test_actual_budget_exhaustion_stops_alternative_execution"
+  ],
+  "interpretation": "Behavioral bounded A controller evidence using deterministic injected generator/grounding/simulation/value/promotion ports and a fresh in-memory BudgetState. It is not served A1, durable cost settlement, full hard-feasibility enumeration, or persisted-result readback."
+}

@@ -1,0 +1,159 @@
+REFS=75 UNIQUE_TREE_SNAPSHOTS=54
+PINNED_REFS:
+  refs/heads/codex/e02-C-berl 942206505d1681ea1d4d46e93e21d0c566450acb tree=bfdf97e13b4a41767063b2f4ddc9815f943b49f6
+  refs/heads/codex/e02-C-berl-20261006 95ea3780f1101ba1ad1a3087923c65c8aac53b7d tree=1e0186a7c7b22f510321c397f67eb12c6c132c1c
+  refs/heads/codex/e02-C-canon b98bc432e3afc0f17d992fc034029b68b0952169 tree=5ee83592653f466ab6aaf813e0afc0b831e4e984
+  refs/heads/codex/e02-C-canon-20261006 9f84276408fc6b776e35050afece5c4e74ed413d tree=c9a5e4620abb8e643f25614a7df600ad499bf0c8
+  refs/heads/codex/e02-C-catalog dfaadaac01f21b7b3994109c3cc76d522a2a3cb3 tree=df3d1f5b39cc0c11f42f83c3e7a5c556764c94e3
+  refs/heads/codex/e02-C-catalog-20261006 42a8b499860acdb67b73ea9c5c7f53a874d71f08 tree=158d1f359f11e44368063949aca81f5e1f8babdf
+  refs/heads/codex/e02-C-client 13a723d8b6cb203583f856d949717427db858e37 tree=9aca994453770231decdd9fbf920bd2b09562d8f
+  refs/heads/codex/e02-C-client-20261006 5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1 tree=0f4760eb05ab3ed4493417fa489870e301700293
+  refs/heads/codex/e02-C-continuation-20261006 9f35e19ff8f39895d66cbce78644470e52f8ec09 tree=b2077d626f84b58e6839eea357d72f60e6265ccc
+  refs/heads/codex/e02-C-coordinator c40d4acae1ce58b597267255026d9356565828fd tree=897662caf73bd4487f798d66938b74d7abfe753e
+  refs/heads/codex/e02-C-dfi-emb cd02697111861bbcbb8442287101decaaf3239fb tree=ce031ee50bd172e87174832a99357e2fe31f88af
+  refs/heads/codex/e02-C-dfi-emb-20261006 ab27db6d940c7a34ba2dd3837803f0b6ec4f464c tree=7e58389660ba2579cce043b7f2280ca90e215eb2
+  refs/heads/codex/e02-C-federation ca9caf3d3cc26a57fc3cf225e9b17db981afff3f tree=683c9cd520a6dc9e79ccc0e34807289dd66953e6
+  refs/heads/codex/e02-C-federation-20261006 26ba51d571a5ccb5da26502d4d097d801cdc5b04 tree=04ab94e5672451a8e765b99d0feb2abe7dfd067b
+  refs/heads/codex/e02-C-handoff 172e791ca9335954907ebfd789e95715a55963c8 tree=d7ca2024f81fd4677c1a83e0dc026e3a41b7262b
+  refs/heads/codex/e02-C-hygiene b56ec6b1f802ab10d2927492bbc082f90c390139 tree=802cde18a6747efbffb105ff7d02bebe96efd221
+  refs/heads/codex/e02-C-hygiene-20261006 5ad2dc84420ff61caf02929d196a55fe1ea972cf tree=b6bef604d72b19c95861a967145c80198397780e
+  refs/heads/codex/e02-C-ing-oracle-20261006 5231cf93a399fcc2944870c8a590b8770f3ba931 tree=cef4443d936178eaae8678236e74417af7c1dd0f
+  refs/heads/codex/e02-C-ing-support a5bf3d536a9f1773b7110f64ac0d3b3f1230abdf tree=dfa84c86dd866b1663ac0a49b107aab3abb89bf7
+  refs/heads/codex/e02-C-migrations 1164718054d3a409269a724c832706b524f78864 tree=425202161407483530c6f65e33d1e5e0f2caa2fb
+  refs/heads/codex/e02-C-migrations-20261006 c62f5f27c5a165316a5428806993e3f524caae85 tree=215ee4ddbe40db5252581556643276b50bd77052
+  refs/heads/codex/e02-C-obs-udf 6e24cbaf5fb1d78830fd918ab17e6495095250ed tree=b6b7303806c2fae0d856aed85f97b791f452d946
+  refs/heads/codex/e02-C-obs-udf-20261006 05dd5193116c1916733ae3e7a6240e86f16f1659 tree=8cbd17905fe1d0daa80f592e0ff290bda9f96899
+  refs/heads/codex/e02-C-plugin-discovery e30956352cd73e11c1c453e95859589cdd2e86c6 tree=42e1f7c7fab0407d5bccbe822b56fdd3934475c5
+  refs/heads/codex/e02-C-plugin-training 5ee7dbc2d66fbb647ddc617fbfe19454737916b5 tree=3e0ffa4461322ff862f2d2c3192b833a3d155592
+  refs/heads/codex/e02-C-plugins-20261006 0ccdd226744a936d09cc85b5596783b0b037262d tree=6b1d28a0ebe59bd3a79fd46a654fe6d642d992e0
+  refs/heads/codex/e02-C-schema-20261006 8b92203b52d0363d912635b773e432e795d3512f tree=25db0bb62d31e3188fb9ed67939e12773cbe9163
+  refs/heads/codex/e02-C-scholar cafeeffa1577d45c02e1ff22f0db9f9f698f9046 tree=ec2c70ef7fc102ca96b7ec1c04d39f0debb87159
+  refs/heads/codex/e02-C-scholar-20261006 597811a78a430bc8fff9c24b002c8d3dad5059a0 tree=4bf0d34b9ae3bda8ef75879ae285379225097b91
+  refs/heads/codex/e02-C-streaming 1013ae0d2292f732a2f0518b25a5a682dc156e81 tree=c03357988d253a36bdda3846fc931b227c6db0b9
+  refs/heads/codex/e02-C-ukraine-ops 62a9140aaf28630d24688d5c850e752048dbbe9a tree=b3bbc88db56305d8e2591fcc59c2b7541c858431
+  refs/remotes/origin/codex/e02-C-berl 942206505d1681ea1d4d46e93e21d0c566450acb tree=bfdf97e13b4a41767063b2f4ddc9815f943b49f6
+  refs/remotes/origin/codex/e02-C-canon b98bc432e3afc0f17d992fc034029b68b0952169 tree=5ee83592653f466ab6aaf813e0afc0b831e4e984
+  refs/remotes/origin/codex/e02-C-canon-20261006 9f84276408fc6b776e35050afece5c4e74ed413d tree=c9a5e4620abb8e643f25614a7df600ad499bf0c8
+  refs/remotes/origin/codex/e02-C-catalog dfaadaac01f21b7b3994109c3cc76d522a2a3cb3 tree=df3d1f5b39cc0c11f42f83c3e7a5c556764c94e3
+  refs/remotes/origin/codex/e02-C-client 13a723d8b6cb203583f856d949717427db858e37 tree=9aca994453770231decdd9fbf920bd2b09562d8f
+  refs/remotes/origin/codex/e02-C-client-20261006 5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1 tree=0f4760eb05ab3ed4493417fa489870e301700293
+  refs/remotes/origin/codex/e02-C-dfi-emb cd02697111861bbcbb8442287101decaaf3239fb tree=ce031ee50bd172e87174832a99357e2fe31f88af
+  refs/remotes/origin/codex/e02-C-federation ca9caf3d3cc26a57fc3cf225e9b17db981afff3f tree=683c9cd520a6dc9e79ccc0e34807289dd66953e6
+  refs/remotes/origin/codex/e02-C-federation-20261006 26ba51d571a5ccb5da26502d4d097d801cdc5b04 tree=04ab94e5672451a8e765b99d0feb2abe7dfd067b
+  refs/remotes/origin/codex/e02-C-handoff 172e791ca9335954907ebfd789e95715a55963c8 tree=d7ca2024f81fd4677c1a83e0dc026e3a41b7262b
+  refs/remotes/origin/codex/e02-C-hygiene b56ec6b1f802ab10d2927492bbc082f90c390139 tree=802cde18a6747efbffb105ff7d02bebe96efd221
+  refs/remotes/origin/codex/e02-C-ing-support a5bf3d536a9f1773b7110f64ac0d3b3f1230abdf tree=dfa84c86dd866b1663ac0a49b107aab3abb89bf7
+  refs/remotes/origin/codex/e02-C-migrations 1164718054d3a409269a724c832706b524f78864 tree=425202161407483530c6f65e33d1e5e0f2caa2fb
+  refs/remotes/origin/codex/e02-C-obs-udf 6e24cbaf5fb1d78830fd918ab17e6495095250ed tree=b6b7303806c2fae0d856aed85f97b791f452d946
+  refs/remotes/origin/codex/e02-C-plugin-discovery e30956352cd73e11c1c453e95859589cdd2e86c6 tree=42e1f7c7fab0407d5bccbe822b56fdd3934475c5
+  refs/remotes/origin/codex/e02-C-plugin-training 5ee7dbc2d66fbb647ddc617fbfe19454737916b5 tree=3e0ffa4461322ff862f2d2c3192b833a3d155592
+  refs/remotes/origin/codex/e02-C-scholar cafeeffa1577d45c02e1ff22f0db9f9f698f9046 tree=ec2c70ef7fc102ca96b7ec1c04d39f0debb87159
+  refs/remotes/origin/codex/e02-C-streaming 1013ae0d2292f732a2f0518b25a5a682dc156e81 tree=c03357988d253a36bdda3846fc931b227c6db0b9
+  refs/remotes/origin/codex/e02-C-ukraine-ops 62a9140aaf28630d24688d5c850e752048dbbe9a tree=b3bbc88db56305d8e2591fcc59c2b7541c858431
+  refs/remotes/origin/codex/e02-F-api-20261006 449d32909928caf39382f4ff02ac74b0adf277eb tree=bbb4a9a6e4256d850a47f16c00321b57fa1bc80d
+  refs/remotes/origin/codex/e02-F-cau 08aaccebfce37aa652ff243fce8037ff48020807 tree=bd92ca817cee5b3200549f77a0806068f5e8138a
+  refs/remotes/origin/codex/e02-F-cau-20261006 4c5a11ff8050c6108f6753177b96e6714cef401f tree=209c9f0a6a9127286884c5faff3e813de465c6f6
+  refs/remotes/origin/codex/e02-F-causal-api 0b6d872d8a681b1725abb5e2e3f57f9668e31c69 tree=0cb8598dbbe0ab29869337517fb2b7bd39f6fe19
+  refs/remotes/origin/codex/e02-F-causal-output 9a952415bb988e6ff79983fa9ef782ac28f2e672 tree=8ca6c8ad5925f8b5fc8b31e4c78644ef4a3804d2
+  refs/remotes/origin/codex/e02-F-closeout-20261006 421f1dd977b237307394c68820caab4156716eb2 tree=0508db0976255da2d970168d1300ec6dbafcb1b2
+  refs/remotes/origin/codex/e02-F-dowhy-20261006 c8c2319d6c48f23f90103322da8cd63bc959da6f tree=c0d9b034e374010de11c66eb460b2bf097749d2d
+  refs/remotes/origin/codex/e02-F-economic-dtype bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42 tree=f80d2aabdadb85c2a8c44e13205811f217be8ae5
+  refs/remotes/origin/codex/e02-F-economics e642bb9025a67739c201393acca5712603cb064d tree=a51d4d9c7151a3a25867adc8c38a1cd4f1f7b008
+  refs/remotes/origin/codex/e02-F-economics-20261006 fb51511fef60c5123875e99ab2f19a9a0bd5d16f tree=f432371c0745de7e30df8892b0a2e563c8bbdd23
+  refs/remotes/origin/codex/e02-F-fit-tmle ef3f208db031671d9f0d5cefe1ffa68af0650f0a tree=871ac9a5576ea591c52db2bc1ec07614bca3d34e
+  refs/remotes/origin/codex/e02-F-foundry ea577ac3185829e066a39f51a8a2eae8f1bb5d43 tree=4a2af977af9f7ccde8add988dbdd61e740d19e77
+  refs/remotes/origin/codex/e02-F-fry-20261006 f4fa51e6dd247cfd967450263579d67233a743d6 tree=fbc864a0cd5da1246683673ee3d145c76469ee32
+  refs/remotes/origin/codex/e02-F-graph-20261006 bf335dd687c313fda9001fa3bb1365df6bc5ae1f tree=6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21
+  refs/remotes/origin/codex/e02-F-graph-intake-20261006 2044260c39dc4988b37d5a1568b65a1cdb1e3d31 tree=56a3f7b51371c59939db000dd0f74b44015f862c
+  refs/remotes/origin/codex/e02-F-graph-scm 85c16de9f16a4e21c05c516271b6c81e08b7a39f tree=802062f5e1a96b5682ecd3c109606d208ae51378
+  refs/remotes/origin/codex/e02-F-handoff-index f72e8fa6b7be831f8fda6f106c9d4f04572c4b69 tree=617d8e0ec1f523abd8f9f8dee02f78edcb913177
+  refs/remotes/origin/codex/e02-F-installed-worker-20261006 3dde887e22592cdd7c1fe8865707afdfd72dc6fb tree=ac7b625d29c799f54c62a18d1e1a05832fad0a17
+  refs/remotes/origin/codex/e02-F-lex 3fab28d98997527b2a26d46fe4e16220e42383b7 tree=860a236668b7194212980271ffafa66677434517
+  refs/remotes/origin/codex/e02-F-lex-20261006 77166daa0ff8b9659e3978447f9016c691694266 tree=23ac1cacae3444166ee3f421e35c177c49f87c07
+  refs/remotes/origin/codex/e02-F-rdd-20261006 15a04c4400497374416e167a5f61ebc12f61b8e4 tree=3ff65b90327db01a9d38efe3771358d4cabde555
+  refs/remotes/origin/codex/e02-F-tmle-20261006 f460bd81b8124be58f890f59a53e2aba9e7ceb76 tree=3a392defad301686740f27a246e747540b55332a
+  refs/remotes/origin/codex/e02-integration 6f869f39d04deaff7eda9b9047848912605beca5 tree=6f7d5e42c694fe384a3fa349c5811f432268731a
+  refs/remotes/origin/codex/e02-C-continuation-20261006 9f35e19ff8f39895d66cbce78644470e52f8ec09 tree=b2077d626f84b58e6839eea357d72f60e6265ccc
+  refs/heads/codex/e02-integration 6f869f39d04deaff7eda9b9047848912605beca5 tree=6f7d5e42c694fe384a3fa349c5811f432268731a
+TRACKED_PATH_TREE_ENTRIES=3200 DISTINCT_PATHS=1855 DISTINCT_BLOBS=1495
+PATH_ROOT_ENTRIES=closure-decisions/486, implementation-handoffs/C/230, implementation-handoffs/F/2484, execution-prompts/handoffs/0
+FILE_TYPE_DENOMINATOR=.argv:2, .gz:40, .json:1288, .log:4, .md:419, .patch:1, .py:221, .stderr:120, .stdout:109, .txt:993, .xml:2, [none]:1
+PATH_TREE_BLOB_MANIFEST_SHA256=292f0f79b4ad4c1371e7aeff6bfc8303dad0a42f3e9e5943dc76c715f6a0badf
+TEXT_SCAN_SCOPE=distinct tracked path/blob entries excluding compressed .gz payloads (1824 scanned; .gz remains in denominator/manifest)
+TEXT_SCAN 'finding B09': distinct_path_blob_hits=5 C_or_F_handoff_hits=0
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md:12,16,62,64,68,160
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json:448,1954,1968
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/delivery-evidence.md:56
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md:28,34,49,54,140
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md:25
+TEXT_SCAN 'finding LA-046': distinct_path_blob_hits=4 C_or_F_handoff_hits=0
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md:62,70,166
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json:33,1256,11443,11458,11468
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md:54,140
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/input-identity.json:1287
+TEXT_SCAN 'ObservationToWMRRule': distinct_path_blob_hits=1 C_or_F_handoff_hits=0
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md:64
+TEXT_SCAN 'typedObservationToWMRRule': distinct_path_blob_hits=0 C_or_F_handoff_hits=0
+TEXT_SCAN 'observation-to-WMR phrase': distinct_path_blob_hits=1 C_or_F_handoff_hits=0
+  policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md:12
+CF_HANDOFF_TEXT_DENOMINATOR=1806 distinct path/blob entries
+CF_HANDOFF_SCAN 'WMR token': distinct_path_blob_hits=0
+CF_HANDOFF_SCAN 'canonical C observation projection type': distinct_path_blob_hits=9
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-executor-v1.txt.text.json:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/root-supplied-emp01-base198.txt.text.json:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/emp01.stdout.txt:157,172
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base198.stdout.txt.json:3
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stdout.txt.json:3
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt:157,172
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt:157,172
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt:157,172
+CF_HANDOFF_SCAN 'C activated semantic-epoch readback': distinct_path_blob_hits=0
+CF_HANDOFF_SCAN 'C passport-derived observation class': distinct_path_blob_hits=0
+CF_HANDOFF_SCAN 'selected rows': distinct_path_blob_hits=0
+CF_HANDOFF_SCAN 'valid-time field': distinct_path_blob_hits=6
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/055-en.json:2545,2617,2793
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/056-uk.json:2545,2617,2793
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/065-substrate_registry.py.json:6
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-caller-census-final.json:199,214
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-did-caller-census-base.json:408,421
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-local-causal-reruns.json:744
+CF_HANDOFF_SCAN 'source as-of role': distinct_path_blob_hits=1
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/055-en.json:74,3623
+CF_HANDOFF_SCAN 'observation profile/scope/unit mapping': distinct_path_blob_hits=36
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2-review-response.json:171
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2.json:170
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ruff99.stdout.txt:587
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-residual-authority-map.json:625
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json:439
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006/patches/assembled-fifty-paths.patch.text.json:6
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/064-governed_projections.py.json:6
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-did-caller-census-base.json:874
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json:4915,10048,14728,23560,23654
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector-equivalence-audit.json:7699,9082,9213,10860
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-executor-v1.txt.text.json:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/root-supplied-emp01-base198.txt.text.json:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/emp01.stdout.txt:364,387,452,479,485,490,501,532,599
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base198.stdout.txt.json:3
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stdout.txt.json:3
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt:364,387,452,479,485,490,501,532,599
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt:364,387,452,479,485,490,501,532,599
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json:3487
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/sdist-native.stdout:414
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/wheel-native.stdout:414
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/replay-and-bind.stdout.txt:1,2
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/sdist-cache-abi.stdout.txt:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/sdist-compatibility.stdout.txt:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/wheel-cache-abi.stdout.txt:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/wheel-compatibility.stdout.txt:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/graph/native.stdout.txt:396
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-first-observer-error.stdout:414
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-independent.stdout:414
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-carriers/test_gcm_backend_contract.py:76
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-compatibility.stdout.txt:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-native.stdout.txt:414
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-compatibility.stdout.txt:4
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-native.stdout.txt:414
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json:1032,1203
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt:364,387,452,479,485,490,501,532,599

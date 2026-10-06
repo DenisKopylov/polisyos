@@ -1,0 +1,114 @@
+{
+  "schema": "policyos.e02.public_ir.owner_inventory.v1",
+  "snapshot": {
+    "ref_manifest": "current_20261006_refs.json",
+    "census_receipt": "current_source_census.json",
+    "current_complete_fetched_ref_count": 21,
+    "current_distinct_tree_count": 21,
+    "prior_14_ref_report": "NOT_ESTABLISHED: the captured prior report did not retain the exact 14-ref manifest; its 14-ref decision-source and 3,805/3,807 structured-source counts are not used as current findings.",
+    "ref_manifest_sha256": "6abea309fcfd26c92d67c4c265fb70558dc5657cc3912805ff7b4154902a7039",
+    "census_receipt_sha256": "622d1b5efbf43f520714b6a2a61f48e3c1628df3e63a882546a36420b1937291",
+    "review_source_snapshot": "3bd5dc0d9f0385fe2662024e173c7f75e25798db@a5c268e023720c5afc97af75a285b63e7f943528"
+  },
+  "authority_state": {
+    "canonical_semantic_owner_appointment": "not_established",
+    "appointment_boundary_required": [
+      "polisyos.ir.analytics.uncertainty",
+      "the associated registry/contracts boundary"
+    ],
+    "public_ir_decision_record_status": "draft_not_adopted",
+    "development_decision_family_status": "recommendations_not_rulings",
+    "root_A_may_ratify_scientific_meaning": false,
+    "adjacency_assigns_semantic_authority": false,
+    "ds16_relation": "B31 has a downstream consumer/code touch; B201/B202-to-DS16 edges are removed. This does not appoint the semantic owner."
+  },
+  "findings": [
+    {
+      "id": "B31",
+      "implementation_owner": "A / EMP-01",
+      "status": "held",
+      "closure_now": "not_adjudicated",
+      "capability_state": "absent/unallocated",
+      "premise_resolution_assumed": false,
+      "observed_closed": false,
+      "semantic_owner_appointment": "no individual appointment is established",
+      "source_evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@515c70d29f59f3175521642e72d04f1aaffc72d7#32",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a#/B31",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@81c1d47963d41d1cd356a3755cf6bdb4dde403fd#/rows[id=B31]",
+        "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json@8e449669e3ea57f6afe5493e778694c27f2b4576#/e02_findings[id=B31]",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L593-L606"
+      ]
+    },
+    {
+      "id": "B201",
+      "implementation_owner": "E / UQS-01",
+      "status": "held",
+      "closure_now": "not_adjudicated",
+      "premise_resolution_assumed": false,
+      "observed_closed": false,
+      "semantic_owner_appointment": "owner decision pending; no schema semantics are adopted",
+      "source_evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@515c70d29f59f3175521642e72d04f1aaffc72d7#202",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a#/B201",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@81c1d47963d41d1cd356a3755cf6bdb4dde403fd#/rows[id=B201]",
+        "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json@8e449669e3ea57f6afe5493e778694c27f2b4576#/e02_findings[id=B201]",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L4978-L4991"
+      ]
+    },
+    {
+      "id": "B202",
+      "implementation_owner": "E / UQS-01",
+      "status": "held",
+      "closure_now": "not_adjudicated",
+      "premise_resolution_assumed": false,
+      "observed_closed": false,
+      "semantic_owner_appointment": "owner decision pending; no schema semantics are adopted",
+      "source_evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@515c70d29f59f3175521642e72d04f1aaffc72d7#203",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a#/B202",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@81c1d47963d41d1cd356a3755cf6bdb4dde403fd#/rows[id=B202]",
+        "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json@8e449669e3ea57f6afe5493e778694c27f2b4576#/e02_findings[id=B202]",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L4992-L5005"
+      ]
+    }
+  ],
+  "owner_declaration_required_for_all_exact_ids": [
+    "B31",
+    "B201",
+    "B202"
+  ],
+  "semantic_decisions_pending": [
+    {
+      "decision": "Identification versus statistical/model uncertainty",
+      "proposal_only": "Keep ValueOuterSet as the identification-set channel; carry statistical/model uncertainty separately as a typed channel bound to the same estimand and unit. Neither channel stands in for the other."
+    },
+    {
+      "decision": "Point and interval functionals",
+      "proposal_only": "Name and preserve the point functional independently from the interval functional, and state interval mass plus quantile convention. The exact 95%-mass equal-tail endpoints required here are q0.025/q0.975; the existing source card/draft says q0.05/q0.95, which is a different central mass and requires explicit reconciliation."
+    },
+    {
+      "decision": "Wire identity and compatibility",
+      "proposal_only": "Use a new v2 schema identity and distinct $id for changed semantics; preserve v1.1 reader/replay semantics and historical bytes. urn:policyos:ir:uncertainty-envelope:2 remains proposed and unratified."
+    },
+    {
+      "decision": "Joint-law persistence and identity",
+      "proposal_only": "For B202, select CAS-only v2 or inline carrier plus persisted reference, while retaining v1.1 inline input compatibility. Preserve axes, weights, lineage and ordered joint-draw identity; law-dependent operations must resolve, content-bind and verify the reference or refuse."
+    }
+  ],
+  "all_21_ref_decision_source_identity": {
+    "status": "the required tracked documents are byte-identical across the complete 21-ref manifest; see current_source_census.json for each exact ref/commit/tree/blob",
+    "semantic_decisions_blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+    "coverage_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+    "finding_owners_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+    "decision_records_blob": "77b54862d1a76e1852ffc48a34eb634a4c109746",
+    "residual_ledger_text_blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+    "residual_ledger_json_blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+    "crosswalk_blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+    "development_decisions_json_blob": "f1f7efda8e9aad92f5ccb9974e6e826c4e6fb306",
+    "development_decisions_markdown_blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+    "source_disposition_blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+    "original_B_r19_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+  },
+  "closure_rule": "The hold can change only after an explicitly appointed canonical semantic owner makes a tracked declaration keyed to B31, B201, and B202 that settles all four decisions. That declaration is necessary but not sufficient for closure; each finding still needs its own producer, persisted artifact, bridge, actual consumer, verification, and required surface evidence."
+}

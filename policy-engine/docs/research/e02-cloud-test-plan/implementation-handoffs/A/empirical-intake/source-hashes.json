@@ -1,0 +1,214 @@
+{
+  "schema": "policyos.e02.source_hash_lease.v1",
+  "unit": "A",
+  "slice": "empirical-intake",
+  "slice_base": {
+    "commit": "20d72ee1dd5a6655e5dc65680650ed886dc65764",
+    "tree": "5896321fe4b3ecc5e84cc151e9a4c6cd10490eea"
+  },
+  "tested_candidate": {
+    "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+    "branch_at_wave": "codex/e02-A-n5-verify-current"
+  },
+  "emp_slice_commits": [
+    {
+      "commit": "976841f5a9f34e381bf8180d9f979a25a6ffc8a7",
+      "parent": "20d72ee1dd5a6655e5dc65680650ed886dc65764",
+      "subject": "Bind N8 owner rows to admitted C members and passport units",
+      "path_count": 2,
+      "file_type_denominator": {
+        "py": 2
+      },
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py"
+      ]
+    },
+    {
+      "commit": "e6f489b5fe8a9953558dd8dfc5607e03885ae456",
+      "parent": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "subject": "fix(runtime): revalidate empirical members through the C owner",
+      "path_count": 2,
+      "file_type_denominator": {
+        "py": 2
+      },
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py"
+      ]
+    },
+    {
+      "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "parent": "cc080a7bb7f98a4e3b038bf9d968375a6963a7b0",
+      "subject": "test(runtime): distinguish admitted members from visible baseline rows",
+      "path_count": 1,
+      "file_type_denominator": {
+        "py": 1
+      },
+      "paths": [
+        "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py"
+      ]
+    }
+  ],
+  "emp_path_denominator": {
+    "unique_path_count": 2,
+    "file_type_denominator": {
+      "py": 2
+    },
+    "basis": "Complete tracked path sets of the three listed EMP slice commits; this is the slice commit footprint, not a census of the mixed full-queue candidate diff."
+  },
+  "shared_generation_cycle_path": {
+    "related_commit": "c6d977907195a9a86e4add2602155c1c33b41879",
+    "parent": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+    "subject": "fix(runtime): reconcile conditional N8 interaction evidence from CAS",
+    "full_commit_path_count": 4,
+    "full_commit_file_type_denominator": {
+      "py": 3,
+      "md": 1
+    },
+    "full_commit_paths": [
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/README.md",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+    ],
+    "overlap_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "overlap_candidate_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28",
+    "note": "The candidate generation_cycle.py contains the independent higher-order N8/CAS change as well as the EMP profile consumer change. Attribute the N8 patch to c6d977 and do not describe the whole shared file as EMP-only."
+  },
+  "tracked_sources_at_candidate": [
+    {
+      "role": "A default value owner, C projection revalidation, exact member selection, physical row binding, and ValueDataProfile",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "candidate_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28",
+      "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+      "lines": [
+        4291,
+        4365,
+        4393,
+        4415,
+        4603,
+        4631,
+        10055,
+        10532
+      ]
+    },
+    {
+      "role": "C canonical projection model, active receipt/passport/native member readback, and read-session visibility rules",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "candidate_blob": "08d77fa061e22f3a4f4c1a10a0096dcf3255221b",
+      "sha256": "ed902ef5d990a9e352e70a196f4a1d13ac25f6778d46a79828252cc7a35674e5",
+      "lines": [
+        398,
+        433,
+        473,
+        514,
+        1789,
+        2046,
+        3078,
+        3180
+      ]
+    },
+    {
+      "role": "Canonical catalog fixture and read API used by the integration witness",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "candidate_blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+      "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72"
+    },
+    {
+      "role": "EMP behavioral witness, including baseline seeding and exact-filter property removal",
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "candidate_blob": "6ab30561f0a4e2c22fd41985499661af1c1966a6",
+      "sha256": "cf4f91f18b33484e22ec11d83e575cbe2325b9b4d1478221c60db78706371308"
+    },
+    {
+      "role": "Original B16 and B33 criterion source",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "candidate_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "cited_lines": {
+        "B16": [
+          387,
+          398
+        ],
+        "B33": [
+          621,
+          634
+        ]
+      }
+    },
+    {
+      "role": "Finding/status/acceptance mapping at candidate",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "candidate_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    },
+    {
+      "role": "EMP-01 source card",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMP-01.md",
+      "candidate_blob": "46a22102e0c5434bee846132cfeee1d10ccc810b",
+      "sha256": "d04e4270ef56371ce614ab7b6f2fbe85c84a9121c1cce77b9b2c2212e97bc3b5"
+    },
+    {
+      "role": "B33 graph consumer handoff used for upstream F/G contract pins; A source independently rechecked at candidate lines 4393-4415 and 10825-10902",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/graph-consumer-review.json",
+      "candidate_blob": "3d960441b903b2de166823e3b43e8cb62f5573ff",
+      "sha256": "d19bc8e49542673b26adb890fafba4bb083327368574b822dbc7c1917d8b96d4"
+    }
+  ],
+  "external_contract_pins": {
+    "F_graph_intake": {
+      "handoff_commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "candidate_source": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "candidate_tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+      "typed_contract": "ir.causal_graph_model@1.0 / CausalGraphModelRef; content-bound candidate identity, no source/target applicability authority"
+    },
+    "G_checkpoint_09": {
+      "handoff_commit": "8ed2c08a96173a1235b4fc363fcbe07378a47750",
+      "integration_source": "312e6d7c12e1d623f1ac9502c187e7cb92e48045",
+      "integration_tree": "11ffd482cf4324a25ca16e77d8b113c8bc9eebad",
+      "graph_candidates_admitted": []
+    }
+  },
+  "retained_wave_receipts": [
+    {
+      "role": "Shared green consumer wave; canonical shared handoff copy supplied once by N5 intake",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/green-wave/stdout.txt",
+      "sha256": "9d631ec076c9c8332a5bd3389a9b97a7d85a8c07072d65ec3097d3157290d416",
+      "origin_path": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/stdout.txt"
+    },
+    {
+      "role": "Shared green consumer wave; canonical JUnit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/green-wave/junit.xml",
+      "sha256": "bdfbe7656293f86fe90a53f59a7624bc925e231908f052c0c3295639cf2229e5",
+      "origin_path": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/junit.xml"
+    },
+    {
+      "role": "Shared green consumer wave; stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/green-wave/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin_path": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/stderr.txt"
+    },
+    {
+      "role": "Shared green consumer wave; environment and inputs",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/green-wave/environment-and-inputs.json",
+      "sha256": "c8855eeba307f88862a8b58c85be4f5d45726a84f97b435aaa9bf43ac3406278",
+      "origin_path": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/environment-and-inputs.json"
+    },
+    {
+      "role": "Prior 3bd failing wave stdout retained by served-input review; referenced, never copied",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/stdout.txt",
+      "sha256": "2db18f6f162cda5af13e402b9183485eb29cfa530a573a2cbb53b8c51dc6f5b8"
+    },
+    {
+      "role": "Prior 3bd failing wave JUnit retained by served-input review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/junit.xml",
+      "sha256": "0dc36ab4eb4eaab6dfd7b19eba191d1e7bdca510c36cb276766888f9f3f9ea04"
+    }
+  ],
+  "derived_views_omitted": [
+    "Raw green-wave stdout/JUnit and old 3bd logs are not copied; path and digest suffice.",
+    "The source-hash lease cites canonical tracked files and exact Git blobs instead of embedding source copies."
+  ]
+}

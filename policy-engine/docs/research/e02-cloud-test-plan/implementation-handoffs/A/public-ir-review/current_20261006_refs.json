@@ -1,0 +1,118 @@
+{
+  "scope": "Complete locally fetched origin/codex/e02-[EF]-*-20261006 ref set; read-only; no fetch",
+  "refs": [
+    {
+      "ref": "origin/codex/e02-E-backtest-20261006",
+      "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+      "tree": "47ae719ab9d442ae0d875d04390e1b6c79a79e10"
+    },
+    {
+      "ref": "origin/codex/e02-E-cal-20261006",
+      "commit": "491562fab29f61efda7eaa57d09791740a7d53cc",
+      "tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba"
+    },
+    {
+      "ref": "origin/codex/e02-E-cal05-20261006",
+      "commit": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+      "tree": "11bea57924adacca4b80358013331c6a072f6967"
+    },
+    {
+      "ref": "origin/codex/e02-E-continuation-20261006",
+      "commit": "514824ca60913601b796d492e99b754368569d8e",
+      "tree": "940a1d1f79fe121026826bec273abb3eece3a8bf"
+    },
+    {
+      "ref": "origin/codex/e02-E-ddm-20261006",
+      "commit": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+      "tree": "58a3fd8e1c224e237d338f1680883fc0231c271b"
+    },
+    {
+      "ref": "origin/codex/e02-E-doe-20261006",
+      "commit": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "tree": "2510b5b919a4dad3f5bf513bbc8dc38029c8f684"
+    },
+    {
+      "ref": "origin/codex/e02-E-frc-20261006",
+      "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31"
+    },
+    {
+      "ref": "origin/codex/e02-E-mc-20261006",
+      "commit": "c4e8092d52cfff633465a8de1b8c93195388d401",
+      "tree": "8d91ba98386c79fc7f7c3d3e775e0f00e299a2fe"
+    },
+    {
+      "ref": "origin/codex/e02-E-pcl-20261006",
+      "commit": "ee6f2fb6d2059342c6f228b90447841f0077e585",
+      "tree": "07394cfc85968f9a231ec38546bb8e3ed41e4e21"
+    },
+    {
+      "ref": "origin/codex/e02-F-api-20261006",
+      "commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "tree": "bbb4a9a6e4256d850a47f16c00321b57fa1bc80d"
+    },
+    {
+      "ref": "origin/codex/e02-F-cau-20261006",
+      "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6"
+    },
+    {
+      "ref": "origin/codex/e02-F-closeout-20261006",
+      "commit": "421f1dd977b237307394c68820caab4156716eb2",
+      "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2"
+    },
+    {
+      "ref": "origin/codex/e02-F-dowhy-20261006",
+      "commit": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "tree": "c0d9b034e374010de11c66eb460b2bf097749d2d"
+    },
+    {
+      "ref": "origin/codex/e02-F-economics-20261006",
+      "commit": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "tree": "f432371c0745de7e30df8892b0a2e563c8bbdd23"
+    },
+    {
+      "ref": "origin/codex/e02-F-fry-20261006",
+      "commit": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "tree": "fbc864a0cd5da1246683673ee3d145c76469ee32"
+    },
+    {
+      "ref": "origin/codex/e02-F-graph-20261006",
+      "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21"
+    },
+    {
+      "ref": "origin/codex/e02-F-graph-intake-20261006",
+      "commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "tree": "56a3f7b51371c59939db000dd0f74b44015f862c"
+    },
+    {
+      "ref": "origin/codex/e02-F-installed-worker-20261006",
+      "commit": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17"
+    },
+    {
+      "ref": "origin/codex/e02-F-lex-20261006",
+      "commit": "77166daa0ff8b9659e3978447f9016c691694266",
+      "tree": "23ac1cacae3444166ee3f421e35c177c49f87c07"
+    },
+    {
+      "ref": "origin/codex/e02-F-rdd-20261006",
+      "commit": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "tree": "3ff65b90327db01a9d38efe3771358d4cabde555"
+    },
+    {
+      "ref": "origin/codex/e02-F-tmle-20261006",
+      "commit": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "tree": "3a392defad301686740f27a246e747540b55332a"
+    }
+  ],
+  "review_source_snapshot": {
+    "commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+    "tree": "a5c268e023720c5afc97af75a285b63e7f943528",
+    "comparison_commit": "33dfb99210eb4457263fde7f92b3479ebac75b02",
+    "compared_paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+    ]
+  }
+}

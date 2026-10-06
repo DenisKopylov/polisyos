@@ -1,0 +1,119 @@
+{
+  "schema": "policyos.e02.simulation_review_addendum.v1",
+  "review_date": "2026-10-06",
+  "parent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-review.json",
+  "immutable_candidate": {
+    "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+    "branch_at_run": "codex/e02-A-n5-verify-current",
+    "input_path_count": 10,
+    "input_git_blob_matches": "10/10 against candidate commit",
+    "input_hash_source": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/environment-and-inputs.json"
+  },
+  "sim_wave": {
+    "command_scope": [
+      "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "tests/unit/remediation/test_sim_01.py",
+      "tests/unit/remediation/test_sim_02.py",
+      "tests/unit/remediation/test_sim_03.py",
+      "tests/unit/remediation/test_cyc_02.py"
+    ],
+    "module_counts": [
+      {"module": "test_joint_simulation_e02_semantics.py", "tests": 25, "passed": 25, "failed": 0},
+      {"module": "test_joint_simulation_horizon.py", "tests": 29, "passed": 29, "failed": 0},
+      {"module": "test_sim_01.py", "tests": 5, "passed": 5, "failed": 0},
+      {"module": "test_sim_02.py", "tests": 10, "passed": 10, "failed": 0},
+      {"module": "test_sim_03.py", "tests": 22, "passed": 22, "failed": 0}
+    ],
+    "sim_only_result": {"tests": 91, "passed": 91, "failed": 0, "errors": 0, "skipped": 0},
+    "separate_cyc_02_result": {
+      "tests": 15,
+      "passed": 7,
+      "failed": 8,
+      "errors": 0,
+      "skipped": 0,
+      "failed_nodes": [
+        "test_n5_transient_store_failure_is_unavailable_not_integrity_invalid",
+        "test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError]",
+        "test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError]",
+        "test_n5_replay_does_not_mask_store_programming_errors",
+        "test_conditional_n8_status_is_not_authority_ready",
+        "test_n5_result_has_reopenable_cas_reference",
+        "test_recursive_parent_keeps_n5_cas_reference",
+        "test_n5_replay_uses_supplied_guarded_tenant_store"
+      ]
+    },
+    "command_aggregate": {
+      "tests": 106,
+      "passed": 98,
+      "failed": 8,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 1,
+      "interpretation": "The five SIM modules are green (91/91); the command overall is FAIL because its separately interpreted CYC-02 module is 7/15, with eight failures."
+    },
+    "receipt_paths": {
+      "stdout": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/stdout.txt",
+      "stderr": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/stderr.txt",
+      "junit": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/junit.xml",
+      "environment_and_inputs": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/environment-and-inputs.json"
+    },
+    "receipt_sha256": {
+      "stdout.txt": "961ccf5693fb7eeb13953f612b82414c7ce1a8d66c6312817deb2f0ac4a95a08",
+      "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit.xml": "a0e890961fa30de5a0f0167340b62bc5a4b867f20e817b6f36cf7eefdc3022b6",
+      "environment-and-inputs.json": "49cf94a6f0fe044eaf2df8fabb776812d2d53a02009edf201019b7b0dd25ae83"
+    }
+  },
+  "semantic_witnesses": {
+    "static_ncm_grid": {
+      "result": "PASS",
+      "cases": [
+        "test_joint_simulation_horizon::test_static_ncm_multistep_request_is_typed_no_run_before_runner",
+        "test_sim_03::test_static_ncm_multi_step_horizon_is_rejected_before_execution",
+        "test_sim_03::test_static_ncm_single_step_horizon_remains_additive"
+      ],
+      "bounded_claim": "The reviewed multistep fixture refuses before runner and the one-step case remains eligible; this does not extend to unenumerated dynamic aliases or all possible future selectors."
+    },
+    "registered_singleton_ncm": {
+      "result": "PASS",
+      "case": "test_joint_simulation_horizon::test_registered_ncm_single_atom_checks_only_first_order",
+      "producer": "actual registered ncm_engine@1.0.0; no producer monkeypatch in this test",
+      "asserted": "selected decision, individual+joint trajectories for the one atom, checked_interaction_orders=(1,), no higher-order residual"
+    },
+    "b25": {
+      "source_ids": ["F02-P032", "F07-P031"],
+      "test_module_blob": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202",
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "function_body_comparison": "The three required function bodies remain exact against slice base.",
+      "functions": [
+        {"name": "test_summary_distance_requires_one_declared_metric_set", "sha256": "486b691758a7c7df2db2c713cfbfb4c866107ce3b7a53301df849f1e6d1f1c81", "result": "PASS"},
+        {"name": "test_smm_missing_required_moment_cannot_win_calibration", "sha256": "1873aa6bb514e093df38b7d08a7b72046b6051cb177cbf43076a46f86ce91c32", "result": "PASS"},
+        {"name": "test_smm_all_incomparable_candidates_are_explicitly_blocked", "sha256": "6ebf3037a2dd2273368e4e5e26a1bbba8ac61eed7df1fbc981066da944f17bf2", "result": "PASS"}
+      ],
+      "closure_scope": "The bounded original B25 closure remains closed; optional metrics, other estimators, and served API closure are not added."
+    }
+  },
+  "source_delta_from_prior_review": {
+    "prior_candidate": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+    "joint_simulation_horizon_blob": "1b68f33f3de77b551ea4667996ca329ae395514a",
+    "change_summary": "The only SIM source delta is in _checked_interaction_orders: order 2 now requires at least two atoms. The added registered singleton test exercises the actual NCM method and verifies order 1 only. No StockFlow terminal projection or producer-time mapping change appears in this SIM delta.",
+    "time_contract_still_not_established": true
+  },
+  "temporal_semantic_closure": {
+    "decision": "NO_GO",
+    "finding": "B22",
+    "pattern": "P40 same temporal-binding class remains bounded; no new class asserted",
+    "basis": "Passing tests retain the request labels and diagnostics, not an owner-backed mapping between StockFlow rows, dt, and physical valid time. The one-point initial/final mixed-row witness still exists in current source and is still diagnosed producer_time_grid_binding=not_established.",
+    "smallest_missing_capability": "An owner-typed producer point/time binding for StockFlow rows and terminal scalars.",
+    "not_established": [
+      "B22 evidence basis for physical valid-time alignment",
+      "a dt unit/equality law",
+      "numerical precision adequacy",
+      "graph physical-time alignment"
+    ],
+    "authority": "Keep the simulation-only K_sim blocker; this wave does not establish world evidence, temporal semantic closure, or publication authority."
+  },
+  "review_execution": "Receipt, JUnit, stdout, environment-input hashes, tracked Git blobs, current source delta, and exact B25 bodies were inspected read-only. No tests or numerical engine calls were run by this review."
+}

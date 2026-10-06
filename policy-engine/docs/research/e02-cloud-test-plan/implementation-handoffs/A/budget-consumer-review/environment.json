@@ -1,0 +1,8 @@
+{
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4]",
+  "pytest": "9.0.2",
+  "pydantic": "2.12.5",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "pythonpath": "src:.",
+  "captured_run_timestamp_from_junit": "2026-10-06T16:26:07.331518+03:00"
+}

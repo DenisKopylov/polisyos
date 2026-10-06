@@ -1,0 +1,1212 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 106 items
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_static_engine_eligibility_uses_the_requested_grid_not_hint_strings PASSED [  0%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[left-right] PASSED [  1%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[right-left] PASSED [  2%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_engine_variable_alias_conflict_rejects_candidate_before_runner PASSED [  3%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[short-trailing] PASSED [  4%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[missing-middle] PASSED [  5%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[suffix-only] PASSED [  6%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[reordered-full-set] PASSED [  7%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[overlong] PASSED [  8%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_physical_run_identity_canonicalizes_atoms_and_binds_comparator_inputs PASSED [  9%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_missing_queue_and_mass_balance_output_never_becomes_numeric_zero PASSED [ 10%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[null] PASSED [ 11%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[malformed] PASSED [ 12%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[nan] PASSED [ 13%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[infinity] PASSED [ 14%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_cache_executor_rejects_nonfinite_adapter_output PASSED [ 15%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_generic_scalar_result_is_unavailable_without_terminal_binding PASSED [ 16%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_mass_balance_is_terminal_only_not_broadcast PASSED [ 16%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_marks_unbound_time_grid_when_dt_disagrees PASSED [ 17%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_single_point_stock_flow_can_mix_initial_row_with_terminal_scalar PASSED [ 18%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine PASSED [ 19%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs PASSED [ 20%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_controller_preserves_store_handles_and_snapshots_state PASSED [ 21%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_stock_flow_runner_does_not_fill_a_short_trajectory_with_final_state PASSED [ 22%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_real_ncm_cubic_exposes_joint_residual_with_zero_lower_order_terms PASSED [ 23%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_static_ncm_multistep_request_is_typed_no_run_before_runner PASSED [ 24%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registered_ncm_single_atom_checks_only_first_order PASSED [ 25%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff PASSED [ 26%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_committed_v1_joint_result_keeps_original_receipt_projection PASSED [ 27%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource] PASSED [ 28%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback] PASSED [ 29%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine] PASSED [ 30%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt PASSED [ 31%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation PASSED [ 32%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_safe_public_policy_exposes_no_gate_bypass_knobs PASSED [ 33%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_declared_unbacked_equilibrium_semantics_is_gated PASSED [ 33%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_when_run_is_claimed_without_trajectories PASSED [ 34%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_loops_real_shared_state_executor PASSED [ 35%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_refuses_foreign_selected_manifest_profile PASSED [ 36%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_output_lineage_keeps_selected_manifest_profiles PASSED [ 37%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_system_dynamics_plan_runs_registered_stock_flow_engine PASSED [ 38%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch PASSED [ 39%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registry_des_queue_tag_does_not_back_time_series_semantics PASSED [ 40%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_fresh_scalar_method_contract_does_not_back_agent_based_semantics PASSED [ 41%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_newly_registered_dynamic_method_is_selectable_without_controller_code PASSED [ 42%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction PASSED [ 43%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_for_fabricated_stub_refs PASSED [ 44%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_non_matching_domain_is_not_routed_to_unemployment_coupled_kernel PASSED [ 45%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_cyclic_ncm_is_rejected_not_silently_grounded PASSED [ 46%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_pending_world_model_record_ref_fails_closed PASSED [ 47%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_builder_is_deterministic_and_strangles_abm_stub_fields PASSED [ 48%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_strangle_probe_censuses_every_production_stub_caller PASSED [ 49%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_rederive_audit_validates_live_payload_without_frozen_artifact PASSED [ 50%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_source_flip_runs_behavior_and_restores_bytes PASSED [ 50%]
+tests/unit/remediation/test_sim_01.py::test_unsupported_first_engine_falls_back_to_supported_second PASSED [ 51%]
+tests/unit/remediation/test_sim_01.py::test_all_engine_candidates_incompatible_return_typed_rejection PASSED [ 52%]
+tests/unit/remediation/test_sim_01.py::test_selected_plan_requires_its_executed_trajectory PASSED [ 53%]
+tests/unit/remediation/test_sim_01.py::test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow PASSED [ 54%]
+tests/unit/remediation/test_sim_01.py::test_foreign_trajectory_cannot_satisfy_selected_plan PASSED [ 55%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[empty-world-summaries] PASSED [ 56%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[missing-selected-outcome] PASSED [ 57%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[mixed-valid-and-missing-selected-outcome] PASSED [ 58%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[nan-selected-outcome] PASSED [ 59%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[infinite-selected-outcome] PASSED [ 60%]
+tests/unit/remediation/test_sim_02.py::test_ncm_explicit_zero_is_preserved_as_a_real_outcome PASSED [ 61%]
+tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[left-right] PASSED [ 62%]
+tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[right-left] PASSED [ 63%]
+tests/unit/remediation/test_sim_02.py::test_identical_atom_assignments_are_order_invariant PASSED [ 64%]
+tests/unit/remediation/test_sim_02.py::test_short_trajectory_is_not_silently_extended_by_final_value PASSED [ 65%]
+tests/unit/remediation/test_sim_03.py::test_summary_distance_requires_one_declared_metric_set PASSED [ 66%]
+tests/unit/remediation/test_sim_03.py::test_smm_missing_required_moment_cannot_win_calibration PASSED [ 66%]
+tests/unit/remediation/test_sim_03.py::test_smm_all_incomparable_candidates_are_explicitly_blocked PASSED [ 67%]
+tests/unit/remediation/test_sim_03.py::test_single_paired_draw_has_unestimated_standard_error PASSED [ 68%]
+tests/unit/remediation/test_sim_03.py::test_paired_replicates_require_distinct_seeds PASSED [ 69%]
+tests/unit/remediation/test_sim_03.py::test_joint_request_runs_each_requested_replication_with_distinct_seeds PASSED [ 70%]
+tests/unit/remediation/test_sim_03.py::test_ncm_evidence_none_and_explicit_empty_are_distinct PASSED [ 71%]
+tests/unit/remediation/test_sim_03.py::test_physical_run_ref_binds_effective_evidence_and_source_mode PASSED [ 72%]
+tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request PASSED [ 73%]
+tests/unit/remediation/test_sim_03.py::test_three_atom_controller_reports_real_higher_order_residual_and_order PASSED [ 74%]
+tests/unit/remediation/test_sim_03.py::test_complete_additive_three_atom_basis_remains_additive PASSED [ 75%]
+tests/unit/remediation/test_sim_03.py::test_missing_pair_basis_is_unsupported_not_false_additivity PASSED [ 76%]
+tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[selected_outcome] PASSED [ 77%]
+tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[static_horizon_step] PASSED [ 78%]
+tests/unit/remediation/test_sim_03.py::test_static_ncm_multi_step_horizon_is_rejected_before_execution PASSED [ 79%]
+tests/unit/remediation/test_sim_03.py::test_static_ncm_single_step_horizon_remains_additive PASSED [ 80%]
+tests/unit/remediation/test_sim_03.py::test_four_atom_cancellation_is_bounded_aggregate_not_additive PASSED [ 81%]
+tests/unit/remediation/test_sim_03.py::test_joint_simulation_requires_explicit_selected_outcome_baseline PASSED [ 82%]
+tests/unit/remediation/test_sim_03.py::test_explicit_comparator_makes_equal_scenarios_zero_effect PASSED [ 83%]
+tests/unit/remediation/test_sim_03.py::test_joint_simulation_reuses_physical_spec_across_roles PASSED [ 83%]
+tests/unit/remediation/test_sim_03.py::test_joint_residual_keeps_higher_order_interaction_visible PASSED [ 84%]
+tests/unit/remediation/test_sim_03.py::test_checked_interaction_orders_include_pairwise_two_atom_run PASSED [ 85%]
+tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence PASSED [ 86%]
+tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_allowlist_covers_tracked_sources PASSED [ 87%]
+tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity PASSED [ 88%]
+tests/unit/remediation/test_cyc_02.py::test_k_sim_limitation_remains_a_usable_simulation_input PASSED [ 89%]
+tests/unit/remediation/test_cyc_02.py::test_n5_transient_store_failure_is_unavailable_not_integrity_invalid FAILED [ 90%]
+tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError] FAILED [ 91%]
+tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError] FAILED [ 92%]
+tests/unit/remediation/test_cyc_02.py::test_n5_replay_does_not_mask_store_programming_errors FAILED [ 93%]
+tests/unit/remediation/test_cyc_02.py::test_conditional_n8_status_is_not_authority_ready FAILED [ 94%]
+tests/unit/remediation/test_cyc_02.py::test_program_graph_v2_blocker_removal_stays_out_of_eval_safety PASSED [ 95%]
+tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference FAILED [ 96%]
+tests/unit/remediation/test_cyc_02.py::test_recursive_parent_keeps_n5_cas_reference FAILED [ 97%]
+tests/unit/remediation/test_cyc_02.py::test_recursive_parent_without_store_refuses_before_n5_execution PASSED [ 98%]
+tests/unit/remediation/test_cyc_02.py::test_n5_replay_uses_supplied_guarded_tenant_store FAILED [ 99%]
+tests/unit/remediation/test_cyc_02.py::test_n5_does_not_execute_without_runtime_owned_store PASSED [100%]
+
+=================================== FAILURES ===================================
+_____ test_n5_transient_store_failure_is_unavailable_not_integrity_invalid _____
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_transient_store_failur0')
+
+    def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(
+        tmp_path: Path,
+    ) -> None:
+        """A transient backend failure does not become a false corruption verdict."""
+    
+>       _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
+            tmp_path
+        )
+
+tests/unit/remediation/test_cyc_02.py:1046: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_transient_store_failur0')
+
+    def _real_n5_observation(
+        tmp_path: Path,
+        *,
+        artifact_store: Any | None = None,
+        without_runtime_store: bool = False,
+        single_step_horizon: bool = False,
+        single_atom_candidate: bool = False,
+    ):
+        """Run the canonical N5 producer through the real generation-cycle adapter."""
+    
+        store = (
+            None
+            if without_runtime_store
+            else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+        )
+    
+        problem, context, candidate = _cyc01_owner_bound_n5_case()
+        request = _request(
+            record=context.world_model_record,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
+        )
+        request_atoms = tuple(candidate.intervention_atoms)
+        if single_atom_candidate:
+            request_atoms = (candidate.atom,)
+            request = request.model_copy(update={"intervention_atoms": request_atoms})
+        if single_step_horizon:
+            # This static request must not add a separate incomplete-horizon blocker.
+            request = request.model_copy(
+                update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
+            )
+        problem = problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **problem.runtime_hints,
+                    "joint_simulation_request": request,
+                }
+            }
+        )
+        # The request is an operational hint, but adding it changes the problem
+        # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+        # registry so the context remains honestly bound to the final problem.
+        context = build_cycle_substrate_context(
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        final_problem_ref = context.design_problem_ref
+        rebound_atoms = []
+        for atom in request_atoms:
+            rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+            rebound_atoms.append(
+                rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
+            )
+        if single_atom_candidate:
+            # Exercise the legacy single-atom candidate shape at the producer and
+            # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+            candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+        else:
+            candidate.intervention_atoms = tuple(rebound_atoms)
+            candidate.atom = rebound_atoms[0]
+        producer = JointSimulationHorizonController()
+        produced_results: list[object] = []
+    
+        class _RecordingN5Controller:
+            def run(self, concrete_request):
+                result = producer.run(concrete_request)
+                produced_results.append(result)
+                return result
+    
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
+        if without_runtime_store:
+            assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+            assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+            assert produced_results == []
+        else:
+>           assert observation.status == "joint_simulated", {
+                "status": observation.status,
+                "authority_blockers": observation.authority_blockers,
+                "diagnostics": observation.diagnostics,
+            }
+E           AssertionError: {'authority_blockers': ('simulation_only_k_sim_not_world_evidence', 'all_engine_candidates_rejected', 'static_engine_temporal_capability'), 'diagnostics': {'engine_decisions': [{'blockers': ['static_engine_temporal_capability'], 'decision': 'unsupported', 'eligibility_source': 'method_registry', 'engine_kind': 'ncm_parallel_worlds', ...}], 'interaction_count': 0, 'program_binding_failures': {}, 'simulation_result_ref': 'sha256:1a5cbce08aabe5da3bc2addc16789fb1712f494309b5c7b0bb6703638e214e92', ...}, 'status': 'simulation_blocked'}
+E           assert 'simulation_blocked' == 'joint_simulated'
+E             
+E             - joint_simulated
+E             + simulation_blocked
+
+tests/unit/remediation/test_cyc_02.py:277: AssertionError
+_ test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_guarded_runtime_store_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x132b7fe00>
+failure_mode = 'unavailable'
+expected_cause = <class 'polisyos.runtime.http.errors.RuntimeDependencyUnavailableError'>
+
+    @pytest.mark.parametrize(
+        ("failure_mode", "expected_cause"),
+        [
+            ("unavailable", RuntimeDependencyUnavailableError),
+            ("timeout", RuntimeDependencyTimeoutError),
+        ],
+    )
+    def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        failure_mode: str,
+        expected_cause: type[Exception],
+    ) -> None:
+        """Production CAS guard errors become N5 unavailability, not corruption."""
+    
+>       problem, context, candidate, simulation, _produced, store = _real_n5_observation(
+            tmp_path
+        )
+
+tests/unit/remediation/test_cyc_02.py:1086: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_guarded_runtime_store_0')
+
+    def _real_n5_observation(
+        tmp_path: Path,
+        *,
+        artifact_store: Any | None = None,
+        without_runtime_store: bool = False,
+        single_step_horizon: bool = False,
+        single_atom_candidate: bool = False,
+    ):
+        """Run the canonical N5 producer through the real generation-cycle adapter."""
+    
+        store = (
+            None
+            if without_runtime_store
+            else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+        )
+    
+        problem, context, candidate = _cyc01_owner_bound_n5_case()
+        request = _request(
+            record=context.world_model_record,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
+        )
+        request_atoms = tuple(candidate.intervention_atoms)
+        if single_atom_candidate:
+            request_atoms = (candidate.atom,)
+            request = request.model_copy(update={"intervention_atoms": request_atoms})
+        if single_step_horizon:
+            # This static request must not add a separate incomplete-horizon blocker.
+            request = request.model_copy(
+                update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
+            )
+        problem = problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **problem.runtime_hints,
+                    "joint_simulation_request": request,
+                }
+            }
+        )
+        # The request is an operational hint, but adding it changes the problem
+        # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+        # registry so the context remains honestly bound to the final problem.
+        context = build_cycle_substrate_context(
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        final_problem_ref = context.design_problem_ref
+        rebound_atoms = []
+        for atom in request_atoms:
+            rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+            rebound_atoms.append(
+                rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
+            )
+        if single_atom_candidate:
+            # Exercise the legacy single-atom candidate shape at the producer and
+            # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+            candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+        else:
+            candidate.intervention_atoms = tuple(rebound_atoms)
+            candidate.atom = rebound_atoms[0]
+        producer = JointSimulationHorizonController()
+        produced_results: list[object] = []
+    
+        class _RecordingN5Controller:
+            def run(self, concrete_request):
+                result = producer.run(concrete_request)
+                produced_results.append(result)
+                return result
+    
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
+        if without_runtime_store:
+            assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+            assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+            assert produced_results == []
+        else:
+>           assert observation.status == "joint_simulated", {
+                "status": observation.status,
+                "authority_blockers": observation.authority_blockers,
+                "diagnostics": observation.diagnostics,
+            }
+E           AssertionError: {'authority_blockers': ('simulation_only_k_sim_not_world_evidence', 'all_engine_candidates_rejected', 'static_engine_temporal_capability'), 'diagnostics': {'engine_decisions': [{'blockers': ['static_engine_temporal_capability'], 'decision': 'unsupported', 'eligibility_source': 'method_registry', 'engine_kind': 'ncm_parallel_worlds', ...}], 'interaction_count': 0, 'program_binding_failures': {}, 'simulation_result_ref': 'sha256:20a5c61ef4e21a0132d92f798d21006a603919ac526ce8b493dfaf0e92cd5968', ...}, 'status': 'simulation_blocked'}
+E           assert 'simulation_blocked' == 'joint_simulated'
+E             
+E             - joint_simulated
+E             + simulation_blocked
+
+tests/unit/remediation/test_cyc_02.py:277: AssertionError
+_ test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_guarded_runtime_store_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x132754520>
+failure_mode = 'timeout'
+expected_cause = <class 'polisyos.runtime.http.errors.RuntimeDependencyTimeoutError'>
+
+    @pytest.mark.parametrize(
+        ("failure_mode", "expected_cause"),
+        [
+            ("unavailable", RuntimeDependencyUnavailableError),
+            ("timeout", RuntimeDependencyTimeoutError),
+        ],
+    )
+    def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        failure_mode: str,
+        expected_cause: type[Exception],
+    ) -> None:
+        """Production CAS guard errors become N5 unavailability, not corruption."""
+    
+>       problem, context, candidate, simulation, _produced, store = _real_n5_observation(
+            tmp_path
+        )
+
+tests/unit/remediation/test_cyc_02.py:1086: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_guarded_runtime_store_1')
+
+    def _real_n5_observation(
+        tmp_path: Path,
+        *,
+        artifact_store: Any | None = None,
+        without_runtime_store: bool = False,
+        single_step_horizon: bool = False,
+        single_atom_candidate: bool = False,
+    ):
+        """Run the canonical N5 producer through the real generation-cycle adapter."""
+    
+        store = (
+            None
+            if without_runtime_store
+            else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+        )
+    
+        problem, context, candidate = _cyc01_owner_bound_n5_case()
+        request = _request(
+            record=context.world_model_record,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
+        )
+        request_atoms = tuple(candidate.intervention_atoms)
+        if single_atom_candidate:
+            request_atoms = (candidate.atom,)
+            request = request.model_copy(update={"intervention_atoms": request_atoms})
+        if single_step_horizon:
+            # This static request must not add a separate incomplete-horizon blocker.
+            request = request.model_copy(
+                update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
+            )
+        problem = problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **problem.runtime_hints,
+                    "joint_simulation_request": request,
+                }
+            }
+        )
+        # The request is an operational hint, but adding it changes the problem
+        # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+        # registry so the context remains honestly bound to the final problem.
+        context = build_cycle_substrate_context(
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        final_problem_ref = context.design_problem_ref
+        rebound_atoms = []
+        for atom in request_atoms:
+            rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+            rebound_atoms.append(
+                rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
+            )
+        if single_atom_candidate:
+            # Exercise the legacy single-atom candidate shape at the producer and
+            # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+            candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+        else:
+            candidate.intervention_atoms = tuple(rebound_atoms)
+            candidate.atom = rebound_atoms[0]
+        producer = JointSimulationHorizonController()
+        produced_results: list[object] = []
+    
+        class _RecordingN5Controller:
+            def run(self, concrete_request):
+                result = producer.run(concrete_request)
+                produced_results.append(result)
+                return result
+    
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
+        if without_runtime_store:
+            assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+            assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+            assert produced_results == []
+        else:
+>           assert observation.status == "joint_simulated", {
+                "status": observation.status,
+                "authority_blockers": observation.authority_blockers,
+                "diagnostics": observation.diagnostics,
+            }
+E           AssertionError: {'authority_blockers': ('simulation_only_k_sim_not_world_evidence', 'all_engine_candidates_rejected', 'static_engine_temporal_capability'), 'diagnostics': {'engine_decisions': [{'blockers': ['static_engine_temporal_capability'], 'decision': 'unsupported', 'eligibility_source': 'method_registry', 'engine_kind': 'ncm_parallel_worlds', ...}], 'interaction_count': 0, 'program_binding_failures': {}, 'simulation_result_ref': 'sha256:476dd54bb7b923fbea8e7bac3a08cc6de982425680a78f64c444909a80ed2d35', ...}, 'status': 'simulation_blocked'}
+E           assert 'simulation_blocked' == 'joint_simulated'
+E             
+E             - joint_simulated
+E             + simulation_blocked
+
+tests/unit/remediation/test_cyc_02.py:277: AssertionError
+____________ test_n5_replay_does_not_mask_store_programming_errors _____________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_replay_does_not_mask_s0')
+
+    def test_n5_replay_does_not_mask_store_programming_errors(tmp_path: Path) -> None:
+        """Unexpected store faults surface instead of being mislabeled as corruption."""
+    
+>       _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
+            tmp_path
+        )
+
+tests/unit/remediation/test_cyc_02.py:1146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_replay_does_not_mask_s0')
+
+    def _real_n5_observation(
+        tmp_path: Path,
+        *,
+        artifact_store: Any | None = None,
+        without_runtime_store: bool = False,
+        single_step_horizon: bool = False,
+        single_atom_candidate: bool = False,
+    ):
+        """Run the canonical N5 producer through the real generation-cycle adapter."""
+    
+        store = (
+            None
+            if without_runtime_store
+            else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+        )
+    
+        problem, context, candidate = _cyc01_owner_bound_n5_case()
+        request = _request(
+            record=context.world_model_record,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
+        )
+        request_atoms = tuple(candidate.intervention_atoms)
+        if single_atom_candidate:
+            request_atoms = (candidate.atom,)
+            request = request.model_copy(update={"intervention_atoms": request_atoms})
+        if single_step_horizon:
+            # This static request must not add a separate incomplete-horizon blocker.
+            request = request.model_copy(
+                update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
+            )
+        problem = problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **problem.runtime_hints,
+                    "joint_simulation_request": request,
+                }
+            }
+        )
+        # The request is an operational hint, but adding it changes the problem
+        # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+        # registry so the context remains honestly bound to the final problem.
+        context = build_cycle_substrate_context(
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        final_problem_ref = context.design_problem_ref
+        rebound_atoms = []
+        for atom in request_atoms:
+            rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+            rebound_atoms.append(
+                rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
+            )
+        if single_atom_candidate:
+            # Exercise the legacy single-atom candidate shape at the producer and
+            # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+            candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+        else:
+            candidate.intervention_atoms = tuple(rebound_atoms)
+            candidate.atom = rebound_atoms[0]
+        producer = JointSimulationHorizonController()
+        produced_results: list[object] = []
+    
+        class _RecordingN5Controller:
+            def run(self, concrete_request):
+                result = producer.run(concrete_request)
+                produced_results.append(result)
+                return result
+    
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
+        if without_runtime_store:
+            assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+            assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+            assert produced_results == []
+        else:
+>           assert observation.status == "joint_simulated", {
+                "status": observation.status,
+                "authority_blockers": observation.authority_blockers,
+                "diagnostics": observation.diagnostics,
+            }
+E           AssertionError: {'authority_blockers': ('simulation_only_k_sim_not_world_evidence', 'all_engine_candidates_rejected', 'static_engine_temporal_capability'), 'diagnostics': {'engine_decisions': [{'blockers': ['static_engine_temporal_capability'], 'decision': 'unsupported', 'eligibility_source': 'method_registry', 'engine_kind': 'ncm_parallel_worlds', ...}], 'interaction_count': 0, 'program_binding_failures': {}, 'simulation_result_ref': 'sha256:95fc4aa52166d0c2fe2ebdc4a7a618ef490c548588ed09f4aca687cc75494879', ...}, 'status': 'simulation_blocked'}
+E           assert 'simulation_blocked' == 'joint_simulated'
+E             
+E             - joint_simulated
+E             + simulation_blocked
+
+tests/unit/remediation/test_cyc_02.py:277: AssertionError
+______________ test_conditional_n8_status_is_not_authority_ready _______________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_conditional_n8_status_is_0')
+
+    def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
+        """The simulation-only value state is explicit and cannot carry N8 receipts."""
+    
+>       problem, context, candidate, simulation, produced, store = _real_n5_observation(tmp_path)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_cyc_02.py:1171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_conditional_n8_status_is_0')
+
+    def _real_n5_observation(
+        tmp_path: Path,
+        *,
+        artifact_store: Any | None = None,
+        without_runtime_store: bool = False,
+        single_step_horizon: bool = False,
+        single_atom_candidate: bool = False,
+    ):
+        """Run the canonical N5 producer through the real generation-cycle adapter."""
+    
+        store = (
+            None
+            if without_runtime_store
+            else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+        )
+    
+        problem, context, candidate = _cyc01_owner_bound_n5_case()
+        request = _request(
+            record=context.world_model_record,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
+        )
+        request_atoms = tuple(candidate.intervention_atoms)
+        if single_atom_candidate:
+            request_atoms = (candidate.atom,)
+            request = request.model_copy(update={"intervention_atoms": request_atoms})
+        if single_step_horizon:
+            # This static request must not add a separate incomplete-horizon blocker.
+            request = request.model_copy(
+                update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
+            )
+        problem = problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **problem.runtime_hints,
+                    "joint_simulation_request": request,
+                }
+            }
+        )
+        # The request is an operational hint, but adding it changes the problem
+        # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+        # registry so the context remains honestly bound to the final problem.
+        context = build_cycle_substrate_context(
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        final_problem_ref = context.design_problem_ref
+        rebound_atoms = []
+        for atom in request_atoms:
+            rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+            rebound_atoms.append(
+                rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
+            )
+        if single_atom_candidate:
+            # Exercise the legacy single-atom candidate shape at the producer and
+            # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+            candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+        else:
+            candidate.intervention_atoms = tuple(rebound_atoms)
+            candidate.atom = rebound_atoms[0]
+        producer = JointSimulationHorizonController()
+        produced_results: list[object] = []
+    
+        class _RecordingN5Controller:
+            def run(self, concrete_request):
+                result = producer.run(concrete_request)
+                produced_results.append(result)
+                return result
+    
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
+        if without_runtime_store:
+            assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+            assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+            assert produced_results == []
+        else:
+>           assert observation.status == "joint_simulated", {
+                "status": observation.status,
+                "authority_blockers": observation.authority_blockers,
+                "diagnostics": observation.diagnostics,
+            }
+E           AssertionError: {'authority_blockers': ('simulation_only_k_sim_not_world_evidence', 'all_engine_candidates_rejected', 'static_engine_temporal_capability'), 'diagnostics': {'engine_decisions': [{'blockers': ['static_engine_temporal_capability'], 'decision': 'unsupported', 'eligibility_source': 'method_registry', 'engine_kind': 'ncm_parallel_worlds', ...}], 'interaction_count': 0, 'program_binding_failures': {}, 'simulation_result_ref': 'sha256:e788c26061552f5ce56789a55f96e308741f2ecfaf193b69e0946a16d95d987f', ...}, 'status': 'simulation_blocked'}
+E           assert 'simulation_blocked' == 'joint_simulated'
+E             
+E             - joint_simulated
+E             + simulation_blocked
+
+tests/unit/remediation/test_cyc_02.py:277: AssertionError
+_________________ test_n5_result_has_reopenable_cas_reference __________________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_result_has_reopenable_0')
+
+    def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
+        """The selected N5 view remains distinct from another honest view of its bytes."""
+    
+        store = _GenericDefaultN5Store(tmp_path / "n5-multiview-store")
+        _problem, _context, _candidate, simulation, produced, supplied_store = (
+>           _real_n5_observation(tmp_path, artifact_store=store)
+        )
+
+tests/unit/remediation/test_cyc_02.py:1333: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_result_has_reopenable_0')
+
+    def _real_n5_observation(
+        tmp_path: Path,
+        *,
+        artifact_store: Any | None = None,
+        without_runtime_store: bool = False,
+        single_step_horizon: bool = False,
+        single_atom_candidate: bool = False,
+    ):
+        """Run the canonical N5 producer through the real generation-cycle adapter."""
+    
+        store = (
+            None
+            if without_runtime_store
+            else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+        )
+    
+        problem, context, candidate = _cyc01_owner_bound_n5_case()
+        request = _request(
+            record=context.world_model_record,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
+        )
+        request_atoms = tuple(candidate.intervention_atoms)
+        if single_atom_candidate:
+            request_atoms = (candidate.atom,)
+            request = request.model_copy(update={"intervention_atoms": request_atoms})
+        if single_step_horizon:
+            # This static request must not add a separate incomplete-horizon blocker.
+            request = request.model_copy(
+                update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
+            )
+        problem = problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **problem.runtime_hints,
+                    "joint_simulation_request": request,
+                }
+            }
+        )
+        # The request is an operational hint, but adding it changes the problem
+        # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+        # registry so the context remains honestly bound to the final problem.
+        context = build_cycle_substrate_context(
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        final_problem_ref = context.design_problem_ref
+        rebound_atoms = []
+        for atom in request_atoms:
+            rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+            rebound_atoms.append(
+                rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
+            )
+        if single_atom_candidate:
+            # Exercise the legacy single-atom candidate shape at the producer and
+            # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+            candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+        else:
+            candidate.intervention_atoms = tuple(rebound_atoms)
+            candidate.atom = rebound_atoms[0]
+        producer = JointSimulationHorizonController()
+        produced_results: list[object] = []
+    
+        class _RecordingN5Controller:
+            def run(self, concrete_request):
+                result = producer.run(concrete_request)
+                produced_results.append(result)
+                return result
+    
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
+        if without_runtime_store:
+            assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+            assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+            assert produced_results == []
+        else:
+>           assert observation.status == "joint_simulated", {
+                "status": observation.status,
+                "authority_blockers": observation.authority_blockers,
+                "diagnostics": observation.diagnostics,
+            }
+E           AssertionError: {'authority_blockers': ('simulation_only_k_sim_not_world_evidence', 'all_engine_candidates_rejected', 'static_engine_temporal_capability'), 'diagnostics': {'engine_decisions': [{'blockers': ['static_engine_temporal_capability'], 'decision': 'unsupported', 'eligibility_source': 'method_registry', 'engine_kind': 'ncm_parallel_worlds', ...}], 'interaction_count': 0, 'program_binding_failures': {}, 'simulation_result_ref': 'sha256:78a74ce37e3a510cc2101587e74d149ffe53b1ff1b034c8c164ed41aa206a660', ...}, 'status': 'simulation_blocked'}
+E           assert 'simulation_blocked' == 'joint_simulated'
+E             
+E             - joint_simulated
+E             + simulation_blocked
+
+tests/unit/remediation/test_cyc_02.py:277: AssertionError
+_________________ test_recursive_parent_keeps_n5_cas_reference _________________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_recursive_parent_keeps_n50')
+
+    @pytest.mark.asyncio
+    async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
+        """The real recursive parent route persists the N5 result before composition."""
+    
+        root = "design://cyc-02/recursive-root"
+        child_refs = ("design://cyc-02/recursive-a", "design://cyc-02/recursive-b")
+        parent_problem, context, _candidate = _cyc01_owner_bound_n5_case()
+        problems = {
+            root: parent_problem,
+            child_refs[0]: _problem("cyc02_recursive_a"),
+            child_refs[1]: _problem("cyc02_recursive_b"),
+        }
+        graph = derive_recursive_design_graph(
+            design_ref=root,
+            module_refs=child_refs,
+            parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
+            rule_version_ref="repo://rules/cyc-02-recursive-cas",
+        )
+        request = _recursive_parent_request(
+            parent_ref=root,
+            child_refs=child_refs,
+            problem=parent_problem,
+            world_model_record=context.world_model_record,
+        )
+        store = FileSystemCAS(tmp_path / "recursive-parent-store")
+        controller = _recursive_contract_testing_controller(
+            tmp_path,
+            artifact_store=store,
+        )
+        subdesigns = _recursive_subdesigns(parent_ref=root, child_refs=child_refs)
+    
+        run = await controller.run(
+            graph,
+            problems_by_node=problems,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1,
+                max_nodes=3,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            joint_simulation_requests_by_node={root: request},
+            subdesign_contracts_by_node={root: subdesigns},
+        )
+    
+        routed_by_ref = {node.node_ref: node for node in run.nodes}
+        supplied_by_ref = {subdesign.workspace_id: subdesign for subdesign in subdesigns}
+        for child_ref in child_refs:
+            supplied = supplied_by_ref[child_ref].search_exit.terminal_state.model_dump(mode="json")
+            routed = routed_by_ref[child_ref].terminal.model_dump(mode="json")
+            differences = {
+                field: {"supplied": supplied[field], "routed": routed[field]}
+                for field in supplied
+                if supplied[field] != routed[field]
+            }
+            assert not differences, (
+                f"{child_ref} terminal mismatch: "
+                f"{json.dumps(differences, sort_keys=True, separators=(',', ':'))}"
+            )
+    
+        root_node = next(node for node in run.nodes if node.node_ref == root)
+        assert root_node.joint_simulation is not None
+        assert root_node.joint_simulation_ref is not None
+        assert root_node.joint_simulation_ref.kind == "polisyos.runtime.joint_simulation_result"
+        assert isinstance(request, JointSimulationRequest)
+    
+        from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    
+>       reopened = load_joint_simulation_result(
+            root_node.joint_simulation_ref,
+            store=store,
+            expected_world_model_record_content_hash=(
+                request.world_model_record.content_hash
+            ),
+            expected_atom_ids=tuple(
+                atom.intervention_id for atom in request.intervention_atoms
+            ),
+            expected_selected_outcomes=request.selected_outcomes,
+        )
+
+tests/unit/remediation/test_cyc_02.py:1501: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/generation_cycle.py:1081: in load_joint_simulation_result
+    _validate_loaded_joint_simulation_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = JointSimulationResult(schema_version='policyos.runtime.joint_simulation_horizon.v1', world_model_record_ref='world_mod...im', authoritative_for=(), may_not_use_for=('world_credal_state_shrinkage', 'promotion'), calibration_status='no_run'))
+
+    def _validate_loaded_joint_simulation_result(
+        result: JointSimulationResult,
+        *,
+        expected_world_model_record_content_hash: str | None,
+        expected_world_model_record_ref: str | None,
+        expected_atom_ids: Sequence[str] | None,
+        expected_selected_outcomes: Sequence[str] | None,
+    ) -> None:
+        """Check semantic bindings that CAS byte integrity cannot establish."""
+    
+        if result.uncertainty_kind != "K_sim":
+            _joint_simulation_result_integrity_error("uncertainty_kind_not_k_sim")
+        if result.state_consumption is not None:
+            consumption = result.state_consumption
+            if (
+                consumption.world_model_record_content_hash
+                != result.world_model_record_content_hash
+                or result.receipt.engine_kind != "program_graph"
+                or not set(consumption.authority_limitations).issubset(
+                    result.promotion_ready_value_packet.get("authority_blockers", ())
+                )
+            ):
+                _joint_simulation_result_integrity_error("state_consumption_binding_mismatch")
+        if (
+            expected_world_model_record_content_hash is not None
+            and result.world_model_record_content_hash != expected_world_model_record_content_hash
+        ):
+            raise GenerationCycleError(
+                "joint_simulation_result_wmr_mismatch",
+                "N5 result is bound to another WorldModelRecord",
+            )
+        if (
+            expected_world_model_record_ref is not None
+            and result.world_model_record_ref != expected_world_model_record_ref
+        ):
+            raise GenerationCycleError(
+                "joint_simulation_result_wmr_mismatch",
+                "N5 result names another WorldModelRecord occurrence",
+            )
+        if expected_atom_ids is not None and sorted(result.atom_ids) != sorted(expected_atom_ids):
+            raise GenerationCycleError(
+                "joint_simulation_result_atom_binding_mismatch",
+                "N5 result atom identities differ from the requested model",
+            )
+        if expected_selected_outcomes is not None and tuple(result.selected_outcomes) != tuple(
+            expected_selected_outcomes
+        ):
+            _joint_simulation_result_integrity_error("selected_outcomes_binding_mismatch")
+        if not result.selected_outcomes:
+            _joint_simulation_result_integrity_error("selected_outcomes_missing")
+        if not result.trajectories:
+>           raise GenerationCycleError(
+                "joint_simulation_result_trajectory_missing",
+                "N5 result contains no numerical trajectory",
+            )
+E           polisyos.runtime.quality.generation_cycle.GenerationCycleError: joint_simulation_result_trajectory_missing: N5 result contains no numerical trajectory
+
+src/polisyos/runtime/quality/generation_cycle.py:928: GenerationCycleError
+______________ test_n5_replay_uses_supplied_guarded_tenant_store _______________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_replay_uses_supplied_g0')
+
+    def test_n5_replay_uses_supplied_guarded_tenant_store(tmp_path: Path) -> None:
+        """The N5 writer and N8 reader share the caller's tenant-owned store."""
+    
+        store = guard_runtime_cas(
+            with_ambient_ownership_enforcement_if_supported(
+                FileSystemCAS(tmp_path / "guarded-runtime-store")
+            )
+        )
+        try:
+            with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+                problem, context, candidate, simulation, _produced, supplied_store = (
+>                   _real_n5_observation(tmp_path, artifact_store=store)
+                )
+
+tests/unit/remediation/test_cyc_02.py:1605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/basetemp/test_n5_replay_uses_supplied_g0')
+
+    def _real_n5_observation(
+        tmp_path: Path,
+        *,
+        artifact_store: Any | None = None,
+        without_runtime_store: bool = False,
+        single_step_horizon: bool = False,
+        single_atom_candidate: bool = False,
+    ):
+        """Run the canonical N5 producer through the real generation-cycle adapter."""
+    
+        store = (
+            None
+            if without_runtime_store
+            else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+        )
+    
+        problem, context, candidate = _cyc01_owner_bound_n5_case()
+        request = _request(
+            record=context.world_model_record,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
+        )
+        request_atoms = tuple(candidate.intervention_atoms)
+        if single_atom_candidate:
+            request_atoms = (candidate.atom,)
+            request = request.model_copy(update={"intervention_atoms": request_atoms})
+        if single_step_horizon:
+            # This static request must not add a separate incomplete-horizon blocker.
+            request = request.model_copy(
+                update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
+            )
+        problem = problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **problem.runtime_hints,
+                    "joint_simulation_request": request,
+                }
+            }
+        )
+        # The request is an operational hint, but adding it changes the problem
+        # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+        # registry so the context remains honestly bound to the final problem.
+        context = build_cycle_substrate_context(
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        final_problem_ref = context.design_problem_ref
+        rebound_atoms = []
+        for atom in request_atoms:
+            rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+            rebound_atoms.append(
+                rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
+            )
+        if single_atom_candidate:
+            # Exercise the legacy single-atom candidate shape at the producer and
+            # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+            candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+        else:
+            candidate.intervention_atoms = tuple(rebound_atoms)
+            candidate.atom = rebound_atoms[0]
+        producer = JointSimulationHorizonController()
+        produced_results: list[object] = []
+    
+        class _RecordingN5Controller:
+            def run(self, concrete_request):
+                result = producer.run(concrete_request)
+                produced_results.append(result)
+                return result
+    
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
+        if without_runtime_store:
+            assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+            assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+            assert produced_results == []
+        else:
+>           assert observation.status == "joint_simulated", {
+                "status": observation.status,
+                "authority_blockers": observation.authority_blockers,
+                "diagnostics": observation.diagnostics,
+            }
+E           AssertionError: {'authority_blockers': ('simulation_only_k_sim_not_world_evidence', 'all_engine_candidates_rejected', 'static_engine_temporal_capability'), 'diagnostics': {'engine_decisions': [{'blockers': ['static_engine_temporal_capability'], 'decision': 'unsupported', 'eligibility_source': 'method_registry', 'engine_kind': 'ncm_parallel_worlds', ...}], 'interaction_count': 0, 'program_binding_failures': {}, 'simulation_result_ref': 'sha256:53f960d3dc19ef9f97be184870949e61fe36cfff53e80e3dc53ff9cc5b6b0ac5', ...}, 'status': 'simulation_blocked'}
+E           assert 'simulation_blocked' == 'joint_simulated'
+E             
+E             - joint_simulated
+E             + simulation_blocked
+
+tests/unit/remediation/test_cyc_02.py:277: AssertionError
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/junit.xml -
+============================== slowest durations ===============================
+29.84s call     tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+3.71s call     tests/unit/remediation/test_sim_03.py::test_physical_run_ref_binds_effective_evidence_and_source_mode
+2.68s call     tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request
+2.65s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_output_lineage_keeps_selected_manifest_profiles
+2.25s call     tests/unit/remediation/test_cyc_02.py::test_program_graph_v2_blocker_removal_stays_out_of_eval_safety
+2.06s call     tests/unit/remediation/test_sim_01.py::test_all_engine_candidates_incompatible_return_typed_rejection
+1.73s call     tests/unit/remediation/test_sim_03.py::test_ncm_evidence_none_and_explicit_empty_are_distinct
+1.71s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_static_engine_eligibility_uses_the_requested_grid_not_hint_strings
+1.66s call     tests/unit/remediation/test_sim_02.py::test_identical_atom_assignments_are_order_invariant
+1.35s call     tests/unit/remediation/test_cyc_02.py::test_recursive_parent_keeps_n5_cas_reference
+1.17s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_loops_real_shared_state_executor
+1.13s call     tests/unit/remediation/test_sim_03.py::test_joint_simulation_requires_explicit_selected_outcome_baseline
+1.09s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_controller_preserves_store_handles_and_snapshots_state
+1.01s call     tests/unit/remediation/test_sim_01.py::test_unsupported_first_engine_falls_back_to_supported_second
+0.98s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch
+0.98s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registered_ncm_single_atom_checks_only_first_order
+0.98s call     tests/unit/remediation/test_sim_03.py::test_complete_additive_three_atom_basis_remains_additive
+0.97s call     tests/unit/remediation/test_sim_03.py::test_four_atom_cancellation_is_bounded_aggregate_not_additive
+0.97s call     tests/unit/remediation/test_cyc_02.py::test_k_sim_limitation_remains_a_usable_simulation_input
+0.96s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registry_des_queue_tag_does_not_back_time_series_semantics
+0.94s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_fresh_scalar_method_contract_does_not_back_agent_based_semantics
+0.94s call     tests/unit/remediation/test_cyc_02.py::test_conditional_n8_status_is_not_authority_ready
+0.92s call     tests/unit/remediation/test_sim_01.py::test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow
+0.92s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_newly_registered_dynamic_method_is_selectable_without_controller_code
+0.91s call     tests/unit/remediation/test_sim_03.py::test_explicit_comparator_makes_equal_scenarios_zero_effect
+0.90s call     tests/unit/remediation/test_sim_03.py::test_joint_simulation_reuses_physical_spec_across_roles
+0.90s call     tests/unit/remediation/test_sim_02.py::test_short_trajectory_is_not_silently_extended_by_final_value
+0.89s call     tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference
+0.89s call     tests/unit/remediation/test_cyc_02.py::test_n5_replay_does_not_mask_store_programming_errors
+0.89s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[missing-selected-outcome]
+0.87s call     tests/unit/remediation/test_sim_03.py::test_static_ncm_single_step_horizon_remains_additive
+0.86s call     tests/unit/remediation/test_cyc_02.py::test_n5_replay_uses_supplied_guarded_tenant_store
+0.86s call     tests/unit/remediation/test_sim_03.py::test_three_atom_controller_reports_real_higher_order_residual_and_order
+0.85s call     tests/unit/remediation/test_sim_01.py::test_selected_plan_requires_its_executed_trajectory
+0.84s call     tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[static_horizon_step]
+0.84s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[mixed-valid-and-missing-selected-outcome]
+0.84s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[infinite-selected-outcome]
+0.83s call     tests/unit/remediation/test_sim_01.py::test_foreign_trajectory_cannot_satisfy_selected_plan
+0.83s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_for_fabricated_stub_refs
+0.83s call     tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError]
+0.83s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_cyclic_ncm_is_rejected_not_silently_grounded
+0.83s call     tests/unit/remediation/test_cyc_02.py::test_n5_transient_store_failure_is_unavailable_not_integrity_invalid
+0.82s call     tests/unit/remediation/test_sim_03.py::test_static_ncm_multi_step_horizon_is_rejected_before_execution
+0.82s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[nan-selected-outcome]
+0.82s call     tests/unit/remediation/test_sim_03.py::test_missing_pair_basis_is_unsupported_not_false_additivity
+0.82s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_real_ncm_cubic_exposes_joint_residual_with_zero_lower_order_terms
+0.82s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff
+0.82s call     tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError]
+0.82s call     tests/unit/remediation/test_sim_02.py::test_ncm_explicit_zero_is_preserved_as_a_real_outcome
+0.82s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[empty-world-summaries]
+0.82s call     tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[selected_outcome]
+0.82s call     tests/unit/remediation/test_sim_03.py::test_joint_request_runs_each_requested_replication_with_distinct_seeds
+0.81s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_declared_unbacked_equilibrium_semantics_is_gated
+0.81s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs
+0.81s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine
+0.80s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation
+0.80s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_cache_executor_rejects_nonfinite_adapter_output
+0.80s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource]
+0.79s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_static_ncm_multistep_request_is_typed_no_run_before_runner
+0.78s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine]
+0.78s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback]
+0.78s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_engine_variable_alias_conflict_rejects_candidate_before_runner
+0.77s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_physical_run_identity_canonicalizes_atoms_and_binds_comparator_inputs
+0.35s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction
+0.33s call     tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_allowlist_covers_tracked_sources
+0.32s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt
+0.12s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_system_dynamics_plan_runs_registered_stock_flow_engine
+0.12s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_mass_balance_is_terminal_only_not_broadcast
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_marks_unbound_time_grid_when_dt_disagrees
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_single_point_stock_flow_can_mix_initial_row_with_terminal_scalar
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_non_matching_domain_is_not_routed_to_unemployment_coupled_kernel
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_stock_flow_runner_does_not_fill_a_short_trajectory_with_final_state
+0.09s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_refuses_foreign_selected_manifest_profile
+0.05s call     tests/unit/remediation/test_cyc_02.py::test_recursive_parent_without_store_refuses_before_n5_execution
+0.03s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_strangle_probe_censuses_every_production_stub_caller
+0.02s call     tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence
+0.02s call     tests/unit/remediation/test_cyc_02.py::test_n5_does_not_execute_without_runtime_owned_store
+0.01s call     tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[left-right]
+0.01s call     tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[right-left]
+0.01s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[left-right]
+0.01s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[right-left]
+0.01s call     tests/unit/remediation/test_sim_03.py::test_joint_residual_keeps_higher_order_interaction_visible
+
+(236 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_transient_store_failure_is_unavailable_not_integrity_invalid
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError]
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError]
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_replay_does_not_mask_store_programming_errors
+FAILED tests/unit/remediation/test_cyc_02.py::test_conditional_n8_status_is_not_authority_ready
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference
+FAILED tests/unit/remediation/test_cyc_02.py::test_recursive_parent_keeps_n5_cas_reference
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_replay_uses_supplied_guarded_tenant_store
+=================== 8 failed, 98 passed in 110.69s (0:01:50) ===================

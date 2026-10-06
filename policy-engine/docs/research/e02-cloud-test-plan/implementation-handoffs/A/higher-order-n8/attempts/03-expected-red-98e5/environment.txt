@@ -1,0 +1,11 @@
+candidate_head=98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1
+candidate_tree=19354fd6fb397d043c8b4d1e98f2386324c6256b
+test_sha256=3841a7859731ab085a41e8610db68c46b0c729667a2a28f1798b5dccd3f98df5
+cwd=/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine
+PYTHON=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine
+OMP_NUM_THREADS=1
+OPENBLAS_NUM_THREADS=1
+MKL_NUM_THREADS=1
+NUMEXPR_NUM_THREADS=1
+Python 3.14.3

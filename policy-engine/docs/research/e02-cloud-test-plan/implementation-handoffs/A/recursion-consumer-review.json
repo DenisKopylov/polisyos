@@ -1,0 +1,172 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "recursion-consumer-review",
+  "review_date": "2026-10-06",
+  "branch": "codex/e02-A-full-queue",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [],
+  "candidate_tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528",
+  "source_code_commit": "33dfb99210eb4457263fde7f92b3479ebac75b02",
+  "source_code_tree_sha": "f7552bbb2e47a6229394b252b87a5c8e14660b47",
+  "reviewed_docs_commit": "75c0987ad",
+  "tested_source_commit": "16f782e0bc9314464631d4fcff149b0637d3aabb",
+  "tested_checkout_tree_sha": "dec4391cbe3d8e07f1690c96a4c2935551ccf307",
+  "pull_request": null,
+  "bundle_ids": [
+    "CYC-03",
+    "CYC-05"
+  ],
+  "finding_ids": [
+    "B15",
+    "B28",
+    "B29",
+    "B30"
+  ],
+  "closure_ids": [],
+  "closure_status": "not_adjudicated; bounded local controller/history controls only",
+  "finding_outcome": "limited",
+  "finding_outcomes": {
+    "B15": "limited",
+    "B28": "limited",
+    "B29": "limited",
+    "B30": "limited"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/report.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/command.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/exit-code.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/source-origin.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/stdout.txt"
+  ],
+  "baseline_cells": [],
+  "source_contracts": {
+    "A6": "closure-decisions/A.md@75c0987ad:94-100; current 16f A.md blob remains 68fcdf9337eb4b0f268d5c2c786e2900edf28a2b",
+    "B15": "B_r19 lines 375-386, criterion sha256 aee22bfdeaa32d69566dcb038984da712ead8849f625524bc4e6eb7e535fa3b1; CYC-05 excerpt at HEAD/source docs blob b4ff729e8c5f25b20f715f1347ed88cca37a5f03",
+    "B28": "B_r19 lines 551-564, criterion sha256 24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343; CYC-03 excerpt at HEAD/source docs blob 843735b238297037acab87b67bac734f921420d8",
+    "B29": "B_r19 lines 565-578, criterion sha256 b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4",
+    "B30": "B_r19 lines 579-592, criterion sha256 251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+    "A_to_B_RES03": "cross-unit-contracts.md@75c0987ad:56-60; A owns public cycle result/run_lifecycle, B owns async executor/checkpoint, not scientific N9/OWR signer/currentness",
+    "N9_contract": "decision_validity.py@33df:1047-1163; epoch_validity_cascade.py@33df:2799-2915; existing consumer resolver, no appointed signed positive issuer",
+    "N6_deployment_currentness": "A generation_cycle.py@33df:1980-2009, 9075-9101; confidence_ledger.py@33df:4581-4649; current B source observations below remain limited",
+    "B30_current_runtime_source_review": "origin/codex/e02-B-current-runtime@2c581342ca546c558c55bf361240878fc4c9bf66 tree 81f700e20763229ec7eedee39ad76b9694a05664; confidence_ledger.py blob 22f30b69ff2d839bd6e58d0313d223a3940cd9a9; generation_cycle.py blob 6ef5c7f8b760a9d76baba446001e3f7a62e29e33; HTTP compiler blob 29459ff167cad1e011a2de626a627b30d0336a01; coupling_composition.py blob d67a243fe351562334ded896078d9beec8c672fb; all four blobs equal the slice-base versions",
+    "B30_typed_observation_not_receipt": "confidence_ledger.py@2c581:756-788, 4520-4544, 4547-4578, 4581-4653, 4661-4671, 4713-4788; observation is an import-time derived static authority-import closure + pyproject/uv.lock/runtime + loaded-code manifest hash; packaged readiness explicitly UNRUN with build-identity, N6 census and deployment-authority issuers unappointed",
+    "B30_generic_slsa_is_not_n6_receipt": "SLSA models.py@2c581:90-104 blob d2d36b5420e3b39a230f4dce1e7048c2ccc0cb14; attestation.py@2c581:25-95 blob a8868c1641a2dbee7ebc9431a72c4eb3d8916226; audit _assembler_slsa.py@2c581:42-138 blob bc967d2444b5e974c797c8b541af19582197a443; optional signed audit export has a CAS decision-packet subject and run-input artifact dependencies, not loaded deployment/code dependency identity or N6 consumer binding",
+    "B_current_runtime_qualification_scope": "premise-qualification.json@2c581 blob 9331a2d11f71f6b59ef5ed6c0665dd38094a068a; slice current-sta-ownership-premise-qualification, closure_ids=[]; it qualifies STA alias/producer authority, not B30 deployment identity",
+    "G_checkpoint09_currentness_admission": "checkpoint-09.json@8ed2c08a96173a1235b4fc363fcbe07378a47750 tree 9c60489389143f489846083b39b1e42f021de06b; integration source 312e6d7c12e1d623f1ac9502c187e7cb92e48045 tree 11ffd482cf4324a25ca16e77d8b113c8bc9eebad; accepted slices exclude B current-runtime/N6 identity; finding_closures=[]",
+    "G_checkpoint09_consumer_scope": "checkpoint09-consumers.json@8ed2 blob c07948796f6637b05dbf9bf3f4b54d6c7a96df69; 58 PASS is four bounded consumers, finding_closure=false, broad_replay=false, and its source/test manifest excludes N6 identity/currentness",
+    "A_recursive_graph_provider_gap": "coupling_composition.py@33df:228-242, 404-435 (typed graph/builder only bind supplied refs/edges; decomposition validity requires coupling evidence); services/control/generation_cycle.py@33df:1137-1153 (only production caller supplies empty module_refs/edges and root-only problem); CYC-05@75c0987adc3c1599cda5e465f3a4b82056d9aec2:11-19,21-30,55-60 assigns two meaningful children/relations to A runtime/compiler candidate paths. A producer/bridge implementation missing, not an external scientific-owner contract blocker."
+  },
+  "checks": [
+    {
+      "attempt": 1,
+      "command": "env PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider tests/unit/runtime/quality/test_generation_cycle.py::test_terminal_projection_preserves_stop_budget_and_abstention tests/unit/runtime/quality/test_generation_cycle.py::test_same_candidate_new_basis_preserves_history_and_current_front tests/unit/runtime/quality/test_generation_cycle_history.py::test_currentness_uses_ledger_observation_without_source_replay --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/raw/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/junit.xml -q -s",
+      "cwd": "policy-engine",
+      "target_sha": "16f782e0bc9314464631d4fcff149b0637d3aabb",
+      "source_pin_sha": "33dfb99210eb4457263fde7f92b3479ebac75b02",
+      "source_test_hashes_match_pin": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/environment.json",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review/source-origin.json",
+      "outcome": "PASS",
+      "tests": 6,
+      "errors": 0,
+      "failures": 0,
+      "skips": 0,
+      "stdout": "stdout.txt@sha256:12a714ea54e0fd1c535aa3f6f115a44023290fa50e3580cc60695394648314b5 (500 bytes)",
+      "stderr": "stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 (0 bytes)",
+      "junit": "junit.xml@sha256:9a43acbf843bafe63c81cad2b4e01c96d110d4083c094f9dd2a81ea0e6948ef7",
+      "exit_code": 0,
+      "scope": "Fake/local N6 terminal ports, repeated occurrence controller, and two SHA-pinned serialized v3 histories; no N5 invocation, numerical engine, CAS run, or served HTTP. Not the CYC-05 producer-positive.",
+      "behavior": {
+        "terminal_controls": [
+          "frontier_stable",
+          "grounded_admissible",
+          "budget_exhausted",
+          "grounded_abstention"
+        ],
+        "occurrences": "two same candidate IDs with distinct content hashes and cycle indices remain replayable; unique candidate remains on current front",
+        "history_vs_currentness": "the identity history fixture replays; loaded process identity is established, but N6 currentness is not_established with census UNRUN and reason n6_census_issuer_not_appointed",
+        "production_currentness_positive": "UNRUN; no owner-supplied signed N9/OWR epoch receipt or N6 build/deployment census issuer supplied"
+      }
+    }
+  ],
+  "predicate_basis": "not_established",
+  "property": {
+    "statement": "An ordinary served run must produce two meaningful child DesignProblems, run at least child one, stop on a real execution budget, persist its output and remaining frontier, and preserve the distinct budget/limited/currentness semantics through scope-checked fresh readback.",
+    "runtime_path": [
+      "POST /api/v1/control/runs/nl (routes/control.py:369-404)",
+      "owner-configured profile and internal HTTP compiler/budget (services/control/generation_cycle.py:129-179, 826-1153)",
+      "recursive controller graph validation and child routing (recursive_generation_cycle.py:816-858, 1193-1247)",
+      "ordinary GET /api/v1/runs/{run_id} after persistence (routes/runs.py:1091-1162); current served assertion is N5/N8 conditional-value readback, not recursive frontier/history"
+    ],
+    "proxy_divergence": "The property is a budget stop after one executed child with durable partial output. The HTTP path constructs zero children; the recursive controller treats max_nodes as a whole-graph precondition, so a three-node graph at max_nodes=2 fails before any child. Its completed run schema requires the exact full graph and a GenerationCycleRun at every leaf; it has no unvisited-child frontier/checkpoint field. A depth/cap field, stop marker, or local terminal test therefore cannot prove partial child work survives.",
+    "negative_controls": [
+      "No provider/empty graph while retaining a purported two-child status must fail the independent graph walk; A's current route supplies empty module_refs and edges.",
+      "For root plus two children, max_nodes=2 must remain preflight recursive_node_budget_exhausted with no child result; do not label it a post-child partial run.",
+      "Drop or mutate the persisted child result, graph edge/problem binding, remaining frontier, or run/job/tenant/cell binding while retaining status markers; fresh GET must reject or lose the claimed partial status.",
+      "Missing, expired, wrong-subject/epoch, or verifier-less N9/OWR evidence remains unknown/blocked; matching historical occurrence bytes do not create currentness.",
+      "A signed build/release receipt must be absent/invalid without its owner issuer, schema, provenance/verifier, and content-bound dependency denominator; current observation-only identity cannot establish it.",
+      "Changed consumed deployment dependency must make N6 currentness stale while an unrelated file does not; B30 receipt producer and runtime receipt verifier are not supplied/admitted here."
+    ],
+    "positive_controls_run": [
+      "Local N6 terminal projection: frontier-stable, grounded-admissible, budget-exhausted, and grounded-abstention (4 cases).",
+      "Repeated candidate identity on a new basis preserves both history occurrences and a unique current-front row.",
+      "Historical generation-cycle projection replays while currentness remains not_established/UNRUN."
+    ],
+    "producer_semantic_two_child_positive": "UNRUN; production child provider, partial frontier persistence, and fresh recursion GET are absent from this probe."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P10",
+      "P05",
+      "P32",
+      "P29",
+      "P38",
+      "P41"
+    ],
+    "existing_antipatterns_found": "Depth/cap projections and local status/occurrence controls risk being mistaken for the missing producer-to-API partial-traversal capability; a history row or loaded package identity is not signed currentness.",
+    "target_pattern": "A-owned configured input/provider -> content-bound graph and per-child problems -> real execution budget/checkpoint artifact -> lifecycle/API consumer -> independent topology/readback oracle and remove-marker/sibling negatives; B only supplies its RES-03 executor/checkpoint contract. Separate B/OWR N9 currentness and N6 build identity inputs.",
+    "missing_capability_labels": [
+      "producer_missing",
+      "bridge_missing",
+      "artifact_missing",
+      "verification_missing"
+    ],
+    "acceptance_signal": "A fresh scope-checked GET of a real ordinary two-child run preserves child-one output, child-two frontier, effective/requested cap and budget reason without collapsing limited/budget/frontier/partial-admissible/abstention, and separately consumes actual owner-verified N9 and N6 currentness evidence."
+  },
+  "capability_state_or_finding_state": {
+    "B15": "limited; verification_missing: HTTP bridge has no child provider, and no after-child partial artifact is persisted",
+    "B28": "limited; verification_missing: occurrence/history controls exist but no admitted signed N9/OWR current-epoch positive is supplied",
+    "B29": "limited; verification_missing: local terminal algebra is controlled, but recursive partial frontier/status has no fresh API/history consumer test",
+    "B30": "limited; producer_missing for an appointed signed build/release identity plus complete relevant dependency-digest receipt; a typed import-time observation and bare-identity comparison exist, but they remain UNRUN/not_established. Generic optional SLSA audit export attests decision packets/run-input artifacts and is not the N6 loaded deployment receipt. N6-specific runtime verification is verification_missing and A's bridge from such a receipt is bridge_missing; G9 does not admit this producer."
+  },
+  "limitations_and_next_owner": [
+    "A canonical runtime/HTTP owner: implement the decomposition producer and ordinary bridge that derive two meaningful, distinct child DesignProblems and graph bindings from admitted protected context and actual coupling evidence; the graph schema/builder exists, so this is an A implementation gap rather than an external scientific-owner contract block.",
+    "A canonical recursive lifecycle/API owner: define a real execution-progress budget and persisted partial frontier/checkpoint/readback that retains successful child output after a later stop/failure; max_nodes alone is whole-graph admission.",
+    "B RES-03 supplies async executor/checkpoint semantics only: earlier committed success survives later failure, and same-basis replacement invalidates only dependent state. A integrates the public result.",
+    "Missing upstream currentness inputs: actual N9/OWR signer/verifier receipt contract bound to occurrence/subject/epoch; and an appointed N6 build/release identity receipt producer with full relevant dependency digests, N6-specific signature/provenance verification binding, and a consumer bridge. The in-process N6 observation and generic decision-packet SLSA audit receipt are not this deployment receipt. Do not infer either currentness receipt from occurrence replay, N5 CAS, status markers, generic audit signatures, or B RES-03.",
+    "The separate served test may prove ordinary POST/job/run/tenant binding and N5-to-N8 readback, but it must not be counted as CYC-05 recursion partial/currentness acceptance unless it exercises those exact properties."
+  ],
+  "companion_footprint": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursion-consumer-review",
+    "files": [
+      "recursion-consumer-review/command.txt",
+      "recursion-consumer-review/environment.json",
+      "recursion-consumer-review/exit-code.txt",
+      "recursion-consumer-review/junit.xml",
+      "recursion-consumer-review/source-origin.json",
+      "recursion-consumer-review/stderr.txt",
+      "recursion-consumer-review/stdout.txt",
+      "recursion-consumer-review/report.md"
+    ]
+  },
+  "current_checkout_head": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+  "current_checkout_tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528"
+}

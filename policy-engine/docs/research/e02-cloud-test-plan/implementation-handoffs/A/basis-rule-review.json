@@ -1,0 +1,629 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "basis-rule-review",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B09",
+    "B27",
+    "B28",
+    "B12",
+    "LA-046"
+  ],
+  "bundle_ids": [
+    "CYC-03",
+    "ACQ-01",
+    "REQ-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "d0fab1bb94f0d1492d203fe050e10dea5e1a9e40",
+    "57d6dfd89c2b4d0054127e9b9188f423ae34515b",
+    "f9543f7195aaa39353cf6676ab72158bc73090e3",
+    "976841f5a9f34e381bf8180d9f979a25a6ffc8a7",
+    "33dfb99210eb4457263fde7f92b3479ebac75b02",
+    "e6f489b5fe8a9953558dd8dfc5607e03885ae456",
+    "d7548c85f3e9973553c95b50f3c62a9e2648f0a",
+    "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+    "6f9e7b3d117be86e244810b57740fe8faaa12c29"
+  ],
+  "candidate_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+  "candidate_tree_sha": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+  "candidate_state_note": "Source claims are bound to immutable HEAD commit 6f9e7b3d117be86e244810b57740fe8faaa12c29 and tree 363398daf62c5bcf8bcfbeacf96c05fa0d798e9a. Root-owned uncommitted README, acquisition-compiler handoff, and sibling review artifacts in the shared worktree are excluded from this candidate identity and were not used as evidence or modified. The B09-adjacent A path includes e6f489 C-member revalidation and 6f9e7b3 exact-member test source; that test source asserts exact projected membership and a gate-removal counterfactual but is not an execution receipt. c6d9779/cc080a7 and the earlier d7548c8/98e5e7c extend the separate N8 interaction witness and do not ratify B09 semantics.",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+    "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+    "policy-engine/packages/runtime-api-client/types.ts",
+    "policy-engine/schemas/runtime_api_v1.openapi.json",
+    "policy-engine/src/polisyos/core/contracts/runtime.py",
+    "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_higher_order_n8_intake.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "kind": "pinned C/F closure and handoff Git census",
+      "outcome": "PASS",
+      "scope": "Read-only census of the complete tracked closure-decisions, implementation-handoffs/C, implementation-handoffs/F, and execution-prompts/handoffs path set across all 75 current local/remote C/F refs and local/origin published integration refs; 54 distinct trees. The reproducer asserts its explicit pinned ref names and commits equal the live set.",
+      "source_reproducer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/basis-rule-review/census.py",
+      "source_reproducer_sha256": "eef73e8e7f0b34319fb144aac077ff695d3004853f8aed515de21ad2381ed72e",
+      "denominator": {
+        "tracked_path_tree_entries": 3200,
+        "distinct_paths": 1855,
+        "distinct_blobs": 1495,
+        "path_tree_blob_manifest_sha256": "292f0f79b4ad4c1371e7aeff6bfc8303dad0a42f3e9e5943dc76c715f6a0badf",
+        "cf_handoff_text_denominator": 1806,
+        "path_root_entries": {
+          "closure-decisions/": 486,
+          "implementation-handoffs/C/": 230,
+          "implementation-handoffs/F/": 2484,
+          "execution-prompts/handoffs/": 0
+        },
+        "file_type_denominator": {
+          ".argv": 2,
+          ".gz": 40,
+          ".json": 1288,
+          ".log": 4,
+          ".md": 419,
+          ".patch": 1,
+          ".py": 221,
+          ".stderr": 120,
+          ".stdout": 109,
+          ".txt": 993,
+          ".xml": 2,
+          "[none]": 1
+        },
+        "text_scan": "1824 distinct tracked path/blob entries scanned; compressed .gz payloads remain in the tracked denominator and manifest but are excluded from text search."
+      },
+      "deciding_hits": {
+        "B09": "Five distinct text path/blob hits, all in A closure decisions; zero C/F handoff hits across the refreshed 1806-entry C/F text denominator.",
+        "LA-046": "Four distinct text path/blob hits, all in A closure decisions; zero C/F handoff hits across the refreshed 1806-entry C/F text denominator.",
+        "ObservationToWMRRule": "One hit, closure-decisions/A.md line 64; zero C/F handoff hits.",
+        "typedObservationToWMRRule": "Zero hits.",
+        "observation-to-WMR phrase": "One hit, closure-decisions/A.md line 12; zero C/F handoff hits.",
+        "supplemental_C_F_handoff_probes": {
+          "WMR token": "Zero hits.",
+          "selected rows": "Zero hits.",
+          "canonical C observation projection type": "Nine hits, all in F EMP-01 test/output evidence; zero C handoff hits and no owner contract for A WMR.",
+          "C activated semantic-epoch readback": "Zero hits.",
+          "C passport-derived observation class": "Zero hits.",
+          "valid-time field": "Six hits, all in F economics/UI labels, source-code census, or F final-transfer audit material; none defines A WMR semantics.",
+          "source as-of role": "One hit in an F economics UI label (Source as of), not source-admission semantics.",
+          "observation profile/scope/unit mapping": "36 hits, including C catalog selection, C BER conditional-Shapley profile, F SCM synthetic source-bound method evidence, and embedded test/output text; these are not B09 source-profile-to-WMR ratifications."
+        },
+        "limit": "The checked 75-ref local/remote C/F and published-integration snapshot is exact and reproducible from explicit pins; this establishes only the tracked closure/handoff trees in that snapshot. It does not establish absence from untracked scratch, unpinned refs, or future owner input, and it is not a semantic test."
+      },
+      "limit": "This establishes the contents of the pinned tracked trees only. It does not prove absence from untracked scratch, unpinned refs, or future owner input, and it is not a semantic test.",
+      "source_reproducer_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/basis-rule-review/census.stdout.txt",
+      "source_reproducer_output_sha256": "61ea4924ee73e0676c61bb7f0101b1f8465a245e3cb44f94d00892720cbcba3e"
+    },
+    {
+      "kind": "B09 same-candidate N5 substantive-row positive oracle",
+      "outcome": "UNRUN",
+      "reason": "No owner-ratified rule identifies the source/profile, admitted row, or field whose mutation is semantic; choosing a positive mutation now would invent authority."
+    },
+    {
+      "kind": "B09 occurrence-only negative controls and historical replay",
+      "outcome": "UNRUN",
+      "controls": [
+        "UUID/job/receipt-only change",
+        "transaction/ingestion-time-only change",
+        "row-order-only change only if the ratified rule says order is nonsemantic and selected membership/content is unchanged",
+        "replay the earlier immutable occurrence against its original rule and admitted content"
+      ],
+      "reason": "These are acceptance controls, not results from this audit. Source/as-of and valid-time semantics are not fixed well enough to classify their changes as negative controls."
+    }
+  ],
+  "property": "For one unchanged subject/candidate, atom, and grammar, N5 may recognize new substantive evidence only when an upstream owner-ratified, versioned observation rule and the actual C-admitted selected row content jointly produce an independently recomputed new semantic basis; immutable occurrence identity and historical replay remain distinct.",
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": {
+    "B09": "open; producer_missing; A revalidates the C active source/member chain and the current tracked test source specifies an exact-projection-member-before-cap probe with an exact-ID-filter removal counterfactual. The source rule, owner-designated substantive field/update class, content-bound positive and historical replay remain missing.",
+    "B27": "limited; historical finding status partial and current closure_now not_adjudicated; full normal-cycle revised-context acceptance not established.",
+    "B28": "limited; historical finding status partial and current closure_now not_adjudicated; production signed/currentness positive remains verification_missing.",
+    "B12": "limited; the A acquisition-compiler handoff records eight compiler/N7 controls PASS, but native C variable/action/source mapping and an exact content-bound admitted-row consumer receipt remain missing; B12 producer_missing.",
+    "LA-046": "historical partial; closure_now not_adjudicated; compiler-level explicit construct/empty/scope controls exist, but real C source/admission mapping is absent and current acceptance is not established (verification_missing)."
+  },
+  "finding_outcomes": {
+    "B09": {
+      "outcome": "open",
+      "historical_status": "open",
+      "closure_now": "not_adjudicated",
+      "held_boundary": "No same-candidate positive may name a substantive field until the source owner, C admission owner, and F relevance owner ratify the rule and actual admitted-content binding. Existing N5-to-CAS identity/readback evidence is synthetic fixture evidence, not a B09 semantic-basis result.",
+      "source_ids": [
+        "closure-decisions/A.md@3bd5dc0d9f0385fe2662024e173c7f75e25798db#A3",
+        "closure-decisions/coverage.json@3bd5dc0d9f0385fe2662024e173c7f75e25798db#B09",
+        "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5#L301-L312",
+        "CYC-03 owner map@198076863e143dea9f89f02734b13d50dae3eed5",
+        "C/catalog-c2-20261006.json@42a8b499860acdb67b73ea9c5c7f53a874d71f08#DFK-02/LA-028 (bounded profile semantics; not WMR)",
+        "C/ing-streaming-c2.json@9f35e19ff8f39895d66cbce78644470e52f8ec09#ING-01/02/03 (B83 held; no source event/version identity)",
+        "A generation_cycle.py@e6f489b5fe8a9953558dd8dfc5607e03885ae456 (C projection/physical-row revalidation consumer; no semantic rule)"
+      ]
+    },
+    "B27": {
+      "outcome": "limited",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "held_boundary": "The A handoff identifies persisted N5/N8 re-entry work, but this audit does not establish a full normal second cycle whose revised task context is freshly bound to the revised basis. A task hash change or fixture marker is not that result.",
+      "source_ids": [
+        "closure-decisions/A.md@3bd5dc0d9f0385fe2662024e173c7f75e25798db#A1",
+        "closure-decisions/coverage.json@3bd5dc0d9f0385fe2662024e173c7f75e25798db#B27",
+        "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5#L537-L550",
+        "CYC-03 owner map@198076863e143dea9f89f02734b13d50dae3eed5"
+      ]
+    },
+    "B28": {
+      "outcome": "limited",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "held_boundary": "Occurrence/history and replay can be represented separately, but the tracked N9 gate records only a refusal on missing production admission. Its positive_currentness is explicitly not run because no valid production signed/currentness issuer/receipt was supplied.",
+      "source_ids": [
+        "closure-decisions/A.md@3bd5dc0d9f0385fe2662024e173c7f75e25798db#A6",
+        "closure-decisions/coverage.json@3bd5dc0d9f0385fe2662024e173c7f75e25798db#B28",
+        "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5#L551-L564",
+        "A/n9-gate.json@3bd5dc0d9f0385fe2662024e173c7f75e25798db"
+      ]
+    }
+  },
+  "basis_rule_audit": {
+    "ratification_state": "proposal_only for B09; the complete current C/F tracked closure/handoff census contains no owner-ratified ObservationToWMRRule or typed equivalent.",
+    "proposed_rule_id": "ObservationToWMRRule",
+    "ratified_semantics_now": {
+      "B09_source_profile_to_WMR": [],
+      "explicit_absence": "No C/F tracked owner handoff ratifies a B09 source/profile-to-WMR map for allowed source/profile, WMR slot, population/geography/denominator, measurement/unit/transform, query or exact selected-row membership/coverage, quality/missingness, provenance/issuer, permitted update, or valid-time/source-as-of/transaction-ingestion roles.",
+      "bounded_C_catalog": "The current C catalog-c2 handoff implements and independently reviews bounded ordered versioned CatalogSourceRegistry/profile/filter/dependency selector behavior: explicit empty remains empty, source identity is preserved, and missing/disabled/cyclic dependencies refuse. Its finding LA-028 remains HELD, closure_ids is empty, and the production caller profile/context supplier is unallocated. This is source selection behavior, not an owner-ratified observation measurement profile, selected-row rule, or WMR mapping.",
+      "bounded_C_ingestion": "The current C ING-01/02/03 handoff persists source bytes through CAS chunk/window/checkpoint/cursor and replay; source row/UTC/reference maps are distinct from accumulator accounting. Its B83 source event/version dedupe is held because connector offset is not source event/version identity. This is stream occurrence/replay semantics, not B09 row/profile semantics.",
+      "bounded_C_OBS01": "The C OBS-01 handoff covers valid observation-period parsing/preservation and invalid-period quarantine. It does not ratify an allowed source/profile, scope or denominator, unit/transform, exact selected rows, quality thresholds, provenance, WMR update class, or temporal-role/hash semantics.",
+      "bounded_F_evidence": "The current F handoffs include F source-bound SCM methods and cohort/source-role inventories, but no B09-scoped variable/estimand-to-WMR ratification or observation update class. F source-bound SCM checks are bounded to declared synthetic method inputs and report no production source authority.",
+      "new_C_HYG_DFK_handoffs": "The refreshed C-hygiene adjudication covers HYG-02/HYG-04 and LA-008/009/011/012/013/018; the refreshed DFK schema census handoff closes only LA-005/006/026/027. Neither is B09 authority; both are included in the refreshed denominator.",
+      "latest_ref_scope": "The pinned output enumerates 75 current local/remote C/F and integration refs across 54 trees. Refreshed C commits include hygiene 5ad2dc8, migrations c62f5f2, schema 8b92203, and Scholar SCL 597811a; local and origin integration refs are both 6f869f3.",
+      "source_profile_boundary": "C CatalogSourceRegistry has bounded implemented selector semantics for its declared sources and caller profile/filter/dependency inputs, but LA-028 remains HELD for the production caller profile/context bridge. It does not identify measurement rows or a WMR slot.",
+      "admitted_row_content_boundary": "C stream checkpoints/CAS cursors bind and replay source bytes for the stream scope, but B83 remains held for source event/version identity. C OBS-01 parses/preserves periods and quarantines invalid periods. Neither supplies a typed C-admitted exact selected-row receipt for B09 WMR.",
+      "quality_provenance_update_boundary": "No B09 C/F owner handoff states row-level quality/missingness thresholds, issuer/provenance policy for the selected WMR rows, permitted WMR update class, or F-confirmed variable/estimand relevance.",
+      "new_C_HYG_DFK_SCL_handoffs": "The refreshed C-hygiene adjudication covers HYG-02/HYG-04 and LA-008/009/011/012/013/018; DFK schema census covers LA-005/006/026/027; Scholar SCL covers B17 and LA-024/025 provider/raw-source snapshot behavior. None ratifies a B09 observation-to-WMR rule or selected-row semantics; all are included in the refreshed denominator.",
+      "bounded_C_scholar": "The C Scholar SCL candidate handoff covers provider failover and content-bound raw web-source CAS snapshot continuity; B17 has a candidate verdict of closed while closure_now remains not_adjudicated, and LA-024/025 license authority remains held/not_established. It is not measurement observation row selection, WMR mapping, or F estimand/update relevance."
+    },
+    "proposed_rule_fields": [
+      "stable rule ID and schema/version",
+      "allowed source/profile",
+      "observation-kind to WMR slot mapping",
+      "population, geography, and denominator",
+      "measurement, unit, and transform",
+      "query, selected rows, and coverage",
+      "valid-time semantics",
+      "separate source/as-of and transaction/ingestion time roles",
+      "quality and missingness",
+      "issuer, provenance, and content binding",
+      "permitted update type; causal-mechanism update is not allowed by default",
+      "F-confirmed variable/estimand relevance"
+    ],
+    "proposed_identity_split": {
+      "semantic_basis": "versioned rule plus actual admitted row content",
+      "occurrence_identity": "A3 proposes UUID/time as occurrence metadata. UUID/job/receipt-only and transaction/ingestion-only are candidate negative controls only after owner ratification; they remain unrun. Row-order is conditional on an owner rule declaring order nonsemantic with unchanged selected membership/content.",
+      "canonicalization_and_hash": "not ratified; do not implement or infer a signature/hash encoding",
+      "valid_time_and_source_as_of": "A3 proposal names valid-time and source/as-of separately from transaction/ingestion. Their exact fields, selection effect, semantic-basis effect, and canonicalization are unratified; they are not safe negative controls.",
+      "existing_C_stream_occurrence": "C persists a committed checkpoint/cursor and supports replay, but source event/version identity remains held (B83); these stream cursors are not an admitted WMR row identity."
+    },
+    "existing_bounded_upstream_evidence": [
+      "C obs-udf dated handoff at 05dd5193116c1916733ae3e7a6240e86f16f1659 has closure_ids empty and covers OBS/UDF bundles; OBS-01 preserves/parses observation-period values and quarantines invalid dates, not source/profile-to-WMR admission.",
+      "C Scholar SCL handoff at 597811a78a430bc8fff9c24b002c8d3dad5059a0 (tree 4bf0d34b9ae3bda8ef75879ae285379225097b91; blob bdbcd4e67f1133e2fa49395f81f9720c2219d113) has a candidate-closed verdict for B17 provider-failover/typed exhaustion (closure_now remains not_adjudicated) and technically bounds LA-024/025 raw-source CAS snapshot continuity; license permission remains not_established/held. It does not map measurements or admitted rows to WMR.",
+      "C catalog-c2 at 42a8b499860acdb67b73ea9c5c7f53a874d71f08 implements and independently reviews bounded source registry and selector behavior (LA-028 held; closure_ids empty): ordered versioned declaration, source-identity and caller-profile semantics, explicit empty remains empty, and missing/disabled/cyclic dependencies refuse. LA-028 remains held because the serving caller profile/context supplier is unallocated; the contract does not select observation rows or map them to WMR.",
+      "C ing-streaming-c2 at 9f35e19ff8f39895d66cbce78644470e52f8ec09 binds source bytes through committed CAS checkpoints/cursors and replay, with source row/UTC/reference maps separate from accumulator accounting. B83 remains held because the default connector offset is not source event/version identity. This is stream occurrence/replay behavior, not B09 measurement-row semantics.",
+      "C BER-01 conditional-profile C2 review response at 95ea3780f1101ba1ad1a3087923c65c8aac53b7d uses bounded synthetic Gaussian/finite-support fixtures; its LA-034/LA-036 dispositions retain missing source-law producer/artifact and do not describe admissible source rows for WMR.",
+      "F scm-source-bound at bf335dd687c313fda9001fa3bb1365df6bc5ae1f (SCM/graph findings) verifies typed source-bound synthetic F method inputs, including source-row permutation/rebind negatives; its time_roles are execution timestamps and its data_role explicitly says synthetic fixture only/no current production history or source authority. It does not bind C-admitted observations to A WMR.",
+      "F did-selected-cohort caller census at 4c5a11ff8050c6108f6753177b96e6714cef401f is a complete tracked literal/AST navigation and source-role census; its limit explicitly leaves external production plans input-dependent, so it is not an observation admission contract.",
+      "F cau-cohort-admission at 4c5a11ff8050c6108f6753177b96e6714cef401f has B207/B209 cohort/anticipation scope only; the current F closeout ref remains 421f1dd977b237307394c68820caab4156716eb2, whose causal-consumer-binding and final-transfer handoffs have no B09 closure or source/profile/row semantics."
+    ],
+    "time_role_reconciliation": {
+      "valid_time": "A3 names it as a rule field; it must not be silently replaced by transaction time.",
+      "source_as_of": "A3 requires it remain distinct from transaction/ingestion time; whether and how it affects the selected basis is unresolved.",
+      "transaction_ingestion_time": "Separate occurrence metadata candidate; only a transaction/ingestion-only change is an eligible negative control, still UNRUN.",
+      "observation_period_parser": "C OBS-01 period parsing/quarantine does not define WMR valid-time, source as-of, or semantic-hash roles."
+    },
+    "LA046_and_N7_mapping": {
+      "LA-046": "Compiler output must reflect an explicit graph-admitted construct; preserve explicit empty; do not infer jurisdiction/time from generic scope or lexical proposals. This is requirement/spec generation, not actual source admission.",
+      "required_path": "DataRequirementCompiler -> typed gap/spec -> CapabilityResolver with rights/purpose/budget -> persisted N7 job/receipt -> C-admitted observation -> B persists/readbacks -> WMR recompute -> same candidate/atom/grammar -> N5/N8.",
+      "current_limit": "A3 says the bridge still uses synthesized default scope and a governed-fixture resolver, not an approved production profile. C catalog source selection does not supply the serving caller context. Job, URL, or receipt presence does not prove admitted content was consumed (B12).",
+      "current_A_evidence": "A acquisition-compiler handoff @0c30049eba38b8185c46429ff1427f98f7e7f71e records eight compiler/N7 controls PASS: explicit specs precedence, typed any_of gaps, explicit-empty preservation, and statement/domain/scope/resolver preservation. closure_ids is empty; it does not demonstrate native C source/profile/variable/action admission or an exact admitted-row receipt.",
+      "B12_boundary": "B12 remains producer_missing: N7 job, URL, or receipt presence is not proof that a content-bound C-admitted measurement row was consumed by the same-cycle N5/WMR update.",
+      "time_roles": "valid-time describes the observation period; source/as-of is a separately named candidate source-snapshot role; transaction/ingestion time records occurrence processing. A3 proposes keeping them distinct. C OBS-01 only parses/preserves periods; C ING checkpoints/cursors do not establish source-version identity; no C/F owner handoff ratifies their B09 mapping."
+    }
+  },
+  "missing_upstream_contract": {
+    "required": "An owner-issued, versioned observation measurement/profile contract binding allowed source/profile and rights/purpose; observation kind and WMR target slot; population/geography/denominator; measurement/unit/transform; query and exact selected-row membership/content/coverage; row-level quality/missingness; issuer/provenance; valid-time and source-as-of separately from transaction/ingestion; allowed WMR update classes; and F-confirmed variable/estimand relevance. C must provide a persisted content-bound admission receipt for those exact rows. Owners must define canonical rule/row-content binding and whether order or any time-field mutation changes selection/basis. None of these can be supplied by the A consumer.",
+    "authority_boundary": "A consumes and verifies those signed upstream facts; A cannot sign external measurement truth, source rights/profile, or F scientific relevance.",
+    "owners": [
+      "source/institution owner: measurement, sample/population, rights, source/profile facts, and time/quality semantics",
+      "C observation/admission owner: typed content-bound admission and exact selected-row receipt",
+      "F scientific owner: variable/estimand relevance and permitted update semantics",
+      "A CYC-03/ACQ-01/REQ-01: consumer bridge only"
+    ]
+  },
+  "allowed_a_consumer_bridge_if_ratified": "Only after owners ratify and persist the source/profile rule and exact C-admitted row receipt may A CYC-03/ACQ-01/REQ-01 extend the existing compiler/N7/consumer seam to consume them, recompute semantic basis from admitted content, persist/read back a new immutable occurrence, and keep the old occurrence replayable. Existing e6f489 A logic revalidates C active source/member chain and physical row fields; it is not rule authoring, a rights decision, source signature, WMR update contract, or F scientific contract. This audit adds no rule/hash/signature.",
+  "source_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+      "commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "blob": "68fcdf9337eb4b0f268d5c2c786e2900edf28a2b",
+      "sections": [
+        "A3 lines 61-70",
+        "A6 lines 94-100"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "sections": [
+        "B09",
+        "B12",
+        "B27",
+        "B28",
+        "LA-046"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "sections": [
+        "B09 lines 301-312",
+        "B12 lines 337-348",
+        "B27 lines 537-550",
+        "B28 lines 551-564"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "sections": [
+        "B09",
+        "B12",
+        "B27",
+        "B28",
+        "LA-046"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "sections": [
+        "CYC-03",
+        "ACQ-01",
+        "REQ-01"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "blob": "b242397fb26eaf0bee86a867aed6e21768d094e2",
+      "sections": [
+        "source/institution owns signed rights/measurement/sample facts; C binds content/admission; proposed routing requires owner acceptance"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-intake.json",
+      "commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "blob": "c7ce4b02502dc5a9b3c3f41ea67ddf90363933eb",
+      "sections": [
+        "synthetic fresh-process N5-to-CAS-to-default-N8 identity/readback; closure_ids empty; not a source/profile semantic-basis test"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json",
+      "commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "blob": "91008391e9c6a2da873227c358508742b05df3c3",
+      "sections": [
+        "attempt 4 negative refusal PASS; positive_currentness not run; no production signed/currentness issuer/receipt"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+      "commit": "05dd5193116c1916733ae3e7a6240e86f16f1659",
+      "tree": "8cbd17905fe1d0daa80f592e0ff290bda9f96899",
+      "blob": "7f22553b4e5f00782a5101005882dc5b57e32e0e",
+      "sections": [
+        "closure_ids empty; OBS-01 period parse/quarantine; no B09 finding or source/profile-to-WMR ratification"
+      ],
+      "ref": "refs/heads/codex/e02-C-obs-udf-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006.json",
+      "commit": "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+      "tree": "158d1f359f11e44368063949aca81f5e1f8babdf",
+      "blob": "a55309ba73dd3d02e92b140996db34e0bf99c88d",
+      "sections": [
+        "closure_ids empty; LA-028 held; versioned source registry/profile selection and explicit-empty/source-identity semantics; production caller profile bridge remains absent; no observation-row/WMR mapping"
+      ],
+      "ref": "refs/heads/codex/e02-C-catalog-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json",
+      "commit": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+      "tree": "b2077d626f84b58e6839eea357d72f60e6265ccc",
+      "blob": "02dd791e0679ea57e739c7a850853f3c3ac5f8e9",
+      "sections": [
+        "closure_ids empty; ING-01/02/03 source bytes→CAS checkpoint/cursor/replay; B79 limited and B80/B83 held; source event/version identity remains unresolved; no WMR row semantics"
+      ],
+      "ref": "refs/heads/codex/e02-C-continuation-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+      "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6",
+      "blob": "554f32cc0275967f6d3837b81d821e535ec17c4c",
+      "sections": [
+        "B207/B209 cohort and anticipation work; no B09 ratification"
+      ],
+      "ref": "refs/remotes/origin/codex/e02-F-cau-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json",
+      "commit": "421f1dd977b237307394c68820caab4156716eb2",
+      "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2",
+      "blob": "f899dcf7ed86c38603e2253dc047da19c4fb8758",
+      "sections": [
+        "closure_ids empty; findings B207/B208/B209/B212/B213/B56; no B09 ratification"
+      ],
+      "ref": "refs/remotes/origin/codex/e02-F-closeout-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "commit": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "tree": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21",
+      "blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "sections": [
+        "B215-B225/SCM owner findings; synthetic source rows and method-profile binding; data_role is synthetic and no production source authority; not A WMR mapping"
+      ],
+      "ref": "refs/remotes/origin/codex/e02-F-graph-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-caller-census-final.json",
+      "commit": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "tree": "209c9f0a6a9127286884c5faff3e813de465c6f6",
+      "blob": "f64bd3bb2da2bc2e12bac1f1ed13b6d75a7464ef",
+      "sections": [
+        "24-record code-role census; navigation/source-role classification; external production plans explicitly remain G input-dependent"
+      ],
+      "ref": "refs/remotes/origin/codex/e02-F-cau-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2-review-response.json",
+      "commit": "95ea3780f1101ba1ad1a3087923c65c8aac53b7d",
+      "tree": "1e0186a7c7b22f510321c397f67eb12c6c132c1c",
+      "blob": "8bb94d33b9dff95f3b80ad0f40184a9c382fc09c",
+      "sections": [
+        "closure_ids empty; synthetic conditional-Shapley profile; source-law producer/artifact and content binding remain missing"
+      ],
+      "ref": "refs/heads/codex/e02-C-berl-20261006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006.json",
+      "commit": "421f1dd977b237307394c68820caab4156716eb2",
+      "tree": "0508db0976255da2d970168d1300ec6dbafcb1b2",
+      "blob": "2073ab59d959c13e7561be2b1091d1122cccf281",
+      "sections": [
+        "closure_ids empty; F-owned B204-B225 and LA findings only; F technical recommendation transfer does not ratify A B09 mapping"
+      ],
+      "ref": "refs/remotes/origin/codex/e02-F-closeout-20261006"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "commit": "e6f489b5fe8a9953558dd8dfc5607e03885ae456",
+      "blob": "e7565838dc5485893d3e2226083a79c9ae248f98",
+      "sections": [
+        "revalidates activated C observation projection via C owner; intersects C model fields with physical row columns and rebinds actual physical row content; consumer integrity, not B09 rule ratification"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "commit": "e6f489b5fe8a9953558dd8dfc5607e03885ae456",
+      "blob": "768230f3da1eefab744fc96d9a786e103f4612ae",
+      "sections": [
+        "tests physical C-field drift and rehashed nonphysical provenance forgery; no source/profile-to-WMR semantic positive"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+      "ref": "refs/heads/codex/e02-C-hygiene-20261006",
+      "commit": "5ad2dc84420ff61caf02929d196a55fe1ea972cf",
+      "tree": "b6bef604d72b19c95861a967145c80198397780e",
+      "blob": "4f890483e90fd2450d9d35627bc56972408d8200",
+      "sections": [
+        "HYG-02/HYG-04 and LA-008/009/011/012/013/018 candidate adjudication only; no B09 rule or WMR row mapping."
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json",
+      "ref": "refs/heads/codex/e02-C-schema-20261006",
+      "commit": "8b92203b52d0363d912635b773e432e795d3512f",
+      "tree": "25db0bb62d31e3188fb9ed67939e12773cbe9163",
+      "blob": "f5db7b3692d8b7668362043d11ae652331739388",
+      "sections": [
+        "DFK-01 with closure IDs LA-005/006/026/027 only; schema census, no B09 observation semantics."
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+      "ref": "codex/e02-A-full-queue",
+      "commit": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+      "tree": "19354fd6fb397d043c8b4d1e98f2386324c6256b",
+      "blob": "4d39fd3510da864d83cc4a87d24e70acff70f16b",
+      "sections": [
+        "Finding rows preserve B09 open and B27/B28 limited; second-basis owner rule/replay and signed N9 control remain missing."
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/acquisition-compiler.json",
+      "ref": "codex/e02-A-full-queue",
+      "commit": "75c0987adc3c1599cda5e465f3a4b82056d9aec2",
+      "tree": "632d60a6c814f7d8569f6bbd729be1ace8988040",
+      "blob": "0c30049eba38b8185c46429ff1427f98f7e7f71e",
+      "sections": [
+        "LA-046 compiler/N7 eight-control handoff, closure_ids empty; no native C row-admission/source mapping."
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json",
+      "ref": "refs/heads/codex/e02-C-scholar-20261006",
+      "commit": "597811a78a430bc8fff9c24b002c8d3dad5059a0",
+      "tree": "4bf0d34b9ae3bda8ef75879ae285379225097b91",
+      "blob": "bdbcd4e67f1133e2fa49395f81f9720c2219d113",
+      "sections": [
+        "closure_ids B17, LA-024, LA-025; provider failover and raw-source CAS snapshot continuity; no WMR observation semantics; license authority remains held/not_established."
+      ]
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "ref": "codex/e02-A-full-queue",
+      "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+      "blob": "6ab30561f0a4e2c22fd41985499661af1c1966a6",
+      "sections": [
+        "test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping: baseline nonmembers are visible before authority freeze; the source asserts exact projection member selection and an exact-ID query-gate removal refusal. Source only; this audit did not execute it."
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "ref": "codex/e02-A-full-queue",
+      "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+      "blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28",
+      "sections": [
+        "current candidate generation-cycle implementation contains the C active source/member revalidation path; separate N8 interaction evidence was added at c6d9779. The member-selection source is not a B09 semantic-rule producer."
+      ]
+    }
+  ],
+  "limitations_and_next_owner": [
+    "B09 remains open until the source/institution, C admission owner, and F scientific owner provide and ratify the upstream semantic rule and content-bound admitted-row receipt.",
+    "After that ratification, A CYC-03/ACQ-01/REQ-01 can implement the narrow consumer bridge and run paired same-candidate N5 positive/negative/replay controls against the owner rule.",
+    "B27 remains limited pending an ordinary complete revised-context second cycle; B28 remains limited pending a real owner-signed/currentness positive receipt."
+  ],
+  "pattern_review": {
+    "ids": [
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P35",
+      "P36",
+      "P37",
+      "P38"
+    ],
+    "failure_mode": "Rule replay/time-role conflation and semantic identity inferred from occurrence markers would repeat the existing open B09 defect.",
+    "target_pattern": "Full tracked owner-input denominator, finding-bound evidence, owner-authored basis semantics, independent content recomputation, and separate occurrence/history/currentness.",
+    "missing_capability_labels": [
+      "producer_missing",
+      "semantic_test_missing",
+      "verification_missing"
+    ],
+    "acceptance_signal": "Owner-ratified rule plus persisted C-admitted content is consumed by same-candidate N5; independent oracle observes change only for owner-declared semantic mutation, rejects occurrence-only changes, and can replay the old occurrence."
+  },
+  "handoff_artifacts": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/basis-rule-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/basis-rule-review/census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/basis-rule-review/census.stdout.txt"
+  ],
+  "finding_decisions": {
+    "B09": {
+      "outcome": "open",
+      "historical_status": "open",
+      "closure_now": "not_adjudicated",
+      "capability_label": "producer_missing",
+      "evidence_ids": [
+        "B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a:B09 lines 301-312",
+        "closure-decisions/A.md@68fcdf9337eb4b0f268d5c2c786e2900edf28a2b:A3 lines 61-70",
+        "closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a:B09",
+        "closure-decisions/cross-unit-contracts.md@b242397fb26eaf0bee86a867aed6e21768d094e2",
+        "implementation-handoffs/A/full-queue-progress.json@4d39fd3510da864d83cc4a87d24e70acff70f16b:B09 row",
+        "basis-rule-review/census.stdout.txt@0277726acb6d4a5d774ebdcf4b0bf7c61d4f72a578aedb22eda9746f3ab4a416"
+      ],
+      "decision_boundary": "Keep B09 open. A same-candidate substantive-data positive is not admissible without an owner-ratified source/profile/row rule, exact C-admitted content receipt, and F relevance/update class. A3 ObservationToWMRRule is a proposal, not authority. A e6f489 consumer change revalidates the C active source/member chain; the 6f9e7b3 test source specifies a selected-member-before-cap check and exact-ID-filter removal counterfactual. Those establish a bounded consumer-membership property if the test receipt later confirms it, not a semantic field/update rule or same-candidate WMR positive.",
+      "supported_adjacent_semantics": [
+        "C catalog selector: bounded ordered versioned source registry/profile/filter/dependency selection; explicit empty stays empty and missing/disabled/cyclic dependencies refuse; production caller profile bridge remains held (LA-028). Not an observation-row selector or WMR mapping.",
+        "C ingestion: CAS/checkpoint/cursor/replay and separation of source row/UTC/reference maps from accumulator accounting; B83 source event/version identity remains held. Not a B09 semantic basis.",
+        "C OBS-01: period parse/preserve/quarantine only; no WMR temporal or hash role.",
+        "F source-bound SCM: synthetic typed method inputs/permutation checks; no production source authority or C-observation-to-WMR relevance/update ratification.",
+        "A current test source (6f9e7b3) specifically asserts exact C projection membership before cap/grouping and provides an in-memory exact-ID-filter removal counterfactual. It is a selected-member integrity probe, not evidence that a substantive admitted-row change creates a new WMR basis; this audit did not execute it."
+      ],
+      "paired_same_candidate_oracle": {
+        "hold_fixed": [
+          "subject and candidate identity",
+          "atom",
+          "grammar",
+          "rule version unless the ratified rule explicitly makes version changes relevant"
+        ],
+        "substantive_positive": {
+          "state": "held_unrun",
+          "allowed_mutation": "Only a field and selected row whose semantic role is designated by the signed owner rule; exact admitted membership/content and C receipt are read back, basis independently recomputed, and N5 must consume the new occurrence while the prior occurrence remains replayable. No particular field is named because no owner rule selects one."
+        },
+        "negative_controls": [
+          {
+            "control": "UUID/job/receipt occurrence ID only",
+            "state": "candidate_unrun",
+            "condition": "Rule/content binding explicitly excludes occurrence IDs from the semantic basis; verify basis and N5 decision unchanged."
+          },
+          {
+            "control": "transaction/ingestion timestamp only",
+            "state": "candidate_unrun",
+            "condition": "Rule defines transaction/ingestion as occurrence time, separate from valid-time and source/as-of; verify basis and N5 decision unchanged."
+          },
+          {
+            "control": "row order only",
+            "state": "conditional_unrun",
+            "condition": "Use only if owner rule declares order nonsemantic and selected membership and content remain identical."
+          },
+          {
+            "control": "source/as-of or valid-time change",
+            "state": "not_a_negative_control",
+            "condition": "Role and basis/selection effects are unratified; do not classify as occurrence-only."
+          }
+        ],
+        "old_occurrence_replay": {
+          "state": "unrun",
+          "requirement": "Replay the prior immutable occurrence against its original ratified rule and exact admitted row content; preserve its prior basis/history when a later occurrence is consumed."
+        }
+      },
+      "source_only_member_set_probe": {
+        "source_id": "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py@6ab30561f0a4e2c22fd41985499661af1c1966a6 (commit 6f9e7b3d117be86e244810b57740fe8faaa12c29)",
+        "assertion_design": "Seed visible baseline nonmembers before authority freeze; assert the value profile selects only projection-admitted members before cap/grouping; remove only the exact-ID SQL enabler while retaining the real function/query/markers and assert the real row-cap refusal.",
+        "execution_status": "not executed in this audit; no pass/fail result is claimed."
+      }
+    },
+    "B27": {
+      "outcome": "limited",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "producer_missing",
+      "evidence_ids": [
+        "B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a:B27 lines 537-550",
+        "closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a:B27 record 152",
+        "closure-decisions/A.md@68fcdf9337eb4b0f268d5c2c786e2900edf28a2b:A1/A3",
+        "implementation-handoffs/A/full-queue-progress.json@4d39fd3510da864d83cc4a87d24e70acff70f16b:B27 row"
+      ],
+      "decision_boundary": "Keep B27 limited. The tracked A queue records late-context checks implemented, but second-basis owner rule and old-occurrence replay remain missing. A fixture/run_fixture marker or changed task hash alone is not a normal revised-context second-cycle acceptance; preserve the correct context/evidence bindings through the actual second cycle."
+    },
+    "B28": {
+      "outcome": "limited",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "evidence_ids": [
+        "B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a:B28 lines 551-564",
+        "closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a:B28 record 153",
+        "closure-decisions/A.md@68fcdf9337eb4b0f268d5c2c786e2900edf28a2b:A6 lines 94-100",
+        "implementation-handoffs/A/full-queue-progress.json@4d39fd3510da864d83cc4a87d24e70acff70f16b:B28 row",
+        "implementation-handoffs/A/n9-gate.json@91008391e9c6a2da873227c358508742b05df3c3:attempt 4"
+      ],
+      "decision_boundary": "Keep B28 limited. History/currentness remain separate; the queue says owner-supported second-basis and signed N9 control are missing. Attempt 4 passed a test-only negative refusal, but its positive currentness path was not run and no production signed/currentness issuer/receipt was supplied. Candidate ID/history does not establish valid signature/current epoch."
+    }
+  }
+}

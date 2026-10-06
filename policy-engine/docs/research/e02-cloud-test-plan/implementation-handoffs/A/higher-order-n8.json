@@ -1,0 +1,594 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "higher-order-n8",
+  "closure_ids": [],
+  "finding_ids": [
+    "B26"
+  ],
+  "related_findings": [
+    "B08"
+  ],
+  "bundle_ids": [
+    "SIM-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "4716dec3486e4f3ac0a9ed92c1254eba9a8eda34",
+    "d7548c85f3e9973553c95b50f3c62a9e2648f0a5",
+    "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+    "c6d977907195a9a86e4add2602155c1c33b41879",
+    "cc080a7bb7f98a4e3b038bf9d968375a6963a7b0"
+  ],
+  "candidate_commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+  "candidate_tree_sha": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+  "candidate_branch_at_run": "codex/e02-A-n5-verify-current",
+  "pull_request": null,
+  "implementation_owner_agent": "/root",
+  "candidate_note": "The direct N8 green-wave source/test pin is 6f9e. A later test-only CYC-02 fixture commit 6993641ac6f879b676a48378b52c8743bd138a95 passes the full CYC-02 module plus N9 refusal test; its runtime Python inputs match the 6f9e inputs recorded in the green-wave manifest. That follow-up is separate from the original B26/EMP 10-test command.",
+  "finding_disposition": "limited",
+  "remaining_capability_label": "verification_missing",
+  "criterion_source": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      517,
+      530
+    ],
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "bundle_projection_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-03.md",
+    "bundle_projection_sha256": "28cbb838c820efe0e08782c965d2a2558db3fbb06996038b1a22b69f0c57a945",
+    "finding_id": "B26",
+    "criterion": "A three-atom multiplicative case is not presented as globally additive; the diagnostic is bound to the actually checked interaction order, preserves numerical uncertainty, and does not claim exact mechanism identification. A true sum of independent effects remains additive over the checked scope."
+  },
+  "finding_register_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+    "record_index_zero_based": 151,
+    "historical_status": "partial",
+    "closure_now": "not_adjudicated",
+    "capability_label_before_this_slice": "surface_missing",
+    "appendix_c_status": "no_finding_level_record"
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P03",
+      "P05",
+      "P10",
+      "P29",
+      "P37",
+      "P38"
+    ],
+    "existing_pattern": "Pairwise-only classification could be read as global additivity even when a full joint trajectory contains a higher-order residual; a field or marker alone does not establish consumer behavior.",
+    "target_pattern": "Recompute bounded interaction evidence from the complete persisted trajectory set inside the actual default N8 conditional consumer, then project a typed simulation-only result and prove the semantic guards with content-valid adversaries and remove-the-property controls.",
+    "acceptance_signal": "The fresh default N8 consumer returns the recomputed cubic residual and checked-order scope for a producer-authored CAS artifact; each content-valid false sibling is blocked, a permutation remains invariant, and each real guard removal admits its mutant case and trips a property-specific assertion."
+  },
+  "capability_chain": {
+    "typed_artifact": "ConditionalSimulationInteractionEvidence is a strict typed diagnostic in runtime contracts.",
+    "producer": "The test uses the registered NCM engine through JointSimulationPort and JointSimulationHorizonController; no engine output or CAS bytes are mocked.",
+    "persisted_artifact": "The producer writes the result and content-bound receipt to a fresh FileSystemCAS; the test reopens and validates that persisted artifact before consumption.",
+    "bridge": "The actual _DefaultSimulationBoundFoundryValuePort loads the CAS-backed result and recomputes evidence in the conditional N8 path.",
+    "consumer": "A fresh Python process imports the pinned generation_cycle.py and invokes the default N8 value port.",
+    "verification": "The recorded cubic semantic test, content-valid negative variants, accepted permutation, and three AST removal controls pass in the 10-test wave.",
+    "surface": "Run-lifecycle/GET projection is present in candidate source; an admitted ordinary served three-atom run followed by GET is not verified.",
+    "semantic_test": "PASS for direct producer-to-CAS-to-fresh-default-N8 intake; not a served GET positive."
+  },
+  "witness": {
+    "test": "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py::test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer",
+    "test_sha256": "7dd0ea1d4867ad159afae4246c4e118d74523c56715007413202fda061fd45ba",
+    "git_blob": "9277e0f55a8529d86cdce45e315ae9ca6a05be1a",
+    "fixture": "candidate_e02_real_ncm_cubic; three intervention atoms (income_subsidy, balance_grant, labor_market); selected outcome firm_survival; one-point horizon [0]; zero baseline for the three delta variables and outcome.",
+    "model": "Registered NCM equation firm_survival = income_delta * balance_delta * labor_count_delta + exogenous noise, with deterministic zero noise in this fixture.",
+    "selected_engine_decision": {
+      "count": 1,
+      "engine_kind": "ncm_parallel_worlds",
+      "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+      "objective_ref": "objective://firm-survival"
+    },
+    "world_model_record": {
+      "ref": "world_model_record_eb68ee16539903e3",
+      "content_hash": "sha256:eb68ee16539903e3bd98076a0e22487479ac6845da75cd05d4c2f68e75d3b083"
+    },
+    "expected_conditional_evidence": {
+      "schema_version": "policyos.runtime.conditional_simulation_interaction_evidence.v1",
+      "horizon": {
+        "start": 0,
+        "end": 0,
+        "step": 1
+      },
+      "requested_steps": [
+        0
+      ],
+      "observed_steps": [
+        0
+      ],
+      "trajectory_scope_count": 7,
+      "checked_interaction_orders": [
+        1,
+        2,
+        3
+      ],
+      "max_checked_interaction_order": 3,
+      "higher_order_residuals": {
+        "firm_survival": {
+          "0": 1.0
+        }
+      },
+      "residual_scope": "third_order",
+      "predicate_provenance": "recomputed",
+      "authority_purpose": "conditional_simulation_only",
+      "unit_binding_status": "not_established",
+      "time_binding_status": "not_established",
+      "sampling_uncertainty_status": "not_established"
+    },
+    "authority_result": "value_conditional; simulation-only; low decision grade; no value receipt and no method-selection receipt.",
+    "interpretation_limit": "max_checked_interaction_order is the largest numerically checked order, not a causal maximum or a mechanism-identification claim."
+  },
+  "recorded_green_wave": {
+    "receipt_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/green-wave",
+    "source_run_directory": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e",
+    "candidate_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "candidate_tree_sha": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+    "input_manifest": "green-wave/environment-and-inputs.json",
+    "input_manifest_sha256": "c8855eeba307f88862a8b58c85be4f5d45726a84f97b435aaa9bf43ac3406278",
+    "command_argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+      "-u",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "-vv",
+      "--durations=0",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/junit.xml",
+      "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+      "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "runtime": {
+      "python": "3.14.3",
+      "pytest": "9.0.2",
+      "jax": "0.8.2",
+      "backend": "cpu",
+      "omp_threads": 1,
+      "openblas_threads": 1,
+      "mkl_threads": 1,
+      "numexpr_threads": 1,
+      "veclib_threads": 1,
+      "timeout_seconds": 300
+    },
+    "result": {
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_seconds": 71.275,
+      "runner_wall_seconds": 74.86681695800507,
+      "exit_code": 0
+    },
+    "scope": [
+      "test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer",
+      "8 integration cases in test_e02_empirical_member_intake.py",
+      "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+    ],
+    "asserted_controls": [
+      "receipt-valid false residual blocked by actual N8 consumer",
+      "receipt-valid false order claim blocked by actual N8 consumer",
+      "missing pair scope blocked by actual N8 consumer",
+      "wrong persisted horizon step blocked by actual N8 consumer",
+      "duplicate grid point blocked by actual N8 consumer",
+      "unknown outcome blocked by actual N8 consumer",
+      "sibling receipt-payload-hash mismatch blocked by actual N8 consumer",
+      "trajectory permutation accepted with identical recomputed evidence",
+      "remove scope/grid reason branch while retaining markers: mutant is admitted",
+      "remove residual reason branch while retaining markers: mutant is admitted",
+      "remove order reason branch while retaining markers: mutant is admitted"
+    ],
+    "separate_source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8-review.json",
+      "sha256": "fc857c768282910334157b21f7d68788499e796ca8c6702897341e590905a33c",
+      "review_result": "bounded source review GO; reviewer did not run tests or the numeric fixture",
+      "B26_closure": "not adjudicated"
+    }
+  },
+  "attempt_history": [
+    {
+      "id": "01-tooling-error-d754",
+      "candidate_sha": "d7548c85f3e9973553c95b50f3c62a9e2648f0a5",
+      "candidate_tree_sha": "bd9e71d255fd0260138ae1b8395e1468b25d44eb",
+      "test_sha256": "07dca56dc2aed5a66c8606d1f49acd398fb3fcaf0515cdfaf4d968671e8580c8",
+      "classification": "tooling_error_no_test_execution",
+      "interpretation": "The resolved standalone interpreter lacked pytest. No product test ran; this attempt is not a RED or PASS.",
+      "artifacts": [
+        {
+          "path": "higher-order-n8/attempts/01-tooling-error-d754/run.json",
+          "sha256": "a901bf31448d5c414b169679d18d60b8320726d65a22a41dac4f3e31e247ec47",
+          "bytes": 3198
+        },
+        {
+          "path": "higher-order-n8/attempts/01-tooling-error-d754/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "higher-order-n8/attempts/01-tooling-error-d754/stderr.log",
+          "sha256": "7a2c2c98402f470ec843ccb372b653c743c3dec9d47f17119c9981d94c0b7055",
+          "bytes": 116
+        }
+      ]
+    },
+    {
+      "id": "02-test-harness-error-d754",
+      "candidate_sha": "d7548c85f3e9973553c95b50f3c62a9e2648f0a5",
+      "candidate_tree_sha": "bd9e71d255fd0260138ae1b8395e1468b25d44eb",
+      "test_sha256": "07dca56dc2aed5a66c8606d1f49acd398fb3fcaf0515cdfaf4d968671e8580c8",
+      "classification": "harness_error_before_n8_semantic_decision",
+      "interpretation": "The producer persisted CAS content, but the fixture passed a dict where the typed consumer expected an artifact reference. The target JUnit failure does not evaluate the N8 property.",
+      "result": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "elapsed_seconds": 19.107355375017505
+      },
+      "artifacts": [
+        {
+          "path": "higher-order-n8/attempts/02-test-harness-error-d754/run.json",
+          "sha256": "1d936dc9a7467909b5fc93ff717013d6d5e370c78ebe72cf35ec35cb67bced96",
+          "bytes": 3733
+        },
+        {
+          "path": "higher-order-n8/attempts/02-test-harness-error-d754/stdout.log",
+          "sha256": "d96a3c14b7e3fc7f6943b60f641ee6e327031c6a880e6631ce20e6f6be6b68d2",
+          "bytes": 53312
+        },
+        {
+          "path": "higher-order-n8/attempts/02-test-harness-error-d754/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "higher-order-n8/attempts/02-test-harness-error-d754/junit.xml",
+          "sha256": "ba05fef1f8fc1a6bdbf9cb9dbee8dc09e279a38a626321ff0ab5799eb838d39b",
+          "bytes": 915
+        }
+      ]
+    },
+    {
+      "id": "03-expected-red-98e5",
+      "candidate_sha": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+      "candidate_tree_sha": "19354fd6fb397d043c8b4d1e98f2386324c6256b",
+      "test_sha256": "3841a7859731ab085a41e8610db68c46b0c729667a2a28f1798b5dccd3f98df5",
+      "classification": "expected_semantic_red",
+      "interpretation": "The fresh default N8 consumer admitted receipt-valid false interaction evidence and produced no typed conditional interaction diagnostic. The exact target test failed property assertions: one failure, zero errors or skips. This is baseline evidence, not a candidate acceptance run.",
+      "result": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "junit_seconds": 28.824,
+        "exit_code": 1
+      },
+      "artifacts": [
+        {
+          "path": "higher-order-n8/attempts/03-expected-red-98e5/command.txt",
+          "sha256": "0ad2e2b989ea558ee14b39d7ae65fa9853f8b94b47d73aca04047f52dddccaab",
+          "bytes": 562
+        },
+        {
+          "path": "higher-order-n8/attempts/03-expected-red-98e5/environment.txt",
+          "sha256": "f2c193ecd9a58222b316c9d083bb674edb8a58c6d991edea23fc7226c3da489d",
+          "bytes": 656
+        },
+        {
+          "path": "higher-order-n8/attempts/03-expected-red-98e5/exit-code.txt",
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+          "bytes": 2
+        },
+        {
+          "path": "higher-order-n8/attempts/03-expected-red-98e5/stdout.txt",
+          "sha256": "b226ae966a864de26c12b093aead79c56b03249bd363238a118cbb9142d862fc",
+          "bytes": 72251
+        },
+        {
+          "path": "higher-order-n8/attempts/03-expected-red-98e5/junit.xml",
+          "sha256": "b23c625a509f2543325333ed312c50f8c61cf4c0672091e6bb539329a0558195",
+          "bytes": 30901
+        }
+      ]
+    }
+  ],
+  "deferred_compatibility_receipt": {
+    "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e",
+    "candidate_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "classification": "superseded_by_post-fix_16_of_16_follow-up",
+    "interpretation": "The retained 106-case CYC-02 output reports 98 passed and 8 failed, all in static-NCM fixtures whose default request remained multi-step after the producer correctly rejected that grid. Root changed only seven request sites in the CYC-02 test file to declare a single-step horizon, then ran the full CYC-02 module and N9 refusal test: 16/16 passed on 6993641ac6f879b676a48378b52c8743bd138a95. The old fail receipt remains preserved as the pre-fix result; it is not inherited and does not override the post-fix run.",
+    "artifacts": [
+      {
+        "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/environment-and-inputs.json",
+        "sha256": "49cf94a6f0fe044eaf2df8fabb776812d2d53a02009edf201019b7b0dd25ae83",
+        "bytes": 4501
+      },
+      {
+        "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/stdout.txt",
+        "sha256": "961ccf5693fb7eeb13953f612b82414c7ce1a8d66c6312817deb2f0ac4a95a08",
+        "bytes": 78532
+      },
+      {
+        "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/junit.xml",
+        "sha256": "a0e890961fa30de5a0f0167340b62bc5a4b867f20e817b6f36cf7eefdc3022b6",
+        "bytes": 72577
+      }
+    ],
+    "failed_cases": [
+      "test_n5_transient_store_failure_is_unavailable_not_integrity_invalid",
+      "test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError]",
+      "test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError]",
+      "test_n5_replay_does_not_mask_store_programming_errors",
+      "test_conditional_n8_status_is_not_authority_ready",
+      "test_n5_result_has_reopenable_cas_reference",
+      "test_recursive_parent_keeps_n5_cas_reference",
+      "test_n5_replay_uses_supplied_guarded_tenant_store"
+    ],
+    "superseding_candidate_sha": "6993641ac6f879b676a48378b52c8743bd138a95",
+    "superseding_candidate_tree_sha": "a8e37dff9320c28288a5d9ba3a217216696065dd",
+    "superseding_test_sha256": "fb9c9bf715a760d3191a30acb41bbc49ea2df4b436f6e2e0b1e7c533dd0f7063",
+    "superseding_receipt_ref": "../n9-gate/current-wave-6993/"
+  },
+  "candidate_diff_census": {
+    "command": "git diff --name-only -z 198076863e143dea9f89f02734b13d50dae3eed5 6f9e7b3d117be86e244810b57740fe8faaa12c29, counted by suffix",
+    "total_paths": 154,
+    "counts_by_file_type": {
+      ".json": 40,
+      ".md": 4,
+      ".py": 30,
+      ".sh": 1,
+      ".ts": 2,
+      ".txt": 58,
+      ".xml": 19
+    },
+    "software_paths": 20,
+    "owned_or_shared_paths": {
+      "direct_n8": [
+        "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/README.md",
+        "policy-engine/tests/integration/core_runtime/test_e02_higher_order_n8_intake.py"
+      ],
+      "upstream_simulation_dependency_not_n8_owned": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "policy-engine/tests/unit/remediation/test_sim_01.py",
+        "policy-engine/tests/unit/remediation/test_sim_02.py",
+        "policy-engine/tests/unit/remediation/test_sim_03.py"
+      ],
+      "adjacent_or_shared_a_queue_work_not_attributed_as_direct_n8": [
+        "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+        "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "policy-engine/packages/runtime-api-client/types.ts",
+        "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+        "policy-engine/tests/unit/remediation/test_cyc_02.py"
+      ]
+    },
+    "attribution_note": "The listed generation_cycle.py file is a shared canonical source module with the N5 intake work; it is included explicitly, not hidden in an adjacent or unrelated bucket. These buckets classify the 20 software files; the other 134 candidate paths are combined A-queue plan, closure, handoff, and evidence records, not direct N8 mechanism files."
+  },
+  "source_review": {
+    "reviewer_role": "independent read-only B26 source review",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8-review.json",
+    "sha256": "fc857c768282910334157b21f7d68788499e796ca8c6702897341e590905a33c",
+    "verdict": "bounded_source_review_GO",
+    "candidate_behavior": "not_run_by_reviewer; separate 10-test PASS receipt is recorded here",
+    "closure": "not_adjudicated",
+    "remaining_gaps": [
+      "No admitted ordinary served three-atom run followed by public GET was tested.",
+      "Sampling uncertainty remains not_established; the Literal is a status boundary, not an estimator.",
+      "Physical unit and producer-time binding remain not_established.",
+      "The maximum checked numerical order is not a causal maximum."
+    ]
+  },
+  "local_evidence": [
+    {
+      "path": "higher-order-n8/attempts/01-tooling-error-d754/run.json",
+      "sha256": "a901bf31448d5c414b169679d18d60b8320726d65a22a41dac4f3e31e247ec47",
+      "bytes": 3198
+    },
+    {
+      "path": "higher-order-n8/attempts/01-tooling-error-d754/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "higher-order-n8/attempts/01-tooling-error-d754/stderr.log",
+      "sha256": "7a2c2c98402f470ec843ccb372b653c743c3dec9d47f17119c9981d94c0b7055",
+      "bytes": 116
+    },
+    {
+      "path": "higher-order-n8/attempts/02-test-harness-error-d754/run.json",
+      "sha256": "1d936dc9a7467909b5fc93ff717013d6d5e370c78ebe72cf35ec35cb67bced96",
+      "bytes": 3733
+    },
+    {
+      "path": "higher-order-n8/attempts/02-test-harness-error-d754/stdout.log",
+      "sha256": "d96a3c14b7e3fc7f6943b60f641ee6e327031c6a880e6631ce20e6f6be6b68d2",
+      "bytes": 53312
+    },
+    {
+      "path": "higher-order-n8/attempts/02-test-harness-error-d754/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "higher-order-n8/attempts/02-test-harness-error-d754/junit.xml",
+      "sha256": "ba05fef1f8fc1a6bdbf9cb9dbee8dc09e279a38a626321ff0ab5799eb838d39b",
+      "bytes": 915
+    },
+    {
+      "path": "higher-order-n8/attempts/03-expected-red-98e5/command.txt",
+      "sha256": "0ad2e2b989ea558ee14b39d7ae65fa9853f8b94b47d73aca04047f52dddccaab",
+      "bytes": 562
+    },
+    {
+      "path": "higher-order-n8/attempts/03-expected-red-98e5/environment.txt",
+      "sha256": "f2c193ecd9a58222b316c9d083bb674edb8a58c6d991edea23fc7226c3da489d",
+      "bytes": 656
+    },
+    {
+      "path": "higher-order-n8/attempts/03-expected-red-98e5/exit-code.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "higher-order-n8/attempts/03-expected-red-98e5/stdout.txt",
+      "sha256": "b226ae966a864de26c12b093aead79c56b03249bd363238a118cbb9142d862fc",
+      "bytes": 72251
+    },
+    {
+      "path": "higher-order-n8/attempts/03-expected-red-98e5/junit.xml",
+      "sha256": "b23c625a509f2543325333ed312c50f8c61cf4c0672091e6bb539329a0558195",
+      "bytes": 30901
+    },
+    {
+      "path": "higher-order-n8/green-wave/environment-and-inputs.json",
+      "sha256": "c8855eeba307f88862a8b58c85be4f5d45726a84f97b435aaa9bf43ac3406278",
+      "bytes": 3843
+    },
+    {
+      "path": "higher-order-n8/green-wave/stdout.txt",
+      "sha256": "9d631ec076c9c8332a5bd3389a9b97a7d85a8c07072d65ec3097d3157290d416",
+      "bytes": 4501
+    },
+    {
+      "path": "higher-order-n8/green-wave/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "higher-order-n8/green-wave/junit.xml",
+      "sha256": "bdfbe7656293f86fe90a53f59a7624bc925e231908f052c0c3295639cf2229e5",
+      "bytes": 2040
+    },
+    {
+      "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/environment-and-inputs.json",
+      "sha256": "49cf94a6f0fe044eaf2df8fabb776812d2d53a02009edf201019b7b0dd25ae83",
+      "bytes": 4501
+    },
+    {
+      "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/stdout.txt",
+      "sha256": "961ccf5693fb7eeb13953f612b82414c7ce1a8d66c6312817deb2f0ac4a95a08",
+      "bytes": 78532
+    },
+    {
+      "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "higher-order-n8/adjacent-cyc02-full-regression-6f9e/junit.xml",
+      "sha256": "a0e890961fa30de5a0f0167340b62bc5a4b867f20e817b6f36cf7eefdc3022b6",
+      "bytes": 72577
+    }
+  ],
+  "companion_readme": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/README.md",
+  "cas_retention": "No raw CAS blobs are copied into the handoff; input identity is bound by candidate/test hashes and the recorded environment/input manifest.",
+  "followup_revalidation": {
+    "candidate_sha": "6993641ac6f879b676a48378b52c8743bd138a95",
+    "candidate_tree_sha": "a8e37dff9320c28288a5d9ba3a217216696065dd",
+    "source_comparison": "The four runtime Python inputs recorded in the 6f9e green-wave manifest have identical hashes and Git blobs in the 699 environment/input manifest.",
+    "test_file": {
+      "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+      "sha256": "fb9c9bf715a760d3191a30acb41bbc49ea2df4b436f6e2e0b1e7c533dd0f7063",
+      "git_blob": "3a265b00e1e099f074e83965c3a4600e0e11dda2"
+    },
+    "result": {
+      "tests": 16,
+      "passed": 16,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_seconds": 91.552,
+      "runner_wall_seconds": 95.66357520897873,
+      "exit_code": 0
+    },
+    "scope": [
+      "Complete tests/unit/remediation/test_cyc_02.py module (15 cases, including parametrization)",
+      "tests/integration/core_runtime/test_e02_n9_refusal.py (1 case)"
+    ],
+    "coverage_note": "This follow-up does not rerun the B26 cubic test or eight EMP cases. The dedicated 10-test wave remains the direct B26/EMP receipt; this 16-case wave verifies the full CYC-02 fixture correction and the N9 refusal case against runtime inputs unchanged from 6f9e.",
+    "receipt_owner": "/root/n9_gate",
+    "canonical_receipt_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993",
+    "canonical_copy_note": "The N9 owner-maintained companion copy is present and byte-verified against every file in the source run directory; this B26 handoff links it without duplicating its outputs.",
+    "source_run_directory": "policy-engine/_build/e02-A-full-queue/cyc-n9-wave-6993",
+    "source_run_hashes": {
+      "stdout.txt": "d0313c2a55413d2843ccb2301be8987284a9bee0542b3dd7ca2b54831698a386",
+      "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit.xml": "0a7683735b6c0e4d3faa0f31ef404c1efc41ab62fd4de4fb8dd60698b91915d6",
+      "environment-and-inputs.json": "5fc30a012bebde51cecc45de3ab81503a09065291e5fbf9dd08c4bd187ede3e2"
+    },
+    "referenced_artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993/stdout.txt",
+        "sha256": "d0313c2a55413d2843ccb2301be8987284a9bee0542b3dd7ca2b54831698a386",
+        "bytes": 5251
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993/junit.xml",
+        "sha256": "0a7683735b6c0e4d3faa0f31ef404c1efc41ab62fd4de4fb8dd60698b91915d6",
+        "bytes": 2569
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993/environment-and-inputs.json",
+        "sha256": "5fc30a012bebde51cecc45de3ab81503a09065291e5fbf9dd08c4bd187ede3e2",
+        "bytes": 3448
+      }
+    ]
+  },
+  "implementation_commit_roles": [
+    {
+      "commit": "4716dec3486e4f3ac0a9ed92c1254eba9a8eda34",
+      "role": "upstream registered NCM singleton checked-order correction and producer regression test; dependency, not the N8 intake bridge"
+    },
+    {
+      "commit": "d7548c85f3e9973553c95b50f3c62a9e2648f0a5",
+      "role": "initial real persisted cubic producer-to-fresh-N8 integration test"
+    },
+    {
+      "commit": "98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1",
+      "role": "typed CAS artifact-reference repair in the integration-test handoff"
+    },
+    {
+      "commit": "c6d977907195a9a86e4add2602155c1c33b41879",
+      "role": "N8 recomputation implementation in the canonical consumer and typed contract/GET mapping"
+    },
+    {
+      "commit": "cc080a7bb7f98a4e3b038bf9d968375a6963a7b0",
+      "role": "consumer test pins sampling-uncertainty boundary as not_established; no estimator added"
+    }
+  ],
+  "co_run_candidate_commit": {
+    "commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "role": "EMP admitted-member test fixture correction included in the shared 10-test wave; not N8 implementation ownership"
+  },
+  "source_identity_lease": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8-review/source-hashes.json",
+    "sha256": "9d1b6cee374346301c536087c6b3038db7ecc9c84e493d376df4d45c0ea4715d",
+    "purpose": "Exact source/test Git blobs and hashes for the independent frozen-candidate review; includes the shared generation_cycle.py module, direct N8 source, producer dependency, direct integration test, served-test gap witness, and preserved B25 test file."
+  }
+}

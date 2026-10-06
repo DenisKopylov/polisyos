@@ -1,0 +1,250 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "empirical-intake",
+  "slice_base_sha": "20d72ee1dd5a6655e5dc65680650ed886dc65764",
+  "slice_base_tree_sha": "5896321fe4b3ecc5e84cc151e9a4c6cd10490eea",
+  "implementation_commits": [
+    "976841f5a9f34e381bf8180d9f979a25a6ffc8a7",
+    "e6f489b5fe8a9953558dd8dfc5607e03885ae456",
+    "6f9e7b3d117be86e244810b57740fe8faaa12c29"
+  ],
+  "candidate_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+  "candidate_tree_sha": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+  "branch": "codex/e02-A-n5-verify-current",
+  "pull_request": null,
+  "closure_ids": [],
+  "finding_ids": [
+    "B16",
+    "B33"
+  ],
+  "bundle_ids": [
+    "EMP-01"
+  ],
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py"
+  ],
+  "source_hashes_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-intake/source-hashes.json",
+  "authority_purpose": "Admit only C-owner-verified source rows into A's bounded predictive value-data profile; this handoff does not grant causal, treatment-assignment, transport, or publication authority.",
+  "provenance": {
+    "source": "Real C acquisition-owner fixture, including a passport, active receipt, overlay member denominator, raw CAS-backed evidence and actual canonical readback; fixture values remain synthetic.",
+    "c_readback": "CanonicalAcquisitionAuthority.from_provision plus CatalogAcquisitionOverlay.read_activated_semantic_epoch_observations resolves the active receipt/passport chain, re-derives the observations from owner-held source evidence, checks the native active member denominator and current physical rows, and returns a typed ActivatedAcquisitionObservationProjection.",
+    "a_bridge": "FoundryValuePort's default RealValueOwnerGateway receives the overlay path, ArtifactStore and C projection. A resolves and revalidates the C owner projection, scopes the query, selects exact projected observation IDs before the 20,000-row cap, requires the fetched ID set to equal the selected C members, rebinds all C model fields physically present in ds_observations, and constructs a hashed ValueDataProfile.",
+    "typed_output": "ValueDataProfile schema policyos.runtime.value_data_profile.v1; treatment_assignment_status remains owner_assignment_unresolved. It is a method-neutral predictive profile, not an ETS forecast or held-out validation result."
+  },
+  "scope_and_cardinality": {
+    "demonstrated": {
+      "outcome": "distress_score",
+      "country_scope": "UA",
+      "source_unit": "ratio, equal to the passport's registered raw/canonical identity unit",
+      "selected_period_coordinates": [
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "selected_c_member_count": 4,
+      "registered_dataset_cardinality": 1,
+      "fixture_values_are_synthetic": true
+    },
+    "discriminating_positive": "The test seeds 20,001 same-outcome/country/period baseline rows before baseline identity and C admission are frozen. The real read view exposes 20,005 scope-matching rows while the C active projection has 4. The default FoundryValuePort/RealValueOwnerGateway returns exactly the four projected rows with their source-content identities.",
+    "temporal_limit": "The projection declares source_time_status=not_established. A maps year/survey_year/wave to period coordinates but does not bind them to valid-time, as-of, policy, data, or forecast-horizon roles; no temporal equivalence is asserted.",
+    "geography_limit": "The positive exercises one declared country (UA) and its registered source-code path only; it does not establish general multi-country or population scope.",
+    "dataset_limit": "The positive exercises one passport-registered dataset and four member rows. A refuses profiles that combine multiple or missing dataset identities without a declared unit binding; no multi-dataset source profile is admitted by this evidence."
+  },
+  "finding_outcomes": [
+    {
+      "id": "B16",
+      "outcome": "limited",
+      "recorded_ledger_status": "partial",
+      "appendix_c_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "source_criterion": "B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L387-L398",
+      "outcome_basis": "This establishes a bounded C-member-to-A-profile intake property only. It does not execute B16's original acceptance: actual admitted ETS forecast and paired held-out outcomes through strict CAS/default gateway, training-only verifier, leakage rejection, independently recomputed held-out scope/time/threshold/coverage, or predictive-only served support. The S10 coverage addition was not substituted for B16's original criterion.",
+      "criterion_specific_check": "UNRUN"
+    },
+    {
+      "id": "B33",
+      "outcome": "limited",
+      "recorded_ledger_status": "partial",
+      "appendix_c_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "bridge_missing",
+      "source_criterion": "B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L621-L634",
+      "outcome_basis": "F's ir.causal_graph_model@1.0/CausalGraphModelRef path resolves and verifies candidate bytes and binds the static reconciliation request; its static_directed_candidate_v1 rule is structural candidate validation. The artifact has no owner-admitted source/target jurisdiction, population, outcome estimand, period/horizon, graph-currentness or verifier-purpose contract. Request-currentness is not evidence freshness against A's target time. G checkpoint-09 admits no graph candidate. A's current transport context is content-bound to the active problem/WMR, but RealValueOwnerGateway still raises acquire_data:causal_graph_artifact_unresolved because it has no ArtifactStore/CausalGraphModelRef verifier bridge. Graph confidence, free-text metadata, and URI/ref strings are not admission authority.",
+      "criterion_specific_check": "UNRUN"
+    }
+  ],
+  "source_to_consumer": [
+    {
+      "step": "C admission producer",
+      "owner": "Data Forge CatalogAcquisitionOverlay",
+      "output": "Active passport and overlay receipt plus the exact active acquisition_epoch_members denominator; raw acquisition evidence remains CAS-backed.",
+      "source_refs": [
+        "overlay.py@08d77fa061e22f3a4f4c1a10a0096dcf3255221b#L1789-L2046",
+        "overlay.py@08d77fa061e22f3a4f4c1a10a0096dcf3255221b#L3078-L3180"
+      ]
+    },
+    {
+      "step": "C canonical readback",
+      "owner": "CanonicalAcquisitionAuthority and CatalogAcquisitionOverlay",
+      "output": "A rederived typed projection after active receipt, passport, authority/source evidence, native membership denominator and stored-row checks; projection row digest covers the full typed C observation.",
+      "source_refs": [
+        "overlay.py@08d77fa061e22f3a4f4c1a10a0096dcf3255221b#L398-L433",
+        "overlay.py@08d77fa061e22f3a4f4c1a10a0096dcf3255221b#L473-L514",
+        "overlay.py@08d77fa061e22f3a4f1a10a0096dcf3255221b#L524-L535"
+      ]
+    },
+    {
+      "step": "A default bridge and consumer",
+      "owner": "FoundryValuePort → RealValueOwnerGateway → _load_value_data_profile_from_l1_dcat",
+      "output": "A resolves and replays C projection, applies country and exact-ID selection before the bounded cap, checks exact membership and physical-row digest, checks passport unit binding, and produces the hashed ValueDataProfile.",
+      "source_refs": [
+        "generation_cycle.py@ac6422f927ffcc942d4c0d840a47e49ef0f41e28#L4291-L4365",
+        "generation_cycle.py@ac6422f927ffcc942d4c0d840a47e49ef0f41e28#L4603-L4631",
+        "generation_cycle.py@ac6422f927ffcc942d4c0d840a47e49ef0f41e28#L10055-L10139",
+        "generation_cycle.py@ac6422f927ffcc942d4c0d840a47e49ef0f41e28#L10259-L10382",
+        "generation_cycle.py@ac6422f927ffcc942d4c0d840a47e49ef0f41e28#L10408-L10532"
+      ]
+    },
+    {
+      "step": "F/C graph evidence to A transport",
+      "owner": "RealValueOwnerGateway.build_transport_inputs",
+      "output": "No admitted graph consumer path. The active problem/WMR transport context is validated, then A refuses construction until a verified CausalGraphModelRef bridge and owner-approved applicability contract exist.",
+      "source_refs": [
+        "generation_cycle.py@ac6422f927ffcc942d4c0d840a47e49ef0f41e28#L4393-L4415",
+        "generation_cycle.py@ac6422f927ffcc942d4c0d840a47e49ef0f41e28#L10825-L10902",
+        "graph-consumer-review.json@d19bc8e49542673b26adb890fafba4bb083327368574b822dbc7c1917d8b96d4",
+        "F graph intake 6321dc33476b0fad24d97ebb140c373608d30019",
+        "G checkpoint-09 integration 312e6d7c12e1d623f1ac9502c187e7cb92e48045"
+      ]
+    }
+  ],
+  "behavioral_checks": [
+    {
+      "name": "default-root positive plus P29 property removal",
+      "outcome": "PASS",
+      "test_node": "tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping",
+      "witness": "Full C read view has 20,005 same-scope rows and the admitted projection has four. The actual default port produces the four C members. In-memory mutation disables only the exact-ID predicate enabler while retaining SQL, argument shape and error markers; the same fixture then fails closed at acquire_data:value_owner_rows_truncated.",
+      "semantic_result": "The filter property is distinguished behaviorally; a marker-only pass is ruled out."
+    },
+    {
+      "name": "replacement cannot satisfy missing member",
+      "outcome": "PASS",
+      "test_node": "tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator",
+      "witness": "Deleting an admitted row and adding a same-country, same-outcome, same-period, ratio-valued foreign-dataset row does not make the active C member denominator whole; default owner refuses active_observation_projection_drift."
+    },
+    {
+      "name": "every actual physical C model column is bound",
+      "outcome": "PASS",
+      "test_node": "tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field",
+      "witness": "The control derives physical columns from DuckDB PRAGMA table_info intersected with CanonicalAcquisitionObservation.model_fields and tampers every member in that set; A refuses drift while activation markers remain unchanged."
+    },
+    {
+      "name": "C-derived nonphysical provenance cannot be self-rehashed into authority",
+      "outcome": "PASS",
+      "test_node": "tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_owner_rejects_rehashed_nonphysical_provenance_forgery",
+      "witness": "For each of acquisition_method, source_watermark and dataset_version, the test forges a typed C row and reissues a self-consistent projection hash while retaining the original C passport/receipt/CAS; the real C owner replay rejects the altered view.",
+      "parameter_cases": [
+        "acquisition_method",
+        "source_watermark",
+        "dataset_version"
+      ]
+    },
+    {
+      "name": "passport/source condition-unit disagreement",
+      "outcome": "PASS",
+      "test_node": "tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner",
+      "witness": "C admits the stored body under its actual fixture route, but A refuses a row condition unit of percent against the passport's ratio identity transform."
+    },
+    {
+      "name": "nonfinite profile row",
+      "outcome": "PASS",
+      "test_node": "tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_nonfinite_scoped_row_refuses_instead_of_reducing_profile_denominator",
+      "witness": "Actual RealValueOwnerGateway over a real DuckDB L1-shaped fixture refuses an in-scope Inf row instead of silently dropping it. This is a profile-owner control, not a C projection case."
+    }
+  ],
+  "shared_test_wave": {
+    "outcome": "PASS",
+    "candidate_sha": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+    "candidate_tree_sha": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+    "summary": "10 passed, 0 failed, 0 skipped; JUnit total 71.275s; wall 74.86681695800507s.",
+    "empirical_member_tests": 8,
+    "n8_interaction_cas_test": "1 pass; test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer",
+    "n5_fresh_process_test": "1 pass; test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+      "-u",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "-vv",
+      "--durations=0",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/junit.xml",
+      "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+      "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+      "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+    ],
+    "environment_record": "policy-engine/_build/e02-A-full-queue/consumer-wave-6f9e/environment-and-inputs.json",
+    "canonical_shared_receipt": {
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/green-wave",
+      "stdout_sha256": "9d631ec076c9c8332a5bd3389a9b97a7d85a8c07072d65ec3097d3157290d416",
+      "junit_sha256": "bdfbe7656293f86fe90a53f59a7624bc925e231908f052c0c3295639cf2229e5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment_sha256": "c8855eeba307f88862a8b58c85be4f5d45726a84f97b435aaa9bf43ac3406278",
+      "note": "N5 supplied the single canonical shared output copy. All four file hashes were read from that path and match the root _build source bytes exactly; root owns the eventual commit."
+    },
+    "input_sha256s": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+      "policy-engine/tests/integration/core_runtime/test_e02_empirical_member_intake.py": "cf4f91f18b33484e22ec11d83e575cbe2325b9b4d1478221c60db78706371308"
+    }
+  },
+  "behavioral_counterfactual": {
+    "name": "earlier overlay-filler discriminator correction",
+    "outcome": "CORRECTED",
+    "earlier_issue": "Rows appended to the overlay without acquisition_epoch_members are invisible through the real C open_catalog_read_session, which unions all baseline rows but only active overlay rows indexed by active epoch membership; therefore exact-ID filter removal could still leave a green positive.",
+    "corrected_witness": "Seed 20,001 nonmember rows into the baseline before its content identity and C authority/provision freeze, then verify the actual read view returns 20,005 matching rows while C readback returns four. Disabling only the exact-ID predicate now reaches the real row cap and refuses."
+  },
+  "nonpassing_attempts": [
+    {
+      "name": "earlier integrated wave 3bd",
+      "outcome": "FAIL",
+      "candidate_sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "summary": "19 tests: 13 passed, 6 failed; five empirical-member cases failed and the served route failed during L6 fixture setup before POST.",
+      "root_cause_update": "The prior EMP test attempted to bind nonphysical provenance from ds_observations. C derives acquisition method, source watermark and dataset version from the admitted registration/passport/raw CAS sources, so A now reuses C's canonical replay and requires full projection equality.",
+      "retained_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/stdout.txt@2db18f6f162cda5af13e402b9183485eb29cfa530a573a2cbb53b8c51dc6f5b8",
+      "retained_junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/junit.xml@0dc36ab4eb4eaab6dfd7b19eba191d1e7bdca510c36cb276766888f9f3f9ea04",
+      "p41_attribution": "The 3bd red is preserved; no exact run was replayed at slice base 20d72, so inherited-at-base is not_established. This handoff records the current 6f9 semantic result without rewriting the historical red."
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P33",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "found": [
+      "P29/P38: property is exact C-member intake before aggregation/cap; the remove-ID-filter control runs the real profile loader with the gate removed and demonstrably hits the real row-cap refusal.",
+      "P32/P40: A consumes the C owner-rederived projection and does not treat its own digest, a URI, passport string, or marker as authority; full projection drift fails closed.",
+      "P33: the first filler approach used inactive overlay rows invisible to C's canonical union; corrected witness uses visible baseline rows and a behavioral removal control.",
+      "P35: per-commit path/type denominators and pinned source hashes are recorded in the source lease; the eight EMP selectors come from the complete JUnit wave receipt.",
+      "P41: the earlier 3bd red is retained and not labeled inherited without replay at the exact EMP slice base."
+    ],
+    "target_pattern": "Reuse C's typed owner readback, admission/member denominator and CAS provenance through the default A gateway; select exact active members before the bounded cap; test the behavioral property against visible same-scope nonmembers; fail closed on altered, missing or semantically conflicting rows."
+  },
+  "limitations_and_next_owner": [
+    "B16 remains limited: produce and persist an actual admitted ETS forecast with paired held-out outcomes through strict CAS/default gateway, then run a configured verifier that trains only on training rows, rejects leakage, independently recomputes held-out scope/time/coverage/threshold and serves predictive-only support.",
+    "This fixture proves one synthetic UA, one registered dataset and four admitted profile rows; geographic generality, population adequacy, source-time roles, period/horizon equivalence, treatment assignment, causal truth and empirical calibration remain not_established.",
+    "B33 remains limited: a graph owner must supply a typed, verified source/target applicability and currentness contract, G must admit it, and A needs a CAS-resolving ArtifactStore/CausalGraphModelRef bridge plus real transport consumer tests. Do not derive graph authority from confidence, URI/ref strings, labels, or context deltas.",
+    "EMP-01 also includes B31; this slice does not adjudicate B31."
+  ],
+  "closure_status": "not_adjudicated; no closure IDs"
+}

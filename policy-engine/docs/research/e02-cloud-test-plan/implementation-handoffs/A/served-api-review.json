@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "served-api-review",
+  "branch": "codex/e02-A-full-queue",
+  "reviewed_commit": "542da1927384dfe6345af5dd72def1c001471c9c",
+  "reviewed_tree": "54c56d417021dd6681383414f4d79863c369de43",
+  "generated_api_commit": "542da1927384dfe6345af5dd72def1c001471c9c",
+  "generated_api_parent": "6993641ac6f879b676a48378b52c8743bd138a95",
+  "generated_api_candidate": "6993641ac6f879b676a48378b52c8743bd138a95",
+  "generated_api_candidate_tree": "a8e37dff9320c28288a5d9ba3a217216696065dd",
+  "review_mode": "read_only_source_and_generated_delta_review",
+  "verdict": "partial",
+  "disposition": "source_and_api_binding_present; served_positive_unrun; generated_example_churn_unattributed",
+  "implementation_commits": [],
+  "source_changed_paths": [],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-api-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-api-review/report.md"
+  ],
+  "reviewed_source": {
+    "policy-engine/src/polisyos/core/contracts/runtime.py": {
+      "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+      "areas": ["ConditionalSimulationInteractionEvidence", "ConditionalSimulationObservation", "ConditionalSimulationValueProjection", "RunDetails", "RunDetailsResponse"]
+    },
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+      "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+      "areas": ["_recompute_conditional_interaction_evidence", "_conditional_simulation_value_observation"]
+    },
+    "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py": {
+      "sha256": "d8aaf87f891f4fc1a7a87a69db39e13006b5b1e83d9d0597fa1c436172338205",
+      "areas": ["replay_conditional_simulation_values", "_replay_cycle"]
+    },
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+      "areas": ["resolve_conditional_simulation_values"]
+    },
+    "policy-engine/src/polisyos/runtime/http/routes/runs.py": {
+      "sha256": "5b5755e8368b3096fa4f4a750a34b6cd8e6797c7f9519dd5bc70c76311d4f2eb",
+      "areas": ["GET /api/v1/runs/{run_id}"]
+    },
+    "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py": {
+      "sha256": "1d2aa7cc165f85adcb8666b4836a7f24af34dd392b357554e23a57ed6d0d64f5",
+      "areas": ["fresh-app GET test and route-level custody assertions"]
+    },
+    "policy-engine/tests/integration/core_runtime/test_e02_higher_order_n8_intake.py": {
+      "areas": ["direct N8 persisted-trajectory evidence and mutation controls; not an HTTP route test"]
+    }
+  },
+  "generated_artifacts": {
+    "policy-engine/schemas/runtime_api_v1.openapi.json": "cdb1248cc237257f6876efbc628f96645ede32a33788535e6e12355a8e4e6da1",
+    "policy-engine/packages/runtime-api-client/types.ts": "feccfebf6a8eaf8b7daa7a51bf479e849c2053663af915ec065b6eda5865c121",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts": "8906763d1fe2038a76500f3e1a0c5206bc709f2d68fbe0856682a81d8b20772b",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+    "policy-engine/_build/e02-A-full-queue/served-api-final-6993/export-command.json": "2937b29778df535aa8cb9d754288f97fcbd9f86516eea0882df33ca955456267",
+    "policy-engine/_build/e02-A-full-queue/served-api-final-6993/client-generation-commands.json": "4ef3cbfbd1b83832dd8d63ec2149655eb7249053d621c4500af8514e3480bbd8"
+  },
+  "api_contract": {
+    "dto": "ConditionalSimulationInteractionEvidence",
+    "field_count": 16,
+    "fields": [
+      "schema_version",
+      "horizon_start",
+      "horizon_end",
+      "horizon_step",
+      "requested_steps",
+      "observed_steps",
+      "trajectory_scope_count",
+      "checked_interaction_orders",
+      "max_checked_interaction_order",
+      "higher_order_residuals",
+      "residual_scope",
+      "predicate_provenance",
+      "authority_purpose",
+      "unit_binding_status",
+      "time_binding_status",
+      "sampling_uncertainty_status"
+    ],
+    "public_path": "RunDetailsResponse.run.conditional_simulation_values[].observation.conditional_interaction_evidence",
+    "optional_omission": "conditional_interaction_evidence is excluded when None; RunDetails.conditional_simulation_values is excluded when empty",
+    "authority_boundary": "simulate-only conditional evidence; no causal maximum-order, physical unit/time, sampling-uncertainty, N9, or publication authority"
+  },
+  "property_review": {
+    "recomputed_predicates": [
+      "trajectory scopes are exactly the expected individual, pairwise, and joint sets",
+      "every trajectory uses the requested horizon step grid",
+      "residuals are recomputed from persisted joint, singleton, and pair trajectories for each selected outcome and requested step",
+      "producer residual declarations and checked-order declarations must equal recomputed values"
+    ],
+    "coverage_not_causal_order": "max_checked_interaction_order is the largest checked numerical order; four-or-more atoms use residual_scope=aggregate_three_plus, which does not identify an individual higher order",
+    "unknowns_carried": ["unit_binding_status=not_established", "time_binding_status=not_established", "sampling_uncertainty_status=not_established"],
+    "consumer_property": "GET resolves the completed Core-owned compiled CAS artifact and re-resolves V5 input, execution, N4 source, configured profile, and context before calling conditional N8; it does not rerun N5 or trust persisted value-port status",
+    "proxy_gate_warning": "Generated OpenAPI/client shape is not proof that the ordinary served route emits the recomputed evidence; that must be asserted on a fresh GET after the actual route property runs."
+  },
+  "served_test_review": {
+    "path": "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py:337-364",
+    "current_assertions": ["fresh app and client GET", "one bound conditional row", "candidate_scenario_n5_only blocker", "simulate_only and recomputed basis", "two N8 calls total", "one N5 call total", "no N9 call"],
+    "missing_assertion": "The GET row does not assert conditional_interaction_evidence, horizon/step coverage, trajectory scope count, checked/max checked order, residual scope/map, or the not-established unit/time/sampling statuses.",
+    "fixture_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review.json records the retained 3bd served wave as FAIL before app creation/POST because _configured_procurement_profile cannot resolve three L6 control artifacts. The served positive remains UNRUN for the defining route property; the historical failure is not claimed as a current-HEAD test result.",
+    "bounded_acceptance_for_one_atom": {
+      "scope_count": 2,
+      "checked_interaction_orders": [1],
+      "max_checked_interaction_order": 1,
+      "residual_scope": "no_higher_order",
+      "higher_order_residuals": {},
+      "also_assert": ["requested_steps equals observed_steps", "authority_purpose=conditional_simulation_only", "unit/time/sampling remain not_established", "candidate_scenario_n5_only remains an authority blocker", "N5 call count does not increase during fresh GET"]
+    },
+    "capability_state": ["verification_missing_for_served_positive", "semantic_test_missing_for_new_GET_projection", "fixture_input_unverified"],
+    "not_claimed": ["B05 N9 receipt", "source authority", "served semantic closure", "current branch test pass"]
+  },
+  "adjacent_generated_delta": {
+    "path": "policy-engine/schemas/runtime_api_v1.openapi.json embedded confidence-ledger-risk-spend example around lines 58394-58439",
+    "changes": {
+      "projection_hash": ["sha256:2f1b827420d2cd61ac28354c9c0c5c0774bb2b2f88eb098b8bbda755b5853899", "sha256:0305798a181bbad0e373d4b5c44d3c4c9a4bef1fda6e4a98a10185ae5a935b8d"],
+      "source_dependency_hash": ["sha256:984d3eaba73af27bf8837557143303e2e291a7e3250b364e8bb92f1a70a369f7", "sha256:c97fe03767726a570e9e5fc88122126805b7984287fa9a08cb79edac962bacee"],
+      "worker_validation_receipt_hash": ["sha256:afa7e469ebc7846f8c0b4ac08f18a04b9acebd3230d37d214a75fec370725936", "sha256:2d9bd6997fe17dc196d9248bb71b28604b626e80af3e1b09aa842404ff5674f9"]
+    },
+    "unchanged_observed": ["source artifact content hash sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391", "bound dependency count 1492"],
+    "assessment": "Generated along with the conditional schema, but semantically separate and not explained by the generator receipt. Preserve the generated output; identify the fixture/dependency cause before treating these re-pinned example hashes as an expected diagnostic delta."
+  },
+  "checks": [
+    {
+      "kind": "read_only_source_review",
+      "outcome": "completed",
+      "tests_run": false,
+      "numerical_execution": false,
+      "generator_receipts": "export exit 0; all 4 client-generation commands returncode 0 in served-api-final-6993",
+      "js_delta": "canonicalRuntimeApiClient.js unchanged between generator parent and generated API commit"
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": ["P01", "P02", "P10", "P29", "P32", "P37", "P38", "P41"],
+    "existing_issue": "The route projection has been implemented, but the served fixture currently fails before request dispatch and the route test lacks assertions for the newly projected numerical evidence.",
+    "target_pattern": "Fresh GET re-resolves owned N5 CAS, invokes actual N8 recomputation, and asserts the emitted diagnostic plus retained candidate-only blockers; do not infer behavior from OpenAPI markers or test-local observations.",
+    "acceptance_signal": "A source-consistent configured fixture completes ordinary POST and fresh-app GET, proving one-atom evidence (`max_checked_interaction_order=1`, two scopes, no residual) while N5 remains unrerun and N9 remains uncalled."
+  }
+}

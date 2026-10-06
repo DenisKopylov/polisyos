@@ -1,0 +1,180 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "public-ir-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "EMP-01"
+  ],
+  "related_findings": [
+    "B201",
+    "B202"
+  ],
+  "slice_base_sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+  "implementation_commits": [],
+  "candidate_tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/artifact-corpus.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/current_20261006_refs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/current_source_census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/historical_q05_q95_oracle.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/historical_q05_q95_receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/oracle-status.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/owner-decision-inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/source_census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_execution.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_execution.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.executed_0f88bb15606f.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.failed_attempt_701412270551.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.final_executed_d3b4ee63d884.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_final_execution.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_final_execution.stderr.txt"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/source_census.py --refs-json policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/current_20261006_refs.json --output policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/current_source_census.json",
+      "target_sha": "Frozen exact 21 origin/codex/e02-[EF]-*-20261006 refs in current_20261006_refs.json (manifest SHA-256 6abea309fcfd26c92d67c4c265fb70558dc5657cc3912805ff7b4154902a7039); review source root 3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "environment": "Python 3.14.0; local read-only Git object traversal; no product module import or numeric estimator",
+      "input_closure": "Exact source_census.py SHA-256 5ac020e68776bebe71f7891e3a12c6f1a39a1857ec3845fe6fd38620098d93e6; frozen 21-ref manifest SHA-256 6abea309fcfd26c92d67c4c265fb70558dc5657cc3912805ff7b4154902a7039. Complete Git path/blob union and all 54 suffix types; 7,582 serialized-source path/blob versions / 7,127 blobs; direct JSON/JSONL, serialized text, archives, opaque byte markers, and bounded small-gzip scan. Eight large gzip sources are inventoried but remain unscanned.",
+      "outcome": "PASS",
+      "output": "current_source_census.json; SHA-256 622d1b5efbf43f520714b6a2a61f48e3c1628df3e63a882546a36420b1937291. Complete tree: 15,654 distinct paths / 15,843 path-blob versions / 15,285 distinct blobs (535,222,757 bytes); serialized/document/archive/opaque union: 7,532 paths / 7,582 versions / 7,127 blobs. All 3,834 JSON versions and 6,049 records across 15 JSONL versions parsed without errors; 28 bounded gzip sources and 10 archive files were scanned. Eight larger gzip sources remain UNRUN. All 12 canonical owner/decision/status documents are present and byte-identical across the 21 refs."
+    },
+    {
+      "command": "Reconcile canonical owner and decision records by their exact path/commit/tree/blob identities in the frozen 21-ref census.",
+      "target_sha": "Frozen manifest SHA-256 6abea309fcfd26c92d67c4c265fb70558dc5657cc3912805ff7b4154902a7039; owner-decision-inventory.json cites all 12 source paths and blob identities.",
+      "environment": "Local read-only Git object reads; decisions and status documents inspected, not inferred from adjacency or proposal text.",
+      "input_closure": "semantic-decisions.md@432a2c10ee56ab0b60c94fdd8a6b834fd512627a; coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a; finding-owners.tsv@515c70d29f59f3175521642e72d04f1aaffc72d7; DECISION_RECORDS.md@77b54862d1a76e1852ffc48a34eb634a4c109746; residual_ledger.json@81c1d47963d41d1cd356a3755cf6bdb4dde403fd; source_disposition.json@8e449669e3ea57f6afe5493e778694c27f2b4576; plus the remaining six listed owner-decision source blobs.",
+      "outcome": "PASS",
+      "output": "All 12 canonical decision/owner/status sources are byte-identical across the full 21-ref set. B31, B201 and B202 remain held with no closure. Public IR decisions are draft/not adopted; development decisions are recommendations, not rulings. No individual semantic-owner appointment or any of the four required ratifications is established. A, E, C, F, G and DS16 are not granted authority by implementation ownership or adjacency."
+    },
+    {
+      "command": "Read the current E finite-sampling-law bounded-properties output at its exact Git blob and inspect the two typed CAS references.",
+      "target_sha": "current_20261006_refs.json in the source-census record; bounded-properties.stdout.txt blob ff9b394666bc458fe19aec861bcc8e3b8f7047d3",
+      "environment": "Local read-only git cat-file; 4,544-byte tracked test-output file; no CAS resolution or product runtime.",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/finite-sampling-law-20261006-r2/bounded-properties.stdout.txt@ff9b394666bc458fe19aec861bcc8e3b8f7047d3",
+      "outcome": "PASS",
+      "output": "The synthetic candidate output contains two refs of kind ir.uncertainty_envelope, but no payload bytes or schema_version; neither ID occurs as a path in the 11 tracked .blob payloads. External/untracked CAS was not inventoried. Its cases are gate_eligible=false and it labels the rounded profile original_law_faithful_carrier=not_established; classify as candidate readback refs, not production payloads or v1.1 artifacts."
+    },
+    {
+      "command": "git grep -n '_value_outer_set_from_foundry_result(' 3bd5dc0d9f0385fe2662024e173c7f75e25798db -- policy-engine/src policy-engine/tests; inspect that pinned helper and N8 refusal path",
+      "target_sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "environment": "Local read-only Git source review",
+      "input_closure": "generation_cycle.py blob f5bda4e76768ad1d19ae496ddecf78f40f9a06ee; 2,911 tracked policy-engine/src paths / 2,699 Python files; comparison source base 33dfb99210eb4457263fde7f92b3479ebac75b02",
+      "outcome": "PASS",
+      "output": "Only one product-source match at pinned root 3bd5dc0d9f0385fe2662024e173c7f75e25798db is the helper definition; two test references exist and no product caller was found. Ordinary N8 refuses with treatment_assignment_not_owner_derived. This is a bounded literal search, not a dynamic call-graph proof. At that pinned root, only joint_simulation_horizon.py differs in the src subtree from comparison base 33dfb99210eb4457263fde7f92b3479ebac75b02; generation_cycle.py blob is unchanged."
+    },
+    {
+      "command": "Previously executed ignored-scratch independent_v1_1_oracle.py at source pin 198076863e143dea9f89f02734b13d50dae3eed5; receipt copied to historical_q05_q95_receipt.json",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5; loaded uncertainty.py blob 0a2495855d707a6548da6983bdef9abed9c4b0c7 matched the pin",
+      "environment": "Captured prior scratch run; its receipt did not record a separately verifiable Python version",
+      "input_closure": "Exact script SHA-256 f9c7e24c6fa15bcbbe52d032e21f65f53fcc1b2feb46b19027c1e423a945d767; exact receipt SHA-256 c2bb45ddf3411281f6c91c828edf902b44528f170009ce9d6d57d8d9b79344dd; scratch-generated v1.1 CAS artifact, not a historical production payload",
+      "outcome": "PASS",
+      "output": "The implemented q0.05/q0.95 assertions, expected v1.1 validation rejection, and scratch-generated v1.1 byte-exact read/reserialize assertions passed. The q0.05/q0.95 endpoints describe central 90% mass, so confidence_level=0.95 in the receipt is mislabeled. Historical production replay remains UNRUN."
+    },
+    {
+      "command": "Run the frozen final q0.025/q0.975 NumPy oracle and current v1.1 DTO rejection control with literal product .venv/bin/python.",
+      "target_sha": "Candidate 98e5e7c76ccf5fa91b1b482bae90a98f8e040ba1; pinned source 198076863e143dea9f89f02734b13d50dae3eed5; uncertainty.py candidate/pinned/working blob 0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "environment": "Python 3.14.3; NumPy 2.3.5; all numeric thread limits set to 1; elapsed 0.314017500s",
+      "input_closure": "Actual argv [\".venv/bin/python\", \"docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py\"]; source SHA captured before and after run and identical: d3b4ee63d884c8eabe95e44c14879016b0c3e67675189c9d29135b94af75460d; exact snapshot requested_95_equal_tail_oracle.final_executed_d3b4ee63d884.py; stdout requested_95_equal_tail_final_execution.stdout.json@b6bc89a926f19c950e98a4fe54a1fdd1ac9d4d6f14b1ca6d2f6cb3b1bf697529; stderr requested_95_equal_tail_final_execution.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; receipt requested_95_equal_tail_receipt.json@9e94d35eb065493c0dc2f8dac381d63d07caffd0926bd74cf8cf6bb2684a4e18.",
+      "outcome": "PASS",
+      "output": "Exit 0; mean=1.0; q0.025/q0.975=[0,0]; nominal interval mass=0.95; realized discrete coverage=0.99 (99/100); current v1.1 rejects the distinct mean/interval with the expected containment error. No estimator, historical production replay, v2, or owner ratification."
+    },
+    {
+      "command": "Historical production v1.1 payload inventory/replay and v2 schema/$id test",
+      "target_sha": "Current 21-ref full serialized-source corpus; public semantics remain unratified",
+      "environment": "Historical replay UNRUN; eight large tracked gzip sources remain opaque (1,220,652,926 uncompressed bytes by trailer); external/untracked canonical CAS not inspected.",
+      "input_closure": "Frozen 21-ref manifest SHA-256 6abea309fcfd26c92d67c4c265fb70558dc5657cc3912805ff7b4154902a7039 plus complete tracked suffix/blob census; direct JSON/JSONL/text, 28 bounded gzip sources, 10 archive member sets and .blob manifests scanned; eight large gzip sources enumerated but not expanded.",
+      "outcome": "UNRUN",
+      "output": "No tracked historical production UncertaintyEnvelope CAS payload was affirmatively identified among scanned sources. Eight large gzip sources (seven production-invocation JSON objects and one published-protocol audit) remain unscanned; external/untracked canonical CAS was not inventoried. Historical production replay is not_established."
+    }
+  ],
+  "property": {
+    "statement": "ValueOuterSet represents an identification set. Statistical/model uncertainty must remain in a distinct typed channel linked to the same estimand and unit; neither point-identification bounds nor predictive/calibration status may replace that channel.",
+    "runtime_path": [
+      "Foundry method report input",
+      "_value_outer_set_from_foundry_result definition in generation_cycle.py",
+      "ValueOuterSet.interval_box",
+      "no product caller and no served positive public consumer established"
+    ],
+    "proxy_divergence": "If wired, the helper sets point identification to [point, point], dropping the statistical CI. In proxy mode it creates a symmetric width using max(CI width/2, 10% of |point|, 0.01); point=2 with input CI [0,10] becomes [-3,7]. This is P38; the divergence is latent because the helper has no product caller.",
+    "negative_controls": [
+      "Exact source search finds no product call to the helper; do not turn the latent helper defect into a claim of served loss.",
+      "The ordinary N8 route returns treatment_assignment_not_owner_derived instead of a value projection.",
+      "No owner has declared B31 surface_out_of_scope; preserve absent/unallocated."
+    ],
+    "s10_boundary": "S10 forecast/calibration tier and value_conditional are separate axes. value_conditional requires simulate_only, low decision grade, and no owner receipts; neither it nor an S10 predictive tier establishes ValueOuterSet point identification or preserves a statistical interval."
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "B31 remains held with closure_now=not_adjudicated and capability_state=absent/unallocated. The helper's P38 loss is latent; no served public consumer projection loss is established, and no owner declared surface_out_of_scope. B201 and B202 remain held owner decisions.",
+  "pattern_pass": [
+    {
+      "ids": [
+        "P01",
+        "P02",
+        "P10"
+      ],
+      "result": "No complete producer/artifact/bridge/consumer/verification/surface chain is established; retain absent/unallocated and do not invent a runtime contract from the semantic proposal."
+    },
+    {
+      "ids": [
+        "P05",
+        "P15",
+        "P36"
+      ],
+      "result": "No semantic owner appointment or authority comes from A's implementation route or DS16 adjacency. LLM/proposal text remains candidate, not authority."
+    },
+    {
+      "ids": [
+        "P31",
+        "P32",
+        "P35"
+      ],
+      "result": "Use the canonical helper/source paths and enumerate the complete 21-ref and serialized-source denominators; status/shape is not evidence of owner ratification or a production payload."
+    },
+    {
+      "ids": [
+        "P38",
+        "P40"
+      ],
+      "result": "Record the latent helper proxy divergence and the B201 q0.05/q0.95 versus 95%-mass q0.025/q0.975 mismatch as the same B201 functional-definition class one level deeper; no local label patch or v2 meaning is created."
+    },
+    {
+      "ids": [
+        "P41"
+      ],
+      "result": "No product red or inherited failure is attributed; this is a source/read-only review with one bounded finite-sample arithmetic oracle recorded and historical production replay still unrun."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "A cannot sign the scientific meaning. An explicitly appointed canonical IR semantic owner must be named for polisyos.ir.analytics.uncertainty and the registry/contracts boundary, with authority and scope recorded in Git.",
+    "That appointed owner must make a tracked declaration keyed to exact IDs B31, B201, and B202 and settle all four open choices in owner-decision-inventory.json. The proposal urn:policyos:ir:uncertainty-envelope:2 is unratified.",
+    "The declaration must resolve the explicit nominal 95%-central equal-tail q0.025/q0.975 convention against current q0.05/q0.95 source text while preserving old v1.1 reading/replay semantics. The exact-source oracle confirms mean 1, [0,0] endpoints, 0.95 nominal interval mass, 0.99 realized coverage, and current v1.1 containment rejection. This arithmetic does not ratify public semantics or alter held status; do not create a v2 identity or meaning before an appointed owner declaration.",
+    "The frozen Git census has 36 gzip path/blob versions; 28 bounded sources were scanned. Eight larger sources (seven production-invocation JSON gzip objects and one published-protocol audit) total 43,506,930 compressed bytes and 1,220,652,926 uncompressed bytes by trailer and remain unscanned. External/untracked canonical CAS was not inventoried. Thus historical production payload inventory/replay remains not_established; the scanned .blob manifests do not identify an IR uncertainty-envelope kind.",
+    "After ratification, keep the findings separate: B31 needs the EMP producer to persist and bridge identification plus a nonzero/asymmetric statistical interval to an actual consumer, with unit-conversion and proxy-removal controls; B201 needs distinct point/interval functionals, the requested exact-mass oracle, and unchanged v1.1 replay under a new v2 identity; B202 needs a selected joint-law storage form, ordered draw identity, CAS reopen, and missing/foreign/tampered-ref refusals.",
+    "B31/B201/B202 closure still requires each producer, typed persisted artifact, bridge, actual consumer, verification, and required public/audit surface receipt. The owner declaration alone does not close any finding."
+  ],
+  "evidence_files": {
+    "owner_decisions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/owner-decision-inventory.json",
+    "serialized_source_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/current_source_census.json",
+    "artifact_classification": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/artifact-corpus.json",
+    "quantile_and_v1_1_status": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/oracle-status.json",
+    "serialized_source_census_script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/source_census.py",
+    "compressed_and_opaque_source_inventory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/current_source_census.json#/gzip_source_scan and #/opaque_serialized_byte_scan",
+    "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_receipt.json",
+    "equal_tail_reproduction_code": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.py",
+    "execution_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_execution.stdout.json",
+    "execution_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_execution.stderr.txt",
+    "executed_oracle_source_snapshot": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.executed_0f88bb15606f.py",
+    "failed_pre_oracle_source_snapshot": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.failed_attempt_701412270551.py",
+    "final_executed_oracle_source_snapshot": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_oracle.final_executed_d3b4ee63d884.py",
+    "final_execution_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_final_execution.stdout.json",
+    "final_execution_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/public-ir-review/requested_95_equal_tail_final_execution.stderr.txt"
+  }
+}

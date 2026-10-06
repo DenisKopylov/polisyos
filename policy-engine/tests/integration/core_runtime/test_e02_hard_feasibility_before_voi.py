@@ -21,7 +21,6 @@ from polisyos.runtime.quality.generation_cycle import (
     CandidateGroundingObservation,
     GenerationCycleController,
     JointSimulationPort,
-    PromotionRuntime,
     SimulationPortObservation,
     load_joint_simulation_result,
     simulation_evaluation_input_ref,
@@ -33,6 +32,7 @@ from polisyos.runtime.quality.intervention_atom_binding import (
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
 )
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.world_model_record import WorldModelRecord
 from tests.unit.runtime.quality.test_generation_cycle import (
     _budget,

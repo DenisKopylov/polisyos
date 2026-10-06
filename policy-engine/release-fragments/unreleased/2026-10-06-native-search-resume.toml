@@ -12,7 +12,15 @@ api = "polisyos.scientist lazily exports NativeSearchService, SearchServiceCheck
 limitations = "The served hierarchical caller remains unappointed here. Checkpoint identity does not appoint evaluator or promotion authority. Native replay binds actual evaluator settings via known built-in constructors or explicit checkpoint_configuration, suite/data snapshots, codec build/schema and supported context values/callbacks; opaque profiles refuse. External owner handles remain caller inputs. External promotion/frontier effects and service-checkpoint publication are separate atomic boundaries. Generic custom objectives, unsupported generator/stopping profiles and enabled diversity tracking refuse resume. Budget state supplies recorded accounting only; receipt/revision and provider cost-origin authority remain unavailable through the current middleware port."
 evidence = ["tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py", "tests/unit/scientist/methods/autotune/test_native_doe_factory.py"]
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+# Review covers exactly the five compatibility records below. The three native
+# aliases are public_stable at polisyos.scientist; the search/autotune children
+# retain their default internal classification. No B ledger API is classified here.
+# Inventory: architecture/public_surface/inventory.json at
+# 5eca5d0df09f3296aefe20a0797aa14837da01ff, blob f670668140d8c91a23d8ec32d53d2e021154d91d.
+# Independent static review: docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/public-inventory-independent-review.json
+# at 4a4475c78938883b45a59133fc7d4cfea410b064, blob 6a63df99257f6637d02eb3e2fb1ee04848918e7d.
+# Runtime/source verification and full release readiness remain separately scoped.
+public_surface_inventory_reviewed = true
 migration_docs = ["README.md"]
 
 [[compatibility_change]]

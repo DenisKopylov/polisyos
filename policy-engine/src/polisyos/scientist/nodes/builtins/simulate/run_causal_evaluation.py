@@ -17,7 +17,11 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry import method_accepts_input_contract
 from polisyos.foundry.data_plane import materialize_method_contract
-from polisyos.foundry.methods import MethodRegistry
+from polisyos.foundry.methods import (
+    MethodRegistry,
+    causal_worker_execution_context,
+    validate_source_bound_causal_worker_response,
+)
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -426,19 +430,11 @@ def _run_primary_causal_job(
     refs[role] = source
     bound_spec = spec.model_copy(update={"input_refs": refs})
     if is_dowhy:
-        from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
-            worker_execution_context,
-        )
-
-        with worker_execution_context(store=ctx.store, source_ref=source):
+        with causal_worker_execution_context(store=ctx.store, source_ref=source):
             result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
         if not result.issues and spec.method_params.get("execution_profile", "dowhy-014") == (
             "dowhy-014"
         ):
-            from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
-                validate_persisted_worker_response,
-            )
-
             if result.method_result_ref is None:
                 raise ValueError("selected DoWhy job has no persisted result")
             _reconcile_selected_causal_output(ctx=ctx, result=result)
@@ -449,7 +445,7 @@ def _run_primary_causal_job(
                 raise ValueError("selected DoWhy persisted/offered report mismatch")
             response = report.metadata.get("worker")
             if response is not None:
-                validate_persisted_worker_response(
+                validate_source_bound_causal_worker_response(
                     response=response,
                     state=observational_data,
                     store=ctx.store,

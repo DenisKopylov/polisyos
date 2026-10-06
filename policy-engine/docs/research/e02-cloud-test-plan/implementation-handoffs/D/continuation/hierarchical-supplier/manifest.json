@@ -7,7 +7,6 @@
   ],
   "closure_ids": [],
   "state": "proposed_unapplied_supplier_patch",
-  "appointed_next_owner": "A-W01 coordinator source owner; G reviews/ports accepted owner change",
   "source_sha": "13ba0882e684927f5a474268f20e71fcf43045ea",
   "source_tree": "211c0448131bf973c8f749bdfaf404d1d45aee6a",
   "destination_path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
@@ -23,7 +22,7 @@
   "existing_runtime_contract": "run forwards initial_context to parameter search but not structure seeds; tenant routing uses the existing security context while structure task_family/run_id still resolve from candidate defaults.",
   "proposed_behavior": "Pass the existing optional caller context through structure generation to resolve_transfer_context, preserving absent-context behavior.",
   "required_consumer_test": "Native red recipe invokes actual adapter/coordinator/registry seed reader and asserts supplied task_family/source run_id. No evaluator/GP fit required.",
-  "native_red_verdict": "UNRUN pending actual supported ordinary environment; source watchpoint is independently read, not a runtime PASS/FAIL.",
+  "native_red_verdict": "FAIL on f471b8143e2a841b4d1029ae78de472ac43fc88b: actual structure seed reader received registry_policy instead of supplied appointed_source_run; subsequent task_family assertion did not execute after first failure.",
   "apply_check": {
     "argv": [
       "git",
@@ -61,5 +60,10 @@
       "Ordered complete objective coordinate basis and source binding for the intended view"
     ],
     "not_established": "Default node producer appointment, independent source law and full objective basis are not supplied by a display label or observed row union."
-  }
+  },
+  "requested_canonical_owner": "A-W01 coordinator source owner; G reviews/ports accepted owner change",
+  "appointment_status": "not_established: canonical owner request is not an appointment or authority grant",
+  "native_red_source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "native_red_raw_output": "/tmp/e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/complete.txt",
+  "native_red_output_delivery": "Separate hierarchical-registry-evidence.json.xz lossless member, supplied in final D handoff; source patch remains unapplied."
 }

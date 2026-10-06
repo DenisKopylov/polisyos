@@ -1,0 +1,509 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B224",
+    "primary_bundle": "SCM-03",
+    "primary_tsv_owner": {
+      "finding_id": "B224",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-03",
+      "source_bundle_ids": "SCM-03",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B224",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5445,
+          5458
+        ],
+        "bytes": 3959,
+        "sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+        "title": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память\n\n**Происхождение и приоритет:** C21-09. Высокий для проходимости atomic-запроса; оптимизация после проверки графового смысла. Основание: `_simulate_samples` и контраст с twin-path. [C21.R05, C21.R07]\n\n**Проблема.** В каждом прогоне сначала собираются родители и вычисляется естественное значение узла; затем для treatment применяется intervention. Даже идеальное do, полностью заменяющее механизм, поэтому зависит от исправности и стоимости старого механизма. Кроме того, цикл проходит весь граф и сохраняет массивы всех вершин, хотя обычному запросу часто нужен только заданный исход.\n\n**EXEC01–EXEC03.** При do(X=2), Y=1+3X и некорректном старом intercept X sampler поднимает ValueError до применения действия. Вычисление Y с уже заданным X правильно даёт 7. Для X,Y и двадцати независимых посторонних корней на десяти реализациях выполняется 220 вызовов node-sampler и сохраняется 220 значений. Для известного ограниченного запроса достаточно десяти вычислений Y; результат тот же 7. Это число вызовов и удерживаемых значений, не измеренное ускорение большого приложения.\n\n**Исправление.** На основе правильной graph-surgery заранее подготовить активный план конкретного запроса. Для perfect intervention подставлять действие до вызова заменённого механизма. Обрабатывать необходимые предковые зависимости и фактические условия, сохранять full-trace только при действительной потребности. Кэшировать план по неизменяемому графу и семантике запроса, а не по имени outcome без контекста.\n\nОбычный сдвиг требует естественного значения: контроль current5+shift2 даёт7. Поэтому перенос treatment-ветви должен учитывать тип операции. Для counterfactual нельзя отсечь нужных предков factual-evidence, а для зависимых U — скрытые общие причины. Уплотнение плана не должно менять поток случайности незаметно: полезны логические под-потоки по узлу и реплике.\n\n**Положительная граница.** Twin-loop уже не вызывает естественный механизм treatment при явном действии, то есть соседний подход существует. Единичная ошибка старого механизма в опыте допустима в generic fixture; проверка более строгого producer может предотвратить её раньше. Она всё равно показывает ненужную зависимость perfect do от заменяемого вычисления.\n\n"
+      }
+    ],
+    "criterion_short_ru": "Surgical planning bypasses intervened natural mechanisms, preserves declared comparators",
+    "actual_consumer": "GCMQuery surgical planning/sampler → CAS result reader",
+    "source_scope": "Perfect do bypasses replaced natural mechanism and prunes irrelevant work safely",
+    "oracle_and_negative": "Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Perfect do bypasses replaced natural mechanism and prunes irrelevant work safely. Independent oracle/retained-marker negative: Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Static declared law/planning only.",
+    "separate_unavailable_inputs_or_authority": "Temporal mismatch refuses; no unsupported law authority.",
+    "limit_next_owner_short_ru": "Static declared law/planning only.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "branch": "refs/heads/codex/e02-F-graph-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "table": "per_id",
+      "per_id": "B224"
+    },
+    "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": "scm-frozen/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.stdout.txt"
+      },
+      {
+        "index": 1,
+        "check_id": "scm-frozen/emp01",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt"
+      },
+      {
+        "index": 2,
+        "check_id": "scm-frozen/gcm-parent",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.stdout.txt"
+      },
+      {
+        "index": 3,
+        "check_id": "scm-frozen/public-abi",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.stdout.txt"
+      },
+      {
+        "index": 4,
+        "check_id": "scm-frozen/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.stdout.txt"
+      },
+      {
+        "index": 5,
+        "check_id": "scm-frozen/semantics",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.stdout.txt"
+      },
+      {
+        "index": 6,
+        "check_id": "scm-frozen/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 7,
+        "check_id": "scm-frozen/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.stdout.txt"
+      },
+      {
+        "index": 8,
+        "check_id": "scm-final1e/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.stdout.txt"
+      },
+      {
+        "index": 9,
+        "check_id": "scm-final1e/gcm-parent-and-custody",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.stdout.txt"
+      },
+      {
+        "index": 10,
+        "check_id": "scm-final1e/original-scm-cards",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.stdout.txt"
+      },
+      {
+        "index": 11,
+        "check_id": "scm-final1e/public-abi",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.stdout.txt"
+      },
+      {
+        "index": 12,
+        "check_id": "scm-final1e/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.stdout.txt"
+      },
+      {
+        "index": 13,
+        "check_id": "scm-final1e/semantics",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.stdout.txt"
+      },
+      {
+        "index": 14,
+        "check_id": "scm-final1e/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 15,
+        "check_id": "scm-final1e/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.stdout.txt"
+      },
+      {
+        "index": 16,
+        "check_id": "scm-final0b/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.stdout.txt"
+      },
+      {
+        "index": 17,
+        "check_id": "scm-final0b/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 18,
+        "check_id": "scm-final0b/public-abi",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.stdout.txt"
+      },
+      {
+        "index": 19,
+        "check_id": "scm-final6d/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      },
+      {
+        "index": 20,
+        "check_id": "scm-final6d/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 21,
+        "check_id": "scm-final6d/public-abi",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.stdout.txt"
+      },
+      {
+        "index": 22,
+        "check_id": "scm-final6d/worker-helper-projection",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.stdout.txt"
+      },
+      {
+        "index": 23,
+        "check_id": "owned-import-denominator",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/owned-import-denominator.json"
+      },
+      {
+        "index": 24,
+        "check_id": "docs-plan",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-plan.json"
+      },
+      {
+        "index": 25,
+        "check_id": "own-generated-schemas",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/own-generated-schemas.json"
+      },
+      {
+        "index": 26,
+        "check_id": "public-generated-companions",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-generated-companions.json"
+      },
+      {
+        "index": 27,
+        "check_id": "public-consumer-census",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-consumer-census.json"
+      },
+      {
+        "index": 28,
+        "check_id": "worker-math-profile-equivalence",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-math-profile-equivalence.json"
+      },
+      {
+        "index": 29,
+        "check_id": "independent-d88-native",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.stdout.txt"
+      },
+      {
+        "index": 30,
+        "check_id": "independent-d88-peer-custody",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.stdout.txt"
+      },
+      {
+        "index": 31,
+        "check_id": "independent-1e-native",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.stdout.txt"
+      },
+      {
+        "index": 32,
+        "check_id": "independent-1e-custody-correction",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.stdout.txt"
+      },
+      {
+        "index": 33,
+        "check_id": "independent-facade-import-delta",
+        "outcome": "PASS",
+        "target_sha": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-final-facade-import-delta-review.json"
+      },
+      {
+        "index": 34,
+        "check_id": "baseline-production-invocation",
+        "outcome": "ERROR",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "prior graph handoff records empty stdout and absent requested receipt; completed diagnostic UNRUN"
+      },
+      {
+        "index": 35,
+        "check_id": "inprocess-optional-backends",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "Marker omissions are not a positive backend witness; actual supported subprocess profile has separate defining receipt"
+      },
+      {
+        "index": 36,
+        "check_id": "schema_docs-docs_accuracy-strict_docs_build",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "finding_id": "B224",
+      "bundle_id": "SCM-03",
+      "criterion": "Perfect do bypasses replaced natural mechanism and prunes irrelevant nodes while retaining factual/shared-noise dependencies",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "originalSCM01/03 13PASS + semantics15 full/pruned/reordered graph seed oracle",
+      "negative_or_removal": "Broken oldnaturalX bypassed bydo2→Y7; shift5+2 stillrequiresnatural5; irrelevant20roots not executed; marker-kept full/pruned commonrow draws agree.",
+      "limit_and_next_owner": "Static declared law/planning profile; temporal/static mismatch returns typed refusal.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-03.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B224.json"
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 7,
+        "receipt_ref": {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        "json_pointer": "/per_id/9",
+        "complete_owner_entry": {
+          "finding_id": "B224",
+          "bundle_id": "SCM-03",
+          "criterion": "Perfect do bypasses replaced natural mechanism and prunes irrelevant nodes while retaining factual/shared-noise dependencies",
+          "check": "PASS",
+          "outcome": "closed",
+          "oracle_and_deciding_checks": "originalSCM01/03 13PASS + semantics15 full/pruned/reordered graph seed oracle",
+          "negative_or_removal": "Broken oldnaturalX bypassed bydo2→Y7; shift5+2 stillrequiresnatural5; irrelevant20roots not executed; marker-kept full/pruned commonrow draws agree.",
+          "limit_and_next_owner": "Static declared law/planning profile; temporal/static mismatch returns typed refusal.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-03.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B224.json"
+        }
+      },
+      {
+        "registry_index": 18,
+        "receipt_ref": {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+          "bytes": 131648,
+          "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570"
+        },
+        "json_pointer": "/per_id/B224",
+        "complete_owner_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+          "checks": [
+            "scm-version-frozen-native",
+            "scm-version-frozen-owner-check"
+          ],
+          "limits": [
+            "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+          ]
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      6,
+      7,
+      18,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "scm_version",
+        "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+        "bytes": 131648,
+        "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+        "implementation_commits": [
+          "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "e94a40e78416b7392edf96f1f24c7846a808c8d0"
+        ],
+        "candidate_tree_sha": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Static declared law/planning only.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots",
+      "source_scope": "Perfect do bypasses replaced natural mechanism and prunes irrelevant work safely",
+      "actual_consumer": "GCMQuery surgical planning/sampler → CAS result reader",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Temporal mismatch refuses; no unsupported law authority.",
+      "criterion_short_ru": "Surgical planning bypasses intervened natural mechanisms, preserves declared comparators",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Perfect do bypasses replaced natural mechanism and prunes irrelevant work safely. Independent oracle/retained-marker negative: Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B224"
+        ]
+      },
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B224"
+        ],
+        "json_pointer": "/per_id/9",
+        "complete_deciding_entry": {
+          "finding_id": "B224",
+          "bundle_id": "SCM-03",
+          "criterion": "Perfect do bypasses replaced natural mechanism and prunes irrelevant nodes while retaining factual/shared-noise dependencies",
+          "check": "PASS",
+          "outcome": "closed",
+          "oracle_and_deciding_checks": "originalSCM01/03 13PASS + semantics15 full/pruned/reordered graph seed oracle",
+          "negative_or_removal": "Broken oldnaturalX bypassed bydo2→Y7; shift5+2 stillrequiresnatural5; irrelevant20roots not executed; marker-kept full/pruned commonrow draws agree.",
+          "limit_and_next_owner": "Static declared law/planning profile; temporal/static mismatch returns typed refusal.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-03.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B224.json"
+        }
+      },
+      {
+        "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+        "bytes": 131648,
+        "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+        "git_blob": "0b1ef4b091d7898a7b37c52cb6c38b6aa7d66861",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B224"
+        ],
+        "json_pointer": "/per_id/B224",
+        "complete_deciding_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+          "checks": [
+            "scm-version-frozen-native",
+            "scm-version-frozen-owner-check"
+          ],
+          "limits": [
+            "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+          ]
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/20",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

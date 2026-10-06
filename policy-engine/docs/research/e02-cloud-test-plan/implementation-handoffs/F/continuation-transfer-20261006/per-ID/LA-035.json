@@ -1,0 +1,339 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "LA-035",
+    "primary_bundle": "ECO-01",
+    "primary_tsv_owner": {
+      "finding_id": "LA-035",
+      "unit": "F",
+      "docx_analytical_package": "P36",
+      "source_closure_owner": "ECO-01",
+      "source_bundle_ids": "ECO-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "LA-035",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          2066,
+          2102
+        ],
+        "bytes": 7176,
+        "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+        "title": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца\n\n**R — перемещение по смысловой роли с отдельной идентичностью objective**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/_internal/loss.py`\n\n`src/polisyos/foundry/methods/loss.py`\n\n**Статус.** Конкретная экономическая функция и её legacy facade подтверждены; найден consumer-test. Готовая эквивалентная замена современным economic objective не установлена.\n\n**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]\n\nCharacterization уточняет смысл самого критерия. До бюджетного штрафа он равен `-mean(income) / max(mean(abs(income)), 1)`. При неотрицательных доходах и среднем не меньше единицы это `-1`, независимо от абсолютного уровня дохода. На `[1000,2000,3000]`, десятикратном наборе и `[2,2,2]` получен тот же результат; локальный градиент в первом случае нулевой в пределах float32 tolerance. Это **математическое свойство нормализации**, не доказательство, что любой пользователь хотел максимизировать ненормированный доход. Но оно не позволяет безоговорочно называть функцию общим доходным optimization objective.\n\nБюджетный штраф и invalid-input checks действительно работают в проверенных локальных случаях: при balance `-2000` и min `-1000` итог `9`, при NaN-входе — infinity. Существующий repository-test проверяет finiteness и non-finite case, не сохранение ранжирования положительных доходов.\n\n**Что сохранить.** Определённый baseline-критерий, его sign/scale regimes, бюджетный штраф, numeric guardrails, поддержанные callers. Сохранить тесты численной защиты: переезд предметного loss не означает удаление общего `finite_loss_or_inf` или его публичного runtime facade.\n\n**Куда перенести / с чем объединить.** Семантический адрес — действующий economic objective-владелец `foundry/plugins/economics`. Предлагаемый `baselines.py` с явно названным GlobalState-profile — новый файл, не существующая готовая замена. При малом объёме допустим отдельный явно типизированный baseline в существующем `objectives.py`, если это не смешивает ABI и не утяжеляет импорт. Не переносить функцию в глобальный Common.\n\nПрочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]\n\n**Порядок миграции.** Сначала назвать и зафиксировать текущую формулу как baseline, затем найти все source/config/FQN consumers и перенести тело без изменения численного поведения. Для подтверждённого требования максимизировать доход ввести отдельный objective/version; исправление ранжирования не маскировать под переименование файла. Если полный census покажет, что функция нужна исключительно numeric fixtures, поместить соответствующий пример у тестов или benchmark-владельца, сохранив проверяемую numeric обязанность. Сам факт двух тестов не разрешает уже сейчас удалить функцию.\n\n**Фактическая проверка.** r04-P18–P22 исполняют точный loss-blob с настоящим JAX 0.9.0.1; state — простая fixture с нужными полями, `finite_loss_or_inf` — явно обозначенный identity helper. Поэтому проверены собственная формула и invalid-ветка loss, **не native GlobalState, JIT workflow или реальная реализация numeric guardrail**. Нативный autodiff использован только для выбранного локального input.\n\n**Приёмка.** Положительные/нулевые/отрицательные и смешанные доходы, размер популяции, scales, min_balance, breach, NaN/Inf; native State и guardrail, JIT/grad там, где это обещано. Различать equivalent relocation и новый критерий выбора политик. Проверить import side effects выбранного economic package.\n\n**Приоритет.** Умеренная цена, высокая семантическая ясность. Уточнение профиля и устранение misleading generic address можно отделить от содержательной переработки цели.\n\n**Граница вывода.** Не установлен production optimizer, фактически использующий этот loss, и не доказана потеря дохода в реальном решении. Полный caller census не выполнялся. Нормализация не удаляется лишь потому, что найден более богатый objective API.\n\n**Основания:** E106–E110. Локальные проверки: r04-P18–P22.\n\n<!-- PAGEBREAK -->\n"
+      }
+    ],
+    "criterion_short_ru": "Historical normalized-income loss replay is measured; actual optimizer and normative intent packet held",
+    "actual_consumer": "economics.baselines.normalized_income_budget_loss → two legacy aliases → nativeGlobalState/real guardrail/JIT/grad; actual maintained optimizer caller not supplied",
+    "source_scope": "Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate",
+    "oracle_and_negative": "532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate. Independent oracle/retained-marker negative: 532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "UNRUN",
+    "outcome": "held",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "held",
+    "technical_historical_baseline_profile_outcome": "closed",
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "held",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Technical historical baseline/replay/aliases profile is measured, but latest user continuation requires actual optimizer and semantic intent packet. Missing unit/population/time/sign intent and named optimizer keep whole LA035 held per economics owner.",
+    "separate_unavailable_inputs_or_authority": "No actual production optimizer, normative unit/population/time/sign intent owner packet, policy objective or full external retirement established.",
+    "limit_next_owner_short_ru": "Technical historical baseline/replay/aliases profile is measured, but latest user continuation requires actual optimizer and semantic intent packet. Missing unit/population/time/sign intent and named optimizer keep whole LA035 held per economics owner.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "branch": "refs/heads/codex/e02-F-economics-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+      "bytes": 109240,
+      "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+      "table": "finding_outcomes",
+      "per_id": "LA-035"
+    },
+    "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+    "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.txt"
+      },
+      {
+        "index": 1,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.txt"
+      },
+      {
+        "index": 2,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-source-lint-final-candidate.txt"
+      },
+      {
+        "index": 3,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-source-format-final-candidate.txt"
+      },
+      {
+        "index": 4,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-release-fragment-final-candidate.txt"
+      },
+      {
+        "index": 5,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-architecture-final-candidate.txt"
+      },
+      {
+        "index": 6,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-production-invocation-base.txt"
+      },
+      {
+        "index": 7,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.txt"
+      },
+      {
+        "index": 8,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.txt"
+      },
+      {
+        "index": 9,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.txt"
+      },
+      {
+        "index": 10,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.txt"
+      },
+      {
+        "index": 11,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.txt"
+      },
+      {
+        "index": 12,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-native.stdout"
+      },
+      {
+        "index": 13,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-controls.stdout"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "LA-035",
+      "bundle": "ECO-01",
+      "state": "held",
+      "finding_closure": false,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-035",
+          "document": "LA_r09",
+          "lines": [
+            2066,
+            2102
+          ],
+          "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+          "card": "ECO-01"
+        }
+      ],
+      "method_decision": "F-M14",
+      "established": [
+        "Historical normalized_income_budget_loss is canonical at economics.baselines; both legacy policy_loss_fn paths retain function identity, formula and numeric guardrails.",
+        "Native GlobalState cases cover population/zero/subunit/unit/large/signed income, budget/min_balance/breach, NaN/Inf, JIT and gradient; known nonnegative mean>=1 income score remains -1 under positive scaling.",
+        "Complete bounded tracked code/config lexical census and replay supplied; no literal production optimizer caller established. No absence-based facade retirement."
+      ],
+      "not_established": [
+        "Production optimizer invocation, persisted external/config/FQN callers or full dynamic caller retirement.",
+        "Wealth array masquerading as income is not unit-typed by bare GlobalState arrays. EconomicState lacks government_balance and is refused by contract error; this is not authority-grade unit admission.",
+        "An approved scale-sensitive objective or normative economic judgment, loss of real production income, modern EconomicState drop-in successor."
+      ],
+      "next_owner": "Principal/economic semantic owner chooses objective meaning; G and C trace actual local optimizer/config/external callers at532 and admit their typed units/time inputs before changing or retiring aliases."
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 15,
+        "receipt_ref": {
+          "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+          "bytes": 127652,
+          "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162"
+        },
+        "json_pointer": "/per_id_outcomes/2",
+        "complete_owner_entry": {
+          "finding_id": "LA-035",
+          "bundle_id": "ECO-01",
+          "outcome": "UNRUN",
+          "finding_state": "held",
+          "original_criterion_ref": {
+            "finding_id": "LA-035",
+            "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              2066,
+              2102
+            ],
+            "bytes": 7176,
+            "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+            "original_full_criterion": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца\n\n**R — перемещение по смысловой роли с отдельной идентичностью objective**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/_internal/loss.py`\n\n`src/polisyos/foundry/methods/loss.py`\n\n**Статус.** Конкретная экономическая функция и её legacy facade подтверждены; найден consumer-test. Готовая эквивалентная замена современным economic objective не установлена.\n\n**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]\n\nCharacterization уточняет смысл самого критерия. До бюджетного штрафа он равен `-mean(income) / max(mean(abs(income)), 1)`. При неотрицательных доходах и среднем не меньше единицы это `-1`, независимо от абсолютного уровня дохода. На `[1000,2000,3000]`, десятикратном наборе и `[2,2,2]` получен тот же результат; локальный градиент в первом случае нулевой в пределах float32 tolerance. Это **математическое свойство нормализации**, не доказательство, что любой пользователь хотел максимизировать ненормированный доход. Но оно не позволяет безоговорочно называть функцию общим доходным optimization objective.\n\nБюджетный штраф и invalid-input checks действительно работают в проверенных локальных случаях: при balance `-2000` и min `-1000` итог `9`, при NaN-входе — infinity. Существующий repository-test проверяет finiteness и non-finite case, не сохранение ранжирования положительных доходов.\n\n**Что сохранить.** Определённый baseline-критерий, его sign/scale regimes, бюджетный штраф, numeric guardrails, поддержанные callers. Сохранить тесты численной защиты: переезд предметного loss не означает удаление общего `finite_loss_or_inf` или его публичного runtime facade.\n\n**Куда перенести / с чем объединить.** Семантический адрес — действующий economic objective-владелец `foundry/plugins/economics`. Предлагаемый `baselines.py` с явно названным GlobalState-profile — новый файл, не существующая готовая замена. При малом объёме допустим отдельный явно типизированный baseline в существующем `objectives.py`, если это не смешивает ABI и не утяжеляет импорт. Не переносить функцию в глобальный Common.\n\nПрочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]\n\n**Порядок миграции.** Сначала назвать и зафиксировать текущую формулу как baseline, затем найти все source/config/FQN consumers и перенести тело без изменения численного поведения. Для подтверждённого требования максимизировать доход ввести отдельный objective/version; исправление ранжирования не маскировать под переименование файла. Если полный census покажет, что функция нужна исключительно numeric fixtures, поместить соответствующий пример у тестов или benchmark-владельца, сохранив проверяемую numeric обязанность. Сам факт двух тестов не разрешает уже сейчас удалить функцию.\n\n**Фактическая проверка.** r04-P18–P22 исполняют точный loss-blob с настоящим JAX 0.9.0.1; state — простая fixture с нужными полями, `finite_loss_or_inf` — явно обозначенный identity helper. Поэтому проверены собственная формула и invalid-ветка loss, **не native GlobalState, JIT workflow или реальная реализация numeric guardrail**. Нативный autodiff использован только для выбранного локального input.\n\n**Приёмка.** Положительные/нулевые/отрицательные и смешанные доходы, размер популяции, scales, min_balance, breach, NaN/Inf; native State и guardrail, JIT/grad там, где это обещано. Различать equivalent relocation и новый критерий выбора политик. Проверить import side effects выбранного economic package.\n\n**Приоритет.** Умеренная цена, высокая семантическая ясность. Уточнение профиля и устранение misleading generic address можно отделить от содержательной переработки цели.\n\n**Граница вывода.** Не установлен production optimizer, фактически использующий этот loss, и не доказана потеря дохода в реальном решении. Полный caller census не выполнялся. Нормализация не удаляется лишь потому, что найден более богатый objective API.\n\n**Основания:** E106–E110. Локальные проверки: r04-P18–P22.\n\n<!-- PAGEBREAK -->\n"
+          },
+          "check_indices": [
+            0,
+            6,
+            15
+          ],
+          "consumer": "methods.loss.policy_loss_fn/internal alias → economics.baselines.normalized_income_budget_loss; no named production optimizer admitted",
+          "recommendation": "Historical formula, aliases, native state, JIT/grad/guardrails, all-entry population and -1 positive scales pass. New optimizer intent/units/population/time/sign are not established; exact minimum owner packet required. No new welfare convention."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      3,
+      15,
+      16,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "eco",
+        "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+        "bytes": 127652,
+        "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+        "implementation_commits": [
+          "964c76dad1dc9f56bd89e2216bded373f0e66883",
+          "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3"
+        ],
+        "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+    "next_owner": "@foundry-owners objective intent + named optimizer consumer",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Technical historical baseline/replay/aliases profile is measured, but latest user continuation requires actual optimizer and semantic intent packet. Missing unit/population/time/sign intent and named optimizer keep whole LA035 held per economics owner.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "held",
+      "next_owner": "@foundry-owners objective intent + named optimizer consumer",
+      "oracle_and_negative": "532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt",
+      "source_scope": "Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate",
+      "actual_consumer": "economics.baselines.normalized_income_budget_loss → two legacy aliases → nativeGlobalState/real guardrail/JIT/grad; actual maintained optimizer caller not supplied",
+      "check": "UNRUN",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "No actual production optimizer, normative unit/population/time/sign intent owner packet, policy objective or full external retirement established.",
+      "criterion_short_ru": "Historical normalized-income loss replay is measured; actual optimizer and normative intent packet held",
+      "technical_original_criterion_recommendation": "held",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate. Independent oracle/retained-marker negative: 532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+        "git_blob": "a32c2ff95bbb0ae5de30003b140110521b63f625",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-035"
+        ]
+      },
+      {
+        "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+        "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+        "bytes": 127652,
+        "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+        "git_blob": "f238b5b306f772e9faea07bdaef474d0ed4f5e67",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-035"
+        ],
+        "json_pointer": "/per_id_outcomes/2",
+        "complete_deciding_entry": {
+          "finding_id": "LA-035",
+          "bundle_id": "ECO-01",
+          "outcome": "UNRUN",
+          "finding_state": "held",
+          "original_criterion_ref": {
+            "finding_id": "LA-035",
+            "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              2066,
+              2102
+            ],
+            "bytes": 7176,
+            "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+            "original_full_criterion": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца\n\n**R — перемещение по смысловой роли с отдельной идентичностью objective**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/_internal/loss.py`\n\n`src/polisyos/foundry/methods/loss.py`\n\n**Статус.** Конкретная экономическая функция и её legacy facade подтверждены; найден consumer-test. Готовая эквивалентная замена современным economic objective не установлена.\n\n**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]\n\nCharacterization уточняет смысл самого критерия. До бюджетного штрафа он равен `-mean(income) / max(mean(abs(income)), 1)`. При неотрицательных доходах и среднем не меньше единицы это `-1`, независимо от абсолютного уровня дохода. На `[1000,2000,3000]`, десятикратном наборе и `[2,2,2]` получен тот же результат; локальный градиент в первом случае нулевой в пределах float32 tolerance. Это **математическое свойство нормализации**, не доказательство, что любой пользователь хотел максимизировать ненормированный доход. Но оно не позволяет безоговорочно называть функцию общим доходным optimization objective.\n\nБюджетный штраф и invalid-input checks действительно работают в проверенных локальных случаях: при balance `-2000` и min `-1000` итог `9`, при NaN-входе — infinity. Существующий repository-test проверяет finiteness и non-finite case, не сохранение ранжирования положительных доходов.\n\n**Что сохранить.** Определённый baseline-критерий, его sign/scale regimes, бюджетный штраф, numeric guardrails, поддержанные callers. Сохранить тесты численной защиты: переезд предметного loss не означает удаление общего `finite_loss_or_inf` или его публичного runtime facade.\n\n**Куда перенести / с чем объединить.** Семантический адрес — действующий economic objective-владелец `foundry/plugins/economics`. Предлагаемый `baselines.py` с явно названным GlobalState-profile — новый файл, не существующая готовая замена. При малом объёме допустим отдельный явно типизированный baseline в существующем `objectives.py`, если это не смешивает ABI и не утяжеляет импорт. Не переносить функцию в глобальный Common.\n\nПрочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]\n\n**Порядок миграции.** Сначала назвать и зафиксировать текущую формулу как baseline, затем найти все source/config/FQN consumers и перенести тело без изменения численного поведения. Для подтверждённого требования максимизировать доход ввести отдельный objective/version; исправление ранжирования не маскировать под переименование файла. Если полный census покажет, что функция нужна исключительно numeric fixtures, поместить соответствующий пример у тестов или benchmark-владельца, сохранив проверяемую numeric обязанность. Сам факт двух тестов не разрешает уже сейчас удалить функцию.\n\n**Фактическая проверка.** r04-P18–P22 исполняют точный loss-blob с настоящим JAX 0.9.0.1; state — простая fixture с нужными полями, `finite_loss_or_inf` — явно обозначенный identity helper. Поэтому проверены собственная формула и invalid-ветка loss, **не native GlobalState, JIT workflow или реальная реализация numeric guardrail**. Нативный autodiff использован только для выбранного локального input.\n\n**Приёмка.** Положительные/нулевые/отрицательные и смешанные доходы, размер популяции, scales, min_balance, breach, NaN/Inf; native State и guardrail, JIT/grad там, где это обещано. Различать equivalent relocation и новый критерий выбора политик. Проверить import side effects выбранного economic package.\n\n**Приоритет.** Умеренная цена, высокая семантическая ясность. Уточнение профиля и устранение misleading generic address можно отделить от содержательной переработки цели.\n\n**Граница вывода.** Не установлен production optimizer, фактически использующий этот loss, и не доказана потеря дохода в реальном решении. Полный caller census не выполнялся. Нормализация не удаляется лишь потому, что найден более богатый objective API.\n\n**Основания:** E106–E110. Локальные проверки: r04-P18–P22.\n\n<!-- PAGEBREAK -->\n"
+          },
+          "check_indices": [
+            0,
+            6,
+            15
+          ],
+          "consumer": "methods.loss.policy_loss_fn/internal alias → economics.baselines.normalized_income_budget_loss; no named production optimizer admitted",
+          "recommendation": "Historical formula, aliases, native state, JIT/grad/guardrails, all-entry population and -1 positive scales pass. New optimizer intent/units/population/time/sign are not established; exact minimum owner packet required. No new welfare convention."
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/33",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

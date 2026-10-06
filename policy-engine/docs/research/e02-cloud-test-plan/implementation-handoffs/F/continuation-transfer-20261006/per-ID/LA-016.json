@@ -1,0 +1,603 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "LA-016",
+    "primary_bundle": "CAU-05",
+    "primary_tsv_owner": {
+      "finding_id": "LA-016",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-05",
+      "source_bundle_ids": "CAU-01,CAU-05",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "LA-016",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          513,
+          539
+        ],
+        "bytes": 3048,
+        "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+        "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов\n\n**Слияние / разделение ответственности**\n\n**Статус.** Deprecated агрегатор подтверждён; новые классы всё ещё зависят от него.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/did.py#DifferenceInDifferences`\n\n**Что установлено и почему это legacy-кандидат.** DifferenceInDifferences выбирает standard/staggered по флагу и переводит старые slot names outcome_panel/treatment_indicator. Уже есть StandardDifferenceInDifferences и StaggeredDifferenceInDifferences, но они читают metadata старого класса; общие _run_* helpers тоже берут assumptions из него. Удаление «только deprecated класса» сломает живые пути.\n\n**Что сохранить.** Оба numerical helpers, общий контракт панели, assumptions/citations/equations и alias-mapping старых slots для объявленного перехода. Dedicated methods — более точная интерфейсная декомпозиция, не доказательство исправленной статистики.\n\n**Куда перенести / с чем объединить.** Существующие dedicated classes в том же did.py. Общие определения поднять в независимые module constants либо маленький adjacent shared module только при оправданном размере. Legacy class оставить временным адаптером, затем снять регистрацию.\n\n**Порядок миграции.** Сначала отвязать metadata от deprecated class; мигрировать old FQN, флаг staggered и имена slots в явный dedicated request. Сохранить старое чтение frozen plans по утверждённой версии. Не менять численный estimator в той же relocation-правке.\n\n**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.\n\n**Приоритет.** Высокая отдача при средней цене; хороший ограниченный consolidation-пакет.\n\n**Граница вывода.** Это не основание удалять did.py целиком. Переход к dedicated class не исправляет сам собой ранее замеченные inferential-дефекты.\n\n**Основания:** E29.\n\n<!-- PAGEBREAK -->\n"
+      },
+      {
+        "criterion_id": "LA-016",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          513,
+          539
+        ],
+        "bytes": 3048,
+        "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+        "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов\n\n**Слияние / разделение ответственности**\n\n**Статус.** Deprecated агрегатор подтверждён; новые классы всё ещё зависят от него.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/did.py#DifferenceInDifferences`\n\n**Что установлено и почему это legacy-кандидат.** DifferenceInDifferences выбирает standard/staggered по флагу и переводит старые slot names outcome_panel/treatment_indicator. Уже есть StandardDifferenceInDifferences и StaggeredDifferenceInDifferences, но они читают metadata старого класса; общие _run_* helpers тоже берут assumptions из него. Удаление «только deprecated класса» сломает живые пути.\n\n**Что сохранить.** Оба numerical helpers, общий контракт панели, assumptions/citations/equations и alias-mapping старых slots для объявленного перехода. Dedicated methods — более точная интерфейсная декомпозиция, не доказательство исправленной статистики.\n\n**Куда перенести / с чем объединить.** Существующие dedicated classes в том же did.py. Общие определения поднять в независимые module constants либо маленький adjacent shared module только при оправданном размере. Legacy class оставить временным адаптером, затем снять регистрацию.\n\n**Порядок миграции.** Сначала отвязать metadata от deprecated class; мигрировать old FQN, флаг staggered и имена slots в явный dedicated request. Сохранить старое чтение frozen plans по утверждённой версии. Не менять численный estimator в той же relocation-правке.\n\n**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.\n\n**Приоритет.** Высокая отдача при средней цене; хороший ограниченный consolidation-пакет.\n\n**Граница вывода.** Это не основание удалять did.py целиком. Переход к dedicated class не исправляет сам собой ранее замеченные inferential-дефекты.\n\n**Основания:** E29.\n\n<!-- PAGEBREAK -->\n"
+      }
+    ],
+    "criterion_short_ru": "Maintained dedicated Standard DiD FQN/flags/slots/request metadata migration; explicit historical replay",
+    "actual_consumer": "Maintained G2 request candidate → dedicated standardFQN → actual registry/dispatcher/CAS; declared historical direct adapter",
+    "source_scope": "Dedicated DiD metadata/callers/flags/slots and default-registry retirement with historical replay",
+    "oracle_and_negative": "0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Dedicated DiD metadata/callers/flags/slots and default-registry retirement with historical replay. Independent oracle/retained-marker negative: 0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Bounded supported maintained window, historical direct-import replay kept explicit.",
+    "separate_unavailable_inputs_or_authority": "Unenumerated external dynamic/frozen inputs require owner packet, not universal criterion.",
+    "limit_next_owner_short_ru": "Bounded supported maintained window, historical direct-import replay kept explicit.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "branch": "refs/heads/codex/e02-F-cau-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "table": "per_finding",
+      "per_id": "LA-016"
+    },
+    "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 1,
+        "check_id": "published-native",
+        "outcome": "PASS",
+        "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json"
+      },
+      {
+        "index": 2,
+        "check_id": "head-caller-native",
+        "outcome": "PASS",
+        "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stdout.txt.json"
+      },
+      {
+        "index": 10,
+        "check_id": "published-benchmark-removal",
+        "outcome": "FAIL",
+        "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stdout.txt.json"
+      },
+      {
+        "index": 17,
+        "check_id": "head-caller-census",
+        "outcome": "PASS",
+        "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stdout.txt.json"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "property": "Independent dedicated metadata, default-registry retirement and exact old-slot historical replay; maintained two real benchmark callers migrated to dedicated standard owner.",
+      "selectors": [
+        "test_actual_registry_retirement_old_slots_dispatch_and_fresh_cas",
+        "test_dedicated_metadata_and_estimator_survive_legacy_metadata_replacement",
+        "test_maintained_benchmark_callers_execute_dedicated_owner",
+        "test_cau_05_legacy_staggered_slots_match_dedicated_request"
+      ],
+      "checks": [
+        "published-native",
+        "head-caller-native",
+        "head-caller-census",
+        "published-benchmark-removal"
+      ],
+      "negative": "Real stale FQN resolution fails; metadata poison preserves dedicated calculation; retired-producer poison and caller-binding removal discriminate live caller dependency.",
+      "limits": "Direct-import historical adapter intentionally retained; full original class retirement and external frozen-plan/supported-import census remain limited pending G. Metadata/runtime ownership already present on base is verified, not claimed wholly newly implemented.",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-016",
+          "document": "LA_r09",
+          "lines": [
+            513,
+            539
+          ],
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "card": "CAU-01"
+        },
+        {
+          "criterion_id": "LA-016",
+          "document": "LA_r09",
+          "lines": [
+            513,
+            539
+          ],
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "card": "CAU-05"
+        }
+      ],
+      "method_decision": "F-M4",
+      "native_outcome": "PASS",
+      "finding_state": "limited",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          513,
+          539
+        ],
+        "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+        "exact_acceptance_text": "**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.",
+        "full_card_text": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов\n\n**Слияние / разделение ответственности**\n\n**Статус.** Deprecated агрегатор подтверждён; новые классы всё ещё зависят от него.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/did.py#DifferenceInDifferences`\n\n**Что установлено и почему это legacy-кандидат.** DifferenceInDifferences выбирает standard/staggered по флагу и переводит старые slot names outcome_panel/treatment_indicator. Уже есть StandardDifferenceInDifferences и StaggeredDifferenceInDifferences, но они читают metadata старого класса; общие _run_* helpers тоже берут assumptions из него. Удаление «только deprecated класса» сломает живые пути.\n\n**Что сохранить.** Оба numerical helpers, общий контракт панели, assumptions/citations/equations и alias-mapping старых slots для объявленного перехода. Dedicated methods — более точная интерфейсная декомпозиция, не доказательство исправленной статистики.\n\n**Куда перенести / с чем объединить.** Существующие dedicated classes в том же did.py. Общие определения поднять в независимые module constants либо маленький adjacent shared module только при оправданном размере. Legacy class оставить временным адаптером, затем снять регистрацию.\n\n**Порядок миграции.** Сначала отвязать metadata от deprecated class; мигрировать old FQN, флаг staggered и имена slots в явный dedicated request. Сохранить старое чтение frozen plans по утверждённой версии. Не менять численный estimator в той же relocation-правке.\n\n**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.\n\n**Приоритет.** Высокая отдача при средней цене; хороший ограниченный consolidation-пакет.\n\n**Граница вывода.** Это не основание удалять did.py целиком. Переход к dedicated class не исправляет сам собой ранее замеченные inferential-дефекты.\n\n**Основания:** E29.\n\n<!-- PAGEBREAK -->\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "source_criterion_outcome": "limited",
+      "decision_reason": "Limited: actual dedicated metadata/default-registry retirement/old-slot replay and both enumerated maintained benchmark caller cutovers pass, but the full original supported import/FQN/frozen-plan migration denominator is not admitted. The historical direct-import adapter remains intentionally readable; no class-name proxy or numerical PASS establishes full migration.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-caller-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-caller-census",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "published-benchmark-removal",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [
+        {
+          "owner": "G/public import and versioned plan owners",
+          "check": "UNRUN",
+          "scope": "Complete supported external frozen-plan/import/FQN migration and actual consumers; current tracked maintained callers are measured, outside-cloud production callers not admitted."
+        }
+      ],
+      "closure_is_product_approval": false
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 1,
+        "receipt_ref": {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        "json_pointer": "/per_finding/LA-016",
+        "complete_owner_entry": {
+          "property": "Independent dedicated metadata, default-registry retirement and exact old-slot historical replay; maintained two real benchmark callers migrated to dedicated standard owner.",
+          "selectors": [
+            "test_actual_registry_retirement_old_slots_dispatch_and_fresh_cas",
+            "test_dedicated_metadata_and_estimator_survive_legacy_metadata_replacement",
+            "test_maintained_benchmark_callers_execute_dedicated_owner",
+            "test_cau_05_legacy_staggered_slots_match_dedicated_request"
+          ],
+          "checks": [
+            "published-native",
+            "head-caller-native",
+            "head-caller-census",
+            "published-benchmark-removal"
+          ],
+          "negative": "Real stale FQN resolution fails; metadata poison preserves dedicated calculation; retired-producer poison and caller-binding removal discriminate live caller dependency.",
+          "limits": "Direct-import historical adapter intentionally retained; full original class retirement and external frozen-plan/supported-import census remain limited pending G. Metadata/runtime ownership already present on base is verified, not claimed wholly newly implemented.",
+          "criterion_refs": [
+            {
+              "criterion_id": "LA-016",
+              "document": "LA_r09",
+              "lines": [
+                513,
+                539
+              ],
+              "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+              "card": "CAU-01"
+            },
+            {
+              "criterion_id": "LA-016",
+              "document": "LA_r09",
+              "lines": [
+                513,
+                539
+              ],
+              "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+              "card": "CAU-05"
+            }
+          ],
+          "method_decision": "F-M4",
+          "native_outcome": "PASS",
+          "finding_state": "limited",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              513,
+              539
+            ],
+            "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+            "exact_acceptance_text": "**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.",
+            "full_card_text": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов\n\n**Слияние / разделение ответственности**\n\n**Статус.** Deprecated агрегатор подтверждён; новые классы всё ещё зависят от него.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/did.py#DifferenceInDifferences`\n\n**Что установлено и почему это legacy-кандидат.** DifferenceInDifferences выбирает standard/staggered по флагу и переводит старые slot names outcome_panel/treatment_indicator. Уже есть StandardDifferenceInDifferences и StaggeredDifferenceInDifferences, но они читают metadata старого класса; общие _run_* helpers тоже берут assumptions из него. Удаление «только deprecated класса» сломает живые пути.\n\n**Что сохранить.** Оба numerical helpers, общий контракт панели, assumptions/citations/equations и alias-mapping старых slots для объявленного перехода. Dedicated methods — более точная интерфейсная декомпозиция, не доказательство исправленной статистики.\n\n**Куда перенести / с чем объединить.** Существующие dedicated classes в том же did.py. Общие определения поднять в независимые module constants либо маленький adjacent shared module только при оправданном размере. Legacy class оставить временным адаптером, затем снять регистрацию.\n\n**Порядок миграции.** Сначала отвязать metadata от deprecated class; мигрировать old FQN, флаг staggered и имена slots в явный dedicated request. Сохранить старое чтение frozen plans по утверждённой версии. Не менять численный estimator в той же relocation-правке.\n\n**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.\n\n**Приоритет.** Высокая отдача при средней цене; хороший ограниченный consolidation-пакет.\n\n**Граница вывода.** Это не основание удалять did.py целиком. Переход к dedicated class не исправляет сам собой ранее замеченные inferential-дефекты.\n\n**Основания:** E29.\n\n<!-- PAGEBREAK -->\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "limited",
+          "source_criterion_outcome": "limited",
+          "decision_reason": "Limited: actual dedicated metadata/default-registry retirement/old-slot replay and both enumerated maintained benchmark caller cutovers pass, but the full original supported import/FQN/frozen-plan migration denominator is not admitted. The historical direct-import adapter remains intentionally readable; no class-name proxy or numerical PASS establishes full migration.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-caller-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-caller-census",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "published-benchmark-removal",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [
+            {
+              "owner": "G/public import and versioned plan owners",
+              "check": "UNRUN",
+              "scope": "Complete supported external frozen-plan/import/FQN migration and actual consumers; current tracked maintained callers are measured, outside-cloud production callers not admitted."
+            }
+          ],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "registry_index": 21,
+        "receipt_ref": {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc"
+        },
+        "json_pointer": "/per_finding/LA-016",
+        "complete_owner_entry": {
+          "check": "PASS",
+          "outcome": "closed",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              513,
+              539
+            ],
+            "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+            "exact_acceptance_text": "**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/LA-016"
+          },
+          "method_decision": "F-M4",
+          "decision_basis": "Original finite maintained ownership/migration criterion now complete: dedicated metadata, supported FQN/slots/defaults/plan profile, active registry retirement, historical1.0 old-slot/mode replay; genuine current request loader/dispatcher/CASfreshreader and marker-preserving route-removal control.",
+          "negative": "Actual maintained route restored to retiredFQN causes1 actual registryFAIL; historical umbrella poisoned positive remainsPASS; prior invalid oldslot/mode controls remainPASS.",
+          "limits": "Finite tracked supported-source/request contract only. Arbitrary external/dynamic callers unknown. Direct-import historical1.0 adapter intentionally remains readable and is not active default registration. No institutional authority or numericalcalibration implied.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      1,
+      21,
+      22,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "cau",
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "implementation_commits": [
+          "759c984f475d07c982c0f22f747588706ac752e8",
+          "856caddfa71423a439b1257d947d9657b6a29ff3",
+          "0b522ed173730b4ec744253bb75b6ee260bfcebb"
+        ],
+        "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72"
+      },
+      {
+        "key": "root",
+        "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+        "bytes": 13477,
+        "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+        "implementation_commits": [
+          "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+          "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+          "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77"
+        ],
+        "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Bounded supported maintained window, historical direct-import replay kept explicit.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison",
+      "source_scope": "Dedicated DiD metadata/callers/flags/slots and default-registry retirement with historical replay",
+      "actual_consumer": "Maintained G2 request candidate → dedicated standardFQN → actual registry/dispatcher/CAS; declared historical direct adapter",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Unenumerated external dynamic/frozen inputs require owner packet, not universal criterion.",
+      "criterion_short_ru": "Maintained dedicated Standard DiD FQN/flags/slots/request metadata migration; explicit historical replay",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Dedicated DiD metadata/callers/flags/slots and default-registry retirement with historical replay. Independent oracle/retained-marker negative: 0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-016"
+        ]
+      },
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-016"
+        ],
+        "json_pointer": "/per_finding/LA-016",
+        "complete_deciding_entry": {
+          "property": "Independent dedicated metadata, default-registry retirement and exact old-slot historical replay; maintained two real benchmark callers migrated to dedicated standard owner.",
+          "selectors": [
+            "test_actual_registry_retirement_old_slots_dispatch_and_fresh_cas",
+            "test_dedicated_metadata_and_estimator_survive_legacy_metadata_replacement",
+            "test_maintained_benchmark_callers_execute_dedicated_owner",
+            "test_cau_05_legacy_staggered_slots_match_dedicated_request"
+          ],
+          "checks": [
+            "published-native",
+            "head-caller-native",
+            "head-caller-census",
+            "published-benchmark-removal"
+          ],
+          "negative": "Real stale FQN resolution fails; metadata poison preserves dedicated calculation; retired-producer poison and caller-binding removal discriminate live caller dependency.",
+          "limits": "Direct-import historical adapter intentionally retained; full original class retirement and external frozen-plan/supported-import census remain limited pending G. Metadata/runtime ownership already present on base is verified, not claimed wholly newly implemented.",
+          "criterion_refs": [
+            {
+              "criterion_id": "LA-016",
+              "document": "LA_r09",
+              "lines": [
+                513,
+                539
+              ],
+              "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+              "card": "CAU-01"
+            },
+            {
+              "criterion_id": "LA-016",
+              "document": "LA_r09",
+              "lines": [
+                513,
+                539
+              ],
+              "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+              "card": "CAU-05"
+            }
+          ],
+          "method_decision": "F-M4",
+          "native_outcome": "PASS",
+          "finding_state": "limited",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              513,
+              539
+            ],
+            "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+            "exact_acceptance_text": "**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.",
+            "full_card_text": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов\n\n**Слияние / разделение ответственности**\n\n**Статус.** Deprecated агрегатор подтверждён; новые классы всё ещё зависят от него.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/did.py#DifferenceInDifferences`\n\n**Что установлено и почему это legacy-кандидат.** DifferenceInDifferences выбирает standard/staggered по флагу и переводит старые slot names outcome_panel/treatment_indicator. Уже есть StandardDifferenceInDifferences и StaggeredDifferenceInDifferences, но они читают metadata старого класса; общие _run_* helpers тоже берут assumptions из него. Удаление «только deprecated класса» сломает живые пути.\n\n**Что сохранить.** Оба numerical helpers, общий контракт панели, assumptions/citations/equations и alias-mapping старых slots для объявленного перехода. Dedicated methods — более точная интерфейсная декомпозиция, не доказательство исправленной статистики.\n\n**Куда перенести / с чем объединить.** Существующие dedicated classes в том же did.py. Общие определения поднять в независимые module constants либо маленький adjacent shared module только при оправданном размере. Legacy class оставить временным адаптером, затем снять регистрацию.\n\n**Порядок миграции.** Сначала отвязать metadata от deprecated class; мигрировать old FQN, флаг staggered и имена slots в явный dedicated request. Сохранить старое чтение frozen plans по утверждённой версии. Не менять численный estimator в той же relocation-правке.\n\n**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.\n\n**Приоритет.** Высокая отдача при средней цене; хороший ограниченный consolidation-пакет.\n\n**Граница вывода.** Это не основание удалять did.py целиком. Переход к dedicated class не исправляет сам собой ранее замеченные inferential-дефекты.\n\n**Основания:** E29.\n\n<!-- PAGEBREAK -->\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "limited",
+          "source_criterion_outcome": "limited",
+          "decision_reason": "Limited: actual dedicated metadata/default-registry retirement/old-slot replay and both enumerated maintained benchmark caller cutovers pass, but the full original supported import/FQN/frozen-plan migration denominator is not admitted. The historical direct-import adapter remains intentionally readable; no class-name proxy or numerical PASS establishes full migration.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-caller-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-caller-census",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "published-benchmark-removal",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [
+            {
+              "owner": "G/public import and versioned plan owners",
+              "check": "UNRUN",
+              "scope": "Complete supported external frozen-plan/import/FQN migration and actual consumers; current tracked maintained callers are measured, outside-cloud production callers not admitted."
+            }
+          ],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-016"
+        ],
+        "json_pointer": "/per_finding/LA-016",
+        "complete_deciding_entry": {
+          "check": "PASS",
+          "outcome": "closed",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              513,
+              539
+            ],
+            "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+            "exact_acceptance_text": "**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/LA-016"
+          },
+          "method_decision": "F-M4",
+          "decision_basis": "Original finite maintained ownership/migration criterion now complete: dedicated metadata, supported FQN/slots/defaults/plan profile, active registry retirement, historical1.0 old-slot/mode replay; genuine current request loader/dispatcher/CASfreshreader and marker-preserving route-removal control.",
+          "negative": "Actual maintained route restored to retiredFQN causes1 actual registryFAIL; historical umbrella poisoned positive remainsPASS; prior invalid oldslot/mode controls remainPASS.",
+          "limits": "Finite tracked supported-source/request contract only. Arbitrary external/dynamic callers unknown. Direct-import historical1.0 adapter intentionally remains readable and is not active default registration. No institutional authority or numericalcalibration implied.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/29",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

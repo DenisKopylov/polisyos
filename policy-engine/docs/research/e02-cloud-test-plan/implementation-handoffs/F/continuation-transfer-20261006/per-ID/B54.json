@@ -1,0 +1,434 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B54",
+    "primary_bundle": "FIT-01",
+    "primary_tsv_owner": {
+      "finding_id": "B54",
+      "unit": "F",
+      "docx_analytical_package": "P14",
+      "source_closure_owner": "FIT-01",
+      "source_bundle_ids": "FIT-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B54",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          1379,
+          1394
+        ],
+        "bytes": 5315,
+        "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+        "title": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект\n\n**Происхождение:** C04-06. **Основание:** `tmle_core` — контракт, fingerprint, bundle, get/put, fit и diagnostics; NU1–NU4. **Приоритет:** высокий при reuse между анализами; охват M. [C04.K05]\n\n**Проблема.** Автоматический ключ shared nuisance cache правильно хэширует полные массивы X/T/Y и существенные поля обучения. Однако fingerprint не включает некоторые поля следующего анализа: например, `min_effective_sample_size` и `coverage_guard`. Это может быть правильной экономией обучения. Но кэшируемый `ATENuisanceBundle` содержит весь прежний `contract`, а его `diagnostics()` читает порог, режим и связанные оценки именно из `self.contract`. При hit возвращается прежний bundle, без привязки к новому контракту.\n\nВ модели NU1 одинаковый fit-key для нового порога 100 и режима off вернул metadata прежних 48/ess_aware. Холодная сборка metadata отражала новый контракт. Контроль отделил текущую привязку без повторного fit. Это не запуск TMLE и не доказательство неверности всего доверительного интервала: `_interval_from_eif` отдельно использует текущий контракт для ряда проверок. Диагностическую устарелость нельзя расширительно назвать ошибкой каждого численного вывода.\n\n**Второй аспект.** `_cache_get` возвращает ту же mutable dataclass с массивами, списками и вложенными records. Lock защищает словарь кэша, а не содержимое выданного объекта. В модели мутация данных одним тестовым потребителем изменила следующее чтение. Реальный production-потребитель, выполняющий такую мутацию, в этом проходе не установлен; это условный риск владения, а не сообщение о произошедшей порче данных.\n\n**Рекомендуемое решение.** Разделить неизменяемое ядро fit — predictions, splits, scaler, конфигурацию обучения и его provenance — и дешёвое аналитическое представление с текущей политикой диагностики. При hit пересчитать нужные diagnostics на текущем контракте; не переобучать модели только ради изменения порога/режима вывода. Не менять старый выданный bundle на месте. Общие массивы сделать read-only на согласованной границе; там, где потребитель действительно должен менять значения, использовать отдельную копию/результат. Read-only одного контейнера не обеспечивает автоматически неизменность всех вложенных объектов.\n\n**Чего не делать.** Добавлять весь контракт в ключ и каждый раз повторять cross-fitting — дорогое устранение симптома. Считать любой одинаковый explicit-key доказательством одинаковых данных — неверно: private-путь `__shared_nuisance_key` не хэширует массивы в этой функции. Его реальный вызывающий путь не установлен, поэтому это не отдельный доказанный дефект; при использовании он требует истинной source-bound идентичности, не строкового обещания агента.\n\n**Приёмка.** Изменение только диагностической политики сохраняет fit, но обновляет вывод и его контракт; изменение данных, seed, splits или fitting-параметра требует нужной новой оценки. Один потребитель не меняет последующие hits. Существующие полные хэши данных не удаляются ради скорости; разрешённое использование результата и область доступа проверяются отдельно.\n\n"
+      }
+    ],
+    "criterion_short_ru": "Native TMLE cache/fit identity and immutable current-reader materialization",
+    "actual_consumer": "fit_crossfit_nuisance_bundle → controlled issued fit core → fit_tmle_ate/TMLEEstimator",
+    "source_scope": "Fit-cache identity separates nuisance fit from current diagnostics and immutable readers",
+    "oracle_and_negative": "All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Fit-cache identity separates nuisance fit from current diagnostics and immutable readers. Independent oracle/retained-marker negative: All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Finite original native cache/reader property.",
+    "separate_unavailable_inputs_or_authority": "Untrusted externally supplied prediction provenance is not accepted; production causal authority separate.",
+    "limit_next_owner_short_ru": "Finite original native cache/reader property.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "branch": "refs/heads/codex/e02-F-tmle-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+      "bytes": 28486,
+      "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+      "table": "finding_decisions",
+      "per_id": "B54"
+    },
+    "implementation_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+    "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.stdout.txt.gz"
+      },
+      {
+        "index": 1,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stdout.txt.gz"
+      },
+      {
+        "index": 2,
+        "check_id": null,
+        "outcome": "ERROR",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.stdout.txt.gz"
+      },
+      {
+        "index": 3,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/cache-removal-v2.stdout.txt"
+      },
+      {
+        "index": 4,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/arrays-removal-v2.stdout.txt"
+      },
+      {
+        "index": 5,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/logit-removal-v2.stdout.txt"
+      },
+      {
+        "index": 6,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/eif-removal-v2.stdout.txt"
+      },
+      {
+        "index": 7,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/eligibility-removal-v2.stdout.txt"
+      },
+      {
+        "index": 8,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/serial-removal-v2.stdout.txt"
+      },
+      {
+        "index": 9,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/fit-independent-native.stdout"
+      },
+      {
+        "index": 10,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-check.stdout.txt"
+      },
+      {
+        "index": 11,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-format.stdout.txt"
+      },
+      {
+        "index": 12,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "58937768a8ce9ea7a445a9cdda60d3abf02553e6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-release.stdout.txt.gz"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "B54",
+      "criterion": "Diagnostics-only changes reuse fit and refresh current report; data/seed/split/fit changes invalidate; one reader cannot alter future hits.",
+      "criterion_ref": "closure-decisions/coverage.json#B54; bundles/FIT-01.md#B54",
+      "check": "PASS",
+      "outcome": "closed",
+      "scope": "Exact source-card generic cache/reader property on native synthetic inputs, not real-data causal identification.",
+      "negative": "cache removal 3FAIL/4positivecontrols; immutable-array removal1FAIL",
+      "limitation": "A precomputed identity must still resolve to the controlled in-process issued core; after eviction it is refused. No external supplied bundle provenance is accepted."
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 11,
+        "receipt_ref": {
+          "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+          "bytes": 28486,
+          "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+        },
+        "json_pointer": "/finding_decisions/0",
+        "complete_owner_entry": {
+          "id": "B54",
+          "criterion": "Diagnostics-only changes reuse fit and refresh current report; data/seed/split/fit changes invalidate; one reader cannot alter future hits.",
+          "criterion_ref": "closure-decisions/coverage.json#B54; bundles/FIT-01.md#B54",
+          "check": "PASS",
+          "outcome": "closed",
+          "scope": "Exact source-card generic cache/reader property on native synthetic inputs, not real-data causal identification.",
+          "negative": "cache removal 3FAIL/4positivecontrols; immutable-array removal1FAIL",
+          "limitation": "A precomputed identity must still resolve to the controlled in-process issued core; after eviction it is refused. No external supplied bundle provenance is accepted."
+        }
+      },
+      {
+        "registry_index": 24,
+        "receipt_ref": {
+          "head": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+          "bytes": 125989,
+          "sha256": "53688e8d8ea8bc96ecdcf52a6e6d57bd0f4203ca6d23dca276cd45753f299056"
+        },
+        "json_pointer": "/per_id/0",
+        "complete_owner_entry": {
+          "finding_id": "B54",
+          "criterion": "Diagnostic-only policy refresh preserves fitting; changed data/seed/split/config requires correct refit; returned reader cannot change future hits; content hashes and access scope retained.",
+          "outcome": "PASS",
+          "state": "prior technical closure revalidated; no new closure claim",
+          "check_refs": [
+            0
+          ],
+          "prior_primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json@f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "numerical_core_unchanged": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/unchanged-neighbor-proof.json"
+        }
+      },
+      {
+        "registry_index": 25,
+        "receipt_ref": {
+          "head": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json",
+          "bytes": 81022,
+          "sha256": "e6bdc12b130a81b2f9f5d7b7261d0ba20809a2ebcb620c8bec17f420a7d95a9d"
+        },
+        "json_pointer": "/per_id/0",
+        "complete_owner_entry": {
+          "finding_id": "B54",
+          "criterion": "Content/data/config/fold/model/seed/split fit-cache identity plus immutable current-reader materialization.",
+          "state": "previous bounded technical closure preserved; no new closure claim",
+          "checks": [
+            "positive",
+            "independent-native-corrected",
+            "independent-source-audit"
+          ],
+          "source_equality": "Numerical/cache providers match6c and original accepted B54 source exactly."
+        }
+      },
+      {
+        "registry_index": 32,
+        "receipt_ref": {
+          "head": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json",
+          "bytes": 91876,
+          "sha256": "0818e463b5e8c942eba6d9f696932b3a0ad3deab79657199ae692f2e39c9fe5d"
+        },
+        "json_pointer": "/per_id/B54",
+        "complete_owner_entry": {
+          "criterion": "Related original FIT-01 nuisance/cache/reader contract; prior scientific evidence is not re-adjudicated by this ConfidencePass consumer repair.",
+          "outcome": "UNRUN",
+          "finding_state": "prior bounded scientific evidence unchanged; no fresh closure from this slice",
+          "checks": [
+            "scope-frozen"
+          ],
+          "negative_control": "Original fit-cache/nuisance/binary/EIF controls remain their prior committed source-bound receipts; this slice does not rerun them.",
+          "limit": "No fresh estimator or backend witness. Five scientific provider blobs are identical to the slice base.",
+          "prior_receipt": {
+            "git_ref": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json"
+          }
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      11,
+      23,
+      24,
+      25,
+      26,
+      32
+    ],
+    "current_exact_consumer_receipts": {
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "installed_receipt": {
+        "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+        "bytes": 60843,
+        "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+      },
+      "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+    },
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Finite original native cache/reader property.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL",
+      "source_scope": "Fit-cache identity separates nuisance fit from current diagnostics and immutable readers",
+      "actual_consumer": "fit_crossfit_nuisance_bundle → controlled issued fit core → fit_tmle_ate/TMLEEstimator",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Untrusted externally supplied prediction provenance is not accepted; production causal authority separate.",
+      "criterion_short_ru": "Native TMLE cache/fit identity and immutable current-reader materialization",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Fit-cache identity separates nuisance fit from current diagnostics and immutable readers. Independent oracle/retained-marker negative: All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+        "bytes": 28486,
+        "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+        "git_blob": "2a197a789fbbc38b2d47cc594caa3fc17c6d6924",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B54"
+        ]
+      },
+      {
+        "git_ref": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+        "bytes": 28486,
+        "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+        "git_blob": "2a197a789fbbc38b2d47cc594caa3fc17c6d6924",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B54"
+        ],
+        "json_pointer": "/finding_decisions/0",
+        "complete_deciding_entry": {
+          "id": "B54",
+          "criterion": "Diagnostics-only changes reuse fit and refresh current report; data/seed/split/fit changes invalidate; one reader cannot alter future hits.",
+          "criterion_ref": "closure-decisions/coverage.json#B54; bundles/FIT-01.md#B54",
+          "check": "PASS",
+          "outcome": "closed",
+          "scope": "Exact source-card generic cache/reader property on native synthetic inputs, not real-data causal identification.",
+          "negative": "cache removal 3FAIL/4positivecontrols; immutable-array removal1FAIL",
+          "limitation": "A precomputed identity must still resolve to the controlled in-process issued core; after eviction it is refused. No external supplied bundle provenance is accepted."
+        }
+      },
+      {
+        "git_ref": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+        "head": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+        "bytes": 125989,
+        "sha256": "53688e8d8ea8bc96ecdcf52a6e6d57bd0f4203ca6d23dca276cd45753f299056",
+        "git_blob": "72b83947ab21741984d7cce17946c06862311a3a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B54"
+        ],
+        "json_pointer": "/per_id/0",
+        "complete_deciding_entry": {
+          "finding_id": "B54",
+          "criterion": "Diagnostic-only policy refresh preserves fitting; changed data/seed/split/config requires correct refit; returned reader cannot change future hits; content hashes and access scope retained.",
+          "outcome": "PASS",
+          "state": "prior technical closure revalidated; no new closure claim",
+          "check_refs": [
+            0
+          ],
+          "prior_primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json@f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "numerical_core_unchanged": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/unchanged-neighbor-proof.json"
+        }
+      },
+      {
+        "git_ref": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+        "head": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json",
+        "bytes": 81022,
+        "sha256": "e6bdc12b130a81b2f9f5d7b7261d0ba20809a2ebcb620c8bec17f420a7d95a9d",
+        "git_blob": "30a429a6b3d553921cca1534ecdbe8a34c934081",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B54"
+        ],
+        "json_pointer": "/per_id/0",
+        "complete_deciding_entry": {
+          "finding_id": "B54",
+          "criterion": "Content/data/config/fold/model/seed/split fit-cache identity plus immutable current-reader materialization.",
+          "state": "previous bounded technical closure preserved; no new closure claim",
+          "checks": [
+            "positive",
+            "independent-native-corrected",
+            "independent-source-audit"
+          ],
+          "source_equality": "Numerical/cache providers match6c and original accepted B54 source exactly."
+        }
+      },
+      {
+        "git_ref": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+        "head": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json",
+        "bytes": 91876,
+        "sha256": "0818e463b5e8c942eba6d9f696932b3a0ad3deab79657199ae692f2e39c9fe5d",
+        "git_blob": "a2da462debca3e52296256085ca457f2baec9fda",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B54"
+        ],
+        "json_pointer": "/per_id/B54",
+        "complete_deciding_entry": {
+          "criterion": "Related original FIT-01 nuisance/cache/reader contract; prior scientific evidence is not re-adjudicated by this ConfidencePass consumer repair.",
+          "outcome": "UNRUN",
+          "finding_state": "prior bounded scientific evidence unchanged; no fresh closure from this slice",
+          "checks": [
+            "scope-frozen"
+          ],
+          "negative_control": "Original fit-cache/nuisance/binary/EIF controls remain their prior committed source-bound receipts; this slice does not rerun them.",
+          "limit": "No fresh estimator or backend witness. Five scientific provider blobs are identical to the slice base.",
+          "prior_receipt": {
+            "git_ref": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json"
+          }
+        }
+      },
+      {
+        "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+        "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+        "bytes": 60843,
+        "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+        "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B54"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/22",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

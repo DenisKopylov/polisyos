@@ -1,0 +1,269 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "LA-017",
+    "primary_bundle": "LEX-01",
+    "primary_tsv_owner": {
+      "finding_id": "LA-017",
+      "unit": "F",
+      "docx_analytical_package": "P39",
+      "source_closure_owner": "LEX-01",
+      "source_bundle_ids": "LEX-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "LA-017",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          540,
+          570
+        ],
+        "bytes": 3335,
+        "sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+        "title": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны\n\n**Перемещение по смысловой роли**\n\n**Статус.** Фактическая функция установлена; преимущественно полезный код, не мёртвый симулятор.\n\n**Точная область:**\n\n`src/polisyos/lex/simulator/engine.py`\n\n`src/polisyos/lex/simulator/diff.py`\n\n`src/polisyos/lex/simulator/report.py`\n\n**Что установлено и почему это legacy-кандидат.** NormImpactAnalyzer сравнивает NormPacks, запускает legal/safety passes и строит compliance transitions. Его _infer_affected_kpis лишь сопоставляет OBLIGATION с compliance_cost, PROHIBITION с operational_restrictions, прочее — с regulatory_flexibility. Ни эффекты поведения, ни величины издержек из этого соответствия не вычисляются. Название simulator/impact шире выполненной функции.\n\n**Что сохранить.** Реальный norm diff, сравнение issues, provenance и persistence. Простая типизация потенциально затронутых тем полезна как подсказка, но не как экономическая или причинная симуляция.\n\n**Куда перенести / с чем объединить.** Предлагаемые normpack/diff.py и legal_evaluation/impact_diff.py под существующими Lex-владельцами; report рядом с фактическим владельцем сравнения. Эвристические tags отделить и назвать как candidate impact topics; для количественного эффекта существующие Scientist/Foundry routes, не новый механизм в Lex.\n\n**Порядок миграции.** Сначала уточнить report semantics, не переписывая historical schema незаметно. Затем перенести согласованный модуль с public alias. diff.py/report.py обозначены как необходимые dependencies переноса: их полный текст здесь не анализировался, поэтому собственное слияние этих файлов остаётся условным.\n\n**Приёмочная проверка.** Unchanged/added/removed/modified norms, одинаковые issue keys, pass configuration, сохранённые report IDs/refs и отсутствие превращения candidate tags в измеренные KPI. Проверить реальных downstream-consumers.\n\n**Приоритет.** Средняя цена; высокий эффект для смысловой навигации.\n\n**Граница вывода.** Нельзя переносить весь package в Foundry: правовое сравнение остаётся задачей Lex. И нельзя утверждать измеренный вред только по эвристическому имени KPI.\n\n**Основания:** E30.\n\n<!-- PAGEBREAK -->\n"
+      }
+    ],
+    "criterion_short_ru": "Supported legal impact caller/config migration; dedupe is a bounded partial property",
+    "actual_consumer": "NormImpactAnalyzer actual LegalPass→CAS→fresh NormDiff/Impact reader→CLI markdown",
+    "source_scope": "Norm diff/issues/pass config/report refs/topic hypotheses survive actual supported consumers",
+    "oracle_and_negative": "00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Norm diff/issues/pass config/report refs/topic hypotheses survive actual supported consumers. Independent oracle/retained-marker negative: 00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "limited",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "limited",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "limited",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Original full supported caller/config migration/corpus compatibility still needs exact owner packet; dedupe alone is partial.",
+    "separate_unavailable_inputs_or_authority": "Current-law authority/source corpus is local and UNRUN; topics are not causal quantified effects.",
+    "limit_next_owner_short_ru": "Original full supported caller/config migration/corpus compatibility still needs exact owner packet; dedupe alone is partial.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "branch": "refs/heads/codex/e02-F-lex-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+      "bytes": 24363,
+      "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a",
+      "table": "decisions",
+      "per_id": "LA-017"
+    },
+    "implementation_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "candidate_tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/committed-targeted.stdout"
+      },
+      {
+        "index": 1,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh-reader.stdout"
+      },
+      {
+        "index": 2,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/removal.stdout"
+      },
+      {
+        "index": 3,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lint.stdout"
+      },
+      {
+        "index": 4,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/format.stdout"
+      },
+      {
+        "index": 5,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/production-invocation.stdout"
+      },
+      {
+        "index": 6,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted.stdout"
+      },
+      {
+        "index": 7,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-fresh-reader.stdout"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "LA-017",
+      "criterion": "Original LEX-01 card LA_r09 L540-570 sha2566d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c: preserve norm diff, issue keys, pass configuration, report refs and candidate topic semantics through actual consumers.",
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LEX-01.md",
+      "producer": "NormImpactAnalyzer with actual expr_ast LegalPass",
+      "artifact": "lex.norm_diff + lex.norm_impact_report schema1.0 in FileSystemCAS",
+      "bridge": "canonical analyzer admission used by real CLI lex impact",
+      "consumer": "CAS fresh-process NormImpactReport/NormDiff reader and render_impact_markdown",
+      "oracle": "one independently defined legal check produces exactly one blocker for synthetic income=2/floor1→3; duplicate plans equal unique-plan report IDs, content and transitions",
+      "positive_result": "24 targeted checks PASS zero skips/errors on final00a6eda; earlier independent reviewer16PASS plus repeated/nonconsecutive40-entry/unknown/empty controls with identical runtime/test blobs; final fresh-process persisted content readback PASS.",
+      "negative": "base and remove-dedupe-keep-markers each3FAIL; unknown IDs still refused; identical policy produces no transitions.",
+      "check": "PASS",
+      "outcome": "limited",
+      "limitation": "Duplicate dispatch is fixed and does not alone close the complete LA-017 migration/caller/corpus criterion. Synthetic ExprAST establishes neither current law nor causal effects; CLI default stub is transport/schema only.",
+      "next_owner": "F/G for complete supported caller/corpus compatibility; local Lex source owner only for any current-law authority claim.",
+      "code_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3"
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 28,
+        "receipt_ref": {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1"
+        },
+        "json_pointer": "/per_id/3",
+        "complete_owner_entry": {
+          "id": "LA-017",
+          "state": "limited/read-only packet",
+          "criterion": "Accepted Lex00a6 source not remerged/redelivered. Current simulator/report/NormPack local-owner input packet identifies actual missing legal/authority refs; no production legal scope test/claim."
+        }
+      },
+      {
+        "registry_index": 36,
+        "receipt_ref": {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+        },
+        "json_pointer": "/per_id/3",
+        "complete_owner_entry": {
+          "id": "LA-017",
+          "state": "held_real_norm_inputs",
+          "criterion": "Earlier acceptedLexsource notredelivered; real law/jurisdiction/NormPack/admission refs remainlocalowner dependent."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      9,
+      26,
+      28,
+      36
+    ],
+    "current_exact_consumer_receipts": [],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "Published exact API owner evidence c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json; current assembled install/explicit ROOT decision remain separate. Finite UNKNOWN candidates are not established clients.",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "latest_published_receipt_refs": [
+      {
+        "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+        "bytes": 36426,
+        "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+        "implementation_sha": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+        "candidate_tree_sha": "0b308e5f5993121db26e1b3d0a3347817ef371c5"
+      }
+    ],
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Original full supported caller/config migration/corpus compatibility still needs exact owner packet; dedupe alone is partial.",
+      "latest_owner_packet": "Published exact API owner evidence c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json; current assembled install/explicit ROOT decision remain separate. Finite UNKNOWN candidates are not established clients.",
+      "outcome": "limited",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport",
+      "source_scope": "Norm diff/issues/pass config/report refs/topic hypotheses survive actual supported consumers",
+      "actual_consumer": "NormImpactAnalyzer actual LegalPass→CAS→fresh NormDiff/Impact reader→CLI markdown",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Current-law authority/source corpus is local and UNRUN; topics are not causal quantified effects.",
+      "criterion_short_ru": "Supported legal impact caller/config migration; dedupe is a bounded partial property",
+      "technical_original_criterion_recommendation": "limited",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Norm diff/issues/pass config/report refs/topic hypotheses survive actual supported consumers. Independent oracle/retained-marker negative: 00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "77166daa0ff8b9659e3978447f9016c691694266",
+        "head": "77166daa0ff8b9659e3978447f9016c691694266",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+        "bytes": 24363,
+        "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a",
+        "git_blob": "3bfa207d53815eece517683aee3e13532463b656",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-017"
+        ]
+      },
+      {
+        "git_ref": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+        "bytes": 36426,
+        "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+        "git_blob": "11aa040f5fb257f9f61c76c4b340cc2f15541b2e",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-017"
+        ],
+        "json_pointer": "/per_id/3",
+        "complete_deciding_entry": {
+          "id": "LA-017",
+          "state": "limited/read-only packet",
+          "criterion": "Accepted Lex00a6 source not remerged/redelivered. Current simulator/report/NormPack local-owner input packet identifies actual missing legal/authority refs; no production legal scope test/claim."
+        }
+      },
+      {
+        "git_ref": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+        "bytes": 36426,
+        "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+        "git_blob": "11aa040f5fb257f9f61c76c4b340cc2f15541b2e",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-017"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/30",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

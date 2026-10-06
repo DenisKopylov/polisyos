@@ -1,0 +1,539 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B208",
+    "primary_bundle": "CAU-02",
+    "primary_tsv_owner": {
+      "finding_id": "B208",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": "CAU-02",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B208",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5146,
+          5157
+        ],
+        "bytes": 2624,
+        "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+        "title": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой\n\n**Приоритет:** высокий вместе с B207; не ремонтировать отдельно косметическим сдвигом. **Основание:** _run_staggered_did; PV01–PV02. [C20.R02]\n\n**Проблема.** p-value вычисляется как доля |boot|≥|att| с поправкой +1. Нецентрированный bootstrap обычно расположен вокруг наблюдаемой оценки; такая доля сама по себе не является хвостовой вероятностью статистики при нулевом эффекте.\n\n**Воспроизведение.** В одной шумной ячейке из B207 одновременно получены ATT=5, CI=[5,5], p=1. На иллюстративных draws [4,9;5;5,1] исходный счётчик с +1 даёт 0,75, а счётчик отклонений boot−att относительно нуля — 0,25. Последний показан только как различение объектов сравнения, не как универсально корректная bootstrap-процедура.\n\n**Рекомендуемое исправление.** Задать H0, тестовую статистику, её масштабирование и допустимый способ получения нулевого распределения совместно с уровнем повторной выборки. Использовать согласованную инверсию интервала/теста или проверенный центрированный/studentized/bootstrap-тест согласно дизайну. Если такой вывод не вычислен, сохранить ATT и имеющуюся диагностику, указав p-value как отсутствующий.\n\n**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.\n\n"
+      }
+    ],
+    "criterion_short_ru": "One centered studentized unit-bootstrap null test and consistent CI inversion",
+    "actual_consumer": "StaggeredDifferenceInDifferences → result null/CI → actual native consumer",
+    "source_scope": "Centered studentized null test with the SAME closed finite-B CI inversion",
+    "oracle_and_negative": "MC160 exact oldsource null6/160 and coverage154/160; endpoint integer-tail24 controls and uncentered removal FAIL",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Centered studentized null test with the SAME closed finite-B CI inversion. Independent oracle/retained-marker negative: MC160 exact oldsource null6/160 and coverage154/160; endpoint integer-tail24 controls and uncentered removal FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "limited",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "limited",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None in selected pointwise iid-unit finite-B law.",
+    "separate_unavailable_inputs_or_authority": "No small-G/simultaneous/real-data coverage claim.",
+    "limit_next_owner_short_ru": "None in selected pointwise iid-unit finite-B law.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "branch": "refs/heads/codex/e02-F-cau-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "table": "per_finding",
+      "per_id": "B208"
+    },
+    "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 1,
+        "check_id": "published-native",
+        "outcome": "PASS",
+        "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json"
+      },
+      {
+        "index": 3,
+        "check_id": "head-dgp",
+        "outcome": "PASS",
+        "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stdout.txt.json"
+      },
+      {
+        "index": 6,
+        "check_id": "final-removal-uncentered",
+        "outcome": "FAIL",
+        "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stdout.txt.json"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "property": "One centered studentized scalar law drives +1 p and finite-B closed CI inversion, with canonical integer tail decision at endpoints.",
+      "selectors": [
+        "test_same_centered_studentized_law_drives_null_test_and_interval",
+        "test_closed_interval_endpoints_and_adjacent_nulls_share_integer_decision",
+        "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+      ],
+      "checks": [
+        "published-native",
+        "head-dgp",
+        "final-removal-uncentered"
+      ],
+      "negative": "Uncentered law rejected; independent reviewer tests24 endpoints/nextafter floats at4confidencelevels; p=alpha remains accepted as closedCI endpoint.",
+      "limits": "Binomial simulation bounds for fixed known DGP only; finiteB resolution typedrefusal, degenerate IF point-only, no simultaneous intervals.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B208",
+          "document": "B_r19",
+          "lines": [
+            5146,
+            5157
+          ],
+          "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+          "card": "CAU-02"
+        }
+      ],
+      "method_decision": "F-M5",
+      "native_outcome": "PASS",
+      "finding_state": "limited",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5146,
+          5157
+        ],
+        "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+        "exact_acceptance_text": "**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.",
+        "full_card_text": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой\n\n**Приоритет:** высокий вместе с B207; не ремонтировать отдельно косметическим сдвигом. **Основание:** _run_staggered_did; PV01–PV02. [C20.R02]\n\n**Проблема.** p-value вычисляется как доля |boot|≥|att| с поправкой +1. Нецентрированный bootstrap обычно расположен вокруг наблюдаемой оценки; такая доля сама по себе не является хвостовой вероятностью статистики при нулевом эффекте.\n\n**Воспроизведение.** В одной шумной ячейке из B207 одновременно получены ATT=5, CI=[5,5], p=1. На иллюстративных draws [4,9;5;5,1] исходный счётчик с +1 даёт 0,75, а счётчик отклонений boot−att относительно нуля — 0,25. Последний показан только как различение объектов сравнения, не как универсально корректная bootstrap-процедура.\n\n**Рекомендуемое исправление.** Задать H0, тестовую статистику, её масштабирование и допустимый способ получения нулевого распределения совместно с уровнем повторной выборки. Использовать согласованную инверсию интервала/теста или проверенный центрированный/studentized/bootstrap-тест согласно дизайну. Если такой вывод не вычислен, сохранить ATT и имеющуюся диагностику, указав p-value как отсутствующий.\n\n**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Original scientific discriminator is closed for one centered/studentized null test and matching finite-B closed CI inversion, including the repaired integer-tail endpoint decision, null size, power and alternative coverage on the same units. Overall continuation outcome remains limited only for the separate F-M5 final whole-node binding receipt, not for absent real-world identification.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "head-dgp",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-uncentered",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [
+        {
+          "owner": "F root/G integration",
+          "check": "UNRUN",
+          "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+        }
+      ],
+      "closure_is_product_approval": false
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 1,
+        "receipt_ref": {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        "json_pointer": "/per_finding/B208",
+        "complete_owner_entry": {
+          "property": "One centered studentized scalar law drives +1 p and finite-B closed CI inversion, with canonical integer tail decision at endpoints.",
+          "selectors": [
+            "test_same_centered_studentized_law_drives_null_test_and_interval",
+            "test_closed_interval_endpoints_and_adjacent_nulls_share_integer_decision",
+            "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+          ],
+          "checks": [
+            "published-native",
+            "head-dgp",
+            "final-removal-uncentered"
+          ],
+          "negative": "Uncentered law rejected; independent reviewer tests24 endpoints/nextafter floats at4confidencelevels; p=alpha remains accepted as closedCI endpoint.",
+          "limits": "Binomial simulation bounds for fixed known DGP only; finiteB resolution typedrefusal, degenerate IF point-only, no simultaneous intervals.",
+          "criterion_refs": [
+            {
+              "criterion_id": "B208",
+              "document": "B_r19",
+              "lines": [
+                5146,
+                5157
+              ],
+              "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+              "card": "CAU-02"
+            }
+          ],
+          "method_decision": "F-M5",
+          "native_outcome": "PASS",
+          "finding_state": "limited",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5146,
+              5157
+            ],
+            "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+            "exact_acceptance_text": "**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.",
+            "full_card_text": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой\n\n**Приоритет:** высокий вместе с B207; не ремонтировать отдельно косметическим сдвигом. **Основание:** _run_staggered_did; PV01–PV02. [C20.R02]\n\n**Проблема.** p-value вычисляется как доля |boot|≥|att| с поправкой +1. Нецентрированный bootstrap обычно расположен вокруг наблюдаемой оценки; такая доля сама по себе не является хвостовой вероятностью статистики при нулевом эффекте.\n\n**Воспроизведение.** В одной шумной ячейке из B207 одновременно получены ATT=5, CI=[5,5], p=1. На иллюстративных draws [4,9;5;5,1] исходный счётчик с +1 даёт 0,75, а счётчик отклонений boot−att относительно нуля — 0,25. Последний показан только как различение объектов сравнения, не как универсально корректная bootstrap-процедура.\n\n**Рекомендуемое исправление.** Задать H0, тестовую статистику, её масштабирование и допустимый способ получения нулевого распределения совместно с уровнем повторной выборки. Использовать согласованную инверсию интервала/теста или проверенный центрированный/studentized/bootstrap-тест согласно дизайну. Если такой вывод не вычислен, сохранить ATT и имеющуюся диагностику, указав p-value как отсутствующий.\n\n**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.\n\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "limited",
+          "source_criterion_outcome": "closed",
+          "decision_reason": "Original scientific discriminator is closed for one centered/studentized null test and matching finite-B closed CI inversion, including the repaired integer-tail endpoint decision, null size, power and alternative coverage on the same units. Overall continuation outcome remains limited only for the separate F-M5 final whole-node binding receipt, not for absent real-world identification.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-dgp",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-removal-uncentered",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [
+            {
+              "owner": "F root/G integration",
+              "check": "UNRUN",
+              "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+            }
+          ],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "registry_index": 21,
+        "receipt_ref": {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc"
+        },
+        "json_pointer": "/per_finding/B208",
+        "complete_owner_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5146,
+              5157
+            ],
+            "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+            "exact_acceptance_text": "**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/B208"
+          },
+          "method_decision": "F-M5",
+          "decision_basis": "Original generic scientific predicate retained on its exact prior source; focused current native sibling tests cover modifiedproducer. No oldMC receipt relabelled current.",
+          "negative": "diagnostic input digest removal4FAIL; stale/forged/coherent diagnostic claims refused in portable rootproposal",
+          "limits": "Binomial simulation bounds for fixed known DGP only; finiteB resolution typedrefusal, degenerate IF point-only, no simultaneous intervals.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      1,
+      14,
+      21,
+      22,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "cau_science",
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "implementation_commits": [
+          "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+          "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+        ],
+        "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9"
+      },
+      {
+        "key": "cau",
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "implementation_commits": [
+          "759c984f475d07c982c0f22f747588706ac752e8",
+          "856caddfa71423a439b1257d947d9657b6a29ff3",
+          "0b522ed173730b4ec744253bb75b6ee260bfcebb"
+        ],
+        "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72"
+      },
+      {
+        "key": "root",
+        "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+        "bytes": 13477,
+        "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+        "implementation_commits": [
+          "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+          "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+          "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77"
+        ],
+        "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "None in selected pointwise iid-unit finite-B law.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "limited",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "MC160 exact oldsource null6/160 and coverage154/160; endpoint integer-tail24 controls and uncentered removal FAIL",
+      "source_scope": "Centered studentized null test with the SAME closed finite-B CI inversion",
+      "actual_consumer": "StaggeredDifferenceInDifferences → result null/CI → actual native consumer",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "No small-G/simultaneous/real-data coverage claim.",
+      "criterion_short_ru": "One centered studentized unit-bootstrap null test and consistent CI inversion",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Centered studentized null test with the SAME closed finite-B CI inversion. Independent oracle/retained-marker negative: MC160 exact oldsource null6/160 and coverage154/160; endpoint integer-tail24 controls and uncentered removal FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B208"
+        ]
+      },
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B208"
+        ],
+        "json_pointer": "/per_finding/B208",
+        "complete_deciding_entry": {
+          "property": "One centered studentized scalar law drives +1 p and finite-B closed CI inversion, with canonical integer tail decision at endpoints.",
+          "selectors": [
+            "test_same_centered_studentized_law_drives_null_test_and_interval",
+            "test_closed_interval_endpoints_and_adjacent_nulls_share_integer_decision",
+            "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+          ],
+          "checks": [
+            "published-native",
+            "head-dgp",
+            "final-removal-uncentered"
+          ],
+          "negative": "Uncentered law rejected; independent reviewer tests24 endpoints/nextafter floats at4confidencelevels; p=alpha remains accepted as closedCI endpoint.",
+          "limits": "Binomial simulation bounds for fixed known DGP only; finiteB resolution typedrefusal, degenerate IF point-only, no simultaneous intervals.",
+          "criterion_refs": [
+            {
+              "criterion_id": "B208",
+              "document": "B_r19",
+              "lines": [
+                5146,
+                5157
+              ],
+              "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+              "card": "CAU-02"
+            }
+          ],
+          "method_decision": "F-M5",
+          "native_outcome": "PASS",
+          "finding_state": "limited",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5146,
+              5157
+            ],
+            "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+            "exact_acceptance_text": "**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.",
+            "full_card_text": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой\n\n**Приоритет:** высокий вместе с B207; не ремонтировать отдельно косметическим сдвигом. **Основание:** _run_staggered_did; PV01–PV02. [C20.R02]\n\n**Проблема.** p-value вычисляется как доля |boot|≥|att| с поправкой +1. Нецентрированный bootstrap обычно расположен вокруг наблюдаемой оценки; такая доля сама по себе не является хвостовой вероятностью статистики при нулевом эффекте.\n\n**Воспроизведение.** В одной шумной ячейке из B207 одновременно получены ATT=5, CI=[5,5], p=1. На иллюстративных draws [4,9;5;5,1] исходный счётчик с +1 даёт 0,75, а счётчик отклонений boot−att относительно нуля — 0,25. Последний показан только как различение объектов сравнения, не как универсально корректная bootstrap-процедура.\n\n**Рекомендуемое исправление.** Задать H0, тестовую статистику, её масштабирование и допустимый способ получения нулевого распределения совместно с уровнем повторной выборки. Использовать согласованную инверсию интервала/теста или проверенный центрированный/studentized/bootstrap-тест согласно дизайну. Если такой вывод не вычислен, сохранить ATT и имеющуюся диагностику, указав p-value как отсутствующий.\n\n**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.\n\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "limited",
+          "source_criterion_outcome": "closed",
+          "decision_reason": "Original scientific discriminator is closed for one centered/studentized null test and matching finite-B closed CI inversion, including the repaired integer-tail endpoint decision, null size, power and alternative coverage on the same units. Overall continuation outcome remains limited only for the separate F-M5 final whole-node binding receipt, not for absent real-world identification.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "head-dgp",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-removal-uncentered",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [
+            {
+              "owner": "F root/G integration",
+              "check": "UNRUN",
+              "scope": "Exact final composed whole Scientist node: original unit/target/E_g/query and complete report versus genuine method CAS result; earlier root binding prototype is explicitly not final closure."
+            }
+          ],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B208"
+        ],
+        "json_pointer": "/per_finding/B208",
+        "complete_deciding_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5146,
+              5157
+            ],
+            "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+            "exact_acceptance_text": "**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/B208"
+          },
+          "method_decision": "F-M5",
+          "decision_basis": "Original generic scientific predicate retained on its exact prior source; focused current native sibling tests cover modifiedproducer. No oldMC receipt relabelled current.",
+          "negative": "diagnostic input digest removal4FAIL; stale/forged/coherent diagnostic claims refused in portable rootproposal",
+          "limits": "Binomial simulation bounds for fixed known DGP only; finiteB resolution typedrefusal, degenerate IF point-only, no simultaneous intervals.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/4",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

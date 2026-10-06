@@ -1,0 +1,383 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "LA-003",
+    "primary_bundle": "FRY-03",
+    "primary_tsv_owner": {
+      "finding_id": "LA-003",
+      "unit": "F",
+      "docx_analytical_package": "P36",
+      "source_closure_owner": "FRY-03",
+      "source_bundle_ids": "FRY-03",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "LA-003",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          136,
+          166
+        ],
+        "bytes": 3450,
+        "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+        "title": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей\n\n**Перемещение по смысловой роли**\n\n**Статус.** Живой код; кандидат на уточнение профиля и перенос, не прямое удаление.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/mechanisms/__init__.py`\n\n**Что установлено и почему это legacy-кандидат.** IncomeTax/TaxSubsidy эмитируют PatchMap; LaborMarketMechanism заново выбирает занятость по threshold и фирму из равномерного распределения. Это узкие модели, а не универсальный рынок труда. Но каталог уже вызывает эти классы через runtime_mechanism_class_path: это backend зарегистрированных методов, а не забытый независимый методовый каталог.\n\n**Что сохранить.** Patch-first ABI, active/target masks, фискальный баланс, employer IDs, firm labor counts, PRNG key progression и дешёвые контрольные модели. Существующий runtime-каталог уже ограничивает evidence/authority-scope этих методов.\n\n**Куда перенести / с чем объединить.** Предлагаемый src/polisyos/foundry/execute/mechanisms/{fiscal,labor}.py под существующим execute/ как низкоуровневый доменный backend. Методовые adapters остаются в methods/catalog/mechanism/runtime.py. До согласования import-direction допустимо оставить текущий путь, но явно назвать профиль baseline.\n\n**Порядок миграции.** Разделить relocation и изменение модели. Сначала эквивалентный перенос со старым method ID, затем при желании новая версия модели с иной динамикой. Обновить строковые class paths, registry descriptors и exports; не переносить численный код внутрь обёртки ради одного файла.\n\n**Приёмочная проверка.** Регистрация, создание по spec, одинаковые patches/key при фиксированных входах, masked/inactive cases, compiler/replay и существующие fiscal/labor/gradient tests. Новый содержательный закон требует отдельной версии, а не тех же fingerprints.\n\n**Приоритет.** Средняя цена. Выше приоритета косметического выравнивания дерева — точный статус baseline-модели.\n\n**Граница вывода.** Простая модель не является legacy только из-за простоты. Доказательств готовой эквивалентной замены и всех production-вызовов нет; смысловая граница уже частично защищена metadata.\n\n**Основания:** E01, E04, E05, E06.\n\n<!-- PAGEBREAK -->\n"
+      }
+    ],
+    "criterion_short_ru": "Native fiscal/labor PatchMap consumer migration and admitted precision profile; original law/mask/RNG/ABI retained",
+    "actual_consumer": "Maintained mechanism registry/spec → compile API/ParamDecimal/CAS/ExecutorGraph → IncomeTax/Employer/subsidy PatchMap → actual GlobalState/balance/current metrics → fresh reader; old fingerprints/laws and active-population admission retained.",
+    "source_scope": "Named fiscal/labor baseline relocation with PatchMap/mask/key/spec/compiler/replay ABI",
+    "oracle_and_negative": "Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named fiscal/labor baseline relocation with PatchMap/mask/key/spec/compiler/replay ABI. Independent oracle/retained-marker negative: Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None for bounded original native fiscal/labor migration with declared precision compatibility profile. ABM diagnostic FAIL is separately reported and remains red; selected base replay does not establish P41.",
+    "separate_unavailable_inputs_or_authority": "No equivalence to richer plugin or admitted production calibration.",
+    "limit_next_owner_short_ru": "None for bounded original native fiscal/labor migration with declared precision compatibility profile. ABM diagnostic FAIL is separately reported and remains red; selected base replay does not establish P41.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "branch": "refs/heads/codex/e02-F-economics-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+      "bytes": 109240,
+      "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+      "table": "finding_outcomes",
+      "per_id": "LA-003"
+    },
+    "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+    "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.txt"
+      },
+      {
+        "index": 1,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.txt"
+      },
+      {
+        "index": 2,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-source-lint-final-candidate.txt"
+      },
+      {
+        "index": 3,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-source-format-final-candidate.txt"
+      },
+      {
+        "index": 4,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-release-fragment-final-candidate.txt"
+      },
+      {
+        "index": 5,
+        "check_id": null,
+        "outcome": "UNRUN",
+        "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-architecture-final-candidate.txt"
+      },
+      {
+        "index": 6,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-production-invocation-base.txt"
+      },
+      {
+        "index": 7,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-base-science.txt"
+      },
+      {
+        "index": 8,
+        "check_id": null,
+        "outcome": "FAIL",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-native-aggregate-route-negative.txt"
+      },
+      {
+        "index": 9,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-epsilon-frozen.txt"
+      },
+      {
+        "index": 10,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-normalization-frozen.txt"
+      },
+      {
+        "index": 11,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-gini-removal-aggregate-frozen.txt"
+      },
+      {
+        "index": 12,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-native.stdout"
+      },
+      {
+        "index": 13,
+        "check_id": null,
+        "outcome": "PASS",
+        "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-controls.stdout"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "LA-003",
+      "bundle": "FRY-03",
+      "state": "limited",
+      "finding_closure": false,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-003",
+          "document": "LA_r09",
+          "lines": [
+            136,
+            166
+          ],
+          "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+          "card": "FRY-03"
+        }
+      ],
+      "method_decision": "F-M13",
+      "established": [
+        "Existing canonical execute.mechanisms relocation and old facade class identity are preserved. Registry/spec construction and catalog runtime class paths identify the same native owners.",
+        "Entire independently specified fiscal/labor patch records, active/target masks, PRNG progression, employer IDs and firm counts flow into actual apply_patch_map and complete Contracts GlobalState equality/accounting controls.",
+        "Compiler/replay and actual catalog adapter importer tests pass; unchanged numeric guardrail/JIT/gradient tests pass. Native and plugin laws remain separate, with explicit equivalent fiscal amount fixtures and deliberate stock/flow/job-transition divergence."
+      ],
+      "not_established": [
+        "Complete production scenario migration or external/configured runtime caller equivalence.",
+        "Whole plugin/WorldState equivalence or calibration, full real economic inputs.",
+        "Catalog pure_step diagnostic JSON-to-native-patch bridge is not exercised; native typed PatchMap-to-state chain is exercised."
+      ],
+      "next_owner": "G local admission/caller scenarios on exact532, with F economics model owner; C owns external discovery/installed distribution/FQN boundaries."
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 15,
+        "receipt_ref": {
+          "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+          "bytes": 127652,
+          "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162"
+        },
+        "json_pointer": "/per_id_outcomes/0",
+        "complete_owner_entry": {
+          "finding_id": "LA-003",
+          "bundle_id": "FRY-03",
+          "outcome": "FAIL",
+          "finding_state": "limited",
+          "original_criterion_ref": {
+            "finding_id": "LA-003",
+            "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              136,
+              166
+            ],
+            "bytes": 3450,
+            "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+            "original_full_criterion": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей\n\n**Перемещение по смысловой роли**\n\n**Статус.** Живой код; кандидат на уточнение профиля и перенос, не прямое удаление.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/mechanisms/__init__.py`\n\n**Что установлено и почему это legacy-кандидат.** IncomeTax/TaxSubsidy эмитируют PatchMap; LaborMarketMechanism заново выбирает занятость по threshold и фирму из равномерного распределения. Это узкие модели, а не универсальный рынок труда. Но каталог уже вызывает эти классы через runtime_mechanism_class_path: это backend зарегистрированных методов, а не забытый независимый методовый каталог.\n\n**Что сохранить.** Patch-first ABI, active/target masks, фискальный баланс, employer IDs, firm labor counts, PRNG key progression и дешёвые контрольные модели. Существующий runtime-каталог уже ограничивает evidence/authority-scope этих методов.\n\n**Куда перенести / с чем объединить.** Предлагаемый src/polisyos/foundry/execute/mechanisms/{fiscal,labor}.py под существующим execute/ как низкоуровневый доменный backend. Методовые adapters остаются в methods/catalog/mechanism/runtime.py. До согласования import-direction допустимо оставить текущий путь, но явно назвать профиль baseline.\n\n**Порядок миграции.** Разделить relocation и изменение модели. Сначала эквивалентный перенос со старым method ID, затем при желании новая версия модели с иной динамикой. Обновить строковые class paths, registry descriptors и exports; не переносить численный код внутрь обёртки ради одного файла.\n\n**Приёмочная проверка.** Регистрация, создание по spec, одинаковые patches/key при фиксированных входах, masked/inactive cases, compiler/replay и существующие fiscal/labor/gradient tests. Новый содержательный закон требует отдельной версии, а не тех же fingerprints.\n\n**Приоритет.** Средняя цена. Выше приоритета косметического выравнивания дерева — точный статус baseline-модели.\n\n**Граница вывода.** Простая модель не является legacy только из-за простоты. Доказательств готовой эквивалентной замены и всех production-вызовов нет; смысловая граница уже частично защищена metadata.\n\n**Основания:** E01, E04, E05, E06.\n\n<!-- PAGEBREAK -->\n"
+          },
+          "check_indices": [
+            0,
+            4,
+            6,
+            10,
+            11
+          ],
+          "consumer": "foundry._registry.create_mechanism_from_spec → compile.api.compile → FileSystemCAS → execute.api.execute → apply_patch_map/load_state_snapshot",
+          "recommendation": "Canonical relocation and registered class paths, full PatchMap/mask/accounting/employer/count/key and fresh CAS replay pass. Existing broader fiscal decimal-rate precision failure remains explicit; numerical carry failures are a separate forward companion. Do not label the mixed broader gate PASS or full migration universal."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      3,
+      15,
+      16,
+      26,
+      29
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "eco",
+        "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+        "bytes": 127652,
+        "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+        "implementation_commits": [
+          "964c76dad1dc9f56bd89e2216bded373f0e66883",
+          "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3"
+        ],
+        "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251"
+      },
+      {
+        "key": "eco_dtype",
+        "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006.json",
+        "bytes": 58922,
+        "sha256": "cb9efb8452c6446d78d19225dcae4c69dadaa817810e16fcc9c8741dee8ad6c7",
+        "implementation_commits": [
+          "c003bd673fd672726db18773bf888357a468d901"
+        ],
+        "candidate_tree_sha": "16927b18be300fc6c1723c2af4bb8a421ccac357"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "Published fiscal source 1324d2fcd7b75e448ad0fa1cce128a79101df1aa/treedc4b6a932a11cba4470b9bbcf299d2d2f51b2301 carried by 3912782bfd55cc87f76757310c32603ecbe58cc3; no automatic original-finding closure.; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_old_source_disposition": {
+      "check": "FAIL",
+      "outcome": "limited",
+      "remainder": "Actual canonical registry/spec/compiler/CAS PatchMap migration passes; .10 fiscal budget precision remains FAIL, so original whole migration limited. Forward carry fixes have their own c003 source; not a fiscal-law correction.",
+      "oracle_and_negative": "532 fullfiscal/labor patches,key,active/target/accounting; existing compiler/replay/JIT; current412 new actual Composite/native tests require owner outcome receipt"
+    },
+    "latest_published_receipt_refs": [
+      {
+        "head": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json",
+        "bytes": 229832,
+        "sha256": "540ea3357ab032df188b2b8c413aa6e8fa45ce81055e2e8f3bdcb7f3ef06979b",
+        "implementation_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+        "candidate_tree_sha": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301"
+      }
+    ],
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Published132 precision source/checks require explicit ROOT per-ID adjudication of the original finite migration/precision criterion; retained ABM diagnostic FAIL is separately scoped, not erased or inherited by assertion.",
+      "latest_owner_packet": "Published fiscal source 1324d2fcd7b75e448ad0fa1cce128a79101df1aa/treedc4b6a932a11cba4470b9bbcf299d2d2f51b2301 carried by 3912782bfd55cc87f76757310c32603ecbe58cc3; no automatic original-finding closure.",
+      "outcome": "limited",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "All actual132 floating-profile budget/matrix/native/compiler/CAS controls and earlier forced32/base/precision FAIL/ERROR streams are preserved in the exact fiscal receipt. Full125native=124PASS1ABMdiagnosticFAIL; source-specific property checks are not a whole125PASS.",
+      "source_scope": "Named fiscal/labor baseline relocation with PatchMap/mask/key/spec/compiler/replay ABI",
+      "actual_consumer": "Registry-created native fiscal/labor → apply_patch_map → complete GlobalState; actual runtime adapters",
+      "check": "UNRUN",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "No equivalence to richer plugin or admitted production calibration.",
+      "criterion_short_ru": "Native fiscal/labor migration: published132 finite precision evidence; ROOT whole-criterion adjudication pending, prior precision FAIL retained historically",
+      "technical_original_criterion_recommendation": "limited",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named fiscal/labor baseline relocation with PatchMap/mask/key/spec/compiler/replay ABI. Independent oracle/retained-marker negative: Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+        "git_blob": "a32c2ff95bbb0ae5de30003b140110521b63f625",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-003"
+        ]
+      },
+      {
+        "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+        "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+        "bytes": 127652,
+        "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+        "git_blob": "f238b5b306f772e9faea07bdaef474d0ed4f5e67",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-003"
+        ],
+        "json_pointer": "/per_id_outcomes/0",
+        "complete_deciding_entry": {
+          "finding_id": "LA-003",
+          "bundle_id": "FRY-03",
+          "outcome": "FAIL",
+          "finding_state": "limited",
+          "original_criterion_ref": {
+            "finding_id": "LA-003",
+            "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "lines": [
+              136,
+              166
+            ],
+            "bytes": 3450,
+            "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+            "original_full_criterion": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей\n\n**Перемещение по смысловой роли**\n\n**Статус.** Живой код; кандидат на уточнение профиля и перенос, не прямое удаление.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/mechanisms/__init__.py`\n\n**Что установлено и почему это legacy-кандидат.** IncomeTax/TaxSubsidy эмитируют PatchMap; LaborMarketMechanism заново выбирает занятость по threshold и фирму из равномерного распределения. Это узкие модели, а не универсальный рынок труда. Но каталог уже вызывает эти классы через runtime_mechanism_class_path: это backend зарегистрированных методов, а не забытый независимый методовый каталог.\n\n**Что сохранить.** Patch-first ABI, active/target masks, фискальный баланс, employer IDs, firm labor counts, PRNG key progression и дешёвые контрольные модели. Существующий runtime-каталог уже ограничивает evidence/authority-scope этих методов.\n\n**Куда перенести / с чем объединить.** Предлагаемый src/polisyos/foundry/execute/mechanisms/{fiscal,labor}.py под существующим execute/ как низкоуровневый доменный backend. Методовые adapters остаются в methods/catalog/mechanism/runtime.py. До согласования import-direction допустимо оставить текущий путь, но явно назвать профиль baseline.\n\n**Порядок миграции.** Разделить relocation и изменение модели. Сначала эквивалентный перенос со старым method ID, затем при желании новая версия модели с иной динамикой. Обновить строковые class paths, registry descriptors и exports; не переносить численный код внутрь обёртки ради одного файла.\n\n**Приёмочная проверка.** Регистрация, создание по spec, одинаковые patches/key при фиксированных входах, masked/inactive cases, compiler/replay и существующие fiscal/labor/gradient tests. Новый содержательный закон требует отдельной версии, а не тех же fingerprints.\n\n**Приоритет.** Средняя цена. Выше приоритета косметического выравнивания дерева — точный статус baseline-модели.\n\n**Граница вывода.** Простая модель не является legacy только из-за простоты. Доказательств готовой эквивалентной замены и всех production-вызовов нет; смысловая граница уже частично защищена metadata.\n\n**Основания:** E01, E04, E05, E06.\n\n<!-- PAGEBREAK -->\n"
+          },
+          "check_indices": [
+            0,
+            4,
+            6,
+            10,
+            11
+          ],
+          "consumer": "foundry._registry.create_mechanism_from_spec → compile.api.compile → FileSystemCAS → execute.api.execute → apply_patch_map/load_state_snapshot",
+          "recommendation": "Canonical relocation and registered class paths, full PatchMap/mask/accounting/employer/count/key and fresh CAS replay pass. Existing broader fiscal decimal-rate precision failure remains explicit; numerical carry failures are a separate forward companion. Do not label the mixed broader gate PASS or full migration universal."
+        }
+      },
+      {
+        "git_ref": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+        "head": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json",
+        "bytes": 229832,
+        "sha256": "540ea3357ab032df188b2b8c413aa6e8fa45ce81055e2e8f3bdcb7f3ef06979b",
+        "git_blob": "218fd9e2ed875b2e2e148749f7449698bdd818b0",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-003"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/26",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

@@ -1,0 +1,448 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B215",
+    "primary_bundle": "SCM-02",
+    "primary_tsv_owner": {
+      "finding_id": "B215",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-02",
+      "source_bundle_ids": "SCM-02",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B215",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5230,
+          5243
+        ],
+        "bytes": 3763,
+        "sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+        "title": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт\n\n**Приоритет:** высокий для контрфактуала с неполным factual context; точный линейно-Gaussian путь возможен без универсального sampler. **Основание:** _abduce_linear_noises и _simulate_samples; CF01–CF03. [C20.R11–R12, C20.E05]\n\n**Проблема.** Перед восстановлением шума ненаблюдаемые узлы заполняются линейным предсказанием или нулём. Проверка all(parent in pseudo_observed) затем считает их известными и вычисляет один residual для наблюдённого потомка. При counterfactual simulation этот residual фиксируется вместо условного распределения экзогенных переменных.\n\n**Воспроизведение.** SCM: X=Ux, Y=X+Uy, независимые Ux,Uy~N(0,1). Factual evidence содержит только Y=2, запрос do(X=0). Точный Gaussian conditioning даёт Uy|Y=2 со средним 1 и дисперсией 0,5. Исходная абдукция подставила X=0, восстановила Uy=2; 100 контрфактических реализаций дали среднее 2 и дисперсию 0. При полном наблюдении X=1,Y=2 контроль правильно даёт детерминированный Y(0)=1.\n\n**Рекомендуемое исправление.** Различать фактически наблюдённых родителей и модельно восстановленные значения. Когда invertible-механизм и все необходимые factual inputs действительно известны, использовать существующую точную residual-инверсию. В линейно-Gaussian случае с неполным наблюдением решать условную Gaussian-задачу; в общем случае нужна явная поддержанная posterior-abduction либо ограничение соответствующего контрфактуала. Фиксировать одну и ту же posterior-noise реализацию для сравниваемых миров и хранить её происхождение.\n\n**Экономия.** Для линейного случая условную факторизацию можно подготовить один раз для заданного observation pattern и модели, затем переиспользовать векторизованные реализации. Увеличение числа draws исходного детерминированного residual только повторит неверную точку. Не нужно запрещать все counterfactuals либо подменять factual-condition обычным intervention-запросом.\n\n**Граница.** Исполнены выбранные настоящие traversal/abduction/sample-loop тела, но механизм ограничен явно тестовым LINEAR/ATOMIC backend и небольшими DTO. Полные GCMQuery/twin-network, проверка идентификации SCM, native query-result и CAS не запускались. Формула контрольного Gaussian-conditioning рассчитана напрямую; это не inference из реальных социальных данных.\n\n"
+      }
+    ],
+    "criterion_short_ru": "Declared affine Gaussian conditioning and evidence/singular-law semantics",
+    "actual_consumer": "GCMQuery/TwinNetworkQuery → typed conditional result → genuine CAS/fresh reader",
+    "source_scope": "Actual conditional Gaussian noise posterior and complete-fact residual inverse",
+    "oracle_and_negative": "Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Actual conditional Gaussian noise posterior and complete-fact residual inverse. Independent oracle/retained-marker negative: Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None for declared affine Gaussian profile.",
+    "separate_unavailable_inputs_or_authority": "Nonlinear/unknown-law partial posterior is typed limited; no real-data identification.",
+    "limit_next_owner_short_ru": "None for declared affine Gaussian profile.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "branch": "refs/heads/codex/e02-F-graph-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "table": "per_id",
+      "per_id": "B215"
+    },
+    "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": "scm-frozen/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.stdout.txt"
+      },
+      {
+        "index": 1,
+        "check_id": "scm-frozen/emp01",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt"
+      },
+      {
+        "index": 2,
+        "check_id": "scm-frozen/gcm-parent",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.stdout.txt"
+      },
+      {
+        "index": 3,
+        "check_id": "scm-frozen/public-abi",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.stdout.txt"
+      },
+      {
+        "index": 4,
+        "check_id": "scm-frozen/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.stdout.txt"
+      },
+      {
+        "index": 5,
+        "check_id": "scm-frozen/semantics",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.stdout.txt"
+      },
+      {
+        "index": 6,
+        "check_id": "scm-frozen/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 7,
+        "check_id": "scm-frozen/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.stdout.txt"
+      },
+      {
+        "index": 8,
+        "check_id": "scm-final1e/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.stdout.txt"
+      },
+      {
+        "index": 9,
+        "check_id": "scm-final1e/gcm-parent-and-custody",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.stdout.txt"
+      },
+      {
+        "index": 10,
+        "check_id": "scm-final1e/original-scm-cards",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.stdout.txt"
+      },
+      {
+        "index": 11,
+        "check_id": "scm-final1e/public-abi",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.stdout.txt"
+      },
+      {
+        "index": 12,
+        "check_id": "scm-final1e/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.stdout.txt"
+      },
+      {
+        "index": 13,
+        "check_id": "scm-final1e/semantics",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.stdout.txt"
+      },
+      {
+        "index": 14,
+        "check_id": "scm-final1e/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 15,
+        "check_id": "scm-final1e/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.stdout.txt"
+      },
+      {
+        "index": 16,
+        "check_id": "scm-final0b/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.stdout.txt"
+      },
+      {
+        "index": 17,
+        "check_id": "scm-final0b/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 18,
+        "check_id": "scm-final0b/public-abi",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.stdout.txt"
+      },
+      {
+        "index": 19,
+        "check_id": "scm-final6d/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      },
+      {
+        "index": 20,
+        "check_id": "scm-final6d/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 21,
+        "check_id": "scm-final6d/public-abi",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.stdout.txt"
+      },
+      {
+        "index": 22,
+        "check_id": "scm-final6d/worker-helper-projection",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.stdout.txt"
+      },
+      {
+        "index": 23,
+        "check_id": "owned-import-denominator",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/owned-import-denominator.json"
+      },
+      {
+        "index": 24,
+        "check_id": "docs-plan",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-plan.json"
+      },
+      {
+        "index": 25,
+        "check_id": "own-generated-schemas",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/own-generated-schemas.json"
+      },
+      {
+        "index": 26,
+        "check_id": "public-generated-companions",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-generated-companions.json"
+      },
+      {
+        "index": 27,
+        "check_id": "public-consumer-census",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-consumer-census.json"
+      },
+      {
+        "index": 28,
+        "check_id": "worker-math-profile-equivalence",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-math-profile-equivalence.json"
+      },
+      {
+        "index": 29,
+        "check_id": "independent-d88-native",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.stdout.txt"
+      },
+      {
+        "index": 30,
+        "check_id": "independent-d88-peer-custody",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.stdout.txt"
+      },
+      {
+        "index": 31,
+        "check_id": "independent-1e-native",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.stdout.txt"
+      },
+      {
+        "index": 32,
+        "check_id": "independent-1e-custody-correction",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.stdout.txt"
+      },
+      {
+        "index": 33,
+        "check_id": "independent-facade-import-delta",
+        "outcome": "PASS",
+        "target_sha": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-final-facade-import-delta-review.json"
+      },
+      {
+        "index": 34,
+        "check_id": "baseline-production-invocation",
+        "outcome": "ERROR",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "prior graph handoff records empty stdout and absent requested receipt; completed diagnostic UNRUN"
+      },
+      {
+        "index": 35,
+        "check_id": "inprocess-optional-backends",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "Marker omissions are not a positive backend witness; actual supported subprocess profile has separate defining receipt"
+      },
+      {
+        "index": 36,
+        "check_id": "schema_docs-docs_accuracy-strict_docs_build",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "finding_id": "B215",
+      "bundle_id": "SCM-02",
+      "criterion": "Gaussian partial factual evidence uses conditional noise posterior; complete facts retain residual inverse",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "independent22 native+semantics15 exactGaussian/singular+freshCAS",
+      "negative_or_removal": "Independent posterior mean/cov formula: X=Ux,Y=X+Uy,evidenceY2 gives Uymean1,var0.5; incompatible singular facts refuse; fullX1,Y2 yieldsY0=1.",
+      "limit_and_next_owner": "Supported affine-Gaussian profile only; empirical residual/nonlinear partial factual abduction returns typed limitation. No real-data identification claim.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B215.json"
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 7,
+        "receipt_ref": {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        "json_pointer": "/per_id/1",
+        "complete_owner_entry": {
+          "finding_id": "B215",
+          "bundle_id": "SCM-02",
+          "criterion": "Gaussian partial factual evidence uses conditional noise posterior; complete facts retain residual inverse",
+          "check": "PASS",
+          "outcome": "closed",
+          "oracle_and_deciding_checks": "independent22 native+semantics15 exactGaussian/singular+freshCAS",
+          "negative_or_removal": "Independent posterior mean/cov formula: X=Ux,Y=X+Uy,evidenceY2 gives Uymean1,var0.5; incompatible singular facts refuse; fullX1,Y2 yieldsY0=1.",
+          "limit_and_next_owner": "Supported affine-Gaussian profile only; empirical residual/nonlinear partial factual abduction returns typed limitation. No real-data identification claim.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B215.json"
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      6,
+      7,
+      26
+    ],
+    "current_exact_consumer_receipts": [],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "None for declared affine Gaussian profile.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1",
+      "source_scope": "Actual conditional Gaussian noise posterior and complete-fact residual inverse",
+      "actual_consumer": "GCMQuery/TwinNetworkQuery → typed conditional result → genuine CAS/fresh reader",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Nonlinear/unknown-law partial posterior is typed limited; no real-data identification.",
+      "criterion_short_ru": "Declared affine Gaussian conditioning and evidence/singular-law semantics",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Actual conditional Gaussian noise posterior and complete-fact residual inverse. Independent oracle/retained-marker negative: Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B215"
+        ]
+      },
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B215"
+        ],
+        "json_pointer": "/per_id/1",
+        "complete_deciding_entry": {
+          "finding_id": "B215",
+          "bundle_id": "SCM-02",
+          "criterion": "Gaussian partial factual evidence uses conditional noise posterior; complete facts retain residual inverse",
+          "check": "PASS",
+          "outcome": "closed",
+          "oracle_and_deciding_checks": "independent22 native+semantics15 exactGaussian/singular+freshCAS",
+          "negative_or_removal": "Independent posterior mean/cov formula: X=Ux,Y=X+Uy,evidenceY2 gives Uymean1,var0.5; incompatible singular facts refuse; fullX1,Y2 yieldsY0=1.",
+          "limit_and_next_owner": "Supported affine-Gaussian profile only; empirical residual/nonlinear partial factual abduction returns typed limitation. No real-data identification claim.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B215.json"
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/11",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

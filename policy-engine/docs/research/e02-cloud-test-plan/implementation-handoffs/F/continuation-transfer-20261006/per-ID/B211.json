@@ -1,0 +1,174 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B211",
+    "primary_bundle": "CAU-03",
+    "primary_tsv_owner": {
+      "finding_id": "B211",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-03",
+      "source_bundle_ids": "CAU-03",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B211",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5182,
+          5193
+        ],
+        "bytes": 2695,
+        "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+        "title": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов\n\n**Приоритет:** высокая экономия относительно малого объёма правки на используемом RDD-пути. **Основание:** _fit_local_polynomial; RD04–RD05. [C20.R03]\n\n**Проблема.** Для n наблюдений одной стороны создаётся np.diag(weights), затем XᵀWX и XᵀWy. Большая N×N матрица не нужна для диагонального оператора; дополнительно pseudoinverse одинаковой маленькой XᵀWX вызывается дважды.\n\n**Воспроизведение.** На 400 точках одной стороны зафиксирована матрица 400×400, 1 280 000 bytes. Векторно-взвешенный design с двумя столбцами занял 6400 bytes. Диагонально-свободная формула дала тот же intercept=3,040424179788 и SE=0,005783542516. Независимый weighted-QR совпал по точке. Это сравнение выделенных структур и значений, не измеренный коэффициент ускорения всего RDD.\n\n**Рекомендуемое исправление.** Минимально: Xᵀ(w⊙X), Xᵀ(w⊙y), одна разрешённая факторизация; не менять одновременно статистический смысл residual covariance. Следующий численно устойчивый вариант — weighted QR/SVD, масштабирование running variable относительно bandwidth и контроль ранга. Увеличение числа точек тогда не создаёт искусственный расход O(n²) только ради хранения весов.\n\n**Приёмка.** Сопоставить точку, SE текущего профиля и effective sample count на всех поддержанных kernel/order. Случаи недостаточной опоры сохраняют точный отказ. Исправление производительности не доказывает правильность нынешней covariance или RBC — B210 остаётся отдельной задачей. Пакетирование нескольких bandwidth допускается только с корректной идентичностью выбранной области и профиля.\n\n"
+      }
+    ],
+    "criterion_short_ru": "Weighted RDD algebra and supported kernels/design orders",
+    "actual_consumer": "RegressionDiscontinuity weighted design → report/dispatcher",
+    "source_scope": "RDD weighted O(np) structures preserve supported numerical kernels/order/SE",
+    "oracle_and_negative": "Native permutation/kernel/order/reference and no dense diag control",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: RDD weighted O(np) structures preserve supported numerical kernels/order/SE. Independent oracle/retained-marker negative: Native permutation/kernel/order/reference and no dense diag control. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None in selected supported linear-algebra property.",
+    "separate_unavailable_inputs_or_authority": "No whole-estimator measured speedup or new statistical law inferred.",
+    "limit_next_owner_short_ru": "None in selected supported linear-algebra property.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "branch": "refs/heads/codex/e02-F-rdd-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+      "table": "criterion_decisions",
+      "per_id": "B211"
+    },
+    "implementation_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+    "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": "native-causal-profile",
+        "outcome": "PASS",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stdout"
+      },
+      {
+        "index": 4,
+        "check_id": "RDD-property-importer",
+        "outcome": "PASS",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/property-importer.stdout"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "B211",
+      "original_criterion": [
+        {
+          "criterion_id": "B211",
+          "document": "B_r19",
+          "lines": [
+            5182,
+            5193
+          ],
+          "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+          "card": "CAU-03"
+        }
+      ],
+      "criterion_acceptance": "RDD kernel, observation order and standard error must remain invariant to input permutation and follow the declared kernel; test the same data permuted, kernel alternatives and SE against the reference.",
+      "check_names": [
+        "native-causal-profile",
+        "RDD-property-importer"
+      ],
+      "outcome": "PASS",
+      "finding_state": "closed",
+      "predicate_basis": "recomputed",
+      "limits": "B210 finite sharp fixed HC0 synthetic/asymptotic implementation only; no real-design authority/fuzzy/selector/cluster claim; B211 O(np) weighted structures and conventional covariance compatibility only, no measuredwholemethodspeedup; G integration acceptance and fullgatepass not established",
+      "closure_scope": "Exact original CAU-03 acceptance and selected finite F-M6 sharp HC0 profile. Scientific/domain assumptions and broadproduction/gate readiness remain separate limitations."
+    },
+    "owner_proposals_complete": [],
+    "supplemental_receipt_registry_indices": [
+      10,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "rdd",
+        "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+        "implementation_commits": [
+          "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+          "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+        ],
+        "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "None in selected supported linear-algebra property.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Native permutation/kernel/order/reference and no dense diag control",
+      "source_scope": "RDD weighted O(np) structures preserve supported numerical kernels/order/SE",
+      "actual_consumer": "RegressionDiscontinuity weighted design → report/dispatcher",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "No whole-estimator measured speedup or new statistical law inferred.",
+      "criterion_short_ru": "Weighted RDD algebra and supported kernels/design orders",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: RDD weighted O(np) structures preserve supported numerical kernels/order/SE. Independent oracle/retained-marker negative: Native permutation/kernel/order/reference and no dense diag control. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+        "git_blob": "460e5bda9602955fbf7084cca64edd63906724d1",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B211"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 129187,
+      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
+      "json_pointer": "/rows/7",
+      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
+      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

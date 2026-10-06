@@ -27,7 +27,7 @@
     "python": "/workspace/e02-D-locked-env/bin/python",
     "profile": "Python3.14.7/hnswlib0.8.0/Torch2.10.0/BoTorch0.16.1/GPyTorch1.15.1",
     "module_origins": {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-origins.log",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-origins.txt",
       "sha256": "21c6a28cf0d61d9588ed93da74b99140043f3b994382cd17df712152faf42751"
     }
   },
@@ -39,7 +39,7 @@
       "outcome": "PASS",
       "result": "9 passed, 3 warnings in 9.95s",
       "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-immutable.log",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-immutable.txt",
         "sha256": "f3a1add10be8c1d17ee014dd208c0e961100c3d5780ea9d8128ebafe053d4102"
       }
     },
@@ -49,7 +49,7 @@
       "outcome": "FAIL",
       "result": "3 failed, 1 passed; load/update mixed native distance with newly published key/metadata; caller mutation escaped",
       "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-base.log",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-base.txt",
         "sha256": "d8b6159b02f6d756f91fdb2920799f96734489c87ebbc4a1a30af8237ecfb62b"
       }
     },
@@ -59,7 +59,7 @@
       "outcome": "EXPECTED_FAIL",
       "result": "2 failed, 2 deselected; actual native distance became mixed with new keys/metadata",
       "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-property-removal.log",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-property-removal.txt",
         "sha256": "7e9bf83297f5aebbdc792ec47fdf0ee5f649d491819231132fbcf8386ebdfb14"
       }
     }

@@ -611,7 +611,7 @@
         "--junitxml",
         "/tmp/e02-B-llm-affected-a2-k98z3tu9/native.xml"
       ],
-      "command": "Author exact captured argv; see full structured command_argv and committed run-native.source.txt. Reviewer did not execute pytest.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python /tmp/e02-B-llm-affected-a2-k98z3tu9/child.source.txt /workspace/e02-B-current-adapters/policy-engine/tests/unit/core/test_llm_core.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/remediation/test_llm_01.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_critic_factory.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_drafter_constitution.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_drafter_factory.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_drafter_formatting.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_drafter_llm.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_drafter_models.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_drafter_parsing.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_drafter_passes.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/agent/test_response_healing.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_builtin_profiles.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_fallback_router.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_provider_verification.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_streaming.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_token_estimator.py /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py --import-mode=importlib -p no:cacheprovider -q -s --tb=short --basetemp /tmp/e02-B-llm-affected-a2-k98z3tu9/fixtures --junitxml /tmp/e02-B-llm-affected-a2-k98z3tu9/native.xml",
       "cwd": "/workspace/e02-B-current-adapters/policy-engine",
       "target_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
       "test_input_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
@@ -700,7 +700,8 @@
       },
       "deciding_output": "Author34 wholefiles literal632PASS4FAIL. Three faultconsumer premises not_established; fourth actualsharedflight/completionidentity defect. Literalnativegrades unchanged.",
       "wall_seconds": 121.95048622699687,
-      "maxrss_kib": 1123760
+      "maxrss_kib": 1123760,
+      "command_qualification": "Exact captured author command, not executed by independent reviewer; all literal native grades retained. Full explicit environment and child/runner sources committed."
     },
     {
       "id": "author-observational-flight-existing-runtime-data-review",
@@ -725,7 +726,7 @@
         "--junitxml",
         "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/native.xml"
       ],
-      "command": "Author exact captured argv; see full structured command_argv and committed run-native.source.txt. Reviewer did not execute pytest.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python /tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/child.source.txt /workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh --noconftest -c /dev/null --import-mode=importlib -p pytest_asyncio.plugin -p no:cacheprovider -q -s --tb=short --basetemp /tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/fixtures --junitxml /tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/native.xml",
       "cwd": "/workspace/e02-B-current-adapters/policy-engine",
       "target_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
       "test_input_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
@@ -815,7 +816,8 @@
       },
       "deciding_output": "Observer delegates real constructor/gather body. ActualleaderTimeout + followerLLMAccountingError, oneprovider/cache0/knownlocal.02, persistedfalsecost_unknownNone/providerunknown and actualreserve.12289; allrawledgerbytes stored. One nativeFAIL preserved.",
       "wall_seconds": 1.1754251230013324,
-      "maxrss_kib": 79852
+      "maxrss_kib": 79852,
+      "command_qualification": "Exact captured author command, not executed by independent reviewer; all literal native grades retained. Full explicit environment and child/runner sources committed."
     },
     {
       "id": "independent-source-and-existing-data-audit",

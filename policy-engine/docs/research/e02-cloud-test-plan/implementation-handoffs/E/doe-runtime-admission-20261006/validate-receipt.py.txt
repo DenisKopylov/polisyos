@@ -1,0 +1,51 @@
+"""Recompute source, footprint, custody and actual JUnit; reject corrupt claims."""
+from pathlib import Path
+import argparse
+import copy
+import hashlib
+import json
+import subprocess
+import xml.etree.ElementTree as ET
+
+def verify(repo, receipt, folder):
+    source=receipt['candidate_sha'];base=receipt['base_sha']
+    assert source=='70c4a14fc872f5ef66437d958ba63884ecdda168'
+    actual_tree=subprocess.check_output(['git','rev-parse',source+'^{tree}'],cwd=repo,text=True).strip()
+    assert receipt['candidate_tree']==actual_tree
+    paths=subprocess.check_output(['git','diff','--name-only',base,source],cwd=repo,text=True).splitlines()
+    assert receipt['complete_implementation_footprint']==paths and len(paths)==10
+    index=json.loads((folder/'evidence-index.json').read_text())
+    for name,row in index.items():
+        assert Path(name).name==name
+        data=(folder/name).read_bytes()
+        assert len(data)==row['size_bytes'] and hashlib.sha256(data).hexdigest()==row['sha256']
+    counts={}
+    for name in receipt['evidence_counts']:
+        cases=list(ET.parse(folder/name).getroot().iter('testcase'))
+        counts[name]=dict(tests=len(cases),failed=sum(x.find('failure') is not None for x in cases),errors=sum(x.find('error') is not None for x in cases),skipped=sum(x.find('skipped') is not None for x in cases))
+    assert receipt['evidence_counts']==counts
+    assert counts['targeted-corrected.xml']==dict(tests=77,failed=0,errors=0,skipped=0)
+    assert counts['family.xml']==dict(tests=176,failed=0,errors=0,skipped=0)
+    origins=json.loads((folder/'environment-source.json').read_text())
+    assert origins['source']==source and origins['backend']['SALib']=='1.5.2'
+    for path,row in origins['module_origins'].items():
+        data=subprocess.check_output(['git','show',source+':'+path],cwd=repo)
+        assert hashlib.sha256(data).hexdigest()==row['sha256'] and len(data)==row['bytes']
+    assert receipt['finding_decisions'][0]['ledger_status_retained']=='partial'
+    return dict(source=source,paths=len(paths),files=len(index),native=counts)
+
+def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--repo',type=Path,required=True);args=parser.parse_args()
+    folder=Path(__file__).resolve().parent
+    receipt=json.loads((folder.parent/'doe-runtime-admission-20261006.json').read_text())
+    verified=verify(args.repo,receipt,folder);controls=[]
+    for field in ['candidate_tree','complete_implementation_footprint','evidence_counts']:
+        changed=copy.deepcopy(receipt)
+        if field=='candidate_tree':changed[field]='0'*40
+        elif field=='complete_implementation_footprint':changed[field]=changed[field][1:]
+        else:changed[field]['family.xml']['tests']=175
+        try:verify(args.repo,changed,folder)
+        except AssertionError:controls.append(field+' REFUSED')
+        else:raise AssertionError('Corrupt '+field+' accepted')
+    print(json.dumps(dict(outcome='PASS',verified=verified,negative_controls=controls,full_global_wave='UNRUN',finding_ledger='unchanged')))
+if __name__=='__main__':main()

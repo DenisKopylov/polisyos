@@ -1,11 +1,11 @@
 {
-  "schema": "e02-implementation-handoff-v1",
+  "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "B",
   "slice": "successor-pre-freeze-consumer-custody",
   "owner": "B root",
   "closure_ids": [],
-  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
-  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "slice_base_sha": "cde19048cfa888c294c3a8b46f4fdf6234426be7",
+  "slice_base_tree_sha": "bffc967dfa26f166fb82a5642d9f38e8d9a3b8aa",
   "candidate_sha": "a6e803e574dcad0e558baa9cc8b9dcd61552ed95",
   "candidate_tree_sha": "c9b5d46f111a7fe191f495eb7469a4913e722231",
   "driver_implementation_commits": [
@@ -13,14 +13,57 @@
     "a6e803e574dcad0e558baa9cc8b9dcd61552ed95"
   ],
   "changed_paths": [
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/source-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/artifact-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/captured-old-raw-census-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-ledger-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census-commands.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-0.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-1.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-10.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-11.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-12.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-3.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-6.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-7.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-8.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-9.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/old-raw-census-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/prior-nine-alias-state.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-execution-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+    "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py"
   ],
   "property": {
-    "runtime_path": "Combined actual checkpoint/CAS/async/resume/parallel-compensation/JIT consumers after canonical budget/type changes",
+    "runtime_path": [
+      "registered workflow/JIT/CAS producer",
+      "real CAS artifact,mutablehead/history/verifiedreport",
+      "canonical async checkpoint/adapter/flow bridge",
+      "freshresume/verifier/cache/materializer native consumers"
+    ],
     "defining_observations": "All18 wholefiles238 actual native PASS, including35sactual mutable head publication with original60s deadline; queuednot_admitted vs enteredunknown; freshverified head/history/cache and phase compensation; CAS corrupted bytes/manifest refusal, retry and verification; actual JAX retry/warm calls. Full XML/native stdout contain each case, no case filters.",
     "independent_oracles": "DUR actual source-bound long/shortfilesystem andparallelcompensation inputs; ADAPTER actual JIT leaderterminalinputs. Source and property-removal evidence remains bound to original immutable slices, not relabeled as currentroot removal runs.",
     "adversarial_control": "Prior literal independent budget/head/GC removals produced material filesystem FAIL; existing CAS bytes/options/fault/ownership and queued/entered cancellation negatives are wholefile inputs. No new allfinding closure from aggregate238.",
-    "consumer": "18actual native whole modules, complete commands andcase rows below"
+    "consumer": "18actual native whole modules, complete commands andcase rows below",
+    "statement": "Root prepared wheel/PG/oracle source admission is explicit and immutable; combined changed checkpoint/CAS/JIT/parallel consumers execute their real filesystem/async runtime paths.",
+    "proxy_divergence": "Historical6af/6d failures and wrong preentry publication premises preserved separately; this source-bound238PASS does not become whole-B/gate proof, installedwheel/PG8 successor proof, or productiondata proof. Mandatory finalPGformatter414 onlychangesoneunused-in-this-wave PG test; real runtime stays0fd.",
+    "negative_controls": [
+      "Prior literal independent budget/head/GC removals produced material filesystem FAIL; existing CAS bytes/options/fault/ownership and queued/entered cancellation negatives are wholefile inputs. No new allfinding closure from aggregate238."
+    ]
   },
   "predicate_basis": "consumer_asserted",
   "checks": [
@@ -154,6 +197,39 @@
       "wall_s": 163.05429196300975,
       "rss_kib": 970844,
       "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/successor-targeted-0fd.txt",
+          "bytes": 37930,
+          "sha256": "3cf14b34f3ffafb743ddd340e3649891358896b9de34f7bf97cf2f114c28ef95",
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-targeted-0fd.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/successor-targeted-0fd.json",
+          "bytes": 3518,
+          "sha256": "776a69fac54124f6405e94e76a86269a50e9e6717abe70de329fc9fe93b46c8d",
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-targeted-0fd.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/native.xml",
+          "bytes": 42585,
+          "sha256": "c56907e82498dcab79822735d8424db796ee79af9818c1d0f11cc20d4713b3a7",
+          "source": "/tmp/e02-B-successor-targeted-0fd/native.xml"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/profile.json",
+          "bytes": 7134,
+          "sha256": "e34fa871501702a5c985189af61aa03ee3d41189a5174f114d8b6969955193e5",
+          "source": "/tmp/e02-B-successor-targeted-0fd/profile.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/e02-B-successor-targeted-launch.source.txt",
+          "bytes": 3317,
+          "sha256": "87852f26fd30b2f580b54a151f0b273fff32136d79c460ce23989b17e8ba1fee",
+          "source": "/tmp/e02-B-successor-targeted-launch.py"
+        }
+      ],
+      "target_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "output": [
         {
           "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/successor-targeted-0fd.txt",
           "bytes": 37930,
@@ -1628,5 +1704,111 @@
     "Largepreservedhistoricalraw/tmp currentbytealiases are not independentpowerloss or Gexternalavailability proof"
   ],
   "branch": "codex/e02-B-current-coordination",
-  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55"
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "bundle_ids": [
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "RES-01",
+    "RES-02",
+    "RES-04",
+    "STA-01",
+    "STA-02"
+  ],
+  "published_scope_base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "implementation_commits": [
+    "fb97ad02bc29a08aa126c00d2ec9ef622a8e45cd",
+    "a6e803e574dcad0e558baa9cc8b9dcd61552ed95"
+  ],
+  "driver_owned_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py"
+  ],
+  "full_diff_footprint": {
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/source-check.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/artifact-manifest.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/captured-old-raw-census-profile.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-ledger-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census-commands.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-0.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-1.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-10.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-11.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-12.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-2.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-3.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-4.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-5.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-6.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-7.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-8.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-9.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/old-raw-census-full-stdout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/prior-nine-alias-state.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-execution-audit.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py"
+    ],
+    "test_paths": [
+      "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py"
+    ],
+    "canonical_product_paths": [],
+    "companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/source-check.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/artifact-manifest.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/captured-old-raw-census-profile.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-ledger-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census-commands.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-0.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-1.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-10.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-11.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-12.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-2.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-3.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-4.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-5.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-6.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-7.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-8.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-9.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/old-raw-census-full-stdout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/prior-nine-alias-state.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal456-gate-execution-audit.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py"
+    ],
+    "author_qualification": "Dependency merge paths included; root authored only declared driver_owned_paths. Protected A/C production files untouched."
+  },
+  "baseline_cells": [],
+  "baseline_qualification": "Quality/verification input slice with no finding closure; exact finding cells remain in originating committed EXE/CAS/DUR/JIT receipts, not asserted as new aggregate238proof.",
+  "capability_state_or_finding_state": "Actual source-bound238nativePASS; defining/wheel/PG/generic profile boundaries explicit; full B criterion decisions and required code acceptance pending exact frozen whole-B/gate wave.",
+  "metadata_forward_qualification": "Initial be267 receipt schema/minimum/owned-only footprint corrected in a forward commit to literalHANDOFFschema with complete dependency diff, preserving original aggregate runtime source0fd and no future receipt SHA."
 }

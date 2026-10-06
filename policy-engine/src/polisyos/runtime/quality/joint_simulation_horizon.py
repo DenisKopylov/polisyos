@@ -49,7 +49,7 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.ir.analytics.interventions import VariableAssignment
+    from polisyos.runtime.quality.intervention_atom_binding import CausalAssignmentProjection
 
 JOINT_SIMULATION_HORIZON_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
 JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION = (
@@ -2713,7 +2713,7 @@ def _execution_assignment_conflict(
     return None
 
 
-def _numeric_assignment_value(assignment: VariableAssignment) -> float | None:
+def _numeric_assignment_value(assignment: CausalAssignmentProjection) -> float | None:
     if assignment.value is None or assignment.value_expr is not None:
         return None
     try:

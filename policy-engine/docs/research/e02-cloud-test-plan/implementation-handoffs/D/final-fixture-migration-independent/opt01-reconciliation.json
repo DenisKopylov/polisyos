@@ -1,0 +1,1910 @@
+{
+  "schema": "e02-D.fixture-independent-reconciliation.v1",
+  "reviewed_implementation": "c3fe956011df8185c226155b86488294fe16143e",
+  "reviewed_tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+  "reviewed_receipt": "ddfee523bda85ac599e22cc6a3aa4ea490e43413",
+  "reviewed_receipt_tree": "ba76db9084aedc38842740816004ccd796f7bb3f",
+  "source_inputs": [
+    {
+      "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "git_blob": "2d09a2d861db5b2ce496443acf9d97718d5c417b",
+      "bytes": 36283,
+      "sha256": "a540ee70dec0ad20d0960208eccdc2ec0441e40140f368ae0fc9b3b3090b6129"
+    },
+    {
+      "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "git_blob": "c0ec395deab6507d7ef1809d1b2e64963ad47969",
+      "bytes": 2935,
+      "sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4"
+    },
+    {
+      "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "git_blob": "1f937b3a42ff5fe7185b710da603a3a44faa07a6",
+      "bytes": 6320,
+      "sha256": "584e2bc08032040c9535302d0d2e093dde4fad76e2850098c2f5fe18842b3c62"
+    },
+    {
+      "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "git_blob": "7179bac7fb0726b1eacdb55edf0327ccd7b6add0",
+      "bytes": 30148,
+      "sha256": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f"
+    },
+    {
+      "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "git_blob": "66417098881a5d2f8200120d22c9eacb8367b40b",
+      "bytes": 27900,
+      "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf"
+    },
+    {
+      "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    }
+  ],
+  "baseline_test": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+    "git_blob": "08d35ba1eb3705bc4677b247307ca533c3294b3d",
+    "bytes": 31589,
+    "sha256": "0a4d3ac2e6559cc898f74833852e6c094cc4d6335e87fffb75c97391b2c1963e"
+  },
+  "receipt_identity": {
+    "source_sha": "ddfee523bda85ac599e22cc6a3aa4ea490e43413",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-opt01-fixture-migration.json",
+    "git_blob": "5cac9a7c21fafba40ada39b5c952a7f96d4fd13a",
+    "bytes": 11661,
+    "sha256": "946183032e7032995651b8dfa854e0138846ba1a729b0a14f0d0f630315f0861"
+  },
+  "full_diff_changed_paths": [
+    "M\tpolicy-engine/tests/unit/scientist/methods/autotune/test_pareto.py"
+  ],
+  "full_src_denominator": {
+    "prefix": "policy-engine/src/",
+    "file_type": "all tracked tree blobs under source prefix",
+    "count": 2910,
+    "base_count": 2910,
+    "path_sets_equal": true,
+    "complete_diff_empty": true
+  },
+  "function_ast_audit": {
+    "scope": "Every module/class-level function in entire changed test file; AST without locations",
+    "baseline_count": 37,
+    "candidate_count": 38,
+    "changed_existing": [
+      "TestParetoFront.test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+      "TestParetoFront.test_empty_and_invalid_front_preserves_schema_as_incomplete",
+      "TestParetoFront.test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+      "TestParetoFront.test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+      "TestParetoFront.test_unassessed_candidate_cannot_be_reported_as_not_dominated"
+    ],
+    "added": [
+      "_cas_eval"
+    ],
+    "removed": [],
+    "unchanged": [
+      "TestParetoFront.test_complete_v1_payload_has_exact_coordinate_and_reference_keys",
+      "TestParetoFront.test_coordinate_identity_keeps_split_unit_and_direction",
+      "TestParetoFront.test_coordinate_schema_round_trips_and_labels_reference_point",
+      "TestParetoFront.test_dominated_candidate",
+      "TestParetoFront.test_duplicate_full_coordinate_is_rejected",
+      "TestParetoFront.test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false",
+      "TestParetoFront.test_empty_evaluations",
+      "TestParetoFront.test_fast_front_matches_independent_slow_oracle",
+      "TestParetoFront.test_invalid_reference_point_does_not_emit_non_finite_hypervolume",
+      "TestParetoFront.test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed",
+      "TestParetoFront.test_non_dominated_on_empty_front",
+      "TestParetoFront.test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions",
+      "TestParetoFront.test_requires_at_least_one_policy",
+      "TestParetoFront.test_single_axis_identity_distinguishes_absent_and_present_unit",
+      "TestParetoFront.test_single_axis_identity_preserves_split_and_direction_without_unit",
+      "TestParetoFront.test_single_objective",
+      "TestParetoFront.test_tampered_coordinate_id_is_rejected",
+      "TestParetoFront.test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+      "TestParetoFront.test_three_dimensional_minimize_direction_keeps_lower_raw_cost",
+      "TestParetoFront.test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties",
+      "TestParetoFront.test_three_dimensional_same_first_group_uses_local_strict_dominance",
+      "TestParetoFront.test_three_objective_front_matches_slow_reference",
+      "TestParetoFront.test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+      "TestParetoFront.test_two_objective_front",
+      "TestParetoFront.test_two_objective_front_preserves_duplicate_ties",
+      "TestParetoFront.test_validated_input_assessment_cannot_gain_an_omission_after_validation",
+      "_eval",
+      "_policies",
+      "_ref",
+      "_slow_non_dominated_indices",
+      "_slow_non_dominated_points",
+      "_split_eval"
+    ],
+    "existing_assertions_total": 98,
+    "every_original_assert_ast_identical": true,
+    "assertions_by_function": [
+      {
+        "function": "_ref",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "_eval",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "_policies",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "_split_eval",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "_slow_non_dominated_points",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_two_objective_front",
+        "count": 2,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_dominated_candidate",
+        "count": 1,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+        "count": 1,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+        "count": 1,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_three_dimensional_same_first_group_uses_local_strict_dominance",
+        "count": 3,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties",
+        "count": 4,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_three_dimensional_minimize_direction_keeps_lower_raw_cost",
+        "count": 4,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_empty_evaluations",
+        "count": 2,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_single_objective",
+        "count": 2,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_non_dominated_on_empty_front",
+        "count": 1,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_requires_at_least_one_policy",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_two_objective_front_preserves_duplicate_ties",
+        "count": 3,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_coordinate_identity_keeps_split_unit_and_direction",
+        "count": 7,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_single_axis_identity_preserves_split_and_direction_without_unit",
+        "count": 7,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_single_axis_identity_distinguishes_absent_and_present_unit",
+        "count": 7,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_coordinate_schema_round_trips_and_labels_reference_point",
+        "count": 3,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed",
+        "count": 3,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_tampered_coordinate_id_is_rejected",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_complete_v1_payload_has_exact_coordinate_and_reference_keys",
+        "count": 12,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_empty_and_invalid_front_preserves_schema_as_incomplete",
+        "count": 5,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false",
+        "count": 3,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_duplicate_full_coordinate_is_rejected",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+        "count": 4,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+        "count": 15,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions",
+        "count": 0,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_validated_input_assessment_cannot_gain_an_omission_after_validation",
+        "count": 2,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+        "count": 3,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_invalid_reference_point_does_not_emit_non_finite_hypervolume",
+        "count": 1,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_fast_front_matches_independent_slow_oracle",
+        "count": 1,
+        "identical": true
+      },
+      {
+        "function": "TestParetoFront.test_three_objective_front_matches_slow_reference",
+        "count": 1,
+        "identical": true
+      },
+      {
+        "function": "_slow_non_dominated_indices",
+        "count": 0,
+        "identical": true
+      }
+    ]
+  },
+  "complete_receipt_output_bindings": [
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/complete.txt",
+      "git_blob": "e1689cd2fe3ab256865fde53e417051ea0547f4a",
+      "bytes": 27252,
+      "sha256": "dc37eedef7a3e454db7b375ad7f427b4778a85ac508d05ce50b0551c8bebadf6"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/events.jsonl.txt",
+      "git_blob": "f6bf35d7423773d4e6862b4e3ec07d956397787c",
+      "bytes": 141700,
+      "sha256": "94c6ac41d5eeb183d490c3406688aa54b7a54ec1e1f507b8cfd1ebc188d907d2"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/junit.xml",
+      "git_blob": "5cde0fe58d4fb47c9ac4fb2483a4e8ff8fbf4fe8",
+      "bytes": 14009,
+      "sha256": "7cf25e6f665d9047c0f8a3cf0cc6f52a584274c1be3d94fbf7c5e48468ee88b9"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/result.json",
+      "git_blob": "52f73560c4755da0f6b7c199c194bda1f5ea8eaa",
+      "bytes": 4963,
+      "sha256": "32fd59400e62482a18cd0230c697b1d21f4a50a79a29830e524ecd3ec4c2b590"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/capture.py.txt",
+      "git_blob": "c3d7044d7247be32ece5a80b40d7574333cfdde9",
+      "bytes": 7528,
+      "sha256": "5f5fdb5ab79f1f13d3bc1a179ea88d734d23a224a571118612fe9019df45042c"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/environment.json",
+      "git_blob": "5a4443cc7a6c59211818ae03c57dd33d745f2d12",
+      "bytes": 1710,
+      "sha256": "b60c33124415a52e52c9fa6180c2340d0daac303138c4788884facf391375b19"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/inputs.json",
+      "git_blob": "b96222558e19ff754eca22064802eb312e57e923",
+      "bytes": 3520,
+      "sha256": "25a05ecc04f77a0c2e29afcc9c39d754ef48e55ce0fc7795873b0ea62d56ce9b"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/complete.txt",
+      "git_blob": "7768f6f68020a46e95e8935b8a9f2c8c489ca402",
+      "bytes": 21100,
+      "sha256": "a5b7abb053c5af0529d24d37412c3dddda3f7082f8906fc3908b59be3ab2f1d7"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/events.jsonl.txt",
+      "git_blob": "1a46219d9dc13eb010b3063605f69783c28a5f4d",
+      "bytes": 16198,
+      "sha256": "b844a516696809092da73ed1c0cb6bda591285a9969360d0f6d2aace5ec33475"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/junit.xml",
+      "git_blob": "09268d86b86877d48af82a5f92e0bc34e732bff6",
+      "bytes": 6078,
+      "sha256": "678fcbfa166003b26df124d98c4ac56dd8f4a8ad877b79a7985c9386e2b19816"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/result.json",
+      "git_blob": "f9dccfcf82c2af704aeb5cefb3914b67c8bb0774",
+      "bytes": 6003,
+      "sha256": "71b83d761068f9e929cad215b52c27d73e5805abd3faef0419e075282ccdcf58"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/ruff-check.txt",
+      "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/ruff-format.txt",
+      "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    }
+  ],
+  "evidence_manifest_identity": {
+    "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/manifest.json",
+    "git_blob": "210ce6a82199b53da67a7e198843328f0385847c",
+    "bytes": 3529,
+    "sha256": "fb8b11b07ef34026cff8901516ccf34a8cc3b4614e5acad9dd04a65daf01246b"
+  },
+  "complete_original_red_bindings": [
+    {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/complete.txt",
+      "git_blob": "e6ccf203e1a8c2fe83f66980b32a33d09da1df94",
+      "bytes": 19888,
+      "sha256": "2762077dcffadbe4c5b1c3ac284601c9f6c9ab83e08b0e3a1e7ae9fc6160591a"
+    },
+    {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/environment.json",
+      "git_blob": "e35bf48fdbee02d51d2614fc51b752fdc623ffe8",
+      "bytes": 6955,
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+    },
+    {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/environment.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/events.jsonl.txt",
+      "git_blob": "1dc01d173e9643c084302d021171ef1f663e6bf7",
+      "bytes": 147790,
+      "sha256": "7eccc86e776929a45321eee2d53ebdced6cf6c134a60d6866ce1524867ccf23a"
+    },
+    {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/junit.xml",
+      "git_blob": "76d17a8e224fcf678a0bfc6c36fcb85216165b49",
+      "bytes": 22812,
+      "sha256": "50a0df50596bac2d221fa6b4ad14aa6e0869b0c490b3c137bd21e307f97835dd"
+    },
+    {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/result.json",
+      "git_blob": "3d870b679cd2a2d744d31b0c1e6518dfb67c66d1",
+      "bytes": 6208,
+      "sha256": "0f8eaa468e75482eadd97f9b6ac94ac01a175eb549406df28e19c78b15820a2c"
+    }
+  ],
+  "junit_reconciliation": {
+    "canonical": {
+      "file": {
+        "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/junit.xml",
+        "git_blob": "5cde0fe58d4fb47c9ac4fb2483a4e8ff8fbf4fe8",
+        "bytes": 14009,
+        "sha256": "7cf25e6f665d9047c0f8a3cf0cc6f52a584274c1be3d94fbf7c5e48468ee88b9"
+      },
+      "testcases": 75,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "cases": [
+        {
+          "name": "test_two_objective_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_dominated_candidate",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_same_first_group_uses_local_strict_dominance[points0-expected_indices0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_same_first_group_uses_local_strict_dominance[points1-expected_indices1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_minimize_direction_keeps_lower_raw_cost",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_empty_evaluations",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_single_objective",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_non_dominated_on_empty_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_requires_at_least_one_policy",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_two_objective_front_preserves_duplicate_ties",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_coordinate_identity_keeps_split_unit_and_direction",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_single_axis_identity_preserves_split_and_direction_without_unit",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_single_axis_identity_distinguishes_absent_and_present_unit",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_coordinate_schema_round_trips_and_labels_reference_point",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tampered_coordinate_id_is_rejected",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_complete_v1_payload_has_exact_coordinate_and_reference_keys",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_empty_and_invalid_front_preserves_schema_as_incomplete",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_duplicate_full_coordinate_is_rejected",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_validated_input_assessment_cannot_gain_an_omission_after_validation",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_invalid_reference_point_does_not_emit_non_finite_hypervolume",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_fast_front_matches_independent_slow_oracle[metric_names0-points0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_fast_front_matches_independent_slow_oracle[metric_names1-points1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_fast_front_matches_independent_slow_oracle[metric_names2-points2]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_objective_front_matches_slow_reference",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions2]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions3]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions4]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions5]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions6]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions7]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions8]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions9]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions10]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions11]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions12]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions13]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions14]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions15]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions16]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions17]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions18]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions19]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions20]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions21]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions22]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions23]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions24]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions25]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions26]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions27]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions28]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions29]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_observed_axes_without_configured_basis_cannot_create_rank",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[3.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[0.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[None]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[True]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[1.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_historical_finite_schema_reader_remains_supported[1.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_historical_finite_schema_reader_remains_supported[2.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        }
+      ]
+    },
+    "remove_property": {
+      "file": {
+        "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/junit.xml",
+        "git_blob": "09268d86b86877d48af82a5f92e0bc34e732bff6",
+        "bytes": 6078,
+        "sha256": "678fcbfa166003b26df124d98c4ac56dd8f4a8ad877b79a7985c9386e2b19816"
+      },
+      "testcases": 5,
+      "failures": 4,
+      "errors": 0,
+      "skips": 0,
+      "cases": [
+        {
+          "name": "test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_empty_and_invalid_front_preserves_schema_as_incomplete",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        }
+      ]
+    },
+    "original_red": {
+      "file": {
+        "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/junit.xml",
+        "git_blob": "76d17a8e224fcf678a0bfc6c36fcb85216165b49",
+        "bytes": 22812,
+        "sha256": "50a0df50596bac2d221fa6b4ad14aa6e0869b0c490b3c137bd21e307f97835dd"
+      },
+      "testcases": 75,
+      "failures": 5,
+      "errors": 0,
+      "skips": 0,
+      "cases": [
+        {
+          "name": "test_two_objective_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_dominated_candidate",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_same_first_group_uses_local_strict_dominance[points0-expected_indices0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_same_first_group_uses_local_strict_dominance[points1-expected_indices1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_dimensional_minimize_direction_keeps_lower_raw_cost",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_empty_evaluations",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_single_objective",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_non_dominated_on_empty_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_requires_at_least_one_policy",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_two_objective_front_preserves_duplicate_ties",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_coordinate_identity_keeps_split_unit_and_direction",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_single_axis_identity_preserves_split_and_direction_without_unit",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_single_axis_identity_distinguishes_absent_and_present_unit",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_coordinate_schema_round_trips_and_labels_reference_point",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tampered_coordinate_id_is_rejected",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_complete_v1_payload_has_exact_coordinate_and_reference_keys",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_empty_and_invalid_front_preserves_schema_as_incomplete",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_duplicate_full_coordinate_is_rejected",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_validated_input_assessment_cannot_gain_an_omission_after_validation",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_invalid_reference_point_does_not_emit_non_finite_hypervolume",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_fast_front_matches_independent_slow_oracle[metric_names0-points0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_fast_front_matches_independent_slow_oracle[metric_names1-points1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_fast_front_matches_independent_slow_oracle[metric_names2-points2]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_three_objective_front_matches_slow_reference",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions0]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions1]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions2]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions3]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions4]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions5]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions6]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions7]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions8]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions9]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions10]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions11]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions12]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions13]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions14]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions15]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions16]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions17]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions18]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions19]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions20]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions21]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions22]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions23]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions24]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions25]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions26]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions27]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions28]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions29]",
+          "classname": "tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_observed_axes_without_configured_basis_cannot_create_rank",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[3.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[0.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[None]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[True]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_disk_reader_refuses_unsupported_schema_profile[1.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_historical_finite_schema_reader_remains_supported[1.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_historical_finite_schema_reader_remains_supported[2.0]",
+          "classname": "tests.unit.scientist.methods.search.test_hypervolume_limitations",
+          "outcome": "PASS"
+        }
+      ]
+    }
+  },
+  "raw_control_reconciliation": [
+    {
+      "mode": "canonical",
+      "count": 6,
+      "rows": [
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:c2735c0141ebe3f977cad6f47d849ba3273bb24c88ced9a06cc740703036b8e6",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:039557f283b6e9489859432a356d325519d7fd787535c3b1e44299ed065984e4",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:50c7aeb8ac0c531dafe36e68ca23fb5e989a57f533dd2d92f6f0351454417eab",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:1a16be936eca81196d373a2550ac0e858bd7e337e872f5ae47bd565cd5b6db9d",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:0cbcec214d0549c737b8aaffbdee397c3a574d897e43c54dd6f5a1e710fd5645",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:8ef917d55dc8f37fcb23e6fb3c29b259ae8b8b0af268c5b4234ea7f9d8b6866f",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:6f18dd06c75a29a069a865be4cab2c62f59666f23db09638f53cb94a0ce785e5",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:3a4f7453987338b5240a3c5530f957113dbb561bf138c0624020dc81ce185ead",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:248a5bbd71a8864684458158e1cb01837ea3087fa03f1a04313ae02be98696e6",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:1141402e99a60772e6012dad33c9b1694afde3e9acc206f0ca6b64b2bc6df767",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:cbaed56e1f539009968f6d732faf4374d9394e407197a19d69b7741611c44dc7",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:63ea8251857b6e50fe51e6148571cf597a6f14595650a112e98f09eefa0ff11d",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        }
+      ]
+    },
+    {
+      "mode": "remove_property",
+      "count": 6,
+      "rows": [
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:a3752c4af07292c5d920d7e7a6a7bfcafdefcf1f16e4965418c89d77a0d46481",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:7500b4f565dc26595f686e4277cc51c43bc28dc81d4792f664767a3b39d3fc1b",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:91dcc196e1e6c432a8be33f1d5bafed573346889fec4891709ee1fff4cc467c6",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:877ff46195932632a6db9a1c4f88b12af6380fe59eef54032ca6841fe46a4642",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:4098c7cd8bd0ca2193a3e1e2b630ac8c85c1a8c693ab04e2457a5608c00e1f30",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:d246e8ea394eff5c25b3454c20e0b2447baa16200cc65f7991d96abb46f23f47",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:4c81a9d56f86e31fe82e5243792bb4ca4f5ae2e9774165717910f6e46801e691",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:f4000536a96e76b1df9e5e6eb2327b772b4b21addf12a17f9b1a7ef9240bb79b",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:b44f5a4e7c0b39f5228bc854900185c591361b0349472031aece6b8ffec403c9",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:7a065d6f453a54f818c1091994a6d0e66c1fb2d5e6357481c19a323fff245d21",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        },
+        {
+          "healthy_ref": {
+            "artifact_id": "sha256:6ce2617a0b22f34b2a802ab0a4e0842d605a5a2afb1485e11744f207e18686f6",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "malformed_ref": {
+            "artifact_id": "sha256:ae0a4ba611c530e7b12d5e60c7b873615eb4501a830a01934ef9698df226a304",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "native_reader": "refused",
+          "manifest_input_count": 2
+        }
+      ]
+    }
+  ],
+  "runtime_jobs_by_reviewer": 0,
+  "unresolved": "Independent runtime replay belongs to root; one original membership-only predicate passes zero-imputation of dominated invalid points, so only four of five are discriminators for this mutation. No valid malformed typed CAS admission, live eligible denominator/provider/export or authority-grade promotion inferred.",
+  "native_origin_and_raw_payload_reconciliation": [
+    {
+      "mode": "canonical",
+      "observed_session": {
+        "kind": "session_finish",
+        "monotonic": 83580.169241102,
+        "exitstatus": 0,
+        "native_origins": {
+          "polisyos.scientist.methods.autotune.pareto": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+            "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+            "sha256": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f",
+            "git_match": true
+          },
+          "polisyos.scientist.methods.autotune.models": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+            "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+            "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+            "git_match": true
+          },
+          "polisyos.core.artifacts.store": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "git_match": true
+          },
+          "polisyos.core.canon.canon_json": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/canon/canon_json.py",
+            "git_path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+            "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+            "git_match": true
+          }
+        }
+      },
+      "native_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.pareto",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "git_blob": "7179bac7fb0726b1eacdb55edf0327ccd7b6add0",
+          "sha256": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f",
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "git_blob": "66417098881a5d2f8200120d22c9eacb8367b40b",
+          "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+          "git_match": true
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+          "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+          "git_match": true
+        },
+        {
+          "module": "polisyos.core.canon.canon_json",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/canon/canon_json.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+          "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+          "git_match": true
+        }
+      ],
+      "raw_payload_integrity_controls": [
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:039557f283b6e9489859432a356d325519d7fd787535c3b1e44299ed065984e4",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 859,
+          "raw_payload_sha256": "039557f283b6e9489859432a356d325519d7fd787535c3b1e44299ed065984e4",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:1a16be936eca81196d373a2550ac0e858bd7e337e872f5ae47bd565cd5b6db9d",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 844,
+          "raw_payload_sha256": "1a16be936eca81196d373a2550ac0e858bd7e337e872f5ae47bd565cd5b6db9d",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "e9b8c5c70e08c568fc180ca351135f631273a4852834e3db1754f28b5d1fb1ad",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:8ef917d55dc8f37fcb23e6fb3c29b259ae8b8b0af268c5b4234ea7f9d8b6866f",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 854,
+          "raw_payload_sha256": "8ef917d55dc8f37fcb23e6fb3c29b259ae8b8b0af268c5b4234ea7f9d8b6866f",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:3a4f7453987338b5240a3c5530f957113dbb561bf138c0624020dc81ce185ead",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 859,
+          "raw_payload_sha256": "3a4f7453987338b5240a3c5530f957113dbb561bf138c0624020dc81ce185ead",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:1141402e99a60772e6012dad33c9b1694afde3e9acc206f0ca6b64b2bc6df767",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 859,
+          "raw_payload_sha256": "1141402e99a60772e6012dad33c9b1694afde3e9acc206f0ca6b64b2bc6df767",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:63ea8251857b6e50fe51e6148571cf597a6f14595650a112e98f09eefa0ff11d",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 854,
+          "raw_payload_sha256": "63ea8251857b6e50fe51e6148571cf597a6f14595650a112e98f09eefa0ff11d",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "remove_property",
+      "observed_session": {
+        "kind": "session_finish",
+        "monotonic": 83607.13265041,
+        "exitstatus": 1,
+        "native_origins": {
+          "polisyos.scientist.methods.autotune.pareto": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+            "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+            "sha256": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f",
+            "git_match": true
+          },
+          "polisyos.scientist.methods.autotune.models": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+            "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+            "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+            "git_match": true
+          },
+          "polisyos.core.artifacts.store": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "git_match": true
+          },
+          "polisyos.core.canon.canon_json": {
+            "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/canon/canon_json.py",
+            "git_path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+            "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+            "git_match": true
+          }
+        }
+      },
+      "native_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.pareto",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "git_blob": "7179bac7fb0726b1eacdb55edf0327ccd7b6add0",
+          "sha256": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f",
+          "git_match": true
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "git_blob": "66417098881a5d2f8200120d22c9eacb8367b40b",
+          "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+          "git_match": true
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+          "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+          "git_match": true
+        },
+        {
+          "module": "polisyos.core.canon.canon_json",
+          "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/core/canon/canon_json.py",
+          "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+          "git_path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+          "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+          "git_match": true
+        }
+      ],
+      "raw_payload_integrity_controls": [
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:7500b4f565dc26595f686e4277cc51c43bc28dc81d4792f664767a3b39d3fc1b",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 859,
+          "raw_payload_sha256": "7500b4f565dc26595f686e4277cc51c43bc28dc81d4792f664767a3b39d3fc1b",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:877ff46195932632a6db9a1c4f88b12af6380fe59eef54032ca6841fe46a4642",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 844,
+          "raw_payload_sha256": "877ff46195932632a6db9a1c4f88b12af6380fe59eef54032ca6841fe46a4642",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "e9b8c5c70e08c568fc180ca351135f631273a4852834e3db1754f28b5d1fb1ad",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:d246e8ea394eff5c25b3454c20e0b2447baa16200cc65f7991d96abb46f23f47",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 859,
+          "raw_payload_sha256": "d246e8ea394eff5c25b3454c20e0b2447baa16200cc65f7991d96abb46f23f47",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:f4000536a96e76b1df9e5e6eb2327b772b4b21addf12a17f9b1a7ef9240bb79b",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 854,
+          "raw_payload_sha256": "f4000536a96e76b1df9e5e6eb2327b772b4b21addf12a17f9b1a7ef9240bb79b",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:7a065d6f453a54f818c1091994a6d0e66c1fb2d5e6357481c19a323fff245d21",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 854,
+          "raw_payload_sha256": "7a065d6f453a54f818c1091994a6d0e66c1fb2d5e6357481c19a323fff245d21",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        },
+        {
+          "malformed_ref": {
+            "artifact_id": "sha256:ae0a4ba611c530e7b12d5e60c7b873615eb4501a830a01934ef9698df226a304",
+            "kind": "scientist.autotune.loop1.evaluation",
+            "media_type": "application/json"
+          },
+          "raw_payload_bytes": 859,
+          "raw_payload_sha256": "ae0a4ba611c530e7b12d5e60c7b873615eb4501a830a01934ef9698df226a304",
+          "manifest_integrity_match": true,
+          "actual_raw_control_basis": {
+            "data_basis": "candidate_only",
+            "evaluator_profile": {
+              "name": "fixture.pareto.numeric",
+              "version": "1.0"
+            },
+            "policy_sha256": "94154ab5071b55fe36bd441e5a7f2881cb0fd9d0d734600122d51e750cc9a0c5",
+            "schema_version": "benchmark-comparison.v1",
+            "suite_ref": {
+              "artifact_id": "sha256:ed1eb1e6b5180fb0bed32e1f5dae85ca0c13c509e303db46983603250cb0ecb1",
+              "kind": "scientist.autotune.generic.suite",
+              "media_type": "application/json"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

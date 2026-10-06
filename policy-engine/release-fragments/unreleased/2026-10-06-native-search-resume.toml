@@ -18,7 +18,7 @@ migration_docs = ["README.md"]
 [[compatibility_change]]
 id = "native-factory-exploratory-order-and-subject"
 change_class = "runtime-state-format"
-impact = "migration_required"
+impact = "breaking"
 surface = "public_stable: polisyos.scientist"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
@@ -26,12 +26,12 @@ deprecation_window = "immediate_validation_refusal"
 release_note = "SearchLoopSpec metadata optionally binds a full selected analysis_ref, exploratory_coordinate_order.v1 and exploratory purpose before canonical native generation. Default typed mutation evaluation preserves selected sensitivity_analysis lineage. The service binds canonical native history IDs to persisted run/public candidate IDs and validates pending/history/best/frontier identity before restore. Checkpoint configuration now requires native_service_run_candidate.v1 for this generator; preserve earlier checkpoints for their original compatible reader or start a new configured run. Unknown or partial analysis profiles and altered subject carriers refuse without live admission. This is exploratory coordinate ordering, not population or promotion authority."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["README.md", "docs/how-to/search-exploratory-coordinate-order.md"]
-runbook_docs = []
+runbook_docs = ["README.md"]
 
 [[compatibility_change]]
 id = "native-search-checkpoint-reader-window"
 change_class = "runtime-state-format"
-impact = "migration_required"
+impact = "breaking"
 surface = "public_stable: polisyos.scientist"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
@@ -39,13 +39,13 @@ deprecation_window = "new_format_no_legacy_reader"
 release_note = "Persist and restore only search-service.v2 exact profile-qualified CAS references with compatible native configuration. Original search-service.v1 artifacts are preserved and refused: reopen with the original reader or start a new configured run, without relabeling old artifacts. Unknown formats fail closed; in-memory histories are not automatically converted into durable checkpoints. Terminal stopped runs remain stopped after reopen."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["README.md"]
-runbook_docs = []
+runbook_docs = ["README.md"]
 
 [[compatibility_change]]
 id = "native-recorded-cost-evidence"
-change_class = "python-public-api"
-impact = "migration_required"
-surface = "public_stable: polisyos.scientist"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.search.CostBudgetStopping"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "immediate_validation_refusal"
@@ -56,9 +56,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "native-plateau-scalar-admission"
-change_class = "python-public-api"
-impact = "migration_required"
-surface = "public_stable: polisyos.scientist"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.search.ImprovementPlateau"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "immediate_validation_refusal"
@@ -69,9 +69,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "native-autotune-verified-cas-inputs"
-change_class = "python-public-api"
-impact = "migration_required"
-surface = "public_stable: polisyos.scientist"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.autotune.models"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "immediate_validation_refusal"

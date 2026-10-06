@@ -73,7 +73,7 @@ publication or readback restores local pending ownership and the prior run ledge
 supported ask generators also restore their cursor/state. If that custody is
 unavailable, the live service refuses further publication and requires a fresh
 reader of the last acknowledged reference.
-retry acknowledges the transition only after checkpoint readback. Reopened callbacks and external
+A successful retry acknowledges the transition only after checkpoint readback. Reopened callbacks and external
 owner handles remain caller inputs; callback source authority, a transaction
 across external promotion and checkpoint publication, and distributed
 coordination are not established. Generators without an atomic `get_state()` /
@@ -112,6 +112,19 @@ derived best/frontier subjects before live admission. The checkpoint configurati
 binds `native_service_run_candidate.v1`; earlier checkpoints without this binding
 refuse configuration compatibility. Preserve them for their original reader or
 start a new run with the current factory.
+
+For operational recovery, retain the exact acknowledged `ArtifactRef`, its
+artifact bytes, the selected analysis and suite references, and the original
+factory configuration. Reopen the same store with a fresh compatible runner and
+call `resume` with that reference and the same original iteration limit and
+supported context. Verify the returned history, frontier and pending/completed
+subjects before continuing the caller. A terminal checkpoint stays terminal.
+After a publication fault, use the supported live rollback or reopen the last
+acknowledged reference; inspect any external champion pointer separately.
+For `search_resume_configuration_mismatch`, use the original compatible reader
+for the preserved checkpoint or start a fresh current-profile experiment.
+Changing the format label, analysis profile or stored history is not a migration
+or rollback procedure.
 
 `CostBudgetStopping` accepts finite nonnegative recorded cost and refuses invalid
 budget limits. Configured budget owners supply their public recorded state;

@@ -23,7 +23,7 @@ from collections import Counter
 from pathlib import Path
 
 PREFIX = "polisyos.foundry.methods.catalog.causal"
-TARGETS = (f"{PREFIX}.causal_engine", f"{PREFIX}.interference")
+TARGETS = (f"{PREFIX}.causal_engine", f"{PREFIX}.interference", f"{PREFIX}.id_engine")
 TOKEN = re.compile(r"causal_engine|interference", re.IGNORECASE)
 GIT = shutil.which("git")
 if GIT is None:
@@ -71,12 +71,137 @@ def _literal(node: ast.AST | None, constants: dict[str, str]) -> str | None:
     return None
 
 
+def _candidate_basis(
+    path: str, tree: ast.Module, call: ast.Call, constants: dict[str, str]
+) -> dict:
+    """Classify source/configuration evidence without asserting runtime clients.
+
+    All rows remain syntactic candidates. Finite local maps and fixed namespace
+    prefixes narrow the declared source quantity; arbitrary alias flow, global
+    mutation, caller arguments and external plugins remain undecided.
+    """
+    scopes = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.lineno <= call.lineno <= (node.end_lineno or node.lineno)
+    ]
+    scope = (
+        min(scopes, key=lambda node: (node.end_lineno or node.lineno) - node.lineno)
+        if scopes
+        else tree
+    )
+    role = (
+        "runtime_source"
+        if "/src/" in path
+        else "test_source"
+        if "/tests/" in path
+        else "tool_source"
+        if "/tools/" in path
+        else "historical_research_source"
+        if "/docs/" in path
+        else "other_tracked_source"
+    )
+    result = {
+        "source_role": role,
+        "enclosing_callable": getattr(scope, "name", "<module>"),
+        "classification": "computed_argument_unresolved",
+        "runtime_client_established": False,
+        "basis": "complete selected immutable source AST only; not executed dispatch",
+    }
+    argument = call.args[0] if call.args else None
+    literal = _literal(argument, constants)
+    if literal is not None:
+        return {
+            **result,
+            "classification": "literal_target_candidate",
+            "declared_addresses": [literal],
+        }
+    if isinstance(argument, ast.JoinedStr):
+        prefix = ""
+        for part in argument.values:
+            value = _literal(
+                part.value if isinstance(part, ast.FormattedValue) else part, constants
+            )
+            if value is None:
+                break
+            prefix += value
+        if prefix and all(
+            not (prefix.startswith(target) or target.startswith(prefix)) for target in TARGETS
+        ):
+            return {**result, "classification": "fixed_other_namespace", "declared_prefix": prefix}
+    if not isinstance(argument, ast.Name):
+        return result
+    maps = {}
+    for node in tree.body:
+        targets = (
+            node.targets
+            if isinstance(node, ast.Assign)
+            else [node.target]
+            if isinstance(node, ast.AnnAssign)
+            else []
+        )
+        if not targets:
+            continue
+        try:
+            value = ast.literal_eval(node.value)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(value, dict):
+            maps.update({target.id: value for target in targets if isinstance(target, ast.Name)})
+    addresses = []
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Subscript):
+            continue
+        if not isinstance(node.value.value, ast.Name) or node.value.value.id not in maps:
+            continue
+        for target in node.targets:
+            index = None
+            if isinstance(target, (ast.Tuple, ast.List)):
+                indexes = [
+                    index
+                    for index, name in enumerate(target.elts)
+                    if isinstance(name, ast.Name) and name.id == argument.id
+                ]
+                if len(indexes) != 1:
+                    continue
+                index = indexes[0]
+            elif not isinstance(target, ast.Name) or target.id != argument.id:
+                continue
+            for value in maps[node.value.value.id].values():
+                if index is not None:
+                    if not isinstance(value, (list, tuple)) or len(value) <= index:
+                        return result
+                    value = value[index]
+                if not isinstance(value, str):
+                    return result
+                addresses.append(value)
+    if addresses:
+        return {
+            **result,
+            "classification": "finite_source_configuration",
+            "declared_addresses": sorted(set(addresses)),
+            "unresolved_by_construction": (
+                "Runtime mutation and alternate argument assignments are not executed or resolved."
+            ),
+        }
+    return result
+
+
 def python_rows(path: str, data: bytes) -> tuple[list[dict], list[dict], list[dict]]:
     """Return all literal imports, addressed strings and dynamic import candidates."""
     encoding, _ = tokenize.detect_encoding(io.BytesIO(data).readline)
     tree = ast.parse(data.decode(encoding), filename=path)
     package = _package(path)
     constants: dict[str, str] = {}
+    if "/src/" in path:
+        constants["__name__"] = (
+            path.split("/src/", 1)[1]
+            .removesuffix(".py")
+            .replace("/", ".")
+            .removesuffix(".__init__")
+        )
+        constants["__package__"] = package
     # Resolve only file-level constants, never overwrite them with function-local aliases.
     for node in tree.body:
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
@@ -125,6 +250,7 @@ def python_rows(path: str, data: bytes) -> tuple[list[dict], list[dict], list[di
                         if node.args
                         else "<no positional address>",
                         "resolution": "literal_related" if address else "computed_unresolved",
+                        "source_configuration_basis": _candidate_basis(path, tree, node, constants),
                     }
                 )
     return imports, strings, dynamic
@@ -292,7 +418,7 @@ def census(root: Path, ref: str) -> dict:
         if reader.wait() != 0:
             raise RuntimeError("Git blob reader failed")
     return {
-        "schema": "policyos.e02.facade_census.v1",
+        "schema": "policyos.e02.facade_census.v2",
         "executing_party": "F/fit_tmle API writer",
         "source_sha": sha,
         "source_tree": _git(root, "rev-parse", sha + "^{tree}").decode().strip(),
@@ -302,6 +428,13 @@ def census(root: Path, ref: str) -> dict:
         "literal_imports": imports,
         "address_strings": strings,
         "dynamic_import_candidates": dynamic,
+        "dynamic_candidate_classification_counts": dict(
+            sorted(
+                Counter(
+                    row["source_configuration_basis"]["classification"] for row in dynamic
+                ).items()
+            )
+        ),
         "addressed_syntactic_uses": uses,
         "lexical_mentions": mentions,
         "unparsed_python": errors,
@@ -317,6 +450,9 @@ def census(root: Path, ref: str) -> dict:
             "they are not a general serialization or docs-build guarantee.",
             "Imported alias references are syntactic candidates; "
             "scoped reassignment and runtime alias/data flow are not resolved.",
+            "Computed import candidate counts are not actual facade client counts. "
+            "Source-role, fixed-prefix and finite-map classifications disclose declared "
+            "configuration only; no external/private/plugin compatibility is inferred.",
             "Symlink targets and non-UTF8/binary content are named excluded classes; "
             "this is not a repository-wide absence proof.",
         ],

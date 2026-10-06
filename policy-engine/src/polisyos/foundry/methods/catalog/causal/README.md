@@ -96,6 +96,26 @@ New internal tests should import helpers from their leaf owners. Retiring these
 compatibility names requires an API-owner decision and a consumer migration;
 adding a service import to a leaf does not extend the package API.
 
+The measured compatibility window retains these existing package bindings;
+this continuation retires no public or historical patch target. Ordinary
+internal helper callers use `causal_engine.artifacts`, while dedicated ABI
+controls still exercise the historical facade aliases. The repository public
+surface manifest determines which broader entrypoints are `public_stable`;
+retained test helpers are not promoted to that classification. A future removal
+requires the existing owner/deprecation process and its supported caller basis.
+
+Use qualified package imports and canonical owner FQNs for loader/config/docs
+consumers. The former `id_engine.py`, `causal_engine.py`, and `interference.py`
+sibling files were already absent at the E02 base; no filename shim is supplied.
+`find_spec` and its normal Python loader resolve the nonempty packages. A
+`runpy`/`spec_from_file_location` client opening a retired filename receives the
+normal missing-file error and must migrate its explicit configuration. These
+libraries do not declare command-line `__main__` entrypoints. Runtime method
+discovery and third-party plugin loading retain their separate maintained
+contracts; a computed import AST candidate is not evidence that such a client
+actually invoked this facade. Wheel/sdist tests must run outside the checkout
+and bind archive, installed resource and canonical-object identities.
+
 The native `test_api_01.py` checks imports, explicit exports, incidental names,
 and reload cleanup. `test_facade_consumers.py` exercises a real Scientist
 identification consumer, engine/result serialization, supported patch execution

@@ -24,7 +24,12 @@ from typing import Any
 
 import yaml
 
-from tools.lib.fs import admitted_file_digest, admitted_is_file
+from tools.lib.fs import (
+    admitted_file_digest,
+    admitted_is_file,
+    admitted_read_bytes,
+    measure_file_reads,
+)
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -139,6 +144,7 @@ class SupportedEntrypointInventory:
     has___dir__: bool
     source_file: str
     summary: str
+    export_resolution: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -526,20 +532,179 @@ def _string_list_value(node: ast.AST) -> tuple[str, ...] | None:
     return None
 
 
-def _extract_exports(tree: ast.Module) -> tuple[str, ...]:
-    for node in tree.body:
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and target.id == "__all__":
-                    exports = _string_list_value(node.value)
-                    if exports is not None:
-                        return exports
-        if isinstance(node, ast.AnnAssign):
-            if isinstance(node.target, ast.Name) and node.target.id == "__all__" and node.value:
-                exports = _string_list_value(node.value)
-                if exports is not None:
-                    return exports
-    return ()
+def _module_level_nodes(tree: ast.AST) -> Iterator[ast.AST]:
+    """Traverse module statements without entering function or class scopes."""
+    for node in ast.iter_child_nodes(tree):
+        yield node
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            yield from _module_level_nodes(node)
+
+
+def _stores_export_symbol(node: ast.AST, symbol: str) -> bool:
+    return isinstance(node, ast.Name) and node.id == symbol and isinstance(
+        node.ctx, (ast.Store, ast.Del)
+    )
+
+
+class _StaticExportResolver:
+    """Resolve declared export names without importing or executing facade code.
+
+    The finite grammar covers literal sequences/mapping keys, named declarations,
+    named imports, concatenation and sorted/list/tuple over those declarations.
+    An unsupported expression is undecided, never an empty export manifest.
+    """
+
+    def __init__(self, source_file: Path, tree: ast.Module) -> None:
+        self._trees = {source_file: tree}
+        self._active: set[tuple[Path, str]] = set()
+
+    def _tree(self, source: Path) -> ast.Module:
+        if source not in self._trees:
+            self._trees[source] = ast.parse(admitted_read_bytes(source, REPO_ROOT))
+        return self._trees[source]
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _module_level_nodes(tree):
+                if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign, ast.Delete)):
+                    targets = getattr(node, "targets", [getattr(node, "target", None)])
+                    binds = any(
+                        _stores_export_symbol(child, symbol)
+                        for target in targets if target is not None
+                        for child in ast.walk(target)
+                    )
+                    subscript = any(
+                        isinstance(child, ast.Subscript)
+                        and isinstance(child.value, ast.Name)
+                        and child.value.id == symbol
+                        for target in targets if target is not None
+                        for child in ast.walk(target)
+                    )
+                    if (binds and id(node) not in direct_nodes) or subscript:
+                        raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+            declarations: list[ast.AST] = []
+            imported: list[tuple[ast.ImportFrom, str]] = []
+            for node in tree.body:
+                if (
+                    isinstance(node, ast.Assign)
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in node.targets
+                    )
+                ) or (
+                    isinstance(node, ast.AnnAssign)
+                    and isinstance(node.target, ast.Name)
+                    and node.target.id == symbol
+                    and node.value is not None
+                ):
+                    declarations.append(node.value)
+                elif isinstance(node, ast.ImportFrom):
+                    imported.extend(
+                        (node, alias.name)
+                        for alias in node.names
+                        if (alias.asname or alias.name) == symbol
+                    )
+                elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name):
+                    if node.target.id == symbol:
+                        raise ValueError(
+                            f"Unresolved mutated export declaration: {source}:{symbol}"
+                        )
+                elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+                    function = node.value.func
+                    if (
+                        isinstance(function, ast.Attribute)
+                        and isinstance(function.value, ast.Name)
+                        and function.value.id == symbol
+                    ):
+                        raise ValueError(
+                            f"Unresolved mutated export declaration: {source}:{symbol}"
+                        )
+            if len(declarations) == 1 and not imported:
+                return self._value(source, declarations[0])
+            if len(imported) == 1 and not declarations:
+                node, imported_name = imported[0]
+                info = _module_name_for_path(source)
+                if info is None:
+                    raise ValueError(f"Unresolved export import source: {source}")
+                module = _resolve_import_module(*info, node)
+                if module is None or not module.startswith("polisyos."):
+                    raise ValueError(f"Unresolved export import: {source}:{symbol}")
+                return self.resolve(_facade_source_for(module), imported_name)
+            raise ValueError(f"Unresolved or ambiguous export declaration: {source}:{symbol}")
+        finally:
+            self._active.remove(key)
+
+    def _value(self, source: Path, node: ast.AST) -> object:
+        if isinstance(node, ast.Name):
+            return self.resolve(source, node.id)
+        if isinstance(node, ast.Dict):
+            # Only keys contribute to iterating/sorting a manifest map. Its values
+            # identify runtime owners, which this static reader does not execute.
+            keys: dict[str, None] = {}
+            for key, value in zip(node.keys, node.values, strict=True):
+                if key is None:
+                    mapping = self._value(source, value)
+                    if not isinstance(mapping, dict):
+                        raise ValueError(f"Unresolved export mapping expansion: {source}")
+                    keys.update(mapping)
+                elif isinstance(key, ast.Constant) and isinstance(key.value, str):
+                    keys[key.value] = None
+                else:
+                    raise ValueError(f"Unresolved export mapping key: {source}")
+            return keys
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+            left, right = self._value(source, node.left), self._value(source, node.right)
+            if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
+                return [*left, *right]
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in {"sorted", "list", "tuple"}
+            and len(node.args) == 1
+            and not node.keywords
+        ):
+            value = self._value(source, node.args[0])
+            if isinstance(value, (dict, list, tuple)) and all(
+                isinstance(item, str) for item in value
+            ):
+                return sorted(value) if node.func.id == "sorted" else list(value)
+        strings = _string_list_value(node)
+        if strings is not None:
+            return strings
+        raise ValueError(f"Unresolved export expression: {source}:{ast.unparse(node)}")
+
+
+def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple[str, ...]:
+    declarations = [
+        node
+        for node in tree.body
+        if (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
+            )
+        )
+        or (
+            isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.target.id == "__all__"
+        )
+    ]
+    if not declarations:
+        if any(_stores_export_symbol(node, "__all__") for node in _module_level_nodes(tree)):
+            raise ValueError("Unresolved conditional export declaration: __all__")
+        return ()
+    source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+    if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
+        raise ValueError(f"Export declaration must resolve to string sequence: {source}")
+    return tuple(exports)
 
 
 def _observed_facade_mode(*, exports: tuple[str, ...], has_getattr: bool) -> str:
@@ -556,7 +721,7 @@ def _facade_source_for(module: str) -> Path:
         (SRC_ROOT / relative).with_suffix(".py"),
         SRC_ROOT / relative / "__init__.py",
     )
-    resolved = tuple(path for path in candidates if path.is_file())
+    resolved = tuple(path for path in candidates if admitted_is_file(path, REPO_ROOT))
     if len(resolved) != 1:
         rendered = ", ".join(str(path) for path in candidates)
         raise FileNotFoundError(
@@ -567,9 +732,19 @@ def _facade_source_for(module: str) -> Path:
 
 
 def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
-    source_file = _facade_source_for(module)
-    tree = ast.parse(source_file.read_text(encoding="utf-8"))
-    exports = _extract_exports(tree)
+    with measure_file_reads(REPO_ROOT) as reads:
+        try:
+            source_file = _facade_source_for(module)
+            tree = ast.parse(admitted_read_bytes(source_file, REPO_ROOT))
+            exports = _extract_exports(tree, source_file)
+        except (OSError, ValueError, SyntaxError, TypeError) as exc:
+            exc.add_note(json.dumps(reads.snapshot(complete_verdict=False), sort_keys=True))
+            raise
+        export_resolution = reads.snapshot()
+    export_resolution["selector"] = (
+        "Declared __all__; literal sequences/mapping keys, named/imported declarations, "
+        "concatenation and sorted/list/tuple. No module execution or runtime dispatch."
+    )
     function_names = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)}
     summary = (ast.get_docstring(tree) or "").strip().splitlines()
     return SupportedEntrypointInventory(
@@ -584,6 +759,7 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
         has___dir__="__dir__" in function_names,
         source_file=str(source_file.relative_to(REPO_ROOT)),
         summary=summary[0] if summary else "",
+        export_resolution=export_resolution,
     )
 
 
@@ -761,6 +937,7 @@ def render_public_surface_json(
                         "has___dir__": entrypoint.has___dir__,
                         "source_file": entrypoint.source_file,
                         "summary": entrypoint.summary,
+                        "export_resolution": entrypoint.export_resolution,
                     }
                     for entrypoint in item.entrypoints
                 ],

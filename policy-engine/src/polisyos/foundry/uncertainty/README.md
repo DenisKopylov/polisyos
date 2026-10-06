@@ -55,7 +55,7 @@ independent point/interval functionals and v2 law storage require IR ratificatio
 
 - Last updated: 2026-09-28
 - Files: 13 Python files in this package
-- Exports: 12 names declared in `__all__`
+- Exports: 16 names declared in `__all__`
 # Sampling consumer entrypoints
 
 Scientist consumes `BoundedIndicatorResponse`, `reconcile_draw_outcomes`,

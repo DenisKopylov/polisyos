@@ -103,7 +103,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
-| `polisyos.calibration` | `public_experimental` | `eager_exports` | 10 | `team-scientist` | `src/polisyos/calibration/README.md` |
+| `polisyos.calibration` | `public_experimental` | `eager_exports` | 28 | `team-scientist` | `src/polisyos/calibration/README.md` |
 | `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
 
@@ -2309,7 +2309,7 @@ world
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
-| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 12 |
+| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 16 |
 
 #### `polisyos.foundry`
 
@@ -2403,11 +2403,12 @@ resolve_execution_posture
 - Facade: `eager_exports`
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
 
-<details><summary>Entrypoint exports (12)</summary>
+<details><summary>Entrypoint exports (16)</summary>
 
 ```text
 AdaptiveStoppingConfig
 AggregationStrategy
+BoundedIndicatorResponse
 FabricUncertaintyContext
 PropagationConfig
 PropagationDispatcher
@@ -2418,6 +2419,9 @@ aggregate_envelopes
 compute_first_order_indices
 extract_std
 fabric_uncertainty_context_from_decision_data
+reconcile_draw_outcomes
+sampling_content_digest
+verify_mean_certificate
 ```
 
 </details>
@@ -5360,7 +5364,7 @@ validate_explanation_bundle
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `eager_exports` | 10 |
+| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `eager_exports` | 28 |
 
 #### `polisyos.calibration`
 
@@ -5368,11 +5372,20 @@ validate_explanation_bundle
 - Facade: `eager_exports`
 - Summary: Calibration diagnostics public entrypoints.
 
-<details><summary>Entrypoint exports (10)</summary>
+<details><summary>Entrypoint exports (28)</summary>
 
 ```text
+PREDICTIVE_AUTHORITY_DENIALS
+REFERENCE_PROFILES
 CalibrationPoint
 CalibrationResult
+EmpiricalCalibrationContext
+EmpiricalCalibrationEvidenceRef
+EvidenceArtifactRef
+ForecastCalibrationProfile
+ForecastCandidateReceipt
+ForecastCandidateReceiptRef
+ForecastMeasurementBinding
 apply_calibrator
 compare_calibrators
 compute_calibration_curve
@@ -5380,16 +5393,34 @@ evaluate_binary
 evaluate_continuous
 evaluate_multiclass
 fit_calibrator
+load_continuous_evaluation
+load_empirical_calibration_evidence
+load_forecast_calibration_profile
+load_forecast_candidate_receipt
+persist_continuous_evaluation
+persist_empirical_calibration_evidence
+persist_forecast_candidate_receipt
+produce_empirical_calibration_evidence
+resolve_forecast_measurement_binding
 to_validation_report
 ```
 
 </details>
 
-<details><summary>Supported exports (10)</summary>
+<details><summary>Supported exports (28)</summary>
 
 ```text
+PREDICTIVE_AUTHORITY_DENIALS
+REFERENCE_PROFILES
 CalibrationPoint
 CalibrationResult
+EmpiricalCalibrationContext
+EmpiricalCalibrationEvidenceRef
+EvidenceArtifactRef
+ForecastCalibrationProfile
+ForecastCandidateReceipt
+ForecastCandidateReceiptRef
+ForecastMeasurementBinding
 apply_calibrator
 compare_calibrators
 compute_calibration_curve
@@ -5397,6 +5428,15 @@ evaluate_binary
 evaluate_continuous
 evaluate_multiclass
 fit_calibrator
+load_continuous_evaluation
+load_empirical_calibration_evidence
+load_forecast_calibration_profile
+load_forecast_candidate_receipt
+persist_continuous_evaluation
+persist_empirical_calibration_evidence
+persist_forecast_candidate_receipt
+produce_empirical_calibration_evidence
+resolve_forecast_measurement_binding
 to_validation_report
 ```
 

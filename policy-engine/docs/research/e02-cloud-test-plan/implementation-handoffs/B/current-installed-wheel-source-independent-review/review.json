@@ -1,0 +1,603 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-installed-wheel-source-independent-review",
+  "reviewer": "RUN /root/run_writer foreign DUR native-input/source reviewer; no helpers/newcheckout/source/test edits or runtime/build/gates",
+  "author": "DUR /root/dur_probe sole installed-wheel input author",
+  "slice_base_sha": "76028eda766d00b0b952b4927f72d07b0a477be1",
+  "implementation_commits": [
+    "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec"
+  ],
+  "candidate_tree_sha": "178c5c8777ae3c40aabfde7adb3847b1105500b0",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/source-check.txt"
+  ],
+  "receipt_companion_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/review.json",
+  "candidate_production_changed_paths": [],
+  "candidate_tests_changed_paths": [],
+  "finding_ids": [
+    "LA-057"
+  ],
+  "bundle_ids": [
+    "RUN-01"
+  ],
+  "closure_ids": [],
+  "reviewed_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+  "reviewed_input_tree": "83667eaae1959f37a0a13a904709944c999f5463",
+  "author_publication_sha": "d760672190fd00237d499aa6f2b62ef276ca0b5a",
+  "author_publication_tree": "86f778a459f02e380acfc8d4d7d6d7e62ec9e94d",
+  "author_handoff_ref": {
+    "source_sha": "d760672190fd00237d499aa6f2b62ef276ca0b5a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json",
+    "git_blob": "03d8d94f68bf3f346ba33e0b6d32292bd31f3b91",
+    "bytes": 10839,
+    "sha256": "d423246f2cd7312f2c4d1d4a8b306e7ed86dbc65461e4528f36f03cd46bfedd5"
+  },
+  "author_handoff_identity_reconciliation": "Parsed exact immutable preparation JSON; implementation/tree/all three file hashes+sizes+closure[] match Git. Author runtime/build status UNRUN and future product source null retained. Static Ruff/format are author source checks, not reviewer gates.",
+  "original_input_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+  "original_input_tree": "ff03c4c28044ecc0afd51cf1309abfae19c82ade",
+  "reviewed_input_complete_footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+    "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py"
+  ],
+  "reviewed_input_production_footprint": [],
+  "source_refs": [
+    {
+      "source_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "git_blob": "b0b07b94472f47587e84b484f2140f00fb63952a",
+      "bytes": 9959,
+      "sha256": "e45bf73137d1eccfce01616891397c510980e6ed3c2633f2de8e8555a7c464e5"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+      "bytes": 9973,
+      "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "git_blob": "8a4007a95666c01058f8f4d17c39921c617e18df",
+      "bytes": 10704,
+      "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb"
+    }
+  ],
+  "canonical_criterion": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+    "bytes": 648034,
+    "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "line_start": 4172,
+    "line_end": 4202,
+    "card_utf8": "## LA-057. Common async bridge: прежний модульный TypeVar больше не участвует в четырёх generic-функциях\n\n**D — прямая очистка одного остаточного объявления и ставшего ненужным import-name**\n\n**Точная область:** `src/polisyos/common/async_tools.py`:\n\n```python\nfrom typing import TYPE_CHECKING, TypeVar  # убрать только TypeVar\nT = TypeVar(\"T\")                           # убрать это объявление\n```\n\n`TYPE_CHECKING` и import Awaitable/Callable под ним остаются. `TypeVar` в других модулях не входит в scope.\n\n**Что установлено.** Полный файл использует `[T]` непосредственно в четырёх generic declarations: `_await_awaitable`, `_run_coro_in_fresh_loop`, `run_coro_sync`, `run_blocking_async`. Их собственные type parameters не являются прежним модульным `T`. Scope-aware проверка полного AST этого файла не нашла unshadowed Name-load модульного `T` за пределами функций с локальным параметром. Это конечный **one-module census**, не нулевой внешний граф импортов. [E229; r09-P23]\n\nВ локальном исполнении Python 3.13.5 у каждой из четырёх функций `__type_params__[0]` отличен от старого `module.T`. `typing.get_type_hints` с явными annotation namespaces возвращает собственный параметр функции и до, и после удаления. После очистки нет module attributes `T`/`TypeVar`; формы resolved annotations совпали. Здесь проверялась не строка `T` в исходнике, а действительное разрешение параметра типа. [r09-P24]\n\n**Почему это legacy.** Новая форма объявления generic уже введена в рабочие функции, а прежнее модульное объявление TypeVar осталось рядом. Никакая coroutine/executor-обязанность за ним в проверенном файле не закреплена. Требуется удалить остаток прошлого способа типизации, не создавать shared types module для одного ненужного имени.\n\n**Что сохранить.** Все functions/class-free execution bodies, `get_shared_executor`, ранние env defaults, context propagation, atexit shutdown, cooperative timeout, cancellation и очистку pending tasks. Файл — работающий sync/async bridge, не placeholder. Даже его возвращаемые ошибки и поведение уже запущенного event loop сохраняются.\n\n**Фактическое удаление ограничено in-memory AST.** Удалены ровно assignment на строке 17 и `TypeVar` из typing import. Полные AST всех функций вместе с атрибутами строк остались неизменными; изменённый модуль компилируется. Настоящие sync вызовы, sync-over-running-loop, blocking executor и ContextVar дали одинаковые значения. Cooperative timeout вызвал одинаковую ошибку и `finally`; оставленная дочерняя task была отменена и очищена; ValueError и zero-timeout rejection сохранились. Executor instances завершены в конце диагностики. Репозиторий не редактировался. [r09-P23–P28]\n\n**Что ещё блокирует безусловное удаление.** В самом `async_tools.py` нет restrictive `__all__`; external `from ... import T`, star import или reflection могут видеть incidental names. Root Common экспортирует модуль `async_tools`, но не отдельное `T`. Адресный GitHub поиск `async_tools.T` не нашёл совпадений, однако он не проверяет все прямые импорты, aliases или динамические обращения. Нужен конечный scan именно этих consumers и typing/tooling конфигураций, не всего научного pipeline. [E230–E231; r09-P29]\n\n**Куда перенести.** Никуда: при отсутствии поддержанного внешнего договора удалить два остатка. При найденном явном consumer сначала выяснить, действительно ли он использует это generic identity, и мигрировать его отдельно; не превращать служебное имя в новый глобальный публичный тип ради сохранения файла.\n\n**Приёмка в проекте.** Exact imports/aliases/star consumers, full module TypeVar scope, supported Python typecheck, существующие async_tools tests, запуск до/внутри event loop, context and cancellation, packaging. Ненулевой внешний потребитель переводит соответствующий объект из direct cleanup в compatibility-задачу; локальные пробы не отменяют этот критерий.\n\n**Приоритет:** дешёвая небольшая очистка, без обещаний ускорения и без зависимости от DDM-миграции. **Основания:** E229–E231; r09-P23–P29.\n\n",
+    "card_excerpt_sha256": "e06004d99513f6fac0e82539c2ce2ff972e82dcd9279ac80a2eb8cd59f89411d",
+    "grade": "Canonical contract only; not runtime evidence."
+  },
+  "baseline_cells": [
+    {
+      "finding_id": "LA-057",
+      "id": "F01-P008",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@198076863e143dea9f89f02734b13d50dae3eed5:125",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F01"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F01-P008"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F03-P083",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@198076863e143dea9f89f02734b13d50dae3eed5:213",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F03"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F03-P083"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F05-P104",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@198076863e143dea9f89f02734b13d50dae3eed5:514",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F05"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F05-P104"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F06-P021",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@198076863e143dea9f89f02734b13d50dae3eed5:205",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F06"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F06-P021"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F09-P017",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@198076863e143dea9f89f02734b13d50dae3eed5:133",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F09"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F09-P017"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F09-P084",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@198076863e143dea9f89f02734b13d50dae3eed5:200",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F09"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F09-P084"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F10-P012",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@198076863e143dea9f89f02734b13d50dae3eed5:132",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F10"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F10-P012"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F10-P080",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@198076863e143dea9f89f02734b13d50dae3eed5:200",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F10"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F10-P080"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F15-P012",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@198076863e143dea9f89f02734b13d50dae3eed5:167",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F15"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F15-P012"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    },
+    {
+      "finding_id": "LA-057",
+      "id": "F15-P096",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@198076863e143dea9f89f02734b13d50dae3eed5:251",
+      "environment_and_input_closure": {
+        "source_job_contexts": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_source_job_contexts",
+        "job": "F15"
+      },
+      "full_cell": {
+        "source_ref": {
+          "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+          "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+          "bytes": 136614,
+          "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+        },
+        "field": "baseline_navigation.selected_cells",
+        "id": "F15-P096"
+      },
+      "grade": "historical_source_reported_navigation_only; raw archive missing; not new adapter/runtime evidence"
+    }
+  ],
+  "baseline_navigation_ref": {
+    "source_sha": "76028eda766d00b0b952b4927f72d07b0a477be1",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+    "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+    "bytes": 97442,
+    "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+  },
+  "baseline_qualification": "Historical source-reported10cells/seven contexts; raw archive limitations retained, never used as new adapter/runtime proof.",
+  "audit": {
+    "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+    "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+    "bytes": 136614,
+    "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+  },
+  "checks": [
+    {
+      "id": "frozen-installed-wheel-source-reconciliation",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-run-la057-frozen-source-review.py",
+        "--repo",
+        "/workspace/e02-B-current-runtime",
+        "--output",
+        "/tmp/e02-run-la057-frozen-source-audit.json"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "start_utc": "2026-10-06T18:31:01.529628+00:00",
+      "end_utc": "2026-10-06T18:31:01.745016+00:00",
+      "wall_s": 0.21537309800623916,
+      "maxrss_kib_linux": 17220,
+      "exit": 0,
+      "grade": "Metadata/source check only; asserts exact3path footprint, full AST equality, 1/8 source-derived denominators, 10cells/seven contexts and unchanged reviewer tree.",
+      "environment": {
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "dependencies": "Only stdlib AST/hashlib/json/pathlib/subprocess/argparse/platform/resource and Git object reads; no product or pytest import."
+      },
+      "input_closure": [
+        {
+          "source_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+          "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+          "git_blob": "b0b07b94472f47587e84b484f2140f00fb63952a",
+          "bytes": 9959,
+          "sha256": "e45bf73137d1eccfce01616891397c510980e6ed3c2633f2de8e8555a7c464e5"
+        },
+        {
+          "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+          "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+          "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+          "bytes": 4870,
+          "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+        },
+        {
+          "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+          "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+          "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+          "bytes": 9973,
+          "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09"
+        },
+        {
+          "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+          "git_blob": "8a4007a95666c01058f8f4d17c39921c617e18df",
+          "bytes": 10704,
+          "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb"
+        },
+        {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "bytes": 648034,
+          "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+          "line_start": 4172,
+          "line_end": 4202,
+          "card_utf8": "## LA-057. Common async bridge: прежний модульный TypeVar больше не участвует в четырёх generic-функциях\n\n**D — прямая очистка одного остаточного объявления и ставшего ненужным import-name**\n\n**Точная область:** `src/polisyos/common/async_tools.py`:\n\n```python\nfrom typing import TYPE_CHECKING, TypeVar  # убрать только TypeVar\nT = TypeVar(\"T\")                           # убрать это объявление\n```\n\n`TYPE_CHECKING` и import Awaitable/Callable под ним остаются. `TypeVar` в других модулях не входит в scope.\n\n**Что установлено.** Полный файл использует `[T]` непосредственно в четырёх generic declarations: `_await_awaitable`, `_run_coro_in_fresh_loop`, `run_coro_sync`, `run_blocking_async`. Их собственные type parameters не являются прежним модульным `T`. Scope-aware проверка полного AST этого файла не нашла unshadowed Name-load модульного `T` за пределами функций с локальным параметром. Это конечный **one-module census**, не нулевой внешний граф импортов. [E229; r09-P23]\n\nВ локальном исполнении Python 3.13.5 у каждой из четырёх функций `__type_params__[0]` отличен от старого `module.T`. `typing.get_type_hints` с явными annotation namespaces возвращает собственный параметр функции и до, и после удаления. После очистки нет module attributes `T`/`TypeVar`; формы resolved annotations совпали. Здесь проверялась не строка `T` в исходнике, а действительное разрешение параметра типа. [r09-P24]\n\n**Почему это legacy.** Новая форма объявления generic уже введена в рабочие функции, а прежнее модульное объявление TypeVar осталось рядом. Никакая coroutine/executor-обязанность за ним в проверенном файле не закреплена. Требуется удалить остаток прошлого способа типизации, не создавать shared types module для одного ненужного имени.\n\n**Что сохранить.** Все functions/class-free execution bodies, `get_shared_executor`, ранние env defaults, context propagation, atexit shutdown, cooperative timeout, cancellation и очистку pending tasks. Файл — работающий sync/async bridge, не placeholder. Даже его возвращаемые ошибки и поведение уже запущенного event loop сохраняются.\n\n**Фактическое удаление ограничено in-memory AST.** Удалены ровно assignment на строке 17 и `TypeVar` из typing import. Полные AST всех функций вместе с атрибутами строк остались неизменными; изменённый модуль компилируется. Настоящие sync вызовы, sync-over-running-loop, blocking executor и ContextVar дали одинаковые значения. Cooperative timeout вызвал одинаковую ошибку и `finally`; оставленная дочерняя task была отменена и очищена; ValueError и zero-timeout rejection сохранились. Executor instances завершены в конце диагностики. Репозиторий не редактировался. [r09-P23–P28]\n\n**Что ещё блокирует безусловное удаление.** В самом `async_tools.py` нет restrictive `__all__`; external `from ... import T`, star import или reflection могут видеть incidental names. Root Common экспортирует модуль `async_tools`, но не отдельное `T`. Адресный GitHub поиск `async_tools.T` не нашёл совпадений, однако он не проверяет все прямые импорты, aliases или динамические обращения. Нужен конечный scan именно этих consumers и typing/tooling конфигураций, не всего научного pipeline. [E230–E231; r09-P29]\n\n**Куда перенести.** Никуда: при отсутствии поддержанного внешнего договора удалить два остатка. При найденном явном consumer сначала выяснить, действительно ли он использует это generic identity, и мигрировать его отдельно; не превращать служебное имя в новый глобальный публичный тип ради сохранения файла.\n\n**Приёмка в проекте.** Exact imports/aliases/star consumers, full module TypeVar scope, supported Python typecheck, существующие async_tools tests, запуск до/внутри event loop, context and cancellation, packaging. Ненулевой внешний потребитель переводит соответствующий объект из direct cleanup в compatibility-задачу; локальные пробы не отменяют этот критерий.\n\n**Приоритет:** дешёвая небольшая очистка, без обещаний ускорения и без зависимости от DDM-миграции. **Основания:** E229–E231; r09-P23–P29.\n\n",
+          "card_excerpt_sha256": "e06004d99513f6fac0e82539c2ce2ff972e82dcd9279ac80a2eb8cd59f89411d",
+          "grade": "Canonical contract only; not runtime evidence."
+        },
+        {
+          "source_sha": "76028eda766d00b0b952b4927f72d07b0a477be1",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+          "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+          "bytes": 97442,
+          "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+        }
+      ],
+      "output": {
+        "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/source-check.txt",
+        "git_blob": "00235cae6aa4a8b8ab2e817206ef8674ad646881",
+        "bytes": 573,
+        "sha256": "862b21867dedd63f50800f1369ad38e796f854a3c11f1f5c416034fe9bc76acb"
+      },
+      "complete_deciding_packet": {
+        "source_sha": "3ef1885f64cc1e8e4dd1d1797e7e3de1ff46e9ec",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+        "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+        "bytes": 136614,
+        "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+      },
+      "outcome": "PASS source/metadata; native/build UNRUN"
+    }
+  ],
+  "source_review": {
+    "verdict": "PASS bounded source review: no blocker under explicit installed-wheel profile.",
+    "real_origin": "Three actual module origins equal installed site/member and distribution locate_file; wheel member bytes equal frozen Git and live canonical source and actual installed file bytes. METADATA equality binds actual distribution.",
+    "no_checkout_fallback": "Python-I-B, no PYTHONPATH, explicit installed site within sys.prefix, exclusion of designated canonical src on sys.path, exact origin/file bytes; source tree is only read for Git/byte binding.",
+    "config_seam": "Child noconftest/importlib/-c/dev/null/addopts empty/pythonpath empty disables project pytest config; clears PYTHONPATH/PYTHONHOME/PYTEST_ADDOPTS/PYTEST_PLUGINS and disables plugin autoload.",
+    "generic_types": "Direct, import alias, lazy Common facade, actual star import and named reflection each resolve four distinct function-local T identities using the ratified explicit annotation namespaces, and execute real bridge result17.",
+    "real_bridge_cases": "Actual direct/running-loop bridges carry ContextVar A/B/None without leakage; cooperative timeout reaches parent and abandoned child finally/cancel; actual generic-awaitable cancellation reaches finally before/inside running loop.",
+    "evidence_before_assertions": "Outer persists child full stdout, XML hashes and actual case rows/wrapper before asserts on child exit/exact8/allpassed; failures have no source fallback.",
+    "immutable_build_prep": "Separate task-local build/installed venvs, explicit UV/Python, hatchling1.27 + pytest9.0.2 and four fixed dependency pins, no project sync/global install; frozen canonical source HEAD/status checked after each command.",
+    "native_product_identity": "DUR test-input source is distinct from root-selected product source. Launcher requires full source SHA; actual build/native source SHA/profile is not yet established by this source-only review."
+  },
+  "input_profiles": {
+    "required_outer_environment_names": [
+      "E02_LA057_INSTALLED_PYTHON",
+      "E02_LA057_WHEEL_PATH",
+      "E02_LA057_INSTALLED_SITE",
+      "E02_LA057_SOURCE_ROOT",
+      "E02_LA057_SOURCE_SHA",
+      "E02_LA057_CONSUMER_SHA256",
+      "E02_LA057_OUTER_TEST_SHA256"
+    ],
+    "original_child_environment_names": [
+      "E02_LA057_WHEEL_PATH",
+      "E02_LA057_INSTALLED_SITE",
+      "E02_LA057_SOURCE_ROOT",
+      "E02_LA057_SOURCE_SHA",
+      "E02_LA057_TEST_SHA256"
+    ],
+    "child_test_sha_mapping": "Outer sets TEST_SHA256 to CONSUMER_SHA256; own outer bytes are separately pinned.",
+    "normal_cohort_provision": "Launcher persists durable seven-input cohort-input-environment.json before native. Normal root source cohort must use exactly those inputs; no missing-input fallback/skip.",
+    "launcher_native_scope": "Isolated installed outer invocation contains only this one outer case, whose child defines eight; original common wholefile is separately selected by root.",
+    "product_source_sha": null,
+    "product_source_tree": null,
+    "actual_wheel_build_install": "UNRUN in this source-only packet",
+    "actual_normal_cohort_dispatch": "UNRUN in this source-only packet",
+    "actual_child_native_cases": "UNRUN; source-derived eight only"
+  },
+  "property": {
+    "statement": "Source-defined installed-wheel consumer binds the actual installed package to the frozen canonical wheel/Git bytes before testing generic identity, real bridges, context, cooperative timeout and cancellation; normal cohort invokes it as a separate isolated child.",
+    "runtime_path": [
+      "ROOT-selected exact canonical product source (pending)",
+      "Actual Hatchling wheel and task-local installed venv (UNRUN here)",
+      "Normal source-cohort one outer case with seven explicit inputs (UNRUN here)",
+      "Explicit installedPython-I-B eight defining child cases (UNRUN here)"
+    ],
+    "proxy_divergence": "A normal checkout import may pass without proving packaging/import origin. The retained child guard requires actual module/site/distribution/wheel/Git equality and isolation; absent input/foreign origin cannot silently become a checkout pass. Strong source guards are read, not observed execution.",
+    "negative_controls": [
+      "SOURCE-DEFINED, UNRUN: refuse source/wheel/installed/module/METADATA/hash or isolation mismatch.",
+      "SOURCE-DEFINED, UNRUN: cooperative timeout must observe actual parent and abandoned-child finally plus cancelled task.",
+      "SOURCE-DEFINED, UNRUN: caller cancellation before/inside running loop must reach actual awaitable finally.",
+      "SOURCE-METADATA PASS: original9826 and frozen02b child have exact whole AST equality without node normalization; one/eight source-derived counts remain separate."
+    ],
+    "authority_purpose": "Installed artifact/source input identity only; no tenant authority or executor lifecycle grant.",
+    "provenance": "Source-only independent reading of complete3-file source delta and stdlib AST/Git reconciliation; no candidate runtime/build observations inferred."
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_quantity": {
+    "source_refs_AST_footprint_counts": "recomputed",
+    "actual_wheel_origin_reflection_bridge_results": "not_established",
+    "fixture_semantic_expected_controls": "consumer_asserted_source_only"
+  },
+  "capability_state_or_finding_state": "PASS bounded source review; LA-057 LIMITED; actual build/native/typecheck UNRUN here; closure_ids empty",
+  "finding_dispositions": [
+    {
+      "finding_id": "LA-057",
+      "state": "LIMITED",
+      "closure_ids": [],
+      "basis": "Bounded foreign source-only test review; no native/build/typecheck acceptance.",
+      "residuals": [
+        "Actual immutable root product wheel build/install/child execution and normal source-cohort profile execution remain UNRUN.",
+        "No arbitrary external import/reflection graph zero or unsupported annotation namespace guarantee."
+      ],
+      "next_owner": "DUR publishes input preparation; ROOT selects exact canonical product source, builds wheel and runs actual child/normal cohort; G decides local external residuals."
+    }
+  ],
+  "P37_qualification": {
+    "prior_premise": "Original9826 isolated fixture had five required inputs and sys.flags.isolated==1. Generic normal source cohort without that profile would not satisfy prerequisites; inferred source incompatibility only, no observed native ERROR/FAIL count.",
+    "input_change": "Adapter moves same eight consumer nodes to explicit nontest helper and introduces real normal-cohort outer dispatch. No consumer assertions weakened; explicit Python/config boundary added.",
+    "actual_execution": "Author preparation and reviewer source operation only; original9826 and adapter02b native/build remain UNRUN in this packet.",
+    "counts": "One outer versus eight child must not be summed into root native session denominator or confused with historical common suite counts."
+  },
+  "P38_qualification": {
+    "grade": "Expected/source-derived consumer semantics; runtime, installed-wheel success, actual origin/reflection observations and typecheck are UNRUN here.",
+    "no_new_cleanup": "main198 already removed old module TypeVar/T; this input-only review does not prove a new production edit.",
+    "external_bound": "Four explicit import profiles plus full single-module source identity is finite evidence; no arbitrary external/dynamic consumer zero claim."
+  },
+  "limitations_and_next_owner": [
+    "ROOT selects immutable merged product source SHA/tree, holds it read-only during wheel build and captures actual build/install/environment/child/native outputs. No future product source identity in this packet.",
+    "Normal root native session has one outer case; installed child has eight separate cases. No double-counting or pre-execution PASS quantity.",
+    "Original9826 standalone input stays historical UNRUN; incompatible normal profile is source-inferred prerequisite issue, not an observed product regression.",
+    "DUR source lane and test-input SHA are distinct from canonical ROOT product/wheel source. No stale producer substitution or whole-checkout e187 equivalence.",
+    "No new TypeVar removal inferred from these tests; main198 already removed names. No arbitrary external alias/dynamic reflection graph zero or unsupported annotation namespace guarantee.",
+    "No reviewer native/build/installation/collection/gates, no P41 inherited waiver. Author style checks and hook skips do not establish typecheck/runtime acceptance.",
+    "Final P35 source/public-surface/protected A/C census remains separate until ROOT gives immutable merged target."
+  ]
+}

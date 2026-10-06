@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.independent_configured_transfer_partial_handoff.v1",
+  "reviewer": "numerical_oracle",
+  "proof_commit": "5beac4d3203e2739f07f504374e92c3ee12baebb",
+  "proof_tree": "73d23d577a2139520d961b44f510c7aeadb87352",
+  "review_artifact": {
+    "source_sha": "5beac4d3203e2739f07f504374e92c3ee12baebb",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-independent-review.json",
+    "git_blob": "7b1058f4cd01c1215326666b5b9b4881d9faa3c0",
+    "bytes": 18281,
+    "sha256": "e0bcff1f5b320e8fa23ad0db24337a7e54a9c6e5329b8b3192ee3df0628b77ad",
+    "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-independent-review.json@5beac4d3203e2739f07f504374e92c3ee12baebb"
+  },
+  "author_receipt": {
+    "sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+    "tree": "4e3c663b1a851bd6aed187c40a287b988d9be9fa",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+    "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+  },
+  "payload": {
+    "sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+    "tree": "04f41d16428832c2fd821df31103dd927e409211",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/deciding-inputs-and-outputs.json.xz",
+    "sha256": "94fcc74d8d36e111e8d0f6190af9f6350f97f1af2ca79af6ac6d3e3fa73bb8b8"
+  },
+  "runtime_source": {
+    "sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459"
+  },
+  "scoped_result": {
+    "integrity": "PASS: all 510 members/484 fixture files and retained originals match.",
+    "actual_origin_bindings": "PASS: 823 positive and 251 negative main-process repository paths, zero mismatches.",
+    "physical_fit": "Actual SingleTaskGP constructor and fit call/return snapshots observed; eight original CAS rows plus raw/transformed training tensors and changed learned parameters independently reconciled. This does not establish full positive controller completion, solver convergence or posterior correctness.",
+    "four_prefit_refusals": "4 PASS / 0 FAIL / 0 ERROR / 0 SKIP with no recorded constructor/fit/model/StageB activity.",
+    "positive_session": "ERROR: actual -9 after 282.912 seconds; collection complete and initial setup passed, but no test call verdict or JUnit. All five call outcomes from that session remain UNRUN.",
+    "interruption_cause": "NOT_ESTABLISHED; cumulative cgroup OOM deltas do not identify the killed PID cause."
+  },
+  "limitations": [
+    "Independent historical GP26 is separate and was neither replayed nor inherited.",
+    "B128/B131/B114 full original acceptance criteria are broader than this supplemental corpus/prefit evidence.",
+    "No full consumer, numerical quality, production authority, formal closure or G acceptance claim.",
+    "No product/test/root edits, runtime reruns, child agents, introduced caps or cleanup for this read-only review."
+  ],
+  "review_lane": {
+    "path": "/workspace/e02-D-published-oracle",
+    "branch": "codex/e02-D-published-oracle",
+    "proof_commit_clean": true
+  },
+  "runtime_reruns": 0,
+  "source_or_test_edits": 0,
+  "root_writes": 0,
+  "child_agents": 0,
+  "cleanup_actions": 0,
+  "formal_closed": 0,
+  "D_accepted_in_G": false,
+  "closure_ids": []
+}

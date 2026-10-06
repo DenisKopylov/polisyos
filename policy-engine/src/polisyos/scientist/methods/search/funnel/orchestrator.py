@@ -522,7 +522,6 @@ class FunnelOrchestrator:
                     replayed = [event for event in events if event.event_id in known_payloads]
                     fresh = [event for event in events if event.event_id not in known_payloads]
                     reported = [event for event in fresh if event.cost_origin == "reported"]
-                    reuse = [event for event in fresh if event.kind == "reuse"]
                     has_reported = any(event.cost_origin == "reported" for event in events)
                     has_reuse = any(event.kind == "reuse" for event in events)
                     recorded = sum((event.amount for event in fresh), Decimal(0))

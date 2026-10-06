@@ -74,7 +74,8 @@ def main() -> None:
     with destination.open("x") as stream:
         stream.write(json.dumps(result, indent=2) + "\n")
     sys.stdout.write(
-        json.dumps({"actions": len(actions), "sources": len(sources), "path": str(destination)}) + "\n"
+        json.dumps({"actions": len(actions), "sources": len(sources), "path": str(destination)})
+        + "\n"
     )
 
 

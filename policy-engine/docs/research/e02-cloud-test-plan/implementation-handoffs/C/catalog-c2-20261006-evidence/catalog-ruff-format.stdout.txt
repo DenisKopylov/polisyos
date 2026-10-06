@@ -1,0 +1,5 @@
+Would reformat: policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py
+Would reformat: policy-engine/tests/unit/remediation/test_dfi_03.py
+Would reformat: policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py
+Would reformat: policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py
+4 files would be reformatted

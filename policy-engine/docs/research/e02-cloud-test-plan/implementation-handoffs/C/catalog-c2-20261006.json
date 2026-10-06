@@ -1,0 +1,520 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "catalog-c2-20261006",
+  "closure_ids": [
+    "LA-028"
+  ],
+  "bundle_ids": [
+    "DFK-02"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "c27bc0f3e5c51916968d781f5788478835c4c026",
+    "71569639ef159c61b40ec3d4f7c9a31682d96830",
+    "8e7110904be96a81bb8bdb2a0002726776b0992e",
+    "d9f4539e941577b99c6d00b088e08efdd2be0cdc",
+    "d09c7396dfe6b9d5056c2f0cdc253c1846906602",
+    "1b88c429d7fc915e4631fb06ad868af6727dd0b0",
+    "f64fb7a42eceef3cb884564b257a34a4f15768a2",
+    "9551ef73bfe3ff625cbdae310d329805e66bb8c8",
+    "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+    "4a9350bf3e43d1785ab7ff51b37da442e84aca8e",
+    "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
+  ],
+  "integration_merges": [
+    {
+      "sha": "cf1fbd9f74de7d37079dfcdcfa5ac44cd1f2ab8c",
+      "parents": [
+        "1b88c429d7fc915e4631fb06ad868af6727dd0b0",
+        "f5d66898566cc472a5a3a7309ecb76f0cdb12c45"
+      ],
+      "role": "append-only merge of DFI provider baseline"
+    },
+    {
+      "sha": "f595788473ba66b1065e44d8cd64616d9998c239",
+      "parents": [
+        "9551ef73bfe3ff625cbdae310d329805e66bb8c8",
+        "4a9350bf3e43d1785ab7ff51b37da442e84aca8e"
+      ],
+      "role": "append-only merge of DFI/EMB successor provider"
+    },
+    {
+      "sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "parents": [
+        "f595788473ba66b1065e44d8cd64616d9998c239",
+        "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
+      ],
+      "role": "append-only merge of shared QC read-set correction"
+    }
+  ],
+  "receipt_only_ancestry": [
+    {
+      "sha": "fd23ed448dd3664b80b499863573900ea03256ea",
+      "role": "upstream DFI/EMB evidence handoff; not a source implementation commit"
+    }
+  ],
+  "candidate_tree_sha": "dc073387ab5b08b77c007286079ff695a886d403",
+  "branch": "codex/e02-C-catalog-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006.json",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/AUTHORING.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/publish.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/__init__.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/core.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/open_data.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/sdmx.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/kernel/README.md",
+    "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+    "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+    "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/src/polisyos/lex/knowledge/store.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_harvester_parallel.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py",
+    "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+    "policy-engine/tests/unit/data_forge/test_phase1_shared_kernel_cutover.py",
+    "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+    "policy-engine/tests/unit/remediation/test_dfi_02.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/remediation/test_dfk_02.py",
+    "policy-engine/tests/unit/remediation/test_emb_02.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
+  ],
+  "changed_path_count": 57,
+  "changed_path_stat": "57 files, 5646 insertions(+), 1342 deletions(-) from the slice base; complete path list is derived directly from git diff --name-only base...candidate.",
+  "path_ownership": {
+    "catalog_owner": "C catalog author owns canonical catalog registry/selection, catalog batch config/source facade/producer consumer, standalone batch publish and RetrievalService paths and their mirrored catalog tests. The batch/source_registry.yaml duplicate was left untouched and is not the default owner.",
+    "provider_dependency": "DFI/EMB provider commits f5d66898566cc472a5a3a7309ecb76f0cdb12c45, 4a9350bf3e43d1785ab7ff51b37da442e84aca8e, and 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63 were consumed by append-only Git merges. Their pipeline, harvesting, embedding, knowledge-store, generation-basis, and quality-input paths remain provider-owned; no generated YAML copies or DFI generation-basis implementation were edited by C.",
+    "shared_kernel": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py is the explicitly granted C shared-kernel path for immutable captured publish artifact bytes; no other generation-basis/kernel owner paths were edited by C.",
+    "forbidden_or_unowned": "No DFI/EMB pipeline source edits by C, no A runtime/http lifecycle edits, no generated registry copies, no root dependency/lockfile edits, and no production DB/network/model asset access."
+  },
+  "baseline_cells": [
+    "F02-P065",
+    "F02-P079",
+    "F03-P079",
+    "F04-P053",
+    "F05-P075",
+    "F05-P087",
+    "F07-P058",
+    "F08-P079",
+    "F09-P057",
+    "F10-P055",
+    "F10-P067",
+    "F13-P062",
+    "F13-P090",
+    "F15-P076"
+  ],
+  "baseline_reference": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-baseline-query.json",
+    "sha256": "ea409ef415dccba9071a2f7a4aa6502cde121e22b35a7a261918dfb93de37fce",
+    "matching_cells": 14,
+    "displayed_cells": 14,
+    "source_reported_states": {
+      "FAILED": 6,
+      "PASS": 8
+    },
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "semantic_adequacy": "not_established",
+    "deciding_original_cells": [
+      "F02-P065",
+      "F15-P076"
+    ],
+    "limitation": "This is a source-reported compact-text query for the pinned baseline routes, not a candidate test result or independent semantic proof. Its 14 cells comprise 8 PASS and 6 FAILED; archived full raw job artifacts were not available in this lane."
+  },
+  "checks": [
+    {
+      "command": "pytest -q policy-engine/tests/unit/remediation/test_dfi_03.py::test_real_qc_receipt_binds_shared_merged_and_duplicate_inputs policy-engine/tests/unit/data_forge/domains/catalog/batch/test_qc.py policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py policy-engine/tests/unit/data_forge/test_phase1_shared_kernel_cutover.py",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Original shared Python 3.14 venv at /Users/deniskopylov/polisyos/policy-engine/.venv (read-only); PYTHONPATH points to this candidate’s policy-engine/src; pytest root is this candidate worktree.",
+      "input_closure": "Four focused provider/QC/publisher/shared-kernel test targets; tests use temporary fixtures and tmp_path only, no production datasets or network.",
+      "outcome": "PASS",
+      "output": "45 tests passed (45 dots; pytest exit 0). Complete quiet-mode output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-qc-publish-kernel.stdout.txt@b2c6720453f06d35157bf6fc9703ffce184bf1d11bc189b38e5a9b17338d728b."
+    },
+    {
+      "command": "pytest -q policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Original shared Python 3.14 venv at /Users/deniskopylov/polisyos/policy-engine/.venv (read-only); imports resolve from this candidate worktree.",
+      "input_closure": "All 24 actual RetrievalService catalog consumer tests with temporary DuckDB/catalog fixtures and fixture fetch/executor paths; no production DB or network.",
+      "outcome": "PASS",
+      "output": "24 tests passed (24 dots; pytest exit 0). Complete quiet-mode output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt@12784721e0280443291002b595b03384e8588476665647b621a862f07297e08f."
+    },
+    {
+      "command": "pytest -vv policy-engine/tests/unit/remediation/test_dfk_02.py::test_public_read_and_fabric_consumers_use_the_canonical_registry_projection",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Original shared Python 3.14 venv at /Users/deniskopylov/polisyos/policy-engine/.venv (read-only); imports resolve from this candidate worktree.",
+      "input_closure": "One actual public read API/Fabric projection consumer test using a temporary canonical registry and fixture catalog.",
+      "outcome": "PASS",
+      "output": "1 passed in 2.24s (pytest exit 0). Complete verbose output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt@24f9ba2c07996875c26b47f5f0f5ebf90d79fe8a4a539866f6816b3e5c564703."
+    },
+    {
+      "command": "Independent review run: five targeted provider/QC/kernel/consumer tests on the frozen combined source tree.",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Reviewer used the read-only original Python 3.14 venv and candidate source; no production data/assets.",
+      "input_closure": "Two current QC shared-input mutation cases, invalid staged HNSW vectors, and the two actual quality-search generation consumers.",
+      "outcome": "PASS",
+      "output": "5 passed in 14.03s. Complete output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/provider-corrective-review-targeted.stdout.txt@b5d7c2b12fccffae685dc3a646b724cdbb0d298dfb2f4d3cf1694de7b34c802c."
+    },
+    {
+      "command": "Independent review run: four targeted standalone publish and shared-manifest tests on the frozen combined source tree.",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Reviewer used temporary catalog snapshots and actual standalone producer/publish functions; no production inputs/network.",
+      "input_closure": "Reject ready JSON without receipts; standalone CLI consumes current producer receipts; report swap before publish writes; publish manifest hashes captured bytes.",
+      "outcome": "PASS",
+      "output": "4 passed in 2.14s. Complete output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-targeted.stdout.txt@17bf627278309daf9e297e71906cf62a6bfe9654fe08cf3e22c4791f511b6d02."
+    },
+    {
+      "command": "python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.py",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Candidate source on PYTHONPATH; isolated TemporaryDirectory, temporary DuckDB, deterministic fixture raw payload; no external I/O.",
+      "input_closure": "Actual QC producer, current_content_stage_receipt, and recomputed QC input basis after changing both merged_records and duplicates_report.",
+      "outcome": "PASS",
+      "output": "QC producer passed; after mutation the basis digest changed from dddebaa9… to d4f1d04a… and the previous receipt was no longer accepted. The old report said duplicate ratio 100%; current inputs yield 0%. Complete deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.stdout.txt@9a973da303436cd2b1a92ba3c8fa65ef5a0366569312ee5cd83545c9de6498db. Exact probe: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.py@5b379d66f5e6b6ef2afce98f926e84a90233831235d71dd9a5c95c32616d8737."
+    },
+    {
+      "command": "python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.py",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Candidate source; temporary fixture registry/catalog/snapshot only; actual standalone benchmark and QC producer invocations; no external I/O.",
+      "input_closure": "After QC receipt validation returns, replace both report files before readiness/publish generation and record every publish-related write.",
+      "outcome": "PASS",
+      "output": "Actual benchmark/QC producers ran; the post-validation report swap was rejected with `RuntimeError: Dataset publish blocked: qc report bytes differ from its producer receipt`; readiness, publish manifest, and publish-stage manifest were all absent. Complete output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt@a17e26439238e902c9175abf4eae393b95451b95ef6765e668d20a110c7a1f96. Exact probe: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.py@92afc3d60b1bd9719aee3ad13b712edd91f9494af0e6f513d0877e341fef68ac."
+    },
+    {
+      "command": "git diff --check 198076863e143dea9f89f02734b13d50dae3eed5...HEAD",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Git in the attached C worktree.",
+      "input_closure": "Complete implementation delta from the slice base to the frozen candidate.",
+      "outcome": "PASS",
+      "output": "No whitespace errors; empty complete output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-diff-check.stdout.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
+    },
+    {
+      "command": "ruff check on the four DFI provider-delta Python paths: catalog/batch/pipeline.py, tests/unit/remediation/test_dfi_03.py, and the two updated runtime quality tests.",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Original shared Python 3.14 venv Ruff module; checks limited to the four provider-delta Python paths.",
+      "input_closure": "Four changed provider Python files only; this is not the full C candidate Ruff denominator.",
+      "outcome": "PASS",
+      "output": "All checks passed! Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-check.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18."
+    },
+    {
+      "command": "ruff format --check on the same four DFI provider-delta Python paths.",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Original shared Python 3.14 venv Ruff module.",
+      "input_closure": "The same four changed provider Python paths; no source edits were made after this result.",
+      "outcome": "FAIL",
+      "output": "Four files would be reformatted. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-format.stdout.txt@b7388557e9694cac7278d4e00faedf312d68caecff14ed6a278955ad867d8d37. This formatting check is distinct from the passing Ruff lint check and is not claimed green."
+    },
+    {
+      "command": "Production/static catalog invocation receipt on base 198076863e143dea9f89f02734b13d50dae3eed5.",
+      "target_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "environment": "Not run in this continuation; no verified CAT-owned static raw artifact/output is present in this worktree. No production data read.",
+      "input_closure": "Full catalog static/architecture diagnostic denominator.",
+      "outcome": "UNRUN",
+      "output": "No output artifact exists. Do not infer PASS/FAIL, do not reuse another unit’s static artifact, and do not treat this as inherited."
+    }
+  ],
+  "property": {
+    "statement": "The ordered, versioned YAML CatalogSourceRegistry is the single validated catalog declaration source. Batch config and catalog module views are projections from it; batch and RetrievalService use the same source-selection and seed-closure policy. Caller profile, explicit empty selection, disabled/missing/cyclic dependency status, and source identity remain semantic inputs and may not be silently defaulted or coerced.",
+    "runtime_path": [
+      "canonical catalog/source_registry.yaml",
+      "strict duplicate-aware typed registry intake and CatalogSourceRegistry",
+      "shared selection.py profile/filter/dependency closure",
+      "batch configuration and batch source projection OR RetrievalService.resolve with explicit caller run_profile",
+      "temporary catalog DuckDB/catalog and fixture executor/fetch plans in actual consumer tests",
+      "public read API/Fabric consumer projection"
+    ],
+    "selection_semantics": {
+      "batch_none_default": "Batch configuration keeps its existing prod_full default; the generic catalog selector accepts None as its existing default-source input and distinguishes it from an explicit empty tuple.",
+      "explicit_empty": "An explicit empty tuple remains empty; it does not expand to the default source set.",
+      "profile_filter": "Selected roots respect the supplied profile and wave/filter rules. Existing mandatory enabled seed dependencies may be included in dependency closure even when the seed itself is outside the root profile; this is the retained existing contract, not a new profile rule.",
+      "disabled_or_missing_seed": "A selected source with a disabled mandatory seed fails with dependency_disabled; a missing seed fails with dependency_missing; cycles fail with dependency_cycle. No execution proceeds by silently enabling/discarding the required seed.",
+      "unknown_profile": "Unknown profile is a typed refusal, including for empty requests.",
+      "retrieval_none": "RetrievalService.run_profile=None is unresolved and raises the existing typed catalog_run_profile_unresolved error; it does not inherit a batch profile."
+    },
+    "proxy_divergence": "A 35-row equality/projection check alone does not prove runtime selection or profile agreement; a string status/ready flag or source name alone does not bind the actual report/content bytes. The candidate adds real RetrievalService consumer checks and current producer-receipt content binding; the current public HTTP bridge still omits run_profile and therefore cannot establish same-profile serving behavior.",
+    "negative_controls": [
+      "Disabled, missing, and cyclic mandatory seeds produce typed refusal rather than executable selection.",
+      "Unknown explicit profiles are refused; explicit empty tuple remains distinct from None/default.",
+      "Duplicate YAML mapping keys, malformed rows, wrong scalar/container types, identity collisions, and false-like string booleans are rejected by strict source admission controls in the focused catalog tests.",
+      "After actual QC producer receipt admission, mutate both merged_records and duplicates_report: recomputed basis digest changes and the stale QC receipt is refused.",
+      "After actual benchmark/QC producer receipt validation, replace report bytes before readiness/publish generation: publish refuses before writing readiness or either publish manifest.",
+      "Publish manifest hashes the exact captured artifact bytes used by consumer readiness; it does not reopen mutable report paths after validation."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": {
+    "catalog_selection_inputs": "The typed registry and run-profile selection are recomputed from the canonical registry and explicit profile; no claim is made for absent caller profile context.",
+    "report_and_quality_input_bytes": "Provider receipt basis and output inventory are recomputed from actual current config/read-set/artifact bytes; targeted mutation probes demonstrate stale-receipt rejection.",
+    "serving_profile_supplier": "not_established; the HTTP request and its lifecycle/NL/acquisition producers do not carry run_profile.",
+    "complete_external_source_universe": "not_established; only the catalog registry-selected source set is measured."
+  },
+  "finding_verdict": "held",
+  "capability_state_or_finding_state": "LA-028 is HELD. The shared registry/selection mechanism and fixture consumers are implemented and independently reviewed, but the serving caller has no allocated profile-context supplier bridge. Historical ledger status remains partial / bridge_missing; this candidate does not claim finding closure.",
+  "criterion_results": [
+    {
+      "criterion": "One strict versioned registry intake and YAML-derived batch/runtime projections",
+      "status": "PASS",
+      "evidence": "Candidate source and focused catalog acceptance review; strict input rejection controls cover duplicate mapping keys, malformed members, wrong supplied types, aliases/merged mappings, row identity collisions, and preserved omitted-field defaults. Current public read API/Fabric projection check passed on the exact candidate.",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt@24f9ba2c07996875c26b47f5f0f5ebf90d79fe8a4a539866f6816b3e5c564703"
+    },
+    {
+      "criterion": "Batch and RetrievalService selection share supplied profile/filter/dependency semantics with None distinct from explicit empty and fail-closed seed errors",
+      "status": "PASS",
+      "evidence": "24 actual RetrievalService catalog tests and one public read/Fabric projection test pass on exact candidate. Current focused run did not repeat the entire selection-contract test module; that unchanged broader row is not reported as a current full-suite result.",
+      "locators": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt@12784721e0280443291002b595b03384e8588476665647b621a862f07297e08f",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt@24f9ba2c07996875c26b47f5f0f5ebf90d79fe8a4a539866f6816b3e5c564703"
+      ]
+    },
+    {
+      "criterion": "Actual serving caller provides the explicit profile required by catalog selection",
+      "status": "FAIL",
+      "evidence_grade": "recomputed_source_path_observation; no end-to-end HTTP fixture run",
+      "evidence": "DataResolveRequest has no run_profile field (core/contracts/control.py:643-649); POST /data/resolve passes it to ControlPlaneService (runtime/http/routes/control.py:705-722), whose data_resolve calls RetrievalService.resolve(request) without a profile (runtime/http/services/control/run_lifecycle.py:7396-7401). NL caller builds DataResolveRequest without profile then calls retrieval.resolve (runtime/http/services/control/nl_pipeline.py:5546-5554). Acquisition planner likewise constructs and resolves requests without a profile (runtime/quality/acquisition_planner.py:1394-1430, 1468). RetrievalService correctly raises catalog_run_profile_unresolved for None when its catalog selection path is reached.",
+      "owner": "A runtime/lifecycle and caller-context owner must supply and verify the governed profile decision; C owns the consumer interface and remains available to wire the allocated typed context.",
+      "limitation": "No profile mapping/default is inferred; no dev-to-prod_full substitution is made."
+    },
+    {
+      "criterion": "Actual producer-to-artifact-to-HTTP consumer end-to-end selection under the same profile",
+      "status": "UNRUN",
+      "missing_input": "A-owned serving profile/context decision and HTTP fixture/caller integration after that decision.",
+      "evidence": "Direct RetrievalService fixture tests pass, but the caller context is absent, so an HTTP success would require fabricating authority. No HTTP lifecycle runtime success is claimed."
+    },
+    {
+      "criterion": "Catalog publisher readiness bound to current QC/benchmark producer reports and immutable captured bytes",
+      "status": "PASS",
+      "evidence": "Independent reviewer exact candidate report-swap interleaving rejects before writes; stale QC read-set probe changes current basis and refuses old receipt.",
+      "locators": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt@a17e26439238e902c9175abf4eae393b95451b95ef6765e668d20a110c7a1f96",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.stdout.txt@9a973da303436cd2b1a92ba3c8fa65ef5a0366569312ee5cd83545c9de6498db"
+      ]
+    },
+    {
+      "criterion": "Full production/static catalog invocation and complete source-universe census",
+      "status": "UNRUN",
+      "missing_input": "No verified CAT-owned static invocation output is available; production source universe and production DB/data are intentionally not read.",
+      "evidence": "No large static rerun was created for the receipt. Other unit raw evidence is not transferred as CAT evidence."
+    }
+  ],
+  "historical_status": {
+    "ledger": "partial / bridge_missing",
+    "baseline_semantic_adequacy": "not_established",
+    "candidate_verdict": "held",
+    "note": "The four-value candidate verdict is separate from historical partial/bridge_missing. PASS on local fixture checks does not close LA-028."
+  },
+  "remaining_residuals": [
+    {
+      "owner": "A runtime/lifecycle profile-context supplier; C consumer interface",
+      "state": "held",
+      "smallest_capability": "Typed profile context on the actual DataResolveRequest/lifecycle caller path, with an explicit unresolved/unsupported refusal and an HTTP test proving selected source IDs match batch under the same governed profile.",
+      "missing_contract": "No current profile carrier or ratified profile mapping/default is present in those actual serving callers; do not invent one."
+    },
+    {
+      "owner": "Catalog/DFI publish and shared manifest owner boundary",
+      "state": "bounded_limited",
+      "smallest_capability": "Shared owner lock or atomic publication transaction spanning final receipt revalidation through first write if general concurrent external writer serialization is required.",
+      "falsifier": "An external writer that mutates accepted artifacts after the final receipt check but before first publish write; current probe proves post-QC-validation replacement is refused before writes but does not claim all concurrent writer schedules are serialized."
+    },
+    {
+      "owner": "Catalog registry source-universe authority",
+      "state": "not_established",
+      "smallest_capability": "Independent declared complete source membership authority; current code only proves selection against the admitted registry."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Do not close LA-028 until A allocates the actual serving profile/context supplier and a real producer→artifact→HTTP consumer test runs without a fabricated default.",
+    "Direct RetrievalService fixture tests are actual library consumers over temporary DuckDB/catalog fixtures; they are not a substitute for the missing production HTTP caller profile bridge.",
+    "The default `batch/source_registry.yaml` duplicate remains untouched and unused; canonical default loading is from the CatalogSourceRegistry source of truth. No generated output was hand-edited.",
+    "The import contract has a measured bounded 15,427-byte canonical YAML read and DuckDB module import; no DB connection, socket, HNSW, model initialization, or production file open was observed. Do not claim zero I/O or no DuckDB import.",
+    "Ruff lint passed only on the four provider-delta Python paths. Ruff format --check failed on those same four paths (four would be reformatted); full changed-path Ruff was not rerun in this lane.",
+    "CAT production/static invocation report is unavailable in this worktree and is UNRUN; no other unit’s static receipt is reused.",
+    "No production DB, network service, production corpus, or model assets were accessed."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "class_found": "Duplicated/lossy registry intake, seed/profile selection facades, status/readiness proxies, and report-path reopening could make consumers disagree or publish bytes different from the verified artifact.",
+    "closure_move": "Single strict typed catalog intake + shared selection; recompute producer/read-set basis from actual bytes; snapshot once and use those immutable captured bytes for readiness/manifest output; retain typed refusal when profile authority is absent.",
+    "remaining_labels": [
+      "implemented_but_not_orchestrated: actual serving caller profile supplier",
+      "verification_missing: no HTTP same-profile end-to-end consumer run",
+      "not_established: complete external source universe and general writer serialization"
+    ]
+  },
+  "source_refs": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-02.md#LA-028",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md#finding-la-028",
+    "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md#dfk-02",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/src/polisyos/core/contracts/control.py:643-649",
+    "policy-engine/src/polisyos/runtime/http/routes/control.py:705-722",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py:7396-7401",
+    "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py:5546-5554",
+    "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py:1394-1430,1468"
+  ],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-baseline-query.json",
+      "sha256": "ea409ef415dccba9071a2f7a4aa6502cde121e22b35a7a261918dfb93de37fce",
+      "purpose": "Complete 14-cell source-reported LA-028 baseline query; no raw archive transfer."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-qc-publish-kernel.stdout.txt",
+      "sha256": "b2c6720453f06d35157bf6fc9703ffce184bf1d11bc189b38e5a9b17338d728b",
+      "purpose": "Current 45-test provider/QC/publisher/shared-kernel output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt",
+      "sha256": "12784721e0280443291002b595b03384e8588476665647b621a862f07297e08f",
+      "purpose": "Current 24-test actual RetrievalService consumer output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt",
+      "sha256": "24f9ba2c07996875c26b47f5f0f5ebf90d79fe8a4a539866f6816b3e5c564703",
+      "purpose": "Current public read API/Fabric projection consumer output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/provider-corrective-review-targeted.stdout.txt",
+      "sha256": "b5d7c2b12fccffae685dc3a646b724cdbb0d298dfb2f4d3cf1694de7b34c802c",
+      "purpose": "Independent provider/QC/kernel consumer review output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-targeted.stdout.txt",
+      "sha256": "17bf627278309daf9e297e71906cf62a6bfe9654fe08cf3e22c4791f511b6d02",
+      "purpose": "Independent publisher delta review output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.py",
+      "sha256": "5b379d66f5e6b6ef2afce98f926e84a90233831235d71dd9a5c95c32616d8737",
+      "purpose": "Exact current QC read-set mutation probe."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.stdout.txt",
+      "sha256": "9a973da303436cd2b1a92ba3c8fa65ef5a0366569312ee5cd83545c9de6498db",
+      "purpose": "Deciding QC input mutation output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.py",
+      "sha256": "92afc3d60b1bd9719aee3ad13b712edd91f9494af0e6f513d0877e341fef68ac",
+      "purpose": "Exact post-validation report-swap interleaving probe."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt",
+      "sha256": "a17e26439238e902c9175abf4eae393b95451b95ef6765e668d20a110c7a1f96",
+      "purpose": "Deciding no-write publisher refusal output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "purpose": "Scoped lint output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-format.stdout.txt",
+      "sha256": "b7388557e9694cac7278d4e00faedf312d68caecff14ed6a278955ad867d8d37",
+      "purpose": "Scoped format-check failure output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-diff-check.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Exact implementation diff whitespace check output."
+    }
+  ],
+  "candidate_source_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+  "source_provenance": {
+    "catalog_owner_commits": [
+      {
+        "sha": "c27bc0f3e5c51916968d781f5788478835c4c026",
+        "scope": "canonical YAML registry and generated/view ownership consolidation"
+      },
+      {
+        "sha": "71569639ef159c61b40ec3d4f7c9a31682d96830",
+        "scope": "shared catalog selection and batch configuration bridge"
+      },
+      {
+        "sha": "8e7110904be96a81bb8bdb2a0002726776b0992e",
+        "scope": "catalog format normalization"
+      },
+      {
+        "sha": "d9f4539e941577b99c6d00b088e08efdd2be0cdc",
+        "scope": "catalog selection/publish admission"
+      },
+      {
+        "sha": "d09c7396dfe6b9d5056c2f0cdc253c1846906602",
+        "scope": "strict registry admission and duplicate-key refusal"
+      },
+      {
+        "sha": "1b88c429d7fc915e4631fb06ad868af6727dd0b0",
+        "scope": "registered source identity binding"
+      },
+      {
+        "sha": "f64fb7a42eceef3cb884564b257a34a4f15768a2",
+        "scope": "standalone publish requires current producer receipts"
+      },
+      {
+        "sha": "9551ef73bfe3ff625cbdae310d329805e66bb8c8",
+        "scope": "immutable captured publish report bytes and manifest binding"
+      }
+    ],
+    "upstream_dependency_commits": [
+      {
+        "sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+        "scope": "DFI current-content receipt provider base"
+      },
+      {
+        "sha": "4a9350bf3e43d1785ab7ff51b37da442e84aca8e",
+        "scope": "DFI/EMB content-basis and output-inventory successor"
+      },
+      {
+        "sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+        "scope": "shared benchmark/QC/publish current quality-input read-set binding"
+      }
+    ],
+    "authorship_provenance": "This receipt attributes path ownership and commit role only; it does not infer provenance or authorship of any preserved earlier candidate edit beyond the exact committed history listed above.",
+    "generated_artifact_policy": "No generated registry YAML or duplicate source registry copy was directly edited; the canonical source and projections are committed as listed in the Git delta."
+  }
+}

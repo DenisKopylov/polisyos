@@ -74,7 +74,15 @@
       "declared_selector": "tests/unit/remediation/test_opt_04.py",
       "local_D_evidence": "Original243 OPT04 canonical28PASS plus pinned independent champion callback/race proof in original8cdsnapshot; not a current combined B->D runtime.",
       "combined_runtime_ref": null,
-      "next_owner": "B CAS writer / D OPT04 owner / G"
+      "next_owner": "B CAS writer / D OPT04 owner / G",
+      "declared_selector_state_in_final_D_Git": "absent_planned_only_no_execution",
+      "actual_local_D_canonical_command_ref": {
+        "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+        "bytes": 47439,
+        "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88",
+        "pointer": "/checks/9/canonical_command"
+      }
     },
     {
       "edge": "CAS-01(B)->TRN-02(D)",
@@ -86,7 +94,8 @@
       "declared_selector": "tests/unit/remediation/test_trn_02.py",
       "local_D_evidence": "Original243 TRN02 canonical59PASS; current243 nativeCAS3 actually HNSW->CAS->BGC->GP/restore. Live owner-issued generation and second-process scope unreceived.",
       "combined_runtime_ref": null,
-      "next_owner": "B CAS writer / D TRN02 owner / generation metadata issuer / G"
+      "next_owner": "B CAS writer / D TRN02 owner / generation metadata issuer / G",
+      "declared_selector_state_in_final_D_Git": "exists_unrun_combined_edge"
     },
     {
       "edge": "STR-01(D)->DOE-01(E)",
@@ -98,7 +107,8 @@
       "declared_selector": "tests/unit/remediation/test_doe_01.py",
       "local_D_evidence": "Original243 STR01 canonical38PASS; Q5authorreceipt+independentroot mechanism controls separately pinned. No actual current E DOE consumer invocation received.",
       "combined_runtime_ref": null,
-      "next_owner": "D STR01 / E DOE01 / G"
+      "next_owner": "D STR01 / E DOE01 / G",
+      "declared_selector_state_in_final_D_Git": "exists_unrun_combined_edge"
     }
   ],
   "unreceived_served_contracts": [
@@ -215,7 +225,8 @@
     "Local proposal only; no upstream minref guessed from old topics or source prose.",
     "No combined A-F runtime/compatibility or G acceptance.",
     "Backend/frontend/global diagnostics remain scoped FAIL/ERROR/UNRUN; no inferred inherited waiver.",
-    "No source, metadata, criterion or appointment rewrite; no new backend execution."
+    "No source, metadata, criterion or appointment rewrite; no new backend execution.",
+    "Original cross-unit planned tests/unit/remediation/test_opt_04.py is absent in finalDtree. Actual existing localOPT04 command is source-bound separately; this does not implement or execute that absent combined-edge selector."
   ],
   "criterion_accounting_receipt": {
     "source_sha": "e8c27984472bea72ed1a565ac816aa75db5e3bbe",

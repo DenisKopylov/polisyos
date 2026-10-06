@@ -17,6 +17,43 @@ import sys
 from pathlib import Path
 
 
+def native_pytest_positionals(
+    argv: list[str], profile: dict[str, object]
+) -> tuple[list[str], list[str]]:
+    """Separate selectors using pinned observed option arities, without importing pytest."""
+    marker = next(
+        (i for i, x in enumerate(argv) if x in {"pytest", "pytest.main"} or x.endswith("/pytest")),
+        None,
+    )
+    if marker is None:
+        return [], ["native pytest marker absent"]
+    tokens = argv[marker + 1 :]
+    if any(token.startswith("@") for token in tokens):
+        return [], ["argument-file expansion unresolved; no guessed positional selectors"]
+    grammar = argparse.ArgumentParser(add_help=False, allow_abbrev=False, exit_on_error=False)
+    seen: set[str] = set()
+    for action in profile["actions"]:
+        options = action["options"]
+        if seen.intersection(options):
+            raise ValueError("Pinned option grammar contains duplicate option names")
+        seen.update(options)
+        nargs = action["nargs"]
+        if nargs == 0:
+            grammar.add_argument(*options, action="store_true")
+        elif nargs is None or nargs in {"?", "+", "*"} or isinstance(nargs, int):
+            grammar.add_argument(*options, nargs=nargs)
+        else:
+            raise ValueError(f"Unsupported pinned option arity: {nargs!r}")
+    grammar.add_argument("native_selectors", nargs="*")
+    try:
+        parsed, unknown = grammar.parse_known_intermixed_args(tokens)
+    except (argparse.ArgumentError, ValueError) as exc:
+        return [], [f"option/value grammar unresolved: {exc}"]
+    if unknown:
+        return [], [f"unknown option grammar: {unknown!r}; no guessed selectors"]
+    return parsed.native_selectors, []
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", required=True)
@@ -75,6 +112,10 @@ def main() -> None:
     org = prefix + "execution-organization/"
     res = prefix + "results/"
     handoff = prefix + "implementation-handoffs/B/"
+    option_profile_path = handoff + "final-root-evidence/pytest-cli-option-profile.json"
+    option_profile = json.loads(text(option_profile_path))
+    if option_profile["schema"] != "policyos.e02.pytest_cli_option_profile.v1":
+        raise ValueError("An observed immutable pytest option profile is required")
     owners = [x for x in rows(org + "finding-owners.tsv") if x["unit"] == "B"]
     ids = {x["finding_id"] for x in owners}
     bundles = [x["bundle_id"] for x in rows(org + "bundle-owners.tsv") if x["unit"] == "B"]
@@ -106,7 +147,7 @@ def main() -> None:
         details: dict[str, object] | None = None,
     ) -> None:
         p = normalize(selector)
-        if not Path(p).name.startswith("test_"):
+        if not (Path(p).name.startswith("test_") or Path(p).name.endswith("_test.py")):
             return
         key = (kind, locator, selector, bundle)
         rows = sources.setdefault(p, {})
@@ -151,25 +192,26 @@ def main() -> None:
         else:
             return
         is_pytest = any(x == "pytest" or x.endswith("/pytest") or x == "pytest.main" for x in argv)
-        all_commands.append(
-            {
-                "locator": locator,
-                "role": role,
-                "argv": argv,
-                "bundle_ids": list(bundle_ids),
-                "native_pytest_argv": is_pytest,
-                "grade": "complete recorded check-command lineage, no execution claim",
-            }
-        )
+        command_record = {
+            "locator": locator,
+            "role": role,
+            "argv": argv,
+            "bundle_ids": list(bundle_ids),
+            "native_pytest_argv": is_pytest,
+            "grade": "complete recorded check-command lineage, no execution claim",
+        }
+        all_commands.append(command_record)
         if not is_pytest:
             return
         selectors = []
         directory_members = []
-        for token in argv:
-            # Options containing cache/output paths are not pytest selectors.
-            if token.startswith("-"):
-                continue
-            selectors += pattern.findall(token)
+        positional_tokens, unresolved = native_pytest_positionals(argv, option_profile)
+        command_record["positional_selector_tokens"] = positional_tokens
+        command_record["unresolved_option_grammar"] = unresolved
+        for token in positional_tokens:
+            # Match a complete positional token, never a substring of an option value.
+            if pattern.fullmatch(token):
+                selectors.append(token)
             # Native pytest directory inputs select whole tracked test files too.
             # Expand immutable Git members, never a local filesystem or ignored output.
             directory = token.removeprefix("policy-engine/").rstrip("/")
@@ -179,7 +221,7 @@ def main() -> None:
                     for p in tracked
                     if p.startswith("policy-engine/" + directory + "/")
                     and p.endswith(".py")
-                    and Path(p).name.startswith("test_")
+                    and (Path(p).name.startswith("test_") or Path(p).name.endswith("_test.py"))
                 )
                 selectors.extend(members)
                 if members:
@@ -187,7 +229,7 @@ def main() -> None:
                         {
                             "native_directory_token": token,
                             "members": members,
-                            "selection_basis": "pinned tracked test_*.py descendants",
+                            "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
                             "grade": "whole-file input selection, not collection or runtime proof",
                         }
                     )
@@ -201,6 +243,8 @@ def main() -> None:
                 "selectors": selectors,
                 "bundle_ids": list(bundle_ids),
                 "native_directory_inputs": directory_members,
+                "positional_selector_tokens": positional_tokens,
+                "unresolved_option_grammar": unresolved,
             }
         )
         for selector in selectors:
@@ -404,7 +448,7 @@ def main() -> None:
             continue
         if path.startswith("policy-engine/tests/") and path.endswith(".py"):
             changed_tests.append(identity(path))
-            if Path(path).name.startswith("test_"):
+            if Path(path).name.startswith("test_") or Path(path).name.endswith("_test.py"):
                 add(path, "actual_changed_test_input", path)
         if path.startswith("policy-engine/src/") and path.endswith(".py"):
             changed_defining.append(identity(path))
@@ -527,6 +571,7 @@ def main() -> None:
                 prefix + "closure-decisions/coverage.json",
                 bdoc,
                 manifest_path,
+                option_profile_path,
             ]
         ],
         "canonical_cards": [
@@ -557,6 +602,11 @@ def main() -> None:
             for b in sorted(bundles)
         },
         "non_execution_limits": [
+            (
+                "Native positional parsing uses Git-pinned observed pytest9 option arities. "
+                "Repository-added/unknown options and argument files remain explicitly unresolved. "
+                "Default test filename expansion does not establish custom collection hooks."
+            ),
             (
                 "No pytest execution or collection; parameterized cases/conftest/i"
                 "mport closure are not established by AST/path inspection."

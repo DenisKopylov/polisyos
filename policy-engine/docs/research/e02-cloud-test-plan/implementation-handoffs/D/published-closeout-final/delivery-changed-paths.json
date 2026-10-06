@@ -1,7 +1,7 @@
 {
   "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
-  "metadata_parent": "0a02d483600cac0653c85228eedcbafc71f19af6",
-  "scope": "Complete changed path set for the immediately following payload commit; paths only, not self-referential blob hashes. Final separate receipt adds its own one path.",
+  "metadata_parent": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+  "scope": "Complete changed path set for the immediately following corrected payload commit; paths only. Separate receipt adds its own one path.",
   "changed_paths": [
     "policy-engine/README.md",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-green.txt",
@@ -466,7 +466,10 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-fixture-migration-independent-root-binding.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-git-payload-binding-independent-review-root-binding.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/independent-8bd-review-checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/independent-8bd-review-full.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/metadata-review-resolution.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/published-G-local-contract-skeleton-root-binding.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/published-final-criterion-accounting-root-binding.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/published-final-root-replay-root-binding.json",
@@ -856,6 +859,6 @@
     "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py",
     "policy-engine/tests/unit/scientist/search/test_search_loop.py"
   ],
-  "count": 852,
+  "count": 855,
   "predicate_basis": "recomputed"
 }

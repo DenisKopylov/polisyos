@@ -526,7 +526,7 @@
       "executed_source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
       "check": "PASS",
       "format": "PASS",
-      "scope": "108 changed existing product/test Python files; archived measurement .py.txt excluded"
+      "scope": "108 changed existing Python files in the complete frozen target list, including tracked handoff probes; archived .py.txt measurement artifacts excluded"
     },
     "broad80": {
       "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
@@ -636,6 +636,12 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-final.json",
       "bytes": 13981,
       "sha256": "ba8e137bb4b38b66e3348a2145b028e7e3153435e251a4e486d1a3d221d71f0a"
+    },
+    "historical_profile_deviation": {
+      "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-profile-supersession.json",
+      "bytes": 4253,
+      "sha256": "f4904e4a6bb639a2d35f99636a885dd2cbb3f0993590445d09e94bae67e5d769"
     }
   },
   "predicates": [
@@ -667,7 +673,7 @@
     "Bounded code/test acceptance does not close a finding. All45 retain criterion-level evidence or explicit next owner/input; canonical criteria were not rewritten.",
     "B109 provider export, LA014 served factory cutover and LA015 persisted service resume/reader retirement/rollback remain open.",
     "Held inputs/API remain null; optional population/history/profile extensions are outside new mandatory canonical criteria.",
-    "No artificial cloud compute quota was introduced. Actual reclaim/cgroup events and exact-owned terminations are recorded without per-PID causal claims.",
+    "No reviewer CPU/process/test-worker quota was added in the final reported executions. The earlier neural test-level torch.set_num_threads(1) profile deviation was removed in83889657e13d37fe11e048c5298b2f8c64044c08; original capped receipts and the independent7 uncapped replay remain disclosed. Actual reclaim/cgroup events and exact-owned terminations are recorded without per-PID causal claims.",
     "Production data and evaluator/history remain local/read-only for G, with minimum refs/commands null until existing owner supplies them. No cheaper history surrogate.",
     "No native Trash: exact candidates retained, prior cleanup deviations and unknown framework transient scope disclosed. No prune/registration deletion/main publication."
   ],

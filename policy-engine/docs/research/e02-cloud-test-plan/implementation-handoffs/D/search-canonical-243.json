@@ -61,7 +61,7 @@
       "bytes": 24836,
       "sha256": "0f9a6230b58d4097f64b3f868b1155b452391f7d857e7a0ac95663ea80d99ff0"
     },
-    "added_arguments": "addopts override removes duplicate quiet/report defaults; original -q/-ra and exact selectors retained, importlib+strictmarkers explicit, fresh nonexistent UUID basetemp/JUnit and-rA added. Measurement-onlypytest.main child bootstraps external observer; actualargv and equivalent python-mpytest argv retained in eachresult."
+    "added_arguments": "The addopts override removes duplicate quiet/report defaults; original -q/-ra and exact selectors are retained. importlib and strict markers are explicit; fresh nonexistent UUID basetemp, JUnit and -rA are added. A measurement-only pytest.main child loads the external observer; each result retains actual argv and equivalent python -m pytest argv."
   },
   "checks": [
     {
@@ -629,25 +629,25 @@
     "observed_torch_interop_threads": 5
   },
   "failed_scope_disposition": {
-    "OPT-01": "Fiveoriginal definingcontrols FAIL at strictBenchmarkEvaluation refusing NaN/Inf in _eval before downstreamParetoconsumer. No source/modelvalidationweakening, exceptionwaiver, xfail, P41or gatePASS. Test-only shared raw-CASfixture migration is separatelyassigned after thisimmutableproof.",
-    "FUN-03": "Twooriginal controls FAIL: bool-onlypositive recheck producesnocalls; nativeworkflow VOISchedulerstub lacksprioritize. Funnelauthorownsseparatefixture/typedpermissionmigration. These remainFAIL; absentissuer/verifier andnormalpositivepermission remain held.",
-    "P41": "No exactslice-base replay/intersection proof was performed; no inherited-red classification or exclusion supplied."
+    "OPT-01": "Five original controls fail when strict BenchmarkEvaluation refuses NaN/Inf in _eval before the downstream Pareto consumer. No validation weakening, exception waiver, xfail or P41 exclusion was applied. A separate shared raw-CAS fixture migration is assigned after this immutable proof.",
+    "FUN-03": "Two original controls fail: the bool-only positive recheck produces no calls; the native workflow VOIScheduler stub lacks prioritize. The funnel author owns separate fixture migration. These remain FAIL; the absent issuer/verifier and valid positive permission path remain held.",
+    "P41": "No exact slice-base replay or complete input-intersection proof was performed; no inherited-red classification or exclusion is supplied."
   },
   "property": {
     "statement": "Execute every literal canonicalD command on the same frozenroot tree and retain actual completedtest reports, source/environmentbindings andnativecall observations without replacing incompleteexecution with availability/markerPASS.",
     "runtime_path": [
-      "canonicalD.md exactselectors",
-      "lockedPython metadata child withnativeorigins Gitverified",
-      "measurement-only pytest child usingroot pytest.ini",
-      "flushednodeid/phase/outcome/longrepr/native-sourceevents",
-      "completeJUnit/fullstdout-stderr",
-      "separateGitpayload+receipt forG"
+      "Canonical D.md exact selectors",
+      "Locked Python metadata child verifies native module origins against Git",
+      "Measurement-only pytest child uses root pytest.ini",
+      "Flushed nodeid/phase/outcome/longrepr/native-source events",
+      "Complete JUnit and full stdout/stderr",
+      "Separate Git payload and receipt for G"
     ],
-    "proxy_divergence": "Optional-stackimport success is not a fitted GP; an80-file child killed after7F withoutJUnit is not completeacceptance. Here actualSingleTaskGPconstruct/MLL/condition/checkpoint/CASpaths were observed inpassedOPT03assertions, while7completedassertionfailures remainFAIL.",
+    "proxy_divergence": "Optional-stack import success is not a fitted GP; an 80-file child killed after seven failure markers without JUnit is not complete acceptance. Actual SingleTaskGP construction, MLL fitting, conditioning, checkpoint and CAS calls were observed in passed OPT-03 assertions; seven completed assertion failures remain FAIL.",
     "negative_controls": [
-      "Native GP saved warm/corpus mutations withmarkers preserved refuse; realhard-resource fallbackrestorelaterpermittedfit succeeds.",
-      "Actual CASoriginalmeasurementmutation rejectscheckpointrestore andnextsuggest inhealthyworkflowtests.",
-      "Originalinvalidtypedproducer andbool-only/stubfixture failuresare retained; no passingplaceholder/skipping/expectationchange."
+      "Saved GP warm/corpus mutations with markers preserved are refused; real hard-resource fallback can restore and later perform its permitted due fit.",
+      "Actual original CAS measurement mutation rejects checkpoint restore and the next suggestion in workflow tests.",
+      "Original invalid typed producer and bool-only/stub fixture failures are retained; no passing placeholder, skip or expectation change."
     ]
   },
   "native_backend": {
@@ -663,26 +663,26 @@
       "bytes": 199829,
       "sha256": "03bea7ed7f1eaab4450d6553628b8c2e151d47d662757f6f36efb3fcaf3f0084"
     },
-    "bounds": "ActualPythoncall-entryobservations alone do not establish completedfit/numericagreement. Passeddefiningassertions establish theirboundedcontinuation/CASproperties. Independentanalytic23+nativeCAS3 exactroot243 receipt is separate.",
+    "bounds": "Actual Python call-entry observations alone do not establish completed fit or numerical agreement. Passed defining assertions establish their bounded continuation/CAS properties. Independent analytic 23 plus native CAS 3 on exact root 243 has a separate receipt.",
     "independent_receipt": {
       "sha": "a474ff675264e2264d24e49814f29d873320b1ee",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json"
     }
   },
   "coordination": {
-    "execution_order": "OPT03first, then canonical1–8,10–17; selectors withincommands unchanged.",
-    "writer_serialization": "WaitedtransferB14/B15 release, then root_cachecommands. Pausedonlystdlibparent while already-runningCTL01finishednaturally; explicitwindowgiven toindependent26, thenSIGCONTparent. Releasedall17writerwindow forB21 afterfinalchildend.",
+    "execution_order": "OPT-03 first, then canonical commands 1–8 and 10–17; selectors within each command are unchanged.",
+    "writer_serialization": "Waited for transfer B14/B15 release. Paused only the stdlib parent while the current CTL-01 child finished naturally; yielded to independent 26, then continued the parent. Released the cache for B21 after the final child ended.",
     "writer_yield": {
       "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/writer-yield.json",
       "bytes": 765,
       "sha256": "7d5a8ace54b112e41c56c598e5a8d28e928ea17b61105e8bd5a20293d46c11ba"
     },
-    "timing_limit": "CTL01parentelapsed321.465s includesthecoordinationpause. Do not reportthisaschildscientificwall/runtime; eventmonotonic/testdurations andJUnit time remainretained. Otherelapsed values areparentmeasured, metadata andpytestseparately."
+    "timing_limit": "CTL-01 parent elapsed time of 321.465 seconds includes the coordination pause. This is not the child scientific wall time; event monotonic timestamps, test durations and JUnit time are retained. Other elapsed values are parent-measured, with metadata and pytest recorded separately."
   },
   "helper_quality": {
     "outcome": "FAIL",
-    "scope": "Measurement-only helper full-styleRuff65annotation/security/import-style diagnostics; no product Python files modified. Executedhelperbytes transferred unchanged aspy.txt artifacts andoriginalexecutablespreservedlocalraw. No RuffPASS claim.",
+    "scope": "The measurement-only helpers have 65 full-style Ruff annotation/security/import diagnostics. No product Python file changed. Executed helper bytes are transferred unchanged as py.txt artifacts, with original executables preserved under local raw/. No Ruff PASS claim.",
     "complete_output": {
       "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/measurement-helper-ruff.txt",
@@ -692,30 +692,53 @@
   },
   "previous_wide_wave": {
     "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
-    "state": "ERROR: actual80-file childSIGKILL-9 after~49% and7F; noJUnit/completeverdict.",
-    "scope": "This17-command continuation does not replace that incomplete80-file denominator or waive itsobservedfailures. Rootownsoriginalwideoutput/receipt. No repeat80union."
+    "state": "ERROR: the actual 80-file child ended with SIGKILL -9 after approximately 49% and seven failure markers, without JUnit or a complete verdict.",
+    "scope": "This 17-command continuation does not replace the incomplete 80-file denominator or waive its observed failures. Root owns the original wide output and receipt. The 80-file union was not repeated."
   },
   "predicate_basis": "recomputed",
-  "predicate_scope": "Faithful exact-source execution/inputenvironmentbindings and completedtest verdicts only; overallcriteria/source-law/institutionaldeploymentauthority remainsnot_established.",
-  "capability_state_or_finding_state": "All17literaldefiningcommands executed; aggregategateFAIL7. Findingclosureunadjudicated/limited/held/openasexistingownerreceipts.",
+  "predicate_scope": "Faithful exact-source execution, input/environment bindings and completed test verdicts only; overall criteria, source law and institutional deployment authority remain not_established.",
+  "capability_state_or_finding_state": "All 17 literal defining commands executed; aggregate gate FAIL with seven failed assertions. Findings remain unadjudicated or limited/held/open under existing owner receipts.",
   "limitations_and_next_owner": [
-    "Root/G: reviewcomplete17PASS/FAIL evidence andseparateindependent26. Do not inheritblanketPASS/waiveror closefindingsfrompackagecounts.",
-    "Searchauthor: test-onlysharedrawCASinputfixture migration onactualroot243 strictschema, preserve5originalredconsumerintent; productionfalsifier ifexposed remainsopen.",
-    "Funnelauthor: migrateVOIschedulingfixtureandfail-closedboolpermissioncontrol; no institutionalpermit invented.",
-    "A/G: independentglobalfrontsource/denominator supplier andunappliedexportcontract remainengineeringdependency; thisexecution addsnoprovider.",
-    "Appropriateowners: unit/source-law/authorization/deployment/evaluator/productionhistoryboundaries remainexplicit; CPUfixtureacceptance doesnotestablishthose."
+    "Root/G: review the complete 17-command PASS/FAIL evidence and separate independent 26. Package counts do not provide a blanket PASS, waiver or finding closure.",
+    "Search author: migrate the shared raw-CAS fixture on strict root 243 while preserving the five original downstream consumer criteria. Any exposed production falsifier remains open.",
+    "Funnel author: migrate VOI scheduling fixtures and the fail-closed bool permission control; do not invent an institutional permit.",
+    "A/G: the independent global-front source/denominator supplier and unapplied export contract remain engineering dependencies. This execution adds no provider.",
+    "Appropriate owners: unit/source-law/authorization/deployment/evaluator/production-history boundaries remain explicit. CPU fixtures do not establish those properties."
   ],
   "cleanup": {
     "permanent_deletion": false,
     "new_source_archives_worktrees_children": false,
-    "preservation": "AllfreshUUIDbasetempsremain. Localignoredraw holdsoriginalhelperexecutables andredundantgeneratedinput/resultsviews; originalevidencejsonlstreams remainpreserved. Gittransferscompletebytesastext artifacts. No cleanupperformed.",
-    "candidates_ref": {
-      "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/plan.json",
-      "bytes": 24836,
-      "sha256": "0f9a6230b58d4097f64b3f868b1155b452391f7d857e7a0ac95663ea80d99ff0",
-      "pointer": "/definitions"
-    }
+    "preservation": "Local ignored raw/ retains original helper executables and redundant generated input/results views. Original evidence JSONL streams remain preserved; Git transfers their complete bytes as text artifacts. No explicit cleanup was performed. Per-basetemp existence is reported below; an absent path does not establish its creation/deletion lifecycle.",
+    "exact_repeatable_fixture_candidates": [
+      "/dev/shm/search-canonical-243-01-CTL-01-ffdd307de2b74772ac29ae38b394c60c",
+      "/dev/shm/search-canonical-243-03-CTL-03-915d6a0e10b44c019cc42f7bc096ed15",
+      "/dev/shm/search-canonical-243-04-FUN-01-5eec877e966541d5b21f153af4654eb6",
+      "/dev/shm/search-canonical-243-05-FUN-02-d43386dbc94e48449942cc899f43d7cd",
+      "/dev/shm/search-canonical-243-06-FUN-03-a60850379358496aa22e786bc36423c9",
+      "/dev/shm/search-canonical-243-07-OPT-01-2ed7356c227947f4bb51b75017b0e618",
+      "/dev/shm/search-canonical-243-09-OPT-03-9abb4d1520aa40f2a893c858040920ec",
+      "/dev/shm/search-canonical-243-10-OPT-04-14bcced3132b4fe293ee9b5892aca869",
+      "/dev/shm/search-canonical-243-11-SRV-01-3c7d1649aacf4780aef86cbb7a9bfb74",
+      "/dev/shm/search-canonical-243-12-SRV-03-1d7da9634cc6454b9a7dfc41bf5f20cd",
+      "/dev/shm/search-canonical-243-14-STR-01-bf043f2b18e64a3bbfbf5fcebbd0e10e",
+      "/dev/shm/search-canonical-243-15-TRN-01-21bed44e9f6b4a7a84165b18070080f2",
+      "/dev/shm/search-canonical-243-16-TRN-02-967374c4ac0d41dcbcce5e69b00d7562",
+      "/dev/shm/search-canonical-243-17-TRN-03-522fd4e82d4f4cad8d8a20818554cc9d"
+    ],
+    "fresh_configured_paths_currently_absent": [
+      {
+        "path": "/dev/shm/search-canonical-243-02-CTL-02-5ecb651d227f4f379ea70afd2af7e806",
+        "lifecycle_basis": "not_established; no per-fixture creation/deletion audit was captured"
+      },
+      {
+        "path": "/dev/shm/search-canonical-243-08-OPT-02-9fd6ad54d5f241eea6e750126cce7167",
+        "lifecycle_basis": "not_established; no per-fixture creation/deletion audit was captured"
+      },
+      {
+        "path": "/dev/shm/search-canonical-243-13-STP-01-9d3cbcde9c974c3494a021a66f5ec8ec",
+        "lifecycle_basis": "not_established; no per-fixture creation/deletion audit was captured"
+      }
+    ]
   },
-  "publication": "Payloadcommittedfirstin2normalappend-onlycommits, receiptseparately. Remotehead/readback willbesuppliedafterordinarypush; no futureowncommitSHA invented."
+  "publication": "The payload was committed first in two normal append-only commits; this receipt is separate. Exact remote head/readback will be supplied after ordinary push. No future own commit SHA is invented."
 }

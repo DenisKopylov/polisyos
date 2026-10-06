@@ -61,6 +61,8 @@ class _Producer:
                 if alias == "seed"
                 else ["params.a", "params.b"]
                 if alias == "final"
+                else ["params.seeded", "params.seed"]
+                if alias == "a"
                 else ["params.seeded"]
             ),
             state_writes=(

@@ -373,7 +373,9 @@ def test_foreign_history_is_not_admitted_as_original_result(tmp_path):
     assert calls == []
 
 
-@pytest.mark.parametrize("incomplete_provenance", ["header", "original_warning"])
+@pytest.mark.parametrize(
+    "incomplete_provenance", ["header", "unknown_header", "missing_header", "original_warning"]
+)
 def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, incomplete_provenance):
     chain, registry, calls = _bound_chain()
     writer_dir = tmp_path / "writer"
@@ -383,12 +385,20 @@ def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, inco
     checkpoint = ChainCheckpoint.load(next(writer_dir.glob("*_0000_*.json")))
     assert checkpoint.history_complete
     assert len(checkpoint.node_results) == checkpoint.n_completed == 1
-    if incomplete_provenance == "header":
+    if incomplete_provenance in {"header", "missing_header"}:
         checkpoint.history_complete = False
+    elif incomplete_provenance == "unknown_header":
+        checkpoint.history_complete = "unknown"
     else:
         checkpoint.node_results[0]["warnings"].append("history_incomplete")
     path = tmp_path / "incomplete-provenance.json"
     checkpoint.save(path)
+    if incomplete_provenance == "missing_header":
+        import json
+
+        data = json.loads(path.read_text())
+        del data["history_complete"]
+        path.write_text(json.dumps(data))
     checkpoint = ChainCheckpoint.load(path)
     calls.clear()
     resumed_dir = tmp_path / "resumed"

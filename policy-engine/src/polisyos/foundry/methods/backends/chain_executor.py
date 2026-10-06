@@ -177,11 +177,16 @@ class ChainExecutionResult:
     node_results: tuple[tuple[UUID, MethodResult], ...]
     reproducibility_contract: Mapping[str, Any] = field(default_factory=dict)
     missing_history_node_ids: tuple[UUID, ...] = ()
+    history_provenance_complete: bool = True
 
     @property
     def history_complete(self) -> bool:
-        """Whether every completed node has its original result record available."""
-        return not self.missing_history_node_ids
+        """Require original records and their explicit complete provenance."""
+        return (
+            self.history_provenance_complete is True
+            and not self.missing_history_node_ids
+            and all("history_incomplete" not in result.warnings for _, result in self.node_results)
+        )
 
     @property
     def total_wall_time_ms(self) -> float:

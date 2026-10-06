@@ -260,7 +260,7 @@ class ChainCheckpoint:
                 created_at=data.get("created_at", 0.0),
                 execution_digest=data.get("execution_digest"),
                 node_results=node_results,
-                history_complete=bool(data.get("history_complete", False)),
+                history_complete=data.get("history_complete") is True,
                 checkpoint_path=path,
             )
         except (
@@ -377,6 +377,7 @@ class CheckpointingChainExecutor:
         all_node_results: list[tuple[UUID, MethodResult]] = []
         node_slot_outputs: dict[UUID, dict[str, Any]] = {}
         missing_history_node_ids: tuple[UUID, ...] = ()
+        history_complete = True
 
         if checkpoint is not None:
             if checkpoint.chain_digest != chain_digest:
@@ -414,6 +415,14 @@ class CheckpointingChainExecutor:
             missing_history_node_ids = tuple(
                 node_id for node_id in prefix_ids if node_id not in restored_by_id
             )
+            history_complete = (
+                checkpoint.history_complete
+                and not missing_history_node_ids
+                and all(
+                    "history_incomplete" not in result.warnings
+                    for result in restored_by_id.values()
+                )
+            )
             for node_id in prefix_ids:
                 if node_id in restored_by_id:
                     restored_result = restored_by_id[node_id]
@@ -448,6 +457,7 @@ class CheckpointingChainExecutor:
             if isinstance(result.output, dict):
                 state.update(result.output)
             all_node_results.append((node_id, result))
+            history_complete = history_complete and "history_incomplete" not in result.warnings
 
             # Save checkpoint if needed
             should_checkpoint = self._checkpoint_dir is not None and (
@@ -463,6 +473,7 @@ class CheckpointingChainExecutor:
                     all_node_results=all_node_results,
                     state=state,
                     execution_digest=execution_digest,
+                    history_provenance_complete=history_complete,
                 )
 
         reproducibility_contract = _build_chain_reproducibility_contract(
@@ -470,7 +481,7 @@ class CheckpointingChainExecutor:
             composition_kind="serial",
         )
         reproducibility_contract.update(
-            history_complete=not missing_history_node_ids,
+            history_complete=history_complete,
             completed_node_count=len(execution_order),
             missing_history_node_ids=[str(node_id) for node_id in missing_history_node_ids],
         )
@@ -479,6 +490,7 @@ class CheckpointingChainExecutor:
             node_results=tuple(all_node_results),
             reproducibility_contract=reproducibility_contract,
             missing_history_node_ids=missing_history_node_ids,
+            history_provenance_complete=history_complete,
         )
 
     def find_latest_checkpoint(self, chain: Any) -> ChainCheckpoint | None:
@@ -518,6 +530,7 @@ class CheckpointingChainExecutor:
         all_node_results: list[tuple[UUID, MethodResult]],
         state: dict[str, Any],
         execution_digest: str | None = None,
+        history_provenance_complete: bool = True,
     ) -> None:
         if self._checkpoint_dir is None:
             raise CheckpointSaveError("checkpoint_dir is not configured")
@@ -529,9 +542,13 @@ class CheckpointingChainExecutor:
         completed_node_ids = [str(nid) for nid in completed_prefix]
         completed_fqns = [chain.get_node(nid).method_fqn for nid in completed_prefix]
         timing_ms = [r.timing.wall_time_ms for _, r in all_node_results]
-        history_complete = [nid for nid, _ in all_node_results] == completed_prefix and all(
-            isinstance(result, MethodResult) and "history_incomplete" not in result.warnings
-            for _, result in all_node_results
+        history_complete = (
+            history_provenance_complete
+            and [nid for nid, _ in all_node_results] == completed_prefix
+            and all(
+                isinstance(result, MethodResult) and "history_incomplete" not in result.warnings
+                for _, result in all_node_results
+            )
         )
         if not history_complete:
             timing_ms = []

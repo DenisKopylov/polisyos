@@ -61,6 +61,32 @@ def observe_funnel_resource_response(response: Any) -> None:
             ) from exc
 
 
+@dataclass(frozen=True)
+class FunnelResourceAccountingFailure:
+    """Actual producer input retained when its accounting acknowledgment failed."""
+
+    event: Any
+    budget_keys: tuple[str, ...]
+
+
+def observe_funnel_resource_accounting_failure(
+    failure: Any, *, budget_keys: tuple[str, ...]
+) -> None:
+    """Carry a native B error's observed event without issuing an acknowledgment."""
+    from polisyos.core.llm.settlement import LLMProducerEvent, LLMProducerSettlement
+    from polisyos.core.llm.traced_client import LLMAccountingError
+
+    observer = _RESOURCE_RESPONSE_OBSERVER.get()
+    if observer is None or not isinstance(failure, LLMAccountingError):
+        return
+    event = failure.event.get("producer_event")
+    settlement = failure.event.get("settlement")
+    if event is None and isinstance(settlement, LLMProducerSettlement):
+        event = settlement.event
+    if isinstance(event, LLMProducerEvent):
+        observer(FunnelResourceAccountingFailure(event, budget_keys))
+
+
 def statistical_uncertainty_from_ci_width(
     simulation_results: dict[str, Any],
     *,

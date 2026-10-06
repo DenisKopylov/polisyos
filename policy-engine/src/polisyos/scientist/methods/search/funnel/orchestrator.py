@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
 from decimal import Decimal
 from enum import Enum
 from functools import partial
@@ -16,6 +16,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelEvaluationStatus,
+    FunnelResourceAccountingFailure,
     FunnelStage,
     FunnelStageResult,
     TypedFailureCard,
@@ -461,7 +462,50 @@ class FunnelOrchestrator:
                     stage_context,
                 )
             if self._budget_middleware is not None:
-                events = [settlement.event for settlement in settlements.values()]
+                failures = [
+                    value
+                    for value in settlements.values()
+                    if isinstance(value, FunnelResourceAccountingFailure)
+                ]
+                events = [
+                    value.event
+                    for value in settlements.values()
+                    if not isinstance(value, FunnelResourceAccountingFailure)
+                ]
+                pending = []
+                readback = []
+                for failure in failures:
+                    if self._resolve_failed_resource_event(failure):
+                        events.append(failure.event)
+                        readback.append(failure.event.event_id)
+                    else:
+                        pending.append(failure)
+                if failures:
+                    feedback = dict(result.feedback)
+                    feedback["resource_settlement_status"] = (
+                        "unknown" if pending else "committed_after_unknown_ack"
+                    )
+                    feedback["resource_unknown_ack_readback_ids"] = readback
+                    feedback["resource_settlement_pending"] = [
+                        {
+                            "event": {**asdict(value.event), "amount": str(value.event.amount)},
+                            "payload_digest": value.event.payload_digest,
+                            "budget_keys": list(value.budget_keys),
+                        }
+                        for value in pending
+                    ]
+                    # This is observed provider input, distinct from settled spend.
+                    feedback["resource_reported_input_usd"] = str(
+                        sum(
+                            (
+                                value.event.amount
+                                for value in failures
+                                if value.event.cost_origin == "reported"
+                            ),
+                            Decimal(0),
+                        )
+                    )
+                    result = replace(result, feedback=feedback)
                 if events:
                     reported = [event for event in events if event.cost_origin == "reported"]
                     reuse = [event for event in events if event.kind == "reuse"]
@@ -477,7 +521,7 @@ class FunnelOrchestrator:
                         provider_spend_usd=measured if reported or reuse else None,
                         compute_cost_source="mixed" if reported or reuse else "estimated",
                     )
-                    if len(reported) + len(reuse) == len(events):
+                    if not pending and len(reported) + len(reuse) == len(events):
                         result = replace(
                             result,
                             compute_actual_usd=float(measured),
@@ -859,6 +903,12 @@ class FunnelOrchestrator:
         from polisyos.core.llm.settlement import LLMProducerSettlement
         from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
 
+        if isinstance(settlement, FunnelResourceAccountingFailure):
+            previous = observed.get(settlement.event.event_id)
+            if previous is not None and previous != settlement:
+                raise ValueError("funnel resource producer ID conflicts within stage")
+            observed[settlement.event.event_id] = settlement
+            return
         if not isinstance(settlement, LLMProducerSettlement):
             raise ValueError("funnel resource settlement must be producer typed")
         event, ack = settlement.event, settlement.ack
@@ -884,6 +934,30 @@ class FunnelOrchestrator:
         if previous is not None and previous != settlement:
             raise ValueError("funnel resource producer ID conflicts within stage")
         observed[event.event_id] = settlement
+
+    def _resolve_failed_resource_event(self, failure: FunnelResourceAccountingFailure) -> bool:
+        """Read actual local receipts after an unknown ACK; never retry or release."""
+        from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
+
+        if not failure.budget_keys or self._budget_middleware is None:
+            return False
+        event = failure.event
+        for key in failure.budget_keys:
+            event_id = f"{event.event_id}:budget:{hashlib.sha256(key.encode()).hexdigest()}"
+            digest = hashlib.sha256(f"{event.payload_digest}:{key}".encode()).hexdigest()
+            try:
+                receipt = self._budget_middleware.resolve_spend_safe(event_id)
+            except (OSError, RuntimeError, ValueError):
+                return False
+            if not isinstance(receipt, BudgetLedgerSpendReceipt) or (
+                receipt.event_id != event_id
+                or receipt.payload_digest != digest
+                or receipt.key != key
+                or receipt.amount != event.amount
+                or receipt.provider != event.provider
+            ):
+                return False
+        return True
 
     def _refresh_resource_budget(self) -> None:
         if self._budget_middleware is not None:

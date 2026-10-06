@@ -5,6 +5,7 @@ consumer is the existing bootstrap estimator, not the native policy backend;
 native raw-sample/estimand wiring remains an integration boundary.
 """
 
+import hashlib
 import json
 from dataclasses import replace
 from decimal import Decimal
@@ -317,6 +318,94 @@ def test_trace_cost_one_without_settlement_fails_accounting_control(tmp_path, mo
     assert FileBudgetLedger(path).snapshot().spend_receipts == {}
     with pytest.raises(AssertionError):
         assert_receipts(path, outcome, 1)
+
+
+@pytest.mark.parametrize("write_before_ack", [False, True])
+def test_actual_native_unknown_ack_retains_observed_input_and_exact_fresh_readback(
+    tmp_path, monkeypatch, write_before_ack
+):
+    path, owner, funnel, calls, observed, context = configured_workflow(
+        tmp_path, monkeypatch, levels=(3,)
+    )
+    original = owner.settle_spend_safe
+    actual_inputs = []
+
+    def lose_ack(*args, **kwargs):
+        actual_inputs.append((args, kwargs))
+        if write_before_ack:
+            original(*args, **kwargs)
+        raise OSError("actual settlement acknowledgment unavailable")
+
+    monkeypatch.setattr(owner, "settle_spend_safe", lose_ack)
+    outcome = funnel.advance(funnel.submit({"candidate_id": "candidate-1"}, context), policy="full")
+    assert calls == ["adversary"] and observed == []
+    assert outcome.final_action == "reject" and not outcome.final_result.is_promising
+    feedback = outcome.final_result.feedback
+    assert feedback["resource_reported_input_usd"] == "1.0"
+    reopened = FileBudgetLedger(path).snapshot()
+    assert reopened.state.reserved["run"] > 0  # D does not issue release authority.
+    args, kwargs = actual_inputs[0]
+    if write_before_ack:
+        assert feedback["resource_settlement_status"] == "committed_after_unknown_ack"
+        assert outcome.provider_spend_usd == Decimal(1)
+        receipt = FileBudgetLedger(path).resolve_spend(args[0])
+        assert receipt.event_id.startswith(
+            feedback["resource_unknown_ack_readback_ids"][0] + ":budget:"
+        )
+        assert receipt.payload_digest == kwargs["payload_digest"]
+        assert original(*args, **kwargs) == receipt
+        assert FileBudgetLedger(path).load().spent["run"] == Decimal(1)
+    else:
+        assert feedback["resource_settlement_status"] == "unknown"
+        assert outcome.provider_spend_usd is None
+        pending = feedback["resource_settlement_pending"][0]
+        assert pending["event"]["amount"] == "1.0" and pending["budget_keys"] == ["run"]
+        assert (
+            args[0]
+            == pending["event"]["event_id"] + ":budget:" + hashlib.sha256(b"run").hexdigest()
+        )
+        assert (
+            kwargs["payload_digest"]
+            == hashlib.sha256((pending["payload_digest"] + ":run").encode()).hexdigest()
+        )
+        assert FileBudgetLedger(path).resolve_spend(args[0]) is None
+        assert reopened.state.spent == {} and reopened.spend_receipts == {}
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("key", "foreign"),
+        ("amount", Decimal(0)),
+        ("provider", "foreign"),
+        ("payload_digest", "0" * 64),
+    ],
+)
+def test_native_unknown_ack_rejects_mismatched_readback_with_typed_receipt_marker(
+    tmp_path, monkeypatch, field, value
+):
+    path, owner, funnel, calls, observed, context = configured_workflow(
+        tmp_path, monkeypatch, levels=(3,)
+    )
+    settle = owner.settle_spend_safe
+    resolve = owner.resolve_spend_safe
+
+    def lose_ack(*args, **kwargs):
+        settle(*args, **kwargs)
+        raise OSError("actual settlement acknowledgment unavailable")
+
+    def corrupt(event_id):
+        receipt = resolve(event_id)
+        return receipt.model_copy(update={field: value}) if receipt is not None else None
+
+    monkeypatch.setattr(owner, "settle_spend_safe", lose_ack)
+    monkeypatch.setattr(owner, "resolve_spend_safe", corrupt)
+    outcome = funnel.advance(funnel.submit({"candidate_id": "candidate-1"}, context), policy="full")
+    assert calls == ["adversary"] and observed == []
+    assert not outcome.final_result.is_promising
+    assert outcome.provider_spend_usd is None
+    assert outcome.final_result.feedback["resource_settlement_status"] == "unknown"
+    assert FileBudgetLedger(path).load().spent["run"] == Decimal(1)
 
 
 def test_removing_reduced_config_fails_actual_draw_oracle_with_marker_retained(

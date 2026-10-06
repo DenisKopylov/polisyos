@@ -11,7 +11,10 @@ from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.llm.traced_client import LLMAccountingError
-from polisyos.scientist.methods.search.funnel.types import observe_funnel_resource_response
+from polisyos.scientist.methods.search.funnel.types import (
+    observe_funnel_resource_accounting_failure,
+    observe_funnel_resource_response,
+)
 from polisyos.scientist.methods.search.readiness import DecisionReadinessContract
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -244,8 +247,11 @@ class PolicyTranslatorWorker:
             observe_funnel_resource_response(response)
             raw = getattr(response, "content", response)
             return PolicyBrief.model_validate(_parse_json_object(raw))
-        except LLMAccountingError:
+        except LLMAccountingError as exc:
             # A missing durable acknowledgment cannot become a free fallback brief.
+            observe_funnel_resource_accounting_failure(
+                exc, budget_keys=tuple(self._config.budget_keys)
+            )
             raise
         except Exception:
             if not self._config.fallback_on_error:

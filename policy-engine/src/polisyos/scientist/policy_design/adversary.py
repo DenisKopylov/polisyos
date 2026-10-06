@@ -25,7 +25,10 @@ from polisyos.scientist.methods.doe.designs import (
 )
 from polisyos.scientist.methods.doe.stress_report import StressTestReport, admit_objective_threshold
 from polisyos.scientist.methods.search.adversarial import run_stress_test
-from polisyos.scientist.methods.search.funnel.types import observe_funnel_resource_response
+from polisyos.scientist.methods.search.funnel.types import (
+    observe_funnel_resource_accounting_failure,
+    observe_funnel_resource_response,
+)
 from polisyos.scientist.methods.search.objective import CompositeObjective
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -186,8 +189,11 @@ class ScenarioAdversaryWorker:
             if not proposals:
                 return self._fallback_bundle(surface)
             return self._build_bundle(surface, proposals, fallback_used=False)
-        except LLMAccountingError:
+        except LLMAccountingError as exc:
             # An ambiguous paid completion must remain unknown, not a fallback success.
+            observe_funnel_resource_accounting_failure(
+                exc, budget_keys=tuple(self._config.budget_keys)
+            )
             raise
         except Exception:
             if not self._config.fallback_on_error:

@@ -371,3 +371,44 @@ def test_foreign_history_is_not_admitted_as_original_result(tmp_path):
     with pytest.raises(CheckpointLoadError, match="history does not match"):
         writer.execute(chain, initial_state={"x": 4}, checkpoint=checkpoint, seed=7)
     assert calls == []
+
+
+@pytest.mark.parametrize("incomplete_provenance", ["header", "original_warning"])
+def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, incomplete_provenance):
+    chain, registry, calls = _bound_chain()
+    writer_dir = tmp_path / "writer"
+    CheckpointingChainExecutor(registry=registry, checkpoint_dir=writer_dir).execute(
+        chain, initial_state={"x": 4}, seed=7
+    )
+    checkpoint = ChainCheckpoint.load(next(writer_dir.glob("*_0000_*.json")))
+    assert checkpoint.history_complete
+    assert len(checkpoint.node_results) == checkpoint.n_completed == 1
+    if incomplete_provenance == "header":
+        checkpoint.history_complete = False
+    else:
+        checkpoint.node_results[0]["warnings"].append("history_incomplete")
+    path = tmp_path / "incomplete-provenance.json"
+    checkpoint.save(path)
+    checkpoint = ChainCheckpoint.load(path)
+    calls.clear()
+    resumed_dir = tmp_path / "resumed"
+    result = CheckpointingChainExecutor(registry=registry, checkpoint_dir=resumed_dir).execute(
+        chain, initial_state={"x": 4}, checkpoint=checkpoint, seed=7
+    )
+    # The original slot is available for real suffix arithmetic, while its
+    # explicitly incomplete provenance must survive result and republishing.
+    assert calls == ["add"]
+    assert result.final_state["total"] == 13
+    assert len(result.node_results) == 2
+    assert result.missing_history_node_ids == ()
+    assert not result.history_complete
+    assert result.reproducibility_contract["history_complete"] is False
+    persisted = ChainCheckpoint.load(next(resumed_dir.glob("*_0001_*.json")))
+    assert not persisted.history_complete
+    assert len(persisted.node_results) == 2
+    calls.clear()
+    again = CheckpointingChainExecutor(registry=registry).execute(
+        chain, initial_state={"x": 4}, checkpoint=persisted, seed=7
+    )
+    assert calls == []
+    assert not again.history_complete

@@ -1,0 +1,13 @@
+id = "2026-10-06-c2-runtime-jsonschema"
+title = "Declare the explanation schema validator runtime dependency"
+type = "fixed"
+component = "packaging"
+owner = "team-runtime"
+summary = "The existing jsonschema format dependency is installed with the base Python package, so persisted explanation validation does not depend on the test extra."
+evidence = ["pyproject.toml", "uv.lock", "src/polisyos/berl/contracts/schema.py"]
+compatibility = "The locked package identities and versions are unchanged; the dependency moves from the test extra to base requirements."
+change_class = "tooling"
+surface_classification = "internal: Python package dependency metadata"
+migration = "Install the updated base package using its locked dependency profile."
+limitations = "Dependency availability alone does not establish explanation-law admission or scientific precision."
+generated_client_compatibility = "not_applicable"

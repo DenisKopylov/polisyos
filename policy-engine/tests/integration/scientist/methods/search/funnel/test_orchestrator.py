@@ -70,9 +70,22 @@ def translator_input():
     )
 
 
-def configured_workflow(tmp_path, monkeypatch, *, cost=1.0, fail_after_paid=False, levels=(3, 4)):
+def configured_workflow(
+    tmp_path,
+    monkeypatch,
+    *,
+    cost=1.0,
+    fail_after_paid=False,
+    levels=(3, 4),
+    default_worker_scopes=False,
+):
     path = tmp_path / "budget.json"
-    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
+    keys = (
+        ("policy_adversary", "policy_translator", "policy_briefing")
+        if default_worker_scopes
+        else ("run",)
+    )
+    state = BudgetState(limits={key: BudgetLimit(key=key, max_usd=Decimal("5")) for key in keys})
     owner = BudgetMiddleware(state, ledger=FileBudgetLedger(path))
     calls = []
     observed = []
@@ -135,10 +148,11 @@ def configured_workflow(tmp_path, monkeypatch, *, cost=1.0, fail_after_paid=Fals
         assert runtime_state["_resource_budget_middleware"] is owner
         evaluation_id = runtime_state["_resource_evaluation_id"]
         params = runtime_state["estimation_config"]
+        scope = {} if default_worker_scopes else {"budget_keys": ["run"]}
         if params["n_bootstrap"] == 20:
             worker = ScenarioAdversaryWorker(
                 ScenarioAdversaryConfig(
-                    model_name="gpt-3.5-turbo", budget_keys=["run"], fallback_on_error=False
+                    model_name="gpt-3.5-turbo", fallback_on_error=False, **scope
                 ),
                 budget_middleware=runtime_state["_resource_budget_middleware"],
             )
@@ -150,9 +164,7 @@ def configured_workflow(tmp_path, monkeypatch, *, cost=1.0, fail_after_paid=Fals
             assert not result.fallback_used
         else:
             worker = PolicyTranslatorWorker(
-                PolicyTranslatorConfig(
-                    model_name="gpt-4", budget_keys=["run"], fallback_on_error=False
-                ),
+                PolicyTranslatorConfig(model_name="gpt-4", fallback_on_error=False, **scope),
                 budget_middleware=runtime_state["_resource_budget_middleware"],
             )
             result = worker.translate(translator_input(), evaluation_id=evaluation_id)

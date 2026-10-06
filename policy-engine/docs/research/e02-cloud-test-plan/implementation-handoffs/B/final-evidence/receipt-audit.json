@@ -1,0 +1,3339 @@
+{
+  "schema": "policyos.e02.B.final_read_only_receipt_audit.v1",
+  "observer": "/root/dur_probe",
+  "generated_at": "2026-10-05T16:26:04.804070+00:00",
+  "scope": "Published receipt/overlay metadata, exact Git custody and deciding output bytes; source/runtime acceptance and full historical finding closure remain separate.",
+  "read_only_author_trees": true,
+  "new_checkouts_created_for_final_audit": 0,
+  "compact_receipt_audit": {
+    "schema": "policyos.e02.B.receipt_audit.v1",
+    "generated_at": "2026-10-05T16:26:04.726020+00:00",
+    "denominator": {
+      "bundle_count": 25,
+      "finding_count": 60,
+      "assignment_counts": {
+        "run": 8,
+        "exe": 15,
+        "dur": 3,
+        "cmp": 11,
+        "cas": 8,
+        "adapters": 15
+      },
+      "assignment_count_match": true,
+      "distinct_findings": 60
+    },
+    "lanes": [
+      {
+        "lane": "run",
+        "frozen_head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "remote_head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "remote_head_verified": true,
+        "verdict": "metadata_custody_pass_bounded",
+        "newer_unreceipted_implementation_paths": [],
+        "finding_disposition_count": 8,
+        "baseline_cell_count": 18,
+        "missing_dispositions": [],
+        "missing_baseline": [],
+        "receipts": [
+          {
+            "slice": "run-executor-shutdown",
+            "receipt_commit": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+            "receipt_sha256": "f155377b0333721b765859396b2fcce3a351b216e8674239f42afe2956c7f5dc",
+            "implementation_commits": [
+              "a9672a8609410af37582cdef6849e496e1a02e1a",
+              "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+            ],
+            "candidate_tree_sha": "0e881900f0526546364fe5336a6dd6d469185320",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 9,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "run-owned-process",
+            "receipt_commit": "9a509ccf3b1c1274a6df14c8be06dd57cb4ce70a",
+            "receipt_sha256": "7df9f9c505036ea783179e9c014da0ee7e741a6aa14c5c3df036bc8778bf2576",
+            "implementation_commits": [
+              "ba79d141a3937541b3164db255ceda89883575ec"
+            ],
+            "candidate_tree_sha": "82b341d8545c83fb658d211a7690ae9868b169f2",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 5,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "run-queued-thread-cancellation",
+            "receipt_commit": "d2dabbc2d49a815fd49114dab74554a51732f541",
+            "receipt_sha256": "800e7d47ea5bfe81c9adf40ab0c5969076f9569b0995bdeefef69a287e2784d6",
+            "implementation_commits": [
+              "dfd31e978f11b4b801f5c8bb4a14747a0b25df26",
+              "0cf61d9234580819a1a27ff441266a026d8f6049",
+              "4a68d5345ceca69a6148af082f59ae27372865de"
+            ],
+            "candidate_tree_sha": "b5ec67fdc834099180485d0430ad78a725d1f9cc",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 5,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "run-retry-error-identity",
+            "receipt_commit": "78e21bfaa282a51b61ec7e9b96cdddb8ae6f1ca3",
+            "receipt_sha256": "129686e07aef9e74a47b4e768422066331e80da0b65f38d1b922800dfb9c6c53",
+            "implementation_commits": [
+              "ec8d20c76b49ab00fc72094982447c02001d3036",
+              "6c2cab488368932479677bc036ffad25657c0367"
+            ],
+            "candidate_tree_sha": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 4,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "run-typevar",
+            "receipt_commit": "6e9be8959d7ff26efa9f2b4db81d308a506d04db",
+            "receipt_sha256": "b0cc1a0eaf4e6021caf3cf74be5eb1021b8aad9fdbf39cc0a419e0857be38a67",
+            "implementation_commits": [
+              "3ff71ee11ce8ae19ef284adb0ddd0fe2778ba470",
+              "418b1f061459e40976d2666b5b62dce21d8c4833"
+            ],
+            "candidate_tree_sha": "17971a1fa26f988983c671496ae116fdecf065a2",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 2,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "run-final",
+            "receipt_commit": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+            "receipt_sha256": "7c2e7ffd7357653d87b4121bae297449439bbd2fb5a1397055de9d3d877b98c9",
+            "implementation_commits": [
+              "3ff71ee11ce8ae19ef284adb0ddd0fe2778ba470",
+              "418b1f061459e40976d2666b5b62dce21d8c4833",
+              "d834b9c06dcb94e9689a2685f8826e4ea6c31c8b",
+              "3e95056bca6d0c15ab7778573172491628f48596",
+              "ba79d141a3937541b3164db255ceda89883575ec",
+              "ec8d20c76b49ab00fc72094982447c02001d3036",
+              "6c2cab488368932479677bc036ffad25657c0367",
+              "dfd31e978f11b4b801f5c8bb4a14747a0b25df26",
+              "0cf61d9234580819a1a27ff441266a026d8f6049",
+              "4a68d5345ceca69a6148af082f59ae27372865de",
+              "a9672a8609410af37582cdef6849e496e1a02e1a",
+              "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+            ],
+            "candidate_tree_sha": "0e881900f0526546364fe5336a6dd6d469185320",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 15,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [],
+            "check_identity_missing": []
+          }
+        ]
+      },
+      {
+        "lane": "exe",
+        "frozen_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "remote_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "remote_head_verified": true,
+        "verdict": "metadata_custody_pass_bounded",
+        "newer_unreceipted_implementation_paths": [],
+        "finding_disposition_count": 15,
+        "baseline_cell_count": 64,
+        "missing_dispositions": [],
+        "missing_baseline": [],
+        "receipts": [
+          {
+            "slice": "exe-cold-seed",
+            "receipt_commit": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+            "receipt_sha256": "28ee535aa98acd214d4c87dfbb373ce29aa47a6a4f9731d6a6091e05081440ad",
+            "implementation_commits": [
+              "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+              "b75ea829d4b76285a399d75249117764211447b0",
+              "c52c2e584444d712ded7f9349b537527dad02824",
+              "94f378200d8684d61737f0561eccafea6eaa843f",
+              "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4"
+            ],
+            "candidate_tree_sha": "cedb439ea3e629884ea672fad487f3e2b6fdac72",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 7,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/final-base.txt",
+                "output_sha256": "f7b9a783cb8fd1fb86b9e25a6e01ffb0d9864737aee7a212007414986bfa5698",
+                "output_bytes": 10021,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/wave.txt",
+                "output_sha256": "a2ada2ac67ff1fc84cba7d1582b034e8b2171fe792423a9f25f910d92ab695ec",
+                "output_bytes": 48309,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/final-wave.txt",
+                "output_sha256": "dd064a7bbe6d835bb4e6d9f346ec5d982f05880f7e4f3b1ebfbe76526d88c5d9",
+                "output_bytes": 45492,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/selection-positive.txt",
+                "output_sha256": "fdb75267190a3a21b66b2621dc6e6a3f8aa124df3ec20ddb11a147511b294527",
+                "output_bytes": 1791,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/selection-timestamp-negative.json",
+                "output_sha256": "a0ddf7eae75d84023be0aa93ab4c3212d1b47dd01fb3dc6b11260f47a41e6493",
+                "output_bytes": 6995,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/production-invocation.txt",
+                "output_sha256": "caf797471c7b2d27101d36b7e69bced5674f6ef73ea5552c472df791ac0948c4",
+                "output_bytes": 1808,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 6,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/lint.txt",
+                "output_sha256": "d225084059e9cc4158a8ff70fe0f12d4b34594c9c118a02ef12ba625c7c909ad",
+                "output_bytes": 1234,
+                "output_committed": true,
+                "hash_matches": true
+              }
+            ],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "exe-state",
+            "receipt_commit": "0f24d18d988f579db20a84c734a587abe6cabe20",
+            "receipt_sha256": "2077cbbd1921015c5f11aecb426a58ee39ee2ef786eeba11338d77ae85f0bf46",
+            "implementation_commits": [
+              "1d87e30c6859d945dd84310aafeb64905be529ae",
+              "a33898206b4b7421fa06f3444d8d53fb5e1bd174"
+            ],
+            "candidate_tree_sha": "d92cd6b5872325949a3cadb7917b10792b68b1ea",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 8,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-targeted.txt",
+                "output_sha256": "297733345c5852fe2f309be22fe7240de47361b40fa2480dc4c47e8595517449",
+                "output_bytes": 41589,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-controls.txt",
+                "output_sha256": "12287c72ec30e358724670cc6924f02e62fe141cc23a938cf639f4095246dcb9",
+                "output_bytes": 2281,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-base-targeted.txt",
+                "output_sha256": "4b482d21b6b98cc97c17bc309fbec30880454517134ffebcb0c3da876e6596e5",
+                "output_bytes": 23352,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-pre-followup.txt",
+                "output_sha256": "47e45d509f514b28e81b4d4aaa0d98720084fc069f52975fa6e44103e6068946",
+                "output_bytes": 53396,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-lint.txt",
+                "output_sha256": "74676d94348ad5bcdb1c66eb0eb310a1c63d29d9ac85a4b6281032d659c53aaf",
+                "output_bytes": 1309,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-independent-review.txt",
+                "output_sha256": "514e0f3e72abb0a25dad04928518d1549ee2d54436e4da47602226578d9dc635",
+                "output_bytes": 526,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 7,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-independent-static.txt",
+                "output_sha256": "9bea5cddc75736db76129158aa37a8b066a2c08b538048d53813154ca3f5d989",
+                "output_bytes": 2357,
+                "output_committed": true,
+                "hash_matches": null
+              }
+            ],
+            "check_identity_missing": []
+          }
+        ]
+      },
+      {
+        "lane": "dur",
+        "frozen_head": "f3b9f054c86218b431ab927b56100164842db64a",
+        "remote_head": "f3b9f054c86218b431ab927b56100164842db64a",
+        "remote_head_verified": true,
+        "verdict": "metadata_custody_pass_bounded",
+        "newer_unreceipted_implementation_paths": [],
+        "finding_disposition_count": 3,
+        "baseline_cell_count": 19,
+        "missing_dispositions": [],
+        "missing_baseline": [],
+        "receipts": [
+          {
+            "slice": "dur-ledger",
+            "receipt_commit": "f3b9f054c86218b431ab927b56100164842db64a",
+            "receipt_sha256": "11e56481fde4edcbcec4632ec41f14ea13b83b1ac2b271ea6803af0f543f9a74",
+            "implementation_commits": [
+              "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+              "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5"
+            ],
+            "candidate_tree_sha": "f0331553f28fc39ffbd2d75d41a334a5fe5acc0a",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 9,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger/budget.txt",
+                "output_sha256": "69f677c8446518c725ff9e7ff823a97a72c090db345e01f6afb08c879c00f227",
+                "output_bytes": 15229,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger/dur-02.txt",
+                "output_sha256": "1a3c1701926a601526f335df65943566cb59099dc5f45f9f7fdfb1aec258cc43",
+                "output_bytes": 5873,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger/ruff-check.txt",
+                "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+                "output_bytes": 19,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger/ruff-format.txt",
+                "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+                "output_bytes": 26,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger/baseline-pinned.txt",
+                "output_sha256": "939ca47d5a6cd648d84d2cc8ccb4876d0f076dbb0aea0fe691c71de1fd7bf0cb",
+                "output_bytes": 8214,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger/bootstrap-base.txt",
+                "output_sha256": "13204c394d8abc95052d8d57dec67989eec8cbd1817fc41c48bc43ebda8c9dda",
+                "output_bytes": 281,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 6,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger/removal.txt",
+                "output_sha256": "21a79b98cc18fef93787a27878a288d4823ecb96d45273a21d117761d3e4264a",
+                "output_bytes": 10152,
+                "output_committed": true,
+                "hash_matches": true
+              }
+            ],
+            "check_identity_missing": []
+          }
+        ]
+      },
+      {
+        "lane": "cmp",
+        "frozen_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+        "remote_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+        "remote_head_verified": true,
+        "verdict": "metadata_custody_pass_bounded",
+        "newer_unreceipted_implementation_paths": [],
+        "finding_disposition_count": 11,
+        "baseline_cell_count": 23,
+        "missing_dispositions": [],
+        "missing_baseline": [],
+        "receipts": [
+          {
+            "slice": "cmp-res",
+            "receipt_commit": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+            "receipt_sha256": "992e65b1dcd4b7c6eb790564dbb10d98437a9bc11d99dcaff3143992087cc12b",
+            "implementation_commits": [
+              "236349107399b2016e7b7d2e20ba0f552b99aba4",
+              "fe1449957e06e9c62fae481c18cc07ab03ef65fb",
+              "e9f9738c1d0cd1cb4166718fe4cc5f76b7c15f9a",
+              "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+              "436e7beb61fb35237533d9a8e00a8aae4760fb8c"
+            ],
+            "candidate_tree_sha": "81074c43bc1bc23483e5d77671d25c1d898ff96d",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 9,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/fresh-wave.txt",
+                "output_sha256": "f5228ca7da3f1b45bf138aba451e62753bf8ca7bd5ec51d49ca5eecf248e522c",
+                "output_bytes": 1846,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/base-native-red.txt",
+                "output_sha256": "33eed657ed346ff605760ca89704a6fb0e0321005e69f5ba1b3cf85af7d8e7f5",
+                "output_bytes": 6598,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/review-history-race-red.txt",
+                "output_sha256": "b964a77a78679f1d3df788a73a0d5717f0524f024c10cb1577d0ec5339157679",
+                "output_bytes": 2763,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/production-invocation.txt",
+                "output_sha256": "766d0153213a21a3ad124119f210805ab3b7883aa51bf721ae3c2354a9ea1448",
+                "output_bytes": 2295,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/served-route-cloud-limit.txt",
+                "output_sha256": "8f0bb9cb0d13c7aec0a36ea4d06bb1dd8de9f1a186a87741eed4aa89fa6ca30f",
+                "output_bytes": 1456,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 6,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/architecture-guardrails.json",
+                "output_sha256": "5e3728e2343db61bb5c0b3cad674543de783c013b0e021ec23a1c0d5b0e1e86e",
+                "output_bytes": 956,
+                "output_committed": true,
+                "hash_matches": null
+              }
+            ],
+            "check_identity_missing": []
+          }
+        ]
+      },
+      {
+        "lane": "cas",
+        "frozen_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+        "remote_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+        "remote_head_verified": true,
+        "verdict": "metadata_custody_pass_bounded",
+        "newer_unreceipted_implementation_paths": [],
+        "finding_disposition_count": 8,
+        "baseline_cell_count": 28,
+        "missing_dispositions": [],
+        "missing_baseline": [],
+        "receipts": [
+          {
+            "slice": "cas-archive-output-entry",
+            "receipt_commit": "71d53452f69a6172b14071133a597a02add294bf",
+            "receipt_sha256": "fe4794a078a1a55c517993d07db83bff7c46eaab5515a72ba6d6cd1698b3fbeb",
+            "implementation_commits": [
+              "22684400ded9e996b0e91facb168b71a4af6c913",
+              "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6"
+            ],
+            "candidate_tree_sha": "613e40b149ec448c5b202cc8b5edd811e2e35a68",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 8,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/base-pinned.txt",
+                "output_sha256": "98b6a2a864224bbf95ac53d4e884e84abc219c3c455c8f3b8d03e0e4145ee7a6",
+                "output_bytes": 5418,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/candidate14.txt",
+                "output_sha256": "0d7e6adeeb759ec533f67232287028d6001f3f6dadbba8da4c9fd4e6cf491815",
+                "output_bytes": 99,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/path-removal.txt",
+                "output_sha256": "b447ea7160c13d543378b0a68668141c94afabbc4368ed9cdc7146c2c45c279e",
+                "output_bytes": 5308,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/native302.txt",
+                "output_sha256": "c6c2ba841ab1e12351983c17b7e90293ed649a0ae3bea9121534fe7b135252b5",
+                "output_bytes": 2981,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/ruff.txt",
+                "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+                "output_bytes": 19,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/new-format.txt",
+                "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+                "output_bytes": 26,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 6,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/source-format.txt",
+                "output_sha256": "009d93da223c7b20a3fcaf0484bcf6c852dc2364b8358ec0c39021762a3e8e1e",
+                "output_bytes": 89,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 7,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/static-invocation.txt",
+                "output_sha256": "6fb65436e67703987b24b2650167d97c66a9cfef574ce0b5159fc6dbdd9148e0",
+                "output_bytes": 1391,
+                "output_committed": true,
+                "hash_matches": true
+              }
+            ],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "cas-bound-admission",
+            "receipt_commit": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+            "receipt_sha256": "eee72fa910504a88ec4b6b058b4e92bffeecbdb0b39cef01df91f34c718a3da1",
+            "implementation_commits": [
+              "a1ed35181947b23d64eb2a4cd25488f97d30bf01",
+              "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+              "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+              "46283ae1cbcaa775cebac51f0361262f64b5b206"
+            ],
+            "candidate_tree_sha": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 20,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-base39.txt",
+                "output_sha256": "9e001339cff8db31d150cc29846114f4e93c429b96405123c50498b59b059c78",
+                "output_bytes": 18889,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-candidate39.txt",
+                "output_sha256": "ecc2a660b74a49e719736d46f1699eabff406d01116eb929c314a72940165c48",
+                "output_bytes": 99,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-removal39.txt",
+                "output_sha256": "d926ac92675ed8953f16e8c7f4091e2216d3406d6e8908ffccf4f35228731767",
+                "output_bytes": 18762,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/directory-removal.txt",
+                "output_sha256": "55f1b1edaa9b09ac178d1a91f9871a432462a4aaf00e01f42591ac261c116a6b",
+                "output_bytes": 1942,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/pending-import-removal.txt",
+                "output_sha256": "2cdd9c7ace5c3027d441947d4480b2cee2c0299ed4c951da9d871c2a33572847",
+                "output_bytes": 1358,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/archive-base-pinned.txt",
+                "output_sha256": "fd7e7aae94cf2663b34a95c129d30683dda5eeb3abf7ad3b410a774cf7aaa5bc",
+                "output_bytes": 2483,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 6,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/archive-removal-pinned.txt",
+                "output_sha256": "b0fd85e9d5c513434000c01d714308d87e51faf50f330647f1ec88bfc1baf130",
+                "output_bytes": 2455,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 7,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/canonical-cas02.txt",
+                "output_sha256": "e1af16332d6cae3578024d8895222106b47117514500848d90c21aa4bd76233d",
+                "output_bytes": 729,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 8,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/native-bounded295.txt",
+                "output_sha256": "a154d0ee007f3539d3fbe5bba72106b718eec1a8cba1365938ade997d92d5f80",
+                "output_bytes": 1051,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 9,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-before-fts-interrupted.txt",
+                "output_sha256": "f9795f1aee10f39c0c0e0cb5ab8edc21f87da5b801d268121f976ef0a8fa6bad",
+                "output_bytes": 108794,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 10,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/fts-bootstrap.txt",
+                "output_sha256": "7d57e0c5dfd4733cfff4dc6c9acabe68d808c7eee54e3ee67d48152eedb566e4",
+                "output_bytes": 609,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 11,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-ready512.txt",
+                "output_sha256": "4a0bdc2fd10c751ea047a096a6599b52c5666ed3668afdbc69f8b3d89cea8608",
+                "output_bytes": 177584,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 12,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/promotion-base-attribution.txt",
+                "output_sha256": "ae177a9517b6b07c8db033e1707f04adfda4b987a2a61adb1aaaaa03904ada2a",
+                "output_bytes": 2109,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 13,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/http-base-attribution.txt",
+                "output_sha256": "ca5428a06493829f88cdc4170266007025418a249af961bda8be12f804efa076",
+                "output_bytes": 42376,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 14,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/measurement-root-consumer.txt",
+                "output_sha256": "6f6dda909d786131cfa6be3c8d9e5f2ece9493670f333536ea3dc3f4c2b91f7c",
+                "output_bytes": 99,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 15,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/final-matrix.json",
+                "output_sha256": "68dc7230db9461c2d88ec915e6c62724e7cf7bac43eea3771ddb0b204f8e48be",
+                "output_bytes": 17989,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 16,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/ruff.txt",
+                "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+                "output_bytes": 19,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 17,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/source-format.txt",
+                "output_sha256": "44934851a00b66293caa445417c60b9996595de0aec57c5f7cafcdd32f30c4d5",
+                "output_bytes": 136,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 18,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/static-invocation.txt",
+                "output_sha256": "060ac2e539632fb17a1a469e012d0b920269138f124ccdc1b45606606b633653",
+                "output_bytes": 1337,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 19,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/new-format.txt",
+                "output_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+                "output_bytes": 26,
+                "output_committed": true,
+                "hash_matches": true
+              }
+            ],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "cas",
+            "receipt_commit": "ae50e6462f24e91309ede968ac7bcfc74d1a004f",
+            "receipt_sha256": "b9ea45014b5ffb9e2991a6bb4afbd2c7a2e42a627ce06c3592a69cfa52ff3730",
+            "implementation_commits": [
+              "9e8574b7c7afeec474e5a0e77c5142da4004d279"
+            ],
+            "candidate_tree_sha": "3d39f8dbde0e1456eb75fda3cfff17c72a47d8ab",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 8,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-logs/baseline-cas02.txt",
+                "output_sha256": "a34e3c64e9ba27309ad521923631a955affcb998690dde49d9b31db9a91dd2c0",
+                "output_bytes": 2245,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-logs/archive-base-negative.txt",
+                "output_sha256": "bec6528222ad0f40e360c7a712f6f39d4259b81a7d311c8fbeaf048f913eb565",
+                "output_bytes": 1836,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-logs/targeted-candidate.txt",
+                "output_sha256": "4da548e7dcf426a01629c7d76a9ce03080dc6a67d063eceed6bdd4a09b0c5649",
+                "output_bytes": 208,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-logs/candidate-cas02.txt",
+                "output_sha256": "0811d47e7b5e5eeef6c9f4a31ea44eb107b82f5493f221ded4f279df0ddecba2",
+                "output_bytes": 2186,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-logs/archive-removal.txt",
+                "output_sha256": "1abdbf12de878bbc22e52aab2099df8fd5702c2ad22d1829a594efe5307f5f0d",
+                "output_bytes": 2286,
+                "output_committed": true,
+                "hash_matches": true
+              }
+            ],
+            "check_identity_missing": []
+          }
+        ]
+      },
+      {
+        "lane": "adapters",
+        "frozen_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "remote_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "remote_head_verified": true,
+        "verdict": "metadata_custody_pass_bounded",
+        "newer_unreceipted_implementation_paths": [],
+        "finding_disposition_count": 15,
+        "baseline_cell_count": 37,
+        "missing_dispositions": [],
+        "missing_baseline": [],
+        "receipts": [
+          {
+            "slice": "adapters-deadline",
+            "receipt_commit": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+            "receipt_sha256": "5ba8df9f4da2d067c190cf6340d009d6cde48843e62e281a6d46928fd2cbd75d",
+            "implementation_commits": [
+              "242437452f07e74be81584cfc332f91bd07d282a",
+              "88e27af5f3aedac68fdbe268ec87e17f239d755f"
+            ],
+            "candidate_tree_sha": "e8d319521938bca8306425d45cd6543865fd2c6d",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 11,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.log",
+                "output_sha256": "941f4945c3cc1832b30f50f2bd36f71bfd64de4521d3143fb18da2241d9e328b",
+                "output_bytes": 811,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.log",
+                "output_sha256": "c1b9fd9338e81b9ee76706c15bb110239658208af1f261151c85eb351f3e1cb6",
+                "output_bytes": 4613,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.log",
+                "output_sha256": "9a03b50d5c11374ac71adcf1e0121162e360a8b56b6bc6d2c0671b46806527f4",
+                "output_bytes": 6798,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.log",
+                "output_sha256": "5a7ef875e5f68c6b9b1bd09ce9f0168e85cb083f7ba4b78e7a0a28847cbf2a38",
+                "output_bytes": 1580,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.log",
+                "output_sha256": "799156d5cf73f3704a6e48ecc40425b98d399a9d59a6e66f1812605290a54f89",
+                "output_bytes": 816,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-base.log",
+                "output_sha256": "72ab16407c95e6655c39f55f243d96bf0dcfbe45e1ed5d5f39f30c95754a58bb",
+                "output_bytes": 6008,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 6,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/test-only-242.log",
+                "output_sha256": "769f5d5c14287fa2d29c73df63261d6db63ba3c4074c83b8f44baca425233e95",
+                "output_bytes": 2231,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 7,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-receipt.json",
+                "output_sha256": "8725b742a50b4fc634ef0cd2a5a08b96e50fdff528ea1646083f4d8320448e70",
+                "output_bytes": 5818,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 8,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/ruff.log",
+                "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+                "output_bytes": 19,
+                "output_committed": true,
+                "hash_matches": null
+              },
+              {
+                "index": 9,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/cohort.log",
+                "output_sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+                "output_bytes": 60,
+                "output_committed": true,
+                "hash_matches": null
+              }
+            ],
+            "check_identity_missing": []
+          },
+          {
+            "slice": "adapters",
+            "receipt_commit": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+            "receipt_sha256": "627dd997591f7327ffc596a18c037be28a86be041ece7a5219937ec2d6f1639e",
+            "implementation_commits": [
+              "8be155b255591b7fac8e9747ad9081246305fef8",
+              "2540c3247a5ff60d9880d8eb9869b10e1a229112",
+              "58b04116e25344835f482ef79c16ce87f2d0b771",
+              "d9d61af6359033a08835cf5cc3fecb41c8e6967f"
+            ],
+            "candidate_tree_sha": "2f320f79e56aa1da71dad92f171d9dbac5a72d2d",
+            "base_ancestor": true,
+            "tree_matches": true,
+            "split_implementation_receipt": true,
+            "changed_paths_missing": [],
+            "changed_paths_extra": [],
+            "property_missing_fields": [],
+            "forbidden_shared_paths": [],
+            "verdict": "metadata_custody_pass_bounded",
+            "checks_count": 16,
+            "source_cell_identity_mismatches": [],
+            "deciding_logs": [
+              {
+                "index": 0,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/jit-final.log",
+                "output_sha256": "8bc07f76e2f8a180405c9dc05cff0dc21539a2edf4e66cc8c0cc12c26f9758ef",
+                "output_bytes": 7861,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 1,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/llm-final.log",
+                "output_sha256": "2404320c38deef9159c4b2e39ceb04f0247b0bf2a9684a8f2b7270c2fb3a65ee",
+                "output_bytes": 8503,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 2,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/net-final.log",
+                "output_sha256": "d27da4c461ffdd67522d254f238334465a5197f0ffefc3d82a0793f3b7c5e519",
+                "output_bytes": 23320,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 3,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/wire-final.log",
+                "output_sha256": "9ca2e4d7b8cbbb01432a9fbbb626036377d9b187d7d13b825b45a5aacd8a006f",
+                "output_bytes": 13002,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 4,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/pool-base.log",
+                "output_sha256": "09f4a417dd795b282633631ee9a26aca89fe7f9637b100b7de9a48e9edc61663",
+                "output_bytes": 11506,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 5,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/pool-candidate.log",
+                "output_sha256": "f4117b0faf4699cb4c188219e1b712462f702361780e2279fef2f9f0f158b2bc",
+                "output_bytes": 2126,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 6,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/llm-cancellation-base.log",
+                "output_sha256": "121e2ec9f2a7b68faf68feedbfac6a7330a8a5d184b67e4d377957f8dc4d2923",
+                "output_bytes": 2795,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 7,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/llm-cancellation-final.log",
+                "output_sha256": "a3ed4a653e23f0f271c2d98d2d15b883eb3deda0966576c430c5dd2bdf7e9ad4",
+                "output_bytes": 1875,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 8,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/pool-deadline-removal.log",
+                "output_sha256": "7f59eb92e7a61ef6da81860b86bd236c8ad2edb27fba99d52c633bd83ff5750b",
+                "output_bytes": 3556,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 9,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/pool-registration-removal.log",
+                "output_sha256": "6e2d47c860dd7a4dd6343fe317d6a2c3ec3d57f143608953a0c090c6aa6698bd",
+                "output_bytes": 1929,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 10,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/pool-inner-timeout.log",
+                "output_sha256": "46e1192028376eb239a43c74ac151b0ca6b524ebe82f2fbe35275c028d6558c6",
+                "output_bytes": 348,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 11,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/net-protection-oracles.log",
+                "output_sha256": "bc555f09311485b6c07e286c205eb91991103175905c424734e10bafa62c250d",
+                "output_bytes": 14977,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 12,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/registry-half-open.log",
+                "output_sha256": "23028df075d77bea43c39a06b2100ffb88c592ff5f6a98f90bd241e05eae4ce2",
+                "output_bytes": 3773,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 13,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/architecture-final.log",
+                "output_sha256": "e57e3a066678d258f3b41bd25630340d49e4965ca5b2300dadb4fc67fdf0160f",
+                "output_bytes": 118089,
+                "output_committed": true,
+                "hash_matches": true
+              },
+              {
+                "index": 14,
+                "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/pool-independent-review.log",
+                "output_sha256": "0d78c0a442d91064e535e50740ca45c34fa0f342a8af3209b4918837674c142d",
+                "output_bytes": 98,
+                "output_committed": true,
+                "hash_matches": true
+              }
+            ],
+            "check_identity_missing": []
+          }
+        ]
+      }
+    ],
+    "blocking_mismatches": [],
+    "limits": [
+      "Metadata/deciding-byte custody audit; runtime/source independent acceptance remains separate.",
+      "Absent receipts are pending while authors finish; no defect inferred.",
+      "Ignored raw not transferred is accepted only as bounded not_established evidence with disclosed exact rerun."
+    ],
+    "overall_verdict": "metadata_custody_pass_bounded"
+  },
+  "evidence": [
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/receipt-audit.json",
+      "sha256": "1685f8a0a7af1417999a32dbc19396164a2f95fae21f3def979ba18155df5b95",
+      "bytes": 469689
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/receipt-audit-compact.json",
+      "sha256": "6aff50316dd37f64d26c301e73161e5ee31a85cdab3060c80e05b2b3a186c918",
+      "bytes": 53448
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/audit_receipts.py",
+      "sha256": "36cb952e0b7ef55e69e36daa467b929d58a0c1aa6c28c44266104a65053dc5de",
+      "bytes": 16929
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/compact_receipts.py",
+      "sha256": "1f1440c628c3a2f1952e19f115c9a7dac75de6326a00a173a4f3ceeeb5322d02",
+      "bytes": 3704
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/final_packet.py",
+      "sha256": "3e8e8e8ec151490d8773a1e6037e8fae6ac66f7bce77bf3164908f0d24ed087b",
+      "bytes": 14196
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/run_locator_audit.py",
+      "sha256": "54c7154cfe3db16c53fa24b1976a84faeb69c920244fe617f06e4860716ba12e",
+      "bytes": 5227
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/net_evidence_audit.py",
+      "sha256": "8cc0743a4ffed0fc158cce3be28f15e71b1554417c4596dcba4c6cb69d99e08b",
+      "bytes": 5990
+    }
+  ],
+  "current_writer_readbacks": [
+    {
+      "lane": "run",
+      "worktree": "/workspace/e02-B-run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "tree": "988cfaf00f6d5e433855124d32619ef04b595c76",
+      "branch": "codex/e02-B-run",
+      "status_porcelain_all_untracked": "",
+      "source_current_readback_only": true,
+      "remote_ref": "refs/heads/codex/e02-B-run",
+      "remote_verified": true
+    },
+    {
+      "lane": "exe",
+      "worktree": "/workspace/e02-B-exe-state",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "tree": "da45ce2415bf5ccf8d6203ccf185b206194f21cd",
+      "branch": "codex/e02-B-exe-state",
+      "status_porcelain_all_untracked": "",
+      "source_current_readback_only": true,
+      "remote_ref": "refs/heads/codex/e02-B-exe-state",
+      "remote_verified": true
+    },
+    {
+      "lane": "dur",
+      "worktree": "/workspace/e02-B-dur-ledger",
+      "head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "tree": "3a564f4067677e13dfd2a565a639684de357ed29",
+      "branch": "codex/e02-B-dur-ledger",
+      "status_porcelain_all_untracked": "",
+      "source_current_readback_only": true,
+      "remote_ref": "refs/heads/codex/e02-B-dur-ledger",
+      "remote_verified": true
+    },
+    {
+      "lane": "cmp",
+      "worktree": "/workspace/e02-B-cmp-res",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "tree": "b4989e6273a82ce3a2057d01e063406bce423d84",
+      "branch": "codex/e02-B-cmp-res",
+      "status_porcelain_all_untracked": "",
+      "source_current_readback_only": true,
+      "remote_ref": "refs/heads/codex/e02-B-cmp-res",
+      "remote_verified": true
+    },
+    {
+      "lane": "cas",
+      "worktree": "/workspace/e02-B-cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "tree": "060db9b918d432bbbe3d875eabc106bc62f5cbbc",
+      "branch": "codex/e02-B-cas",
+      "status_porcelain_all_untracked": "",
+      "source_current_readback_only": true,
+      "remote_ref": "refs/heads/codex/e02-B-cas",
+      "remote_verified": true
+    },
+    {
+      "lane": "adapters",
+      "worktree": "/workspace/e02-B-adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "tree": "07f825e9fa1a696883a8337e4cce8354a6900807",
+      "branch": "codex/e02-B-adapters",
+      "status_porcelain_all_untracked": "",
+      "source_current_readback_only": true,
+      "remote_ref": "refs/heads/codex/e02-B-adapters",
+      "remote_verified": true
+    }
+  ],
+  "qualification_evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/qualification.json",
+      "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+      "sha256": "abf0b82d330c37aa36f720f8b1b7494fe8d566cd4ab00b9ea0c4b8a98db042af",
+      "bytes": 3981
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-oracle-current-checkpoint.json",
+      "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+      "sha256": "8972561d7e1d845193790ac4114e585d912b2d12d6cfa907c33e0950d9409ddf",
+      "bytes": 5864
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-review515-current-checkpoint.json",
+      "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+      "sha256": "616c1573982bb1a1aa7e4a699f586c516110f5244e5a0da8ffcb4bda956a0c42",
+      "bytes": 5915
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-base-current-checkpoint.json",
+      "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+      "sha256": "031d766d87c860c83b234dfa5d2ef73fc7ab8b5babb0fddf103e5e0bf06eee2f",
+      "bytes": 5932
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-fix-current-checkpoint.json",
+      "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+      "sha256": "29fbeb4393b1a048f5d7fb2e09b6de214efa9768b50611a1afe2ee729b0cea7b",
+      "bytes": 5915
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-worktree-custody.json",
+      "ref": "86c5771aa51859624488c784df710b73cd0929b0",
+      "sha256": "333bf0f0080db8483368d35de8f10463720bcf802ec7ba29b27f35996c719e0d",
+      "bytes": 2366
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-qualification.json",
+      "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "sha256": "18006899c934bf9ddfff88cb14b5ae96bf1399809f2d043ef475116be8c4c5b9",
+      "bytes": 6666
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-evidence/cas-create.json",
+      "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "sha256": "c6479f8b035eb06e4f27a2223503ccfba1671428066df728a840bb3b8158a533",
+      "bytes": 29992,
+      "provided_writer_path": "/workspace/e02-B-cas",
+      "mode": "create",
+      "historical_started_at": "2026-10-05T13:38:54.395273+00:00",
+      "historical_finished_at": "2026-10-05T13:38:54.439386+00:00",
+      "scope": "Root-provided CAS writer only; no blanket all-checkouts admission."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-evidence/cas-resume.json",
+      "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "sha256": "c378945d3938ecf78d6d1b3436b828e9c8d2624bcf42fada9c18343853e2ecf7",
+      "bytes": 35551,
+      "provided_writer_path": "/workspace/e02-B-cas",
+      "mode": "resume",
+      "historical_started_at": "2026-10-05T13:38:57.767923+00:00",
+      "historical_finished_at": "2026-10-05T13:38:57.819841+00:00",
+      "scope": "Root-provided CAS writer only; no blanket all-checkouts admission."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-evidence/current-observation.json",
+      "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "sha256": "359d8993cde8957c75fe4146b687e6617173045b60eb58ea77ece021e78242e5",
+      "bytes": 9953
+    }
+  ],
+  "qualified_self_created_review_worktree_set": [
+    {
+      "creator": "/root/dur_probe",
+      "path": "/workspace/e02-B-b52-oracle",
+      "head": "0f24d18d988f579db20a84c734a587abe6cabe20",
+      "tree": "c96b348f8d71b7a02f3b9052514911d26da0f634",
+      "precreation_custody": "not_established",
+      "current_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-oracle-current-checkpoint.json",
+        "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+        "sha256": "8972561d7e1d845193790ac4114e585d912b2d12d6cfa907c33e0950d9409ddf",
+        "bytes": 5864
+      },
+      "observation_started_at": "2026-10-05T15:32:32.121356+00:00",
+      "observation_finished_at": "2026-10-05T15:32:32.173563+00:00",
+      "current_identity_still_matches": true,
+      "current_observation_not_historical_admission": true
+    },
+    {
+      "creator": "/root/dur_probe",
+      "path": "/workspace/e02-B-b52-review515",
+      "head": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "tree": "bad622f8ba09cad03e4b7899c07982380efcfa81",
+      "precreation_custody": "not_established",
+      "current_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-review515-current-checkpoint.json",
+        "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+        "sha256": "616c1573982bb1a1aa7e4a699f586c516110f5244e5a0da8ffcb4bda956a0c42",
+        "bytes": 5915
+      },
+      "observation_started_at": "2026-10-05T15:32:32.174030+00:00",
+      "observation_finished_at": "2026-10-05T15:32:32.230031+00:00",
+      "current_identity_still_matches": true,
+      "current_observation_not_historical_admission": true
+    },
+    {
+      "creator": "/root/dur_probe",
+      "path": "/workspace/e02-B-cas-alias-base",
+      "head": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+      "tree": "69fbb88446ff432bd88815dc14d28be7b33df1f8",
+      "precreation_custody": "not_established",
+      "current_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-base-current-checkpoint.json",
+        "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+        "sha256": "031d766d87c860c83b234dfa5d2ef73fc7ab8b5babb0fddf103e5e0bf06eee2f",
+        "bytes": 5932
+      },
+      "observation_started_at": "2026-10-05T15:32:32.230398+00:00",
+      "observation_finished_at": "2026-10-05T15:32:32.280692+00:00",
+      "current_identity_still_matches": true,
+      "current_observation_not_historical_admission": true
+    },
+    {
+      "creator": "/root/dur_probe",
+      "path": "/workspace/e02-B-cas-alias-fix",
+      "head": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "tree": "613e40b149ec448c5b202cc8b5edd811e2e35a68",
+      "precreation_custody": "not_established",
+      "current_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-fix-current-checkpoint.json",
+        "ref": "2fe743de5f39f0f622db83318a123cb547a67470",
+        "sha256": "29fbeb4393b1a048f5d7fb2e09b6de214efa9768b50611a1afe2ee729b0cea7b",
+        "bytes": 5915
+      },
+      "observation_started_at": "2026-10-05T15:32:32.281079+00:00",
+      "observation_finished_at": "2026-10-05T15:32:32.335539+00:00",
+      "current_identity_still_matches": true,
+      "current_observation_not_historical_admission": true
+    },
+    {
+      "creator": "/root/adapters_probe",
+      "path": "/workspace/e02-B-run-review-base",
+      "head": "ab310be19f310a6055797a2af56bf1ffae01f555",
+      "tree": "94075c2114b9fa4d48d90e95aa6a680f963cf292",
+      "precreation_custody": "not_established",
+      "current_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-worktree-custody.json",
+        "ref": "86c5771aa51859624488c784df710b73cd0929b0",
+        "sha256": "333bf0f0080db8483368d35de8f10463720bcf802ec7ba29b27f35996c719e0d",
+        "bytes": 2366
+      },
+      "observed_at_UTC": "2026-10-05T15:39:03.907774+00:00",
+      "current_identity_still_matches": true,
+      "current_observation_not_historical_admission": true
+    },
+    {
+      "creator": "/root/adapters_probe",
+      "path": "/workspace/e02-B-run-review-candidate",
+      "head": "6c2cab488368932479677bc036ffad25657c0367",
+      "tree": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
+      "precreation_custody": "not_established",
+      "current_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-worktree-custody.json",
+        "ref": "86c5771aa51859624488c784df710b73cd0929b0",
+        "sha256": "333bf0f0080db8483368d35de8f10463720bcf802ec7ba29b27f35996c719e0d",
+        "bytes": 2366
+      },
+      "observed_at_UTC": "2026-10-05T15:39:03.907774+00:00",
+      "current_identity_still_matches": true,
+      "current_observation_not_historical_admission": true
+    },
+    {
+      "creator": "/root/cas_probe",
+      "path": "/workspace/e02-cas-contract-base36",
+      "head": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+      "tree": "ac5b7fc314e40d6736af885e185a7d3aa627eacc",
+      "precreation_custody": "not_established",
+      "current_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-qualification.json",
+        "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+        "sha256": "18006899c934bf9ddfff88cb14b5ae96bf1399809f2d043ef475116be8c4c5b9",
+        "bytes": 6666
+      },
+      "qualified_checks": [
+        {
+          "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+          "checks": [
+            "promotion-base-attribution.txt",
+            "http-base-attribution.txt"
+          ],
+          "source_ref": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+          "scope": "Actual observed baseline grounding/corpus and HTTP failures retained. Missing prior admission is not converted into a protocol PASS or a disjoint inherited-green claim."
+        }
+      ],
+      "current_identity_still_matches": true,
+      "current_observation_not_historical_admission": true
+    }
+  ],
+  "canonical_overlay_rows": [
+    {
+      "lane": "run",
+      "slice": "run-executor-shutdown",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+        "ref": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "sha256": "f155377b0333721b765859396b2fcce3a351b216e8674239f42afe2956c7f5dc",
+        "bytes": 100787
+      },
+      "receipt_commit": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B39",
+        "B40",
+        "B69",
+        "B95",
+        "B96",
+        "LA-057"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B14",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "02092b768dbcb411aa6139205108820758070b162463d74be83dcfe933f6bfe5",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_process_and_queued_thread_refusal_verified_with_served_worker_residual",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B24",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "47034d0c78b0cd1f303ea744014e2411d3f99f7fa3834ed9e5e1b2c2583552e2",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_linux_transport_and_descendant_cleanup_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B39",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "6020bdce263374876bab4f55e2f37347a197b575e792e440df39e4f591a8202d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_retry_identity_and_deadline_error_distinction_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B40",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "59905eb196b8620d0d681369858d3a469083e65279bdde2c5e3735faea8a5083",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "mechanism_gap_unfixed",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B69",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "db98155154d606d41dccb0cefc6aa5fbf4f30e0bd1aec97c8416fc6651ece5b9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_unfinished_job_and_shutdown_property_verified_with_callback_capacity_residual",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B95",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "b51b6ab781ef59c70e089273645249da9e5273a2fafa49471e6dfb9a14caf083",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_concurrent_context_propagation_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B96",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "ae7dda9f65ae5067677fc0d6a6df63d71b643df16ec902e412928c0bd5391fa8",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_bounded_retry_baseline_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "LA-057",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "4ec9ded634ef7e1e64400b748a260111912d959b44359b923d9b4a72bb11cdf8",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_cleanup_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bounded ordinary submit/shutdown lock-order and once-release verified; callback physical capacity class remains measured unsupported residual"
+    },
+    {
+      "lane": "run",
+      "slice": "run-owned-process",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+        "ref": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "sha256": "7df9f9c505036ea783179e9c014da0ee7e741a6aa14c5c3df036bc8778bf2576",
+        "bytes": 45361
+      },
+      "receipt_commit": "9a509ccf3b1c1274a6df14c8be06dd57cb4ce70a",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B39",
+        "B40",
+        "B69",
+        "B95",
+        "B96",
+        "LA-057"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B14",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "f680e4b5792705450eff4d3c39149a736e4ea03871915be4033e804199f12cce",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_process_late_write_verified_with_served_worker_residual",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B24",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "b8678317be9e2987d969e14d23fa4a6b879230b9c85d5ddfc9396ad7230a8f73",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_linux_transport_and_descendant_cleanup_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B39",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "9b80299bb7e21b85aace8255fce8be9beafe393f8bed2042d0315e66b7c73fde",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "fork_ipc_classification_gap_reproduced_unfixed",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B40",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "6fba607d50c561d1b1feef792097357a2ff859fd05a0b86584c86c85b4f1ebcb",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "mechanism_gap_unfixed",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B69",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "2b081a29fd6bcff9c2df65cdceec93db1fe5ad1acff7ea1800841be16a63f267",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_property_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B95",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "88059d9a03da07a73abde87867af2c885efa3251312b60e8f91ca316614282db",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_concurrent_context_propagation_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B96",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "61597fb8b3688ca002cb58479b73a5cd613fe9dbca4fded789374ad0e6a0993d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_bounded_retry_baseline_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "LA-057",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "63c5fda60421d8d8afa2a06f888e0dbc8140fc095877f27b68fafa3217bacf5d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_cleanup_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bounded Linux owned-process property verified; finding closure remains with G"
+    },
+    {
+      "lane": "run",
+      "slice": "run-queued-thread-cancellation",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+        "ref": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "sha256": "800e7d47ea5bfe81c9adf40ab0c5969076f9569b0995bdeefef69a287e2784d6",
+        "bytes": 51933
+      },
+      "receipt_commit": "d2dabbc2d49a815fd49114dab74554a51732f541",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B39",
+        "B40",
+        "B69",
+        "B95",
+        "B96",
+        "LA-057"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B14",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "da23dcf50b5a79acd8b0a948ede79cc618ecce7bc953d13723f7efa5af6b8a94",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_process_and_queued_thread_refusal_verified_with_served_worker_residual",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B24",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "8683c5b6df54de43cc01caa0190ff8e9ae2caeb3d6868274474573123d5717f2",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_linux_transport_and_descendant_cleanup_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B39",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "d82a60e1339ae514ea5c921caa70d938f83f180ae3ba607bfda2cd2861868056",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_retry_identity_and_deadline_error_distinction_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B40",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "7aa01ad0605dade74ae65c8efb3ee9bab328dc3c186c2ad413eac17f3f9e77f9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "mechanism_gap_unfixed",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B69",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "6e714fc9619b0acc82cd8615beab163acd1e6ff9482f95a7fb7494e876144fa2",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_property_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B95",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "c1c842346d47dc0dd418aedc2605ec65bf5d34d427f911eb47fa95405dd50db1",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_concurrent_context_propagation_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B96",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "86655d033de2ca69599af3e14394cc8093aaf12957c961508c3223accd2473e1",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_bounded_retry_baseline_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "LA-057",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "d53b5fe728260daeca7b77902c80db8904f57c5bb8a86f0863ce41ac2e55503d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_cleanup_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bounded queued-thread cancellation property verified; broader B14/B40 admission remains with G"
+    },
+    {
+      "lane": "run",
+      "slice": "run-retry-error-identity",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+        "ref": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "sha256": "129686e07aef9e74a47b4e768422066331e80da0b65f38d1b922800dfb9c6c53",
+        "bytes": 113141
+      },
+      "receipt_commit": "78e21bfaa282a51b61ec7e9b96cdddb8ae6f1ca3",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B39",
+        "B40",
+        "B69",
+        "B95",
+        "B96",
+        "LA-057"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B14",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "f10830fef0736983298981c83f47eddbfa4eeee9e983221d00b49d6da8f50bba",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_process_late_write_verified_with_served_worker_residual",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B24",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "2e49bd813ad5eca92b4c778e0542e46b1932274599ec3bcc19f0784278b347e3",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_linux_transport_and_descendant_cleanup_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B39",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "8e98392ff86bbe5d4d7f1a760cc1a375fa2bee5d8cfcc84300520900c88eafb8",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_retry_identity_and_deadline_error_distinction_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B40",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "1b96f6bb060d7665eccb63a8a81971e65f52f5fda562f288fe8c64fa4c5a4805",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "mechanism_gap_unfixed",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B69",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "42404f5c68ffaf3dfaedbf538594e2e5a6f2c0dea2756793a97efe2d2f05ce80",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_property_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B95",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "197f9aede82e27c17b73e5e96e99dcb50e100bd5f146f9bb244f9c3b6ce673da",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_concurrent_context_propagation_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B96",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "9220fe8befc3b659749fc06200fae9711cd5968102823c02911fdd51c1f6376e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_bounded_retry_baseline_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "LA-057",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "36aa81a590eef5db20b8858a71f2472e77762221b6f83d53dd421483a20cf621",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_cleanup_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bounded retry identity and wait-expiry properties verified; finding admission remains with G"
+    },
+    {
+      "lane": "run",
+      "slice": "run-typevar",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
+        "ref": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "sha256": "b0cc1a0eaf4e6021caf3cf74be5eb1021b8aad9fdbf39cc0a419e0857be38a67",
+        "bytes": 8926
+      },
+      "receipt_commit": "6e9be8959d7ff26efa9f2b4db81d308a506d04db",
+      "finding_ids": [],
+      "source_row_bindings": [],
+      "capability_state_or_finding_state": "LA-057 bounded tracked-repository cleanup verified; finding remains partial pending G admission and scope decision"
+    },
+    {
+      "lane": "run",
+      "slice": "run-final",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+        "ref": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "sha256": "7c2e7ffd7357653d87b4121bae297449439bbd2fb5a1397055de9d3d877b98c9",
+        "bytes": 187745
+      },
+      "receipt_commit": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B39",
+        "B40",
+        "B69",
+        "B95",
+        "B96",
+        "LA-057"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B14",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "02092b768dbcb411aa6139205108820758070b162463d74be83dcfe933f6bfe5",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_process_and_queued_thread_refusal_verified_with_served_worker_residual",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B24",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "47034d0c78b0cd1f303ea744014e2411d3f99f7fa3834ed9e5e1b2c2583552e2",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_linux_transport_and_descendant_cleanup_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B39",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "6020bdce263374876bab4f55e2f37347a197b575e792e440df39e4f591a8202d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_retry_identity_and_deadline_error_distinction_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B40",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "59905eb196b8620d0d681369858d3a469083e65279bdde2c5e3735faea8a5083",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "mechanism_gap_unfixed",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B69",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "db98155154d606d41dccb0cefc6aa5fbf4f30e0bd1aec97c8416fc6651ece5b9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_unfinished_job_and_shutdown_property_verified_with_callback_capacity_residual",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B95",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "b51b6ab781ef59c70e089273645249da9e5273a2fafa49471e6dfb9a14caf083",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_concurrent_context_propagation_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B96",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "ae7dda9f65ae5067677fc0d6a6df63d71b643df16ec902e412928c0bd5391fa8",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_bounded_retry_baseline_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "LA-057",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "4ec9ded634ef7e1e64400b748a260111912d959b44359b923d9b4a72bb11cdf8",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_cleanup_verified_pending_independent_admission",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bounded retry/process/context/queued-thread properties and ordinary executor lock-order verified; B69 physical callback capacity remains measured unsupported, with other per-finding residuals retained"
+    },
+    {
+      "lane": "exe",
+      "slice": "exe-cold-seed",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json",
+        "ref": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "sha256": "28ee535aa98acd214d4c87dfbb373ce29aa47a6a4f9731d6a6091e05081440ad",
+        "bytes": 74842
+      },
+      "receipt_commit": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "finding_ids": [
+        "B52",
+        "B60"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B52",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "660770482f923422f240f979ec30cfc94fa801dbf8116c223c229fce4387424d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "mechanism_fixed_bounded",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B60",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "41a70cd5cec0836ffec93469b14a273fa0ecd229e23b185c73d3944f56ee8e2e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_native_source_recomputation_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "B52 mechanism_fixed_bounded; prior partial finding status retained, closure_ids empty; current authority/full served/performance and process-admission limitations explicit. B60 prior own oracle repaired; B61 held."
+    },
+    {
+      "lane": "exe",
+      "slice": "exe-state",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json",
+        "ref": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "sha256": "2077cbbd1921015c5f11aecb426a58ee39ee2ef786eeba11338d77ae85f0bf46",
+        "bytes": 43437
+      },
+      "receipt_commit": "0f24d18d988f579db20a84c734a587abe6cabe20",
+      "finding_ids": [
+        "B51",
+        "B52",
+        "B55",
+        "B57",
+        "B58",
+        "B59",
+        "B60",
+        "B61",
+        "B62",
+        "B63",
+        "B70",
+        "B71",
+        "B72",
+        "B73",
+        "B77"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B51",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "a2bc20aeffb9bb04d1b98a4cc31416c1f4d80ba7d65048c8418881c2b45b5ddd",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_native_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B52",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "78b74d745b5070237dedf3d0fccead6f2237df54fe00552f28fda29d8523bccf",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bridge_fixed_bounded",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B55",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "66914bd838292557fd1b8526bbeeb15645351933ea6b0d5edb1c3b24b132be4e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_real_cas_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B57",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "2323894135ab6cc59e871f4953aa335e492f7485f81f57f38dd8ee1308a12557",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_real_cas_and_process_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B58",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "0af372bf14de86535bc9aab47aa8f2b6c65846992c5a878d431a369b9e45e83e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_real_cas_and_process_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B59",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "ad915baab9864e1c39dc1bd1051061abfd1dd76f7935ccacca4bc3cdf76cc125",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_bounded_closed_scope_regression",
+          "source_status_retained": "closed",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B60",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "b3dd5d98b2de185d5d6905bba43f9081ae45714443cb85793570b0f59577b6ef",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_native_source_recomputation_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B61",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "a600259dd5f32fddb31ea08c429dbed050cb265bf56a589f9d9a9052a35f050f",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "held_data_record_owner_decision",
+          "source_status_retained": "held",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B62",
+          "json_pointer": "/finding_dispositions/8",
+          "parsed_row_canonical_json_sha256": "5c3e2555943c70db546899268080c304328b313081d62273228126c0b0fb9008",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_native_presence_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B63",
+          "json_pointer": "/finding_dispositions/9",
+          "parsed_row_canonical_json_sha256": "16d8ee8d7ad25859c306c8a755defea05753bf5ef081c6e7336823284552fbef",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_local_recovery_witness_external_backend_not_established",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B70",
+          "json_pointer": "/finding_dispositions/10",
+          "parsed_row_canonical_json_sha256": "92a125112f5988334bd5181fdf5194634d28d546c378d8b705c7531c6362a64d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_local_double_resume_witness_external_backend_not_established",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B71",
+          "json_pointer": "/finding_dispositions/11",
+          "parsed_row_canonical_json_sha256": "ec719c514c991f2ad133fcb2a5fbc58257c5061a27dfe2f57ed9ff3f4e5ce46a",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_native_checkpoint_witness_external_backend_not_established",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B72",
+          "json_pointer": "/finding_dispositions/12",
+          "parsed_row_canonical_json_sha256": "2a65b4c770e57bff2d35a55258b16b461f5d4dded6e189620a230ad7f6f66ef6",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_native_skip_width_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B73",
+          "json_pointer": "/finding_dispositions/13",
+          "parsed_row_canonical_json_sha256": "7df02d198d903229b72b8a6049e1587c3a4678219cbb7b6a0efbc6cc136bab9e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_reopened_cas_frontier_and_cache_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B77",
+          "json_pointer": "/finding_dispositions/14",
+          "parsed_row_canonical_json_sha256": "30c8a33880b12a88161622c7dd6e2570144f32d73390f0106d3d5a8b0501958a",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_native_readiness_witness",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bridge_fixed_bounded; all source finding statuses retained; no new full closure asserted"
+    },
+    {
+      "lane": "dur",
+      "slice": "dur-ledger",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json",
+        "ref": "f3b9f054c86218b431ab927b56100164842db64a",
+        "sha256": "11e56481fde4edcbcec4632ec41f14ea13b83b1ac2b271ea6803af0f543f9a74",
+        "bytes": 38361
+      },
+      "receipt_commit": "f3b9f054c86218b431ab927b56100164842db64a",
+      "finding_ids": [
+        "B37",
+        "B38",
+        "B78"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B37",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "f45079860df9de1ac4c26a1b9491a90786974c0a20fe68eb3f32bbd9e717535c",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B38",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "be6e8ac83e5cce7ca7f1594a13827ba67a332e917a7cfe9259069a6d3c14b85d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B78",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "7768d6e306b2a158123d0745dd3502a0714f25d20574049a4c1cdeced2c8a069",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bounded real-owner mechanism and consumer verification passed; full B37 closure remains partial and production orchestration not_established"
+    },
+    {
+      "lane": "cmp",
+      "slice": "cmp-res",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json",
+        "ref": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+        "sha256": "992e65b1dcd4b7c6eb790564dbb10d98437a9bc11d99dcaff3143992087cc12b",
+        "bytes": 51212
+      },
+      "receipt_commit": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "finding_ids": [
+        "B13",
+        "B42",
+        "B43",
+        "B44",
+        "B45",
+        "B46",
+        "B47",
+        "B48",
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B13",
+          "json_pointer": "/finding_classification/0",
+          "parsed_row_canonical_json_sha256": "d5fb9c92d2233a5dc58de3a9a30e1c04922501a27ae7ec66f012603b5495a018",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "component_verified_served_input_blocked",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B42",
+          "json_pointer": "/finding_classification/1",
+          "parsed_row_canonical_json_sha256": "8c0d80ed80a0b31658af3bfc1ffc4e61c3f8ac5d64f32790a70c9c1a382c4d99",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_mechanism_bounded_verified",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B43",
+          "json_pointer": "/finding_classification/2",
+          "parsed_row_canonical_json_sha256": "4fe840ec4037face77a744095a466748e80b41bc0f7bac6e60214b00f80db107",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_mechanism_bounded_verified",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B44",
+          "json_pointer": "/finding_classification/3",
+          "parsed_row_canonical_json_sha256": "e82457cbeee21876efb134a2e6deed47de3c99957ed0f07c398d913740381187",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "sibling_checkpoint_payload_repaired",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B45",
+          "json_pointer": "/finding_classification/4",
+          "parsed_row_canonical_json_sha256": "fb9614ef556a620fc53f7adbb5cea95381fdf35d0facb102cee3f63501435887",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_policy_bounded_verified",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B46",
+          "json_pointer": "/finding_classification/5",
+          "parsed_row_canonical_json_sha256": "482ae72cfe1537b075a5b476e712ac7f1bed855e35dac3a5cf819d5193b8e1ac",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_mechanism_bounded_verified",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B47",
+          "json_pointer": "/finding_classification/6",
+          "parsed_row_canonical_json_sha256": "c6617ea77b31d4647649acb51646f4cda04c10b5f0dbfba060e05d674224df3e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_mechanism_bounded_verified",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B48",
+          "json_pointer": "/finding_classification/7",
+          "parsed_row_canonical_json_sha256": "4dfa9f73759c7e1a59318c34ec31b706d3a1a7a44b083402dd0a62f9c10727f0",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "existing_mechanism_bounded_verified",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B74",
+          "json_pointer": "/finding_classification/8",
+          "parsed_row_canonical_json_sha256": "401284adf15fbe8629e9eda817ccb1395020758b4f6a8077b1f8c8e5c188ec2e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "native_request_identity_repaired",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B75",
+          "json_pointer": "/finding_classification/9",
+          "parsed_row_canonical_json_sha256": "d2e35da89962579e4f695a1826eaf512ef6abbc2a3626771187a256c064d79b3",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "native_original_history_repaired",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B76",
+          "json_pointer": "/finding_classification/10",
+          "parsed_row_canonical_json_sha256": "597b88fb5b790bf8503d9ba671f69c512dd6e008b124ddae8cee546711fd5d9e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "native_publication_ownership_repaired",
+          "source_status_retained": "partial",
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "direct_native_mechanism_verified; implemented_but_not_orchestrated; source finding partial classifications preserved"
+    },
+    {
+      "lane": "cas",
+      "slice": "cas-archive-output-entry",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json",
+        "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+        "sha256": "fe4794a078a1a55c517993d07db83bff7c46eaab5515a72ba6d6cd1698b3fbeb",
+        "bytes": 65245
+      },
+      "receipt_commit": "71d53452f69a6172b14071133a597a02add294bf",
+      "finding_ids": [
+        "B148",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B154",
+        "B155"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B148",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "5e20bc5e44c8a6a1e88cde08e08b1b1029768b9a0783a8633624573b83aa329b",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; scoped declared bound-context mismatch refused before any new put/resume/import intent and claims; native passive exact-cache and unbound legitimate reuse preserved; pending import typed refusal + exact-byte retry verified; four-base source criterion and unbound policy decision remain open",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B149",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "b21f94dfab4f2db88bb7a13e7496a6a6233b45e854c3c2ac4a27b9b1eff838cc",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; staged archive old/new-byte publication and current directory export fsync failure/inventory verified; independent old/new import consumers and property-removal negatives retained; no complete four-base closure; normalized archive output admission now refuses all nonregular entries before staging, with actual inode/type/referent consumer preservation; root/DUR bounded class accepted, no full historical closure",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B150",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "f54b42bc759c700cc99c162974b1ef2455d6872949ee2fa56ee30fb327aabfef",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "preserve closed_bounded; distinct views/honest refs fresh regression passes, no broader backend/custody claim",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B151",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "0f1bb275c82910e2c5408e88d23bb79701b7bf72ea7de793b07563a74c5d7fdd",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; existing corrupt-blob retry negative passes, full source-card four-base witness remains unestablished",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B152",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "4c8ee30a01cf12c1742dc1a774fabd3c1857c01a29aa929152b514b67ccda78c",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; one snapshot/hash + actual Ed25519 control passes; wrong byte_size selected-view negative still absent from admitted cohort",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B153",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "947cad0a84078a09a30db085cbb7d519d95027425e1ed1d2478e03a28f4f2971",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "preserve closed_bounded; existing active-waiter/striped lock bounded behavioral tests pass",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B154",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "cf410c6f1fa46d01ac2abfd703f975b84dcabfe80760ebe762cdf3747906b2e9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; local element/batch controls pass; all-confirmations production publisher consumer remains missing; no global authority closure",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B155",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "270fea50ecd8e027467e2c74a0fb48ee8a616ce6356c1b34c83463b9d2bd4580",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; pending/lazy iterable tests pass; actual default filesystem name census remains eager and uninterruptible at cancellation",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "partial finding; bounded pathname-kind class verified/independently accepted; canonical CAS02 held unbound assertion and full finding criteria remain unresolved"
+    },
+    {
+      "lane": "cas",
+      "slice": "cas-bound-admission",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json",
+        "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+        "sha256": "eee72fa910504a88ec4b6b058b4e92bffeecbdb0b39cef01df91f34c718a3da1",
+        "bytes": 138272
+      },
+      "receipt_commit": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+      "finding_ids": [
+        "B148",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B154",
+        "B155"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B148",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "5e20bc5e44c8a6a1e88cde08e08b1b1029768b9a0783a8633624573b83aa329b",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; scoped declared bound-context mismatch refused before any new put/resume/import intent and claims; native passive exact-cache and unbound legitimate reuse preserved; pending import typed refusal + exact-byte retry verified; four-base source criterion and unbound policy decision remain open",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B149",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "f94ba0770abbc6df53f06093e1d36f9bdc824d522668257a91a77d731b4270d6",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; staged archive old/new-byte publication and current directory export fsync failure/inventory verified; independent old/new import consumers and property-removal negatives retained; no complete four-base closure",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B150",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "f54b42bc759c700cc99c162974b1ef2455d6872949ee2fa56ee30fb327aabfef",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "preserve closed_bounded; distinct views/honest refs fresh regression passes, no broader backend/custody claim",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B151",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "0f1bb275c82910e2c5408e88d23bb79701b7bf72ea7de793b07563a74c5d7fdd",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; existing corrupt-blob retry negative passes, full source-card four-base witness remains unestablished",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B152",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "4c8ee30a01cf12c1742dc1a774fabd3c1857c01a29aa929152b514b67ccda78c",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; one snapshot/hash + actual Ed25519 control passes; wrong byte_size selected-view negative still absent from admitted cohort",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B153",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "947cad0a84078a09a30db085cbb7d519d95027425e1ed1d2478e03a28f4f2971",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "preserve closed_bounded; existing active-waiter/striped lock bounded behavioral tests pass",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B154",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "cf410c6f1fa46d01ac2abfd703f975b84dcabfe80760ebe762cdf3747906b2e9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; local element/batch controls pass; all-confirmations production publisher consumer remains missing; no global authority closure",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B155",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "270fea50ecd8e027467e2c74a0fb48ee8a616ce6356c1b34c83463b9d2bd4580",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; pending/lazy iterable tests pass; actual default filesystem name census remains eager and uninterruptible at cancellation",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "partial; bounded active scoped admission + exact retry consumers verified; full canonical CAS02 and broader gate FAIL, owner and local-input residuals retained"
+    },
+    {
+      "lane": "cas",
+      "slice": "cas",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas.json",
+        "ref": "f1db5d0d76fb93825a433bf8139235a93b213606",
+        "sha256": "b9ea45014b5ffb9e2991a6bb4afbd2c7a2e42a627ce06c3592a69cfa52ff3730",
+        "bytes": 47101
+      },
+      "receipt_commit": "ae50e6462f24e91309ede968ac7bcfc74d1a004f",
+      "finding_ids": [
+        "B148",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B154",
+        "B155"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B148",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "59e2d87a1e7a2904ea52787ce3736672d8f3b1d0757eef4eccc479663b461ac2",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; real bad directory/tar import preservation regression passes, full source criterion/owner fault recovery residuals remain",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B149",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "4966854513b67029300c9337ef89364390df7c60b67553fd88fc240ae10f91a9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; new bounded archive failure publication witness; directory exact-inventory positive passes; no complete four-base closure",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B150",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "f54b42bc759c700cc99c162974b1ef2455d6872949ee2fa56ee30fb327aabfef",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "preserve closed_bounded; distinct views/honest refs fresh regression passes, no broader backend/custody claim",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B151",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "0f1bb275c82910e2c5408e88d23bb79701b7bf72ea7de793b07563a74c5d7fdd",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; existing corrupt-blob retry negative passes, full source-card four-base witness remains unestablished",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B152",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "4c8ee30a01cf12c1742dc1a774fabd3c1857c01a29aa929152b514b67ccda78c",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; one snapshot/hash + actual Ed25519 control passes; wrong byte_size selected-view negative still absent from admitted cohort",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B153",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "947cad0a84078a09a30db085cbb7d519d95027425e1ed1d2478e03a28f4f2971",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "preserve closed_bounded; existing active-waiter/striped lock bounded behavioral tests pass",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B154",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "cf410c6f1fa46d01ac2abfd703f975b84dcabfe80760ebe762cdf3747906b2e9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; local element/batch controls pass; all-confirmations production publisher consumer remains missing; no global authority closure",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B155",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "270fea50ecd8e027467e2c74a0fb48ee8a616ce6356c1b34c83463b9d2bd4580",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial; pending/lazy iterable tests pass; actual default filesystem name census remains eager and uninterruptible at cancellation",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "bounded archive mechanism repaired; no finding closed; partial source statuses retained"
+    },
+    {
+      "lane": "adapters",
+      "slice": "adapters-deadline",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json",
+        "ref": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "sha256": "5ba8df9f4da2d067c190cf6340d009d6cde48843e62e281a6d46928fd2cbd75d",
+        "bytes": 88911
+      },
+      "receipt_commit": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "finding_ids": [
+        "B49",
+        "B50",
+        "B53",
+        "B64",
+        "B65",
+        "B66",
+        "B67",
+        "B68",
+        "B87",
+        "B89",
+        "B90",
+        "B91",
+        "B92",
+        "B93",
+        "B94"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B49",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "53e26abf1c91578ca690aeecf0d7a1fa61e49db5ab879c8802cc8eedcd8b61fa",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B50",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "0aeeb629ea79420798836b514e1ebccd6c6da59cdc3f9c4f06dcdf4b7c111cf8",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B53",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "845668698bec92c002beaf8fbc6b97c7afc7ffc39d41bd02958a6c16b3cb74c3",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B64",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "5cad392c9174ffa94929393a5571762dbc2602c0be5b041892cea90b952cf536",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B65",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "0aeef46b72adc6a278b61dafc140df2aec20998aa5f04afcc443a3e15ed5f8ac",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B66",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "16936ab760164c60e6cfdfc0a6fe744e807e8b444778be97ee4e6180fb7283ca",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial_producer_capability_missing",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B67",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "940a7ff69a9f0e5bc6d57f388ab3c9858098d9a003dbaa2b3dd2b5f78088d7d5",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial_authority_input_missing",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B68",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "2c14057c76dc508795a1017bc1cb3982bbf502472bd9c6e4790bb3caf6bf169b",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial_accounting_and_authority",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B87",
+          "json_pointer": "/finding_dispositions/8",
+          "parsed_row_canonical_json_sha256": "02761329826f7976a7e3281558a6052ed2e3849ee56b3f1ed4077c2748ace6a3",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified_class_fix",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B89",
+          "json_pointer": "/finding_dispositions/9",
+          "parsed_row_canonical_json_sha256": "1ddbe20cfb7b769d5ec656e07f6bfda31982654eda735a024faef47262dd9a8f",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified_class_fix",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B90",
+          "json_pointer": "/finding_dispositions/10",
+          "parsed_row_canonical_json_sha256": "140c2001645183950ced6b7aaa1f68c73d2e4bc8f0c23e91232b408dac65a53c",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "mechanism_fixed_bounded",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B91",
+          "json_pointer": "/finding_dispositions/11",
+          "parsed_row_canonical_json_sha256": "4d503117493a6b73ab57f8d9ab49f4552ee33e5e4ef69f0e3fc56afa9d33d8c6",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B92",
+          "json_pointer": "/finding_dispositions/12",
+          "parsed_row_canonical_json_sha256": "46ddeaf7262ceb01183317ae80e5f7d1a5251c7cc775b48ddb16149a57f53cfd",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B93",
+          "json_pointer": "/finding_dispositions/13",
+          "parsed_row_canonical_json_sha256": "6c4cba961522498a150344024ae585a9173c66fbe9781c50763bbaf019f27c60",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified_ledger_binding_mismatch",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B94",
+          "json_pointer": "/finding_dispositions/14",
+          "parsed_row_canonical_json_sha256": "14d762481170ac32d30f901bf446892249a2e4c97a8779d189fecbe7bb3d2a7a",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "mechanism_fixed_bounded; all15 exact criterion dispositions preserved, no full finding closure. B66/B68 settlement producer/bridge missing; B67 authority currentinput not established; B93 ledger mapping mismatch retained."
+    },
+    {
+      "lane": "adapters",
+      "slice": "adapters",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json",
+        "ref": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "sha256": "627dd997591f7327ffc596a18c037be28a86be041ece7a5219937ec2d6f1639e",
+        "bytes": 69731
+      },
+      "receipt_commit": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "finding_ids": [
+        "B49",
+        "B50",
+        "B53",
+        "B64",
+        "B65",
+        "B66",
+        "B67",
+        "B68",
+        "B87",
+        "B89",
+        "B90",
+        "B91",
+        "B92",
+        "B93",
+        "B94"
+      ],
+      "source_row_bindings": [
+        {
+          "finding_id": "B49",
+          "json_pointer": "/finding_dispositions/0",
+          "parsed_row_canonical_json_sha256": "e528e2b650381c2285f29ab04ff57dc18ad8dce36f44a4ce18e0d0a444603b65",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B50",
+          "json_pointer": "/finding_dispositions/1",
+          "parsed_row_canonical_json_sha256": "66f9416c404cb890a87987243b053a973b1955b8ff07d70a6ca23d88e21ac5ba",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B53",
+          "json_pointer": "/finding_dispositions/2",
+          "parsed_row_canonical_json_sha256": "c630877a43996db127416df7c89f3f05b790a2ad81ea4bc897b2d2475c1ed71e",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B64",
+          "json_pointer": "/finding_dispositions/3",
+          "parsed_row_canonical_json_sha256": "71f744a1be8f52e41da2074f17094bac29ac9326a95d43480b4df14fd071cbd2",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B65",
+          "json_pointer": "/finding_dispositions/4",
+          "parsed_row_canonical_json_sha256": "630dec0eb67e64f0aba2caeb00a2fb0e2b4c6ab06d3340964d24fb48f823f982",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B66",
+          "json_pointer": "/finding_dispositions/5",
+          "parsed_row_canonical_json_sha256": "c43d470ab726950221ed71cb9f5a771c16ac2df0ee1609cc6cb621142d03238c",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial_producer_capability_missing",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B67",
+          "json_pointer": "/finding_dispositions/6",
+          "parsed_row_canonical_json_sha256": "931aaec9b67c291ff454706d16a8e6db7482308d4746019456c781eb14a4955d",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial_authority_input_missing",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B68",
+          "json_pointer": "/finding_dispositions/7",
+          "parsed_row_canonical_json_sha256": "a786e174305c701ccd06aa91474ff0a309815a842abb78e28147471b993c0ea3",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "partial_accounting_and_authority",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B87",
+          "json_pointer": "/finding_dispositions/8",
+          "parsed_row_canonical_json_sha256": "283846c9a50c5bbbfd241cd781826aa6e78b4691b61e6d6f5a621ab6eb7159c6",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified_class_fix",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B89",
+          "json_pointer": "/finding_dispositions/9",
+          "parsed_row_canonical_json_sha256": "065b349caaa3822ed1f480b5c3a632530d4fa441418795fdf34985d4c4c53439",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified_class_fix",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B90",
+          "json_pointer": "/finding_dispositions/10",
+          "parsed_row_canonical_json_sha256": "1d6dfd37082cfdd48c6f60b6f2491ef8a28f260d8cf8e264795d8b551f1febbb",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified_class_fix",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B91",
+          "json_pointer": "/finding_dispositions/11",
+          "parsed_row_canonical_json_sha256": "24834e8b7515800eca422974fc9e0367476fec666e1c25d5bf60808efda999c9",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B92",
+          "json_pointer": "/finding_dispositions/12",
+          "parsed_row_canonical_json_sha256": "991fc05df0c95ea31fc21dc15163f6d0935ab6de25d9c1279f1c3c728f43cf3a",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B93",
+          "json_pointer": "/finding_dispositions/13",
+          "parsed_row_canonical_json_sha256": "8c246fca7962dcd767e901cec5b2b8bc94f4a5a35d73f96c57b6dfaef9258c39",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified_ledger_binding_mismatch",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        },
+        {
+          "finding_id": "B94",
+          "json_pointer": "/finding_dispositions/14",
+          "parsed_row_canonical_json_sha256": "f91580f8b772f599964e4f6c44ff787a7faac5f5675123d1f229871b34465b8f",
+          "canonical_json_rule": "UTF8; sort_keys=true; ensure_ascii=false; separators=(comma,colon)",
+          "state": "bounded_verified",
+          "source_status_retained": null,
+          "full_source_row_available_in_receipt": true
+        }
+      ],
+      "capability_state_or_finding_state": "Pool class fix bounded verified, reviewed independently; JIT/NET/WIRE bounded controls verified; B66/B68 settlement and B67 authority remain partial; no automatic finding closures."
+    }
+  ],
+  "artifact_summary": [
+    {
+      "lane": "run",
+      "canonical_receipt_count": 6,
+      "check_count": 40,
+      "nested_ref_occurrences": 410,
+      "unique_nested_committed_paths": 205,
+      "unique_declared_untransferred_paths": 0,
+      "nested_custody_failures": []
+    },
+    {
+      "lane": "exe",
+      "canonical_receipt_count": 2,
+      "check_count": 15,
+      "nested_ref_occurrences": 9,
+      "unique_nested_committed_paths": 9,
+      "unique_declared_untransferred_paths": 0,
+      "nested_custody_failures": []
+    },
+    {
+      "lane": "dur",
+      "canonical_receipt_count": 1,
+      "check_count": 9,
+      "nested_ref_occurrences": 9,
+      "unique_nested_committed_paths": 7,
+      "unique_declared_untransferred_paths": 2,
+      "nested_custody_failures": []
+    },
+    {
+      "lane": "cmp",
+      "canonical_receipt_count": 1,
+      "check_count": 9,
+      "nested_ref_occurrences": 2,
+      "unique_nested_committed_paths": 0,
+      "unique_declared_untransferred_paths": 2,
+      "nested_custody_failures": []
+    },
+    {
+      "lane": "cas",
+      "canonical_receipt_count": 3,
+      "check_count": 36,
+      "nested_ref_occurrences": 79,
+      "unique_nested_committed_paths": 41,
+      "unique_declared_untransferred_paths": 0,
+      "nested_custody_failures": []
+    },
+    {
+      "lane": "adapters",
+      "canonical_receipt_count": 2,
+      "check_count": 27,
+      "nested_ref_occurrences": 0,
+      "unique_nested_committed_paths": 0,
+      "unique_declared_untransferred_paths": 0,
+      "nested_custody_failures": []
+    }
+  ],
+  "explicit_closure_id_semantics": [
+    {
+      "lane": "dur",
+      "slice": "dur-ledger",
+      "ids": [
+        "B37"
+      ],
+      "semantics": "target finding IDs; no full closure or shared residual-ledger status change",
+      "finding_state": "bounded real-owner mechanism and consumer verification passed; full B37 closure remains partial and production orchestration not_established",
+      "full_closure_not_inferred": true
+    },
+    {
+      "lane": "cmp",
+      "slice": "cmp-res",
+      "ids": [
+        "B44",
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "semantics": "Affected candidate mechanism IDs, not an assertion of ledger closure. Per-finding classification below preserves all residuals.",
+      "finding_state": "direct_native_mechanism_verified; implemented_but_not_orchestrated; source finding partial classifications preserved",
+      "full_closure_not_inferred": true
+    }
+  ],
+  "limits": [
+    "All60 findings have exact owner-route/disposition coverage; none is automatically closed by a passing receipt audit.",
+    "Historical baseline cells/compact summaries are navigation only. Source SHA/ref/environment/input closure and fresh outputs are bound independently.",
+    "Existing bounded source-closed B59/B150/B153 scopes and held B61 authority decision are preserved; no residual-ledger edits or wider institutional admission.",
+    "Seven self-created review worktrees below lack precreation admission. Current SHA/tree/clean observations do not backdate custody; G must perform an explicitly admitted fresh replay for process-admission acceptance.",
+    "RUN B69 physical callback occupancy4/4 remains HOLD; shutdown lock-order/ordinary unfinished-job accounting is a narrower accepted mechanism.",
+    "EXE B52 private cache publication/deadline/cancellation is bounded. Already-entered backend nested I/O is uninterruptible; full reentrant execution, served institutional authority and full data/latency performance remain unestablished.",
+    "CAS archive final-entry kind admission preserves filesystem type/inode/referent controls; hostile parent/path-swap/owner-ACL laws, unbound tenant policy and full four-base criteria remain unresolved.",
+    "Leaf20-file EXE failures and CAS512 broad failures are retained on their own sources; no future root joint cohort is substituted into this audit.",
+    "Ignored huge raw/scanner output and unsupported/global architecture results are not blanket green evidence. Full production dataset remains local; exact local G candidates remain in source receipts.",
+    "SIGKILL demonstrates process interruption only, not physical power-loss durability or complete IPC cleanup.",
+    "NET88 accepts deadline-expiry publication/registration only. Within-budget external cancellation suppressed by a connector, uninterruptible physical I/O/hard wall time and served/live transport remain outside the verified predicate."
+  ],
+  "admission_qualification_count": {
+    "DUR_review": 4,
+    "adapters_review": 2,
+    "CAS_baseline": 1,
+    "total": 7
+  },
+  "all_checkouts_admitted": false,
+  "runtime_finding_closure_verdict": "not_established_by_metadata_audit; retain bounded per-finding overlays/residuals",
+  "verdict": "metadata_custody_pass_bounded_with_explicit_process_admission_qualifications",
+  "previous_snapshot_preserved": {
+    "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit/final-receipt-audit-compact.json",
+    "sha256": "0137f92c364941e087a1cb90d229ec930cc74593f7145d549154b3554c5f5c4c",
+    "bytes": 136552,
+    "scope": "Earlier six-head metadata/source-cell/deciding-output snapshot, before NET88 and before RUN effective canonical-locator qualification; no rewrite or runtime-result substitution."
+  },
+  "narrow_successor_audits": [
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/run-locator-audit.json",
+      "sha256": "122ab900e3e3f8f6a89db3f0c747344b711783644e8fbf5098b56d5599ad0c22",
+      "bytes": 3330,
+      "result": {
+        "schema": "policyos.e02.B.independent_RUN_locator_audit.v1",
+        "base": "8b913ecf7c4793004e9e3cec1b163bd04d950f25",
+        "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "read_only": true,
+        "runtime_rerun": false,
+        "changed_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-canonical-locator-census.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-canonical-locator-qualification.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json"
+        ],
+        "complete_json_count": 25,
+        "package_string_count": 50,
+        "qualified_historical_bad_fields": [
+          {
+            "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate-review.json",
+            "json_pointer": "/baseline_navigation/canonical_finding",
+            "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+            "occurrence_count": 1
+          },
+          {
+            "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+            "json_pointer": "/independent_review/complete_receipt/baseline_navigation/canonical_finding",
+            "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+            "occurrence_count": 1
+          },
+          {
+            "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+            "json_pointer": "/independent_executor_review/complete_receipt/baseline_navigation/canonical_finding",
+            "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+            "occurrence_count": 1
+          }
+        ],
+        "historical_captured_bytes_preserved": true,
+        "canonical_source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+        "canonical_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "canonical_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "canonical_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "excerpt_line_count": 19,
+        "excerpt_sha256": "a3bf70f7db82c5cd6c185e705277ff6e5591f4571602041d8aee19127b89032e",
+        "qualification_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-canonical-locator-qualification.json",
+        "qualification_sha256": "36f21986055e6743cf26400ac2c50ed5d797b2dff59b65170addb346f32c1ef9",
+        "census_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-canonical-locator-census.json",
+        "census_sha256": "30bafb068be8c3dea3f9254bc2dce3f1f6c32f33143e069c461073e12e5c5ac6",
+        "effective_locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+        "verdict": "PASS_METADATA_LOCATOR_QUALIFICATION; source/runtime/physical-callback-HOLD unchanged"
+      }
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/audit-net-final/net-evidence-audit.json",
+      "sha256": "a8122d7eceb0707b74d580fa99c0b9a5dbef19ff49497a4ac13deb16fdb25df9",
+      "bytes": 10630,
+      "result": {
+        "schema": "policyos.e02.B.independent_NET_evidence_audit.v1",
+        "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "candidate": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "candidate_tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "receipt_sha256": "5ba8df9f4da2d067c190cf6340d009d6cde48843e62e281a6d46928fd2cbd75d",
+        "evidence_index_sha256": "2aa20b20fa0d31e9db210eb87fdc129719823c2c50b5161431b8dbeecbeb513c",
+        "read_only": true,
+        "runtime_rerun": false,
+        "indexed_file_count": 33,
+        "indexed_bytes": 240419,
+        "all_files_read_from_exact_git_objects": true,
+        "indexed_files": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/admission-resume.json",
+            "sha256": "962b2a950d2cf7e0703daada1bd86f97e41345042b6b777bd4da11b445ddcff4",
+            "bytes": 92953
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/slice-base.json",
+            "sha256": "032297e766422d8201cf11d410a1c906dd7a05f87e9a82131011044fd68277d8",
+            "bytes": 734
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/test-only-242.log",
+            "sha256": "769f5d5c14287fa2d29c73df63261d6db63ba3c4074c83b8f44baca425233e95",
+            "bytes": 2231
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/test-only-242.xml",
+            "sha256": "d9fae188c3cde880145f7743966d47cc1a8831efc62b54d2e19da181efc97dc9",
+            "bytes": 4572
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/cohort.log",
+            "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+            "bytes": 60
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/ruff.log",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "bytes": 19
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/ruff-format.log",
+            "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+            "bytes": 26
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/diff-check.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.json",
+            "sha256": "ce0ecb6a27c44884ffc3ea3385c57907661ce3ca1f81507237f2ffd08d8cfd38",
+            "bytes": 4846
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.log",
+            "sha256": "941f4945c3cc1832b30f50f2bd36f71bfd64de4521d3143fb18da2241d9e328b",
+            "bytes": 811
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.json",
+            "sha256": "d9fa26365325bbd874975dd73a5597d833658acefe728b2c38fd55e2b1d436ed",
+            "bytes": 3690
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.log",
+            "sha256": "c1b9fd9338e81b9ee76706c15bb110239658208af1f261151c85eb351f3e1cb6",
+            "bytes": 4613
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.json",
+            "sha256": "0f1aabd67fceac1a3565dfb4df5e71bd1b91a4f6424ed3630371cc3db7f2482f",
+            "bytes": 3701
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.log",
+            "sha256": "9a03b50d5c11374ac71adcf1e0121162e360a8b56b6bc6d2c0671b46806527f4",
+            "bytes": 6798
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.json",
+            "sha256": "0c3572abd851e8eac65dfd1d0ebd8a21e2ed28b5dcfcbefce161319cd7313324",
+            "bytes": 3731
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.log",
+            "sha256": "5a7ef875e5f68c6b9b1bd09ce9f0168e85cb083f7ba4b78e7a0a28847cbf2a38",
+            "bytes": 1580
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.json",
+            "sha256": "b51f39618d02d40582606d29b3c02782bcafbde8752b28061399e86754f3e2f0",
+            "bytes": 3866
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.log",
+            "sha256": "799156d5cf73f3704a6e48ecc40425b98d399a9d59a6e66f1812605290a54f89",
+            "bytes": 816
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.xml",
+            "sha256": "48363ff074624db2f2ad05d82505f3cc1f3eb1e76413c90e3bdad513d2987f51",
+            "bytes": 59710
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/e02-pool-late-admission-probe.py",
+            "sha256": "668e350ea85c130467f9c4c31ed95cd33eed1a1ccc688dc10be2619bad3650fc",
+            "bytes": 4638
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/e02-adapters-deadline-check.py",
+            "sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3",
+            "bytes": 3398
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/e02-pool-deadline-removal.py",
+            "sha256": "3068af15d56d6eb43e247c456ae9b3a1f0ecbb7d7fed5dabc1b730893efea738",
+            "bytes": 1628
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-base.log",
+            "sha256": "72ab16407c95e6655c39f55f243d96bf0dcfbe45e1ed5d5f39f30c95754a58bb",
+            "bytes": 6008
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-publication-finally-probe.py",
+            "sha256": "9fb23b7110bc6647b2933f53850ac49d8e2fc9ce5fc8a739c316ed0874a54051",
+            "bytes": 5993
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-d0-archive-receipt.json",
+            "sha256": "0da426bbd0fc60c61d00b97b505548dfb9f0c17656951096a31d154ff0594282",
+            "bytes": 3151
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-d0-archive-negative.txt",
+            "sha256": "3561d769c90401ce00c798d86cf236f757dc1beafd9e1a43053cea33f7653d3a",
+            "bytes": 1895
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-d0-archive-control.txt",
+            "sha256": "9d83fa1dd92e5dc8ce035ea6e903ba0f36d66770676f326ddcb48b0c74f1c2c9",
+            "bytes": 1764
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-receipt.json",
+            "sha256": "8725b742a50b4fc634ef0cd2a5a08b96e50fdff528ea1646083f4d8320448e70",
+            "bytes": 5818
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-negative.txt",
+            "sha256": "3fc246bf2fe51b3211a5567f2f812ea5f2301740dd06fd9e3ce0cf0209ad2dbe",
+            "bytes": 1764
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-control.txt",
+            "sha256": "d799294acd49f1db38a155d6f47f5d2a43f815a39039cec0c0cc93d27ab56c15",
+            "bytes": 1763
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-native.txt",
+            "sha256": "6e2ff8346f32031453bf74d7b33efb5d6944a328f23006e950459699bead23b7",
+            "bytes": 99
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/native-pool-88.xml",
+            "sha256": "a38e861c136a001ed49136dab8ae42133c4738f6fba6eedcfefbbcce566fd530",
+            "bytes": 2888
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-independent-review-88.json",
+            "sha256": "8039d3fc00d913819269322d8f653a849260c9bd01dd227a103bc20136e53453",
+            "bytes": 4855
+          }
+        ],
+        "native_junit": {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "390",
+          "time": "18.500",
+          "timestamp": "2026-10-05T16:10:04.319682+00:00",
+          "hostname": "b878f4efbdfc"
+        },
+        "native_interpretation": "389 PASS + one strict XFAIL; direct --runxfail failure retained, no full finding closure",
+        "test_only_242_junit": {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "3",
+          "skipped": "0",
+          "tests": "14",
+          "time": "0.579",
+          "timestamp": "2026-10-05T16:03:40.266519+00:00",
+          "hostname": "b878f4efbdfc"
+        },
+        "independent_88_junit": {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "17",
+          "time": "0.667",
+          "timestamp": "2026-10-05T16:10:39.742683+00:00",
+          "hostname": "b878f4efbdfc"
+        },
+        "corrected_test_only_executed_origin_sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7",
+        "removal_execution_overlay": "Two isolated in-memory method removals with on-disk source88 preserved and committed driver3068 bound",
+        "writer_resume_admission_scope": "Root-provided adapters writer only; seven detached review custody qualifications remain not_established",
+        "baseline_cells": 37,
+        "dispositions": 15,
+        "closure_ids": [],
+        "verdict": "PASS_METADATA_AND_DECIDING_BYTE_CUSTODY_BOUNDED; deadline admission/registration only, no universal external-cancel suppression/hardwall/served closure"
+      }
+    }
+  ]
+}

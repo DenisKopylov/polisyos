@@ -1,0 +1,34 @@
+{
+  "source_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+  "base_sha": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/receipt.json",
+      "sha256": "785be8143fc0247d8b86d0534c72efa243cb6bfe2bdad5dd67ed5a193762a16b",
+      "bytes": 12985
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/candidate.txt",
+      "sha256": "4e0b5f405f093546dd9df89da789724a537575b1a5b36fed97f3e5cab9f2e8d2",
+      "bytes": 2471
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/base.txt",
+      "sha256": "e55324d41a7f06808096ea9972842af383319e616caa5c60279b128723163a6f",
+      "bytes": 2025
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/probe.py",
+      "sha256": "cf6438b3fc35b414979182d3e8b508d7ff2a4afe2742578d821f7f798b3376ae",
+      "bytes": 3670
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/native.txt",
+      "sha256": "1d31ec9ccd8b9dda1daa68c5f49f16a61d9e0c5d7b5c2a3d7462a414400241d5",
+      "bytes": 362
+    }
+  ],
+  "candidate_verdict": "Seven actualFS casesPASS inclUNIXsocket;14nativePASS; absence of hostile parent/pathswap guarantees remains explicit.",
+  "interpretation": "Baseprobe process exit0 successfully reproduces propertyFAIL; candidateprocess0 asserts positive property.",
+  "replay": "Same driver accepts immutablecheckoutroot and base|fixed; PYTHONPATH chooses that exactcheckout native source; fresh realtemporary filesystem perrun."
+}

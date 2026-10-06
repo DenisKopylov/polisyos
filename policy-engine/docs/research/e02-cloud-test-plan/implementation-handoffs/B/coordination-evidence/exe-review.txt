@@ -1,0 +1,4 @@
+{"source_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174", "cwd": "/workspace/e02-B-exe-state/policy-engine", "command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "tests/integration/scientist/test_execution_state_replay.py", "--junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/exe-review.xml"], "PYTHONPATH": "src:."}
+.........                                                                [100%]
+9 passed in 26.93s
+{"exit_code": 0, "wall_seconds": 31.93678043}

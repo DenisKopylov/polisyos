@@ -1,0 +1,31 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/B-preparation-usage.md",
+      "sha256": "4f9397ddfb27d723b7c17c66d3f0bf8e5c7995c90d7135d35300ffb081342745",
+      "bytes": 4849
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/b_family_inputs.py",
+      "sha256": "4d22748f0d8150574323d0149a4f038fe515d9dd837c9fbf22c2cf3dfd12cf74",
+      "bytes": 6868
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/prepare_native_cohort.py",
+      "sha256": "fc2f216c649e9a909d4e3b63e33fcbe6d4165fc495fd595f65ff45b3d3de7a3b",
+      "bytes": 12240
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/reconcile_b_owners.py",
+      "sha256": "6b3a66a7352d57a669870fa90b04ba7a45f67c60d861a26c90fa135d1088d980",
+      "bytes": 8669
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/run_native_cohort.py",
+      "sha256": "649c2c2e5b5661a12bc1b665f6b20e51d90fa880a81862cf43b545c66762ff41",
+      "bytes": 6925
+    }
+  ],
+  "scope": "Three read-only immutable Git/TSV preparation tools plus separately scoped actual native runner and usage; metadata and runtime authority remain distinct.",
+  "source_note": "Explicit --repo/ordered overlays/source pins; actual executed tool refs in final-evidence/preparation-commands.json/native-wrapper.json. No inferred closure."
+}

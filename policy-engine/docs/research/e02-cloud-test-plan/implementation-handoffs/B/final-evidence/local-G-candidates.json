@@ -1,0 +1,210 @@
+{
+  "schema": "policyos.e02.B.local_G_candidate_handoff.v1",
+  "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "candidate_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "candidate_branch": "codex/e02-B-acceptance",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "family_manifest": "family-manifest.json",
+  "formal_closure": "G alone; candidate changes require fresh source/input-bound rerun",
+  "cloud_rule": "Use sufficient bounded fixtures for generic properties; full production dataset stays local read-only. Do not upload it or fabricate absent permission/history/schema law. No blanket production prerequisite for every test.",
+  "runner_contract": {
+    "checkout": "G fetches exact published source/head into admitted isolated checkout. Record clean attached SHA/tree and actual .venv executable/module origins before/after. G merged candidate is a different SHA and needs its own receipt.",
+    "cwd": "<admitted_checkout>/policy-engine",
+    "python": "Actual local supported .venv/bin/python; preserve virtualenv executable, not resolved symlink",
+    "env": {
+      "PYTHONPATH": "<admitted_checkout>/policy-engine/src:<admitted_checkout>/policy-engine/product",
+      "POLISYOS_METRICS_PORT": "0"
+    },
+    "fixture_storage": "Fresh isolated basetemp/cache/SQLite/DuckDB/CAS roots; no fixed-port/shared mutable state. Production data roots read-only.",
+    "capture": "Complete stdout/stderr/JUnit, actual exit/wall/RSS/source/input hashes. Missing backend is UNRUN/SKIP, not PASS. Local numeric load coordinated by G.",
+    "native_replay": "cohort.json supplies all74 file bindings and native-wrapper.json exact1317-case argv; substitute only actual local executable and fresh local fixture output paths, record substitutions. Linux owned fork/subreaper behavior does not establish macOS reaping."
+  },
+  "groups": [
+    {
+      "ids": [
+        "B13"
+      ],
+      "kind": "missing_input_and_A_served_consumer",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "command_argv": [
+        "<local_venv_python>",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/integration/scientist/test_res_03_real_simulation_route.py"
+      ],
+      "first_missing_input": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb under candidate root, readable/source-hash-bound read-only",
+      "other_inputs": "Optional architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb if supplied; later actual production_data/manifest.json/published L5 registries may be demanded. Complete downstream input denominator not yet established because cloud stopped at catalog identification. Record actual requested hashes/refs.",
+      "actual_cloud_boundary": "TestClient lifespan catalog_fetch_source_unreadable before HTTP projection/negative/audit consumers; component and artifact retention cannot substitute.",
+      "property": "Real simulation retained after later stage failure; user sees exact error/dependency invalidation/independent sibling and typed simulation candidate, global status fail. Tampered/cross-tenant/schema/node binding refuse; generic authority surfaces remain blocked.",
+      "owner": "A/G local inputs/consumer; A exclusively generation_cycle.py/run_lifecycle.py",
+      "contract": "../downstream/downstream-contracts.json B13 complete source/test/schema/input/negative locators",
+      "artifact_limit": "Existing foundry.simulation_result witness is distinct from generation-cycle N5 joint artifact; no relabelled bridge or served N5 proof."
+    },
+    {
+      "ids": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "kind": "C_consumer_mechanism_residual",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "driver": "../downstream/stream-unpublished-owner-probe.py",
+      "driver_sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31",
+      "commands_argv": [
+        [
+          "<local_venv_python>",
+          "<fetched_coordination>/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py"
+        ],
+        [
+          "<local_venv_python>",
+          "<same_driver>",
+          "--disconnect-ok"
+        ]
+      ],
+      "actual_final_negative": "stream-consumer-wrapper.json; actual pending1/permit0 and missing registry owner after prepublication acquire failure; registry shutdown retry0. Healthy control pending0/permit1.",
+      "next": "C widen real pending physical owner transfer including create failure before assigning handle; maintain primary exception/cancel and same cleanup identity; rerun both unchanged cases after patch. B pool deadline fix accepted only bounded internal admission, no physical wall/drain or universal pre-deadline cancel-suppression guarantee.",
+      "owner": "C exclusively streaming.py; B producer pool contract source88e27af declared in family overlay"
+    },
+    {
+      "ids": [
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "kind": "producer_capability_and_permission_input",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "command_argv": [
+        "<local_venv_python>",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--runxfail",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_cannot_erase_actual_provider_cost"
+      ],
+      "negative": "Actual provider cost0.02 received after initiating waiter cancellation; settlement/trace/budget0 even while follower uses shared result. StrictXFAIL preserved in joint wave; direct negative/native Budget consumer packets committed.",
+      "next": "Canonical LLM producer needs cancellation-surviving durable settlement outcome/event identity and acknowledged trace/accounting/reservation bridge. Current cache permission/immutability metadata is caller supplied; actual authorizer/ref binding needed. Do not charge arbitrary follower or discard mandatory accounting errors.",
+      "owner": "B canonical LLM producer/accounting/current permission owner + G; missing capability/authority not invented"
+    },
+    {
+      "ids": [
+        "B61"
+      ],
+      "kind": "semantic_owner_decision",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "existing_tests": [
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+      ],
+      "missing": "SKG owner immutable/versioned data_record, exact consumed bytes/query/run/version/authority/provenance/custody contract; prepared source digest/transaction witnesses insufficient.",
+      "state": "held retained; B60 fresh selection_timestamp oracle correction does not define this law",
+      "owner": "SKG semantic owner/local G"
+    },
+    {
+      "ids": [
+        "B69"
+      ],
+      "kind": "measured_unsupported_callback_capacity",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "driver": "run-executor-review/probe.py@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "property": "Four actual done callbacks occupy physical workers after unfinishedFuture count0; nested accepted jobs do not execute within bounded wait. Ordinary worker-body reentry refusal/spare3of4 progress and shutdown lock-order fix are separate PASS.",
+      "next": "If full callback physical availability is required, runtime callback consumer owner needs an explicit supported lifecycle boundary; do not equate unfinished job count with physical worker availability or redesign private executor internals as an assumed law.",
+      "owner": "G bounded acceptance/runtime callback consumer owner"
+    },
+    {
+      "ids": [
+        "B40"
+      ],
+      "kind": "remaining_deadline_mechanism",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "existing_tests": [
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/common/test_async_tools.py"
+      ],
+      "missing": "Total workflow queue/init/attempt cap; untimed sync-node async delegate shared default30 while direct sync no helper deadline; already running arbitrary thread/external effects remain outside forced stop.",
+      "next": "B deadline owner with A top-level producer/served consumer establish total lifecycle contract; retain new unstarted realFuture cancellation and running-effect boundaries."
+    },
+    {
+      "ids": [
+        "B148",
+        "B149",
+        "B151",
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "kind": "CAS_policy_oracle_and_publication_scope",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "known_actual_failure": "tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership; unbound tenant ownership semantic rule remains unresolved; declared bound-context mismatch refusal is verified separately.",
+      "missing": [
+        "Exact required four-base historical inputs/replay",
+        "B152 selected-view wrong byte_size adversarial input",
+        "B154 all-confirmations production publisher consumer",
+        "B155 actual eager default filesystem name census cancellation boundary"
+      ],
+      "bounded_fixed": "Archive close/fsync/replace strictparentfsync old/newconsumer; lstat refuses nonregular finalentry before staging, real inode/referent inventory consumer; bound scope admission before claims; pending import typed refusal/retry.",
+      "limits": "Hostile parent pathswap, ownerACL/hardlink/multihost/powerloss authority unestablished. Broad512 current rawgrounding/data/corpus/catalog failures are retained and not inherited-classified.",
+      "owner": "B CAS semantic/consumer owner + G"
+    },
+    {
+      "ids": [
+        "B37",
+        "B38",
+        "B78"
+      ],
+      "kind": "durability_and_live_backend_inputs",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "existing_tests": [
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "tests/unit/remediation/test_dur_02.py"
+      ],
+      "bounded_fixed": "Real FileBudgetLedger missing exhausted bootstrap refuses, supplied empty/corrupt/incomplete snapshot refuses, fsync/replace faults/concurrent process publication preserve old-or-complete; actual SQL attempt/owner lease fence and terminal/progress/event rollback + unknown postdispatch fallback refusal.",
+      "missing": [
+        "Full required historical bases",
+        "Physical powerloss/multihost FS semantics",
+        "Valid forged accounting and operation-idempotent ambiguous spend retry",
+        "Deployed ledger factory consumer",
+        "PostgreSQL/live Ray/Temporal and external effect/outcome reconciliation/deadline handover"
+      ],
+      "owner": "G local external/data owners; no external exactly-once law inferred"
+    },
+    {
+      "ids": [
+        "B49",
+        "B50",
+        "B53",
+        "B63",
+        "B70",
+        "B71",
+        "B73",
+        "B94"
+      ],
+      "kind": "optional_backend_history_boundary",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "missing": "Physical Metal/GPU, operated Temporal/Ray/service bridge and required source history/scientific evaluator/full data scope. CPU JIT, native trace/CAS/checkpoint/process/typed wire consumers are already measured; do not rerun full data for generic mechanism without criterion need.",
+      "owner": "G actual local backend/scientific input admission"
+    },
+    {
+      "ids": [
+        "B93"
+      ],
+      "kind": "dependent_ledger_binding",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "missing": "Residual/card discriminator duck-type mapping differs from canonical NET02 protected regulator state criterion. Actual HALF_OPEN pressure/TTL lease controls are independent technical witnesses.",
+      "next": "G ledger owner reconciles canonical criterion mapping before acceptance; use committed registry-half-open.py and actual local source receipt."
+    },
+    {
+      "ids": "all60",
+      "kind": "verification_and_protocol_scope",
+      "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+      "missing": "Exact full required historical input/ref replay where each source criterion requires it; sourcebound static raw graphs remain ignored/untransferred and coveragepartial/deferred, runtime_invocation_established=false. Architecture actualFAIL154 has no exactslice-base inheritance proof; G/governed owners decide source/generated artifacts, no blind baseline sync.",
+      "admission": "Seven historical detached review trees lack precreation evidence; do not backdate. Fresh admitted candidate replay when that process criterion is decisive. Root final source execution is independently admitted."
+    }
+  ],
+  "full_per_finding_remaining_work": "reconciliation.json exact effective rich rows/all60; no closure inferred from grouped candidates"
+}

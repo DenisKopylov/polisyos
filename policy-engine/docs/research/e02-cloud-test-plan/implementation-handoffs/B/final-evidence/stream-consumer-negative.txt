@@ -1,0 +1,37 @@
+2026-10-05 16:42:30.210 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:30.210 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:30.210 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:30.210 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:30.210 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:30.214 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-05 16:42:30.214 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 16:42:30.215 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-05 16:42:30.245 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection
+2026-10-05 16:42:30.245 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection
+2026-10-05 16:42:30.245 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-05 16:42:30.245 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-05 16:42:30.246 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry singleton reset
+{
+  "pool_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+  "streaming_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+  "failure": {
+    "type": "PoolExhaustedError",
+    "message": "Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s",
+    "notes": [
+      "stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup remains pending for the closed pool')"
+    ]
+  },
+  "pending_pool_owners": [
+    {
+      "pending_permit": true,
+      "closed": false
+    }
+  ],
+  "registry_pending_pool_count": 0,
+  "active_acquires": 0,
+  "semaphore_value": 0,
+  "disconnect_calls": 2,
+  "registry_retry_disconnects": 0,
+  "pool_pending_after_registry_retry": 1,
+  "property_actual_registry_cleanup_completes": false
+}

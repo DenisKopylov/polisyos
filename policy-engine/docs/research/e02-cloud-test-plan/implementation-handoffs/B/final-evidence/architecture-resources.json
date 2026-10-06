@@ -1,0 +1,12 @@
+{
+  "method": "OS wait4 child rusage; Linux maxrss KiB, including reaped descendant usage",
+  "wall_seconds": 202.7572886099988,
+  "max_rss_kib": 1116076,
+  "user_seconds": 181.052326,
+  "system_seconds": 12.755418,
+  "major_page_faults": 1,
+  "minor_page_faults": 1462786,
+  "voluntary_context_switches": 27317,
+  "involuntary_context_switches": 2979,
+  "exit_code": 1
+}

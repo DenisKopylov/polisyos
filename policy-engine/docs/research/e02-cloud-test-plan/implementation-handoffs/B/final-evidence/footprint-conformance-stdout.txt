@@ -1,0 +1,1 @@
+{"verdict":"PASS","denominator":{"changed_tracked_paths":427,"uniquely_owned_paths":426,"shared_documentation_paths":1,"unique_paths_equal_owner_head":426},"mismatches":[],"output":"/tmp/e02-B-final-footprint-conformance.json","sha256":"346e0e34889253da3e3c5a0206fa2eac37fc25815e399c59858a4198b82b1e4c"}

@@ -1,0 +1,192 @@
+{
+  "schema": "policyos.e02.downstream_contract_handoff.v1",
+  "unit": "B",
+  "owners": [
+    "A",
+    "C",
+    "G"
+  ],
+  "mode": "read_only_contract_and_fixture_probe; root commits complete deciding script and outputs",
+  "source_refs": {
+    "cmp_res_branch": "codex/e02-B-cmp-res",
+    "cmp_res_implementation": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+    "cmp_res_published_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+    "cmp_res_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+    "adapters_branch": "codex/e02-B-adapters",
+    "adapters_published_head": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+    "adapters_executable": "58b04116e25344835f482ef79c16ce87f2d0b771",
+    "adapters_implementation_with_companions": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+    "adapters_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+    "adapters_pr": "https://github.com/DenisKopylov/polisyos/pull/30",
+    "joint_G_integration_sha": "not_established; G records merged exact candidate before replay, no combined candidate inferred"
+  },
+  "local_execution": {
+    "precondition": "G fetches verified heads into isolated admitted checkouts; supported local .venv profile and read-only data roots. E02_LOCAL_REPO names that checkout root. Run each command at its own named source SHA or exact G integration SHA after acceptance; record which. No source edits while fixture run is in progress.",
+    "setup_shell": "cd \"$E02_LOCAL_REPO/policy-engine\"\nE02_PE_DIR=\"$PWD\"\nE02_LOCAL_PYTHON=\"$E02_PE_DIR/.venv/bin/python\"\nE02_FIXTURE_ROOT=\"$(mktemp -d \"${TMPDIR:-/tmp}/e02-B-downstream.XXXXXX\")\"\nPOLISYOS_METRICS_PORT=0 PYTHONPATH=\"$E02_PE_DIR/src:$E02_PE_DIR/product\" \"$E02_LOCAL_PYTHON\" -c 'import sys,polisyos.fabric.data_plane.streaming as s; print(sys.version); print(s.__file__)'\ngit rev-parse HEAD\ngit status --short",
+    "capture": "Preserve full stdout/stderr, actual wrapper exit, wall/RSS and JUnit. Keep CAS/cursor/checkpoint SQLite/DuckDB writes inside E02_FIXTURE_ROOT. POLISYOS_METRICS_PORT=0 avoids a fixed-port conflict; no shared fixture/cache reuse. No full production data upload."
+  },
+  "B13": {
+    "finding_ids": [
+      "B13"
+    ],
+    "canonical_criterion": "After real simulation the next stage fails; user reads correct retained simulation result, dependency scope and exact stage error. Shared-foundation invalidation refuses dependent output; local independent failure does not erase all. Retained CAS alone is insufficient, and global terminal remains failed.",
+    "canonical": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-03.md",
+      "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob": "7325214b92eb9e624c788357588dabe9aa9c3c78"
+    },
+    "test": {
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "blob": "71987b5a1f52c7ca8ddb4033b306d2d6fc0a6492"
+    },
+    "producer_artifact_consumer": [
+      "Bounded GlobalState.empty(5 agents,2 firms), real TrinityBundle+registry bundle, DefaultFoundryPort and actual WorkflowExecutor builtin pipeline; fixture omits standalone LinkTrinityNode due separately tracked duplicate CAS role-profile conflict",
+      "_TenantScopedCAS persists real state/data snapshot, input bindings, execution plan, foundry.simulation_result and final scientist.experiment_state/scientist.workflow_report",
+      "Persisted workflow report remains fail; run_simulation ok, later_failure fail res03.later_failure with simulation ref scope; dependent_after_failure skip upstream_failed; independent_sibling ok",
+      "DebugService.get_simulation_result_candidate resolves IndexedRunRecord.experiment_state_ref/workflow_report_ref plus named node artifact binding, CAS bytes and tenant/cell/schema; route /api/v1/debug/runs/{run}/nodes/run_simulation/simulation-result",
+      "Expected candidate_reference_only/non_authority/verified view; generic artifact manifest/content/lineage authority surfaces still409 authority_surface_admission_blocked/authority_surface_signal_missing"
+    ],
+    "schema_contract": {
+      "result_kind": "foundry.simulation_result",
+      "result_media": "application/json",
+      "result_schema": "polisyos.core.SimulationResult versions1.1/1.2/1.3",
+      "experiment_state_schema": "polisyos.scientist.orchestration.engine.ExperimentState1.3",
+      "workflow_report_schema": "polisyos.scientist.orchestration.engine.WorkflowReport1.0",
+      "manifest_input_roles_asserted_by_test": [
+        "exec_plan",
+        "input.input_bindings_ref",
+        "input.data_snapshot_ref",
+        "input.bound_state_snapshot_ref",
+        "state_snapshot"
+      ],
+      "authority": "Technical candidate read only; no promotion/custody/scientific empirical authority inferred"
+    },
+    "command": "POLISYOS_METRICS_PORT=0 PYTHONPATH=\"$E02_PE_DIR/src:$E02_PE_DIR/product\" \"$E02_LOCAL_PYTHON\" -m pytest -o addopts= -q --tb=short --basetemp \"$E02_FIXTURE_ROOT/b13-tmp\" -o \"cache_dir=$E02_FIXTURE_ROOT/b13-cache\" --junitxml \"$E02_FIXTURE_ROOT/b13.xml\" tests/integration/scientist/test_res_03_real_simulation_route.py",
+    "inputs": {
+      "observed_first_missing": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb under candidate repo root",
+      "acquisition_overlay": "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb under same root; if present must be readable, immutable and source-bound. Absence is a declared optional boundary in _fetch_source_identities, not permission to fabricate an overlay.",
+      "source_owners": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+          "sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "blob": "f03a5304bb8d61190c7ff2a91b0671a04e7e9176"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+          "sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "blob": "08d77fa061e22f3a4f4c1a10a0096dcf3255221b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+          "sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "blob": "1f037ef49a940c80dd5592eac5e4bb5655699329"
+        }
+      ],
+      "later_startup_inputs": "production_data/manifest.json, canonical L5 measurement/identification/schema-regime registries and published signature/IR owners may be demanded later. Their complete admission/input denominator is not established because cloud stopped at L1 catalog identification; local runner records each actual requested source/ref/hash."
+    },
+    "cloud_observation": {
+      "tested_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/served-route-cloud-limit.txt@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "exit": 1,
+      "result": "One failed in42.53s; ValueError catalog_fetch_source_unreadable at store.py966",
+      "stop": "TestClient lifespan→ControlPlaneService run_lifecycle.py2232→DatasetCatalogGraph→_fetch_source_identities identify(l1_dcat_path), before any GET/projection/negative/audit consumer assertion",
+      "producer_boundary": "Source order and reached lifespan are consistent with earlier bounded simulation/workflow/CAS assertions having passed. No separate actual artifact-ID/digest/environment/provenance receipt was captured for transfer: do not invent those bindings or claim served-consumer provenance.",
+      "baseline_navigation": "Source-reported F14-P065@0213101b6d124e6f855b1aff7c442bb0912a61c2 FAIL; unrelated component source-reported PASS routes F01-P116/F08-P118/F15-P138 are navigation, not candidate served evidence."
+    },
+    "negative_cases": {
+      "HTTP": [
+        "Tampered simulation bytes→409 simulation_result_integrity_failed",
+        "Tampered report binding bytes→409 simulation_result_binding_integrity_failed",
+        "Wrong node binding→409 simulation_result_node_binding_missing or simulation_result_node_binding_mismatch",
+        "Missing node→404 simulation_result_node_not_found",
+        "Generic authority surfaces→409 authority_surface_admission_blocked, reason authority_surface_signal_missing"
+      ],
+      "typed_projection": [
+        "simulation_result_tenant_unscoped",
+        "simulation_result_tenant_binding_mismatch",
+        "simulation_result_payload_invalid",
+        "simulation_result_schema_mismatch",
+        "simulation_result_ref_manifest_mismatch",
+        "simulation_result_binding_run_mismatch",
+        "simulation_result_binding_missing",
+        "simulation_result_binding_tenant_mismatch",
+        "simulation_result_binding_schema_mismatch",
+        "simulation_result_binding_ref_mismatch",
+        "simulation_result_node_binding_mismatch"
+      ],
+      "state_scope": "Dependent output remains unexecuted/absent; independent successful sibling/ref retained; overall report staysfail. Typed refusals above are existing source assertions not executed cloud consumer negatives."
+    },
+    "A_next_action": "Admit local catalog/published inputs and rerun real served witness first. If remaining state/report/index/status/ref propagation fails, A alone repairs generation_cycle.py/run_lifecycle.py preserving artifact identities, scopes and failure status. DebugService remains existing typed candidate reader; do not bypass it with generic authority artifact reads.",
+    "A_distinct_artifact_boundary": "generation_cycle N5 already persists joint simulation results via persist_joint_simulation_result and returns SimulationPortObservation.simulation_result_ref; this is a separate producer/artifact contract from test foundry.simulation_result. B has not demonstrated an N5→this debug-reader bridge or generation-cycle served partial-result consumption. A must preserve/read the appropriate typed artifact, not relabel an N5 ref to satisfy the fixture."
+  },
+  "NET_streaming": {
+    "finding_ids": [
+      "B87",
+      "B89",
+      "B90"
+    ],
+    "canonical": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md",
+      "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob": "eec33f3da4d2452e787269152e8ce1a56be2c85a"
+    },
+    "consumer": {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6"
+    },
+    "producer": {
+      "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "blob": "48fa66bbf804a01f18c33ad12d321aecb2889053"
+    },
+    "base_observer_evidence": "adapters-logs/net-final.log@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83 complete177PASS in10.37s on frozen58b; selected streaming-runtime fixtures included. Inspected exact committed output, no full served/live stream closure inferred.",
+    "consumer_expectations": [
+      "One monotonic absolute acquire deadline spans semaphore, metadata admission, connect and validation; inner connection TimeoutError is not relabeled unless outer deadline expired",
+      "PoolExhaustedError is typed acquisition deadline refusal; PoolClosedError/CircuitOpenError retain original closed/admission meaning; cancellation propagates with physical owner still retained until cleanup settles",
+      "StreamingSourceSession.subscribe awaits acquire before storing self.connector/self.handle, then separately awaits subscribe_stream/fetch_stream; acquisition deadline does not bound those later subscription operations",
+      "Caller does not treat deadline as physical capacity-release proof: failed/gated disconnect can hold permit and finish after deadline; cleanup owner stays reachable, primary failure is not replaced by a later cleanup error",
+      "Closed-generation handle is not published; independent release must progress while another connector is slow; max_size is not raised to hide retention",
+      "create/open must transfer pending physical pool ownership to registry even when acquire failed before assigning session.handle; registry.shutdown_async is the real retry consumer"
+    ],
+    "command_existing_consumers": "POLISYOS_METRICS_PORT=0 PYTHONPATH=\"$E02_PE_DIR/src:$E02_PE_DIR/product\" \"$E02_LOCAL_PYTHON\" -m pytest -o addopts= -q --tb=short --basetemp \"$E02_FIXTURE_ROOT/net-tmp\" -o \"cache_dir=$E02_FIXTURE_ROOT/net-cache\" --junitxml \"$E02_FIXTURE_ROOT/net.xml\" tests/unit/fabric/connectors/test_resilience.py tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_pool_e02.py tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "new_consumer_probe": {
+      "target_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "target_tree": "10300d99093d49b0168d22a98bbe8a29caa41df6",
+      "bucket": "SAME NET01/B87 startup cleanup ownership class at C consumer, not new B producer patch",
+      "script_path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-owner-probe.py",
+      "script_sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31",
+      "log_path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-owner-probe.txt",
+      "log_sha256": "d39185deaa695e5b95b708f4c9204ed79444ef2158afc2441d058aa1b358eb39",
+      "fixture": "Actual StreamingSourceSession.create, actual ConnectorRegistry and ConnectionPool. Controlled connector returns real ConnectionHandle; health blocks; disconnect persistently fails; typed PoolConfig fixture supplies0.03 acquisition timeout and0.5 connection timeout. Constructor wrapper captures actual pool solely for independent observation/final teardown. No production source changed.",
+      "negative_result": "exit1: PoolExhaustedError with startup cleanup pending note; pending physical owner/permit remains, registry owner absent. After disconnect becomes healthy, real registry.shutdown_async performs zero disconnects and pending pool remains1/permit0.",
+      "property_preserving_control": "--disconnect-ok exit0: same health deadline, disconnect succeeds; no pending owner, permit1, actual registry shutdown completes. Full stdout/stderr and exits in log.",
+      "root_transfer": "Root must commit script+complete moderate log alongside downstream contract; ignored scratch alone is not delivered evidence to A/C/G. No actual network service or full served stream attested.",
+      "local_commands": [
+        "POLISYOS_METRICS_PORT=0 PYTHONPATH=\"$E02_PE_DIR/src:$E02_PE_DIR/product\" \"$E02_LOCAL_PYTHON\" \"$E02_DOWNSTREAM_EVIDENCE/stream-unpublished-owner-probe.py\"",
+        "POLISYOS_METRICS_PORT=0 PYTHONPATH=\"$E02_PE_DIR/src:$E02_PE_DIR/product\" \"$E02_LOCAL_PYTHON\" \"$E02_DOWNSTREAM_EVIDENCE/stream-unpublished-owner-probe.py\" --disconnect-ok"
+      ]
+    },
+    "C_next_action": "C alone changes streaming.py if accepting this consumer repro. Widen owner-transfer decision to actual outstanding pool physical ownership, including before handle publication; keep primary PoolExhaustedError/cancellation and pending retry identity. Add actual registry-shutdown retry assertion and healthy-disconnect control. Do not patch one connector id, force permit release, or mark session closed while cleanup pending. B can supply a typed pool pending-owner query/contract if C needs one; negotiate with B canonical pool owner rather than reading a proxy marker.",
+    "unmeasured": [
+      "Full served stream startup/cancel/restart across real vendor IO and governed journal permits",
+      "Subscription-specific deadline after acquisition",
+      "Live source protocol close semantics; actual physical TCP/socket service behavior",
+      "CDC/evaluator/scientific authority and full source datasets",
+      "Final G integration checkpoint replay"
+    ]
+  },
+  "write_boundaries": "No A generation_cycle/run_lifecycle or C streaming source modifications; only ignored scratch contract/probe/evidence produced.",
+  "predicate_basis": "Code contract independently traced; B13 served assertion not_established; NET bounded actual consumer retry probe recomputed; broad177 imported as commit-bound observed fixture result only",
+  "transfer_evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py",
+      "sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.txt",
+      "sha256": "d39185deaa695e5b95b708f4c9204ed79444ef2158afc2441d058aa1b358eb39"
+    }
+  ]
+}

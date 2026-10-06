@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "executor": "cloud root B independent reviewer",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/baseline-resolution.json",
+      "sha256": "4839cd00b96dbd2ae177dc7afb0de02400c38904496631111d0757a314bd7e93",
+      "bytes": 313255
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.txt",
+      "sha256": "805e13f541f4d2677f5d56d958555ebd5d5c82d1ee4e013e291b6e008ae76a71",
+      "bytes": 645
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.xml",
+      "sha256": "11e91590e4009d5bd459a2070cc95f5749b86c1c6cb2b3584fbf47b986ae9c26",
+      "bytes": 12694
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-review.txt",
+      "sha256": "1944724df1bd5c68a72b38efa2ccb3daf2b6edca5ab38333ecc14af967fd88a9",
+      "bytes": 582
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-review.xml",
+      "sha256": "812724d8d51a146654c6fa779e05cad85a781f053217f0ea76c76bfafc60eadd",
+      "bytes": 6718
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cmp-review.txt",
+      "sha256": "cf88d370aed29cb8ee1bf9176e4df282df002a67c61e967fae609b3c774df86c",
+      "bytes": 694
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cmp-review.xml",
+      "sha256": "61ab4ba9459e8926441664bd0d17af7b20823b31df95a83e81edba9d37c98f1f",
+      "bytes": 4549
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/dur-review.txt",
+      "sha256": "c73034e1a4d34c3fcde1681617f8b71baf72a071d55825cc01400674aa8bb990",
+      "bytes": 179
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/dur-review.xml",
+      "sha256": "6080dc85d599a014ad67ee4b00f9f248b24abb745e68559314e4b1d75816d75f",
+      "bytes": 16862
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation-summary.json",
+      "sha256": "335d7b24e113228767970a3fe513659800c1fd27daa1d5849fef4b081c6a4b81",
+      "bytes": 1199
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation-wrapper.json",
+      "sha256": "eb8516fbd081038f6a8f93a5723ae278af1e5e3e5b348d3460f046a4cf6b72d5",
+      "bytes": 582
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation.txt",
+      "sha256": "9bea5cddc75736db76129158aa37a8b066a2c08b538048d53813154ca3f5d989",
+      "bytes": 2357
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-review.txt",
+      "sha256": "514e0f3e72abb0a25dad04928518d1549ee2d54436e4da47602226578d9dc635",
+      "bytes": 526
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-review.xml",
+      "sha256": "18153d43001f4415090e1c4e039e7491fc308a911a73b5a07de21973bc7e6d4e",
+      "bytes": 1886
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/guardrails-base.txt",
+      "sha256": "c3954f794cd8f8abc5e035bf59048b3a8723c44b3d398381763a0e8ba09c4bb1",
+      "bytes": 118097
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/import-check.txt",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "bytes": 112
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/pool-review.txt",
+      "sha256": "0d78c0a442d91064e535e50740ca45c34fa0f342a8af3209b4918837674c142d",
+      "bytes": 98
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/pool-review.xml",
+      "sha256": "9ec96f5aab303bd4a2ba430e85cae4cfcae3b114b8206bc0426518d5597b8280",
+      "bytes": 1588
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.txt",
+      "sha256": "d3c21c8416135d3cd8d2eead647872b251f3a7122a4fb6c2ff64ecb2ffc6a22a",
+      "bytes": 1245
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.xml",
+      "sha256": "a4820a9257895feec8181bb3ba6e3e1e755f03870c11ba0aba024c9583006fe7",
+      "bytes": 12928
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/transferred-source-check.json",
+      "sha256": "189dba385fd11b1f34de0cf46dd40fd036c46e0276c2b21c233f5b7b50990582",
+      "bytes": 5922
+    }
+  ]
+}

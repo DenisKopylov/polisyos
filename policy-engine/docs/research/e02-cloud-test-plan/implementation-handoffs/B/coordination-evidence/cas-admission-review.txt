@@ -1,0 +1,4 @@
+{"target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09", "tree": "d404763e8285051b1c1bcd6d678afa567784adec", "cwd": "/workspace/e02-B-cas/policy-engine", "command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "tests/unit/core/artifacts/test_import_tenant_context.py", "tests/unit/core/artifacts/backends/test_caching_store.py", "--junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/cas-admission-review.xml"], "PYTHONPATH": "src:."}
+...................................................................      [100%]
+67 passed in 2.54s
+{"exit_code": 0, "wall_seconds": 4.314900973000022}

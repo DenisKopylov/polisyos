@@ -1,0 +1,18 @@
+{
+  "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+  "tree": "d92cd6b5872325949a3cadb7917b10792b68b1ea",
+  "cwd": "/workspace/e02-B-acceptance/policy-engine",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "c40d4acae1ce58b597267255026d9356565828fd",
+    "--receipt",
+    "/workspace/e02-B-coordination/.polisyos/e02-B/raw/exe-acceptance-invocation.json"
+  ],
+  "PYTHONPATH": "src:.",
+  "exit_code": 0,
+  "wall_seconds": 202.70972083300012,
+  "rss_kib": 8360224
+}

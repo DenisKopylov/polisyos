@@ -1,0 +1,26 @@
+{
+  "outcome": "PASS_bounded_metadata_custody",
+  "final_head": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "final_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "tool_source_sha": "898a28dc9c6cddb84be0747326c5a9f5fd43ed81",
+  "six_ancestor_heads_and_declared_source_points": true,
+  "owned_bundles": 25,
+  "owned_findings": 60,
+  "historical_cells_context_only": 189,
+  "whole_test_files": 74,
+  "historical_native_waves": 12,
+  "rich_dispositions_preserved": true,
+  "sole_warning": [
+    "CAS-01",
+    "CAS-03"
+  ],
+  "CAS02_held_FAIL_and_LLM_strict_XFAIL_preserved": true,
+  "no_runtime_tests_utility_controls_or_newtrees": true,
+  "input_hashes": {
+    "cohort.json": "fcfb269d55fe69d425954f2117ca78a997b00c09778fa6f6449bcc37d3013ec8",
+    "reconciliation.json": "2bdb4c4b1acd0bf9b94630e38f13804578dd050e7c84784446ceab6c8fd89f49",
+    "preparation-commands.json": "d089b1fe3517e9e5dd7891f15986cb41642d9808379db5199c4757f7cb49ad1e"
+  },
+  "report_path": "/tmp/e02-B-cas-final-a3-metadata-review/review.json",
+  "report_sha256": "c5138503f731f8e2c7a5be855a759e9af291b0817aa64ba29ba122d3e1153831"
+}

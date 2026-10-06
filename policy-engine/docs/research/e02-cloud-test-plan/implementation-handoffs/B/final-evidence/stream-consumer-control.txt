@@ -1,0 +1,28 @@
+2026-10-05 16:42:31.445 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:31.446 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:31.446 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:31.446 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:31.446 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-05 16:42:31.449 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-05 16:42:31.450 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 16:42:31.450 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-05 16:42:31.481 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-05 16:42:31.481 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-05 16:42:31.481 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry singleton reset
+{
+  "pool_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+  "streaming_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+  "failure": {
+    "type": "PoolExhaustedError",
+    "message": "Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s",
+    "notes": []
+  },
+  "pending_pool_owners": [],
+  "registry_pending_pool_count": 0,
+  "active_acquires": 0,
+  "semaphore_value": 1,
+  "disconnect_calls": 1,
+  "registry_retry_disconnects": 0,
+  "pool_pending_after_registry_retry": 0,
+  "property_actual_registry_cleanup_completes": true
+}

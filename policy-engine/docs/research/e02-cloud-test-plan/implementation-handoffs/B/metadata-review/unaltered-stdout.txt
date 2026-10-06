@@ -1,0 +1,1 @@
+PASS_with_declaration_warnings {'all_bundles': 127, 'all_findings': 282, 'B_bundles': 25, 'B_findings': 60} errors 0 warnings 1 /tmp/e02-B-cas-metadata75f/unaltered-reconciliation.json

@@ -1,0 +1,39 @@
+[
+  {
+    "target_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+    "target_tree": "10300d99093d49b0168d22a98bbe8a29caa41df6",
+    "cwd": "/workspace/e02-B-adapters/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-owner-probe.py"
+    ],
+    "env_overrides": {
+      "PYTHONPATH": "/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product",
+      "POLISYOS_METRICS_PORT": "0"
+    },
+    "exit": 1,
+    "wall_seconds": 1.2501448040002288,
+    "script_sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31",
+    "stdout": "{\n  \"pool_source\": \"/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py\",\n  \"streaming_source\": \"/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/data_plane/streaming.py\",\n  \"failure\": {\n    \"type\": \"PoolExhaustedError\",\n    \"message\": \"Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s\",\n    \"notes\": [\n      \"stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup remains pending for the closed pool')\"\n    ]\n  },\n  \"pending_pool_owners\": [\n    {\n      \"pending_permit\": true,\n      \"closed\": false\n    }\n  ],\n  \"registry_pending_pool_count\": 0,\n  \"active_acquires\": 0,\n  \"semaphore_value\": 0,\n  \"disconnect_calls\": 2,\n  \"registry_retry_disconnects\": 0,\n  \"pool_pending_after_registry_retry\": 1,\n  \"property_actual_registry_cleanup_completes\": false\n}\n",
+    "stderr": "2026-10-05 14:41:22.453 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:22.453 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:22.453 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:22.453 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:22.453 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:22.457 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-05 14:41:22.458 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized\n2026-10-05 14:41:22.458 | DEBUG    | polisyos.common.logger:_call:120 - New connection created\n2026-10-05 14:41:22.489 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection\n2026-10-05 14:41:22.489 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection\n2026-10-05 14:41:22.489 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\n2026-10-05 14:41:22.489 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\n2026-10-05 14:41:22.489 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry singleton reset\n"
+  },
+  {
+    "target_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+    "target_tree": "10300d99093d49b0168d22a98bbe8a29caa41df6",
+    "cwd": "/workspace/e02-B-adapters/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-owner-probe.py",
+      "--disconnect-ok"
+    ],
+    "env_overrides": {
+      "PYTHONPATH": "/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product",
+      "POLISYOS_METRICS_PORT": "0"
+    },
+    "exit": 0,
+    "wall_seconds": 1.2162045240002044,
+    "script_sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31",
+    "stdout": "{\n  \"pool_source\": \"/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py\",\n  \"streaming_source\": \"/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/data_plane/streaming.py\",\n  \"failure\": {\n    \"type\": \"PoolExhaustedError\",\n    \"message\": \"Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s\",\n    \"notes\": []\n  },\n  \"pending_pool_owners\": [],\n  \"registry_pending_pool_count\": 0,\n  \"active_acquires\": 0,\n  \"semaphore_value\": 1,\n  \"disconnect_calls\": 1,\n  \"registry_retry_disconnects\": 0,\n  \"pool_pending_after_registry_retry\": 0,\n  \"property_actual_registry_cleanup_completes\": true\n}\n",
+    "stderr": "2026-10-05 14:41:23.654 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:23.654 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:23.654 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:23.654 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:23.654 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-05 14:41:23.657 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-05 14:41:23.658 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized\n2026-10-05 14:41:23.658 | DEBUG    | polisyos.common.logger:_call:120 - New connection created\n2026-10-05 14:41:23.689 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\n2026-10-05 14:41:23.689 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\n2026-10-05 14:41:23.689 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry singleton reset\n"
+  }
+]

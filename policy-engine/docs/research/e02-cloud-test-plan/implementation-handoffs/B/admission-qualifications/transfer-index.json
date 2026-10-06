@@ -1,0 +1,31 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/qualification.json",
+      "bytes": 3981,
+      "sha256": "abf0b82d330c37aa36f720f8b1b7494fe8d566cd4ab00b9ea0c4b8a98db042af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-oracle-current-checkpoint.json",
+      "bytes": 5864,
+      "sha256": "8972561d7e1d845193790ac4114e585d912b2d12d6cfa907c33e0950d9409ddf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-review515-current-checkpoint.json",
+      "bytes": 5915,
+      "sha256": "616c1573982bb1a1aa7e4a699f586c516110f5244e5a0da8ffcb4bda956a0c42"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-base-current-checkpoint.json",
+      "bytes": 5932,
+      "sha256": "031d766d87c860c83b234dfa5d2ef73fc7ab8b5babb0fddf103e5e0bf06eee2f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-fix-current-checkpoint.json",
+      "bytes": 5915,
+      "sha256": "29fbeb4393b1a048f5d7fb2e09b6de214efa9768b50611a1afe2ee729b0cea7b"
+    }
+  ],
+  "precreation_custody": "not_established",
+  "meaning": "Current detachedsource identity/backlinks/cleanstate checkpoints are timestamped snapshots; they cannot prove admission before creation. Actualruntimeoutcomes remain source-bound; no process-admission authority or backdating. G fresh admitted reruns required if process admission criterion is decisive."
+}

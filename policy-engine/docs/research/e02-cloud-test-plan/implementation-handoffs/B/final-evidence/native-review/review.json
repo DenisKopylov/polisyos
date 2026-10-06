@@ -1,0 +1,1167 @@
+{
+  "schema": "policyos.e02.B.native_cohort_independent_review.v1",
+  "reviewer": "B EXE leaf independent final root cohort output review",
+  "command_argv": [
+    "/workspace/polisyos/.polisyos/e02-B-native-review-exe-a3/driver.py",
+    "--repo",
+    "/workspace/e02-B-acceptance",
+    "--target",
+    "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "--native",
+    "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native-venv",
+    "--aborted",
+    "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native",
+    "--cohort",
+    "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/cohort.json",
+    "--output",
+    "/workspace/polisyos/.polisyos/e02-B-native-review-exe-a3/review.json"
+  ],
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "started_utc": "2026-10-05T16:46:49.260263+00:00",
+  "finished_utc": "2026-10-05T16:46:49.831653+00:00",
+  "wall_s": 0.5713859150000644,
+  "max_rss_kib": 75132,
+  "target_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "target_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "source_before": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "refs/heads/codex/e02-B-acceptance",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "refs/heads/codex/e02-B-acceptance",
+    "status": ""
+  },
+  "source_unchanged": true,
+  "input_reads": [
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native-venv/wrapper.json",
+      "bytes": 12453,
+      "sha256": "0f0a8e0f44f0e5586172a912459df4a0d5d9c129eee906d1d1e9858f00042caa",
+      "outcome": "READ",
+      "interpretation": "Full terminal wrapper and source/input identities"
+    },
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native-venv/native.txt",
+      "bytes": 4100,
+      "sha256": "50643581b0a769ecabdf3d850590427d0c1a72a9600c392f8ab89775a574f264",
+      "outcome": "READ",
+      "interpretation": "Full stdout: summaries, diagnostics and warning sections"
+    },
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native-venv/cohort.xml",
+      "bytes": 212359,
+      "sha256": "db8b70f8a6d8540a73ba4478e6360964b0d8802cc0e16c31a22f026ad270edd1",
+      "outcome": "READ",
+      "interpretation": "Complete XML tree; enumerate every testcase"
+    },
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/cohort.json",
+      "bytes": 128571,
+      "sha256": "fcfb269d55fe69d425954f2117ca78a997b00c09778fa6f6449bcc37d3013ec8",
+      "outcome": "READ",
+      "interpretation": "Complete cohort JSON; selected paths and declared retained_nonpass"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "bytes": 47092,
+      "sha256": "6844bfd8314f8c05a15a00aec18c04bea87ef58420a2521fa68bda2a2cce70a5",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/integration/scientist/test_async_cache_recovery.py",
+      "bytes": 16710,
+      "sha256": "daf05e3ad20913e40144c1e1615d03688a4f8bb7a9034b42244d911125aa4801",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "bytes": 65997,
+      "sha256": "3c516eabcb8e6dbc0ffb387a0ecbe7547a3a6319873b371754eb5f77e759af7a",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/integration/scientist/test_execution_state_replay.py",
+      "bytes": 15816,
+      "sha256": "566e1e3f923170c71d5075e261dbf466913bcae3a507a02a2b528a9b704b59c0",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/common/test_async_tools.py",
+      "bytes": 13182,
+      "sha256": "9c8585bfec8b88cb8072d76fe0163aa8f42adf9db2fccdd0499c24a540aff026",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "bytes": 34836,
+      "sha256": "df322346f50d545b2eb7049c7ff03f4827abe7282b7e8fdff2ab92fe513d1fe2",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "bytes": 7002,
+      "sha256": "5ca689b2fdc07da5a9c0352b7ee2d1b746d58f646f02f285d0a70ef2ca0915a3",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "bytes": 27917,
+      "sha256": "bcfa3165f4de79df0b39fbb147f3d2cb7873a56bcffd9c3d112abc223cf60af1",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "bytes": 10082,
+      "sha256": "43c39a7064b161649c2a4cf65c1363ec4f2c02555f09523ebe47dc7a0ad36065",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py",
+      "bytes": 14000,
+      "sha256": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "bytes": 10821,
+      "sha256": "4018de5c4c54c765ad77616a5f5da52e327aa86e995f80920c20f175b151b752",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "bytes": 24572,
+      "sha256": "f574fb646019857f0df1cae71c16304a36d52d85504ff3d852a265f2d98f9fcc",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_ownership_history.py",
+      "bytes": 34653,
+      "sha256": "ab985f48ad4d85d5c9635710f56f50838130462d7fda97bf3105a5c3404e8eba",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "bytes": 5261,
+      "sha256": "2a67dd797faa29cc80710e07a8229ccb7b462517cdd53982f8be34806cc2e574",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/artifacts/test_transfer_publication.py",
+      "bytes": 8719,
+      "sha256": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+      "bytes": 1412,
+      "sha256": "c98392b794ec39606f137b17f24379cf1c165072936c2b8b7948cdefbad7c30b",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+      "bytes": 15503,
+      "sha256": "d86382030fe0f7deb9a0def4464f6579cb93d70e5cf26a0c77b4539b878b45b2",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "bytes": 63686,
+      "sha256": "f37a87d195dbf8a09d8d98d9f8307c9ea4026d562797c9e8846c4220cfa2b598",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "bytes": 29464,
+      "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "bytes": 100684,
+      "sha256": "e5c13242e9ccd2779217102c656899f04729c4c78eaceda0a4b3e854257ad7a7",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+      "bytes": 12574,
+      "sha256": "44ab7e31733758219627e35d32facd9fb7bb7ee3e8cac30aa995334a6e42421f",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "bytes": 8582,
+      "sha256": "1a0111b5d354c2117a5ea521abc51378a74d416c21cdf1c5c875d747517f94dc",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "bytes": 14776,
+      "sha256": "ee32ce555d2338a41e3976fff5f4bc9a03b509ee536ac2d56daa50e575069994",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/test_compiler.py",
+      "bytes": 34246,
+      "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+      "bytes": 4904,
+      "sha256": "572162755380c60dad2efafc7b57e804256c047a1f0529316ee14e70afb0ebcb",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "bytes": 17844,
+      "sha256": "0aa58ad4447e7a35b2512dae8056c01e0ff9151bcabb82879b74c0a37da9a926",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/test_composer_hardening.py",
+      "bytes": 9243,
+      "sha256": "88a67c39f5a8fa57f4c9a1c5c552321fbcfe5235370776f3b3eeace0cacffa56",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/test_linker.py",
+      "bytes": 30029,
+      "sha256": "e7b975cb4d2d5199947c9f4e7c8f47e9f9de2683a8661b1a40c2557344064ad6",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/methods/test_semantic_validator.py",
+      "bytes": 9850,
+      "sha256": "8f3d3313aeb8f6b8ddcee0f94e0bbc922439c16b49586b1d810a48169ec22934",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+      "bytes": 34479,
+      "sha256": "7ea62edd08f6a6fca6e51e5418cedbf58e8d3d9e806264f7512a15d8d6b9f2c4",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/ir/analytics/test_ncm.py",
+      "bytes": 6428,
+      "sha256": "58c5a9dffc7e301dccba3bcace6ace9ab89df3365d33b26cbe09f38d05654884",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_cas_01.py",
+      "bytes": 48119,
+      "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_cas_02.py",
+      "bytes": 24700,
+      "sha256": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_cas_03.py",
+      "bytes": 31370,
+      "sha256": "ce9b5e61ece01e348c83159af48911c1502e767a72c3645ddbd601a9970f437f",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "bytes": 9897,
+      "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "bytes": 9386,
+      "sha256": "368417feeb5bd2a64280de1a3e1d6071356c886e412209a4675062532974d74e",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "bytes": 8449,
+      "sha256": "79b396b1c7766377baf471c51b215a921409fbaa4541685073a25be215967f4a",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_dur_02.py",
+      "bytes": 8596,
+      "sha256": "22aa14c0d4e8a3ad6c0bcc0ae1101bfeff551f2fb69c89610507cf80210449a8",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_exe_02.py",
+      "bytes": 11319,
+      "sha256": "34a2a44040561fd7af9b03de765f5accb3fc6726f4c1e74e47821afa483a7104",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_jit_01.py",
+      "bytes": 22769,
+      "sha256": "ee7158540e9fb686b295e71d7981f1476f3d1b66e868b0963fb4135c0f3d0a69",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_llm_01.py",
+      "bytes": 8075,
+      "sha256": "b0d9ab57c6196a4f7740f6bdf37f0ab71b27cb8bcaac410204f2697491171512",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_res_01.py",
+      "bytes": 16340,
+      "sha256": "cd618cbc9a41475f99676186ea264860f5a4cbe75c8458c0bee00916a994e71e",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_res_02.py",
+      "bytes": 14175,
+      "sha256": "1a8d8c7d305fe66bd8fcf261ec7423be61b37df27354e752152b001ef729d0aa",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_res_03.py",
+      "bytes": 8082,
+      "sha256": "8a53733d6ecfb84e68eb222c99926c0794b28d33b61c947ca97a3bf0b965e32d",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_res_04.py",
+      "bytes": 14949,
+      "sha256": "f32fa2de5a3638b43be32acebaa84759ca0de66373e47efceb2a78bc3fdec203",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_run_03.py",
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/remediation/test_wire_01.py",
+      "bytes": 10466,
+      "sha256": "0d465e83ba5fe77e37be0d8ceacda1a5c5fc2ad15ec1b1878d748641a6a07421",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "bytes": 26310,
+      "sha256": "355725bf89b01e23ecc1ee44509d46b38a7b3c4069c0ede1e2c926c2a9ff160d",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/runtime/quality/test_authority_reconciliation.py",
+      "bytes": 26626,
+      "sha256": "b9e2c310302c73892e7761fd2b53d0dfc3b38f396b9ada446fa8a75e795e6224",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+      "bytes": 8078,
+      "sha256": "19b3dad19f1edc87d0cc43c7cc4ee1b61dc3b5fd937a3be294b8e33646ab86d3",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+      "bytes": 12848,
+      "sha256": "610c57a583aded20816a61be905eee86133f166f54a31fc0efe38ec52ad93659",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "bytes": 13828,
+      "sha256": "093b8825dd908c16098a0539cfb2c1bc78ff5594c1056ebe5f829c330de0cdba",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "bytes": 229,
+      "sha256": "27b668a1baad69ccd6ba840118a59141ff01bb1a78ef95834c87854e09ab4d82",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+      "bytes": 10368,
+      "sha256": "3b2aabe75572c246560a0993f97085f6414dabb252d93fddb892ab6dfbfd7188",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "bytes": 23572,
+      "sha256": "673fd75273d4519d5cb9d785f181704f390b43731334b3984125f50245953cf1",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "bytes": 24213,
+      "sha256": "4322bf9c7d8f2f994783fc9d312934f9b9dac454bc9922e2ab0d480f42685293",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "bytes": 13006,
+      "sha256": "46ebf470762385b9f511379e1510e5c10d2455152081999b4c5d14ffd5b2dbc5",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "bytes": 15757,
+      "sha256": "408d1c0b49e8863e6723bef5a07b140c76a3efc160aa5a31f9c19b45f1f9f07b",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "bytes": 4218,
+      "sha256": "ac8004571e748420bf22fe47074cca9794fe28efa17ff5fa9f8fbe1e4ec11c25",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "bytes": 4600,
+      "sha256": "29b8517fd912dc7b80c05685f2a8b4420f5ff47a6a55f90e021d913a805415bb",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "bytes": 30996,
+      "sha256": "297fe81437e5681173e7a36e6877b4ff18c8380be6bc2e4d0bdc43264c9b4b67",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "bytes": 17774,
+      "sha256": "e20e7f6610930913ef2a7026eedac6f8325b25abbf496d210cb8fcd2d5bc4e10",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "bytes": 14102,
+      "sha256": "897f5aedbe4fc75a44b4e8a31abf44226f173681f20bb5f56145b261734d672b",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "bytes": 17339,
+      "sha256": "56e684f7fc8de07da14f228d05db70915f70543f641276ff0747d8e06850aa4d",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "bytes": 33109,
+      "sha256": "1e06eddf3a53bb96da51b5b233e8a5eb3421886585c114c36fcc8d29b122620c",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "bytes": 15370,
+      "sha256": "43dc2c1f7c250e03be2d900610c1ede9e78c8b7088bcccaf55990a6a93af99f8",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "bytes": 30145,
+      "sha256": "7089614efb8797b91f9d093a6839bc8f26522e732c871e7d83e4009d78c0ec51",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "bytes": 61938,
+      "sha256": "4a6a959665418d6734ad44cf5e87613bf6bd049bbbdce4212e8e45d26ceaccd2",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "bytes": 13068,
+      "sha256": "f457a9163f9b2480523623dbdce531fdcaac88d64a7b73dce61e0afddb9874b2",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "bytes": 8098,
+      "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "bytes": 15169,
+      "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "bytes": 6427,
+      "sha256": "bef7aa0de4133162c63515a6614b47ff3492ddc7a668971e20ddd9b3f4fd6464",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "bytes": 19126,
+      "sha256": "69fa47e1673caa42aae303d82539c5b3df73a767c79cbfbd471022ba1afa9531",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "bytes": 6918,
+      "sha256": "8f3c325defc4e2f3189c4e28f6598169c3532d46e6a3691537b18e1021c45716",
+      "outcome": "READ",
+      "interpretation": "AST parse for source-bound xfail strictness; full file hash against frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/common/async_tools.py",
+      "bytes": 7830,
+      "sha256": "86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "bytes": 35762,
+      "sha256": "3771014659e216013acca8c6f69805a891439a9ac1ce029eeb3d5210fbceab5a",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/store.py",
+      "bytes": 174787,
+      "sha256": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "bytes": 42269,
+      "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "bytes": 44242,
+      "sha256": "3a0a7ebcebb64691383112f30c1be2e3e839e602e1c87850bb8d82ca488d94ec",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "bytes": 95423,
+      "sha256": "94761f9dd1d6b712aa065f174582cfb500f22cbec79b8dd8a1a62ce055bd8e26",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 18024,
+      "sha256": "12d2d4629c3c2a26eaef50433c4099ef968e81913d030c5e2c3ce5e7c9de9e17",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "bytes": 32305,
+      "sha256": "5d30cda9b442db46083bde9b895bff1dd4cb1418931053ed3a3e3625bf251aab",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "bytes": 62016,
+      "sha256": "202bc6bf3255e20595bf6a5058f7285eb681e71bf37b0db74e925f66ef06f970",
+      "outcome": "READ",
+      "interpretation": "Actual production origin file bytes bound to frozen Git object"
+    },
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native/wrapper.json",
+      "bytes": 12334,
+      "sha256": "d6378c521f0ad4e8f0cfacae6614a45eaad65364eacf6490c08901fe8a0bc3f5",
+      "outcome": "READ",
+      "interpretation": "Full original harness wrapper; qualify its exit-only FAIL"
+    },
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native/native.txt",
+      "bytes": 111,
+      "sha256": "480a64d001179f6a23889f64a773cf380b73c109a31b03b531380b3914107142",
+      "outcome": "READ",
+      "interpretation": "Original no-pytest precollection diagnostic"
+    },
+    {
+      "git_object": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/native302.txt@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "bytes": 2981,
+      "sha256": "c6c2ba841ab1e12351983c17b7e90293ed649a0ae3bea9121534fe7b135252b5",
+      "outcome": "READ",
+      "interpretation": "Complete prior deciding log; match declared node only, historical counts unused"
+    },
+    {
+      "git_object": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "bytes": 65245,
+      "sha256": "fe4794a078a1a55c517993d07db83bff7c46eaab5515a72ba6d6cd1698b3fbeb",
+      "outcome": "READ",
+      "interpretation": "Owner receipt limitations and exact declared retained scope; historical counts unused"
+    },
+    {
+      "git_object": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/llm-cancellation-final.log@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "bytes": 1875,
+      "sha256": "a3ed4a653e23f0f271c2d98d2d15b883eb3deda0966576c430c5dd2bdf7e9ad4",
+      "outcome": "READ",
+      "interpretation": "Complete prior deciding log; match declared node only, historical counts unused"
+    },
+    {
+      "git_object": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "bytes": 69731,
+      "sha256": "627dd997591f7327ffc596a18c037be28a86be041ece7a5219937ec2d6f1639e",
+      "outcome": "READ",
+      "interpretation": "Owner receipt limitations and exact declared retained scope; historical counts unused"
+    }
+  ],
+  "git_reads": {
+    "commands": [
+      "rev-parse HEAD/HEAD^{tree}",
+      "symbolic-ref HEAD",
+      "status --porcelain",
+      "diff --name-only source_base target -- policy-engine/src",
+      "show target:path"
+    ],
+    "test_git_objects_compared": 74,
+    "production_git_objects_compared": 9
+  },
+  "predicate_basis": "recomputed",
+  "whole_file_denominator": 74,
+  "case_count_basis": "Every actual JUnit testcase, reconciled with suite attributes and complete terminal stdout; historical case counts are not read for arithmetic.",
+  "junit_case_denominator": 1317,
+  "junit_suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "1",
+      "skipped": "1",
+      "tests": "1317",
+      "time": "211.542",
+      "timestamp": "2026-10-05T16:36:02.474930+00:00",
+      "hostname": "b878f4efbdfc"
+    }
+  ],
+  "case_outcomes": {
+    "PASS": 1315,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0,
+    "XFAIL": 1
+  },
+  "strict_xfail_count": 1,
+  "strict_xpass_count": 0,
+  "non_strict_xpass_count": 0,
+  "terminal_summary": "1 failed, 1315 passed, 1 xfailed, 99 warnings in 211.57s (0:03:31)",
+  "stdout_counts": {
+    "failed": 1,
+    "passed": 1315,
+    "xfailed": 1,
+    "warning": 99
+  },
+  "warning_counts": {
+    "PytestWarning": 1,
+    "RuntimeWarning": 45,
+    "DeprecationWarning": 53
+  },
+  "complete_warning_section": "tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters\n  tests/unit/remediation/test_cas_01.py:772: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')\n    def test_lock_registry_is_bounded_without_evicting_active_waiters(\n\ntests/unit/scientist/orchestration/engine/runner/test_activity_worker.py: 1 warning\ntests/unit/scientist/orchestration/engine/test_async_executor_hardening.py: 1 warning\ntests/unit/scientist/orchestration/engine/test_retry.py: 42 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.\n    self.pid = os.fork()\n\ntests/unit/scientist/orchestration/engine/runner/test_activity_worker.py: 1 warning\ntests/unit/scientist/orchestration/engine/test_async_executor_hardening.py: 1 warning\ntests/unit/scientist/orchestration/engine/test_retry.py: 50 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=78389) is multi-threaded, use of fork() may lead to deadlocks in the child.\n    self.pid = os.fork()\n\n",
+  "nonpass_cases": [
+    {
+      "file": "tests/unit/remediation/test_cas_02.py",
+      "classname": "tests.unit.remediation.test_cas_02",
+      "name": "test_import_enforces_existing_tenant_ownership",
+      "status": "FAIL",
+      "detail": {
+        "attributes": {
+          "message": "Failed: DID NOT RAISE <class 'PermissionError'>"
+        },
+        "text": "tests/unit/remediation/test_cas_02.py:438: in test_import_enforces_existing_tenant_ownership\n    with pytest.raises(PermissionError, match=\"not owned by tenant\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'PermissionError'>"
+      },
+      "matching_retained_declarations": [
+        {
+          "path": "tests/unit/remediation/test_cas_02.py",
+          "node": "test_import_enforces_existing_tenant_ownership",
+          "outcome": "Actual held failure in exact source receipt; retain whole file for final replay, never xfail/deselect/normalize",
+          "observed_target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "existing_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/native302.txt@f1db5d0d76fb93825a433bf8139235a93b213606"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_cancelled_initiator_cannot_erase_actual_provider_cost",
+      "status": "XFAIL",
+      "detail": {
+        "attributes": {
+          "type": "pytest.xfail",
+          "message": "B66/B68: producer-bound accounting settlement is missing after initiator cancellation"
+        },
+        "text": ""
+      },
+      "matching_retained_declarations": [
+        {
+          "path": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "node": "test_cancelled_initiator_cannot_erase_actual_provider_cost",
+          "outcome": "strict XFAIL remains in whole-file native cohort; source --runxfail falsifier actually FAILs",
+          "existing_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/llm-cancellation-final.log@3d18f37a5953f577c99260442a5e9afbc308a1d6"
+        }
+      ],
+      "source_xfail_markers": [
+        {
+          "line": 156,
+          "strict_literal": true,
+          "reason_literal": "B66/B68: producer-bound accounting settlement is missing after initiator cancellation"
+        }
+      ],
+      "strict_from_actual_source": true
+    }
+  ],
+  "new_unadvertised_nonpass_count": 0,
+  "new_unadvertised_nonpass_cases": [],
+  "retained_nonpass_owner_and_log_reviews": [
+    {
+      "declaration": {
+        "path": "tests/unit/remediation/test_cas_02.py",
+        "node": "test_import_enforces_existing_tenant_ownership",
+        "outcome": "Actual held failure in exact source receipt; retain whole file for final replay, never xfail/deselect/normalize",
+        "observed_target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "existing_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/native302.txt@f1db5d0d76fb93825a433bf8139235a93b213606"
+      },
+      "existing_log_sha256": "c6c2ba841ab1e12351983c17b7e90293ed649a0ae3bea9121534fe7b135252b5",
+      "existing_log_bytes": 2981,
+      "prior_failure_node_observed": true,
+      "owner_receipt": {
+        "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+        "sha256": "fe4794a078a1a55c517993d07db83bff7c46eaab5515a72ba6d6cd1698b3fbeb",
+        "limitations": [
+          "G independently fetch final topic head/PR14, verify source/diff/evidence and integrate accepted bounded property; no full B148/B149 closure is requested.",
+          "Final-entry check does not establish hostile parent-component isolation, immunity to concurrent adversarial path swaps, directory owner/ACL custody or permission authenticity. Normalized regular hardlinks retain existing atomic pathname replacement behavior.",
+          "Existing special mode bits retain current0o7777 behavior. Canonical CAS02 source criteria specify old-package/inventory preservation and legitimate outputs, not a new special-bit ownership law. G/semantic owner decides any further permission/ownership contract; ordinary600/640/644 mode/readback is the admitted evidence.",
+          "CAS02 untouched unbound cross-tenant ownership policy assertion remains FAIL; preserve legitimate passive exact-profile cache/unbound physical reuse and require owner decision. Current full native20file outcomeFAIL=301PASS1heldFAIL.",
+          "Predecessor broad512 receipt remains388PASS116FAIL4ERROR4SKIP on its own frozen source; no rerun/inherited-green substitution after this inlet. Grounding/corpus/HTTP/localproduction/solver residuals retain exact previous nodes and owners.",
+          "Receipt JSON and copied independent review JSON further affect the all-tracked-JSON corpus denominator. G/corpus owner must reconcile the complete integrated corpus, not sync a baseline counter solely for green.",
+          "All8CAS finding residuals preserved including four-base historical matrix, B152 wrong-size selected-view negative, B154 publisher consumer missing, B155 eager uninterruptible name census.",
+          "SIGKILL private stage orphan and retained independent resource_tracker warning do not establish complete process/IPC cleanup; no device/powerloss durability claim.",
+          "Full existing source formatterFAIL retained. Root architecture no-verdictUNRUN retained; static invocation exit3 partial/unresolved and huge rawuntransferred, no served runtime authority PASS.",
+          "All deciding moderate stdout/JUnit and independent probe bytes committed without whitespace normalization. Whole log diff whitespace may be red; no all-diff green claim.",
+          "Early source push prepush typecheckPASS but remoteHTTP503; final topic head must be read back before delivery claim.",
+          "Independent DUR detached review worktree precreation admission is not_established. Current SHA/tree/clean checkpoints qualify custody at observation time only. G owns a properly admitted replay for process-admission acceptance; original785be8 packet retained unchanged, no code-defect or rerun substitution claim."
+        ]
+      },
+      "classification": "Advertised retained nonpass; actual current FAIL/XFAIL remains unchanged. No inherited-red attribution."
+    },
+    {
+      "declaration": {
+        "path": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "node": "test_cancelled_initiator_cannot_erase_actual_provider_cost",
+        "outcome": "strict XFAIL remains in whole-file native cohort; source --runxfail falsifier actually FAILs",
+        "existing_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/llm-cancellation-final.log@3d18f37a5953f577c99260442a5e9afbc308a1d6"
+      },
+      "existing_log_sha256": "a3ed4a653e23f0f271c2d98d2d15b883eb3deda0966576c430c5dd2bdf7e9ad4",
+      "existing_log_bytes": 1875,
+      "prior_failure_node_observed": true,
+      "owner_receipt": {
+        "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "sha256": "627dd997591f7327ffc596a18c037be28a86be041ece7a5219937ec2d6f1639e",
+        "limitations": [
+          "G fetch exact topic head and receipt, verify ancestry/diff/evidence and decide formal acceptance; closure_ids intentionally empty.",
+          "Architecture check UNRUN input closure; no inherited-red waiver, baseline refresh or weakened check.",
+          "LLM producer settlement and current permission authority contracts require canonical owner coordination as described per finding.",
+          "B93 residual ledger binding mismatch requires canonical criterion reconciliation.",
+          "Physical GPU/Metal, live Ray/Temporal/vendor services and four-base replay UNRUN. Full production dataset stays local."
+        ]
+      },
+      "classification": "Advertised retained nonpass; actual current FAIL/XFAIL remains unchanged. No inherited-red attribution."
+    }
+  ],
+  "per_selected_file_actual_cases": {
+    "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": {
+      "PASS": 17
+    },
+    "tests/integration/scientist/test_async_cache_recovery.py": {
+      "PASS": 14
+    },
+    "tests/integration/scientist/test_checkpoint_resume.py": {
+      "PASS": 11
+    },
+    "tests/integration/scientist/test_execution_state_replay.py": {
+      "PASS": 9
+    },
+    "tests/unit/common/test_async_tools.py": {
+      "PASS": 15
+    },
+    "tests/unit/core/artifacts/backends/test_caching_store.py": {
+      "PASS": 28
+    },
+    "tests/unit/core/artifacts/backends/test_config.py": {
+      "PASS": 16
+    },
+    "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py": {
+      "PASS": 12
+    },
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/artifacts/test_import_tenant_context.py": {
+      "PASS": 39
+    },
+    "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py": {
+      "PASS": 12
+    },
+    "tests/unit/core/artifacts/test_ownership_history.py": {
+      "PASS": 33
+    },
+    "tests/unit/core/artifacts/test_transfer_output_paths.py": {
+      "PASS": 7
+    },
+    "tests/unit/core/artifacts/test_transfer_publication.py": {
+      "PASS": 7
+    },
+    "tests/unit/core/phase0/test_artifact_export_import.py": {
+      "PASS": 1
+    },
+    "tests/unit/fabric/connectors/test_pool_e02.py": {
+      "PASS": 17
+    },
+    "tests/unit/fabric/connectors/test_registry.py": {
+      "PASS": 74
+    },
+    "tests/unit/fabric/connectors/test_resilience.py": {
+      "PASS": 30
+    },
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py": {
+      "PASS": 50
+    },
+    "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py": {
+      "PASS": 14
+    },
+    "tests/unit/foundry/methods/backends/test_checkpointing.py": {
+      "PASS": 6
+    },
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py": {
+      "PASS": 6
+    },
+    "tests/unit/foundry/methods/test_compiler.py": {
+      "PASS": 47
+    },
+    "tests/unit/foundry/methods/test_compiler_e02.py": {
+      "PASS": 5
+    },
+    "tests/unit/foundry/methods/test_composer.py": {
+      "PASS": 25
+    },
+    "tests/unit/foundry/methods/test_composer_hardening.py": {
+      "PASS": 9
+    },
+    "tests/unit/foundry/methods/test_linker.py": {
+      "PASS": 52
+    },
+    "tests/unit/foundry/methods/test_semantic_validator.py": {
+      "PASS": 18
+    },
+    "tests/unit/foundry/runtime/test_executor_snapshots.py": {
+      "PASS": 25
+    },
+    "tests/unit/ir/analytics/test_ncm.py": {
+      "PASS": 1
+    },
+    "tests/unit/remediation/test_cas_01.py": {
+      "PASS": 18
+    },
+    "tests/unit/remediation/test_cas_02.py": {
+      "PASS": 17,
+      "FAIL": 1
+    },
+    "tests/unit/remediation/test_cas_03.py": {
+      "PASS": 16
+    },
+    "tests/unit/remediation/test_cmp_01.py": {
+      "PASS": 4
+    },
+    "tests/unit/remediation/test_cmp_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_cmp_03.py": {
+      "PASS": 13
+    },
+    "tests/unit/remediation/test_dur_02.py": {
+      "PASS": 5
+    },
+    "tests/unit/remediation/test_exe_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_jit_01.py": {
+      "PASS": 9
+    },
+    "tests/unit/remediation/test_llm_01.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_res_01.py": {
+      "PASS": 10
+    },
+    "tests/unit/remediation/test_res_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_res_03.py": {
+      "PASS": 4
+    },
+    "tests/unit/remediation/test_res_04.py": {
+      "PASS": 16
+    },
+    "tests/unit/remediation/test_run_03.py": {
+      "PASS": 9
+    },
+    "tests/unit/remediation/test_wire_01.py": {
+      "PASS": 51
+    },
+    "tests/unit/runtime/http/test_acquisition_control_worker.py": {
+      "PASS": 7
+    },
+    "tests/unit/runtime/quality/test_authority_reconciliation.py": {
+      "PASS": 11
+    },
+    "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py": {
+      "PASS": 2
+    },
+    "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py": {
+      "PASS": 5
+    },
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py": {
+      "PASS": 1
+    },
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py": {
+      "PASS": 15
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py": {
+      "PASS": 20
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py": {
+      "PASS": 32
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py": {
+      "PASS": 6
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+      "PASS": 15
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+      "PASS": 12
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py": {
+      "PASS": 61
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": {
+      "PASS": 32
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py": {
+      "PASS": 26
+    },
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py": {
+      "PASS": 6
+    },
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py": {
+      "PASS": 26
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry.py": {
+      "PASS": 94
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry_integration.py": {
+      "PASS": 7
+    },
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py": {
+      "PASS": 25
+    },
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py": {
+      "PASS": 13
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py": {
+      "PASS": 24
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py": {
+      "PASS": 9,
+      "XFAIL": 1
+    }
+  },
+  "production_module_origins": [
+    {
+      "module": "polisyos.common.async_tools",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/common/async_tools.py",
+      "sha256": "86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.core.artifacts._transfer_ops",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "sha256": "3771014659e216013acca8c6f69805a891439a9ac1ce029eeb3d5210fbceab5a",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.core.artifacts.store",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.fabric.connectors.pool",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.foundry.methods.backends.checkpointing",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "sha256": "3a0a7ebcebb64691383112f30c1be2e3e839e602e1c87850bb8d82ca488d94ec",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.async_executor",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "sha256": "94761f9dd1d6b712aa065f174582cfb500f22cbec79b8dd8a1a62ce055bd8e26",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "12d2d4629c3c2a26eaef50433c4099ef968e81913d030c5e2c3ce5e7c9de9e17",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.idempotency",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "sha256": "5d30cda9b442db46083bde9b895bff1dd4cb1418931053ed3a3e3625bf251aab",
+      "matches_frozen_git_and_acceptance_path": true
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.retry",
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "sha256": "202bc6bf3255e20595bf6a5058f7285eb681e71bf37b0db74e925f66ef06f970",
+      "matches_frozen_git_and_acceptance_path": true
+    }
+  ],
+  "production_module_denominator": 9,
+  "module_origin_scope": "Exact-child-interpreter preflight resolutions with same cwd/env plus independent actual content readback; not a trace of every child import.",
+  "native_execution": {
+    "exit_code": 1,
+    "recorded_outcome": "FAIL",
+    "wall_s": 243.8732552849997,
+    "max_rss_kib": 1098680,
+    "measurement_error": null
+  },
+  "previous_harness_qualification": {
+    "recorded_exit": 1,
+    "recorded_outcome": "FAIL",
+    "reviewed_outcome": "UNRUN",
+    "product_failure": "not_established",
+    "test_case_denominator": 0,
+    "diagnostic": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14: No module named pytest\n",
+    "actual_child_executable": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+    "identity_preflight_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "reason": "Resolved venv symlink launched base Python without pytest and stopped before collection. No product case was executed."
+  },
+  "review_outcome": "PASS",
+  "audit_issues": [],
+  "unresolved_by_construction": [],
+  "limitations": [
+    "The native test suite outcome remains actual FAIL; advertised retained nonpass does not change pytest success.",
+    "This review makes no inherited-red attribution and performs no test rerun.",
+    "Typed nonpass declarations locate intended retained scope; canonical semantic authority/formal finding closure remains with the source owner.",
+    "Historical per-wave counts, unselected production data/live optional backends, current institutional authorization and full served/runtime-invocation admission are outside this review."
+  ]
+}

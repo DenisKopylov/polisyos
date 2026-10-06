@@ -1,0 +1,27 @@
+{
+  "source_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/probe.py",
+      "sha256": "3ec990a23c49017b0634161bbfb0ebdbce9297c3f30c2e7835b61a182fdb8eaa",
+      "bytes": 8959
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/output-checkpoint.txt",
+      "sha256": "dd54f9e799681b959ff509d48f37f9626b83db1a2fedafa3ce35dfe701eb5cbf",
+      "bytes": 11266
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/receipt.json",
+      "sha256": "4f50189a7444566b2528e5f4be9a48f3f59272632541b828760b156860e20c15",
+      "bytes": 28477
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/baseline-navigation.json",
+      "sha256": "518c387e307cf001d502dc0a84ba1911e693711822e9b3d35c9078c127b34491",
+      "bytes": 51140
+    }
+  ],
+  "rerun": "Read-only checkout0f24 at the driver ROOT variable /workspace/e02-B-b52-oracle; native PYTHONPATH source in that checkout. Change only isolation ROOT if replaying elsewhere, recording amended driver hash; use exact native source.",
+  "interpretation": "Oracle process exit0 is successful reproduction of property FAIL; naive off-loop late-cache consumer is an explicit counterfactual control. Candidate acceptance is separate."
+}

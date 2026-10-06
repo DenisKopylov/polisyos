@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.B_final_architecture_execution.v1",
+  "expected_frozen_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "start": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "codex/e02-B-acceptance",
+    "status_porcelain": ""
+  },
+  "cwd": "/workspace/e02-B-acceptance/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "stdio": "complete merged stdout/stderr",
+  "selected_environment": {
+    "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "PYTHONPATH": "src:product",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "VIRTUAL_ENV": null,
+    "UV_CACHE_DIR": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "UV_FROZEN": null,
+    "NODE_OPTIONS": null,
+    "COREPACK_ENABLE_PROJECT_SPEC": null
+  },
+  "source_edit_authorization": "read_only; wrapper makes no source edits",
+  "inherited_red_attribution": "not_established; no slice-base replay here",
+  "process_or_numeric_quota": "none",
+  "python_environment": {
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-c",
+      "import importlib.metadata as m,importlib.util as u,json,platform,sys\nnames=[\"tools.cli\",\"tools.devx.architecture.guardrails\",\"polisyos\",\"pydantic\",\"duckdb\",\"pytest\",\"ruff\"]\norigins={}\nfor name in names:\n try:\n  spec=u.find_spec(name);origins[name]={\"origin\":spec.origin if spec else None,\"search_locations\":list(spec.submodule_search_locations or []) if spec else []}\n except Exception as error:origins[name]={\"resolution_error\":type(error).__name__+\": \"+str(error)}\nversions={}\nfor name in [\"pytest\",\"pydantic\",\"duckdb\",\"ruff\",\"cryptography\",\"numpy\",\"typer\",\"uv\"]:\n try:versions[name]=m.version(name)\n except m.PackageNotFoundError:versions[name]=None\nprint(json.dumps({\"executable\":sys.executable,\"python\":sys.version,\"platform\":platform.platform(),\"sys_path\":sys.path,\"origins\":origins,\"versions\":versions},sort_keys=True))"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"executable\": \"/workspace/polisyos/policy-engine/.venv/bin/python\", \"origins\": {\"duckdb\": {\"origin\": \"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py\", \"search_locations\": [\"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb\"]}, \"polisyos\": {\"origin\": \"/workspace/e02-B-acceptance/policy-engine/src/polisyos/__init__.py\", \"search_locations\": [\"/workspace/e02-B-acceptance/policy-engine/src/polisyos\"]}, \"pydantic\": {\"origin\": \"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py\", \"search_locations\": [\"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic\"]}, \"pytest\": {\"origin\": \"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py\", \"search_locations\": [\"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest\"]}, \"ruff\": {\"origin\": \"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff/__init__.py\", \"search_locations\": [\"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff\"]}, \"tools.cli\": {\"origin\": \"/workspace/e02-B-acceptance/policy-engine/tools/cli.py\", \"search_locations\": []}, \"tools.devx.architecture.guardrails\": {\"origin\": \"/workspace/e02-B-acceptance/policy-engine/tools/devx/architecture/guardrails.py\", \"search_locations\": []}}, \"platform\": \"Linux-6.18.44-x86_64-with-glibc2.41\", \"python\": \"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\", \"sys_path\": [\"\", \"/workspace/e02-B-acceptance/policy-engine/src\", \"/workspace/e02-B-acceptance/policy-engine/product\", \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python314.zip\", \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14\", \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/lib-dynload\", \"/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages\", \"/workspace/polisyos/policy-engine\", \"/workspace/polisyos/policy-engine/src\"], \"versions\": {\"cryptography\": \"46.0.4\", \"duckdb\": \"1.4.3\", \"numpy\": \"2.3.5\", \"pydantic\": \"2.12.5\", \"pytest\": \"9.0.2\", \"ruff\": \"0.14.10\", \"typer\": null, \"uv\": null}}\n",
+    "stderr": ""
+  },
+  "toolchain": {
+    "node": {
+      "resolved_executable": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "v22.22.0\n",
+      "stderr": ""
+    },
+    "corepack": {
+      "resolved_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/corepack",
+      "argv": [
+        "corepack",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "0.34.6\n",
+      "stderr": ""
+    },
+    "pnpm": {
+      "resolved_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/corepack",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "10.33.2\n",
+      "stderr": ""
+    },
+    "uv": {
+      "resolved_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "argv": [
+        "uv",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "uv 0.12.19 (x86_64-unknown-linux-gnu)\n",
+      "stderr": ""
+    }
+  },
+  "node_environment": {
+    "argv": [
+      "node",
+      "-e",
+      "const fs=require(\"fs\"); const path=require(\"path\"); const root=process.cwd();const names=[\"typescript\",\"ts-morph\",\"tsx\",\"openapi-typescript\"];let modules={};for(const name of names){try{let manifest=require.resolve(name+\"/package.json\");modules[name]={manifest,real_manifest:fs.realpathSync(manifest),version:JSON.parse(fs.readFileSync(manifest,\"utf8\")).version};}catch(error){try{let entry=require.resolve(name);modules[name]={entry,real_entry:fs.realpathSync(entry),manifest_resolution_error:error.message};}catch(inner){modules[name]={resolution_error:inner.message};}}}console.log(JSON.stringify({executable:process.execPath,versions:process.versions,cwd:root,modules}));"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"executable\":\"/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node\",\"versions\":{\"node\":\"22.22.0\",\"acorn\":\"8.15.0\",\"ada\":\"2.9.2\",\"amaro\":\"1.1.4\",\"ares\":\"1.34.6\",\"brotli\":\"1.1.0\",\"cjs_module_lexer\":\"2.1.0\",\"cldr\":\"47.0\",\"icu\":\"77.1\",\"llhttp\":\"9.3.0\",\"modules\":\"127\",\"napi\":\"10\",\"nbytes\":\"0.1.1\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.64.0\",\"openssl\":\"3.5.4\",\"simdjson\":\"3.13.0\",\"simdutf\":\"6.4.2\",\"sqlite\":\"3.50.4\",\"tz\":\"2025b\",\"undici\":\"6.23.0\",\"unicode\":\"16.0\",\"uv\":\"1.51.0\",\"uvwasi\":\"0.0.23\",\"v8\":\"12.4.254.21-node.33\",\"zlib\":\"1.3.1-470d3a2\",\"zstd\":\"1.5.7\"},\"cwd\":\"/workspace/e02-B-acceptance/policy-engine\",\"modules\":{\"typescript\":{\"resolution_error\":\"Cannot find module 'typescript'\\nRequire stack:\\n- /workspace/e02-B-acceptance/policy-engine/[eval]\"},\"ts-morph\":{\"resolution_error\":\"Cannot find module 'ts-morph'\\nRequire stack:\\n- /workspace/e02-B-acceptance/policy-engine/[eval]\"},\"tsx\":{\"resolution_error\":\"Cannot find module 'tsx'\\nRequire stack:\\n- /workspace/e02-B-acceptance/policy-engine/[eval]\"},\"openapi-typescript\":{\"resolution_error\":\"Cannot find module 'openapi-typescript'\\nRequire stack:\\n- /workspace/e02-B-acceptance/policy-engine/[eval]\"}}}\n",
+    "stderr": ""
+  },
+  "entry_input_hashes": {
+    "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "policy-engine/package.json": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+    "policy-engine/pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
+    "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/tools/cli.py": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+    "policy-engine/tools/devx/architecture/guardrails.py": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+  },
+  "entry_input_paths_absent": [
+    "pnpm-lock.yaml",
+    "package.json",
+    "pnpm-workspace.yaml"
+  ],
+  "installed_frontend_metadata": {
+    "policy-engine/node_modules/.modules.yaml": {
+      "realpath": "/workspace/e02-B-acceptance/policy-engine/node_modules/.modules.yaml",
+      "sha256": "e121deefa8c3dbba1fdfd86e0478a70bac4170369e8312f1d9fa26e66d216d0e"
+    },
+    "policy-engine/node_modules/.pnpm/lock.yaml": {
+      "realpath": "/workspace/e02-B-acceptance/policy-engine/node_modules/.pnpm/lock.yaml",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+    }
+  },
+  "input_closure_limit": "The exact frozen Git tree binds tracked inputs; installed dependency/toolchain snapshots above bind this machine. Temporary generated-freshness environment is gate-managed; no full production dataset admitted.",
+  "started_at_utc": "2026-10-05T16:26:15.407916+00:00",
+  "wall_seconds": 202.7572886099988,
+  "ended_at_utc": "2026-10-05T16:29:38.165238+00:00",
+  "exit_code": 1,
+  "end": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "codex/e02-B-acceptance",
+    "status_porcelain": ""
+  },
+  "source_unchanged": true,
+  "outcome": "FAIL",
+  "complete_gate_verdict_admitted": true,
+  "max_rss_kib": 1116076,
+  "outputs": {
+    "log": {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-final-a3daffbe-node22.txt",
+      "bytes": 115182,
+      "sha256": "33a9d0eb0bad11e514a0d0430b1ca91e87df207d4a4a5b6fa12f5c7547a0003b"
+    },
+    "resource": {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-final-a3daffbe-node22.time.txt",
+      "bytes": 372,
+      "sha256": "e890972a9d3c4f44d685ef4208fc352310119e5d3e90e26ae8e4d7cfefb8097b"
+    }
+  }
+}

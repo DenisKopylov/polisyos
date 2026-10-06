@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.B.remote_family_manifest.v1",
+  "frozen_source": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "frozen_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "base": "c40d4acae1ce58b597267255026d9356565828fd",
+  "families": [
+    {
+      "family": "adapters",
+      "branch": "codex/e02-B-adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "PR": "https://github.com/DenisKopylov/polisyos/pull/30",
+      "finding_count": 15,
+      "canonical_bundles": [
+        "JIT-01",
+        "LLM-01",
+        "LLM-02",
+        "NET-01",
+        "NET-02",
+        "WIRE-01"
+      ],
+      "ordered_receipt_sources": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6"
+      ]
+    },
+    {
+      "family": "cas",
+      "branch": "codex/e02-B-cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "PR": "https://github.com/DenisKopylov/polisyos/pull/14",
+      "finding_count": 8,
+      "canonical_bundles": [
+        "CAS-01",
+        "CAS-02",
+        "CAS-03"
+      ],
+      "ordered_receipt_sources": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606"
+      ]
+    },
+    {
+      "family": "cmp",
+      "branch": "codex/e02-B-cmp-res",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "PR": "https://github.com/DenisKopylov/polisyos/pull/35",
+      "finding_count": 11,
+      "canonical_bundles": [
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "RES-03",
+        "RES-04"
+      ],
+      "ordered_receipt_sources": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565"
+      ]
+    },
+    {
+      "family": "dur",
+      "branch": "codex/e02-B-dur-ledger",
+      "head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+      "PR": "https://github.com/DenisKopylov/polisyos/pull/16",
+      "finding_count": 3,
+      "canonical_bundles": [
+        "DUR-01",
+        "DUR-02"
+      ],
+      "ordered_receipt_sources": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a"
+      ]
+    },
+    {
+      "family": "exe",
+      "branch": "codex/e02-B-exe-state",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+      "PR": "https://github.com/DenisKopylov/polisyos/pull/27",
+      "finding_count": 15,
+      "canonical_bundles": [
+        "EXE-01",
+        "EXE-02",
+        "RES-01",
+        "RES-02",
+        "STA-01",
+        "STA-02"
+      ],
+      "ordered_receipt_sources": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c"
+      ]
+    },
+    {
+      "family": "run",
+      "branch": "codex/e02-B-run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_point": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "PR": "https://github.com/DenisKopylov/polisyos/pull/33",
+      "finding_count": 8,
+      "canonical_bundles": [
+        "RUN-01",
+        "RUN-02",
+        "RUN-03"
+      ],
+      "ordered_receipt_sources": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3"
+      ]
+    }
+  ],
+  "publication_channel": "Git exact topic heads and separate canonical handoffs; G fetches and reviews before own integration; no main push/history rewrite",
+  "final_union_publication_branch": "codex/e02-B-acceptance",
+  "final_evidence_publication_branch": "codex/e02-B-coordination",
+  "root_PR": "https://github.com/DenisKopylov/polisyos/pull/36"
+}

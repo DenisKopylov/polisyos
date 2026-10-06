@@ -1,0 +1,11 @@
+{"target_sha": "ba79d141a3937541b3164db255ceda89883575ec", "tree": "82b341d8545c83fb658d211a7690ae9868b169f2", "cwd": "/workspace/e02-B-run/policy-engine", "command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "tests/unit/common/test_async_tools.py", "tests/unit/scientist/orchestration/engine/test_retry.py", "tests/unit/remediation/test_run_03.py", "--junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/run-process-review.xml"], "PYTHONPATH": "src:."}
+........................................................................ [ 84%]
+.............                                                            [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_retry.py: 22 warnings
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=20654) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+85 passed, 22 warnings in 11.70s
+{"exit_code": 0, "wall_seconds": 13.230001037999955}

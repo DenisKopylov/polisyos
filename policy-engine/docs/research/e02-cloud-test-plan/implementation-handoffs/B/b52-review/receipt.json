@@ -1,0 +1,329 @@
+{
+  "schema": "policyos.e02.B.B52.independent_review.v1",
+  "target_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "target_tree": "bad622f8ba09cad03e4b7899c07982380efcfa81",
+  "slice_base_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "generated_at": "2026-10-05T15:11:46.987137+00:00",
+  "source_edits": false,
+  "verdict": "bounded_mechanism_pass_no_blocking_source_findings",
+  "finding_dispositions": [
+    {
+      "finding_id": "B52",
+      "state": "partial",
+      "property": "B52 cold cache seed responsiveness/deadline/admission gap independently verified on bounded real filesystem trace+checkpoint chain; full historical replay and dataset acceptance not established",
+      "closure_ids": []
+    }
+  ],
+  "environment": {
+    "cwd": "/workspace/e02-B-b52-review515/policy-engine",
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "Python 3.14.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "uid": 1000,
+    "PYTHONPATH": "/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product",
+    "isolation": "new temporary real FileSystemCAS per case; no DB, network, ports or productiondataset; shared interpreter unchanged"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/integration/scientist/test_async_cache_recovery.py -vv -s",
+      "target_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "environment": {
+        "cwd": "/workspace/e02-B-b52-review515/policy-engine",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product",
+        "isolation": "new temporary real FileSystemCAS per case; no DB, network, ports or productiondataset; shared interpreter unchanged"
+      },
+      "input_closure": "All 14 native methods from candidate test_async_cache_recovery.py; native cold AsyncWorkflowExecutor→CASCheckpointHook persisted checkpoint and RunContext trace→reopened FileSystemCAS cache recovery, deterministic physical read watchdog and ready task, typed BudgetMiddleware read gate, delayed startup persistence and readiness body, contextvars; actual chmod/digest/scope negatives; no externalinputs.",
+      "outcome": "PASS",
+      "deciding_output": "14 passed in 12.50s",
+      "output": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-review515/native.txt",
+        "sha256": "c6f411f974ca78d971fb9e31c30c3be6a9a1e2c1b39ef5faee6492c762373907"
+      }
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-review515/probe.py",
+      "target_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "environment": {
+        "cwd": "/workspace/e02-B-dur-ledger",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product",
+        "isolation": "new temporary real FileSystemCAS per case; no DB, network, ports or productiondataset; shared interpreter unchanged"
+      },
+      "input_closure": "Independent baseline-derived oracle script loads exact native stateoperations fixture from pinned candidate. Six native trace/checkpoint × responsiveness/deadline/cancellation cases plus positive stateoperation replay and real chmod/digest/foreignscope negatives. Actual cold native cache entries+journals; checkpoint branch publishes CASCheckpointHook and resolves latest persisted checkpoint metadata refs, empties trace; real get_bytes paused120ms then delegates backend. No source mutation or naivecontrol on candidate.",
+      "outcome": "PASS",
+      "output": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-review515/oracle.txt",
+        "sha256": "d08f31bf43a8426d9b9b5c08a91b261f78de815147b1ab3a02a471c516033f92"
+      },
+      "script": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-review515/probe.py",
+        "sha256": "e9e9a430563e25e6b018c348f58c774a9e01ae2a514bd60041b015fa17b4362d"
+      }
+    }
+  ],
+  "source_cut": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "sha256": "94761f9dd1d6b712aa065f174582cfb500f22cbec79b8dd8a1a62ce055bd8e26"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "sha256": "5d30cda9b442db46083bde9b895bff1dd4cb1418931053ed3a3e3625bf251aab"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_async_cache_recovery.py",
+      "sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "sha256": "f716ae71571fbf07b0eb90b373c03549e08974f6f1e9fc4aa728b43750cc0023"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "sha256": "af511a3d74ecf026781c8754cdfa73d631f949983603edb05462bd2550cf9d37"
+    }
+  ],
+  "deciding_cases": [
+    {
+      "await_return_s": 5664.913905949,
+      "cache_read_entries": [
+        {
+          "artifact_id": "sha256:6943ec8b4af04ce02d43bb1c605235e749eb30cfba7c5d127273570185f8622d",
+          "entered_s": 5664.773058201
+        },
+        {
+          "artifact_id": "sha256:6943ec8b4af04ce02d43bb1c605235e749eb30cfba7c5d127273570185f8622d",
+          "entered_s": 5664.897102876
+        },
+        {
+          "artifact_id": "sha256:6943ec8b4af04ce02d43bb1c605235e749eb30cfba7c5d127273570185f8622d",
+          "entered_s": 5664.935026358
+        }
+      ],
+      "cache_refs": [
+        {
+          "artifact_id": "sha256:6943ec8b4af04ce02d43bb1c605235e749eb30cfba7c5d127273570185f8622d",
+          "kind": "scientist.node_cache_entry",
+          "media_type": "application/json"
+        }
+      ],
+      "elapsed_s": 0.14792154699989624,
+      "io_ticks": 110,
+      "kind": "responsive",
+      "late_seed_cache_size": 1,
+      "loop_tid": 140070923622272,
+      "mode": "trace",
+      "offloop_control": false,
+      "outcome": "ok",
+      "post_attempt_consumer_observation_only": true,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "producer_calls": 1,
+      "read_enter_s": 5664.773070244,
+      "read_tid": 140069374207680,
+      "release_s": 5664.893233205,
+      "state_params": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      }
+    },
+    {
+      "await_return_s": 5665.051404911,
+      "cache_read_entries": [
+        {
+          "artifact_id": "sha256:a63328e7f800442201ee35837d7d768e30bc931d0e67bd7874407bb7d119c439",
+          "entered_s": 5665.017465369
+        }
+      ],
+      "cache_refs": [
+        {
+          "artifact_id": "sha256:a63328e7f800442201ee35837d7d768e30bc931d0e67bd7874407bb7d119c439",
+          "kind": "scientist.node_cache_entry",
+          "media_type": "application/json"
+        }
+      ],
+      "elapsed_s": 0.04101056400031666,
+      "exception_message": "Workflow cold_seed exceeded timeout of 0.04s",
+      "io_ticks": 109,
+      "kind": "deadline",
+      "late_seed_cache_size": null,
+      "loop_tid": 140070923622272,
+      "mode": "trace",
+      "offloop_control": false,
+      "outcome": "WorkflowTimeoutError",
+      "producer_calls": 1,
+      "read_enter_s": 5665.017474797,
+      "read_tid": 140069374207680,
+      "release_s": 5665.137737508
+    },
+    {
+      "await_return_s": 5665.240632378,
+      "cache_read_entries": [
+        {
+          "artifact_id": "sha256:613738c5652ca104e5638f1694ae0cd8134df4153b57aec0c10e59434cc01e65",
+          "entered_s": 5665.240439804
+        }
+      ],
+      "cache_refs": [
+        {
+          "artifact_id": "sha256:613738c5652ca104e5638f1694ae0cd8134df4153b57aec0c10e59434cc01e65",
+          "kind": "scientist.node_cache_entry",
+          "media_type": "application/json"
+        }
+      ],
+      "cancel_requested_s": 5665.240515511,
+      "elapsed_s": 0.007360397999946144,
+      "exception_message": "",
+      "io_ticks": 109,
+      "kind": "cancel",
+      "late_seed_cache_size": null,
+      "loop_tid": 140070923622272,
+      "mode": "trace",
+      "offloop_control": false,
+      "outcome": "CancelledError",
+      "producer_calls": 1,
+      "read_enter_s": 5665.240450013,
+      "read_tid": 140069374207680,
+      "release_s": 5665.360803715
+    },
+    {
+      "await_return_s": 5665.66912447,
+      "cache_read_entries": [
+        {
+          "artifact_id": "sha256:d1f1a7a164ab12e431f51f960715b64fa70421a77f0e4fb99b195b9e321e768d",
+          "entered_s": 5665.527102551
+        },
+        {
+          "artifact_id": "sha256:d1f1a7a164ab12e431f51f960715b64fa70421a77f0e4fb99b195b9e321e768d",
+          "entered_s": 5665.651141778
+        },
+        {
+          "artifact_id": "sha256:d1f1a7a164ab12e431f51f960715b64fa70421a77f0e4fb99b195b9e321e768d",
+          "entered_s": 5665.692088985
+        }
+      ],
+      "cache_refs": [
+        {
+          "artifact_id": "sha256:d1f1a7a164ab12e431f51f960715b64fa70421a77f0e4fb99b195b9e321e768d",
+          "kind": "scientist.node_cache_entry",
+          "media_type": "application/json"
+        }
+      ],
+      "elapsed_s": 0.15698863599936885,
+      "io_ticks": 109,
+      "kind": "responsive",
+      "late_seed_cache_size": 1,
+      "loop_tid": 140070923622272,
+      "mode": "checkpoint",
+      "offloop_control": false,
+      "outcome": "ok",
+      "post_attempt_consumer_observation_only": true,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "producer_calls": 1,
+      "read_enter_s": 5665.52711245,
+      "read_tid": 140069374207680,
+      "release_s": 5665.647262762,
+      "state_params": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      }
+    },
+    {
+      "await_return_s": 5665.829671935,
+      "cache_read_entries": [
+        {
+          "artifact_id": "sha256:ded111b870a8e14f69e1c4b6e7f54280a30c7d4b42916adbed024306deea51d3",
+          "entered_s": 5665.796106376
+        }
+      ],
+      "cache_refs": [
+        {
+          "artifact_id": "sha256:ded111b870a8e14f69e1c4b6e7f54280a30c7d4b42916adbed024306deea51d3",
+          "kind": "scientist.node_cache_entry",
+          "media_type": "application/json"
+        }
+      ],
+      "elapsed_s": 0.040555068000685424,
+      "exception_message": "Workflow cold_seed exceeded timeout of 0.04s",
+      "io_ticks": 108,
+      "kind": "deadline",
+      "late_seed_cache_size": null,
+      "loop_tid": 140070923622272,
+      "mode": "checkpoint",
+      "offloop_control": false,
+      "outcome": "WorkflowTimeoutError",
+      "producer_calls": 1,
+      "read_enter_s": 5665.796114271,
+      "read_tid": 140069374207680,
+      "release_s": 5665.916258627
+    },
+    {
+      "await_return_s": 5666.037530508,
+      "cache_read_entries": [
+        {
+          "artifact_id": "sha256:c9569f4f23010bd2e0ec50933a0068d6acf87294e4ff819e820d2292a5548f35",
+          "entered_s": 5666.03731855
+        }
+      ],
+      "cache_refs": [
+        {
+          "artifact_id": "sha256:c9569f4f23010bd2e0ec50933a0068d6acf87294e4ff819e820d2292a5548f35",
+          "kind": "scientist.node_cache_entry",
+          "media_type": "application/json"
+        }
+      ],
+      "cancel_requested_s": 5666.037373919,
+      "elapsed_s": 0.007727465000243683,
+      "exception_message": "",
+      "io_ticks": 110,
+      "kind": "cancel",
+      "late_seed_cache_size": null,
+      "loop_tid": 140070923622272,
+      "mode": "checkpoint",
+      "offloop_control": false,
+      "outcome": "CancelledError",
+      "producer_calls": 1,
+      "read_enter_s": 5666.037326164,
+      "read_tid": 140069374207680,
+      "release_s": 5666.157567635
+    }
+  ],
+  "review_findings": [],
+  "reviewed_invariants": [
+    "Private NodeResultCache belongs to worker and is published only after successful await, absolute deadline check and current-owner check; cancellation is not swallowed by degraded-errors handling.",
+    "One absolute optional deadline reaches seed trace/ref loops, load_entry, real _read_entry and immediately before index admission. Expired worker stops additional cache get_bytes operations after already-entered backend returns.",
+    "ReadBudget checked before recovery I/O; exhausted gate bypasses optional cache and native node read gate reports correct read budget refusal with zero recovery reads and zero additional producer calls after the completed cold setup.",
+    "Workflow body wait_for receives residual absolute time after startup; expired startup raises before seed reads and producer.",
+    "Existing helper ContextVar copy propagates active tenant/access context; positive same-run warm replay calls producer once and preserves assignment/null/deletion/current unrelated state; actual permission/digest/foreignscope refuses.",
+    "Unconfigured workflow retains None deadline; existing helper bounded wait timeout uses empty owned cache bypass rather than importing a configured workflow deadline, and late private worker cannot mutate exposed cache.",
+    "Superseded _seed_cache owner check prevents replacing newer owner cache; this verifies seed inlet ownership and does not claim fully reentrant concurrent execute support."
+  ],
+  "limits": [
+    "SIGKILL, power loss, full four-base replay, institutional live authorization and production dataset acceptance are outside this oracle.",
+    "Already-entered synchronous backend get_bytes may internally resolve manifest/read bytes after deadline or cancellation. It cannot be physically interrupted; candidate prevents next cache-level read after expiry and active-cache publication.",
+    "Cancellation without absolute deadline may allow private worker to complete further verification after refusal; no late exposed cache admission was observed.",
+    "Independent oracle first harness used ArtifactID object in JSON instrumentation and failed serialization after assertions; oracle-first-harness.txt preserved and excluded. Only str instrumentation conversion changed before successful complete rerun.",
+    "Native tests are author-supplied; independent baseline-derived six-case real filesystem script provides separate deciding observation.",
+    "Deciding output and scratch receipt require root/EXE committed transfer before G can treat them as delivery; local scratch is not a remote artifact."
+  ]
+}

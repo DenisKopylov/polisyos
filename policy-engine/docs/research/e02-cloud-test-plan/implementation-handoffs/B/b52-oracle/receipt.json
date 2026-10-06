@@ -1,0 +1,785 @@
+{
+  "schema": "policyos.e02.B.B52.cold_seed_oracle.v1",
+  "target_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "target_tree": "c96b348f8d71b7a02f3b9052514911d26da0f634",
+  "property": "Cold recovery seed must permit ready coroutines, preserve one absolute deadline/cancellation admission, and retain real scope/integrity checks.",
+  "environment": {
+    "python": "Python 3.14.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "uid": 1000,
+    "isolation": "temporary real FileSystemCAS paths; no DB/port/production dataset; one watchdog and ready coroutine intentionally concurrent"
+  },
+  "command": "PYTHONPATH=/workspace/e02-B-b52-oracle/policy-engine/src:/workspace/e02-B-b52-oracle/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-oracle/probe.py",
+  "cwd": "/workspace/e02-B-b52-oracle/policy-engine",
+  "script": {
+    "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-oracle/probe.py",
+    "sha256": "3ec990a23c49017b0634161bbfb0ebdbce9297c3f30c2e7835b61a182fdb8eaa"
+  },
+  "output": {
+    "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-oracle/output-checkpoint.txt",
+    "sha256": "dd54f9e799681b959ff509d48f37f9626b83db1a2fedafa3ce35dfe701eb5cbf"
+  },
+  "inputs": {
+    "fixture_source": "policy-engine/tests/integration/scientist/test_execution_state_replay.py@0f24d18d988f579db20a84c734a587abe6cabe20",
+    "real_chain": "AsyncWorkflowExecutor cold→real FileSystemCAS cache v2 entry+journal→actual RunContext trace NODE_CACHE_STORE; checkpoint branch also publishes native CASCheckpointHook then resolves persisted latest checkpoint and metadata.cache_entry_refs→fresh same-run cache→native state operations merge",
+    "latency": "only get_bytes first targeted native entry read is paused by per-case threading Events; delegates real store read afterwards",
+    "control": "in isolated Python process only two execute seed call sites extracted from exact source are made await run_blocking_async; source files unchanged",
+    "complete_source_cut": "All runtime imports from immutable dedicated read-only worktree 0f24; fresh temp filesystem CAS per case. No production data required.",
+    "checkpoint_bridge": "Checkpoint branch verifies native completed_nodes=[writer] and checkpoint metadata refs equal cold producer refs, extracts only persisted refs after real resolve_latest_checkpoint, then empties trace to distinguish entry-ref inlet."
+  },
+  "cases": [
+    {
+      "mode": "trace",
+      "kind": "responsive",
+      "offloop_control": false,
+      "io_ticks": 0,
+      "outcome": "ok",
+      "elapsed_s": 0.1476880770005664,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": true,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "trace",
+      "kind": "deadline",
+      "offloop_control": false,
+      "io_ticks": 0,
+      "outcome": "fail",
+      "elapsed_s": 0.18285179900067305,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": true,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "trace",
+      "kind": "cancel",
+      "offloop_control": false,
+      "io_ticks": 0,
+      "outcome": "CancelledError",
+      "elapsed_s": 0.13080502000048,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": true,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "checkpoint",
+      "kind": "responsive",
+      "offloop_control": false,
+      "io_ticks": 0,
+      "outcome": "ok",
+      "elapsed_s": 0.14641178800047783,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": true,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "checkpoint",
+      "kind": "deadline",
+      "offloop_control": false,
+      "io_ticks": 0,
+      "outcome": "fail",
+      "elapsed_s": 0.16744846199981112,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": true,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "checkpoint",
+      "kind": "cancel",
+      "offloop_control": false,
+      "io_ticks": 0,
+      "outcome": "CancelledError",
+      "elapsed_s": 0.13043421200018201,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": true,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "trace",
+      "kind": "responsive",
+      "offloop_control": true,
+      "io_ticks": 109,
+      "outcome": "ok",
+      "elapsed_s": 0.14642781899965485,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": false,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "trace",
+      "kind": "deadline",
+      "offloop_control": true,
+      "io_ticks": 108,
+      "outcome": "TimeoutError",
+      "elapsed_s": 0.041204045999620575,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": false,
+      "await_return_before_release": true
+    },
+    {
+      "mode": "trace",
+      "kind": "cancel",
+      "offloop_control": true,
+      "io_ticks": 108,
+      "outcome": "CancelledError",
+      "elapsed_s": 0.007511822999731521,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": false,
+      "await_return_before_release": true
+    },
+    {
+      "mode": "checkpoint",
+      "kind": "responsive",
+      "offloop_control": true,
+      "io_ticks": 109,
+      "outcome": "ok",
+      "elapsed_s": 0.1470452789999399,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": false,
+      "await_return_before_release": false
+    },
+    {
+      "mode": "checkpoint",
+      "kind": "deadline",
+      "offloop_control": true,
+      "io_ticks": 108,
+      "outcome": "TimeoutError",
+      "elapsed_s": 0.04116853199957404,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": false,
+      "await_return_before_release": true
+    },
+    {
+      "mode": "checkpoint",
+      "kind": "cancel",
+      "offloop_control": true,
+      "io_ticks": 109,
+      "outcome": "CancelledError",
+      "elapsed_s": 0.008464986000035424,
+      "late_seed_cache_size": 1,
+      "producer_calls": 1,
+      "post_attempt_real_consumer_replay": {
+        "nullable": null,
+        "same": 4,
+        "seed": 7,
+        "unrelated": "new"
+      },
+      "read_on_loop_thread": false,
+      "await_return_before_release": true
+    }
+  ],
+  "negative_controls": [
+    {
+      "kind": "negative_controls",
+      "scope_refused": true,
+      "permission": "real_filesystem_permission_error",
+      "tampered_real_bytes_refused": true,
+      "positive_seed_size": 1,
+      "uid": 1000
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "finding_state": "B52 bounded cold-seed mechanism gap reproduced; no full historical closure",
+  "minimal_contract": [
+    "Use one owned recovery cache created inside worker/private inlet; publish self._cache only after successful await and uncancelled/unexpired current owner admission.",
+    "Propagate workflow absolute deadline through trace/ref iteration and load_entry into existing _read_entry(deadline_monotonic), and check deadline immediately before in-memory index admission.",
+    "Simple two call off-loop mutation proves responsiveness, but actual timeout/cancellation returns leave worker capable of late seed into already exposed cache: forbid that ownership escape.",
+    "FileSystemCAS is reusable across threads in existing get/put off-loop path and carries real filesystem readback; ContextVar tenant/access propagation must remain via existing context copy.",
+    "run_blocking_async(None) imports30s default. Preserve intended no-workflow-deadline semantics explicitly; do not treat helper default as configured workflow deadline."
+  ],
+  "limits": [
+    "Physical synchronous read cannot be interrupted by asyncio cancellation; bounded observation measures admission and ready-loop responsiveness, not disk speed.",
+    "Filesystem chmod denial and foreign bound scope were actual negatives; live/current institutional authorizer policy is not established.",
+    "Naive control is a separate in-memory mutation, not a production candidate or green fix.",
+    "First harness incorrectly applied success state assertion to expected deadline-fail result; preserved output-first-harness.txt is excluded from deciding evidence. Final rerun removes only that assertion for non-success cases.",
+    "No full four-base replay or production dataset acceptance claim.",
+    "Post-attempt real NodeResultCache.get and native _merge_cached_outcome_state read back late seeded entries and exact state operations; observation invokes the real consumer but does not claim the cancelled workflow resumed or committed that state.",
+    "Final output-checkpoint.txt includes actual persisted CASCheckpointHook publication and latest-checkpoint resolution; prior output-consumer.txt is superseded by this complete source-identical runtime rerun."
+  ],
+  "baseline_navigation": {
+    "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-oracle/baseline-navigation.json",
+    "sha256": "518c387e307cf001d502dc0a84ba1911e693711822e9b3d35c9078c127b34491",
+    "matching_cells": 10,
+    "source_identities": [
+      {
+        "id": "F01-P120",
+        "job": "F01",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_file": "received/F01.txt",
+        "source_line": "237",
+        "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py"
+      },
+      {
+        "id": "F02-P058",
+        "job": "F02",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_file": "received/F02.txt",
+        "source_line": "186",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py"
+      },
+      {
+        "id": "F05-P134",
+        "job": "F05",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_file": "received/F05.txt",
+        "source_line": "544",
+        "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py"
+      },
+      {
+        "id": "F06-P082",
+        "job": "F06",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_file": "received/F06.txt",
+        "source_line": "266",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py"
+      },
+      {
+        "id": "F07-P054",
+        "job": "F07",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_file": "received/F07.txt",
+        "source_line": "60",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py"
+      },
+      {
+        "id": "F09-P122",
+        "job": "F09",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_file": "received/F09.txt",
+        "source_line": "238",
+        "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py"
+      },
+      {
+        "id": "F11-P065",
+        "job": "F11",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_file": "received/F11.txt",
+        "source_line": "194",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py"
+      },
+      {
+        "id": "F11-P109",
+        "job": "F11",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_file": "received/F11.txt",
+        "source_line": "238",
+        "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py"
+      },
+      {
+        "id": "F14-P070",
+        "job": "F14",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_file": "received/F14.txt",
+        "source_line": "420",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py"
+      },
+      {
+        "id": "F14-P143",
+        "job": "F14",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_file": "received/F14.txt",
+        "source_line": "493",
+        "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py"
+      }
+    ],
+    "canonical_finding_basis": [
+      {
+        "finding_id": "B52",
+        "bundle_ids": [
+          "EXE-01"
+        ],
+        "recorded_ledger_status": "partial",
+        "route_grade": "candidate_unverified",
+        "semantic_adequacy": "not_established",
+        "discriminator_ref": "bundle-catalog.md#exe-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B52",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B52",
+        "assigned_routes": [
+          {
+            "job": "F01",
+            "ref": "research_main",
+            "cell_ids": [
+              "F01-P120"
+            ]
+          },
+          {
+            "job": "F02",
+            "ref": "research_main",
+            "cell_ids": [
+              "F02-P058"
+            ]
+          },
+          {
+            "job": "F05",
+            "ref": "e02_execution_base",
+            "cell_ids": [
+              "F05-P134"
+            ]
+          },
+          {
+            "job": "F06",
+            "ref": "e02_execution_base",
+            "cell_ids": [
+              "F06-P082"
+            ]
+          },
+          {
+            "job": "F07",
+            "ref": "e02_head",
+            "cell_ids": [
+              "F07-P054"
+            ]
+          },
+          {
+            "job": "F09",
+            "ref": "e02_head",
+            "cell_ids": [
+              "F09-P122"
+            ]
+          },
+          {
+            "job": "F11",
+            "ref": "main",
+            "cell_ids": [
+              "F11-P065",
+              "F11-P109"
+            ]
+          },
+          {
+            "job": "F14",
+            "ref": "integration_head",
+            "cell_ids": [
+              "F14-P070",
+              "F14-P143"
+            ]
+          }
+        ]
+      }
+    ],
+    "source_contexts": [
+      {
+        "job": "F01",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+        "opening_metadata_line": 4,
+        "opening_metadata_keys": [
+          "job",
+          "run",
+          "source",
+          "tree",
+          "role",
+          "manifest_sha256",
+          "manifest_note",
+          "start_utc",
+          "execution_end_epoch_s",
+          "elapsed_execution_s",
+          "assigned_cells",
+          "executed_cells",
+          "attempts",
+          "states",
+          "counts",
+          "counting_scope",
+          "additional_public_reports",
+          "additional_report_note",
+          "nonpass_events_all_attempts",
+          "reconciled_bound_receipts",
+          "P001",
+          "native_property_controls",
+          "observer_sha256",
+          "selected_extras",
+          "environment",
+          "config_sha256",
+          "source_checks",
+          "resources",
+          "blockers",
+          "properties_assigned",
+          "continuation_budget",
+          "excluded_slots",
+          "archive",
+          "text_file_sha256",
+          "completion",
+          "transfer_status",
+          "raw_archive_transfer",
+          "recipient_download_verified"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L4-L114 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 114
+      },
+      {
+        "job": "F02",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+        "opening_metadata_line": 5,
+        "opening_metadata_keys": [
+          "job",
+          "run",
+          "role",
+          "source",
+          "tree",
+          "manifest_sha256",
+          "manifest_note",
+          "start",
+          "series_and_gates_end",
+          "assigned_cells",
+          "executed_cells",
+          "python_attempts",
+          "gate_attempts",
+          "counts",
+          "phase_totals",
+          "additional_same_node_call_reports",
+          "additional_reports_note",
+          "receipts",
+          "junit_reconciliation_mismatches",
+          "nonpass_observer_events",
+          "harness_internal_errors",
+          "pytest_resource_boundary",
+          "pytest_wall_sum_s",
+          "pytest_cpu_user_sum_s",
+          "pytest_cpu_sys_sum_s",
+          "rss_unit",
+          "environment",
+          "config_sha256",
+          "observer_sha256",
+          "assigned_blob_bytes_match",
+          "source_drift",
+          "project_origin_custody_blockers",
+          "UNRUN_cells",
+          "continuation",
+          "excluded_slots",
+          "properties",
+          "unavailable_backend_surfaces",
+          "gates",
+          "vm_root",
+          "summary_sha256",
+          "raw_archive",
+          "transfer_status",
+          "raw_archive_transfer",
+          "raw_transfer_missing",
+          "receiver_acceptance"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L5-L126 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 126
+      },
+      {
+        "job": "F05",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+        "opening_metadata_line": 7,
+        "opening_metadata_keys": [
+          "job",
+          "run",
+          "source",
+          "source_role",
+          "tree",
+          "manifest_sha256",
+          "start",
+          "native_execution_start",
+          "budget_start_assumption",
+          "end",
+          "summary",
+          "completion",
+          "execution_quality",
+          "source_status",
+          "transfer_status",
+          "raw_archive_transfer",
+          "archive",
+          "profile",
+          "environment_compact",
+          "final_readback",
+          "config_sha256",
+          "setup_segments_compact",
+          "resource_adapter",
+          "compact_failure_schema",
+          "continuation",
+          "reproduction"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L7-L408 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 408
+      },
+      {
+        "job": "F06",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+        "opening_metadata_line": 3,
+        "opening_metadata_keys": [
+          "job",
+          "run",
+          "source_role",
+          "source",
+          "tree",
+          "manifest_sha256",
+          "start_utc",
+          "end_utc",
+          "profile",
+          "lock_hashes",
+          "native",
+          "recovery",
+          "all_attempts",
+          "all_attempt_wall_s",
+          "non_pass_events",
+          "gates_assigned",
+          "property_replay_states_assigned",
+          "excluded_expected_missing_paths",
+          "environment",
+          "source_readback",
+          "archive",
+          "limitations",
+          "pattern_pass",
+          "transfer_status",
+          "raw_archive_transfer",
+          "raw_transfer_missing",
+          "full_longrepr_location",
+          "failure_encoding"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L3-L126 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 126
+      },
+      {
+        "job": "F07",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+        "opening_metadata_line": 5,
+        "opening_metadata_keys": [
+          "job",
+          "run",
+          "source",
+          "tree",
+          "manifest_sha256",
+          "start",
+          "end",
+          "assigned_count",
+          "terminal_counts",
+          "phase_totals",
+          "receipt_totals",
+          "transfer_status",
+          "raw_archive_transfer",
+          "archive",
+          "profile",
+          "continuation_count",
+          "start_boundary",
+          "text_file_sha256",
+          "runtime_control_segment_counts",
+          "receipt_blockers",
+          "environment",
+          "config_sha256",
+          "measurements",
+          "excluded_slots",
+          "reproduction",
+          "instrumentation_sources"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L5-L5 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 5
+      },
+      {
+        "job": "F09",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+        "opening_metadata_line": 5,
+        "opening_metadata_keys": [
+          "job",
+          "run",
+          "repository",
+          "source_role",
+          "source",
+          "tree",
+          "manifest_sha256",
+          "observer_sha256",
+          "assigned",
+          "executed",
+          "attempts",
+          "states",
+          "phase_totals_selected_attempts",
+          "skip_phases",
+          "exceptional_events_selected_attempts",
+          "exceptional_events_all_attempts",
+          "start",
+          "end",
+          "no_new_cells_after",
+          "series_wall_s",
+          "sum_selected_direct_pytest_wall_s",
+          "largest_direct_pytest_rss_kib",
+          "resource_boundary",
+          "receipt_states",
+          "selected_fallback_attempts",
+          "recovery",
+          "final_source_clean",
+          "original_checkout_head_preserved",
+          "toolchain",
+          "selected_extras",
+          "setup",
+          "config_sha256",
+          "P004_nested_boundary",
+          "gates",
+          "properties",
+          "continuation_unrun",
+          "excluded_missing_paths",
+          "verification_issues",
+          "archive",
+          "cause_status",
+          "transfer_status",
+          "raw_archive_transfer",
+          "raw_transfer_missing"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L5-L113 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 113
+      },
+      {
+        "job": "F11",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+        "opening_metadata_line": 5,
+        "opening_metadata_keys": [
+          "job",
+          "run",
+          "role",
+          "source",
+          "tree",
+          "manifest_sha256",
+          "selected_profile",
+          "lock_hashes",
+          "start",
+          "end",
+          "summary",
+          "transfer_status",
+          "raw_archive_transfer",
+          "environment",
+          "setup_segments",
+          "setup_interrupted_attempt",
+          "gates",
+          "properties",
+          "unrun",
+          "receipt_blockers",
+          "excluded_slots",
+          "cause_status",
+          "raw_transfer_missing"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L5-L127 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 127
+      },
+      {
+        "job": "F14",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "source_file_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+        "opening_metadata_line": 4,
+        "opening_metadata_keys": [
+          "job",
+          "run_id",
+          "source_sha",
+          "tree",
+          "source_role",
+          "manifest_sha256",
+          "start",
+          "start_precision",
+          "series_first_start",
+          "native_loop_end",
+          "end",
+          "assigned_total",
+          "attempts",
+          "states",
+          "counts",
+          "counts_scope",
+          "receipts",
+          "receipt_notes",
+          "timings",
+          "environment",
+          "lock_hashes",
+          "setup_segment_columns",
+          "setup_segments",
+          "setup_full_ref",
+          "gates",
+          "property_rows",
+          "native_unrun",
+          "harness_recovery",
+          "source_checks_without_issues",
+          "original_head_preserved",
+          "archive",
+          "nonpass_events_all_attempts",
+          "transfer_status",
+          "raw_archive_transfer",
+          "cause_status",
+          "raw_transfer_missing"
+        ],
+        "environment_and_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@0f24d18d988f579db20a84c734a587abe6cabe20#L4-L113 complete opening JSON metadata; source-reported, raw archive not transferred.",
+        "opening_metadata_end_line": 113
+      }
+    ],
+    "grade": "Source-reported compact baseline navigation only; raw archives absent; ten PASS do not establish this cold-seed path or candidate closure."
+  }
+}

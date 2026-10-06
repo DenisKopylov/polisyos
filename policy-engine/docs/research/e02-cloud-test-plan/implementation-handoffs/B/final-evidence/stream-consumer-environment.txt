@@ -1,0 +1,47 @@
+{
+  "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "pydantic": "2.12.5",
+    "duckdb": "1.4.3",
+    "numpy": "2.3.5"
+  },
+  "modules": [
+    {
+      "name": "polisyos.fabric.connectors.base",
+      "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/base.py",
+      "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5"
+    },
+    {
+      "name": "polisyos.fabric.connectors.pool",
+      "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+    },
+    {
+      "name": "polisyos.fabric.connectors.registry",
+      "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/registry.py",
+      "sha256": "9b1d8efbd3dcff030db88ab7a28080beb0877adf1ac78e270292cf26b45ded05"
+    },
+    {
+      "name": "polisyos.fabric.connectors.registry_core_parts",
+      "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+      "sha256": "08d9e9da61ed238233af222e009d139853db60ddf1e4975efe546a02a61e5f2f"
+    },
+    {
+      "name": "polisyos.fabric.connectors._registry_lifecycle",
+      "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31"
+    },
+    {
+      "name": "polisyos.fabric.connectors.sources.event_stream",
+      "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+    },
+    {
+      "name": "polisyos.fabric.data_plane.streaming",
+      "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    }
+  ]
+}

@@ -1,0 +1,2549 @@
+{
+  "schema": "policyos.e02.B_native_cohort.v1",
+  "final_head": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "final_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "family_heads": {
+    "run": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+    "exe": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+    "cas": "f1db5d0d76fb93825a433bf8139235a93b213606",
+    "dur": "f3b9f054c86218b431ab927b56100164842db64a",
+    "cmp": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+    "adapters": "3d18f37a5953f577c99260442a5e9afbc308a1d6"
+  },
+  "explicit_final_source_points": {
+    "run": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+    "exe": "94f378200d8684d61737f0561eccafea6eaa843f",
+    "cas": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+    "dur": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+    "cmp": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+    "adapters": "88e27af5f3aedac68fdbe268ec87e17f239d755f"
+  },
+  "ordered_receipt_sources": {
+    "run": [
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+        "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "3ff71ee11ce8ae19ef284adb0ddd0fe2778ba470",
+            "418b1f061459e40976d2666b5b62dce21d8c4833",
+            "d834b9c06dcb94e9689a2685f8826e4ea6c31c8b",
+            "3e95056bca6d0c15ab7778573172491628f48596",
+            "ba79d141a3937541b3164db255ceda89883575ec",
+            "ec8d20c76b49ab00fc72094982447c02001d3036",
+            "6c2cab488368932479677bc036ffad25657c0367",
+            "dfd31e978f11b4b801f5c8bb4a14747a0b25df26",
+            "0cf61d9234580819a1a27ff441266a026d8f6049",
+            "4a68d5345ceca69a6148af082f59ae27372865de",
+            "a9672a8609410af37582cdef6849e496e1a02e1a",
+            "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+          ],
+          "candidate_tree_sha": "0e881900f0526546364fe5336a6dd6d469185320"
+        }
+      }
+    ],
+    "exe": [
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "1d87e30c6859d945dd84310aafeb64905be529ae",
+            "a33898206b4b7421fa06f3444d8d53fb5e1bd174"
+          ],
+          "candidate_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "candidate_tree_sha": "d92cd6b5872325949a3cadb7917b10792b68b1ea"
+        }
+      },
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "receipt_blob": "df7e1520804b544a6d188aed6f192dbe0ad12a65",
+        "explicit_source_identity": {
+          "source_sha": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "implementation_commits": [
+            "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+            "b75ea829d4b76285a399d75249117764211447b0",
+            "c52c2e584444d712ded7f9349b537527dad02824",
+            "94f378200d8684d61737f0561eccafea6eaa843f",
+            "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4"
+          ],
+          "candidate_sha": "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4",
+          "candidate_tree_sha": "cedb439ea3e629884ea672fad487f3e2b6fdac72"
+        }
+      }
+    ],
+    "cas": [
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+        "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "a1ed35181947b23d64eb2a4cd25488f97d30bf01",
+            "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+            "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+            "46283ae1cbcaa775cebac51f0361262f64b5b206"
+          ],
+          "candidate_tree_sha": "93cde666e1a95970bad1a6875eb9f8ccf6b56714"
+        }
+      },
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+        "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "22684400ded9e996b0e91facb168b71a4af6c913",
+            "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6"
+          ],
+          "candidate_tree_sha": "613e40b149ec448c5b202cc8b5edd811e2e35a68"
+        }
+      }
+    ],
+    "dur": [
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+        "receipt_blob": "b8dce78e5b0b722f719a8b08da8208ca4f9b5ce6",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+            "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5"
+          ],
+          "candidate_tree_sha": "f0331553f28fc39ffbd2d75d41a334a5fe5acc0a"
+        }
+      }
+    ],
+    "cmp": [
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+        "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "236349107399b2016e7b7d2e20ba0f552b99aba4",
+            "fe1449957e06e9c62fae481c18cc07ab03ef65fb",
+            "e9f9738c1d0cd1cb4166718fe4cc5f76b7c15f9a",
+            "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+            "436e7beb61fb35237533d9a8e00a8aae4760fb8c"
+          ],
+          "candidate_tree_sha": "81074c43bc1bc23483e5d77671d25c1d898ff96d"
+        }
+      }
+    ],
+    "adapters": [
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "8be155b255591b7fac8e9747ad9081246305fef8",
+            "2540c3247a5ff60d9880d8eb9869b10e1a229112",
+            "58b04116e25344835f482ef79c16ce87f2d0b771",
+            "d9d61af6359033a08835cf5cc3fecb41c8e6967f"
+          ],
+          "candidate_sha": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+          "candidate_tree_sha": "2f320f79e56aa1da71dad92f171d9dbac5a72d2d"
+        }
+      },
+      {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+        "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+        "explicit_source_identity": {
+          "implementation_commits": [
+            "242437452f07e74be81584cfc332f91bd07d282a",
+            "88e27af5f3aedac68fdbe268ec87e17f239d755f"
+          ],
+          "candidate_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "candidate_tree_sha": "e8d319521938bca8306425d45cd6543865fd2c6d"
+        }
+      }
+    ]
+  },
+  "native_waves": [
+    {
+      "family": "run",
+      "label": "full-wave-1",
+      "family_head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "source_command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py --junitxml=/tmp/e02-B-run-executor-native.xml",
+      "observed_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "observed_result": "see exact receipt output",
+      "whole_test_files": [
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/remediation/test_run_03.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/scientist/orchestration/engine/test_retry_integration.py"
+      ],
+      "file_count": 4
+    },
+    {
+      "family": "exe",
+      "label": "full-wave-1",
+      "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json",
+      "source_command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--override-ini",
+        "addopts=",
+        "-v",
+        "tests/integration/scientist/test_execution_state_replay.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_02.py",
+        "tests/unit/remediation/test_exe_02.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+      ],
+      "observed_target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+      "observed_result": "257 passed, 3 warnings; exit0, wall122.716s, maxrss948076KiB",
+      "whole_test_files": [
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_execution_state_replay.py",
+        "tests/unit/remediation/test_exe_02.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_02.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "tests/unit/scientist/orchestration/engine/test_state_merge.py"
+      ],
+      "file_count": 19
+    },
+    {
+      "family": "cmp",
+      "label": "full-wave-1",
+      "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json",
+      "source_command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "--show-capture=no",
+        "--basetemp",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-temp-final",
+        "--override-ini",
+        "cache_dir=/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-cache-final",
+        "--junitxml",
+        "/workspace/e02-B-cmp-res/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/fresh-wave.junit.xml",
+        "tests/unit/remediation/test_cmp_01.py",
+        "tests/unit/remediation/test_cmp_02.py",
+        "tests/unit/remediation/test_cmp_03.py",
+        "tests/unit/remediation/test_res_03.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/foundry/methods/test_semantic_validator.py",
+        "tests/unit/foundry/methods/test_linker.py"
+      ],
+      "observed_target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "observed_result": "161 passed in 6.97s; zero skip/error/failure in complete 11-file selection",
+      "whole_test_files": [
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/foundry/methods/test_semantic_validator.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "tests/unit/remediation/test_cmp_02.py",
+        "tests/unit/remediation/test_cmp_03.py",
+        "tests/unit/remediation/test_res_03.py",
+        "tests/unit/remediation/test_res_04.py"
+      ],
+      "file_count": 11
+    },
+    {
+      "family": "dur",
+      "label": "full-wave-1",
+      "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json",
+      "source_command": "PYTHONPATH=/workspace/e02-B-dur-ledger/policy-engine/src:/workspace/e02-B-dur-ledger/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/mirror_contracts/test_budget_ledger.py -vv --tb=short -o cache_dir=_build/e02-B-dur-ledger/pytest-cache",
+      "observed_target_sha": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+      "observed_result": "see exact receipt output",
+      "whole_test_files": [
+        "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py"
+      ],
+      "file_count": 3
+    },
+    {
+      "family": "dur",
+      "label": "full-wave-2",
+      "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json",
+      "source_command": "PYTHONPATH=/workspace/e02-B-dur-ledger/policy-engine/src:/workspace/e02-B-dur-ledger/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_dur_02.py tests/unit/runtime/http/test_acquisition_control_worker.py tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py -vv --tb=short -o cache_dir=_build/e02-B-dur-ledger/dur-02-cache",
+      "observed_target_sha": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+      "observed_result": "see exact receipt output",
+      "whole_test_files": [
+        "tests/unit/remediation/test_dur_02.py",
+        "tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py"
+      ],
+      "file_count": 3
+    },
+    {
+      "family": "adapters",
+      "label": "jit",
+      "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json",
+      "source_command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_jit_01.py tests/unit/foundry/methods/test_compiler.py tests/unit/foundry/methods/test_compiler_e02.py -v --tb=short -o addopts=",
+      "observed_target_sha": "58b04116e25344835f482ef79c16ce87f2d0b771",
+      "observed_result": "61 passed",
+      "whole_test_files": [
+        "tests/unit/foundry/methods/test_compiler.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/remediation/test_jit_01.py"
+      ],
+      "file_count": 3
+    },
+    {
+      "family": "adapters",
+      "label": "llm",
+      "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json",
+      "source_command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_llm_01.py tests/unit/scientist/orchestration/llm/test_prompt_cache.py tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py tests/unit/scientist/orchestration/llm/test_cost_metrics.py -v --tb=short -o addopts=",
+      "observed_target_sha": "58b04116e25344835f482ef79c16ce87f2d0b771",
+      "observed_result": "54 passed, 1 strict xfailed",
+      "whole_test_files": [
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+      ],
+      "file_count": 4
+    },
+    {
+      "family": "adapters",
+      "label": "net",
+      "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json",
+      "source_command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/fabric/connectors/test_resilience.py tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_pool_e02.py tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py tests/unit/fabric/data_plane/test_streaming_runtime.py -v --tb=short -o addopts=",
+      "observed_target_sha": "58b04116e25344835f482ef79c16ce87f2d0b771",
+      "observed_result": "177 passed",
+      "whole_test_files": [
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/fabric/connectors/test_resilience.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py"
+      ],
+      "file_count": 5
+    },
+    {
+      "family": "adapters",
+      "label": "wire",
+      "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json",
+      "source_command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_wire_01.py tests/unit/scientist/orchestration/engine/runner/test_serialization.py tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py -v --tb=short -o addopts=",
+      "observed_target_sha": "58b04116e25344835f482ef79c16ce87f2d0b771",
+      "observed_result": "89 passed",
+      "whole_test_files": [
+        "tests/unit/remediation/test_wire_01.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py"
+      ],
+      "file_count": 3
+    },
+    {
+      "family": "cas",
+      "label": "complete-native-receipt-wave",
+      "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json",
+      "source_command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_config.py tests/unit/core/artifacts/test_artifact_id_serialization_contract.py tests/unit/core/artifacts/test_artifact_store_protocol.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/core/artifacts/test_ownership_history.py tests/unit/core/artifacts/test_transfer_publication.py tests/unit/core/phase0/test_artifact_export_import.py tests/unit/foundry/runtime/test_executor_snapshots.py tests/unit/ir/analytics/test_ncm.py tests/unit/remediation/test_cas_01.py tests/unit/remediation/test_cas_02.py tests/unit/remediation/test_cas_03.py tests/unit/runtime/quality/test_authority_reconciliation.py tests/unit/runtime/quality/test_multi_tenant_shared_cas.py tests/unit/runtime/quality/test_tenant_cas_approval_governance.py tests/unit/scientist/orchestration/engine/test_idempotency.py tests/unit/core/artifacts/test_transfer_output_paths.py --junitxml=/workspace/e02-cas-path-native.xml",
+      "observed_target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "observed_result": "301 passed,1 failed,1 warning in32.47s",
+      "whole_test_files": [
+        "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "tests/unit/core/artifacts/backends/test_config.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_ownership_history.py",
+        "tests/unit/core/artifacts/test_transfer_output_paths.py",
+        "tests/unit/core/artifacts/test_transfer_publication.py",
+        "tests/unit/core/phase0/test_artifact_export_import.py",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py",
+        "tests/unit/ir/analytics/test_ncm.py",
+        "tests/unit/remediation/test_cas_01.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/runtime/quality/test_authority_reconciliation.py",
+        "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+        "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py"
+      ],
+      "file_count": 20
+    },
+    {
+      "family": "exe",
+      "label": "B52-followup-whole-file",
+      "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "receipt_path": "new source at supplied final EXE head",
+      "source_command": [
+        "tests/integration/scientist/test_async_cache_recovery.py"
+      ],
+      "observed_target_sha": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "observed_result": "14 cases specified by root; not executed by this preparation",
+      "whole_test_files": [
+        "tests/integration/scientist/test_async_cache_recovery.py"
+      ],
+      "file_count": 1
+    },
+    {
+      "family": "cas",
+      "label": "archive-output-path-followup-whole-file",
+      "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "receipt_path": "new source at supplied final CAS head",
+      "source_command": [
+        "tests/unit/core/artifacts/test_transfer_output_paths.py"
+      ],
+      "observed_target_sha": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "observed_result": "7 new cases specified by root; not executed by this preparation",
+      "whole_test_files": [
+        "tests/unit/core/artifacts/test_transfer_output_paths.py"
+      ],
+      "file_count": 1
+    }
+  ],
+  "test_paths": [
+    "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "tests/integration/scientist/test_async_cache_recovery.py",
+    "tests/integration/scientist/test_checkpoint_resume.py",
+    "tests/integration/scientist/test_execution_state_replay.py",
+    "tests/unit/common/test_async_tools.py",
+    "tests/unit/core/artifacts/backends/test_caching_store.py",
+    "tests/unit/core/artifacts/backends/test_config.py",
+    "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+    "tests/unit/core/artifacts/test_import_tenant_context.py",
+    "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+    "tests/unit/core/artifacts/test_ownership_history.py",
+    "tests/unit/core/artifacts/test_transfer_output_paths.py",
+    "tests/unit/core/artifacts/test_transfer_publication.py",
+    "tests/unit/core/phase0/test_artifact_export_import.py",
+    "tests/unit/fabric/connectors/test_pool_e02.py",
+    "tests/unit/fabric/connectors/test_registry.py",
+    "tests/unit/fabric/connectors/test_resilience.py",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "tests/unit/foundry/methods/test_compiler.py",
+    "tests/unit/foundry/methods/test_compiler_e02.py",
+    "tests/unit/foundry/methods/test_composer.py",
+    "tests/unit/foundry/methods/test_composer_hardening.py",
+    "tests/unit/foundry/methods/test_linker.py",
+    "tests/unit/foundry/methods/test_semantic_validator.py",
+    "tests/unit/foundry/runtime/test_executor_snapshots.py",
+    "tests/unit/ir/analytics/test_ncm.py",
+    "tests/unit/remediation/test_cas_01.py",
+    "tests/unit/remediation/test_cas_02.py",
+    "tests/unit/remediation/test_cas_03.py",
+    "tests/unit/remediation/test_cmp_01.py",
+    "tests/unit/remediation/test_cmp_02.py",
+    "tests/unit/remediation/test_cmp_03.py",
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/remediation/test_exe_02.py",
+    "tests/unit/remediation/test_jit_01.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/remediation/test_res_01.py",
+    "tests/unit/remediation/test_res_02.py",
+    "tests/unit/remediation/test_res_03.py",
+    "tests/unit/remediation/test_res_04.py",
+    "tests/unit/remediation/test_run_03.py",
+    "tests/unit/remediation/test_wire_01.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/runtime/quality/test_authority_reconciliation.py",
+    "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+    "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+  ],
+  "whole_file_count": 74,
+  "per_file_bindings": [
+    {
+      "path": "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "54080abb75280762c6def538eb0a8b70c5dee211",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "54080abb75280762c6def538eb0a8b70c5dee211",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "54080abb75280762c6def538eb0a8b70c5dee211",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "54080abb75280762c6def538eb0a8b70c5dee211",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/integration/scientist/test_async_cache_recovery.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "06c6ea9b5ec171c5db8a2adb7bc4cdf31e3176e9",
+          "observed_wave_target": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "observed_wave_blob": "06c6ea9b5ec171c5db8a2adb7bc4cdf31e3176e9",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "06c6ea9b5ec171c5db8a2adb7bc4cdf31e3176e9",
+          "wave_label": "B52-followup-whole-file"
+        }
+      ],
+      "final_head_blob": "06c6ea9b5ec171c5db8a2adb7bc4cdf31e3176e9",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/B52-followup-whole-file": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/integration/scientist/test_checkpoint_resume.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "92966ff44ac12f40fcf0db8a5ef9a943048ee24a",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "92966ff44ac12f40fcf0db8a5ef9a943048ee24a",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "92966ff44ac12f40fcf0db8a5ef9a943048ee24a",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "92966ff44ac12f40fcf0db8a5ef9a943048ee24a",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/integration/scientist/test_execution_state_replay.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "9a4cef0362e364a662b787e24f1c647b0f05f93a",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "9a4cef0362e364a662b787e24f1c647b0f05f93a",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "9a4cef0362e364a662b787e24f1c647b0f05f93a",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "9a4cef0362e364a662b787e24f1c647b0f05f93a",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/common/test_async_tools.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "run",
+          "family_head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "family_head_blob": "6233a9f4f855fa8a5c9dceba1d0ca26a91d8f916",
+          "observed_wave_target": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "observed_wave_blob": "6233a9f4f855fa8a5c9dceba1d0ca26a91d8f916",
+          "explicit_final_source_point": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "final_receipt_source_blob": "6233a9f4f855fa8a5c9dceba1d0ca26a91d8f916",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "6233a9f4f855fa8a5c9dceba1d0ca26a91d8f916",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "run/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/backends/test_caching_store.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/backends/test_config.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "d28890cff78ad62a0f94627b38a5fc576403d2f8",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "d28890cff78ad62a0f94627b38a5fc576403d2f8",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "d28890cff78ad62a0f94627b38a5fc576403d2f8",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "d28890cff78ad62a0f94627b38a5fc576403d2f8",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "acc98b33d6e5c8a5426615f273b8108c8257f9ea",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "acc98b33d6e5c8a5426615f273b8108c8257f9ea",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "acc98b33d6e5c8a5426615f273b8108c8257f9ea",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "acc98b33d6e5c8a5426615f273b8108c8257f9ea",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "cbd077fd37ddb1a2bf83b28b2d684614687187e0",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "cbd077fd37ddb1a2bf83b28b2d684614687187e0",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "cbd077fd37ddb1a2bf83b28b2d684614687187e0",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "cbd077fd37ddb1a2bf83b28b2d684614687187e0",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "935240c5ab424a34cabf97ffa18f0ccffd6e5388",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "935240c5ab424a34cabf97ffa18f0ccffd6e5388",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "935240c5ab424a34cabf97ffa18f0ccffd6e5388",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "935240c5ab424a34cabf97ffa18f0ccffd6e5388",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "526e6b07f3cdb250e5933b0bf3ee8bdcc921aa49",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "526e6b07f3cdb250e5933b0bf3ee8bdcc921aa49",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "526e6b07f3cdb250e5933b0bf3ee8bdcc921aa49",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "526e6b07f3cdb250e5933b0bf3ee8bdcc921aa49",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "53da99b487c468bbf8e26ca5eeae40545d90f300",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "53da99b487c468bbf8e26ca5eeae40545d90f300",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "53da99b487c468bbf8e26ca5eeae40545d90f300",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "53da99b487c468bbf8e26ca5eeae40545d90f300",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_ownership_history.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "74f4462e9ed344d1e36736986f3d5589749d5f31",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "74f4462e9ed344d1e36736986f3d5589749d5f31",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "74f4462e9ed344d1e36736986f3d5589749d5f31",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "74f4462e9ed344d1e36736986f3d5589749d5f31",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "3f2481f58c2a93dea5f20dcd841a06c1fb9865b1",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "3f2481f58c2a93dea5f20dcd841a06c1fb9865b1",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "3f2481f58c2a93dea5f20dcd841a06c1fb9865b1",
+          "wave_label": "complete-native-receipt-wave"
+        },
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "3f2481f58c2a93dea5f20dcd841a06c1fb9865b1",
+          "observed_wave_target": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "observed_wave_blob": "3f2481f58c2a93dea5f20dcd841a06c1fb9865b1",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "3f2481f58c2a93dea5f20dcd841a06c1fb9865b1",
+          "wave_label": "archive-output-path-followup-whole-file"
+        }
+      ],
+      "final_head_blob": "3f2481f58c2a93dea5f20dcd841a06c1fb9865b1",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true,
+        "cas/archive-output-path-followup-whole-file": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/core/phase0/test_artifact_export_import.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "58a730654c652e68815752b9f776b9066681e3a6",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "58a730654c652e68815752b9f776b9066681e3a6",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "58a730654c652e68815752b9f776b9066681e3a6",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "58a730654c652e68815752b9f776b9066681e3a6",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/fabric/connectors/test_pool_e02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "f4f1333801a25a4dc2122f08e4f0269da8ecfb46",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "8d13dc75e11301eb2f702095c38d579c43e5f261",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "f4f1333801a25a4dc2122f08e4f0269da8ecfb46",
+          "wave_label": "net"
+        }
+      ],
+      "final_head_blob": "f4f1333801a25a4dc2122f08e4f0269da8ecfb46",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/net": false
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/fabric/connectors/test_registry.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "493824803dc6dc869c1c5dd6511c72dee59d080f",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "493824803dc6dc869c1c5dd6511c72dee59d080f",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "493824803dc6dc869c1c5dd6511c72dee59d080f",
+          "wave_label": "net"
+        }
+      ],
+      "final_head_blob": "493824803dc6dc869c1c5dd6511c72dee59d080f",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/net": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/fabric/connectors/test_resilience.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+          "wave_label": "net"
+        }
+      ],
+      "final_head_blob": "4907e921e867a383243c6380b5ca682c435fedc6",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/net": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "d7913c3de3ba60d96f5ad7f66e70311641e95633",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "d7913c3de3ba60d96f5ad7f66e70311641e95633",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "d7913c3de3ba60d96f5ad7f66e70311641e95633",
+          "wave_label": "net"
+        }
+      ],
+      "final_head_blob": "d7913c3de3ba60d96f5ad7f66e70311641e95633",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/net": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "6a0bbc0b70b2117164c945353a19e477f8092234",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "6a0bbc0b70b2117164c945353a19e477f8092234",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "6a0bbc0b70b2117164c945353a19e477f8092234",
+          "wave_label": "net"
+        }
+      ],
+      "final_head_blob": "6a0bbc0b70b2117164c945353a19e477f8092234",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/net": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "9dd676861726c93934b227e952c04700a0079b82",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "9dd676861726c93934b227e952c04700a0079b82",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "9dd676861726c93934b227e952c04700a0079b82",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "9dd676861726c93934b227e952c04700a0079b82",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "01d6df5084e65d531a37bbeada43e56ca85bcbf0",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "01d6df5084e65d531a37bbeada43e56ca85bcbf0",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "01d6df5084e65d531a37bbeada43e56ca85bcbf0",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "01d6df5084e65d531a37bbeada43e56ca85bcbf0",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_compiler.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "a1057ad067999a25584957a43543c33f03b39b5e",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "a1057ad067999a25584957a43543c33f03b39b5e",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "a1057ad067999a25584957a43543c33f03b39b5e",
+          "wave_label": "jit"
+        }
+      ],
+      "final_head_blob": "a1057ad067999a25584957a43543c33f03b39b5e",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/jit": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "1cedb935e571d4568b287df4486297e4457199bc",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "1cedb935e571d4568b287df4486297e4457199bc",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "1cedb935e571d4568b287df4486297e4457199bc",
+          "wave_label": "jit"
+        }
+      ],
+      "final_head_blob": "1cedb935e571d4568b287df4486297e4457199bc",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/jit": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_composer.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "2081b0f03f530823ad022ba6becd112742016206",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "2081b0f03f530823ad022ba6becd112742016206",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "2081b0f03f530823ad022ba6becd112742016206",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "2081b0f03f530823ad022ba6becd112742016206",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_composer_hardening.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "ed7426de7b8907cab990582aac712ee612e247dd",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "ed7426de7b8907cab990582aac712ee612e247dd",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "ed7426de7b8907cab990582aac712ee612e247dd",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "ed7426de7b8907cab990582aac712ee612e247dd",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_linker.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "9903465e51817681aa637fab9003718312b1c7ca",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "9903465e51817681aa637fab9003718312b1c7ca",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "9903465e51817681aa637fab9003718312b1c7ca",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "9903465e51817681aa637fab9003718312b1c7ca",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_semantic_validator.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "62a959c724e080098ea0f10878078821ec3ad05e",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "62a959c724e080098ea0f10878078821ec3ad05e",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "62a959c724e080098ea0f10878078821ec3ad05e",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "62a959c724e080098ea0f10878078821ec3ad05e",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/foundry/runtime/test_executor_snapshots.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "1a2de990d566a0cca37f539fe32d2ad192ed6f87",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "1a2de990d566a0cca37f539fe32d2ad192ed6f87",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "1a2de990d566a0cca37f539fe32d2ad192ed6f87",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "1a2de990d566a0cca37f539fe32d2ad192ed6f87",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/ir/analytics/test_ncm.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "8864e9219c42e03e662f0c81d75fcfef2b8f3c5a",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "8864e9219c42e03e662f0c81d75fcfef2b8f3c5a",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "8864e9219c42e03e662f0c81d75fcfef2b8f3c5a",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "8864e9219c42e03e662f0c81d75fcfef2b8f3c5a",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_cas_01.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_cas_02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "b509b1cd2c04d9bf5b9f50b29660d675bf5f33b4",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "b509b1cd2c04d9bf5b9f50b29660d675bf5f33b4",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "b509b1cd2c04d9bf5b9f50b29660d675bf5f33b4",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "b509b1cd2c04d9bf5b9f50b29660d675bf5f33b4",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_cas_03.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "e0a8f6e9341abaf6f50f99ee373780c179cfa716",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "e0a8f6e9341abaf6f50f99ee373780c179cfa716",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "e0a8f6e9341abaf6f50f99ee373780c179cfa716",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "e0a8f6e9341abaf6f50f99ee373780c179cfa716",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_cmp_01.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "3333ec1f3d826b1c37120bc9ee72540f15666cc8",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "3333ec1f3d826b1c37120bc9ee72540f15666cc8",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "3333ec1f3d826b1c37120bc9ee72540f15666cc8",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "3333ec1f3d826b1c37120bc9ee72540f15666cc8",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_cmp_02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "76a129359a6411a929b739e7bffb89b4312de081",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "76a129359a6411a929b739e7bffb89b4312de081",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "76a129359a6411a929b739e7bffb89b4312de081",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "76a129359a6411a929b739e7bffb89b4312de081",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_cmp_03.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "068de90a8210a766980418685ea8bf6a8fa44fa5",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "068de90a8210a766980418685ea8bf6a8fa44fa5",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "068de90a8210a766980418685ea8bf6a8fa44fa5",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "068de90a8210a766980418685ea8bf6a8fa44fa5",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_dur_02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "dur",
+          "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+          "family_head_blob": "83c37356e6d694fc0960e272332660431712ec6a",
+          "observed_wave_target": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+          "observed_wave_blob": "83c37356e6d694fc0960e272332660431712ec6a",
+          "explicit_final_source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+          "final_receipt_source_blob": "83c37356e6d694fc0960e272332660431712ec6a",
+          "wave_label": "full-wave-2"
+        }
+      ],
+      "final_head_blob": "83c37356e6d694fc0960e272332660431712ec6a",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "dur/full-wave-2": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_exe_02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "06770a8df67aeb9d4e0b35d6bc0bbb91503c9898",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "06770a8df67aeb9d4e0b35d6bc0bbb91503c9898",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "06770a8df67aeb9d4e0b35d6bc0bbb91503c9898",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "06770a8df67aeb9d4e0b35d6bc0bbb91503c9898",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_jit_01.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "1e694d6eb36ce7b895c1e403689ca91c092beb70",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "1e694d6eb36ce7b895c1e403689ca91c092beb70",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "1e694d6eb36ce7b895c1e403689ca91c092beb70",
+          "wave_label": "jit"
+        }
+      ],
+      "final_head_blob": "1e694d6eb36ce7b895c1e403689ca91c092beb70",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/jit": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_llm_01.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "9b1793144e765179a38a8883a1916d567409c2c0",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "9b1793144e765179a38a8883a1916d567409c2c0",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "9b1793144e765179a38a8883a1916d567409c2c0",
+          "wave_label": "llm"
+        }
+      ],
+      "final_head_blob": "9b1793144e765179a38a8883a1916d567409c2c0",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/llm": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_res_01.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "39a05884aaebed0b8546219ac505462ec5d03b82",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "39a05884aaebed0b8546219ac505462ec5d03b82",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "39a05884aaebed0b8546219ac505462ec5d03b82",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "39a05884aaebed0b8546219ac505462ec5d03b82",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_res_02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "3ebec124bf38ea64bf20465cff44501795281fe2",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "3ebec124bf38ea64bf20465cff44501795281fe2",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "3ebec124bf38ea64bf20465cff44501795281fe2",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "3ebec124bf38ea64bf20465cff44501795281fe2",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_res_03.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "9efa44360eeace88d68a87103f287458eae25fef",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "9efa44360eeace88d68a87103f287458eae25fef",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "9efa44360eeace88d68a87103f287458eae25fef",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "9efa44360eeace88d68a87103f287458eae25fef",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_res_04.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cmp",
+          "family_head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "family_head_blob": "5c2c1b1d8ec1ffc2c1b7f4809d22da7795304cb4",
+          "observed_wave_target": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+          "observed_wave_blob": "5c2c1b1d8ec1ffc2c1b7f4809d22da7795304cb4",
+          "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+          "final_receipt_source_blob": "5c2c1b1d8ec1ffc2c1b7f4809d22da7795304cb4",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "5c2c1b1d8ec1ffc2c1b7f4809d22da7795304cb4",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cmp/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_run_03.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "run",
+          "family_head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "family_head_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+          "observed_wave_target": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "observed_wave_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+          "explicit_final_source_point": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "final_receipt_source_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "run/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/remediation/test_wire_01.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "ca0cd2a1d3dd245669e8bdf98d12c6484bcb95de",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "ca0cd2a1d3dd245669e8bdf98d12c6484bcb95de",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "ca0cd2a1d3dd245669e8bdf98d12c6484bcb95de",
+          "wave_label": "wire"
+        }
+      ],
+      "final_head_blob": "ca0cd2a1d3dd245669e8bdf98d12c6484bcb95de",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/wire": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "dur",
+          "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+          "family_head_blob": "d08e7c60b532c1b73a89ad494d35069e03f316ee",
+          "observed_wave_target": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+          "observed_wave_blob": "d08e7c60b532c1b73a89ad494d35069e03f316ee",
+          "explicit_final_source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+          "final_receipt_source_blob": "d08e7c60b532c1b73a89ad494d35069e03f316ee",
+          "wave_label": "full-wave-2"
+        }
+      ],
+      "final_head_blob": "d08e7c60b532c1b73a89ad494d35069e03f316ee",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "dur/full-wave-2": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/runtime/quality/test_authority_reconciliation.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "8941abcb65a75c34dd73d2bd66be03373a95bca6",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "8941abcb65a75c34dd73d2bd66be03373a95bca6",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "8941abcb65a75c34dd73d2bd66be03373a95bca6",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "8941abcb65a75c34dd73d2bd66be03373a95bca6",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "849aedd538ea560837d97361b443f5a4c2016d1e",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "849aedd538ea560837d97361b443f5a4c2016d1e",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "849aedd538ea560837d97361b443f5a4c2016d1e",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "849aedd538ea560837d97361b443f5a4c2016d1e",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "c3d29112c7b7bb25dc662b5e416d4e95f6ad017e",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "c3d29112c7b7bb25dc662b5e416d4e95f6ad017e",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "c3d29112c7b7bb25dc662b5e416d4e95f6ad017e",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "c3d29112c7b7bb25dc662b5e416d4e95f6ad017e",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "babb00fd0b3deda10edb873494f05d1489e66006",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "6cbd1fef525682f55a847004192394e0f4db5c8a",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "babb00fd0b3deda10edb873494f05d1489e66006",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "babb00fd0b3deda10edb873494f05d1489e66006",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": false
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "dur",
+          "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+          "family_head_blob": "d87978bba51d1cf6bcc5dfdd4e975b76cea71b7f",
+          "observed_wave_target": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+          "observed_wave_blob": "d87978bba51d1cf6bcc5dfdd4e975b76cea71b7f",
+          "explicit_final_source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+          "final_receipt_source_blob": "d87978bba51d1cf6bcc5dfdd4e975b76cea71b7f",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "d87978bba51d1cf6bcc5dfdd4e975b76cea71b7f",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "dur/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "4b1496d2ceede09dc5fcb181e9080e769b69ced1",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "4b1496d2ceede09dc5fcb181e9080e769b69ced1",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "4b1496d2ceede09dc5fcb181e9080e769b69ced1",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "4b1496d2ceede09dc5fcb181e9080e769b69ced1",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "781cecfd639eefa540bbdae00c540d5e42e6feb4",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "781cecfd639eefa540bbdae00c540d5e42e6feb4",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "781cecfd639eefa540bbdae00c540d5e42e6feb4",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "781cecfd639eefa540bbdae00c540d5e42e6feb4",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "180e4cd1d503cfe4f6465d8f1ec5ad6ee245f623",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "180e4cd1d503cfe4f6465d8f1ec5ad6ee245f623",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "180e4cd1d503cfe4f6465d8f1ec5ad6ee245f623",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "180e4cd1d503cfe4f6465d8f1ec5ad6ee245f623",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "dur",
+          "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+          "family_head_blob": "fb02a58fb52eeb51e22f1904ea02db7905113368",
+          "observed_wave_target": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+          "observed_wave_blob": "fb02a58fb52eeb51e22f1904ea02db7905113368",
+          "explicit_final_source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+          "final_receipt_source_blob": "fb02a58fb52eeb51e22f1904ea02db7905113368",
+          "wave_label": "full-wave-2"
+        }
+      ],
+      "final_head_blob": "fb02a58fb52eeb51e22f1904ea02db7905113368",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "dur/full-wave-2": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+          "wave_label": "full-wave-1"
+        },
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+          "wave_label": "wire"
+        }
+      ],
+      "final_head_blob": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true,
+        "adapters/wire": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "57cce49438656d79cc9287521d1502e642929368",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "57cce49438656d79cc9287521d1502e642929368",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "57cce49438656d79cc9287521d1502e642929368",
+          "wave_label": "wire"
+        }
+      ],
+      "final_head_blob": "57cce49438656d79cc9287521d1502e642929368",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/wire": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "eea97f4ac8db8bbd3c0a58a6c54aa2166520b149",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "eea97f4ac8db8bbd3c0a58a6c54aa2166520b149",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "eea97f4ac8db8bbd3c0a58a6c54aa2166520b149",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "eea97f4ac8db8bbd3c0a58a6c54aa2166520b149",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "4a8e95fa735cc0c8329478f1b3aaa752844c0890",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "4a8e95fa735cc0c8329478f1b3aaa752844c0890",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "4a8e95fa735cc0c8329478f1b3aaa752844c0890",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "4a8e95fa735cc0c8329478f1b3aaa752844c0890",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "3c05cf6adaae5b9495f84ca15d046757972927fd",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "3c05cf6adaae5b9495f84ca15d046757972927fd",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "3c05cf6adaae5b9495f84ca15d046757972927fd",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "3c05cf6adaae5b9495f84ca15d046757972927fd",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "dur",
+          "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+          "family_head_blob": "db7dbbe281e4b95a2570eca31b7d728c6f396e4d",
+          "observed_wave_target": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+          "observed_wave_blob": "db7dbbe281e4b95a2570eca31b7d728c6f396e4d",
+          "explicit_final_source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+          "final_receipt_source_blob": "db7dbbe281e4b95a2570eca31b7d728c6f396e4d",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "db7dbbe281e4b95a2570eca31b7d728c6f396e4d",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "dur/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "dur",
+          "family_head": "f3b9f054c86218b431ab927b56100164842db64a",
+          "family_head_blob": "89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
+          "observed_wave_target": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+          "observed_wave_blob": "89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
+          "explicit_final_source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+          "final_receipt_source_blob": "89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "dur/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "604ac837cd4eecf3c51296bc4fb24533db732535",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "604ac837cd4eecf3c51296bc4fb24533db732535",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "604ac837cd4eecf3c51296bc4fb24533db732535",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "604ac837cd4eecf3c51296bc4fb24533db732535",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+          "wave_label": "full-wave-1"
+        },
+        {
+          "family": "cas",
+          "family_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+          "family_head_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+          "observed_wave_target": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "observed_wave_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+          "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+          "final_receipt_source_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+          "wave_label": "complete-native-receipt-wave"
+        }
+      ],
+      "final_head_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true,
+        "cas/complete-native-receipt-wave": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_retry.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "run",
+          "family_head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "family_head_blob": "aab2b75988d50abfc3c4ce11c0859f4f152a748c",
+          "observed_wave_target": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "observed_wave_blob": "aab2b75988d50abfc3c4ce11c0859f4f152a748c",
+          "explicit_final_source_point": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "final_receipt_source_blob": "aab2b75988d50abfc3c4ce11c0859f4f152a748c",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "aab2b75988d50abfc3c4ce11c0859f4f152a748c",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "run/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "run",
+          "family_head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "family_head_blob": "ba1de05727f270203f12f593f74651020735e88f",
+          "observed_wave_target": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "observed_wave_blob": "ba1de05727f270203f12f593f74651020735e88f",
+          "explicit_final_source_point": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "final_receipt_source_blob": "ba1de05727f270203f12f593f74651020735e88f",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "ba1de05727f270203f12f593f74651020735e88f",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "run/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "exe",
+          "family_head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "family_head_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+          "observed_wave_target": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+          "observed_wave_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+          "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+          "final_receipt_source_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+          "wave_label": "full-wave-1"
+        }
+      ],
+      "final_head_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "exe/full-wave-1": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "2137ed824711437a1b9f20f34086d4cb39e72d56",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "2137ed824711437a1b9f20f34086d4cb39e72d56",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "2137ed824711437a1b9f20f34086d4cb39e72d56",
+          "wave_label": "llm"
+        }
+      ],
+      "final_head_blob": "2137ed824711437a1b9f20f34086d4cb39e72d56",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/llm": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "714eb91c2a371060e96ce2cd67a8f5cc0a113df5",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "714eb91c2a371060e96ce2cd67a8f5cc0a113df5",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "714eb91c2a371060e96ce2cd67a8f5cc0a113df5",
+          "wave_label": "llm"
+        }
+      ],
+      "final_head_blob": "714eb91c2a371060e96ce2cd67a8f5cc0a113df5",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/llm": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "selection": "complete_file_no_node_or_k_filter",
+      "source_bindings": [
+        {
+          "family": "adapters",
+          "family_head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "family_head_blob": "7bfbb68373c84c76d19bca4c7575498e7ae57598",
+          "observed_wave_target": "58b04116e25344835f482ef79c16ce87f2d0b771",
+          "observed_wave_blob": "7bfbb68373c84c76d19bca4c7575498e7ae57598",
+          "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+          "final_receipt_source_blob": "7bfbb68373c84c76d19bca4c7575498e7ae57598",
+          "wave_label": "llm"
+        }
+      ],
+      "final_head_blob": "7bfbb68373c84c76d19bca4c7575498e7ae57598",
+      "final_case_count": null,
+      "case_count_basis": "Pending real final JUnit; preparer never collects tests",
+      "final_matches_at_least_one_final_receipt_source_point": true,
+      "preview_final_matches_at_least_one_family_head": true,
+      "final_equals_observed_test_inputs": {
+        "adapters/llm": true
+      },
+      "multiple_final_receipt_source_blob_versions": false
+    }
+  ],
+  "final_missing_files": [],
+  "final_mismatching_files": [],
+  "missing_explicit_final_source_points": [],
+  "source_points_unconfirmed_in_explicit_receipts": [],
+  "ready_at_final_head": true,
+  "candidate_command_argv": [
+    "<isolated-venv-python>",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "-ra",
+    "--basetemp",
+    "<fresh-output>/tmp",
+    "-o",
+    "cache_dir=<fresh-output>/pytest-cache",
+    "--junitxml",
+    "<fresh-output>/cohort.xml",
+    "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "tests/integration/scientist/test_async_cache_recovery.py",
+    "tests/integration/scientist/test_checkpoint_resume.py",
+    "tests/integration/scientist/test_execution_state_replay.py",
+    "tests/unit/common/test_async_tools.py",
+    "tests/unit/core/artifacts/backends/test_caching_store.py",
+    "tests/unit/core/artifacts/backends/test_config.py",
+    "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+    "tests/unit/core/artifacts/test_import_tenant_context.py",
+    "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+    "tests/unit/core/artifacts/test_ownership_history.py",
+    "tests/unit/core/artifacts/test_transfer_output_paths.py",
+    "tests/unit/core/artifacts/test_transfer_publication.py",
+    "tests/unit/core/phase0/test_artifact_export_import.py",
+    "tests/unit/fabric/connectors/test_pool_e02.py",
+    "tests/unit/fabric/connectors/test_registry.py",
+    "tests/unit/fabric/connectors/test_resilience.py",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "tests/unit/foundry/methods/test_compiler.py",
+    "tests/unit/foundry/methods/test_compiler_e02.py",
+    "tests/unit/foundry/methods/test_composer.py",
+    "tests/unit/foundry/methods/test_composer_hardening.py",
+    "tests/unit/foundry/methods/test_linker.py",
+    "tests/unit/foundry/methods/test_semantic_validator.py",
+    "tests/unit/foundry/runtime/test_executor_snapshots.py",
+    "tests/unit/ir/analytics/test_ncm.py",
+    "tests/unit/remediation/test_cas_01.py",
+    "tests/unit/remediation/test_cas_02.py",
+    "tests/unit/remediation/test_cas_03.py",
+    "tests/unit/remediation/test_cmp_01.py",
+    "tests/unit/remediation/test_cmp_02.py",
+    "tests/unit/remediation/test_cmp_03.py",
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/remediation/test_exe_02.py",
+    "tests/unit/remediation/test_jit_01.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/remediation/test_res_01.py",
+    "tests/unit/remediation/test_res_02.py",
+    "tests/unit/remediation/test_res_03.py",
+    "tests/unit/remediation/test_res_04.py",
+    "tests/unit/remediation/test_run_03.py",
+    "tests/unit/remediation/test_wire_01.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/runtime/quality/test_authority_reconciliation.py",
+    "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+    "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+  ],
+  "execution": {
+    "cwd": "<frozen-acceptance-checkout>/policy-engine",
+    "environment": {
+      "PYTHONPATH": "src:product",
+      "POLISYOS_METRICS_PORT": "0"
+    },
+    "resource_policy": "No artificial process/numerical quota; isolate only conflicting fixtures/DB/cache/ports.",
+    "record": "Full stdout/stderr, actual nonzero exit, JUnit, wall/RSS, interpreter/library/module origins and start/end SHA.",
+    "closure_scope": "Affected native whole-file cohort; no full dataset, live service, semantic authority or served stream closure."
+  },
+  "retained_nonpass": [
+    {
+      "path": "tests/unit/remediation/test_cas_02.py",
+      "node": "test_import_enforces_existing_tenant_ownership",
+      "outcome": "Actual held failure in exact source receipt; retain whole file for final replay, never xfail/deselect/normalize",
+      "observed_target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "existing_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/native302.txt@f1db5d0d76fb93825a433bf8139235a93b213606"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "node": "test_cancelled_initiator_cannot_erase_actual_provider_cost",
+      "outcome": "strict XFAIL remains in whole-file native cohort; source --runxfail falsifier actually FAILs",
+      "existing_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/llm-cancellation-final.log@3d18f37a5953f577c99260442a5e9afbc308a1d6"
+    }
+  ],
+  "separate_existing_evidence_not_repeated": {
+    "CAS512": {
+      "source_sha": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+      "observed_result": "388 passed, 116 failed, 4 errors, 4 skipped in 352.36s",
+      "denominator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-denominator.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "counts": {
+        "tests": 512,
+        "failures": 116,
+        "errors": 4,
+        "skipped": 4
+      },
+      "additional_files": [
+        "tests/unit/runtime/http/test_public_decision_verification_routes.py",
+        "tests/unit/runtime/quality/test_data_forge_binding.py",
+        "tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "reason": "Full local-data/grounding admission scope and existing broad red need G/A input/criterion ownership, not an unnecessary repeat of512."
+    },
+    "B13_served": {
+      "path": "tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "reason": "Cloud app startup lacks admitted catalog; local A/G replay separately, with exact artifact/consumer contract."
+    },
+    "RUN_old_consumer_wave": {
+      "note": "Latest four affected RUN native files selected per root; prior60-case importer/consumer receipt retained in run.json."
+    }
+  },
+  "case_count_policy": "Do not sum observed wave case counts: shared files and changed parametrization overlap. Final actual complete cohort count comes from execution/JUnit, never collection-only.",
+  "source_identity_policy": "Readiness uses explicit --source-point pins from final receipts; family HEAD is only a preview. Earlier source-wave results remain historical and cannot attest to the future final union.",
+  "no_test_execution_performed_by_preparer": true
+}

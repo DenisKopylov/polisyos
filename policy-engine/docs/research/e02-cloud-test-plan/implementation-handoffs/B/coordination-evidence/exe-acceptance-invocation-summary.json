@@ -1,0 +1,19 @@
+{
+  "regressions": [],
+  "new_unresolved_by_construction": [],
+  "coverage": "partial",
+  "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+  "runtime_invocation_established": false,
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "raw": {
+    "path": ".polisyos/e02-B/raw/exe-acceptance-invocation.json",
+    "sha256": "a023e0cf811ee26297c804b047ed7aeee28cd176637a9d848ea9f26035f2d775",
+    "bytes": 170857261,
+    "transfer": "not_transferred; rerun exact command for full evidence"
+  }
+}

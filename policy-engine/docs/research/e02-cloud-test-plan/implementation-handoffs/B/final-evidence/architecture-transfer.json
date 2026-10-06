@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.e02.B_architecture_artifact_transfer.v1",
+  "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "candidate_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "cwd": "/workspace/e02-B-acceptance/policy-engine",
+  "gate_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "wrapper_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/run-final-architecture.py",
+    "--frozen-sha",
+    "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "--checkout",
+    "/workspace/e02-B-acceptance",
+    "--output-prefix",
+    "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-final-a3daffbe-node22"
+  ],
+  "artifacts": [
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-final-a3daffbe-node22.txt",
+      "bytes": 115182,
+      "sha256": "33a9d0eb0bad11e514a0d0430b1ca91e87df207d4a4a5b6fa12f5c7547a0003b"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-final-a3daffbe-node22.json",
+      "bytes": 10916,
+      "sha256": "b87394e38d5202d86bb9b078cd34d138551b9fdcab501668878a54d9e014c0c5"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-final-a3daffbe-node22.time.txt",
+      "bytes": 372,
+      "sha256": "e890972a9d3c4f44d685ef4208fc352310119e5d3e90e26ae8e4d7cfefb8097b"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-final-a3daffbe-node22.summary.json",
+      "bytes": 3672,
+      "sha256": "34a5eebd95c397a472cde3c791dee63397d6be0894aaec08973efec01bfe2b0e"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/run-final-architecture.py",
+      "bytes": 10416,
+      "sha256": "4adf6b7540f307a7ebe615ed45d2c2f4875812b1f2ddd5b51887bbe5da274135"
+    }
+  ],
+  "actual_native_environment_location": "architecture-final-a3daffbe-node22.json fields python_environment, toolchain, node_environment, selected_environment, entry_input_hashes and installed_frontend_metadata",
+  "source_location": "same JSON start/end exactSHA/tree/branch/empty status and source_unchanged:true",
+  "actual_status": "FAIL exit1, complete supportedNode22 execution; no inherited attribution; no further rerun"
+}

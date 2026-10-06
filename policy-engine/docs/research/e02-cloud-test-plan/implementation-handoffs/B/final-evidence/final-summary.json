@@ -1,0 +1,134 @@
+{
+  "schema": "policyos.e02.B.final_frozen_union_report.v1",
+  "unit": "B",
+  "source_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "source_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "family_heads": {
+    "adapters": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+    "cas": "f1db5d0d76fb93825a433bf8139235a93b213606",
+    "cmp": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+    "dur": "f3b9f054c86218b431ab927b56100164842db64a",
+    "exe": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+    "run": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3"
+  },
+  "source_points": {
+    "adapters": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+    "cas": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+    "cmp": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+    "dur": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+    "exe": "94f378200d8684d61737f0561eccafea6eaa843f",
+    "run": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+  },
+  "denominators": {
+    "canonical_bundle_rows": 127,
+    "canonical_finding_rows": 282,
+    "B_bundles": 25,
+    "B_findings": 60,
+    "historical_B_cells": 189,
+    "whole_native_files": 74,
+    "actual_JUnit_cases": 1317
+  },
+  "native_counts": {
+    "pass": 1315,
+    "failure": 1,
+    "xfail": 1
+  },
+  "native_outcome": "FAIL",
+  "native_exit_code": 1,
+  "native_wall_s": 243.8732552849997,
+  "native_max_rss_kib": 1098680,
+  "native_source_unchanged": true,
+  "warnings": 99,
+  "warning_split": {
+    "JAX_multithread_fork_RuntimeWarning": 45,
+    "multithread_fork_DeprecationWarning": 53,
+    "JUnit_record_property": 1
+  },
+  "retained_nonpass": [
+    {
+      "id": "CAS02-unbound-tenant-policy",
+      "test": "tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership",
+      "actual_outcome": "FAIL",
+      "deciding_output": "DID NOT RAISE PermissionError at line438",
+      "classification": "Existing explicitly retained semantic-owner residual; no P41 inherited attribution asserted; no unadvertised final nonpass."
+    },
+    {
+      "id": "B66/B68-producer-settlement",
+      "test": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_cannot_erase_actual_provider_cost",
+      "actual_outcome": "strict XFAIL",
+      "underlying_property": "FAIL; received cost0.02/settlement0 direct negative retained in author and independent evidence",
+      "classification": "Known incomplete producer capability; not successful settlement."
+    }
+  ],
+  "architecture": {
+    "outcome": "FAIL",
+    "exit_code": 1,
+    "wall_s": 202.7572886099988,
+    "max_rss_kib": 1116076,
+    "node": "v22.22.0",
+    "violations": 154,
+    "categories": {
+      "baseline_drift": 1,
+      "new_deep_import_edges": 151,
+      "runtime_openapi_snapshot_stale": 1,
+      "trust_claim_posture_register_stale": 1
+    },
+    "source_unchanged": true,
+    "inherited_red_attribution": "not_established",
+    "standalone_Atlas": "UNRUN; separate gate outside this command"
+  },
+  "source_status_context": {
+    "partial": 56,
+    "closed": 3,
+    "held": 1
+  },
+  "closure_ids": [],
+  "formal_finding_closure": "not_established_by_B_coordination; G owns acceptance/shared ledger",
+  "bookkeeping": "PASS_with_declaration_warnings",
+  "scope_warning": [
+    {
+      "kind": "advertised_bundle_scope_mismatch",
+      "family": "cas",
+      "missing_advertised_bundles": [
+        "CAS-01",
+        "CAS-03"
+      ],
+      "extra_advertised_bundles": [],
+      "note": "Criterion-owner join is explicit; never treat closure_ids as scope."
+    }
+  ],
+  "footprint": {
+    "all_changed_paths": 427,
+    "production_python": 9,
+    "tests": 19,
+    "docs": 6,
+    "release_fragments": 11,
+    "handoff_evidence": 382,
+    "unique_owner_blob_and_mode_matches": 426,
+    "shared_path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md (RUN+EXE merge)",
+    "protected_A_C_changed_paths": []
+  },
+  "admission": {
+    "root_lane_original_receipts": "final-evidence/admission/ (16 actual create/resume receipts)",
+    "historical_unqualified_detached_review_trees": 7,
+    "all_checkouts_admitted": false,
+    "qualifications": "receipt-audit.json plus owner/root exact published qualifications; no backdating"
+  },
+  "G_dependency_review_cutoff": "46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+  "baseline_use": "189 source-reported historical context cells,180PASS9FAILED;15 source bytes hashes matched;raw baseline archives absent; not candidate evidence",
+  "input_report": "cohort.json initial bytes fcfb269d55fe69d425954f2117ca78a997b00c09778fa6f6449bcc37d3013ec8; full argv/environment/module origins/native outputs in native-wrapper.json",
+  "all_60_effective_dispositions": "reconciliation.json; rich row and ordered exact receipt/blob history for every ID",
+  "initial_harness_attempt": "initial-unrun/qualification.json; base Python had no pytest before collection; actual tests UNRUN, no product FAIL",
+  "full_production_dataset": "Not admitted in cloud; stays local read-only; exact local candidates and missing input closure in local-G-candidates.json",
+  "affected_streaming_consumer_replay": {
+    "source_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "source_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "driver_ref": "downstream/stream-unpublished-owner-probe.py@71738215335a5e093c631359d5f2a965e275340a",
+    "driver_sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31",
+    "negative": "FAIL exit1: pending1/permit0, registry pending0, shutdown disconnect retry0",
+    "healthy_disconnect_control": "PASS exit0: pending0/permit1/disconnect_calls1",
+    "source_unchanged": true,
+    "classification": "Fresh final actual consumer counterexample after changed pool contract; C alone owns streaming.py transfer of physical pending cleanup before handle publication. No inherited result or source patch by B."
+  }
+}

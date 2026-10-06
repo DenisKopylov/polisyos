@@ -39,6 +39,7 @@ from .models import (
     benchmark_evaluator_profile,
     load_benchmark_inputs,
     load_model_artifact,
+    resolve_comparison_incumbent,
 )
 from .registry import ChampionRegistry
 from .runtime import PydanticMutationCodec
@@ -676,6 +677,9 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         store = context.get("store") or self._store
         if store is None:
             raise ValueError("ExecutionPlanBenchmarkEvaluator requires a CAS store")
+        incumbent = resolve_comparison_incumbent(
+            context.get("registry") or self._registry, context, EXECUTION_PLAN_LOOP_ID
+        )
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ExecutionPlanSearchConfig)
         runner = context.get("execution_plan_runner")
@@ -689,6 +693,7 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
             runner=runner,
             split_manifest=split_manifest,
             context=context,
+            incumbent=incumbent,
         )
         selection_cases = _run_execution_plan_cases(
             config=config,
@@ -738,6 +743,12 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            comparison_predecessor_candidate_ref=(
+                incumbent.candidate_ref if incumbent is not None else None
+            ),
+            comparison_predecessor_evaluation_ref=(
+                incumbent.evaluation_ref if incumbent is not None else None
+            ),
         )
 
     def _champion_governance_score(
@@ -749,12 +760,13 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         runner: Any,
         split_manifest,
         context: dict[str, Any],
+        incumbent,
     ) -> float:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
         if registry is None or store is None:
             return 0.0
-        champion = registry.get(EXECUTION_PLAN_LOOP_ID)
+        champion = incumbent
         if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
             return 0.0
         cfg = load_model_artifact(store, champion.candidate_ref, ExecutionPlanSearchConfig)

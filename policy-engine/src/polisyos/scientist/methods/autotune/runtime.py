@@ -263,12 +263,16 @@ class SearchLoopRunner:
             spec.promotion_policy,
             benchmark_evaluator_profile(spec.benchmark_evaluator),
         )
+        current = self._registry.get(spec.loop_id)
         evaluation_context = {
             **dict(context),
             "store": self._store,
             "registry": self._registry,
             "policy": spec.promotion_policy,
             "loop_id": spec.loop_id,
+            "benchmark_comparison_incumbent": current.model_copy(deep=True)
+            if current is not None
+            else None,
         }
         evaluation = spec.benchmark_evaluator.evaluate(
             candidate_ref,
@@ -277,23 +281,16 @@ class SearchLoopRunner:
         )
         evaluation = self._bind_comparison(evaluation, basis)
         incumbent_ref = None
-        current = self._registry.get(spec.loop_id)
         if current is not None:
-            prior = load_model_artifact(self._store, current.evaluation_ref, BenchmarkEvaluation)
-            if prior.comparison_basis != basis:
-                # Expensive work stays outside the registry transaction. The
-                # persisted record names the exact incumbent actually executed;
-                # the registry rechecks it against its canonical current pointer.
-                incumbent = spec.benchmark_evaluator.evaluate(
-                    current.candidate_ref,
-                    suite_ref,
-                    evaluation_context,
-                )
-                incumbent = self._bind_comparison(incumbent, basis)
-                incumbent_ref = persist_benchmark_evaluation(self._store, incumbent)
-                evaluation = evaluation.model_copy(
-                    update={"incumbent_evaluation_ref": incumbent_ref}
-                )
+            # The module build identity does not bind context callbacks or
+            # their state. Execute the incumbent under this same active context
+            # even when the persisted suite and evaluator module are unchanged.
+            incumbent = spec.benchmark_evaluator.evaluate(
+                current.candidate_ref, suite_ref, evaluation_context
+            )
+            incumbent = self._bind_comparison(incumbent, basis)
+            incumbent_ref = persist_benchmark_evaluation(self._store, incumbent)
+            evaluation = evaluation.model_copy(update={"incumbent_evaluation_ref": incumbent_ref})
         evaluation_ref = persist_benchmark_evaluation(
             self._store,
             evaluation,

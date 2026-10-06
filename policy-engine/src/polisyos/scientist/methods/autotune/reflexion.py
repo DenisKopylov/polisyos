@@ -28,6 +28,7 @@ from .models import (
     default_cas_root,
     load_benchmark_inputs,
     load_model_artifact,
+    resolve_comparison_incumbent,
 )
 from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
@@ -129,6 +130,9 @@ class ReflexionRoutingEvaluator(BenchmarkedEvaluator):
         store = context.get("store") or self._store
         if store is None:
             raise ValueError("ReflexionRoutingEvaluator requires a CAS store")
+        incumbent = resolve_comparison_incumbent(
+            context.get("registry") or self._registry, context, REFLEXION_LOOP_ID
+        )
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ReflexionRoutingConfig)
         rows, split_manifest = load_benchmark_inputs(store, suite)
@@ -174,6 +178,12 @@ class ReflexionRoutingEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            comparison_predecessor_candidate_ref=(
+                incumbent.candidate_ref if incumbent is not None else None
+            ),
+            comparison_predecessor_evaluation_ref=(
+                incumbent.evaluation_ref if incumbent is not None else None
+            ),
         )
 
 

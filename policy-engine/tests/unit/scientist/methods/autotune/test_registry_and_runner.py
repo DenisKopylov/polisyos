@@ -48,6 +48,7 @@ class PredictableDummyEvaluator:
 
     def evaluate(self, candidate_ref, suite_ref, context):
         del suite_ref
+        incumbent = context.get("benchmark_comparison_incumbent")
         store = context["store"]
         candidate = load_model_artifact(store, candidate_ref, DummyMutationConfig)
         score = float(candidate.value)
@@ -65,6 +66,12 @@ class PredictableDummyEvaluator:
             guardrails={"score_present": True},
             promotable=True,
             runtime_split_type=BenchmarkSplit.HOLDOUT,
+            comparison_predecessor_candidate_ref=incumbent.candidate_ref
+            if incumbent is not None
+            else None,
+            comparison_predecessor_evaluation_ref=incumbent.evaluation_ref
+            if incumbent is not None
+            else None,
         )
 
 
@@ -109,7 +116,13 @@ def _persist_evaluation(
     holdout_metrics: dict[str, float] | None = None,
     sample_counts: dict[str, int] | None = None,
     runtime_split_type: BenchmarkSplit | None = BenchmarkSplit.HOLDOUT,
+    incumbent_evaluation_ref: ArtifactRef | None = None,
 ):
+    predecessor = (
+        load_model_artifact(store, incumbent_evaluation_ref, BenchmarkEvaluation)
+        if incumbent_evaluation_ref is not None
+        else None
+    )
     evaluation = BenchmarkEvaluation(
         loop_id=loop_id,
         suite_id=suite_id,
@@ -128,6 +141,13 @@ def _persist_evaluation(
         guardrails={"score_present": True},
         promotable=True,
         runtime_split_type=runtime_split_type,
+        incumbent_evaluation_ref=incumbent_evaluation_ref,
+        comparison_predecessor_candidate_ref=predecessor.comparison_predecessor_candidate_ref
+        if predecessor is not None
+        else None,
+        comparison_predecessor_evaluation_ref=predecessor.comparison_predecessor_evaluation_ref
+        if predecessor is not None
+        else None,
         comparison_basis=benchmark_comparison_basis(
             store,
             suite_ref,
@@ -140,6 +160,24 @@ def _persist_evaluation(
         evaluation,
         inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
     )
+
+
+def _replay_incumbent(store, registry, suite_ref):
+    current = registry.get("dummy_loop")
+    evaluator = PredictableDummyEvaluator()
+    record = evaluator.evaluate(
+        current.candidate_ref,
+        suite_ref,
+        {"store": store, "benchmark_comparison_incumbent": current},
+    )
+    record = record.model_copy(
+        update={
+            "comparison_basis": benchmark_comparison_basis(
+                store, suite_ref, _promotion_policy(), benchmark_evaluator_profile(evaluator)
+            )
+        }
+    )
+    return persist_benchmark_evaluation(store, record)
 
 
 def test_default_store_uses_storage_factory(tmp_path, monkeypatch) -> None:
@@ -596,6 +634,7 @@ def test_champion_registry_keeps_newer_champion_when_stale_score_arrives(tmp_pat
         candidate_ref=stale_candidate,
         suite_ref=suite_ref,
         score=2.0,
+        incumbent_evaluation_ref=_replay_incumbent(store, registry, suite_ref),
     )
     second = registry.consider_promotion(
         "dummy_loop",
@@ -647,6 +686,7 @@ def test_champion_registry_serializes_compare_and_publish_against_new_predecesso
         candidate_ref=slow_candidate,
         suite_ref=suite_ref,
         score=2.0,
+        incumbent_evaluation_ref=_replay_incumbent(store, seed_registry, suite_ref),
     )
     fast_candidate = _persist_candidate(store, value=3, suite_ref=suite_ref)
     fast_evaluation = _persist_evaluation(
@@ -654,6 +694,7 @@ def test_champion_registry_serializes_compare_and_publish_against_new_predecesso
         candidate_ref=fast_candidate,
         suite_ref=suite_ref,
         score=3.0,
+        incumbent_evaluation_ref=_replay_incumbent(store, seed_registry, suite_ref),
     )
 
     slow_read = threading.Event()
@@ -712,6 +753,17 @@ def test_champion_registry_serializes_compare_and_publish_against_new_predecesso
                 _promotion_policy(),
                 suite_ref=suite_ref,
             )
+            if decisions["fast"].reason == "incumbent_changed_during_evaluation":
+                retry = _persist_evaluation(
+                    store,
+                    candidate_ref=fast_candidate,
+                    suite_ref=suite_ref,
+                    score=3.0,
+                    incumbent_evaluation_ref=_replay_incumbent(store, fast_registry, suite_ref),
+                )
+                decisions["fast"] = fast_registry.consider_promotion(
+                    "dummy_loop", fast_candidate, retry, _promotion_policy(), suite_ref=suite_ref
+                )
         except BaseException as exc:  # pragma: no cover - surfaced below
             errors.append(exc)
         finally:

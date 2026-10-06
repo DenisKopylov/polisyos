@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune import (
     ChampionRegistry,
@@ -56,7 +57,11 @@ def test_cheap_stage_no_promotion_when_sample_is_too_small(tmp_path) -> None:
         store,
         write_correlation_dataset(_records(50), output_dir=tmp_path / "small"),
     )
-    candidate_ref = persist_mutation_artifact(store, CheapStageTuningConfig(threshold=0.4))
+    candidate_ref = persist_mutation_artifact(
+        store,
+        CheapStageTuningConfig(threshold=0.4),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+    )
     evaluator = CheapStageBenchmarkEvaluator(store=store, registry=registry)
 
     evaluation = evaluator.evaluate(
@@ -70,6 +75,7 @@ def test_cheap_stage_no_promotion_when_sample_is_too_small(tmp_path) -> None:
         candidate_ref,
         evaluation_ref,
         default_cheap_stage_policy(),
+        suite_ref=suite_ref,
     )
 
     assert evaluation.guardrails["sample_count_sufficient"] is False
@@ -83,7 +89,11 @@ def test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold(tmp_p
     suite_ref = persist_benchmark_suite(store, dataset)
     evaluator = CheapStageBenchmarkEvaluator(store=store, registry=registry)
 
-    bad_candidate_ref = persist_mutation_artifact(store, CheapStageTuningConfig(threshold=1.0))
+    bad_candidate_ref = persist_mutation_artifact(
+        store,
+        CheapStageTuningConfig(threshold=1.0),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+    )
     bad_eval = evaluator.evaluate(
         bad_candidate_ref,
         suite_ref,
@@ -95,9 +105,14 @@ def test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold(tmp_p
         bad_candidate_ref,
         bad_eval_ref,
         default_cheap_stage_policy(),
+        suite_ref=suite_ref,
     )
 
-    good_candidate_ref = persist_mutation_artifact(store, CheapStageTuningConfig(threshold=0.4))
+    good_candidate_ref = persist_mutation_artifact(
+        store,
+        CheapStageTuningConfig(threshold=0.4),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+    )
     good_eval = evaluator.evaluate(
         good_candidate_ref,
         suite_ref,
@@ -109,6 +124,7 @@ def test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold(tmp_p
         good_candidate_ref,
         good_eval_ref,
         default_cheap_stage_policy(),
+        suite_ref=suite_ref,
     )
 
     assert bad_eval.guardrails["true_positive_rate_floor"] is False

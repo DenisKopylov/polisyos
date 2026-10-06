@@ -47,9 +47,9 @@ translation steps.
 
 Autotune benchmark suites snapshot their dataset and split into CAS. Generic champion
 comparisons require exact candidate/evaluation/suite manifest views, the consumed data,
-and one metric policy and evaluator build. A changed suite triggers an actual incumbent
-re-evaluation before the registry rereads the canonical pointer under its existing POSIX
-lock. These comparison records establish input identity; evaluator appointment and
+and one metric policy and evaluator build. With an existing champion, every native comparison re-evaluates the incumbent
+under the active callback context and binds the exact predecessor used by guardrails
+before the registry rereads the canonical pointer under its existing POSIX lock. These comparison records establish input identity; evaluator appointment and
 promotion authority remain separate contracts. Legacy unbound generic suites are refused.
 
 `SearchLoopRunner` uses public native `ask`/`tell` around the controller-owned evaluator.

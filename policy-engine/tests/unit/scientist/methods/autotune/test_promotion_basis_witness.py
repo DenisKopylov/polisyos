@@ -62,7 +62,29 @@ def _candidate(store: FileSystemCAS, suite_ref: ArtifactRef, value: int) -> Arti
     )
 
 
-def _evaluation(store, suite_ref, candidate_ref, score, *, policy=None):
+def _evaluation(store, suite_ref, candidate_ref, score, *, policy=None, registry=None):
+    basis = benchmark_comparison_basis(
+        store, suite_ref, policy or _policy(), SchemaInfo(name="witness.linear", version="1.0")
+    )
+    incumbent_ref = None
+    current = registry.get("comparison-witness") if registry is not None else None
+    if current is not None:
+        actual_value = json.loads(store.get_bytes(current.candidate_ref))["value"]
+        incumbent_ref = persist_benchmark_evaluation(
+            store,
+            BenchmarkEvaluation(
+                loop_id="comparison-witness",
+                suite_id="comparison-suite",
+                candidate_ref=current.candidate_ref,
+                holdout_metrics={"score": float(actual_value)},
+                sample_counts={"holdout": 1},
+                runtime_split_type=BenchmarkSplit.HOLDOUT,
+                promotable=True,
+                comparison_basis=basis,
+                comparison_predecessor_candidate_ref=current.candidate_ref,
+                comparison_predecessor_evaluation_ref=current.evaluation_ref,
+            ),
+        )
     return persist_benchmark_evaluation(
         store,
         BenchmarkEvaluation(
@@ -73,12 +95,14 @@ def _evaluation(store, suite_ref, candidate_ref, score, *, policy=None):
             sample_counts={"holdout": 1},
             runtime_split_type=BenchmarkSplit.HOLDOUT,
             promotable=True,
-            comparison_basis=benchmark_comparison_basis(
-                store,
-                suite_ref,
-                policy or _policy(),
-                SchemaInfo(name="witness.linear", version="1.0"),
-            ),
+            comparison_basis=basis,
+            incumbent_evaluation_ref=incumbent_ref,
+            comparison_predecessor_candidate_ref=current.candidate_ref
+            if current is not None
+            else None,
+            comparison_predecessor_evaluation_ref=current.evaluation_ref
+            if current is not None
+            else None,
         ),
         inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
     )
@@ -89,7 +113,7 @@ def test_actual_incumbent_evaluation_cannot_be_replaced_by_pointer_score(tmp_pat
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     suite = _suite(store)
     strong = _candidate(store, suite, 3)
-    strong_eval = _evaluation(store, suite, strong, 3)
+    strong_eval = _evaluation(store, suite, strong, 3, registry=registry)
     assert registry.consider_promotion(
         "comparison-witness", strong, strong_eval, _policy(), suite_ref=suite
     ).promoted
@@ -99,7 +123,7 @@ def test_actual_incumbent_evaluation_cannot_be_replaced_by_pointer_score(tmp_pat
     path.write_text(json.dumps(pointer))
     before = path.read_bytes()
     weak = _candidate(store, suite, 2)
-    weak_eval = _evaluation(store, suite, weak, 2)
+    weak_eval = _evaluation(store, suite, weak, 2, registry=registry)
     decision = registry.consider_promotion(
         "comparison-witness", weak, weak_eval, _policy(), suite_ref=suite
     )
@@ -115,7 +139,7 @@ def test_policy_unit_and_direction_are_part_of_the_comparison_basis(tmp_path) ->
     assert registry.consider_promotion(
         "comparison-witness",
         first,
-        _evaluation(store, suite, first, 3),
+        _evaluation(store, suite, first, 3, registry=registry),
         _policy(),
         suite_ref=suite,
     ).promoted
@@ -124,7 +148,7 @@ def test_policy_unit_and_direction_are_part_of_the_comparison_basis(tmp_path) ->
     decision = registry.consider_promotion(
         "comparison-witness",
         second,
-        _evaluation(store, suite, second, 2, policy=changed_policy),
+        _evaluation(store, suite, second, 2, policy=changed_policy, registry=registry),
         changed_policy,
         suite_ref=suite,
     )
@@ -143,7 +167,7 @@ def test_evaluation_candidate_identity_includes_the_selected_manifest_view(tmp_p
     other_view = _candidate(store, other_suite, 3)
     assert first.artifact_id == other_view.artifact_id
     assert first.manifest_profile_sha256 != other_view.manifest_profile_sha256
-    evaluation = _evaluation(store, suite, other_view, 3)
+    evaluation = _evaluation(store, suite, other_view, 3, registry=registry)
     decision = registry.consider_promotion(
         "comparison-witness", first, evaluation, _policy(), suite_ref=suite
     )
@@ -182,6 +206,7 @@ def test_real_cheap_stage_consumes_frozen_dataset_and_split_after_paths_change(t
 
 class _Evaluator:
     def evaluate(self, candidate_ref, suite_ref, context):
+        incumbent = context.get("benchmark_comparison_incumbent")
         del suite_ref
         payload = json.loads(context["store"].get_bytes(candidate_ref))
         return BenchmarkEvaluation(
@@ -192,6 +217,12 @@ class _Evaluator:
             sample_counts={"holdout": 1},
             runtime_split_type=BenchmarkSplit.HOLDOUT,
             promotable=True,
+            comparison_predecessor_candidate_ref=incumbent.candidate_ref
+            if incumbent is not None
+            else None,
+            comparison_predecessor_evaluation_ref=incumbent.evaluation_ref
+            if incumbent is not None
+            else None,
         )
 
 
@@ -231,6 +262,7 @@ class _DatasetEvaluator:
         self.on_incumbent = None
 
     def evaluate(self, candidate_ref, suite_ref, context):
+        incumbent = context.get("benchmark_comparison_incumbent")
         from polisyos.scientist.methods.autotune.models import (
             benchmark_evaluator_profile,
             load_benchmark_inputs,
@@ -257,6 +289,12 @@ class _DatasetEvaluator:
             comparison_basis=benchmark_comparison_basis(
                 store, suite_ref, context["policy"], benchmark_evaluator_profile(self)
             ),
+            comparison_predecessor_candidate_ref=incumbent.candidate_ref
+            if incumbent is not None
+            else None,
+            comparison_predecessor_evaluation_ref=incumbent.evaluation_ref
+            if incumbent is not None
+            else None,
         )
 
 
@@ -351,10 +389,14 @@ def test_pointer_replace_fault_preserves_complete_old_or_new_fresh_reader(tmp_pa
     suite = _suite(store)
     first = _candidate(store, suite, 2)
     registry.consider_promotion(
-        "comparison-witness", first, _evaluation(store, suite, first, 2), _policy(), suite_ref=suite
+        "comparison-witness",
+        first,
+        _evaluation(store, suite, first, 2, registry=registry),
+        _policy(),
+        suite_ref=suite,
     )
     second = _candidate(store, suite, 3)
-    second_evaluation = _evaluation(store, suite, second, 3)
+    second_evaluation = _evaluation(store, suite, second, 3, registry=registry)
     pointer_path = tmp_path / "registry" / "comparison-witness" / "champion.json"
     before = pointer_path.read_bytes()
     replace = os.replace
@@ -397,13 +439,17 @@ def test_stale_metadata_attachment_cannot_overwrite_a_competing_champion(tmp_pat
     suite = _suite(store)
     first, second = [_candidate(store, suite, value) for value in (2, 3)]
     registry.consider_promotion(
-        "comparison-witness", first, _evaluation(store, suite, first, 2), _policy(), suite_ref=suite
+        "comparison-witness",
+        first,
+        _evaluation(store, suite, first, 2, registry=registry),
+        _policy(),
+        suite_ref=suite,
     )
     stale = registry.get("comparison-witness")
     registry.consider_promotion(
         "comparison-witness",
         second,
-        _evaluation(store, suite, second, 3),
+        _evaluation(store, suite, second, 3, registry=registry),
         _policy(),
         suite_ref=suite,
     )
@@ -423,12 +469,16 @@ def test_posix_competing_processes_reread_canonical_pointer_and_fresh_reader(tmp
     suite = _suite(store)
     candidates = [_candidate(store, suite, value) for value in (1, 2, 3)]
     evaluations = [
-        _evaluation(store, suite, candidate, value)
+        _evaluation(store, suite, candidate, value, registry=registry)
         for candidate, value in zip(candidates, (1, 2, 3), strict=True)
     ]
     assert registry.consider_promotion(
         "comparison-witness", candidates[0], evaluations[0], _policy(), suite_ref=suite
     ).promoted
+    evaluations[1:] = [
+        _evaluation(store, suite, candidates[index], value, registry=registry)
+        for index, value in ((1, 2), (2, 3))
+    ]
     worker = r"""
 import json, sys
 from pathlib import Path
@@ -484,7 +534,7 @@ print(decision.model_dump_json(), flush=True)
     strong_decision, weak_decision = json.loads(strong_output), json.loads(weak_output)
     assert strong_decision["promoted"]
     assert not weak_decision["promoted"]
-    assert weak_decision["reason"] == "not_better_than_champion"
+    assert weak_decision["reason"] == "incumbent_changed_during_evaluation"
     assert weak_decision["previous_champion"]["candidate_ref"] == candidates[2].model_dump(
         mode="json"
     )

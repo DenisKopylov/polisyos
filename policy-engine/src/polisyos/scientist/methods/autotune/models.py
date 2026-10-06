@@ -219,6 +219,8 @@ class BenchmarkEvaluation(_PydanticBaseModel):
     runtime_split_type: BenchmarkSplit | None = None
     comparison_basis: BenchmarkComparisonBasis | None = None
     incumbent_evaluation_ref: ArtifactRef | None = None
+    comparison_predecessor_candidate_ref: ArtifactRef | None = None
+    comparison_predecessor_evaluation_ref: ArtifactRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def metrics_for_split(self, split: BenchmarkSplit) -> dict[str, float]:
@@ -311,6 +313,28 @@ class PromotionDecision(_PydanticBaseModel):
     reason: str = Field(..., min_length=1, max_length=256)
     champion: ChampionPointer | None = None
     previous_champion: ChampionPointer | None = None
+
+
+class _ChampionReader(Protocol):
+    def get(self, loop_id: str) -> ChampionPointer | None: ...
+
+
+def resolve_comparison_incumbent(
+    registry: _ChampionReader | None, context: Mapping[str, Any], loop_id: str
+) -> ChampionPointer | None:
+    """Capture the exact incumbent used by both primary metrics and guardrails.
+
+    Native comparison supplies a detached snapshot before either evaluation.
+    Direct evaluator callers retain the existing canonical registry read.
+    """
+    if "benchmark_comparison_incumbent" in context:
+        incumbent = context["benchmark_comparison_incumbent"]
+        if incumbent is not None and (
+            not isinstance(incumbent, ChampionPointer) or incumbent.loop_id != loop_id
+        ):
+            raise ValueError("benchmark_comparison_incumbent_invalid")
+        return incumbent
+    return registry.get(loop_id) if registry is not None else None
 
 
 class CandidateGenerator(Protocol):
@@ -534,6 +558,12 @@ def persist_benchmark_evaluation(
                 role="comparison_incumbent_evaluation",
             )
         )
+    for ref, role in (
+        (evaluation.comparison_predecessor_candidate_ref, "comparison_predecessor_candidate"),
+        (evaluation.comparison_predecessor_evaluation_ref, "comparison_predecessor_evaluation"),
+    ):
+        if ref is not None:
+            merged_inputs.append(input_ref_from_artifact_ref(ref, role=role))
     return store.put_json(
         evaluation,
         ArtifactWriteOptions(

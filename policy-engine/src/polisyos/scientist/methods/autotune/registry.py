@@ -297,12 +297,7 @@ class ChampionRegistry:
             return None, "champion_evaluation_metrics_mismatch"
         ref = evaluation.incumbent_evaluation_ref
         if ref is None:
-            if incumbent.comparison_basis != evaluation.comparison_basis:
-                return None, "champion_comparison_basis_mismatch"
-            failure = self._evaluation_basis_failure(
-                incumbent, current.evaluation_ref, policy, suite_ref
-            )
-            return (None, failure) if failure else (incumbent, None)
+            return None, "incumbent_evaluation_required"
         require_benchmark_input(
             self._store, evaluation_ref, ref, role="comparison_incumbent_evaluation"
         )
@@ -311,6 +306,24 @@ class ChampionRegistry:
             current.candidate_ref
         ):
             return None, "incumbent_changed_during_evaluation"
+        for record, record_ref in ((evaluation, evaluation_ref), (fresh, ref)):
+            for actual, expected, role in (
+                (
+                    record.comparison_predecessor_candidate_ref,
+                    current.candidate_ref,
+                    "comparison_predecessor_candidate",
+                ),
+                (
+                    record.comparison_predecessor_evaluation_ref,
+                    current.evaluation_ref,
+                    "comparison_predecessor_evaluation",
+                ),
+            ):
+                if actual is None or artifact_ref_identity_key(actual) != artifact_ref_identity_key(
+                    expected
+                ):
+                    return None, "incumbent_changed_during_evaluation"
+                require_benchmark_input(self._store, record_ref, expected, role=role)
         if (
             fresh.loop_id != current.loop_id
             or fresh.comparison_basis != evaluation.comparison_basis
@@ -332,6 +345,22 @@ class ChampionRegistry:
         suite_ref: ArtifactRef | None,
         current: ChampionPointer | None,
     ) -> PromotionDecision:
+        if (
+            suite_ref is not None
+            and current is None
+            and (
+                evaluation.comparison_predecessor_candidate_ref is not None
+                or evaluation.comparison_predecessor_evaluation_ref is not None
+                or evaluation.incumbent_evaluation_ref is not None
+            )
+        ):
+            return PromotionDecision(
+                loop_id=loop_id,
+                promoted=False,
+                reason="incumbent_changed_during_evaluation",
+                champion=current,
+                previous_champion=current,
+            )
         if loop_id == "claim_adjudication":
             if policy.model_dump(mode="json") != claim_promotion_policy():
                 return PromotionDecision(

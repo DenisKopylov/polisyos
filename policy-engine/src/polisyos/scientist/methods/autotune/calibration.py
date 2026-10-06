@@ -25,6 +25,7 @@ from .models import (
     benchmark_evaluator_profile,
     load_benchmark_inputs,
     load_model_artifact,
+    resolve_comparison_incumbent,
 )
 from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
@@ -182,6 +183,9 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         store = context.get("store") or self._store
         if store is None:
             raise ValueError("CalibrationMetaEvaluator requires a CAS store")
+        incumbent = resolve_comparison_incumbent(
+            context.get("registry") or self._registry, context, CALIBRATION_LOOP_ID
+        )
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, CalibrationMetaSearchConfig)
         runner = context.get("calibration_runner")
@@ -195,6 +199,7 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             runner=runner,
             split_manifest=split_manifest,
             context=context,
+            incumbent=incumbent,
         )
         selection_reports = _run_calibration_cases(
             config=config,
@@ -246,6 +251,12 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            comparison_predecessor_candidate_ref=(
+                incumbent.candidate_ref if incumbent is not None else None
+            ),
+            comparison_predecessor_evaluation_ref=(
+                incumbent.evaluation_ref if incumbent is not None else None
+            ),
         )
 
     def _champion_uncertainty_score(
@@ -257,12 +268,13 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         runner: Any,
         split_manifest,
         context: dict[str, Any],
+        incumbent,
     ) -> float:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
         if registry is None or store is None:
             return 0.0
-        champion = registry.get(CALIBRATION_LOOP_ID)
+        champion = incumbent
         if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
             return 0.0
         cfg = load_model_artifact(store, champion.candidate_ref, CalibrationMetaSearchConfig)

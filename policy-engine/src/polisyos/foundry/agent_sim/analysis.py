@@ -242,8 +242,10 @@ class BehaviorAnalyzer:
         counterfactual_gdp = _gdp(cf_final)
         baseline_gini = compute_gini_hard(
             baseline_final.agents.wealth, baseline_final.agents.active
-        )
-        counterfactual_gini = compute_gini_hard(cf_final.agents.wealth, cf_final.agents.active)
+        ).astype(baseline_final.distributions.gini_wealth.dtype)
+        counterfactual_gini = compute_gini_hard(
+            cf_final.agents.wealth, cf_final.agents.active
+        ).astype(cf_final.distributions.gini_wealth.dtype)
 
         return {
             "baseline_gdp": baseline_gdp,

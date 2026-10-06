@@ -180,7 +180,9 @@ def standard_training_metrics() -> list[MetricDefinition]:
         MetricDefinition(
             name="gini_wealth",
             metric_type=MetricType.SCALAR,
-            compute_fn=lambda s: compute_gini_hard(s.agents.wealth, s.agents.active),
+            compute_fn=lambda s: compute_gini_hard(s.agents.wealth, s.agents.active).astype(
+                jnp.float32
+            ),
         ),
         MetricDefinition(
             name="gdp",

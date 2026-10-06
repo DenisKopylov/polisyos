@@ -775,7 +775,9 @@ def compute_distribution_aware_reward(
         base_reward = base_reward + config.mobility_weight * rank_change
 
     if config.penalize_inequality:
-        gini = compute_gini_hard(agents.wealth, agents.active)
+        gini = compute_gini_hard(agents.wealth, agents.active).astype(
+            next_state.distributions.gini_wealth.dtype
+        )
         base_reward = base_reward - config.inequality_weight * gini
 
     return jnp.where(agents.active, base_reward, 0.0)

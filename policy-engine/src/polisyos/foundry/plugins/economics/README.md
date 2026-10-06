@@ -71,7 +71,11 @@ Top/bottom shares and other aggregate equations retain their separate contracts.
 
 Current-population Gini readers (objectives, critic observations, rewards,
 training metrics, counterfactual analysis and the population simulation method)
-measure current resources through the same exact owner. They do not treat a
+measure current resources through the same exact owner. Scalar and reward
+interfaces retain their existing distribution-field dtype, while critic and
+collector interfaces retain their explicit float32 output/storage dtype. Only
+the old dtype metadata is reused, never the old numerical Gini value. The
+canonical calculator preserves its resource-based dtype promotion. They do not treat a
 valid old scalar as admission of a changed population. The plugin wealth plot
 also admits current wealth before publishing a Gini title.
 

@@ -109,7 +109,7 @@ def build_government_welfare_reward(
         if "neg_gini" in welfare_weights:
             total = total - welfare_weights["neg_gini"] * compute_gini_hard(
                 state.agents.wealth, state.agents.active
-            )
+            ).astype(state.distributions.gini_wealth.dtype)
         total = (
             total
             + welfare_weights.get("bottom_50_share", 0.0) * state.distributions.bottom_50_share

@@ -37,7 +37,9 @@ class GiniObjective:
 
         # Cross-domain interactions may change wealth after the cached refresh.
         # Admit and measure the population that this objective actually ranks.
-        return compute_gini_hard(state.agents.wealth, state.agents.active)
+        return compute_gini_hard(state.agents.wealth, state.agents.active).astype(
+            state.distributions.gini_wealth.dtype
+        )
 
 
 class UnemploymentObjective:

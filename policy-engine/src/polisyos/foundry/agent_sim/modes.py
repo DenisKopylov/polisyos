@@ -110,7 +110,7 @@ def social_welfare_objective(
 
         total = total - weights["neg_gini"] * compute_gini_hard(
             state.agents.wealth, state.agents.active
-        )
+        ).astype(state.distributions.gini_wealth.dtype)
 
     if "mean_consumption" in weights:
         total = total + weights["mean_consumption"] * state.aggregates.mean_consumption

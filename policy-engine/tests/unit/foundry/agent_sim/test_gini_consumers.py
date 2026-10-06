@@ -29,7 +29,7 @@ from polisyos.foundry.agent_sim.policy import SharedPolicy
 from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.methods.catalog.simulation.dynamics import AgentPopulationSimulationEstimator
 from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
-from polisyos.foundry.plugins.economics.objectives import SocialWelfareObjective
+from polisyos.foundry.plugins.economics.objectives import GiniObjective, SocialWelfareObjective
 
 _READERS = (
     "critic-wealth",
@@ -86,8 +86,8 @@ def _state(values, *, income=False):
     state = GlobalState.empty(n_agents=len(values), seed=7)
     fields = {
         "wealth": jnp.asarray(values),
-        "income": jnp.ones(len(values)),
-        "consumption": jnp.ones(len(values)),
+        "income": jnp.ones(len(values), dtype=jnp.float32),
+        "consumption": jnp.ones(len(values), dtype=jnp.float32),
     }
     if income:
         fields.update(wealth=jnp.ones(len(values)), income=jnp.asarray(values))
@@ -199,3 +199,102 @@ def test_distribution_executor_exposes_dated_snapshot_not_current_population():
     compact = compress_distribution_state(second.distributions)
     assert int(compact.last_update_step) == 0
     assert float(compact.gini_wealth) == float(metrics["gini_wealth"])
+
+
+@pytest.mark.parametrize("reader", (*_READERS, "plugin-gini", "plugin-welfare"))
+@pytest.mark.parametrize("population_dtype", [jnp.float32, jnp.float64])
+@pytest.mark.parametrize("snapshot_dtype", [jnp.float32, jnp.float64])
+@pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+def test_current_population_gini_preserves_existing_consumer_dtype_abi(
+    reader, population_dtype, snapshot_dtype, compiled
+):
+    with jax.enable_x64(True):
+        state = _state([1.0, 3.0], income=reader == "critic-income")
+        slot = "income" if reader == "critic-income" else "wealth"
+        state = state.replace(
+            agents=state.agents.replace(**{slot: jnp.asarray([1.0, 3.0], dtype=population_dtype)}),
+            distributions=state.distributions.replace(
+                gini_wealth=jnp.asarray(0.4, dtype=snapshot_dtype),
+                gini_income=jnp.asarray(0.4, dtype=snapshot_dtype),
+            ),
+        )
+        # A wealth dtype change also requires the actual aggregate carry fields
+        # to have that dtype before PureExecutor's conditional refresh/scan.
+        from polisyos.foundry.agent_sim.state import compute_aggregates
+
+        state = state.replace(aggregates=compute_aggregates(state.agents, compute_gini=False))
+        if reader.startswith("plugin"):
+            economic = EconomicState.empty(n_agents=2, seed=7)
+            economic = economic.replace(
+                agents=economic.agents.replace(wealth=state.agents.wealth),
+                distributions=economic.distributions.replace(
+                    gini_wealth=state.distributions.gini_wealth
+                ),
+            )
+            function = (
+                GiniObjective().evaluate
+                if reader == "plugin-gini"
+                else lambda s: -SocialWelfareObjective({"neg_gini": 1.0}).evaluate(s)
+            )
+            argument = economic
+        else:
+            function = _current_gini_reader(reader)
+            argument = state
+        evaluate = jax.jit(function) if compiled else function
+        actual = evaluate(argument)
+        expected_dtype = (
+            jnp.float32
+            if reader in {"critic-wealth", "critic-income", "metric", "method"}
+            else snapshot_dtype
+        )
+        if reader == "government":
+            # The legacy closure unconditionally includes zero-weight aggregate
+            # terms; their dtype still participates even when value is zero.
+            legacy = (
+                jnp.asarray(0.0, dtype=jnp.float32)
+                + 0.0 * state.aggregates.total_wealth
+                - state.distributions.gini_wealth
+                + 0.0 * state.distributions.bottom_50_share
+            )
+            expected_dtype = legacy.dtype
+        assert actual.dtype == expected_dtype
+        assert float(actual) == pytest.approx(1 / 4, abs=2e-7)
+        # Value and dtype are separate requirements: the old .4 scalar is rejected.
+        assert float(actual) != pytest.approx(float(state.distributions.gini_wealth), abs=1e-4)
+
+
+@pytest.mark.parametrize("population_dtype", [jnp.float32, jnp.float64])
+@pytest.mark.parametrize("snapshot_dtype", [jnp.float32, jnp.float64])
+def test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype(
+    population_dtype, snapshot_dtype
+):
+    with jax.enable_x64(True):
+        initial = _state([1.0, 3.0])
+        initial = initial.replace(
+            agents=initial.agents.replace(wealth=jnp.asarray([1.0, 3.0], dtype=population_dtype)),
+            distributions=initial.distributions.replace(
+                gini_wealth=jnp.asarray(0.4, dtype=snapshot_dtype)
+            ),
+        )
+        executor = PureExecutor([])
+        government = build_government_welfare_reward(
+            GovernmentTrainingConfig(welfare_weights={"neg_gini": 1.0})
+        )
+        reward_config = RewardConfig(penalize_inequality=True)
+
+        def step(carry, _):
+            current, _, _ = carry
+            after, _ = executor.step(current)
+            reward = compute_distribution_aware_reward(current, after, reward_config)
+            welfare = jnp.stack(
+                [social_welfare_objective(after, {"neg_gini": 1.0}), government(after)]
+            )
+            return (after, reward, welfare), welfare
+
+        carry = (initial, jnp.zeros(2, dtype=snapshot_dtype), jnp.zeros(2, dtype=snapshot_dtype))
+        (final, reward, welfare), history = jax.jit(
+            lambda c: jax.lax.scan(step, c, None, length=3)
+        )(carry)
+        assert int(final.time_step) == 3
+        assert reward.dtype == welfare.dtype == history.dtype == snapshot_dtype
+        np.testing.assert_allclose(history, np.full((3, 2), -1 / 4), atol=2e-7, rtol=0)

@@ -16,10 +16,7 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client", "vitest/globals"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@polisyos/runtime-api-client": [
-        "../../packages/runtime-api-client/canonicalRuntimeApiClient.ts"
-      ]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]

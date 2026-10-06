@@ -37,6 +37,15 @@ const expectedImports = new Map([
   [
     "remediation.test.mjs",
     [
+      "@polisyos/runtime-api-client",
+      "@polisyos/runtime-api-client",
+      "@polisyos/runtime-api-client",
+      "@polisyos/runtime-api-client",
+      "@polisyos/runtime-api-client",
+      "@polisyos/runtime-api-client/types",
+      "@polisyos/runtime-api-client/types",
+      "node:assert/strict",
+      "node:assert/strict",
       "node:assert/strict",
       "node:child_process",
       "node:fs",

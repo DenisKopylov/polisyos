@@ -60,6 +60,11 @@ a downstream compatibility surface, not a second owner.
 - ESM import surface for the reference shell:
   [`canonicalRuntimeApiClient.js`](canonicalRuntimeApiClient.js)
 
+The runtime dashboard and Atlas UI resolve this public package export by name;
+dashboard TypeScript does not bypass it with a path alias. The remediation
+probe packs the package, installs that tarball into isolated consumer projects,
+and exercises both ESM requests and exported types without workspace links.
+
 ## Dependencies
 
 - Depends on:
@@ -112,7 +117,8 @@ generated types by hand.
 
 - `corepack pnpm --filter @polisyos/runtime-api-client run test:remediation`
   Exercises the scratch-only generated family and the explicit `--openapi`
-  override with an isolated schema mutation.
+  override with an isolated schema mutation, then packs and installs the actual
+  package into isolated Dashboard and Atlas ESM/type consumers.
 
 - `corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify`
   `smoke-tested 2026-04-23`
@@ -150,6 +156,15 @@ generated types by hand.
 - `corepack pnpm --filter @polisyos/runtime-api-client test`
   `smoke-tested 2026-04-23`
 
+- `corepack pnpm --filter @polisyos/runtime-api-client run test:remediation`
+  Checks scratch-only generation, packed Dashboard/Atlas ESM and type imports,
+  request serialization, and the binary evidence response.
+
+- `PYTHONPATH=src:. .venv/bin/python -m pytest tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py -q`
+  Regenerates the actual three-file family in a copied workspace, then removes
+  a client operation while retaining package exports and verifies the freshness
+  checker rejects the missing method.
+
 - `corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify`
   `smoke-tested 2026-04-23`
 
@@ -168,4 +183,4 @@ generated types by hand.
 - [`../../docs/reference/api/artifacts.md`](../../docs/reference/api/artifacts.md)
 - [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
 
-Last updated: 2026-07-18
+Last updated: 2026-10-06

@@ -492,7 +492,7 @@ def validate_persisted_gcm_spec(scm_spec: StructuralCausalModelSpec, store: Any)
     """
     if scm_spec.schema_version != "1.1" or scm_spec.fit_method != "gcm":
         return  # Historical/manual research models make no new backend assertion.
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core import artifacts
     from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
         validate_persisted_worker_response,
     )
@@ -505,7 +505,7 @@ def validate_persisted_gcm_spec(scm_spec: StructuralCausalModelSpec, store: Any)
         response=provenance.worker_response,
         state=state,
         store=store,
-        source_ref=ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
+        source_ref=artifacts.ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
     )
     expected = _gcm_spec_from_worker(
         state,

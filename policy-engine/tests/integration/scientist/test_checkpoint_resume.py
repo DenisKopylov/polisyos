@@ -86,6 +86,7 @@ class StepOneNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_step_one@1.0.0", "StepOne"),
         state_reads=["params.seed"],
+        state_writes=["params.step1"],
     )
 
     @property
@@ -104,6 +105,7 @@ class StepTwoNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_step_two@1.0.0", "StepTwo"),
         state_reads=["params.step1"],
+        state_writes=["params.step2"],
     )
 
     @property
@@ -123,6 +125,7 @@ class FlakyFinalNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_flaky_final@1.0.0", "FlakyFinal"),
         state_reads=["params.step2"],
+        state_writes=["params.final"],
     )
 
     @property
@@ -186,6 +189,7 @@ class FlakyAfterParallelNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_parallel_final@1.0.0", "ParallelFinal"),
         state_reads=["params.left", "params.right"],
+        state_writes=["params.final"],
     )
 
     @property

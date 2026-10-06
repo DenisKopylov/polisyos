@@ -44,7 +44,9 @@ class _PresenceNode:
         self.calls += 1
         observed = {
             "present": "threshold" in state.params,
-            "type": type(state.params["threshold"]).__name__
+            # Classify the actual JSON value crossing the artifact contract;
+            # branch guard views are list/dict subclasses, not new JSON types.
+            "type": type(json.loads(json.dumps(state.params["threshold"]))).__name__
             if "threshold" in state.params
             else None,
             "value": state.params.get("threshold"),

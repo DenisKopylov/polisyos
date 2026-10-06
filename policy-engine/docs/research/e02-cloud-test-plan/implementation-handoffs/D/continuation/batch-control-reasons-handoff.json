@@ -1,0 +1,1289 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "native-empty-batch-control-reasons",
+  "finding_ids": [
+    "B119"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "CTL-01"
+  ],
+  "related_partial_bundle_boundary": "SRV-03/LA-015 full migration retirement and G finding acceptance are separate decisions.",
+  "slice_base_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+  "slice_base_tree_sha": "d933dac5a892ceda1c322149bc8df922b4160eff",
+  "leaf_history_base": {
+    "sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+    "tree": "0b3b615823434b3d650499ba14ec8276e551ac2d"
+  },
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "implementation_commits": [
+    "dc583fc449234f746983a9855a2738148dd2f20d"
+  ],
+  "implementation_source": {
+    "sha": "dc583fc449234f746983a9855a2738148dd2f20d",
+    "tree": "6f59a75aa2ef4f75fa9be9328b4906e2e939b313"
+  },
+  "companion_commit": {
+    "sha": "cd1a6b73ee3d1414db713ad5acfa95be8c6aba43",
+    "tree": "72819292ae5b18d366417b73fe8b3c30ef7f1b70"
+  },
+  "test_only_paid_profile_successor": {
+    "sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+    "tree": "bcb22b07a7bb3312dd056a96b79096e16ac5a64c"
+  },
+  "candidate_tree_sha": "bcb22b07a7bb3312dd056a96b79096e16ac5a64c",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-paid-fixture-selected-dependency.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-service-selected-dependency.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-batch-control-reasons.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+  ],
+  "changed_path_bindings": [
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md",
+      "blob": "ab2593021fec4b694f887ce2754e47236b398a77",
+      "bytes": 2022,
+      "sha256": "9e0ff832485ea88ad9e31f10d2e7a4ad7993b2db3ccb563d1f95be129b0ac54e"
+    },
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-paid-fixture-selected-dependency.json",
+      "blob": "8a0ab0649c7be42228a49092622e906717389b4a",
+      "bytes": 1262,
+      "sha256": "462d48ca0db1114a1f3599dd2ddb7be7a8d6814c1fc3ccf2fe9f45226e21a183"
+    },
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-service-selected-dependency.json",
+      "blob": "21d945e94376ea89a8a966c6990be3504ba2bb0a",
+      "bytes": 1651,
+      "sha256": "fbc39bc07b335694c0664808810ccc059aac61b9d531b7d59f11d14204b930af"
+    },
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-D-batch-control-reasons.toml",
+      "blob": "437f0473ea96bf18824f2444651170a5e5d55e5b",
+      "bytes": 2344,
+      "sha256": "6867ecd7eced4229df8877b7f44a0e73b16e7a000c18b9307f0e39f30df61ff7"
+    },
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+      "blob": "8889b3571e1928f5d041ed79c3e56e6f25d2b2c6",
+      "bytes": 8333,
+      "sha256": "4a81433a4e5edc3ebe4084e7abe3f34b5ea87181f8757c207011e094e66db619"
+    },
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+      "blob": "40b109419d43a2dbbcbbae82946e2abdd31605da",
+      "bytes": 14445,
+      "sha256": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035"
+    }
+  ],
+  "product_changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/service.py"
+  ],
+  "native_adoption": {
+    "schema": "D.selected_dependency_adoption.v1",
+    "root_source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+    "root_source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+    "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "selected_root_blob": "1f5dbec29500d1014098805e752d92a27072e729",
+    "selected_root_bytes": 45505,
+    "selected_root_sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06",
+    "old_leaf_sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+    "exact_root_blob_equals_reviewed_6fe": true,
+    "narrow_actual_root_delta": "Stdlib asyncio import; three existing ask/restore/run guards explicitly include asyncio.CancelledError beside Exception. Failedrun failure-checkpoint publication has the same protected boundary, blocks publication on failure and bare-rethrows the original cause. No BaseException-wide swallow or BGC numerical fallback change.",
+    "authority": "Root narrow sole service.py lease after actuald72/testd8965PASS1FAIL; selected exact rootblob adoption, not source archive/tree copy.",
+    "scoped_public_inventory_review": {
+      "source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "blob": "f670668140d8c91a23d8ec32d53d2e021154d91d",
+      "sha256": "c2b799aa89eb54ae98a746e8a46fb1d17da184f13fbf7e05b527844a4a792224",
+      "scope": "Existing NativeSearchService export in public_stable polisyos.scientist,42exports; same inventory reviewed in root-approved5eca/independent4a. One cleanup contract only, no exports or child-module classification change."
+    }
+  },
+  "source_service_binding": [
+    {
+      "source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "1f5dbec29500d1014098805e752d92a27072e729",
+      "bytes": 45505,
+      "sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06"
+    },
+    {
+      "source_sha": "dc583fc449234f746983a9855a2738148dd2f20d",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "source_sha": "cd1a6b73ee3d1414db713ad5acfa95be8c6aba43",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "source_sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "source_sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    }
+  ],
+  "service_base_to_fix_unified_diff": "diff --git a/policy-engine/src/polisyos/scientist/methods/search/service.py b/policy-engine/src/polisyos/scientist/methods/search/service.py\nindex 1f5dbec29..c836b4d11 100644\n--- a/policy-engine/src/polisyos/scientist/methods/search/service.py\n+++ b/policy-engine/src/polisyos/scientist/methods/search/service.py\n@@ -9,6 +9,7 @@ framework: the controller remains the owner of evaluation semantics and\n \n from __future__ import annotations\n \n+import asyncio\n import hashlib\n import inspect\n import json\n@@ -575,7 +576,7 @@ class NativeSearchService:\n         ref_before = self.checkpoint_ref\n         try:\n             return self._ask_proposals(goal, search_space, context)\n-        except Exception:\n+        except (Exception, asyncio.CancelledError):\n             self.controller._run_state = ledger_before\n             self.controller._config.stopping = stopping_before\n             self._pending_candidates = pending_before\n@@ -587,7 +588,7 @@ class NativeSearchService:\n             if generator_before is not None:\n                 try:\n                     restore(generator_before)\n-                except Exception:\n+                except (Exception, asyncio.CancelledError):\n                     self._publication_blocked = True\n             elif self._store is not None:\n                 self._publication_blocked = True\n@@ -864,10 +865,16 @@ class NativeSearchService:\n                 start_time=start_time,\n                 resume=resume,\n             )\n-        except Exception as exc:\n+        except (Exception, asyncio.CancelledError) as exc:\n             self.controller._status = SearchStatus.FAILED\n             self._failure = f\"{type(exc).__name__}: {exc}\"\n-            self._persist()\n+            try:\n+                self._persist()\n+            except (Exception, asyncio.CancelledError):\n+                self._publication_blocked = True\n+                logger.warning(\n+                    \"Search failure checkpoint unavailable; reopen last acknowledged ref\"\n+                )\n             raise\n \n     def _drive_locked(\n",
+  "actual_narrow_service_numstat": "11\t4\tpolicy-engine/src/polisyos/scientist/methods/search/service.py",
+  "test_only_paid_profile_dependency": {
+    "schema": "D.paid_fixture_profile_migration.v1",
+    "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+    "selected_path": "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+    "selected_blob": "1d8fbc094bd0539d2a542a904420a34f87c3a8a8",
+    "selected_sha256": "4e8f64605802917a07771af519cd665490aa099452d258ab0cc000a3074776af",
+    "old_leaf_sha256": "4e8f64605802917a07771af519cd665490aa099452d258ab0cc000a3074776af",
+    "leaf_was_identical": true,
+    "sole_modified_test": "test_measured_provider_charge_drives_stopping_and_detached_report",
+    "preserved": "Actual producer transport/enforcer/ledger invocation, iteration1/cost1/remaining4 and detached prior result assertions; source/revision expectation migrated to actual typed recorded-owner profile; real ledger receipt assertions added independently of unavailable public revision/provider-origin authority.",
+    "original_actual_failure": {
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "output_sha256": "79909176c8311b3207f36f54e063b96e921ea5f161a9d5404a65c4927c3cdff2",
+      "outcome": "86PASS/1FAIL; stalepersisted_owner marker after actualiteration/cost passed"
+    },
+    "production_changes": []
+  },
+  "criterion": {
+    "identity": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+      "blob": "500da588ba34cac6939898a11d5510d24d8f4aeb",
+      "bytes": 17621,
+      "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f"
+    },
+    "source_marker": "B:B119",
+    "original_fragment_verbatim": "## B119. Пустой batch не расходует счётчик и не завершает цикл генерации\n\n**Основание и область:** `run` и `_generate_candidates`; LO1–LO3. Применимо к batch-генератору, вернувшему `[]`; не относится к обычному непустому пути. [C11.R01]\n\n**Проблема.** `iteration` увеличивается только после оценивания элемента batch. Когда список пуст, внутренний цикл не исполняется, после чего внешний `while` повторяется с прежними history и iteration. Даже `max_iterations_hard_limit=1` не ограничивает количество пустых обращений к генератору. Возврат пустого набора не различает исчерпание пространства, временную недоступность и исправимый дефект предложения.\n\n**Проверка.** При limit=1 генератор был вызван шесть раз на iteration=0; Stage B — ноль. Шестой вызов остановлен специально введённым ограничителем опыта, а не кодом PolicyOS. Бесконечный процесс не запускался. Генератор, который один раз вернул пустоту, а затем дал кандидат, корректно выполнил работу — поэтому безусловный запрет любой пустоты не является оптимальным решением.\n\n**Рекомендуемое исправление.** На границе генератора определить результат «предложение / исчерпано / требуется ремонт / временно недоступно» с использованием имеющихся типов там, где они подходят. Подсчитывать попытки генерации отдельно от оцениваний и завершать либо ставить на обоснованное ожидание после ограниченного числа безрезультатных переходов. Разрешённый ремонт должен менять значимый вход; transient-пауза — иметь deadline и причину, а не постоянный короткий busy-loop.\n\n**Чего не делать.** Не считать пустой ответ новой научной итерацией только ради изменения числа; не создавать фиктивного кандидата; не повышать hard-limit. Встроенный wall-time может в конце остановить такой цикл, но не предотвращает лишние обращения и здесь вообще не был обязательным критерием.\n\n**Приёмка.** Постоянная пустота заканчивается точным частичным результатом или exhaustion; временная пустота допускает ограниченный переход к настоящему кандидату; бюджет генерации и оплаченные внешние вызовы не теряются. Генератор с отменой и отказом должен сохранять свою причину остановки.\n\n",
+    "fragment_sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0",
+    "scope": "run/_generate_candidates batch [] only, excludes ordinary nonempty path; existing normal generic Bayesian numerical fallback is preserved."
+  },
+  "baseline_cells": [
+    {
+      "cell_id": "F01-P022",
+      "route": [
+        "B119",
+        "D",
+        "F01-P022",
+        "partial",
+        "candidate_unverified",
+        "research_main",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F01-P110",
+      "route": [
+        "B119",
+        "D",
+        "F01-P110",
+        "partial",
+        "candidate_unverified",
+        "research_main",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F02-P093",
+      "route": [
+        "B119",
+        "D",
+        "F02-P093",
+        "partial",
+        "candidate_unverified",
+        "research_main",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F04-P114",
+      "route": [
+        "B119",
+        "D",
+        "F04-P114",
+        "partial",
+        "candidate_unverified",
+        "research_main",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F05-P042",
+      "route": [
+        "B119",
+        "D",
+        "F05-P042",
+        "partial",
+        "candidate_unverified",
+        "e02_execution_base",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F06-P128",
+      "route": [
+        "B119",
+        "D",
+        "F06-P128",
+        "partial",
+        "candidate_unverified",
+        "e02_execution_base",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F07-P086",
+      "route": [
+        "B119",
+        "D",
+        "F07-P086",
+        "partial",
+        "candidate_unverified",
+        "e02_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F07-P104",
+      "route": [
+        "B119",
+        "D",
+        "F07-P104",
+        "partial",
+        "candidate_unverified",
+        "e02_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F08-P115",
+      "route": [
+        "B119",
+        "D",
+        "F08-P115",
+        "partial",
+        "candidate_unverified",
+        "e02_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F09-P032",
+      "route": [
+        "B119",
+        "D",
+        "F09-P032",
+        "partial",
+        "candidate_unverified",
+        "e02_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F10-P100",
+      "route": [
+        "B119",
+        "D",
+        "F10-P100",
+        "partial",
+        "candidate_unverified",
+        "main",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F11-P031",
+      "route": [
+        "B119",
+        "D",
+        "F11-P031",
+        "partial",
+        "candidate_unverified",
+        "main",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F13-P106",
+      "route": [
+        "B119",
+        "D",
+        "F13-P106",
+        "partial",
+        "candidate_unverified",
+        "integration_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F14-P134",
+      "route": [
+        "B119",
+        "D",
+        "F14-P134",
+        "partial",
+        "candidate_unverified",
+        "integration_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F15-P028",
+      "route": [
+        "B119",
+        "D",
+        "F15-P028",
+        "partial",
+        "candidate_unverified",
+        "integration_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    },
+    {
+      "cell_id": "F15-P130",
+      "route": [
+        "B119",
+        "D",
+        "F15-P130",
+        "partial",
+        "candidate_unverified",
+        "integration_head",
+        "not_established",
+        "../full-run/finding-routes.json#B119"
+      ],
+      "basis": "historical route only; not inherited candidate PASS or deciding runtime evidence"
+    }
+  ],
+  "baseline_route_source": {
+    "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+    "blob": "484108de4691f41cfac81996eeff477607774c05",
+    "bytes": 280085,
+    "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+  },
+  "original_defining_test_lineage": [
+    {
+      "source": {
+        "sha": "d896ea8ba8094f6cc7c4b789dec5957e3f42cb29",
+        "tree": "ad1446526b0290cc36b2f059149555f4dbc02226"
+      },
+      "test_binding": {
+        "source_sha": "d896ea8ba8094f6cc7c4b789dec5957e3f42cb29",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "blob": "4985bd63cc469708a6fd30b442824195d0014fa6",
+        "bytes": 7412,
+        "sha256": "002412901f9679a4b3b0d63f31afef87c79251698b2db7df29b563e1ce2ba0ff"
+      }
+    },
+    {
+      "source": {
+        "sha": "32a04b976c3709fb95d9fe596bcea2fdcfdd0c83",
+        "tree": "fe49464d3c058ef841cdee342ae69db579f02be4"
+      },
+      "test_binding": {
+        "source_sha": "32a04b976c3709fb95d9fe596bcea2fdcfdd0c83",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "blob": "5e8cac15054ba1c9399666e0e8b414d2207267da",
+        "bytes": 11112,
+        "sha256": "99f8a2a4c4c7221e74e0042f4d1d696ca8bbd0faf36689dc6108eb2e709388e3"
+      }
+    },
+    {
+      "source": {
+        "sha": "5bf35ad62d48d593a594e23cf7fd65438b25e914",
+        "tree": "1cef5bd8cff3371980ebae6e91a4f9a9f6894b46"
+      },
+      "test_binding": {
+        "source_sha": "5bf35ad62d48d593a594e23cf7fd65438b25e914",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "blob": "8baba6e93bb854e8252e1d366704322efe5ee440",
+        "bytes": 14078,
+        "sha256": "f824787b6726ff2f56f74d5cea6688a2f94e8dc452f34db41be502e4c090c021"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "baseline-six",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "--basetemp=/tmp/e02-D-hv-fixtures-4d3b10cb1c644afb86a7bd8fcaa73a42",
+        "--junitxml=/tmp/e02-D-b119-batch-root-ef234cc2a9ee4cfeb0c9e84ab42383b3/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+      ],
+      "target_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "target_tree_sha": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "test_source": {
+        "sha": "d896ea8ba8094f6cc7c4b789dec5957e3f42cb29",
+        "tree": "ad1446526b0290cc36b2f059149555f4dbc02226",
+        "selectors_sha256": {
+          "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py": "002412901f9679a4b3b0d63f31afef87c79251698b2db7df29b563e1ce2ba0ff"
+        }
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "pytest": "9.0.2"
+        },
+        "env_changes": {
+          "PYTHONPATH": "/tmp/e02-D-b119-batch-root-ef234cc2a9ee4cfeb0c9e84ab42383b3:src:.:/workspace/e02-D-published-search/policy-engine/src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_priority": "root/src primary; own/src fallback last solely suppresses test conftest reinsertion; every loaded Polisyos byte checked against target Git"
+      },
+      "input_closure": {
+        "measurement_metadata_pointer": "/runs/baseline-six",
+        "actual_fixture_members_prefix": "baseline-six/actual-inputs/",
+        "all_retained_bytes_and_native_manifest_refs": true,
+        "scope": "synthetic actual native batch/controller/CAS plus local real producer/enforcer/FileBudgetLedger; no production evaluator or external billing authority assertion"
+      },
+      "outcome": "FAIL",
+      "deciding_output": "5 PASS / 1 FAIL; scoped standard reasons/transient/persistent empty passed, asyncio ask rollback cursor escaped acknowledged state.",
+      "exit_code": 1,
+      "wall_seconds": 13.363983532995917,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "6",
+        "time": "7.263",
+        "timestamp": "2026-10-06T18:58:16.480947+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output": {
+        "evidence_commit": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+        "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+        "member": "baseline-six/complete.txt",
+        "sha256": "f23850fd79dbac75f5b1496f52cdf5c95c61309ead79596c7f328dbacae91093"
+      },
+      "all_report_events": "baseline-six/events.jsonl",
+      "native_git_origin_count": 829,
+      "origin_errors": [],
+      "before_after_sha_equal": true,
+      "before_after_status_clean": true,
+      "failure_waiver": false
+    },
+    {
+      "id": "baseline-paid-four",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "--basetemp=/tmp/e02-D-hv-fixtures-67673a1c5b944d5392dbaed0ba3213d3",
+        "--junitxml=/tmp/e02-D-b119-paid-root-346977b4fdd846a0abac47dedb87657e/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger"
+      ],
+      "target_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "target_tree_sha": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "test_source": {
+        "sha": "32a04b976c3709fb95d9fe596bcea2fdcfdd0c83",
+        "tree": "fe49464d3c058ef841cdee342ae69db579f02be4",
+        "selectors_sha256": {
+          "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger": "99f8a2a4c4c7221e74e0042f4d1d696ca8bbd0faf36689dc6108eb2e709388e3"
+        }
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "pytest": "9.0.2"
+        },
+        "env_changes": {
+          "PYTHONPATH": "/tmp/e02-D-b119-paid-root-346977b4fdd846a0abac47dedb87657e:src:.:/workspace/e02-D-published-search/policy-engine/src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_priority": "root/src primary; own/src fallback last solely suppresses test conftest reinsertion; every loaded Polisyos byte checked against target Git"
+      },
+      "input_closure": {
+        "measurement_metadata_pointer": "/runs/baseline-paid-four",
+        "actual_fixture_members_prefix": "baseline-paid-four/actual-inputs/",
+        "all_retained_bytes_and_native_manifest_refs": true,
+        "scope": "synthetic actual native batch/controller/CAS plus local real producer/enforcer/FileBudgetLedger; no production evaluator or external billing authority assertion"
+      },
+      "outcome": "FAIL",
+      "deciding_output": "3 PASS / 1 FAIL; real local 1.25 producer settlement custody preserved; async run failed to record its original reason.",
+      "exit_code": 1,
+      "wall_seconds": 12.854450497994549,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "4",
+        "time": "6.754",
+        "timestamp": "2026-10-06T19:00:58.806466+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output": {
+        "evidence_commit": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+        "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+        "member": "baseline-paid-four/complete.txt",
+        "sha256": "de19c19be2725564deb5920fc536a1bbe38619f0687b2ddf3cfead0b0f878b1e"
+      },
+      "all_report_events": "baseline-paid-four/events.jsonl",
+      "native_git_origin_count": 836,
+      "origin_errors": [],
+      "before_after_sha_equal": true,
+      "before_after_status_clean": true,
+      "failure_waiver": false
+    },
+    {
+      "id": "baseline-secondary-two",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "--basetemp=/tmp/e02-D-hv-fixtures-0a89b4e9ed5f4356b19ae90c0e5bd666",
+        "--junitxml=/tmp/e02-D-b119-cleanup-root-d45523854e204d84b85cc402921acc59/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_async_generator_rollback_refusal_blocks_publication_and_preserves_original_cause",
+        "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ack"
+      ],
+      "target_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "target_tree_sha": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "test_source": {
+        "sha": "5bf35ad62d48d593a594e23cf7fd65438b25e914",
+        "tree": "1cef5bd8cff3371980ebae6e91a4f9a9f6894b46",
+        "selectors_sha256": {
+          "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_async_generator_rollback_refusal_blocks_publication_and_preserves_original_cause": "f824787b6726ff2f56f74d5cea6688a2f94e8dc452f34db41be502e4c090c021",
+          "/workspace/e02-D-published-search/policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ack": "f824787b6726ff2f56f74d5cea6688a2f94e8dc452f34db41be502e4c090c021"
+        }
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "pytest": "9.0.2"
+        },
+        "env_changes": {
+          "PYTHONPATH": "/tmp/e02-D-b119-cleanup-root-d45523854e204d84b85cc402921acc59:src:.:/workspace/e02-D-published-search/policy-engine/src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_priority": "root/src primary; own/src fallback last solely suppresses test conftest reinsertion; every loaded Polisyos byte checked against target Git"
+      },
+      "input_closure": {
+        "measurement_metadata_pointer": "/runs/baseline-secondary-two",
+        "actual_fixture_members_prefix": "baseline-secondary-two/actual-inputs/",
+        "all_retained_bytes_and_native_manifest_refs": true,
+        "scope": "synthetic actual native batch/controller/CAS plus local real producer/enforcer/FileBudgetLedger; no production evaluator or external billing authority assertion"
+      },
+      "outcome": "FAIL",
+      "deciding_output": "2 FAIL; restore control exception did not fence publication; failed checkpoint I/O masked original refusal.",
+      "exit_code": 1,
+      "wall_seconds": 12.39792649699666,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "2",
+        "skipped": "0",
+        "tests": "2",
+        "time": "6.555",
+        "timestamp": "2026-10-06T19:04:25.459961+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output": {
+        "evidence_commit": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+        "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+        "member": "baseline-secondary-two/complete.txt",
+        "sha256": "1bb47b6b9dd3f9a2f5ab15c625d27e9f7de7eed5e9901bb343dc16e406b4ba40"
+      },
+      "all_report_events": "baseline-secondary-two/events.jsonl",
+      "native_git_origin_count": 801,
+      "origin_errors": [],
+      "before_after_sha_equal": true,
+      "before_after_status_clean": true,
+      "failure_waiver": false
+    },
+    {
+      "id": "candidate-twelve",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "--basetemp=/tmp/e02-D-hv-fixtures-764f081fe6e640b796886fd6eec55230",
+        "--junitxml=/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+      ],
+      "target_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "target_tree_sha": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "test_source": {
+        "sha": "dc583fc449234f746983a9855a2738148dd2f20d",
+        "tree": "6f59a75aa2ef4f75fa9be9328b4906e2e939b313",
+        "selectors_sha256": {
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035"
+        }
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "pytest": "9.0.2"
+        },
+        "env_changes": {
+          "PYTHONPATH": "/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f:src:.:/workspace/e02-D-published-search/policy-engine/src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_priority": "root/src primary; own/src fallback last solely suppresses test conftest reinsertion; every loaded Polisyos byte checked against target Git"
+      },
+      "input_closure": {
+        "measurement_metadata_pointer": "/runs/candidate-twelve",
+        "actual_fixture_members_prefix": "candidate-twelve/actual-inputs/",
+        "all_retained_bytes_and_native_manifest_refs": true,
+        "scope": "synthetic actual native batch/controller/CAS plus local real producer/enforcer/FileBudgetLedger; no production evaluator or external billing authority assertion"
+      },
+      "outcome": "PASS",
+      "deciding_output": "12 PASS / 0 FAIL / 0 ERROR / 0 SKIP; original scoped transitions, reason identity, acknowledged recovery and local settlement custody.",
+      "exit_code": 0,
+      "wall_seconds": 13.212587836998864,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "6.960",
+        "timestamp": "2026-10-06T19:13:53.810623+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output": {
+        "evidence_commit": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+        "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+        "member": "candidate-twelve/complete.txt",
+        "sha256": "0045f3664a9892f5d277f3a71448cf7e8d22be23616772d1f58f26b9e701c102"
+      },
+      "all_report_events": "candidate-twelve/events.jsonl",
+      "native_git_origin_count": 836,
+      "origin_errors": [],
+      "before_after_sha_equal": true,
+      "before_after_status_clean": true,
+      "failure_waiver": false
+    },
+    {
+      "id": "affected-eighty-seven",
+      "command": [
+        "/workspace/e02-D-doe-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "--basetemp=/tmp/e02-D-hv-fixtures-0ad5530fc0fe4f9eb259d7417a074430",
+        "--junitxml=/tmp/e02-D-b119-affected-root-3ca7253c49974e3a8089309f1ff8d14e/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "tests/unit/scientist/methods/search/test_service_persistence.py",
+        "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "tests/unit/scientist/methods/search/test_controller.py::test_measured_provider_charge_drives_stopping_and_detached_report"
+      ],
+      "target_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "target_tree_sha": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "test_source": {
+        "sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+        "tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+        "selectors_sha256": {
+          "tests/unit/scientist/methods/search/test_service_persistence.py": "27ca58db276560aa8dec8f19684aebcb0cf638f6111bd258340fefbbd757d7e3",
+          "tests/unit/scientist/methods/search/test_service_ask_publication_review.py": "0becdae0dd7f8008b1f2b39e40dc44c25f114006c5bae1ec53877d5438d041bc",
+          "tests/unit/scientist/methods/autotune/test_native_doe_factory.py": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a",
+          "tests/unit/scientist/methods/search/test_controller.py::test_measured_provider_charge_drives_stopping_and_detached_report": "4e8f64605802917a07771af519cd665490aa099452d258ab0cc000a3074776af"
+        }
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-doe-env/bin/python",
+        "loaded_backend_versions": {
+          "torch": "2.10.0+cu128",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "pytest": "9.0.2"
+        },
+        "env_changes": {
+          "PYTHONPATH": "/tmp/e02-D-b119-affected-root-3ca7253c49974e3a8089309f1ff8d14e:src:.:/workspace/e02-D-published-search/policy-engine/src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_priority": "root/src primary; own/src fallback last solely suppresses test conftest reinsertion; every loaded Polisyos byte checked against target Git"
+      },
+      "input_closure": {
+        "measurement_metadata_pointer": "/runs/affected-eighty-seven",
+        "actual_fixture_members_prefix": "affected-eighty-seven/actual-inputs/",
+        "all_retained_bytes_and_native_manifest_refs": true,
+        "scope": "synthetic actual native batch/controller/CAS plus local real producer/enforcer/FileBudgetLedger; no production evaluator or external billing authority assertion"
+      },
+      "outcome": "FAIL",
+      "deciding_output": "86 PASS / 1 FAIL; service persistence/publication and actual default DOE11 passed; old paid fixture expected persisted_owner despite actual recorded-owner profile.",
+      "exit_code": 1,
+      "wall_seconds": 23.317276366011356,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "87",
+        "time": "14.467",
+        "timestamp": "2026-10-06T19:15:12.636841+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output": {
+        "evidence_commit": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+        "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+        "member": "affected-eighty-seven/complete.txt",
+        "sha256": "79909176c8311b3207f36f54e063b96e921ea5f161a9d5404a65c4927c3cdff2"
+      },
+      "all_report_events": "affected-eighty-seven/events.jsonl",
+      "native_git_origin_count": 864,
+      "origin_errors": [],
+      "before_after_sha_equal": true,
+      "before_after_status_clean": true,
+      "failure_waiver": false
+    },
+    {
+      "id": "guard-removal-four",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "-p",
+        "remove_guards",
+        "--basetemp=/tmp/e02-D-hv-fixtures-64d0075a0f964096bf566a5c6e87ff1e",
+        "--junitxml=/tmp/e02-D-b119-removal-root-31f79c57ae514962accec4cf93758c2f/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_async_cancel_after_empty_public_batch_keeps_acknowledged_generator_and_partial_state",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_async_generator_rollback_refusal_blocks_publication_and_preserves_original_cause",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError1]",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ack"
+      ],
+      "target_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "target_tree_sha": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "test_source": {
+        "sha": "dc583fc449234f746983a9855a2738148dd2f20d",
+        "tree": "6f59a75aa2ef4f75fa9be9328b4906e2e939b313",
+        "selectors_sha256": {
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_async_cancel_after_empty_public_batch_keeps_acknowledged_generator_and_partial_state": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035",
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_async_generator_rollback_refusal_blocks_publication_and_preserves_original_cause": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035",
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError1]": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035",
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py::test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ack": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035"
+        }
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "pytest": "9.0.2"
+        },
+        "env_changes": {
+          "PYTHONPATH": "/tmp/e02-D-b119-removal-root-31f79c57ae514962accec4cf93758c2f:src:.:/workspace/e02-D-published-search/policy-engine/src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_priority": "root/src primary; own/src fallback last solely suppresses test conftest reinsertion; every loaded Polisyos byte checked against target Git"
+      },
+      "input_closure": {
+        "measurement_metadata_pointer": "/runs/guard-removal-four",
+        "actual_fixture_members_prefix": "guard-removal-four/actual-inputs/",
+        "all_retained_bytes_and_native_manifest_refs": true,
+        "scope": "synthetic actual native batch/controller/CAS plus local real producer/enforcer/FileBudgetLedger; no production evaluator or external billing authority assertion"
+      },
+      "outcome": "FAIL",
+      "deciding_output": "4 FAIL AS REQUIRED; each one-guard removal retains source/config/CAS/refs/cost receipts and breaks its deciding predicate.",
+      "exit_code": 1,
+      "wall_seconds": 13.10149022200494,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "4",
+        "skipped": "0",
+        "tests": "4",
+        "time": "7.016",
+        "timestamp": "2026-10-06T19:16:32.844513+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output": {
+        "evidence_commit": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+        "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+        "member": "guard-removal-four/complete.txt",
+        "sha256": "15fa87e7ea246c606431ba3f61d272ba18450399ef0c7b4e0aba856ea6fb9145"
+      },
+      "all_report_events": "guard-removal-four/events.jsonl",
+      "native_git_origin_count": 808,
+      "origin_errors": [],
+      "before_after_sha_equal": true,
+      "before_after_status_clean": true,
+      "failure_waiver": false
+    },
+    {
+      "id": "paid-profile-corrective-one",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "--basetemp=/tmp/e02-D-hv-fixtures-28eb1470ed034ad99dd9069a7e9d4152",
+        "--junitxml=/tmp/e02-D-b119-paid-corrected-root-26704eb5cf064f96a511e9d21e480094/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "tests/unit/scientist/methods/search/test_controller.py::test_measured_provider_charge_drives_stopping_and_detached_report"
+      ],
+      "target_sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "target_tree_sha": "aad7d3d9b7cc3068d2f825b94d91997ded562d43",
+      "test_source": {
+        "sha": "5254e9e00b31a632b31fdba7d8dfc5831072125d",
+        "tree": "bcb22b07a7bb3312dd056a96b79096e16ac5a64c",
+        "selectors_sha256": {
+          "tests/unit/scientist/methods/search/test_controller.py::test_measured_provider_charge_drives_stopping_and_detached_report": "4a81433a4e5edc3ebe4084e7abe3f34b5ea87181f8757c207011e094e66db619"
+        }
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "pytest": "9.0.2"
+        },
+        "env_changes": {
+          "PYTHONPATH": "/tmp/e02-D-b119-paid-corrected-root-26704eb5cf064f96a511e9d21e480094:src:.:/workspace/e02-D-published-search/policy-engine/src",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_priority": "root/src primary; own/src fallback last solely suppresses test conftest reinsertion; every loaded Polisyos byte checked against target Git"
+      },
+      "input_closure": {
+        "measurement_metadata_pointer": "/runs/paid-profile-corrective-one",
+        "actual_fixture_members_prefix": "paid-profile-corrective-one/actual-inputs/",
+        "all_retained_bytes_and_native_manifest_refs": true,
+        "scope": "synthetic actual native batch/controller/CAS plus local real producer/enforcer/FileBudgetLedger; no production evaluator or external billing authority assertion"
+      },
+      "outcome": "PASS",
+      "deciding_output": "1 PASS / 0 FAIL / 0 ERROR / 0 SKIP; migrated profile expectations plus original iteration/cost/detached and direct real receipt predicates.",
+      "exit_code": 0,
+      "wall_seconds": 12.686999359997571,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "1",
+        "time": "6.583",
+        "timestamp": "2026-10-06T19:20:31.412828+00:00",
+        "hostname": "565838a1e059"
+      },
+      "complete_output": {
+        "evidence_commit": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+        "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+        "member": "paid-profile-corrective-one/complete.txt",
+        "sha256": "9e1a0cc3bce19a392a72d7e0903e4a4ac3a0b2c22ec117d077d1e7d518abe8f7"
+      },
+      "all_report_events": "paid-profile-corrective-one/events.jsonl",
+      "native_git_origin_count": 809,
+      "origin_errors": [],
+      "before_after_sha_equal": true,
+      "before_after_status_clean": true,
+      "failure_waiver": false
+    }
+  ],
+  "quality_checks": [
+    {
+      "source": "dc583fc449234f746983a9855a2738148dd2f20d",
+      "tree": "6f59a75aa2ef4f75fa9be9328b4906e2e939b313",
+      "scope": "own two Python changed files and one fragment only; no full architecture/release claim",
+      "bundle_member": "quality/e02-D-b119-quality.json",
+      "sha256": "60f6d7c01766de22d980a610932cfcf42fef32019fc244eca9607094747b9970",
+      "outcomes": [
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output_sha256": "5c218bad3d3966fc0a61f2d77271435aacd471038e833636bfa8cf5fe743f4ab"
+        },
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "src/polisyos/scientist/methods/search/service.py",
+            "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+          ],
+          "exit_code": 0,
+          "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "src/polisyos/scientist/methods/search/service.py",
+            "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+          ],
+          "exit_code": 0,
+          "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit_code": 0,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-c",
+            "from pathlib import Path\nimport hashlib,json,tomllib\nfrom tools.ops_runners.release.check_compatibility_release_gates import _validate_fragments\nroot=Path.cwd();p=root/'release-fragments/unreleased/2026-10-06-D-batch-control-reasons.toml'\npolicy=tomllib.loads((root/'architecture/gates/compatibility_release.toml').read_text());fragment=tomllib.loads(p.read_text());fragment['__path__']=str(p.relative_to(root))\nerrors,findings=_validate_fragments(root,policy,[fragment],breaking_classes=())\nprint(json.dumps({'fragment':str(p.relative_to(root)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'errors':[x.as_dict() for x in errors],'findings':[x.as_dict() for x in findings]},indent=2));raise SystemExit(bool(errors))"
+          ],
+          "exit_code": 1,
+          "output_sha256": "40d2c44d33ffc6a2abe582fe4f22593e68e4a1e007561e4e414d63d4d76d937e"
+        }
+      ]
+    },
+    {
+      "source": "cd1a6b73ee3d1414db713ad5acfa95be8c6aba43",
+      "tree": "72819292ae5b18d366417b73fe8b3c30ef7f1b70",
+      "scope": "own two Python changed files and one fragment only; no full architecture/release claim",
+      "bundle_member": "quality/e02-D-b119-quality-cd1.json",
+      "sha256": "29d3c4420a8e4e1bd97b4f62d4521ded5541801cb6cc46f3feba377601ba0751",
+      "outcomes": [
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output_sha256": "5c218bad3d3966fc0a61f2d77271435aacd471038e833636bfa8cf5fe743f4ab"
+        },
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "src/polisyos/scientist/methods/search/service.py",
+            "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+          ],
+          "exit_code": 0,
+          "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "src/polisyos/scientist/methods/search/service.py",
+            "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+          ],
+          "exit_code": 0,
+          "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit_code": 0,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-B",
+            "-c",
+            "from pathlib import Path\nimport hashlib,json,tomllib\nfrom tools.ops_runners.release.check_compatibility_release_gates import _validate_fragments\nroot=Path.cwd();p=root/'release-fragments/unreleased/2026-10-06-D-batch-control-reasons.toml'\npolicy=tomllib.loads((root/'architecture/gates/compatibility_release.toml').read_text());fragment=tomllib.loads(p.read_text());fragment['__path__']=str(p.relative_to(root))\nerrors,findings=_validate_fragments(root,policy,[fragment],breaking_classes=())\nprint(json.dumps({'fragment':str(p.relative_to(root)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'errors':[x.as_dict() for x in errors],'findings':[x.as_dict() for x in findings]},indent=2));raise SystemExit(bool(errors))"
+          ],
+          "exit_code": 0,
+          "output_sha256": "131082f8f7b635acaf0e3e2c8726120152f9954903cddefa02b1f9668f31033d"
+        }
+      ]
+    }
+  ],
+  "evidence": {
+    "transport_source": {
+      "sha": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+      "tree": "cd3292ec0a2a12b68ced4be3533678a8f827b4bd"
+    },
+    "payload": {
+      "source_sha": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/deciding-outputs.json.xz",
+      "blob": "9cdb785ab84b1d68f9ed7170a122d9723779a05b",
+      "bytes": 289476,
+      "sha256": "9818fbad66b3317a2a604954bb161224140c6bf19df9d656fcfd1a93d6b94739"
+    },
+    "header": {
+      "source_sha": "36cc1923b9f2597e15a4bc8bb7ebb4d83650e669",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-batch-control-reasons/header.json",
+      "blob": "7ee39c0c58c1e22777029c8d462955d3d7b5b0fc",
+      "bytes": 6261,
+      "sha256": "cb9b5059b80af6883f81e4d4adbe562647e7434a455a737cf48de793f2604dad"
+    },
+    "encoding": "XZ compressed UTF-8 JSON with base64 exact raw member bytes; original raw paths retained",
+    "encoded_sha256": "9818fbad66b3317a2a604954bb161224140c6bf19df9d656fcfd1a93d6b94739",
+    "decoded_sha256": "f86d68dcb3d0eaadc72c1a978ef0a21cc6a21a06589d6876263dbc921856e9ba",
+    "member_count": 1533,
+    "actual_raw_member_bytes": 5163768,
+    "roundtrip_every_member_size_sha256_verified": true,
+    "full_member_index": "/members inside lossless payload; retained path/role/bytes/sha256/content for every output/helper/actual fixture file",
+    "full_run_index": "/runs inside payload; exact argv/environment/inputs/test/source/tree/before-after/JUnit/native origins/backend versions",
+    "no_source_test_or_environment_mirror": true
+  },
+  "property": {
+    "statement": "The actual public batch [] path preserves original standard and asynchronous control cause objects, accepted partial state and locally settled paid-call custody. Unavailable rollback or failure checkpoint publication fences further publication and permits fresh last-acknowledged recovery without masking the primary reason.",
+    "runtime_path": [
+      "actual public batch generator port with checkpoint cursor",
+      "NativeSearchService.ask/run existing transaction and failed-run guards",
+      "controller accepted partial history and FileSystemCAS checkpoint manifests",
+      "real Transport→LLMBudgetEnforcer→FileBudgetLedger settlement receipt",
+      "fresh NativeSearchService.restore/ref and fresh ledger snapshot observer"
+    ],
+    "proxy_divergence": "Reason identity alone passed before the fix while live async cursor diverged from acknowledged checkpoint; a secondary checkpoint OSError replaced original refusal. Existing cost text7.5 alone is not paid custody, independently evidenced by actual settled1.25 receipts.",
+    "negative_controls": [
+      {
+        "guard": "ask async cleanup",
+        "removal": "Exception-only boundary retains all source and saved markers",
+        "deciding_failure": "live generator cursor differs from last acknowledged state"
+      },
+      {
+        "guard": "failed rollback async cleanup",
+        "removal": "Exception-only restore boundary",
+        "deciding_failure": "secondary rollback cause replaces primary control"
+      },
+      {
+        "guard": "failed run async cleanup",
+        "removal": "Exception-only run boundary",
+        "deciding_failure": "original failure reason absent"
+      },
+      {
+        "guard": "failed checkpoint publication cleanup",
+        "removal": "replace protected nested persist with direct persist",
+        "deciding_failure": "secondary I/O exception replaces original refusal"
+      }
+    ],
+    "removal_evidence_member": "guard-removal-four/guard-mutations.jsonl"
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope_annotation": {
+    "pattern_ids": [
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "basis": "Actual native public callers, typed original scope, exact original exception identity, accepted partial/current-vs-ack cursor, real settlement receipt/fresh ledger snapshots, original raw checkpoint bytes/fresh readers and one-guard-removal divergence are recomputed in assertions. This classification does not supply external billing or broader institutional authority."
+  },
+  "capability_state_or_finding_state": "bounded corrective mechanism and source-qualified targeted consumers verified; no automatic finding closure or broad acceptance",
+  "independent_review": {
+    "author": "/root/numerical_oracle",
+    "initial_unique_test_source": {
+      "sha": "12b56d9236a4c7558ad5a92ab77de98247557bc4",
+      "tree": "a94aacb449fc8fa9ae24121cc5fb4887ed051ee0"
+    },
+    "corrected_test_source_root": {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "tree": "aad7d3d9b7cc3068d2f825b94d91997ded562d43"
+    },
+    "test_path": "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+    "test_binding": {
+      "source_sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "blob": "629011d56f0d933963902bd7d2c3a2058ca8e686",
+      "bytes": 12191,
+      "sha256": "90c6cc8f0d58fa143666c064a86bceb80a12276d4bce77856816e17dce696672"
+    },
+    "reported_outcome": "Corrected3 PASS/0skip on root1ff,13.29945wall,837product+6test/helper GitMATCH; exact primary cause, blocked further ask/checkpoint, physical successful put/unacknowledged readback refusal and actual2.375 settlement custody.",
+    "basis": "Source-reported pending separate immutable reviewer receipt; no author duplicate3 replay or inherited broad verdict."
+  },
+  "limitations_and_next_owner": [
+    "Original standard refusal/futures cancellation and transient/persistent empty controls already passed at d72; the production correction addresses measured async cleanup and secondary-error reason masking, not a demonstrated generic nonempty Bayesian fallback defect.",
+    "Failed generator rollback does not establish a restored live cursor. Publication is blocked; reconstruct the same configured service and restore last acknowledged reference.",
+    "I/O-failed failure checkpoint publication is not successful durable failure publication. Last acknowledged bytes remain; independent readback-phase control distinguishes physically written unacknowledged failed artifact from acknowledged live reference.",
+    "Context cost7.5 is caller-declared legacy data. Actual local producer/enforcer/ledger settlements1.25 and1.0 are separately asserted with real receipts and fresh snapshots; they do not certify external billing authority or unavailable provider-origin/report-revision claims.",
+    "Original baseline six5PASS1FAIL, paidfour3PASS1FAIL, secondarytwo2FAIL and affected86PASS1FAIL remain exact historical FAIL without P41 waiver. The paid fixture correction is test-only typed-profile migration; all iteration/cost/detached assertions remain.",
+    "Four removal failures are required falsifiers, not successful product executions or waivers. No global/fullfast/architecture/release PASS is inferred from scoped Ruff/fragment validation or this targeted scope.",
+    "The affected actual default nativeDOE11 is included, with source-bound loaded optional backend. No unchanged GP26/analytic23 replay or new GP scientific/optimization-quality claim is made.",
+    "Full finding acceptance and final immutable aggregate broad wave remain root/G responsibilities. LA-015 retirement/caller scope beyond this transaction correction remains separately accounted.",
+    "All original outputs, fixture bytes, acknowledged refs, administrative preservation receipts and tracked prior evidence remain append-only; no permanent cleanup/deletion or artificial process/time/memory caps."
+  ]
+}

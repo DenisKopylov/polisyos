@@ -1432,13 +1432,14 @@ class HumanDecisionRecoveryFence:
         return result
 
 
-@dataclass(frozen=True)
+@dataclass(slots=True)
 class _ControlJobTransactionAdmission:
     """Actual bound job evidence held only by the admitting SQL transaction."""
 
     resource: Any
     identity: tuple[str, str, int]
     lease_expires_at: datetime | None
+    terminal_state: Literal["completed", "failed"] | None = None
 
 
 class ControlPlaneStore:
@@ -3635,6 +3636,7 @@ class ControlPlaneStore:
             ("completed", run_id, pipeline_id, capability_manifest_ref, _iso(now), *where_params),
         )
         self._require_fenced_write(job_id=job_id, fence=fence, affected_rows=affected_rows)
+        self._admit_terminal_publication(job_id=job_id, fence=fence, state="completed")
         event_payload: dict[str, Any] = {"state": "completed"}
         if fence is not None:
             event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
@@ -3703,6 +3705,7 @@ class ControlPlaneStore:
             ("failed", capability_manifest_ref, _iso(now), error_message[:2000], *where_params),
         )
         self._require_fenced_write(job_id=job_id, fence=fence, affected_rows=affected_rows)
+        self._admit_terminal_publication(job_id=job_id, fence=fence, state="failed")
         if progress is not None:
             self.upsert_progress(job_id=job_id, progress=progress)
         event_payload: dict[str, Any] = {
@@ -4978,6 +4981,52 @@ class ControlPlaneStore:
                 """
             )
 
+    def _admit_terminal_publication(
+        self,
+        *,
+        job_id: str,
+        fence: tuple[str, int] | None,
+        state: Literal["completed", "failed"],
+    ) -> None:
+        """Carry an already affected-row-checked terminal write within its transaction."""
+        admission = getattr(self._human_decision_transaction, "job_admission", None)
+        if admission is None:
+            return
+        if admission.identity != (job_id, *(fence or (None, None))):
+            raise ControlJobLeaseLostError("terminal publication does not bind admitted owner")
+        record = self.get_job(job_id)
+        if (
+            record is None
+            or record.state != state
+            or record.attempt != admission.identity[2]
+            or record.lease_owner is not None
+            or record.lease_expires_at is not None
+        ):
+            raise ControlJobLeaseLostError("terminal publication row is not the admitted attempt")
+        admission.terminal_state = state
+
+    def _validate_transaction_admission(self, admission: _ControlJobTransactionAdmission) -> None:
+        """Re-read the locked source lease, including a legitimate same-attempt renewal."""
+        if admission.lease_expires_at is None:
+            return
+        job_id, worker_id, attempt = admission.identity
+        record = self.get_job(job_id)
+        if record is None or record.attempt != attempt:
+            raise ControlJobLeaseLostError("control job transaction generation changed")
+        if record.state == "running" and record.lease_owner == worker_id:
+            expires_at = record.lease_expires_at
+        elif (
+            admission.terminal_state is not None
+            and record.state == admission.terminal_state
+            and record.lease_owner is None
+            and record.lease_expires_at is None
+        ):
+            expires_at = admission.lease_expires_at
+        else:
+            raise ControlJobLeaseLostError("control job transaction owner changed")
+        if expires_at is None or expires_at <= _utc_now():
+            raise ControlJobLeaseLostError("control job lease expired during publication")
+
     @contextmanager
     def _bound_transaction_admission(
         self,
@@ -4997,8 +5046,7 @@ class ControlPlaneStore:
         if prior is not None:
             if prior.resource is not resource or prior.identity != bound:
                 raise ControlJobLeaseLostError("control job transaction identity changed")
-            if prior.lease_expires_at is not None and prior.lease_expires_at <= _utc_now():
-                raise ControlJobLeaseLostError("control job lease expired during publication")
+            self._validate_transaction_admission(prior)
             yield
             return
         if bound is None:
@@ -5025,8 +5073,7 @@ class ControlPlaneStore:
         self._human_decision_transaction.job_admission = admission
         try:
             yield
-            if expires_at is not None and expires_at <= _utc_now():
-                raise ControlJobLeaseLostError("control job lease expired before publication")
+            self._validate_transaction_admission(admission)
         finally:
             self._human_decision_transaction.job_admission = prior
 

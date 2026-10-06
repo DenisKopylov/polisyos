@@ -204,27 +204,8 @@ def _database_rows(database: Path) -> list[str]:
         return list(connection.iterdump())
 
 
-@pytest.mark.parametrize(
-    "operation",
-    [
-        "upsert",
-        "event",
-        "outbox",
-        "child_event",
-        "child_outbox",
-        "create",
-        "mark_running",
-        "lease_next",
-        "scenario",
-        "step_up",
-        "human_reservation",
-        "worker_heartbeat",
-        "worker_release",
-    ],
-)
 def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
     tmp_path: Path,
-    operation: str,
 ) -> None:
     database = tmp_path / "control.sqlite3"
     store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
@@ -284,14 +265,29 @@ def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inle
             ),
             "worker_release": lambda: store.release_worker(worker_id="worker-A"),
         }
-        with pytest.raises(ControlJobLeaseLostError):
-            operations[operation]()
-        assert _database_rows(database) == before
-        observed.append(operation)
+        for name, operation in operations.items():
+            with pytest.raises(ControlJobLeaseLostError):
+                operation()
+            assert _database_rows(database) == before, name
+            observed.append(name)
 
     worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
     assert worker.dispatch_once()
-    assert observed == [operation]
+    assert observed == [
+        "upsert",
+        "event",
+        "outbox",
+        "child_event",
+        "child_outbox",
+        "create",
+        "mark_running",
+        "lease_next",
+        "scenario",
+        "step_up",
+        "human_reservation",
+        "worker_heartbeat",
+        "worker_release",
+    ]
     assert _worker_child(database, "finish")["state"] == "completed"
 
 
@@ -413,6 +409,57 @@ def test_current_source_lease_can_publish_existing_child_job_api(tmp_path: Path)
     child = store.get_job("child")
     assert child is not None and child.state == "pending"
     assert child.progress == {"source_job": job.job_id}
+
+
+def test_same_transaction_actual_lease_renewal_allows_publication_after_initial_expiry(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+    _create_control_job(store, "dur02-current-job")
+    job = store.lease_next_job(worker_id="worker-A", lease_seconds=2)
+    assert job is not None and job.lease_expires_at is not None
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt),
+        store._job_transaction(),
+    ):
+        assert store.renew_job_lease(
+            job_id=job.job_id, worker_id="worker-A", expected_attempt=job.attempt, lease_seconds=300
+        )
+        time.sleep(max(0, (job.lease_expires_at - datetime.now(UTC)).total_seconds()) + 0.1)
+        store.upsert_progress(job_id=job.job_id, progress={"renewed": True})
+        store.append_event(job_id=job.job_id, event_type="renewed", payload={})
+    current = store.get_job(job.job_id)
+    assert current is not None and current.lease_expires_at > job.lease_expires_at
+    assert current.progress == {"renewed": True}
+
+
+@pytest.mark.parametrize("rewrite", ["self_generation", "unproven_terminal"])
+def test_bound_handler_cannot_forge_a_new_transaction_admission(
+    tmp_path: Path, rewrite: str
+) -> None:
+    database = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+    _create_control_job(store, "dur02-current-job")
+    job = store.lease_next_job(worker_id="worker-A", lease_seconds=300)
+    assert job is not None
+    before = _database_rows(database)
+
+    def rewrite_identity() -> None:
+        if rewrite == "self_generation":
+            store.mark_running(job_id=job.job_id, worker_id="worker-A", lease_seconds=300)
+        else:
+            store._execute(
+                "UPDATE control_jobs SET state='completed', lease_owner=NULL, lease_expires_at=NULL WHERE job_id=?",
+                (job.job_id,),
+            )
+
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt),
+        pytest.raises(ControlJobLeaseLostError),
+    ):
+        rewrite_identity()
+    assert _database_rows(database) == before
 
 
 class _PersistedEffectNode:

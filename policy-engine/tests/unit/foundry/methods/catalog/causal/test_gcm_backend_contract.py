@@ -1,0 +1,317 @@
+"""The selected GCM profile cannot quietly execute the native OLS profile."""
+
+import numpy as np
+import pytest
+
+from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
+from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+
+
+def _fit_data() -> SCMFitData:
+    x = np.linspace(-2.0, 2.0, 20)
+    return SCMFitData(
+        data=np.column_stack([x, 2 * x]),
+        column_names=["X", "Y"],
+        graph=CausalGraphModel(
+            graph_type=GraphType.DAG, nodes=["X", "Y"], edges=[CausalEdge(src="X", dst="Y")]
+        ),
+    )
+
+
+def test_selected_gcm_refuses_missing_source_context() -> None:
+    with pytest.raises(RuntimeError, match="source-resolved|bridge unavailable"):
+        HybridSCMFit.pure_step(_fit_data(), {"fit_backend": "dowhy_gcm"})
+
+
+def test_explicit_native_profile_never_claims_dowhy_fit() -> None:
+    output = HybridSCMFit.pure_step(_fit_data(), {"fit_backend": "native_hybrid"})
+    assert output["scm_spec"].fit_method == "native_hybrid"
+    assert output["scm_spec"].fit_provenance is None
+    assert output["structural_causal_model_spec"] is output["scm_spec"]
+
+
+import hashlib
+import json
+import logging
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge
+from polisyos.foundry.methods.catalog.causal.gcm_fit import validate_persisted_gcm_spec
+from polisyos.foundry.methods.catalog.causal.gcm_query import (
+    GCMQuery,
+    validate_persisted_estimator_interval,
+)
+from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
+from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.analytics.causal_queries import CausalQuery, load_causal_query_result
+from polisyos.ir.analytics.structural_causal_model import persist_structural_causal_model_spec
+from polisyos.ir.registry.refs import CausalQueryResultRef
+from polisyos.scientist.compute.job_spec import JobSpec
+from polisyos.scientist.compute.runner import run_job
+from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_QUERY_RESULT_REF
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+
+def _dgp(n: int) -> SCMFitData:
+    rng = np.random.default_rng(321)
+    x = rng.normal(size=n)
+    noise = rng.normal(size=n)
+    return SCMFitData(
+        data=np.column_stack([x, 2 * x + noise]),
+        column_names=["X", "Y"],
+        graph=CausalGraphModel(
+            graph_type=GraphType.DAG, nodes=["X", "Y"], edges=[CausalEdge(src="X", dst="Y")]
+        ),
+        metadata={"sampling_unit": "iid_observation_row", "input_scope": "known_synthetic_dgp"},
+    )
+
+
+def _fit_real(tmp_path: Path, n: int):
+    data = _dgp(n)
+    store = FileSystemCAS(tmp_path)
+    source = store.put_json(
+        data.model_dump(mode="json"),
+        PutOptions(
+            kind="tests.scm_fit_data",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.SCMFitData", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    MethodRegistry.get_instance().register(HybridSCMFit, override=True)
+    with bridge.worker_execution_context(store=store, source_ref=source):
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn=HybridSCMFit.signature.fqn,
+                input_refs={"scm_fit_data": source},
+                seed=23,
+            ),
+            cas_root=tmp_path,
+            method_state=data,
+        )
+    assert not result.issues, result.issues
+    assert result.method_result_ref is not None
+    payload = from_canonical_bytes(store.get_bytes(result.method_result_ref))
+    from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
+
+    model = StructuralCausalModelSpec.model_validate(payload["structural_causal_model_spec"])
+    assert payload["structural_causal_model_spec"] == payload["scm_spec"]
+    return store, source, data, model, result
+
+
+@pytest.fixture
+def selected_worker(monkeypatch):
+    interpreter = bridge._worker_directory() / ".venv/bin/python"
+    assert interpreter.is_file(), (
+        "Install selected genuine locked worker before running; backend absence is not PASS"
+    )
+    monkeypatch.setenv("POLISYOS_DOWHY_WORKER_PYTHON", str(interpreter))
+
+
+def _contrast() -> CausalQuery:
+    return CausalQuery(
+        query_type="attribution",
+        treatment_variable="X",
+        outcome_variable="Y",
+        n_samples=3000,
+        contrast={
+            "target": {"type": "atomic", "value": 1},
+            "comparator": {
+                "kind": "interventional",
+                "intervention": {"type": "atomic", "value": 0},
+            },
+        },
+    )
+
+
+def test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer(tmp_path, selected_worker):
+    store, source, data, model, result = _fit_real(tmp_path / "cas", 400)
+    assert model.fit_method == "gcm" and model.schema_version == "1.1"
+    assert model.fit_provenance.versions["dowhy"] == "0.14"
+    assert model.training_rows.source_sha256 == hashlib.sha256(store.get_bytes(source)).hexdigest()
+    root, conditional = model.mechanisms
+    assert root.family_params["observed_samples"] == data.data[:, 0].tolist()
+    coefficient = conditional.family_params["coefficients"]["X"]
+    assert coefficient == pytest.approx(
+        np.linalg.lstsq(
+            np.column_stack([np.ones(400), data.data[:, 0]]), data.data[:, 1], rcond=None
+        )[0][1],
+        abs=1e-12,
+    )
+    assert abs(coefficient - 2) < 4 / np.sqrt(
+        np.sum((data.data[:, 0] - data.data[:, 0].mean()) ** 2)
+    )
+    assert np.asarray(conditional.family_params["residual_samples"]) == pytest.approx(
+        data.data[:, 1] - conditional.family_params["intercept"] - coefficient * data.data[:, 0]
+    )
+    ref = persist_structural_causal_model_spec(store, model)
+    reader = """
+import json,sys
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.registry.refs import StructuralCausalModelSpecRef
+from polisyos.ir.analytics.structural_causal_model import load_structural_causal_model_spec
+from polisyos.foundry.methods.catalog.causal.gcm_fit import validate_persisted_gcm_spec
+from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
+from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
+store=FileSystemCAS(sys.argv[1]);ref=StructuralCausalModelSpecRef.model_validate(json.loads(sys.argv[2]))
+model=load_structural_causal_model_spec(store,ref);validate_persisted_gcm_spec(model,store)
+query=json.loads(sys.argv[3]);output=GCMQuery.pure_step(SCMQueryData(scm_spec=model,query=query),{'__seed__':23,'enable_dowhy_comparison':False})
+assert sys.version_info[:2]==(3,14)
+assert not output['envelope'].gate_eligible
+print(json.dumps({'mean':output['query_result'].result_mean,'profile':model.fit_provenance.profile}))
+"""
+    fresh = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            reader,
+            str(store.root),
+            ref.model_dump_json(),
+            _contrast().model_dump_json(),
+        ],
+        capture_output=True,
+        text=True,
+        env=os.environ.copy(),
+        check=False,
+    )
+    assert fresh.returncode == 0, fresh.stdout + fresh.stderr
+    assert json.loads(fresh.stdout)["mean"] == pytest.approx(coefficient, abs=1e-10)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="native-gcm-scm")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("native-gcm-scm"))
+    state = ExperimentState(
+        run_id="native-gcm-scm",
+        params={
+            "random_seed": 23,
+            "structural_causal_model_ref": ref.model_dump(mode="json"),
+            "causal_query": _contrast().model_dump(mode="json"),
+            "causal_estimator_bootstrap_replicates": 40,
+        },
+    )
+    outcome = RunCausalQueriesNode().execute(ctx, state)
+    assert outcome.status == "ok", outcome.error
+    persisted = load_causal_query_result(
+        FileSystemCAS(store.root),
+        CausalQueryResultRef.model_validate(
+            outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF].model_dump(mode="json")
+        ),
+    )
+    assert persisted.result_mean == pytest.approx(coefficient, abs=1e-10)
+    interval = persisted.estimator_interval
+    assert interval is not None and interval.replicate_count == 40
+    from polisyos import ir
+    from polisyos.ir import analytics
+
+    assert type(interval) is ir.CausalEstimatorInterval is analytics.CausalEstimatorInterval
+    assert type(model.training_rows) is ir.SCMTrainingRows
+    assert type(model.fit_provenance) is ir.SCMFitProvenance
+    assert persisted.result_kind is ir.CausalResultKind.ITE_DISTRIBUTION
+    assert interval.refit_scope == ("X", "Y") and interval.n_units == 400
+    assert interval.interval[0] < coefficient < interval.interval[1]
+    assert interval.to_uncertainty_envelope().confidence_level == 0.95
+    assert not interval.to_uncertainty_envelope().gate_eligible
+    assert not persisted.to_uncertainty_envelope().gate_eligible
+    validate_persisted_estimator_interval(
+        interval, model, persisted.query, FileSystemCAS(store.root)
+    )
+    corrupted = interval.model_copy(
+        update={"replicate_estimates": tuple(v + 0.2 for v in interval.replicate_estimates)}
+    )
+    with pytest.raises(ValueError, match="differs from source-bound"):
+        validate_persisted_estimator_interval(corrupted, model, persisted.query, store)
+
+
+def test_row_permutation_source_and_effective_mechanism_tampering_refused(
+    tmp_path, selected_worker
+):
+    store, source, data, model, _ = _fit_real(tmp_path, 100)
+    changed = data.model_copy(deep=True)
+    changed.data[:, 1] = changed.data[::-1, 1]
+    with (
+        bridge.worker_execution_context(store=store, source_ref=source),
+        pytest.raises(bridge.WorkerBindingError, match="resolved source rows"),
+    ):
+        HybridSCMFit.pure_step(changed, {})
+    altered = model.model_copy(deep=True)
+    altered.mechanisms[1].family_params["coefficients"]["X"] += 0.5
+    with pytest.raises(ValueError, match="content-bound fitted worker output"):
+        validate_persisted_gcm_spec(altered, store)
+    # Keep all backend/source/hash markers and make the fake exported residuals
+    # internally consistent with a changed coefficient. Custody alone must not
+    # certify the effective numerical fit.
+    forged = model.model_copy(deep=True)
+    exported = forged.fit_provenance.worker_response["result"]["mechanisms"]["Y"]
+    exported["coefficients"]["X"] += 0.5
+    residuals = (
+        data.data[:, 1] - exported["intercept"] - exported["coefficients"]["X"] * data.data[:, 0]
+    )
+    exported["residual_samples"] = residuals.tolist()
+    exported["noise_std"] = float(np.std(residuals))
+    forged.mechanisms[1].family_params.update(
+        coefficients=dict(exported["coefficients"]),
+        residual_samples=residuals.tolist(),
+        noise_std=float(np.std(residuals)),
+    )
+    with pytest.raises(ValueError, match="differs from source-row oracle"):
+        validate_persisted_gcm_spec(forged, store)
+    noniid = model.model_copy(deep=True)
+    noniid.training_rows.fit_input["metadata"]["sampling_unit"] = "panel_row"
+    with pytest.raises(ValueError, match="explicit iid observation-row"):
+        GCMQuery.pure_step(
+            SCMQueryData(scm_spec=noniid, query=_contrast()),
+            {"bootstrap_replicates": 20, "enable_dowhy_comparison": False},
+        )
+    missing = FileSystemCAS(tmp_path / "empty")
+    with pytest.raises((OSError, ValueError, KeyError, RuntimeError)):
+        validate_persisted_gcm_spec(model, missing)
+
+
+def test_true_refit_sampling_interval_shrinks_predictive_distribution_does_not(
+    tmp_path, selected_worker
+):
+    widths = []
+    spans = []
+    for n in (400, 800):
+        store, source, data, model, _ = _fit_real(tmp_path / str(n), n)
+        query = CausalQuery(
+            query_type="interventional",
+            treatment_variable="X",
+            outcome_variable="Y",
+            treatment_value=1,
+            n_samples=4000,
+        )
+        with bridge.worker_execution_context(store=store, source_ref=source):
+            output = GCMQuery.pure_step(
+                SCMQueryData(scm_spec=model, query=query),
+                {"__seed__": 45, "bootstrap_replicates": 80, "enable_dowhy_comparison": False},
+            )
+        interval = output["query_result"].estimator_interval
+        validate_persisted_estimator_interval(interval, model, query, store)
+        widths.append(interval.interval[1] - interval.interval[0])
+        spans.append(output["query_result"].result_ci[1] - output["query_result"].result_ci[0])
+        assert output["envelope"].distribution_family.value == "unknown"
+    print(
+        json.dumps(
+            {
+                "n_units": [400, 800],
+                "estimator_widths": widths,
+                "predictive_spans": spans,
+                "width_ratio": widths[1] / widths[0],
+                "predictive_ratio": spans[1] / spans[0],
+            }
+        )
+    )
+    assert 0.45 < widths[1] / widths[0] < 0.95
+    assert 0.8 < spans[1] / spans[0] < 1.2

@@ -301,6 +301,8 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "CausalModelEnsemble",
     ),
     "CausalQuery": ("polisyos.ir.analytics.causal_queries", "CausalQuery"),
+    "CausalResultKind": ("polisyos.ir.analytics.causal_queries", "CausalResultKind"),
+    "CausalEstimatorInterval": ("polisyos.ir.analytics.causal_queries", "CausalEstimatorInterval"),
     "CausalQueryResult": (
         "polisyos.ir.analytics.causal_queries",
         "CausalQueryResult",

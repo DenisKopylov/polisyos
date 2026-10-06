@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import nullcontext
 from dataclasses import dataclass
 from typing import Any
 
@@ -14,6 +15,8 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
+from polisyos.foundry.methods.catalog.causal.gcm_fit import validate_persisted_gcm_spec
+from polisyos.foundry.methods.catalog.causal.gcm_query import validate_persisted_estimator_interval
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
 from polisyos.ir.analytics.causal_queries import (
     CausalQuery,
@@ -25,10 +28,6 @@ from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
 from polisyos.ir.registry.refs import StructuralCausalModelSpecRef
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -38,6 +37,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METHOD_FQN = "causal.structural.gcm_query@1.0.0"
 
@@ -59,6 +67,7 @@ _SPEC = NodeSpec(
     state_reads=[
         "params.random_seed",
         "params.causal_query",
+        "params.causal_estimator_bootstrap_replicates",
         "params.structural_causal_model_ref",
         f"artifacts_index.{ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF}",
     ],
@@ -186,6 +195,7 @@ class RunCausalQueriesNode:
                 scm_ref.model_dump(mode="json")
             )
             scm_spec = load_structural_causal_model_spec(ctx.store, scm_spec_ref)
+            validate_persisted_gcm_spec(scm_spec, ctx.store)
         except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
@@ -210,16 +220,40 @@ class RunCausalQueriesNode:
             )
 
         ensure_causal_methods_registered()
-        result = run_job(
-            JobSpec(
-                job_kind="method",
-                method_fqn=_METHOD_FQN,
-                method_params={},
-                seed=seed,
-            ),
-            cas_root=ctx.store.root,
-            method_state=method_state,
-        )
+        bootstrap_replicates = state.params.get("causal_estimator_bootstrap_replicates", 0)
+        execution_context = nullcontext()
+        if bootstrap_replicates and scm_spec.training_rows is not None:
+            from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
+                worker_execution_context,
+            )
+
+            execution_context = worker_execution_context(
+                store=ctx.store,
+                source_ref=ArtifactRef.model_validate(
+                    scm_spec.training_rows.source_ref.model_dump(mode="json")
+                ),
+            )
+        try:
+            with execution_context:
+                result = run_job(
+                    JobSpec(
+                        job_kind="method",
+                        method_fqn=_METHOD_FQN,
+                        method_params={"bootstrap_replicates": bootstrap_replicates},
+                        seed=seed,
+                    ),
+                    cas_root=ctx.store.root,
+                    method_state=method_state,
+                )
+        except _CAUSAL_QUERY_LOAD_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                    message=f"Causal query source/refit execution failed: {exc}",
+                ),
+            )
         if result.issues:
             return NodeOutcome(
                 status="fail",
@@ -245,6 +279,13 @@ class RunCausalQueriesNode:
 
         try:
             query_result = CausalQueryResult.model_validate(raw_query_result)
+            if query_result.estimator_interval is not None:
+                validate_persisted_estimator_interval(
+                    query_result.estimator_interval,
+                    scm_spec,
+                    query_result.query,
+                    ctx.store,
+                )
         except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",

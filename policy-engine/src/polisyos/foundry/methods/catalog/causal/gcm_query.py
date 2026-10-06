@@ -29,8 +29,10 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
 from polisyos.ir.analytics.causal_queries import (
+    CausalEstimatorInterval,
     CausalQuery,
     CausalQueryResult,
+    CausalResultKind,
     InterventionSpec,
     InterventionType,
     QueryType,
@@ -249,9 +251,9 @@ def _joint_root_sample_index(
     lengths = [len(values) for values in observed_samples.values() if values]
     if not lengths:
         return None
-    # Fitted roots share the same SCMFitData row order.  If a hand-authored
-    # payload does not, keep each root's own modulo handling below explicit.
-    return int(rng.integers(max(lengths)))
+    if len(set(lengths)) != 1:
+        raise ValueError("joint empirical roots require a common aligned row set")
+    return int(rng.integers(lengths[0]))
 
 
 def _linear_noise_std(mechanism: NodeMechanism) -> float:
@@ -332,8 +334,7 @@ def _resolve_stochastic_distribution(distribution: str) -> _StochasticDistributi
         args = tuple(float(item) for item in raw_args)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            "stochastic distribution has non-numeric arguments: "
-            f"{distribution!r}"
+            f"stochastic distribution has non-numeric arguments: {distribution!r}"
         ) from exc
     if not all(math.isfinite(value) for value in args):
         raise ValueError(f"stochastic distribution arguments must be finite: {distribution!r}")
@@ -462,6 +463,12 @@ def _sample_node_value(
         mean = _linear_predict(mechanism, parent_values)
         if linear_noise_override is not None:
             return float(mean + linear_noise_override)
+        residual_samples = mechanism.family_params.get("residual_samples")
+        if residual_samples is not None:
+            residuals = np.asarray(residual_samples, dtype=float)
+            if residuals.ndim != 1 or len(residuals) < 1 or not np.isfinite(residuals).all():
+                raise ValueError("empirical structural residuals must be a non-empty finite vector")
+            return float(mean + rng.choice(residuals))
         std = _linear_noise_std(mechanism)
         if std <= 0.0:
             return float(mean)
@@ -475,7 +482,9 @@ def _sample_node_value(
             and observed_root_samples[mechanism.variable]
         ):
             values = observed_root_samples[mechanism.variable]
-            return float(values[sample_index % len(values)])
+            if not 0 <= sample_index < len(values):
+                raise ValueError("joint root row index is outside its aligned source rows")
+            return float(values[sample_index])
         mean = float(mechanism.family_params.get("mean", 0.0))
         std = float(mechanism.family_params.get("std", 1.0))
         if not math.isfinite(mean):
@@ -918,20 +927,18 @@ def _linear_gaussian_posterior(
             return None
 
         params = mechanism.family_params
+        if "residual_samples" in params:
+            return None  # An empirical residual law is not a Gaussian posterior.
         raw_posterior = params.get("posterior_mean")
         if raw_posterior is not None and not isinstance(raw_posterior, Mapping):
             return None
         coefficients = (
-            raw_posterior
-            if isinstance(raw_posterior, Mapping)
-            else params.get("coefficients", {})
+            raw_posterior if isinstance(raw_posterior, Mapping) else params.get("coefficients", {})
         )
         if not isinstance(coefficients, Mapping):
             coefficients = {}
         try:
-            intercept = float(
-                coefficients.get("__intercept__", params.get("intercept", 0.0))
-            )
+            intercept = float(coefficients.get("__intercept__", params.get("intercept", 0.0)))
             for parent in parents_map.get(node, []):
                 if parent not in node_index:
                     return None
@@ -969,7 +976,7 @@ def _linear_gaussian_posterior(
 
     projected_residual = observation_covariance @ observation_pseudoinverse @ residual
     if not np.allclose(projected_residual, residual, atol=1.0e-8, rtol=1.0e-8):
-        return None
+        raise ValueError("factual evidence is incompatible with the singular Gaussian SCM")
 
     gain = prior_covariance @ observation_matrix.T @ observation_pseudoinverse
     posterior_mean = gain @ residual
@@ -981,9 +988,7 @@ def _linear_gaussian_posterior(
         return None
     if np.any(eigenvalues < -1.0e-8):
         return None
-    posterior_covariance = (
-        eigenvectors @ np.diag(np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
-    )
+    posterior_covariance = eigenvectors @ np.diag(np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
     if not np.isfinite(posterior_mean).all() or not np.isfinite(posterior_covariance).all():
         return None
     return _LinearGaussianPosterior(
@@ -1006,10 +1011,7 @@ def _draw_linear_gaussian_noises(
             posterior.covariance,
             check_valid="raise",
         )
-    return {
-        node: float(value)
-        for node, value in zip(posterior.node_order, draw, strict=True)
-    }
+    return {node: float(value) for node, value in zip(posterior.node_order, draw, strict=True)}
 
 
 _INTERVENTION_UNSET = object()
@@ -1032,6 +1034,203 @@ def _attribution_comparator(query: CausalQuery) -> InterventionSpec | None:
     if query.contrast is None or query.contrast.comparator.kind == "observational":
         return None
     return query.contrast.comparator.intervention
+
+
+def _linear_intervention_mean(
+    scm_spec: StructuralCausalModelSpec,
+    query: CausalQuery,
+    intervention: InterventionSpec | None,
+) -> float:
+    """Evaluate the exact fixed linear/empirical model expectation after surgery."""
+    if intervention is not None and (
+        intervention.type is not InterventionType.ATOMIC or intervention.value is None
+    ):
+        raise ValueError("refit bootstrap supports explicit atomic intervention means only")
+    mechanisms = _mechanism_map(scm_spec)
+    values: dict[str, float] = {}
+    for node in _topological_order(scm_spec):
+        if node == query.treatment_variable and intervention is not None:
+            values[node] = float(intervention.value)
+            continue
+        mechanism = mechanisms[node]
+        if mechanism.family is MechanismFamily.EMPIRICAL and not mechanism.parents:
+            values[node] = float(np.mean(mechanism.family_params["observed_samples"]))
+        elif mechanism.family is MechanismFamily.LINEAR:
+            values[node] = _linear_predict(mechanism, values) + float(
+                np.mean(mechanism.family_params["residual_samples"])
+            )
+        else:
+            raise ValueError(
+                "refit bootstrap supports declared empirical/linear GCM mechanisms only"
+            )
+    return values[query.outcome_variable]
+
+
+def _refit_target_estimate(scm_spec: StructuralCausalModelSpec, query: CausalQuery) -> float:
+    if query.condition or query.query_type not in {QueryType.INTERVENTIONAL, QueryType.ATTRIBUTION}:
+        raise ValueError(
+            "iid refit bootstrap does not establish conditional individual counterfactual inference"
+        )
+    target = _linear_intervention_mean(scm_spec, query, _effective_intervention(query))
+    if query.query_type is QueryType.ATTRIBUTION:
+        target -= _linear_intervention_mean(scm_spec, query, _attribution_comparator(query))
+    return target
+
+
+def _refit_interval_from_models(
+    scm_spec: StructuralCausalModelSpec,
+    query: CausalQuery,
+    *,
+    seed: int,
+    confidence_level: float,
+    indices: list[list[int]],
+    base: StructuralCausalModelSpec,
+    refits: Sequence[StructuralCausalModelSpec],
+) -> CausalEstimatorInterval:
+    training = scm_spec.training_rows
+    if training is None or base.fit_provenance is None:
+        raise ValueError("refit interval requires source-bound GCM training rows")
+    if base.graph != scm_spec.graph or base.mechanisms != scm_spec.mechanisms:
+        raise ValueError("consumed GCM mechanisms differ from the actual source-row refit")
+    estimates = tuple(_refit_target_estimate(model, query) for model in refits)
+    point = _refit_target_estimate(base, query)
+    bounds = _percentile_ci(np.asarray(estimates), confidence_level=confidence_level)
+
+    def digest(value: Any) -> str:
+        return hashlib.sha256(
+            json.dumps(
+                value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+            ).encode()
+        ).hexdigest()
+
+    return CausalEstimatorInterval(
+        confidence_level=confidence_level,
+        point_estimate=point,
+        interval=bounds,
+        source_artifact_id=str(training.source_ref.artifact_id),
+        source_sha256=training.source_sha256,
+        data_sha256=training.data_sha256,
+        row_sha256=training.row_sha256,
+        graph_sha256=training.graph_sha256,
+        resample_indices_sha256=digest(indices),
+        target_sha256=digest(query.model_dump(mode="json")),
+        n_units=len(training.rows),
+        replicate_count=len(refits),
+        seed=seed,
+        refit_scope=tuple(scm_spec.graph.nodes),
+        fit_profile="dowhy-014",
+        fit_request_sha256=base.fit_provenance.request_sha256,
+        refit_worker_response=base.fit_provenance.worker_response,
+        replicate_estimates=estimates,
+    )
+
+
+def _refit_bootstrap_interval(
+    scm_spec: StructuralCausalModelSpec,
+    query: CausalQuery,
+    *,
+    seed: int,
+    confidence_level: float,
+    replicate_count: int,
+) -> CausalEstimatorInterval:
+    """Resample complete declared iid units and genuinely refit every mechanism."""
+    from polisyos.foundry.methods.catalog.causal.gcm_fit import _fit_gcm_specs
+    from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
+
+    training = scm_spec.training_rows
+    if scm_spec.fit_method != "gcm" or training is None or scm_spec.fit_provenance is None:
+        raise ValueError("iid refit bootstrap requires actual source-bound selected GCM fit")
+    fit_input = SCMFitData.model_validate(training.fit_input)
+    if fit_input.metadata.get("sampling_unit") != "iid_observation_row":
+        raise ValueError(
+            "refit bootstrap requires an explicit iid observation-row sampling declaration"
+        )
+    if not 20 <= replicate_count <= 500:
+        raise ValueError("bootstrap_replicates must be between20 and500")
+    _refit_target_estimate(scm_spec, query)  # Refuse unsupported estimands before launching fits.
+    n = len(training.rows)
+    indices = np.random.default_rng(seed).integers(0, n, size=(replicate_count, n)).tolist()
+    base, refits = _fit_gcm_specs(fit_input, seed=seed, bootstrap_indices=indices)
+    return _refit_interval_from_models(
+        scm_spec,
+        query,
+        seed=seed,
+        confidence_level=confidence_level,
+        indices=indices,
+        base=base,
+        refits=refits,
+    )
+
+
+def validate_persisted_estimator_interval(
+    interval: CausalEstimatorInterval,
+    scm_spec: StructuralCausalModelSpec,
+    query: CausalQuery,
+    store: Any,
+) -> None:
+    """Reconcile the persisted interval with actual source custody and refit outputs."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
+        validate_persisted_worker_response,
+    )
+    from polisyos.foundry.methods.catalog.causal.gcm_fit import _gcm_spec_from_worker
+    from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
+
+    training = scm_spec.training_rows
+    if training is None:
+        raise ValueError("persisted refit interval has no source-bound GCM training rows")
+    state = SCMFitData.model_validate(training.fit_input)
+    if scm_spec.fit_method != "gcm" or scm_spec.fit_provenance is None:
+        raise ValueError("persisted refit interval requires the actual selected GCM profile")
+    if (
+        state.metadata.get("sampling_unit") != "iid_observation_row"
+        or not 20 <= interval.replicate_count <= 500
+    ):
+        raise ValueError(
+            "persisted refit interval requires the supported declared iid-row sampling law"
+        )
+    _refit_target_estimate(scm_spec, query)
+    response = interval.refit_worker_response
+    validate_persisted_worker_response(
+        response=response,
+        state=state,
+        store=store,
+        source_ref=ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
+    )
+    if response["parent_observed"]["request_binding"]["seed"] != interval.seed:
+        raise ValueError("persisted refit interval seed differs from its actual worker request")
+    indices = (
+        np.random.default_rng(interval.seed)
+        .integers(
+            0,
+            len(training.rows),
+            size=(interval.replicate_count, len(training.rows)),
+        )
+        .tolist()
+    )
+    if response["parent_observed"]["request_binding"]["payload"]["bootstrap_indices"] != indices:
+        raise ValueError("persisted bootstrap indices differ from the declared iid resampling law")
+    base = _gcm_spec_from_worker(state, response, response["result"], seed=interval.seed)
+    models = response["result"].get("bootstrap_models")
+    if not isinstance(models, list) or len(models) != len(indices):
+        raise ValueError("persisted bootstrap worker output omits requested refits")
+    refits = [
+        _gcm_spec_from_worker(state, response, model, seed=interval.seed, resample_indices=idx)
+        for model, idx in zip(models, indices, strict=True)
+    ]
+    expected = _refit_interval_from_models(
+        scm_spec,
+        query,
+        seed=interval.seed,
+        confidence_level=interval.confidence_level,
+        indices=indices,
+        base=base,
+        refits=refits,
+    )
+    if expected != interval:
+        raise ValueError(
+            "persisted estimator interval differs from source-bound refitted estimates"
+        )
 
 
 def _intervention_replaces_natural(intervention: InterventionSpec | None) -> bool:
@@ -1098,16 +1297,11 @@ def _required_missing_root_nodes(
             )
         )
     parents_map = _parents_by_node(scm_spec)
-    roots = {
-        node for node in active_nodes if not parents_map.get(node)
-    }
+    roots = {node for node in active_nodes if not parents_map.get(node)}
     all_arms_replace_natural = all(
         _intervention_replaces_natural(intervention) for intervention in interventions
     )
-    directly_intervened_root = (
-        query.treatment_variable in roots
-        and all_arms_replace_natural
-    )
+    directly_intervened_root = query.treatment_variable in roots and all_arms_replace_natural
     return sorted(
         root
         for root in roots
@@ -1162,8 +1356,7 @@ def _simulate_samples(
     order = [node for node in full_order if node in active_nodes]
     streams = logical_streams or _LogicalStreamFactory.from_generator(rng)
     node_rngs = {
-        node: streams.generator(namespace=stream_namespace, label=f"node:{node}")
-        for node in order
+        node: streams.generator(namespace=stream_namespace, label=f"node:{node}") for node in order
     }
     root_index_rng = streams.generator(
         namespace=stream_namespace,
@@ -1270,7 +1463,9 @@ def _simulate_samples(
                 baseline = (
                     0.0
                     if _intervention_replaces_natural(intervention)
-                    else float(condition[node]) if node in condition else float(value)
+                    else float(condition[node])
+                    if node in condition
+                    else float(value)
                 )
                 value = _apply_intervention(
                     current_value=baseline,
@@ -1490,6 +1685,7 @@ class GCMQuery:
             ParameterSpec(name="dowhy_method_name", default="backdoor.linear_regression"),
             ParameterSpec(name="dowhy_control_value", default=0.0),
             ParameterSpec(name="allow_declared_root_hypothesis", default=False),
+            ParameterSpec(name="bootstrap_replicates", default=0),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -1587,9 +1783,7 @@ class GCMQuery:
             )
             samples = treated - baseline
             abduction_diagnostic = (
-                treated_abduction
-                if not treated_abduction.gate_eligible
-                else baseline_abduction
+                treated_abduction if not treated_abduction.gate_eligible else baseline_abduction
             )
         else:
             samples, _, abduction_diagnostic = _simulate_samples(
@@ -1617,8 +1811,31 @@ class GCMQuery:
         elapsed = float(time.perf_counter() - started_at)
 
         store_distribution = params.get("store_distribution", True) is not False
+        replicate_count = params.get("bootstrap_replicates", 0)
+        if type(replicate_count) is not int:
+            raise ValueError("bootstrap_replicates must be an integer")
+        estimator_interval = (
+            _refit_bootstrap_interval(
+                scm_spec,
+                query,
+                seed=seed,
+                confidence_level=confidence_level,
+                replicate_count=replicate_count,
+            )
+            if replicate_count != 0
+            else None
+        )
         query_result = CausalQueryResult(
             query=query,
+            result_kind=(
+                CausalResultKind.POSTERIOR_CREDIBLE_INTERVAL
+                if abduction_diagnostic.profile == "linear_gaussian_posterior"
+                else CausalResultKind.ITE_DISTRIBUTION
+                if query.query_type is QueryType.ATTRIBUTION
+                else CausalResultKind.OUTCOME_DISTRIBUTION
+            ),
+            interval_level=confidence_level,
+            estimator_interval=estimator_interval,
             result_mean=result_mean,
             result_std=result_std,
             result_ci=result_ci,
@@ -1646,8 +1863,10 @@ class GCMQuery:
             )
 
         output: dict[str, Any] = {
+            "causal_query_result": query_result,
             "query_result": query_result,
             "envelope": envelope,
+            "estimator_envelope": query_result.to_estimator_uncertainty_envelope(),
             "warnings": warnings,
             "__determinism_tier__": DeterminismTier.STATISTICAL,
         }

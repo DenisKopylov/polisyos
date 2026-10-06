@@ -45,7 +45,7 @@ def _fit(
     )
     result = HybridSCMFit.pure_step(
         SCMFitData(data=data, column_names=columns, graph=graph),
-        params={},
+        params={"fit_backend": "native_hybrid"},
     )
     return result["scm_spec"]
 

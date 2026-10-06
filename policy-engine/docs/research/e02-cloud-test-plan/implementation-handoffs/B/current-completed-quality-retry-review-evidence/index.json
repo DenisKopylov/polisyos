@@ -1,6 +1,6 @@
 {
   "payload_count": 23,
-  "payload_bytes": 7453472,
+  "payload_bytes": 7500952,
   "files": [
     {
       "path": "all-stage-interpretation.json",
@@ -49,8 +49,8 @@
     },
     {
       "path": "complete-final-architecture-finding-census.json",
-      "bytes": 55894,
-      "sha256": "e916cdc77605876969343768915780bb0c40c703b9e0ebb239da95cd04a0e47a"
+      "bytes": 103154,
+      "sha256": "cbb497cbdc35e1f5a3f55ae788fec5b977552fd03356f6d462c9c60404c27cf2"
     },
     {
       "path": "complete-typed-json-drift.json",
@@ -109,8 +109,8 @@
     },
     {
       "path": "review.source.txt",
-      "bytes": 12737,
-      "sha256": "012e34d05408b404312ed9acf4ad893a2784379767c73f08a6f3b007c4785ad4"
+      "bytes": 12957,
+      "sha256": "17bb42d0a7a0f8840c37bcd83595ff5c861e64b5cc9c9f2a192f49e08d5e2fa8"
     },
     {
       "path": "root-native-partial-custody-locators.json",

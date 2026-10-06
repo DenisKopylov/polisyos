@@ -73,7 +73,7 @@ assert sorted(r['family'] for r in all_maps['architecture-runtime-ml-ready']['co
 dump('complete-both-retry-output-maps.json',all_maps);dump('complete-typed-json-drift.json',diffs)
 lines=[line for line in texts['architecture-runtime-ml-ready'].splitlines() if line.startswith('- ')]
 assert sum(line.startswith('- New deep-import creep detected:') for line in lines)==171
-dump('complete-final-architecture-finding-census.json',{'deep_import_diagnostics':171,'all_violation_lines':lines,'complete_four_family_measurement':'All6 observed files/four families; no required UNRUN lines in complete final output','whole_gate_outcome':'FAIL exit1','counts_are_not_finding_closure':True})
+dump('complete-final-architecture-finding-census.json',{'deep_import_diagnostics':171,'all_dash_prefixed_output_lines_including_baseline_diff_context':lines,'actual_top_level_diagnostic_lines':[line for line in lines if re.match(r'^- \S',line)],'actual_top_level_diagnostic_count':sum(bool(re.match(r'^- \S',line)) for line in lines),'complete_four_family_measurement':'All6 observed files/four families; no required UNRUN lines in complete final output','whole_gate_outcome':'FAIL exit1','counts_are_not_finding_closure':True})
 old_profile=pathlib.Path('/tmp/e02-B-architecture-cache-warm-record-1862c021df74/profile.json');new_profile=pathlib.Path('/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/profile.json')
 assert ident(old_profile)['sha256']==profiles['architecture-runtime-ml-ready']['cache_prerequisite_profile_sha256']
 assert ident(new_profile)['sha256']=='61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69'

@@ -23,11 +23,14 @@ from polisyos.calibration.forecast_bridge import (
     ForecastCalibrationProfile,
     ForecastCandidateReceipt,
     ForecastCandidateReceiptRef,
+    ForecastMeasurementBinding,
     load_empirical_calibration_evidence,
     load_forecast_calibration_profile,
+    load_forecast_candidate_receipt,
     persist_empirical_calibration_evidence,
     persist_forecast_candidate_receipt,
     produce_empirical_calibration_evidence,
+    resolve_forecast_measurement_binding,
 )
 from polisyos.calibration.multiclass import evaluate_multiclass
 from polisyos.calibration.recalibration import (
@@ -47,6 +50,7 @@ __all__ = [
     "ForecastCalibrationProfile",
     "ForecastCandidateReceipt",
     "ForecastCandidateReceiptRef",
+    "ForecastMeasurementBinding",
     "apply_calibrator",
     "compare_calibrators",
     "compute_calibration_curve",
@@ -57,9 +61,11 @@ __all__ = [
     "load_continuous_evaluation",
     "load_empirical_calibration_evidence",
     "load_forecast_calibration_profile",
+    "load_forecast_candidate_receipt",
     "persist_continuous_evaluation",
     "persist_empirical_calibration_evidence",
     "persist_forecast_candidate_receipt",
     "produce_empirical_calibration_evidence",
+    "resolve_forecast_measurement_binding",
     "to_validation_report",
 ]

@@ -47,6 +47,20 @@ purpose denials. A owns trusted profile admission, independent verification,
 default orchestration, and fresh served readback. The internal receipt is not
 an S10 verification result.
 
+New internal forecast requests use schema version `2.0`, explicit `target_unit`
+and `target_scale="source_native"`. The producer resolves a canonical Fabric
+`DataSchema` before numerical execution and binds the target field, unit,
+decimal storage scale and schema ref through prediction, training and evidence
+lineage. `source_native` preserves source values without conversion; a metric
+name or display label cannot supply a unit. The candidate reader repeats that
+coordinate binding from fresh CAS bytes. Historical v1 request/evidence replay
+is retained, while new execution refuses missing schema or unit/scale inputs.
+
+`ForecastOwnerResult.to_s10_input_fields(store)` reopens the candidate and
+adapts its empirical ref, candidate ref, rule and six temporal roles to A's
+existing input fields. Its output is neutral and retains predictive denials;
+A still owns trusted verification and default/HTTP composition.
+
 ## Internal continuous-pair persistence
 
 `continuous.persist_continuous_evaluation` stores the ordered outcome/interval
@@ -57,7 +71,9 @@ report JSON cannot establish that pair-aware readback. Requested, eligible and
 observed counts retain their respective denominators when a level is missing.
 
 The econometrics summary helper uses this route when given an artifact store.
-The current method-runner path does not supply that store, so persisted
-diagnostics are implemented but not orchestrated there. Ordered positions and
+The configured NumPy/econometrics method execution passes its trusted store
+through the dispatcher and runner to all three interval summaries and returns
+their persisted refs in derived artifacts. This boundary remains non-gating.
+Ordered positions and
 caller-declared source, split, horizon and time metadata do not establish
 production source authority or a gating verdict.

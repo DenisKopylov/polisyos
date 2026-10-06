@@ -1,0 +1,23 @@
+"""Recompute publication sizes/hashes; corrupt-field control is in memory."""
+from copy import deepcopy
+from pathlib import Path
+import argparse, hashlib, json
+parser=argparse.ArgumentParser()
+parser.add_argument("--index",type=Path,required=True)
+parser.add_argument("--root",type=Path,required=True)
+args=parser.parse_args()
+rows=json.loads(args.index.read_text())
+def validate(items):
+ for row in items:
+  data=(args.root/row["path"]).read_bytes()
+  if len(data)!=row["bytes"] or hashlib.sha256(data).hexdigest()!=row["sha256"]:
+   raise ValueError("publication byte identity mismatch: "+row["path"])
+validate(rows)
+corrupt=deepcopy(rows)
+corrupt[0]["bytes"]+=1
+try:
+ validate(corrupt)
+except ValueError as exc:
+ print(json.dumps({"outcome":"PASS","validated_files":len(rows),"corrupt_size_negative":"REFUSED","negative_reason":str(exc)}))
+else:
+ raise AssertionError("corrupt publication size was accepted")

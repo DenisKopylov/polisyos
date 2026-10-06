@@ -1,0 +1,27 @@
+"""Actual ETS output refs and independent fresh-source interval arithmetic."""
+from pathlib import Path
+import json, runpy
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.calibration import load_forecast_candidate_receipt, load_empirical_calibration_evidence
+from polisyos.ir.artifacts import get_json_artifact
+from polisyos.ir.analytics.forecasting_uncertainty import load_forecasting_uncertainty_bundle
+from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
+helper=runpy.run_path("tests/unit/scientist/methods/backtesting/test_forecast_owner.py")
+store=FileSystemCAS(Path("/workspace/e02-E-pr38-r2-receipts/frc/positive-cas"))
+request,profile=helper["_configured"](store,[31.,32.,33.,34.])
+result=ForecastOwner(store,empirical_profile_ref=profile).run(request)
+fresh=FileSystemCAS(store.root)
+receipt=load_forecast_candidate_receipt(fresh,result.candidate_receipt_ref)
+evidence=load_empirical_calibration_evidence(fresh,receipt.empirical_evidence_ref)
+source=get_json_artifact(fresh,request.observed_source_ref.artifact_id)
+observed=get_json_artifact(fresh,source["data_ref"]["artifact_id"])["metric"][30:34]
+bundle=load_forecasting_uncertainty_bundle(fresh,result.uncertainty_bundle_ref)
+intervals=[(float(row.lower),float(row.upper)) for row in bundle.prediction_interval]
+expected=[31.,32.,33.,34.]
+assert max(abs(bound-exp) for exp,pair in zip(expected,intervals,strict=True) for bound in pair)<1e-8
+hits=sum(lo<=y<=hi for y,(lo,hi) in zip(observed,intervals,strict=True))
+assert hits==evidence.recomputed_numerator==4
+assert len(observed)==evidence.recomputed_denominator==4
+fields=result.to_s10_input_fields(fresh)
+refs={name:getattr(result,name).model_dump(mode="json") for name in ["empirical_evidence_ref","candidate_receipt_ref","backtest_report_ref","uncertainty_bundle_ref","training_slice_ref","method_artifact_ref","calibration_rule_ref","observed_source_ref"]}
+print(json.dumps({"outcome":"PASS","method":request.method_fqn,"seed":request.seed,"source_schema":result.measurement_binding.model_dump(mode="json"),"request_ref":receipt.request_ref.model_dump(mode="json"),"profile_ref":receipt.profile_ref.model_dump(mode="json"),"refs":refs,"observed_holdout":observed,"persisted_intervals":intervals,"independent_hits":hits,"denominator":len(observed),"requested_time_roles":request.temporal_roles.model_dump(mode="json"),"adapter_field_names":sorted(fields),"verifier_provenance":fields["verifier_provenance"],"authority_scope":fields["authority_scope"]},indent=2))

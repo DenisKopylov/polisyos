@@ -24,11 +24,14 @@ def test_forecast_exports_preserve_canonical_types_and_refuse_authority(tmp_path
         "ForecastCalibrationProfile",
         "ForecastCandidateReceipt",
         "ForecastCandidateReceiptRef",
+        "ForecastMeasurementBinding",
         "load_empirical_calibration_evidence",
         "load_forecast_calibration_profile",
+        "load_forecast_candidate_receipt",
         "persist_empirical_calibration_evidence",
         "persist_forecast_candidate_receipt",
         "produce_empirical_calibration_evidence",
+        "resolve_forecast_measurement_binding",
     ):
         assert getattr(calibration, name) is getattr(owner, name)
     with pytest.raises(AttributeError):

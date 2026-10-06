@@ -1,0 +1,11 @@
+id = "2026-10-06-e02-neural-warm-checkpoint"
+title = "Restore the neural strategy's content-bound warm corpus"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "NeuralSearchStrategy persists its full admitted warm evaluations with configured numerical basis, backend versions, configuration and corpus digest. Restore and subsequent training re-resolve original CAS content through the same configured bridge; count-only legacy warm checkpoints and numeric values outside the finite backend representation refuse explicitly."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/search/strategies/test_neural_checkpoint.py"]
+compatibility = "Numerical warm reuse now requires a paired NumericTransferBasis and canonical admission reader. Cold current-run search remains available. The existing CPU SingleTaskGP refits each ask, uses the minimized scalar convention and a per-strategy checkpointed RNG seed."
+migration = "Configure numerical_basis and warm_start_admission from the existing WarmStartBridge. Persist complete StrategyState artifacts; older count-only neural warm states must be rebuilt from their actual history refs."
+limitations = "Supported continuation requires the same CPU backend versions, configuration, space, numerical basis and resolvable original refs. No trained NN GP binary is restored, no cross-version equivalence or institutional source authority is inferred, and no empirical optimization-quality benefit is claimed."

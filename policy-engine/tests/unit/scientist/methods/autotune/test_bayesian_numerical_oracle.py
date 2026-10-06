@@ -3,7 +3,6 @@
 from unittest.mock import patch
 
 import pytest
-import torch
 
 from polisyos.scientist.methods.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
@@ -12,6 +11,11 @@ from polisyos.scientist.methods.autotune.bayesian_generator import (
 from polisyos.scientist.methods.autotune.models import BenchmarkSplit, MetricDirection
 from polisyos.scientist.methods.search.strategies import bayesian as module
 from polisyos.scientist.methods.search.strategies.types import StrategyState
+
+torch = pytest.importorskip("torch", reason="UNRUN: native numerical adapter requires Torch")
+pytest.importorskip("botorch", reason="UNRUN: native numerical adapter requires BoTorch")
+pytest.importorskip("gpytorch", reason="UNRUN: native numerical adapter requires GPyTorch")
+pytestmark = [pytest.mark.integration]
 
 
 def test_mixed_public_space_matches_independent_physical_encoding():

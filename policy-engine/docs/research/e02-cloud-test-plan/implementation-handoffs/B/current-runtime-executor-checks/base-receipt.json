@@ -1,0 +1,23 @@
+{
+  "mode": "base",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "candidate_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+  "source_path": "policy-engine/src/polisyos/common/async_tools.py",
+  "test_path": "policy-engine/tests/unit/common/test_async_tools.py",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+  "policy-engine/tests/unit/common/test_async_tools.py": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+  "baseline_source_sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/common/test_async_tools.py",
+    "--junitxml=/workspace/e02-B-current-runtime/_build/e02-current-runtime/base-complete/native.xml"
+  ],
+  "PYTHONPATH": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/base-complete/overlay:/workspace/e02-B-current-runtime/policy-engine/src:/workspace/e02-B-current-runtime/policy-engine",
+  "exit_code": 1,
+  "stdout_sha256": "04efba577e452a0ad0f4011fb55eff466a51ab6567504e72118a7e63996864ff"
+}

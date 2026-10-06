@@ -1,0 +1,19 @@
+{
+  "candidate_sha": "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+  "candidate_tree": "240221be0d4ea654bab67cda6cb4973a97311363",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "PYTHONPATH": "/workspace/e02-B-current-runtime/policy-engine/src:/workspace/e02-B-current-runtime/policy-engine",
+  "metrics_port": "0 for full wave; replay retains recorded inherited environment",
+  "context": "Actual Linux per-child RLIMIT_NOFILE fault; asyncio loop admitted before lowering limit, original OSError traceback retained; synchronization/shared arena preparation is explicit input, no production dataset.",
+  "observed_toolchain_configuration_and_test_closure": "current-runtime-executor-checks/environment.json@a5077abe0f36976755f254b259b99652b8445e79",
+  "baseline_contexts": "current-runtime-executor-checks/baseline-navigation.json@a5077abe0f36976755f254b259b99652b8445e79",
+  "source_and_test_sha256": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": "c4de7e6cd725cb3094b14da6a82cd69e0088e2e628c09aefe5b13c998c922f36",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": "11210b239c78f09f83857366ef4f470a25783386d8bcc2916f90d8760d993914",
+    "policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py": "8674a2409897c6f5a532b751a9a1187cae69f4205669d9925ac92853986ca747",
+    "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "policy-engine/tests/unit/common/test_async_tools.py": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+    "policy-engine/tests/unit/remediation/test_run_03.py": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+  }
+}

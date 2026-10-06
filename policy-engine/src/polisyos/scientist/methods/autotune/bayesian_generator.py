@@ -72,9 +72,11 @@ def _merge_identity_sources(
 
 
 def _finite_float(value: Any) -> float | object:
+    if isinstance(value, bool):
+        return _INVALID
     try:
         result = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return _INVALID
     return result if math.isfinite(result) else _INVALID
 

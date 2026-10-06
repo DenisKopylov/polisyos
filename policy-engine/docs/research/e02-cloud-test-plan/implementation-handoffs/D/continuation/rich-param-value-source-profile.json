@@ -1,0 +1,367 @@
+{
+  "schema": "policyos.e02.source_input_packet.v1",
+  "unit": "D",
+  "slice": "rich-param-value-source-profile",
+  "observed_at_utc": "2026-10-06T21:53:20.775939+00:00",
+  "author": "/root/gp_witness",
+  "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+  "source_tree_sha": "6d950ef7041f241f8e79e12b9e9f4abc6ad2e6cd",
+  "author_lane_base_sha": "3e59b7117978598453d1041c62943d8baf6143f8",
+  "scope": "Source-only native value normalization, ordinary producer/exporter carrier, and restoration profile. No product imports, runtime, tests, backend, or new environment execution.",
+  "authoritative_for": [
+    "Exact source bindings and bounded direct-constructor/source trace at the pinned Git tree"
+  ],
+  "may_not_use_for": [
+    "All-rich-types runtime acceptance",
+    "Scientific or unit law",
+    "Producer absence outside the named static selector",
+    "Failure attribution from an unexecuted inference",
+    "Superseding existing Money/scalar consumer deciding receipts",
+    "Changing original D acceptance criteria"
+  ],
+  "runtime_outcome": "UNRUN",
+  "closure_ids": [],
+  "original_criteria_changed": false,
+  "primary_binding_count": 11,
+  "primary_bindings": [
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "blob_sha": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+      "raw_sha256": "a9045842cbfe78123f42d702317f4c65b979ebbc2c3ce46ef192d1472f51412e",
+      "bytes": 55516
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+      "blob_sha": "4d032f08b7166ad66f067f43a973ad8b260aaa52",
+      "raw_sha256": "32f6fd236301f34c49c2aa7fb22efabae1d03fbd7447a8ebd3d6d0bd4f9c616d",
+      "bytes": 1593
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/ir/governance/policy_spec.py",
+      "blob_sha": "7de0451e1b0df07df2eb729d3ba4cc7ae972a466",
+      "raw_sha256": "e07b9953b1fc516ca82039b581bef86fee8fd39f0b031349a6a042acc52660e9",
+      "bytes": 14908
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/lex/interventions.py",
+      "blob_sha": "f396610a8db0a8e817e7a10ef552127b32036ecb",
+      "raw_sha256": "8c02f1c662cb0aabba387415276d69329ddcde49ba48b28eb4b604326e1b5346",
+      "bytes": 22628
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/lex/intervention_artifacts.py",
+      "blob_sha": "a604e21152cab43b821ceeadb2dfdba568a03fb9",
+      "raw_sha256": "4048f0a6a359673632e59840f9cce8adda9504c207808896e4100b138f95940e",
+      "bytes": 19118
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+      "blob_sha": "a80bd4fdb4cfcbba7d24edb9974f0368160ba2b1",
+      "raw_sha256": "613f644ae2847811d179329b14ed057e4bec041f57158f118458d4c079830f39",
+      "bytes": 17570
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+      "blob_sha": "c1671e0ee1b0c5b597f1c1724f23c1f804afa761",
+      "raw_sha256": "cd8e841805394e3cf6abc0dd0dcfb7b455bee4c561919352f29587a5a5338e66",
+      "bytes": 21968
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "blob_sha": "bd2a41dc06b6a64a3777911d57dcf19fce0ba1b6",
+      "raw_sha256": "4d1af6aacf51da0fde4811144103d8f50d2ca64344ca4472e67841817894b05e",
+      "bytes": 40318
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_hierarchical_search.py",
+      "blob_sha": "4ef3a1fb80e1b42bc12e4610bce3ad75fd3b98a9",
+      "raw_sha256": "32d1567787dd095d08ad82d9f8e8263af66a0666c7c7b793ba3c2ff9d1538a97",
+      "bytes": 14497
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/tests/unit/lex/test_interventions.py",
+      "blob_sha": "2fd845c2ed57ed56ea902724d4e2b06feff988b2",
+      "raw_sha256": "4cb0f9606a833e253aad5ab6e37a54b90376026439e85636c4bb936943cc9034",
+      "bytes": 8775
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/tests/_data/lex/c6a/intervention_knob_dictionary.json",
+      "blob_sha": "c44cef3c37203e6b2c288fc25a4add560fa01734",
+      "raw_sha256": "bf217f4f622e89f95ec2d497343f29575e81fd21c9d088ad2a07a19f98c032d4",
+      "bytes": 324
+    }
+  ],
+  "supplemental_binding_count": 5,
+  "supplemental_bindings": [
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/ir/kernel/base.py",
+      "blob_sha": "cbb0c4b122ecf0ac9fbebbcab84dd2348c6265c8",
+      "raw_sha256": "ca08c309aefc4d39bc5d96850e44c8801f30441f49c67da4aa3aed92d9091607",
+      "bytes": 2195
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/ir/kernel/numbers.py",
+      "blob_sha": "781ccf042fe5cbd7d24dee9dbf773ae3929624db",
+      "raw_sha256": "be74d0b14e8fdda267622fe27ad093ff9ec9160b3d980afcb87dca71452fe5e0",
+      "bytes": 442
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/ir/kernel/mechanisms.py",
+      "blob_sha": "dd9e26da2539b3d363439c1f09150395316800d9",
+      "raw_sha256": "c81c2e87c5bd9dfdc504cc54ec9d22a4a7861864a9e20a8ee13f8eb30a1bca27",
+      "bytes": 8976
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "blob_sha": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+      "raw_sha256": "d300849e7f631d864358162150678d5f1f8872c152e72404ca54bb005fe91567",
+      "bytes": 49880
+    },
+    {
+      "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "blob_sha": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+      "raw_sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e",
+      "bytes": 8448
+    }
+  ],
+  "native_method_bindings": [
+    {
+      "name": "_normalize_value_like",
+      "line": 1172,
+      "end_line": 1191,
+      "ast_sha256": "9dfd2fc590c286d3e69bc7316669480f27fe764349d69186e3cc8972ec1a0985"
+    },
+    {
+      "name": "_restore_value_like",
+      "line": 1194,
+      "end_line": 1213,
+      "ast_sha256": "bb69c2008fbb0bfd2ff129b811f440f3503e5c3860180b2680f545a2fc3027de"
+    },
+    {
+      "name": "_parameter_type",
+      "line": 1216,
+      "end_line": 1219,
+      "ast_sha256": "b9417b7b085492ff709bff1f4b4ddfaeb1550e33606ca63fce51a5952268aba4"
+    }
+  ],
+  "native_normalization": [
+    {
+      "input": "None",
+      "operation": "0.0"
+    },
+    {
+      "input": "bool",
+      "operation": "int(value)"
+    },
+    {
+      "input": "int or float",
+      "operation": "value unchanged"
+    },
+    {
+      "input": "Decimal",
+      "operation": "float(value)"
+    },
+    {
+      "input": "MoneyValue",
+      "operation": "float(value.amount)"
+    },
+    {
+      "input": "RateValue",
+      "operation": "float(value.as_ratio())"
+    },
+    {
+      "input": "CountValue",
+      "operation": "int(value.value)"
+    },
+    {
+      "input": "DurationValue",
+      "operation": "float(value.value)"
+    },
+    {
+      "input": "other",
+      "operation": "float(value) fallback; acceptance not inferred"
+    }
+  ],
+  "parameter_profile": {
+    "native_numeric_selector": "INTEGER only for int excluding bool, or CountValue; CONTINUOUS otherwise. This bridge does not select fraction or categorical.",
+    "neutral_parameter_spec": "ParameterSpec in ir/governance/policy_spec.py carries ParamValue default/min/max, parameter identity/path and tuning metadata; it has no kind/value_type/unit_id fields.",
+    "distinct_mechanism_contract": "Mechanism ParamSpec value_type/unit_id belongs to ir/kernel/mechanisms.py. No mechanism unit law is inferred or added to neutral ParameterSpec.",
+    "carrier_contract": "ParamValue is Annotated[Any, BeforeValidator(reject_floats_deep)]; it can carry typed rich values. Typed canonical transport models already exist; a generic mapping with value alone is ambiguous with an ordinary object."
+  },
+  "ordinary_source_trace": [
+    {
+      "path": "policy-engine/src/polisyos/lex/intervention_artifacts.py",
+      "symbol": "LexProvisionMappingRegistry.resolve",
+      "line": 266,
+      "operation": "Copies supplied/registry values into parameter/default/bounds"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/interventions.py",
+      "symbol": "LexInterventionCompiler.compile",
+      "line": 143,
+      "operation": "Copies params and knobs into InterventionSpec and neutral ParameterSpec"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "symbol": "HierarchicalPolicySearchAdapter.build_candidate",
+      "line": 224,
+      "operation": "Constructs PolicyCandidateSchema from the existing Trinity bundle"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+      "symbol": "PolicyCandidateSchema.from_trinity_bundle",
+      "line": 310,
+      "operation": "Copies parameter.default_value into parameter_schedule"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+      "symbol": "PolicyCandidateSchema.as_search_payload",
+      "line": 345,
+      "operation": "Exports JSON model_dump"
+    }
+  ],
+  "source_input_examples": [
+    {
+      "kind": "MoneyValue",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+      "lines": [
+        91,
+        99,
+        100,
+        101
+      ],
+      "role": "Ordinary hierarchical node fixture supplies Money default/min/max",
+      "runtime_status_here": "UNRUN"
+    },
+    {
+      "kind": "Decimal",
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "lines": [
+        158,
+        178,
+        179,
+        180,
+        233
+      ],
+      "role": "A candidate fixture supplies Decimal tax-rate defaults/bounds/schedule; native coordinator tests in primary binding9 consume this candidate",
+      "runtime_status_here": "UNRUN"
+    },
+    {
+      "kind": "Decimal",
+      "path": "policy-engine/tests/unit/lex/test_interventions.py",
+      "lines": [
+        40
+      ],
+      "role": "Lex compiler fixture supplies Decimal threshold/default/bounds",
+      "runtime_status_here": "UNRUN"
+    },
+    {
+      "kind": "int",
+      "path": "policy-engine/tests/_data/lex/c6a/intervention_knob_dictionary.json",
+      "role": "Registry knob dictionary default500000/min100000/max1000000",
+      "runtime_status_here": "UNRUN"
+    }
+  ],
+  "direct_constructor_census": {
+    "source_sha": "a8e61a178f70f4ce3b3d1aeb32094df2c6e65b15",
+    "executing_party": "/root/gp_witness",
+    "predicate_basis": "recomputed",
+    "path_denominator": "policy-engine/src/polisyos/**",
+    "file_type_denominator": "Every tracked .py blob enumerated by git ls-tree -r -z at source_sha; no working-tree or ignored files",
+    "python_blob_count": 2701,
+    "successful_full_blob_reads": 2701,
+    "parse_errors": [],
+    "enumerated_path_blob_content_digest_sha256": "9a9f4b41c4d56bccf2bf00c4b8c4312377a72ab9c7da31db560180a3800b8531",
+    "names": [
+      "CountValue",
+      "DurationValue",
+      "RateValue"
+    ],
+    "exact_named_ast_constructor_call_count": 0,
+    "exact_named_ast_constructor_calls": [],
+    "class_definition_count": 3,
+    "class_definition_locations": [
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+        "line": 28,
+        "name": "RateValue"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+        "line": 48,
+        "name": "CountValue"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+        "line": 55,
+        "name": "DurationValue"
+      }
+    ],
+    "case_insensitive_literal_name_parenthesis_hits": [
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+        "line": 28,
+        "name": "RateValue"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+        "line": 48,
+        "name": "CountValue"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+        "line": 55,
+        "name": "DurationValue"
+      }
+    ],
+    "meaning": "Zero direct RateValue/CountValue/DurationValue constructor calls in this complete pinned Python-source selector. Three literal matches are their class definitions. This does not establish absence of values produced indirectly or externally.",
+    "unresolved_by_construction": [
+      "Aliases/re-export names/factory or dynamic calls",
+      "model_validate and decoding supplied mappings",
+      "Externally supplied values and untracked/runtime data",
+      "Non-Python producers",
+      "Actual served invocation and value-law semantics"
+    ]
+  },
+  "source_only_falsifier": {
+    "classification": "P40 same rich-value carrier/normalization class, native restoration one level deeper",
+    "predicate_basis": "recomputed",
+    "location": "policy-engine/src/polisyos/scientist/policy_design/search.py:_restore_value_like",
+    "finding": "RateValue restoration uses model_copy(update={value: float(...)}) and DurationValue restoration uses model_copy(update={value: float(value)}). RateValue.value is DecimalValue and DurationValue.value is int. These model_copy updates do not validate the updated primitive, and ParamValue rejects nested float outputs.",
+    "discriminator": "A RateValue/DurationValue input may normalize numerically while a mutated/restored output is not valid under its original canonical primitive profile. Parser/type-branch presence does not prove mutated-output roundtrip.",
+    "runtime_outcome": "UNRUN",
+    "actual_failure_established": false,
+    "may_not_claim": "An executed product FAIL, a proven default Rate/Duration producer, or failure of the separately verified Money/scalar bridge"
+  },
+  "next_owner_input": {
+    "owner": "A-W01 policy_design/search.py source owner",
+    "requested_decision": "Declare and enforce the supported parameter profile, or validate canonical rich-output restoration for RateValue/DurationValue through the existing A mutation/output owner. Preserve supplied value identity; do not infer kind/unit from generic value mappings.",
+    "available_capability": "Canonical RateValue/CountValue/DurationValue types and A native numeric normalization branches already exist; this is a source-owner restoration/profile question, not a missing transport library.",
+    "available_D_bridge_scope": "Ordinary Money/scalar JSON/CAS and stable-subject bridge evidence remains in its own source-bound receipts; this packet creates no all-rich claim.",
+    "not_a_hold_reason": "No scientific hold or dependency absence is inferred from the zero direct-constructor census. Absence of a traced default producer does not supply a unit or mutation law.",
+    "minimum_future_falsifier": "On the owner-declared profile, execute ordinary candidate normalization, mutation, canonical output validation and readback preserving identity/units; record actual effects or explicit refusal. This packet did not run it."
+  },
+  "pattern_pass": [
+    "P29: source evidence is not runtime acceptance",
+    "P35: complete tracked Python-source selector with named unresolved classes",
+    "P38: numeric input normalization is not output primitive validity",
+    "P40: one bounded class disposition rather than per-type patch ladder",
+    "P41: no unexecuted failure/inherited claim"
+  ]
+}

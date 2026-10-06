@@ -39,6 +39,10 @@ environment fingerprints.
   added to the eager artifacts facade because that would create a contracts/artifacts import cycle
 - lineage/graph: `DependencyGraph`, `resolve_dependency_graph`
 - integrity proofs: `CASIntegrityReport`, `build_cas_integrity_report`
+- immutable proof input: filesystem `get_verified_snapshot` retains the selected manifest
+  bytes and one locally checked blob snapshot. Verification, private-stage checks and the
+  audit report derive size, digest and metadata from that pair. The audit builder requires
+  this optional `VerifiedSnapshotArtifactStore` port instead of composing separate reads.
 - registry/environment: `RegistryBundle`, `RegistryBundlePayload`, `capture_environment`, `compare_environments`
 
 ## Current State

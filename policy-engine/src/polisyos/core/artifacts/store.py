@@ -56,9 +56,6 @@ from ._integrity_ops import (
 from ._integrity_ops import (
     validate_read_integrity as _validate_read_integrity,
 )
-from ._integrity_ops import (
-    verify_filesystem_artifact as _verify_filesystem_artifact,
-)
 from ._layout import CASPathLayout as _CASPathLayout
 from ._manifest_lifecycle import ManifestLifecycle as _ManifestLifecycle
 from ._signature_ops import (
@@ -363,21 +360,21 @@ def _current_cell_id() -> str | None:
     return get_current_cell_id()
 
 
-def _transactional_read(
+def _transactional_read[ReadResult](
     *,
     profile_argument_index: int | None = None,
     signature_surface: bool = False,
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+) -> Callable[[Callable[..., ReadResult]], Callable[..., ReadResult]]:
     """Hold a shared artifact lease across an entire public CAS read."""
 
-    def decorate(method: Callable[..., Any]) -> Callable[..., Any]:
+    def decorate(method: Callable[..., ReadResult]) -> Callable[..., ReadResult]:
         @wraps(method)
         def wrapped(
             self: FileSystemCAS,
             artifact_id: ArtifactID | ArtifactRef | str,
             *args: Any,
             **kwargs: Any,
-        ) -> Any:
+        ) -> ReadResult:
             aid, profile_sha256, _ref = _artifact_reference(artifact_id)
             if profile_argument_index is not None:
                 profile_sha256 = kwargs.get(
@@ -716,7 +713,7 @@ class FileSystemCAS:
                 raise ArtifactIntegrityError("CAS member path crosses a symlink")
             descriptor = os.open(
                 selected_path,
-                os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+                os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
             )
             try:
                 opened_stat = os.fstat(descriptor)
@@ -2486,86 +2483,66 @@ class FileSystemCAS:
                 operation="verify_manifest",
                 ref=ref,
             )
-        blob, _default_manifest = self._paths(aid)
-        manp = self._manifest_path_for_ref(aid, profile_sha256)
-        if not self._hpc_enabled or self._tracer is None:
-            report = _verify_filesystem_artifact(aid, blob_path=blob, manifest_path=manp)
-        else:
-            short_id = f"{aid.hex[:16]}..."
-            with self._tracer.start_as_current_span(
-                "cas.verify",
-                attributes={"cas.artifact_id": short_id},
-            ) as span:
-                report = _verify_filesystem_artifact(
-                    aid,
-                    blob_path=blob,
-                    manifest_path=manp,
-                )
-                span.set_attribute("cas.verified", report.ok)
-                if report.byte_size is not None:
-                    span.set_attribute("cas.byte_size", report.byte_size)
 
-        if report.ok and ref is not None:
+        def verify_snapshot() -> VerificationReport:
             try:
-                self.get_manifest(ref)
-            except (OSError, ValueError) as exc:
-                return report.model_copy(update={"ok": False, "error": str(exc)})
-        return report
+                return self._load_verified_snapshot(ref or aid).verification_report(aid)
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                blob, _ = self._paths(aid)
+                manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
+                error = (
+                    "blob missing"
+                    if not blob.exists()
+                    else "manifest missing"
+                    if not manifest_path.exists()
+                    else str(exc)
+                )
+                return VerificationReport(
+                    ok=False, artifact_id=str(aid), expected_sha256_hex=aid.hex, error=error
+                )
+
+        if not self._hpc_enabled or self._tracer is None:
+            return verify_snapshot()
+        with self._tracer.start_as_current_span(
+            "cas.verify", attributes={"cas.artifact_id": f"{aid.hex[:16]}..."}
+        ) as span:
+            report = verify_snapshot()
+            span.set_attribute("cas.verified", report.ok)
+            if report.byte_size is not None:
+                span.set_attribute("cas.byte_size", report.byte_size)
+            return report
+
+    def get_verified_snapshot(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> _VerifiedArtifactSnapshot:
+        """Return one owned immutable byte/manifest pair for composed proof consumers."""
+        aid, _profile, ref = _artifact_reference(artifact_id)
+        return self._load_verified_snapshot(ref or aid)
 
     def _verify_staged_artifact(
         self,
         artifact_id: ArtifactID | ArtifactRef,
         staging_root: Path,
     ) -> VerificationReport:
-        """Verify one staged pair while retaining this store's failure telemetry."""
+        """Verify staged digest, size and metadata from the same immutable bytes."""
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
-        blob, _default_manifest = self._paths(aid)
+        blob, _ = self._paths(aid)
         manifest = self._manifest_path_for_ref(aid, profile_sha256)
-        staged_blob = staging_root / blob.relative_to(self.root)
-        staged_manifest = staging_root / manifest.relative_to(self.root)
-        actual_sha = None
-        byte_size = None
         try:
-            if staged_blob.is_symlink() or staged_manifest.is_symlink():
-                raise ArtifactIntegrityError("staged CAS member crosses a symlink")
-            if not staged_blob.is_file() or not staged_manifest.is_file():
-                raise FileNotFoundError("staged CAS member missing")
-            actual_sha = _file_content_hash(staged_blob)
-            byte_size = staged_blob.stat().st_size
-            manifest_bytes = staged_manifest.read_bytes()
-            manifest_model = ArtifactManifest.model_validate_json(manifest_bytes)
-            _validate_manifest_identity(aid, manifest_model)
-            if actual_sha != aid.hex:
-                raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
-            if manifest_model.byte_size != byte_size:
-                raise ArtifactIntegrityError(f"Manifest byte size mismatch for {aid}")
-            if profile_sha256 is not None and (
-                self._manifests.profile_sha256(manifest_model) != profile_sha256
-            ):
-                raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
-            if ref is not None and (
-                ref.kind != manifest_model.kind or ref.media_type != manifest_model.media_type
-            ):
-                raise ArtifactIntegrityError(
-                    f"Artifact reference type does not match selected manifest for {aid}"
-                )
+            snapshot = self._snapshot_from_paths(
+                aid,
+                blob=staging_root / blob.relative_to(self.root),
+                manifest_path=staging_root / manifest.relative_to(self.root),
+                profile_sha256=profile_sha256,
+                ref=ref,
+            )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             self._record_integrity_failure(reason=type(exc).__name__)
             return VerificationReport(
-                ok=False,
-                artifact_id=str(aid),
-                expected_sha256_hex=aid.hex,
-                actual_sha256_hex=actual_sha,
-                byte_size=byte_size,
-                error=str(exc),
+                ok=False, artifact_id=str(aid), expected_sha256_hex=aid.hex, error=str(exc)
             )
-        return VerificationReport(
-            ok=True,
-            artifact_id=str(aid),
-            expected_sha256_hex=aid.hex,
-            actual_sha256_hex=actual_sha,
-            byte_size=byte_size,
-        )
+        return snapshot.verification_report(aid)
 
     def _prepare_import_destination(self, path: Path, *, member: str) -> None:
         """Create safe parent components and reject symlinked CAS paths."""
@@ -2776,13 +2753,16 @@ class FileSystemCAS:
     @staticmethod
     def _require_bound_context_for_owner(
         context: ArtifactTenantContextInfo | None,
-        owner: dict[str, Any] | None,
+        owner: dict[str, str | None] | None,
         *,
         require_bound: bool = False,
     ) -> None:
         """Compare declared bound identity with the concrete scoped write owner."""
         if owner is None:
             return
+        tenant_id = owner["tenant_id"]
+        if tenant_id is None:
+            raise ArtifactOwnershipError("Scoped write owner has no concrete tenant")
         if context is None:
             if require_bound:
                 raise ArtifactOwnershipError(
@@ -2798,10 +2778,13 @@ class FileSystemCAS:
     def _require_import_input_owners(
         self,
         source_by_artifact: dict[str, Any],
-        owner: dict[str, Any] | None,
+        owner: dict[str, str | None] | None,
     ) -> None:
         """Apply the same closed input-owner invariant before stage and intent."""
         if self._ownership_enforced:
+            tenant_id = owner["tenant_id"] if owner is not None else None
+            if owner is not None and tenant_id is None:
+                raise ArtifactOwnershipError("Scoped import owner has no concrete tenant")
             for source_info in source_by_artifact.values():
                 for source_view in source_info["source_views"]:
                     for raw_input_ref in source_view["manifest"].inputs:
@@ -2819,17 +2802,21 @@ class FileSystemCAS:
                             )
                             continue
 
+                        if tenant_id is None:
+                            raise ArtifactOwnershipError(
+                                "Scoped import input has no concrete tenant"
+                            )
                         if self._ownership_index.has_any_tenant_claim(input_id):
                             self._ownership_index.require_blob_reader(
                                 input_id,
-                                tenant_id=owner["tenant_id"],
+                                tenant_id=tenant_id,
                                 cell_id=owner["cell_id"],
                                 operation=f"import input:{input_ref.role}",
                             )
                             if input_ref.manifest_profile_sha256 is None:
                                 self._ownership_index.require_owner(
                                     input_id,
-                                    tenant_id=owner["tenant_id"],
+                                    tenant_id=tenant_id,
                                     cell_id=owner["cell_id"],
                                     operation=f"import input manifest:{input_ref.role}",
                                 )
@@ -2837,7 +2824,7 @@ class FileSystemCAS:
                                 self._ownership_index.require_view_owner(
                                     input_id,
                                     input_ref.manifest_profile_sha256,
-                                    tenant_id=owner["tenant_id"],
+                                    tenant_id=tenant_id,
                                     cell_id=owner["cell_id"],
                                     operation=f"import input manifest:{input_ref.role}",
                                 )
@@ -4139,7 +4126,9 @@ class FileSystemCAS:
         """Read one regular CAS member through a no-follow file descriptor."""
         if self._ownership_index._path_has_symlink_component(path):
             raise ArtifactIntegrityError(f"CAS {member} path crosses a symlink")
-        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        descriptor = os.open(
+            path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+        )
         try:
             before = os.fstat(descriptor)
             if not stat.S_ISREG(before.st_mode):
@@ -4225,6 +4214,24 @@ class FileSystemCAS:
             )
         blob, _default_manifest = self._paths(aid)
         manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
+        return self._snapshot_from_paths(
+            aid,
+            blob=blob,
+            manifest_path=manifest_path,
+            profile_sha256=profile_sha256,
+            ref=ref,
+        )
+
+    def _snapshot_from_paths(
+        self,
+        aid: ArtifactID,
+        *,
+        blob: Path,
+        manifest_path: Path,
+        profile_sha256: str | None,
+        ref: ArtifactRef | None,
+    ) -> _VerifiedArtifactSnapshot:
+        """Prepare one locally hashed pair for live and private-stage consumers."""
         manifest_bytes = self._read_cas_file_no_follow(
             manifest_path,
             member="manifest",

@@ -234,6 +234,23 @@ class _Consumer:
 
 
 @pytest.mark.parametrize("jit", [False, True])
+def test_actual_required_alias_runtime_uses_real_producer_output(jit):
+    registry = MethodRegistry._create_fresh()
+    registry.register(_Producer)
+    registry.register(_Consumer)
+    composer = MethodComposer(registry=registry)
+    consumer = composer.add(_CONSUMER_SIGNATURE.fqn, increment=1.0)
+    producer = composer.add(_PRODUCER_SIGNATURE.fqn, factor=2.0)
+    composer.connect(producer, consumer, {"product": "operand"})
+    chain = composer.build()
+    compiled = MethodCompiler(registry=registry, cache=CompilationCache()).compile_chain(
+        chain, {"value": jnp.asarray(3.0)}, jit=jit
+    )
+    output = compiled({"value": jnp.asarray(3.0)})
+    assert float(output["result"].block_until_ready()) == 7
+
+
+@pytest.mark.parametrize("jit", [False, True])
 def test_real_required_compiled_alias_edge_has_no_numeric_preparation(jit):
     registry = MethodRegistry._create_fresh()
     registry.register(_Producer)

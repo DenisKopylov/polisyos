@@ -1,0 +1,60 @@
+{
+  "role": "native Git administrative allocation preservation, not fixture/environment cleanup",
+  "source": "/workspace/polisyos/.git/objects/pack/pack-b293a48cbd9848fd51609449e4848dd1ada97b14.pack",
+  "active_target": "/tmp/dp3-xucfg22g/p",
+  "original_bytes": {
+    "bytes": 3607889,
+    "sha256": "2027dbc835c427430c18eb57fe8a0068cde1a337c3c78ef07a13206d92808410"
+  },
+  "index": {
+    "bytes": 81236,
+    "sha256": "b507195d203a9bf1332e1d78bf40bc4666b8441979e5b71f86541d3aa71345e9"
+  },
+  "native_verify_before": {
+    "exit": 0,
+    "stdout_sha256": "e0de2c55e64fdc78b0264cfb6a45ff6500850c77023126101b1ee7ae2a6df244",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_verify_after": {
+    "exit": 0,
+    "stdout_sha256": "e0de2c55e64fdc78b0264cfb6a45ff6500850c77023126101b1ee7ae2a6df244",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "before": {
+    "head_tree": "f055e68f87bf9ce465528e1d7e6225f8dfd16d94\ncf62434c0556fc722a5c34352b8d38f4d837c58a\n",
+    "status": "",
+    "branch": "codex/e02-D-published-root\n"
+  },
+  "after": {
+    "head_tree": "f055e68f87bf9ce465528e1d7e6225f8dfd16d94\ncf62434c0556fc722a5c34352b8d38f4d837c58a\n",
+    "status": "",
+    "branch": "codex/e02-D-published-root\n"
+  },
+  "data_removed": false,
+  "source_test_files_mutated": false,
+  "cleanup_exclusion": "active native Git byte storage; retain while any repository/lane uses it",
+  "overlay_available_after": 3547136,
+  "retained_complete_native_outputs": {
+    "before.stdout": {
+      "path": "/tmp/dp3-xucfg22g/before.stdout",
+      "bytes": 260020,
+      "sha256": "e0de2c55e64fdc78b0264cfb6a45ff6500850c77023126101b1ee7ae2a6df244"
+    },
+    "before.stderr": {
+      "path": "/tmp/dp3-xucfg22g/before.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "after.stdout": {
+      "path": "/tmp/dp3-xucfg22g/after.stdout",
+      "bytes": 260020,
+      "sha256": "e0de2c55e64fdc78b0264cfb6a45ff6500850c77023126101b1ee7ae2a6df244"
+    },
+    "after.stderr": {
+      "path": "/tmp/dp3-xucfg22g/after.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "input_and_output_scope": "Native Git administrative verification only. No D scientific/mechanism check is inferred."
+}

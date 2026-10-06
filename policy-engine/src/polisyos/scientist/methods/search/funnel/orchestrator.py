@@ -511,26 +511,71 @@ class FunnelOrchestrator:
                     )
                     result = replace(result, feedback=feedback)
                 if events:
-                    reported = [event for event in events if event.cost_origin == "reported"]
-                    reuse = [event for event in events if event.kind == "reuse"]
+                    known_payloads = {
+                        event_id: previous.feedback.get("resource_settlement_payloads", {}).get(
+                            event_id
+                        )
+                        for ticket in self._tickets.values()
+                        for previous in ticket.stage_results.values()
+                        for event_id in previous.resource_event_ids
+                    }
+                    replayed = [event for event in events if event.event_id in known_payloads]
+                    fresh = [event for event in events if event.event_id not in known_payloads]
+                    reported = [event for event in fresh if event.cost_origin == "reported"]
+                    reuse = [event for event in fresh if event.kind == "reuse"]
+                    has_reported = any(event.cost_origin == "reported" for event in events)
+                    has_reuse = any(event.kind == "reuse" for event in events)
                     feedback = dict(result.feedback)
                     feedback["resource_settlement_sources"] = {
                         event.event_id: event.cost_origin for event in events
                     }
+                    feedback["resource_settlement_payloads"] = {
+                        event.event_id: event.payload_digest for event in events
+                    }
+                    if replayed:
+                        feedback["resource_replayed_event_ids"] = [
+                            event.event_id for event in replayed
+                        ]
+                        conflicts = [
+                            event.event_id
+                            for event in replayed
+                            if known_payloads[event.event_id] != event.payload_digest
+                        ]
+                        feedback["resource_replay_payload_conflicts"] = conflicts
+                        result = replace(
+                            result,
+                            is_promising=False,
+                            failure_cards=[
+                                *result.failure_cards,
+                                TypedFailureCard(
+                                    judge_name=result.stage_name,
+                                    failure_type="resource_provider_event_replayed",
+                                    severity="blocker",
+                                    description="A resource event was already attributed to a prior funnel stage; its producer does not establish fresh stage scope.",
+                                    metadata={
+                                        "event_ids": feedback["resource_replayed_event_ids"],
+                                        "payload_conflicts": conflicts,
+                                        "required_contract": "producer_bound_run_evaluation_scope_and_reuse_lineage",
+                                    },
+                                ),
+                            ],
+                        )
                     measured = sum((event.amount for event in reported), Decimal(0))
                     result = replace(
                         result,
                         feedback=feedback,
                         resource_event_ids=tuple(event.event_id for event in events),
-                        provider_spend_usd=measured if reported or reuse else None,
-                        compute_cost_source="mixed" if reported or reuse else "estimated",
+                        provider_spend_usd=measured if has_reported or has_reuse else None,
+                        compute_cost_source="mixed" if has_reported or has_reuse else "estimated",
                     )
-                    if not pending and len(reported) + len(reuse) == len(events):
+                    if not pending and all(
+                        event.cost_origin == "reported" or event.kind == "reuse" for event in events
+                    ):
                         result = replace(
                             result,
                             compute_actual_usd=float(measured),
                             compute_cost_source="provider_reported_only"
-                            if reported
+                            if has_reported
                             else "cache_reuse",
                             provider_spend_usd=measured,
                             resource_event_ids=tuple(event.event_id for event in events),

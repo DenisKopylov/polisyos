@@ -1,0 +1,567 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "D",
+  "reviewer": "/root/cost_transfer_review",
+  "reviewer_is_author": false,
+  "review_mode": "Read-only exact Git source/test review plus independent recomputation of complete retained deciding outputs; no product/backend rerun.",
+  "timestamp_UTC": "2026-10-06T17:35:11.132959+00:00",
+  "accepted_in_G": false,
+  "read_bindings": {
+    "path": "/tmp/e02-D-cost-transfer-independent-20261006/read-bindings.json",
+    "sha256": "d0b0a08b3b1e28ebf269fa8b04f2e3a12639db495e5aec4e432081ffd2977912"
+  },
+  "own_fixable_blocking_findings_in_reviewed_delta": [],
+  "cost_to_stopping": {
+    "specification_verdict": "bounded engineering witness accepted; full B120 finding remains limited by distinct B/authority inputs",
+    "engineering_quality_verdict": "No new mechanism was introduced by39a; the ordinary configured owner is reused through the actual native ask/evaluate/tell consumer.",
+    "source_sha": "39a0195e970b55ca2a013770a9a4ef95fa1e2732",
+    "tree_sha": "9f66f655f0453138256e9b641fc65bf0d31c48ea",
+    "receipt_head": "1159cad1c970c783b30c943cf2eb38b61265f48d",
+    "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+    "full_new_test_delta_paths": [
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py"
+    ],
+    "production_delta": [],
+    "runtime_chain": [
+      "Existing environment-backed native ScenarioAdversaryWorker/PolicyTranslatorWorker factory",
+      "TracedLLMClient -> existing B LLMBudgetEnforcer -> native Gateway HTTP text decoder",
+      "Canonical B1.1 BudgetMiddleware/FileBudgetLedger settle_spend_safe/resolve_spend_safe and fresh ledger reopen",
+      "D actual L3/L4 FunnelOrchestrator stage/outcome and public native search adapters",
+      "SearchController.run -> NativeSearchService actual ask/evaluate/tell driver with SAME configured middleware instance",
+      "CostBudgetStopping on explicitly selected recorded accounting key -> SearchResult/telemetry",
+      "Fresh BudgetMiddleware/FileBudgetLedger plus fresh SearchController stop before any next proposal/evaluation"
+    ],
+    "actual_check": {
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/workspace/e02-D3-receipts/funnel-native-cost-stopping-39a/runner.py",
+        "-q",
+        "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+        "--basetemp",
+        "/dev/shm/e02-funnel-native-cost-59a56cfdfe7349f38451931c449801da",
+        "--junitxml",
+        "/workspace/e02-D3-receipts/funnel-native-cost-stopping-39a/actual.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "interpreter": "Python 3.14.7",
+      "exit_code": 0,
+      "wall_seconds": 141.6682835440006,
+      "junit": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          "tests.integration.scientist.methods.search.funnel.test_native_resource_cost_stopping::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[False-False]",
+          "tests.integration.scientist.methods.search.funnel.test_native_resource_cost_stopping::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[False-True]",
+          "tests.integration.scientist.methods.search.funnel.test_native_resource_cost_stopping::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[True-False]",
+          "tests.integration.scientist.methods.search.funnel.test_native_resource_cost_stopping::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[True-True]",
+          "tests.integration.scientist.methods.search.funnel.test_native_resource_cost_stopping::test_trace_cost_one_without_settlement_cannot_establish_controller_cutoff"
+        ]
+      },
+      "complete_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping-proof/output.json.gz@1159cad1c970c783b30c943cf2eb38b61265f48d#complete.txt",
+      "output_sha256": "19fe1156a6778f5fa5766aeef92cb6cfee4b1e182bb2adef48b2277097213f41",
+      "runtime_origins_denominator": 19,
+      "runtime_origins_Git_match": 19,
+      "source_before_after_clean_unchanged": true,
+      "executed_by": "funnel_owner; independently read/reconciled here, not rerun by reviewer"
+    },
+    "fresh_recorded_ledgers": [
+      {
+        "member": "actual-ledgers/test_native_paid_funnel_receip0/budget.json",
+        "original_bytes_sha256": "2b4f483416d21c47e9e691ea6b46340615d14530952e393d1ad163d25d497da9",
+        "receipt_count": 2,
+        "spent_by_key": {
+          "run": "2.0"
+        },
+        "provider_aggregate": {
+          "provider-a": "2.0"
+        },
+        "physical_event_count": 2
+      },
+      {
+        "member": "actual-ledgers/test_native_paid_funnel_receip1/budget.json",
+        "original_bytes_sha256": "438f62593105f458aac28d44d830326f7c36e604f6ec862b4f54ec601fee67cb",
+        "receipt_count": 2,
+        "spent_by_key": {
+          "run": "2.0"
+        },
+        "provider_aggregate": {
+          "provider-a": "2.0"
+        },
+        "physical_event_count": 2
+      },
+      {
+        "member": "actual-ledgers/test_native_paid_funnel_receip2/budget.json",
+        "original_bytes_sha256": "274fb07497c97b41ed4fb3f076b82a9f7bb0d3158397d24d3b579829cb57605b",
+        "receipt_count": 3,
+        "spent_by_key": {
+          "policy_adversary": "1.0",
+          "policy_translator": "1.0",
+          "policy_briefing": "1.0"
+        },
+        "provider_aggregate": {
+          "provider-a": "3.0"
+        },
+        "physical_event_count": 2
+      },
+      {
+        "member": "actual-ledgers/test_native_paid_funnel_receip3/budget.json",
+        "original_bytes_sha256": "716db2cb9e18ca321fba8f292086591e3bbcb4432aec6e287f2e60e989ecf61c",
+        "receipt_count": 3,
+        "spent_by_key": {
+          "policy_adversary": "1.0",
+          "policy_translator": "1.0",
+          "policy_briefing": "1.0"
+        },
+        "provider_aggregate": {
+          "provider-a": "3.0"
+        },
+        "physical_event_count": 2
+      },
+      {
+        "member": "actual-ledgers/test_trace_cost_one_without_se0/budget.json",
+        "original_bytes_sha256": "480b01beee5725dbccbf45c35a7f32b9e6a6546abd84005e6514252625444bf1",
+        "receipt_count": 0,
+        "spent_by_key": {},
+        "provider_aggregate": {},
+        "physical_event_count": 0
+      }
+    ],
+    "independent_reconciliation": "Complete five actual ledger members, receipt event-ID/digest/key/provider/amount identity, reservation release and physical event-base IDs independently recomputed from retained bytes;19 actual product origins independently matched to source39a Git blobs.",
+    "proxy_divergences": [
+      "Default native workers emit2 physical paid responses, funnel cost2, but3 scoped per-key receipts/provideraggregate3. Selected policy_translator recorded key1 drives its explicitly configured cost1 cutoff; aggregate3 is not invoice truth.",
+      "Retained trace1 and typed-looking ACK without settlement do not yield persisted receipts or a cost1 cutoff; scientific result rejects, attempted next proposal catches the missing cutoff."
+    ],
+    "negative_check_semantics": "The fifth pytest case PASS catches two exact positive-oracle AssertionErrors after settlement removal; this is not a claim that a separate pytest invocation produced2FAIL.",
+    "predicate_basis": "recomputed local recorded-state/receipt/cutoff; independently_reconciled source/output bytes; not_established external invoice, accounting origin authority and immutable revision snapshot",
+    "residual_inputs": "B lossless Gateway raw-JSON number decoder (tiny signed lexeme24=21FAIL3PASS remains owner input); typed immutable middleware receipt/revision snapshot; external invoice/billing authority; durable owned reservations, atomic multi-key settlement and event run/evaluation scope; standalone B cache receiver wiring and nontraced typed return remain previous declared boundaries.",
+    "next_owners": "B intake/cache/factory/DUR-01/W09; A physical resource appointment; D supplier immutable snapshot consumer after B port; G criterion acceptance",
+    "finding_proposal": {
+      "B120": "limited: available native cost→controller consumer now verified; raw lossless decoder, durable owner snapshot and authority criteria remain supplier inputs, not renamed D defects"
+    },
+    "scope_limits": [
+      "Controlled physical HTTP transport supplies provider-reported fixture amounts; actual factory/decoder/enforcer/ledger/funnel/controller/stopping run unchanged.",
+      "The scientific estimator in configured_workflow is the existing Foundry bootstrap consumer; this does not establish native policy raw-sample B157.",
+      "Fresh middleware/controller ledger readback is actual; this witness does not establish served SearchService resume or deployment appointment.",
+      "Public owner budget_state currently reloads ledger and is copied, but no immutable receipt/revision snapshot port is invented."
+    ]
+  },
+  "transfer_selection": {
+    "specification_verdict": "bounded B129 post-admission source quota and captured native-generation consumer accepted; full original finding decisions remain criterion-scoped",
+    "engineering_quality_verdict": "Three existing owners extended; no second ANN replay/store/latest pointer/new GP/optimizer.",
+    "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+    "tree_sha": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+    "review_delta_base": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+    "full_changed_paths": [
+      "A\tpolicy-engine/docs/how-to/neural-warm-checkpoint-migration.md",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-funnel-d796-output.json.gz",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-funnel-d796-review.json",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-review.json",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-lesson-retention.json",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-continuation-output.json.gz",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-neural-state.json",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-production-input-request.json",
+      "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-vector-second-process.json",
+      "M\tpolicy-engine/release-fragments/unreleased/2026-10-06-e02-neural-warm-checkpoint.toml",
+      "A\tpolicy-engine/release-fragments/unreleased/2026-10-06-transfer-admitted-source-limit.toml",
+      "M\tpolicy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "M\tpolicy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "M\tpolicy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "A\tpolicy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "A\tpolicy-engine/tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+      "A\tpolicy-engine/tests/unit/scientist/search/test_transfer_context_criteria.py"
+    ],
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+    ],
+    "source_delta": "WarmStartBridge requests one whole current native catalog. TransferLearningManager preserves exact discovered refs, content-admits each actual persisted row, and counts only nonempty admitted source groups toward max_runs; normalized minima and round-robin row quota remain existing behavior. Vector query captures generation once and derives k from that same object.",
+    "actual_positive": {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "tree_sha": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "-p",
+        "deny_numeric_backends",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "--basetemp=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-cas-hnsw-tmp-acf0eca9484442e381b08907ca31bf7d",
+        "--junitxml=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 6.859033584594727,
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "source_before_after_clean_unchanged": true,
+      "actual_runtime": {
+        "botorch_loaded": false,
+        "denied_imports": [
+          "torch"
+        ],
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "gpytorch_loaded": false,
+        "native_hnsw": {
+          "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+          "sha256": "ea123b43bd033c696f997d7f2fb5cee74fc2d6334c5de56346dab7c22fa13ceb"
+        },
+        "pytest_exitstatus": 0,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "torch_loaded": false,
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        }
+      },
+      "complete_outputs": [
+        {
+          "path": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.txt",
+          "bytes": 83894,
+          "sha256": "2dba4ee786c9c802cb6772fd45adc91fcf4a9776fdd3b5a4f01fe93bfc83ad95"
+        },
+        {
+          "path": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.json",
+          "bytes": 325730,
+          "sha256": "fc5a8c99108b727bf0893cd939823576d81f8c87545af447f3a21d49ff6e42e2"
+        },
+        {
+          "path": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.xml",
+          "bytes": 5686,
+          "sha256": "853147856711ecdbfdd468de69aa2d58432317d1da6400f1d203e8438c7990e8"
+        }
+      ],
+      "junit": {
+        "tests": 32,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[0]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[1]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[3]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[4]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[10]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_complete_score_ties_preserve_explicit_independent_replica_identity",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_whole_catalog_query_captures_one_native_generation_during_publication",
+          "tests.unit.scientist.search.test_transfer_context_criteria::test_nested_serialized_and_equivalent_explicit_fields_have_the_same_scope",
+          "tests.unit.scientist.search.test_transfer_context_criteria::test_invalid_base_does_not_leak_partial_scope_and_explicit_scope_remains_addressed",
+          "tests.unit.scientist.search.test_transfer_context_criteria::test_truly_unknown_domain_keeps_a_run_addressed_isolated_fallback",
+          "tests.unit.scientist.agent.test_vector_memory::test_query_captures_one_generation_during_native_publication[load]",
+          "tests.unit.scientist.agent.test_vector_memory::test_query_captures_one_generation_during_native_publication[update]",
+          "tests.unit.scientist.agent.test_vector_memory::test_metadata_copies_and_failed_native_mutation_preserve_generation",
+          "tests.unit.scientist.agent.test_vector_memory::test_same_ref_altered_bytes_refuses_load_without_publishing",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[schema]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[dimension]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[count]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[capacity]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[index-kind]",
+          "tests.unit.scientist.agent.test_vector_memory::test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index]",
+          "tests.unit.scientist.agent.test_vector_memory::test_explicit_schema_absent_legacy_bundle_uses_default_native_view",
+          "tests.unit.scientist.agent.test_vector_memory::test_same_native_ref_changed_bytes_preserves_published_generation",
+          "tests.unit.remediation.test_trn_02::test_discovery_preserves_history_ref_and_reads_cas_without_second_ann",
+          "tests.unit.remediation.test_trn_02::test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating",
+          "tests.unit.remediation.test_trn_02::test_failed_native_add_does_not_publish_a_second_python_record",
+          "tests.unit.remediation.test_trn_02::test_failed_native_load_does_not_publish_partial_bundle",
+          "tests.unit.remediation.test_trn_02::test_native_roundtrip_preserves_one_small_generation"
+        ]
+      },
+      "independently_reconciled_origins": {
+        "denominator": 350,
+        "mismatches": 0,
+        "ordered_full_origin_tuple_sha256": "da96b566337b0d5d043971e892f8651b6e9081999f57b73f726d31ef7e698972",
+        "lossless_full_records": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.txt#ACTUAL_REVIEW_RUNTIME.loaded_product_modules"
+      },
+      "independently_reconciled_retained_files": {
+        "denominator": 830,
+        "bytes": 579957,
+        "mismatches": 0,
+        "lossless_full_records": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.json#retained_input_output_files"
+      },
+      "executed_by": "transfer_owner; independently read/reconciled here, not rerun by reviewer"
+    },
+    "actual_removal": {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "tree_sha": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "-p",
+        "deny_numeric_backends",
+        "-p",
+        "remove_whole_catalog",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py::test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py::test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources",
+        "--basetemp=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/pytest-trn-discovery-property-removal-e5c2068dcea842e199d8acda8441cc79",
+        "--junitxml=/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 5.724459171295166,
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "source_before_after_clean_unchanged": true,
+      "actual_runtime": {
+        "botorch_loaded": false,
+        "denied_imports": [
+          "torch"
+        ],
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "gpytorch_loaded": false,
+        "native_hnsw": {
+          "origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+          "sha256": "ea123b43bd033c696f997d7f2fb5cee74fc2d6334c5de56346dab7c22fa13ceb"
+        },
+        "pytest_exitstatus": 1,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "torch_loaded": false,
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        }
+      },
+      "complete_outputs": [
+        {
+          "path": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.txt",
+          "bytes": 87137,
+          "sha256": "257b67603f29f60fccc311c7027e3d36a95ebbe66a6a376e7c789b6cd8e68e1c"
+        },
+        {
+          "path": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.json",
+          "bytes": 53547,
+          "sha256": "0ed349babea3a6ed33b0ca9fe1e44351d3c2874412aa34a3b673e226e9731821"
+        },
+        {
+          "path": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.xml",
+          "bytes": 2860,
+          "sha256": "f1d3d5c25411cbcfc1d4517b56afc10eaa77cb7cda3b011c0ff3e37a652c0355"
+        }
+      ],
+      "junit": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources"
+        ]
+      },
+      "independently_reconciled_origins": {
+        "denominator": 350,
+        "mismatches": 0,
+        "ordered_full_origin_tuple_sha256": "da96b566337b0d5d043971e892f8651b6e9081999f57b73f726d31ef7e698972",
+        "lossless_full_records": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.txt#ACTUAL_REVIEW_RUNTIME.loaded_product_modules"
+      },
+      "independently_reconciled_retained_files": {
+        "denominator": 126,
+        "bytes": 121433,
+        "mismatches": 0,
+        "lossless_full_records": "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.json#retained_input_output_files"
+      },
+      "executed_by": "transfer_owner; independently read/reconciled here, not rerun by reviewer"
+    },
+    "actual_defect_before_fix": {
+      "source_sha": "05850c83c77f2d38a3c42cb31f370dd3c7db1074",
+      "tree_sha": "3bbdf51370377391335ae1637612d3b11fc9fc37",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "--basetemp=/workspace/e02-D3-receipts/transfer-criteria-review/pytest-trn-original-base-8dfc213757444afcb28954b6997271b0",
+        "--junitxml=/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 12.277342557907104,
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D3-receipts/transfer-criteria-review",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "source_before_after_clean_unchanged": true,
+      "actual_runtime": {
+        "botorch_loaded": true,
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "gpytorch_loaded": true,
+        "pytest_exitstatus": 1,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "torch_loaded": true,
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        }
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.txt",
+          "bytes": 86754,
+          "sha256": "e2bb83f8a38fc8b826308b9695ac87682df656289223767ef0babc7e04c3ed60"
+        },
+        {
+          "path": "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.json",
+          "bytes": 172122,
+          "sha256": "027b97c6b6b13c3d414c926cc328417bfd3d6173d6be0b1844d699a300e4bb44"
+        },
+        {
+          "path": "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.xml",
+          "bytes": 4335,
+          "sha256": "377843d4decb188a1dcc6999b3d8edd6b22e1cac1317371e75ee45ea67662ad2"
+        }
+      ],
+      "junit": {
+        "tests": 10,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[0]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[1]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[3]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[4]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_uneven_histories_redistribute_only_admitted_remaining_quota[10]",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_complete_score_ties_preserve_explicit_independent_replica_identity",
+          "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria::test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann",
+          "tests.unit.scientist.search.test_transfer_context_criteria::test_nested_serialized_and_equivalent_explicit_fields_have_the_same_scope",
+          "tests.unit.scientist.search.test_transfer_context_criteria::test_invalid_base_does_not_leak_partial_scope_and_explicit_scope_remains_addressed",
+          "tests.unit.scientist.search.test_transfer_context_criteria::test_truly_unknown_domain_keeps_a_run_addressed_isolated_fallback"
+        ]
+      },
+      "independently_reconciled_origins": {
+        "denominator": 350,
+        "mismatches": 0,
+        "ordered_full_origin_tuple_sha256": "6d7df0c3954ca59968b28b6a01e8cfbb04392a28dcd577cf56e05818421ebac0",
+        "lossless_full_records": "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.txt#ACTUAL_REVIEW_RUNTIME.loaded_product_modules"
+      },
+      "independently_reconciled_retained_files": {
+        "denominator": 443,
+        "bytes": 390999,
+        "mismatches": 0,
+        "lossless_full_records": "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.json#retained_input_output_files"
+      },
+      "executed_by": "transfer_owner; independently read/reconciled here, not rerun by reviewer"
+    },
+    "runtime_chain": [
+      "Native HNSW one captured generation query(None)",
+      "RunFingerprint retains exact discovered ArtifactRef",
+      "Existing actual B CAS verified snapshot resolves history, original candidate/evaluation and numerical basis",
+      "Existing strict row admission rejects incompatible origin and malformed-present stage_a_passed",
+      "Only nonempty admitted source counts toward max_runs; fair normalized-minimum row selection",
+      "WarmStartBridge returns original measured Evaluation; exact replay re-resolves refs without ANN"
+    ],
+    "independent_oracle": "Original persisted candidate/evaluation/basis content identity, score/replica quota examples, retained real CAS bytes, old/new native-reader barriers and independent source/output reconciliation; no model.posterior or duplicateGP fit.",
+    "proxy_divergences": [
+      "Nearest discovery source is incompatible, next malformed, later valid: finite source window returns0, one whole-catalog discovery followed by admission returns1; marker/ref identity remains intact.",
+      "Reader has old2 native keys paused while new3 generation publishes: returned count/keys/metadata all belong to old captured object, then fresh query returns new3."
+    ],
+    "removal_scope": "Only the bridge discovery argument top_k=None is replaced by its old finite limit in an isolated function object; all typed refs, basis, row admission, markers, tests and canonical bytes remain unchanged. Actual1FAIL/1PASS.",
+    "optional_profile_scope": "Installed locked numerical distributions exist, but explicit import-denial makes Torch/Bo/GP unavailable for this CAS/HNSW-only profile. Actual HNSW0.8.0 binary executes and is independently hash-checked; this32 run establishes no GP property.",
+    "counters_scope": "Admission counters describe visited histories/rows up to the final admitted-source quota. Unvisited lower-ranked source histories are not asserted as globally measured/rejected/unavailable.",
+    "finding_proposals": {
+      "B129": "available post-admission source-limit residual fixed and witnessed; new32 scope is not a fresh >1000/second-process replay",
+      "B128/B130": "bounded persisted-row/type/rank/quota/replica controls accepted; no acceleration or measurement truth inferred",
+      "B131": "held institutional source/tenant/split authorization input remains distinct",
+      "B133": "existing cache/current32 exact-ref mutation/cold controls retained; not distributed/latest authority",
+      "B134": "current32 native coherence/failure controls accepted; live owner-issued metadata remains separate input"
+    },
+    "residual_inputs": [
+      "Appointed institutional source/tenant/split/evaluator authorization and live metadata issuer still required where original criteria require them.",
+      "Earlier >1000 native/second-process receipts are source-bound lineages; vector query code has changed, so they are not relabeled a fresh4ac replay.",
+      "Ordinary configured transfer→real GP fit belongs to the separately frozen optimizer/runner witness; no currentGP execution inferred from32.",
+      "Whole-catalog discovery scales with current index size and claims neither exact global nearest ordering nor acceleration."
+    ],
+    "backend_crashes_and_storage_failures": "Earlier all-extras SIGKILL and first optional-profile ENOSPC28ERROR/4PASS remain execution limitations/errors. This review adopts only corrected natural32 and actual1FAIL/1PASS removal; no failures are silently retried into PASS.",
+    "predicate_basis": "recomputed local content/basis/admission/native-generation quantities; independently_reconciled exact Git and retained bytes; not_established institutional rights/scientific truth",
+    "delivery_status": "Production source4ac independently read back from remote branch at review time; separate committed author receipt remains pending (reported overlay/index space limitation). Local complete outputs available and bound above."
+  },
+  "remote_readback": {
+    "command": "git ls-remote origin refs/heads/codex/e02-D-published-transfer refs/heads/codex/e02-D-published-funnel",
+    "observed": {
+      "codex/e02-D-published-transfer": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "codex/e02-D-published-funnel": "1159cad1c970c783b30c943cf2eb38b61265f48d"
+    }
+  },
+  "pattern_pass": {
+    "P01/P02": "Actual consumer effects and persisted readback reviewed, exact source-bound chains above.",
+    "P05/P09/P10": "No invoice/permit/scientific truth inferred from fixture values or success markers; refusal/completeness scope explicit.",
+    "P14": "Two physical events distinguished from3 per-key receipts; author executions distinguished from independent read/recomputation.",
+    "P27/P29/P32": "Existing canonical B ledger/CAS and D bridges reused; content/ref/fresh-reader/removal gates exercised.",
+    "P35": "Complete19cost origins/5ledgers and350origins per3TRN runs plus all retained files reconciled; original46criterion fields preserved.",
+    "P37/P38": "Predicate provenance, nearest-window and cost-marker divergent cases explicit.",
+    "P40": "Existing source-admission invariant widened beyond finite discovery window; known authority/decoder gaps remain named supplier inputs.",
+    "P41": "No inherited-red waiver made; characterization058 is before this repair but not the original continuation slice base, and failures are not exported as unrelated debt."
+  },
+  "cleanup": {
+    "review_artifacts": "/tmp/e02-D-cost-transfer-independent-20261006",
+    "no_product_or_test_writes": true,
+    "no_children_or_new_checkouts": true,
+    "no_G_or_main_writes": true,
+    "permanent_deletion": "none"
+  }
+}

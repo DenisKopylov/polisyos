@@ -1,0 +1,169 @@
+{
+  "schema": "policyos.e02.operational_receipt.v1",
+  "unit": "D",
+  "source_before_documentation": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+  "operation": "native Git index version4 storage encoding only",
+  "complete_index_receipts": [
+    {
+      "path": "/tmp/e02-D-root-index-v4-3mt6_v3y/applied.json",
+      "sha256": "3ec0fe4cc929198ebac70c4b5d6a9f5c1f707cf1e902ff6d758ad1e82d93a595",
+      "receipt": {
+        "operation": "native_git_index_v4_storage_encoding",
+        "branch": "refs/heads/codex/e02-D-published-root",
+        "head_before_and_after": "3c636ff52718897c9900a49580c9bd058086de35",
+        "tree_before_and_after": "a5a74887e96020550b27b35ac5ceaa65e43ec0e5",
+        "stage_debug_sha256_before_and_after": "0ffc8fba208f4f9e3fb6e7c94f7a64355237dc0e0ed05077c63d955e001b8011",
+        "old_index_preserved_backup": "/tmp/e02-D-root-index-v4-3mt6_v3y/original.index",
+        "old_index_sha256": "3b35b7859b2037642ac98f126848d84bd46afe30b1144d1381fd3219aadf52ab",
+        "new_index_sha256": "79d3780dbb2549d017c6df01d216eb6bda34b31cd22b12d5a4cb8a37f50a139b",
+        "old_bytes": 2252646,
+        "new_bytes": 1301390,
+        "free_bytes_before": 0,
+        "free_bytes_after": 0,
+        "source_test_hooks_unchanged": true,
+        "cleanup_or_delete": false
+      }
+    },
+    {
+      "path": "/tmp/e02-D-index-v4-53_175fc/applied.json",
+      "sha256": "169db462b795a48ffe77d94df738eda5d7778208cb74277fe3d26884b5bf306e",
+      "receipt": {
+        "operation": "native_git_index_v4_prefix_compression",
+        "root": "/workspace/e02-D-published-champion",
+        "index": "/workspace/polisyos/.git/worktrees/e02-D-published-champion/index",
+        "head": "b06e7c2751fbbde1fa77d7a3a0482c17988897dc",
+        "branch": "refs/heads/codex/e02-D-published-champion",
+        "old_backup": "/tmp/e02-D-index-v4-53_175fc/original.index",
+        "old_bytes": 2180527,
+        "new_bytes": 1270096,
+        "old_sha256": "577c3f26c2f1df69714782bf7fea2c5ed30e0b4fda66f356da65c6387f8b78a1",
+        "new_sha256": "557d81a218e98b25d73dbfe75768288d1bceab9ce2b7e09eec873d8eb9c62060",
+        "complete_stage_debug_sha256_before_and_after": "2ca620177bd063703f258542bc5112197c4b4181e8165b8d5f59d630cc1a4a0a",
+        "status_before_and_after": " M policy-engine/src/polisyos/scientist/methods/autotune/models.py\n M policy-engine/src/polisyos/scientist/methods/autotune/runtime.py\n?? policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py\n",
+        "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+        "source_tests_hooks_unchanged": true,
+        "permanent_cleanup": false,
+        "available_bytes_before": 0,
+        "available_bytes_after": 897024
+      }
+    },
+    {
+      "path": "/tmp/e02-D-index-v4-94b99i2v/applied.json",
+      "sha256": "6d7a2a529af37ea01c616c3362485cb4ce70261dd2ab97edc992851f0e0e860f",
+      "receipt": {
+        "operation": "native_git_index_v4_prefix_compression",
+        "root": "/workspace/e02-D-published-search",
+        "index": "/workspace/polisyos/.git/worktrees/e02-D-published-search/index",
+        "head": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+        "branch": "refs/heads/codex/e02-D-published-search",
+        "old_backup": "/tmp/e02-D-index-v4-94b99i2v/original.index",
+        "old_bytes": 2206449,
+        "new_bytes": 1281478,
+        "old_sha256": "ec8a3ed04df12ce8006057df41d9ada186241c171c8cf7d68f4628e7577d5560",
+        "new_sha256": "ad03494d62971eb2ea801e37c20a7f716085e37f756d13be687d091eb93a20fc",
+        "complete_stage_debug_sha256_before_and_after": "b18cb441e7660124a4b6c0ac250f285138d3cea4840eaa0e44b36b80f9457794",
+        "status_before_and_after": "",
+        "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+        "source_tests_hooks_unchanged": true,
+        "permanent_cleanup": false,
+        "available_bytes_before": 823296,
+        "available_bytes_after": 1748992
+      }
+    },
+    {
+      "path": "/tmp/e02-D-index-v4-3b3xlnmv/applied.json",
+      "sha256": "c1dfdd88d546b69d851bc984836b450081c1fe1468dc970b48785921336ade40",
+      "receipt": {
+        "operation": "native_git_index_v4_prefix_compression",
+        "root": "/workspace/e02-D-published-transfer",
+        "index": "/workspace/polisyos/.git/worktrees/e02-D-published-transfer/index",
+        "head": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
+        "branch": "refs/heads/codex/e02-D-published-transfer",
+        "old_backup": "/tmp/e02-D-index-v4-3b3xlnmv/original.index",
+        "old_bytes": 2160410,
+        "new_bytes": 1261831,
+        "old_sha256": "55a7e832718606050841d22934d00b6bb7cd098c7112b4c8943179701a047108",
+        "new_sha256": "a3a760100d004cc8616f6ebe992389be35443ae42d50818c1f93caeeb9b937fc",
+        "complete_stage_debug_sha256_before_and_after": "31285be71b3e7b2f97c93fb18a28a823bcdc7531220bff1027d27cef809739b5",
+        "status_before_and_after": "",
+        "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+        "source_tests_hooks_unchanged": true,
+        "permanent_cleanup": false,
+        "available_bytes_before": 2662400,
+        "available_bytes_after": 3559424
+      }
+    },
+    {
+      "path": "/tmp/e02-D-index-v4-xrmh5ywv/applied.json",
+      "sha256": "377e2f6ec93e2ab912402e407f15ec2d460e15bc3e44e936fbcab759e6f98074",
+      "receipt": {
+        "operation": "native_git_index_v4_prefix_compression",
+        "root": "/workspace/e02-D-published-funnel",
+        "index": "/workspace/polisyos/.git/worktrees/e02-D-published-funnel/index",
+        "head": "1159cad1c970c783b30c943cf2eb38b61265f48d",
+        "branch": "refs/heads/codex/e02-D-published-funnel",
+        "old_backup": "/tmp/e02-D-index-v4-xrmh5ywv/original.index",
+        "old_bytes": 2180921,
+        "new_bytes": 1270947,
+        "old_sha256": "6bbaacdc9aeb70048a204e8a927ec2f082a740d3eeaaf48dc8e010f0b682fd70",
+        "new_sha256": "7c201cfbd1723e78a732a402b60557b0679b554ad44e8c335e498e7ce6567558",
+        "complete_stage_debug_sha256_before_and_after": "b0262dd354c08600f58560da47a6b2ea4579747521bc9676e6cf88baa6e7cf8a",
+        "status_before_and_after": "",
+        "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+        "source_tests_hooks_unchanged": true,
+        "permanent_cleanup": false,
+        "available_bytes_before": 3559424,
+        "available_bytes_after": 4468736
+      }
+    },
+    {
+      "path": "/tmp/e02-D-index-v4-h1svxlxz/applied.json",
+      "sha256": "11dd1963f828dd75544188b824d036e5c4c8bba4ad9edc20d0a58f0b5449909b",
+      "receipt": {
+        "operation": "native_git_index_v4_prefix_compression",
+        "root": "/workspace/e02-D-published-stress",
+        "index": "/workspace/polisyos/.git/worktrees/e02-D-published-stress/index",
+        "head": "0905131301921f9256bf0e9b4e62f41292f8e2dd",
+        "branch": "refs/heads/codex/e02-D-published-stress",
+        "old_backup": "/tmp/e02-D-index-v4-h1svxlxz/original.index",
+        "old_bytes": 2185317,
+        "new_bytes": 1272560,
+        "old_sha256": "2631542671b4028bcc8c14bc6db567cd9702e80de53a121c5a2969c64f8fefa8",
+        "new_sha256": "a16bdcd36ddb600c5fcd795058e9df2e79e67d03835ad2f759ca012bf7bc0bad",
+        "complete_stage_debug_sha256_before_and_after": "a91df0369d0570228c80e2b74e8e545c3ba8840c61add908b7381f42429e1605",
+        "status_before_and_after": "",
+        "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+        "source_tests_hooks_unchanged": true,
+        "permanent_cleanup": false,
+        "available_bytes_before": 1748992,
+        "available_bytes_after": 2662400
+      }
+    },
+    {
+      "path": "/tmp/e02-D-index-v4-l8i40gqo/applied.json",
+      "sha256": "17123a14b63529cf6948386662b4d2c6b7a567f1570c7711569436eedffc3d2f",
+      "receipt": {
+        "operation": "native_git_index_v4_prefix_compression",
+        "root": "/workspace/e02-D-published-oracle",
+        "index": "/workspace/polisyos/.git/worktrees/e02-D-published-oracle/index",
+        "head": "c40e633fc01398cdf757f3361f6e1ed0d62497ab",
+        "branch": "refs/heads/codex/e02-D-published-oracle",
+        "old_backup": "/tmp/e02-D-index-v4-l8i40gqo/original.index",
+        "old_bytes": 2184564,
+        "new_bytes": 1271347,
+        "old_sha256": "afea3393cf08e9821cca78a737c17f74f8ebd499f61b28875d0483ba774ccffe",
+        "new_sha256": "8fe6b449159ac918d5b15397ea09d5b37e5ec8333c9cbde78d68b2e706970f4b",
+        "complete_stage_debug_sha256_before_and_after": "c36771aa5a916e51f013f346fbcdc36d2947f7a0244844ef9d9bba7c39b9dbce",
+        "status_before_and_after": "",
+        "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+        "source_tests_hooks_unchanged": true,
+        "permanent_cleanup": false,
+        "available_bytes_before": 4468736,
+        "available_bytes_after": 5382144
+      }
+    }
+  ],
+  "source_tests_hooks_refs_unchanged": true,
+  "old_full_indexes_preserved": true,
+  "cleanup": "none; no permanent deletion or Trash emulation"
+}

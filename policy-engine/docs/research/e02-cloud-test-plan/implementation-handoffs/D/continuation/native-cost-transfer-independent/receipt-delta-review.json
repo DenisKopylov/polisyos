@@ -1,0 +1,533 @@
+{
+  "schema": "policyos.e02.independent_review_receipt_delta.v1",
+  "unit": "D",
+  "reviewer": "cost_transfer_review",
+  "recorded_at": "2026-10-06T17:39:11.995653+00:00",
+  "prior_independent_review": {
+    "path": "/tmp/e02-D-cost-transfer-independent-20261006/review.json",
+    "sha256": "5d1d390a4135b652f817c6d5d8dd861b41c9f20eeadcef672817aeded9b3e6ef"
+  },
+  "immutable_source": {
+    "sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+    "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057"
+  },
+  "receipt": {
+    "sha": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
+    "tree": "e4535a868e0b83be2ccacd886fa6b7852caab9a2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria.json",
+    "bytes": 47859,
+    "sha256": "f266455a686de71a5e59f900a8913a9b33a0739f980b49afb17f165850236b6d",
+    "remote_readback": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c\trefs/heads/codex/e02-D-published-transfer"
+  },
+  "complete_changed_paths_since_source": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria-output.json.gz",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria.json"
+  ],
+  "production_and_test_delta_since_source": [],
+  "independent_checks": {
+    "archive_compressed_bytes": 380743,
+    "archive_compressed_sha256": "bdc33ea2b137e0397a216484346e9fc034c3777dc5959b35f577616a1136a102",
+    "archive_uncompressed_bytes": 2785467,
+    "archive_uncompressed_sha256": "e508c28d25dc00e38074a1b5ac7592d365e0a4ecafb2381d2e5f6197bea51b84",
+    "complete_output_members": 31,
+    "all31_members_match_declared_hash_size_and_actual_retained_bytes": true,
+    "material_path_bindings": 708,
+    "deduplicated_actual_material_byte_contents": 155,
+    "all708_paths_match_actual_retained_bytes_and155_deduplicated_content_hashes": true,
+    "source_and_full_original_card_bindings": 11,
+    "all_source_card_hashes_match_exact_Git": true,
+    "all10_original_acceptance_bindings_exact": true
+  },
+  "complete_output_member_bindings": [
+    {
+      "name": "deny_numeric_backends.py",
+      "bytes": 688,
+      "sha256": "158016983af513bfccc369af3a9dfb700cf56ada4fd35a1c77f0fdc13643e76a",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/deny_numeric_backends.py",
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/deny_numeric_backends.py"
+      ]
+    },
+    {
+      "name": "origin-reconciliation.json",
+      "bytes": 2204,
+      "sha256": "a5129b2d73e05a69ed8296327d0213a3af34b2c3b36f9bae668dfd5a066e135c",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/origin-reconciliation.json"
+      ]
+    },
+    {
+      "name": "preparation-error.json",
+      "bytes": 323,
+      "sha256": "254338fb2307da3a33f0caccbd307e401d704bd88247ef8c5b32f61e5b01a73c",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/preparation-error.json"
+      ]
+    },
+    {
+      "name": "reconcile_origins.py",
+      "bytes": 1776,
+      "sha256": "4e4ebe74e8ca0c6ab13bff279e9ca9a46add09a63be0f27dacc2078b5d388592",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/reconcile_origins.py"
+      ]
+    },
+    {
+      "name": "remove_whole_catalog.py",
+      "bytes": 1585,
+      "sha256": "558d0fac13fe01874db711345e12dcd576fa2d9f602eca28896155edd2ea2ef4",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/remove_whole_catalog.py"
+      ]
+    },
+    {
+      "name": "review_observer.py",
+      "bytes": 1423,
+      "sha256": "44d377af8a4cf58fb8bf288b15d0c5c0af7ba9d1a393835ac24dd7ce9076024d",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/review_observer.py",
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/review_observer.py"
+      ]
+    },
+    {
+      "name": "ruff-check.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/ruff-check.txt"
+      ]
+    },
+    {
+      "name": "ruff-format.txt",
+      "bytes": 26,
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/ruff-format.txt"
+      ]
+    },
+    {
+      "name": "run_review.py",
+      "bytes": 3195,
+      "sha256": "95e233f2b1514ecfad20f29c01acc839b6d0a0d58d52f657ab69f847fd166176",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/run_review.py",
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/run_review.py"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-only-started.json",
+      "bytes": 1123,
+      "sha256": "627cbbdcffa5f23ca44cd92ba6350994d31e9498d5d75bd3071db5cc3c9e916c",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-cas-hnsw-only-started.json"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-only.json",
+      "bytes": 2291,
+      "sha256": "3e12c65fcf559333fa992e36f4b18693763330c3489b13ea1cde598ef9fe3ac9",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-cas-hnsw-only.json"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-only.txt",
+      "bytes": 135108,
+      "sha256": "e287290c0f586e0d1ba56439bbfad7ef9279cc6fa67fbf093d670ef094608710",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-cas-hnsw-only.txt"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-only.xml",
+      "bytes": 57284,
+      "sha256": "5d149e111d7fe2ce90b2a0d3680abea5a73d8dbd4dc04252c7c1b25c1d1247d5",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-cas-hnsw-only.xml"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-tmp-started.json",
+      "bytes": 1137,
+      "sha256": "9027e85f14e1528e27c550517137f12d8ca91d1884010cd93c83f610d2ed4eb8",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp-started.json"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-tmp.json",
+      "bytes": 325730,
+      "sha256": "fc5a8c99108b727bf0893cd939823576d81f8c87545af447f3a21d49ff6e42e2",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.json"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-tmp.txt",
+      "bytes": 83894,
+      "sha256": "2dba4ee786c9c802cb6772fd45adc91fcf4a9776fdd3b5a4f01fe93bfc83ad95",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.txt"
+      ]
+    },
+    {
+      "name": "trn-cas-hnsw-tmp.xml",
+      "bytes": 5686,
+      "sha256": "853147856711ecdbfdd468de69aa2d58432317d1da6400f1d203e8438c7990e8",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-cas-hnsw-tmp.xml"
+      ]
+    },
+    {
+      "name": "trn-discovery-property-removal-started.json",
+      "bytes": 1268,
+      "sha256": "41839c94bed890be6c726dcff140be652d8b759983e1f4cc1027b1dafec3054c",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal-started.json"
+      ]
+    },
+    {
+      "name": "trn-discovery-property-removal.json",
+      "bytes": 53547,
+      "sha256": "0ed349babea3a6ed33b0ca9fe1e44351d3c2874412aa34a3b673e226e9731821",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.json"
+      ]
+    },
+    {
+      "name": "trn-discovery-property-removal.txt",
+      "bytes": 87137,
+      "sha256": "257b67603f29f60fccc311c7027e3d36a95ebbe66a6a376e7c789b6cd8e68e1c",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.txt"
+      ]
+    },
+    {
+      "name": "trn-discovery-property-removal.xml",
+      "bytes": 2860,
+      "sha256": "f1d3d5c25411cbcfc1d4517b56afc10eaa77cb7cda3b011c0ff3e37a652c0355",
+      "retained_matching_paths": [
+        "/tmp/e02-transfer-criteria-f3f900ae578842bea2f7e75fa688f05a/trn-discovery-property-removal.xml"
+      ]
+    },
+    {
+      "name": "trn-original-base-started.json",
+      "bytes": 983,
+      "sha256": "82a96f824c847b175f7b639f12661860602ad5535bd0cb381dfab4a4170c6633",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base-started.json"
+      ]
+    },
+    {
+      "name": "trn-original-base.json",
+      "bytes": 172122,
+      "sha256": "027b97c6b6b13c3d414c926cc328417bfd3d6173d6be0b1844d699a300e4bb44",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.json"
+      ]
+    },
+    {
+      "name": "trn-original-base.txt",
+      "bytes": 86754,
+      "sha256": "e2bb83f8a38fc8b826308b9695ac87682df656289223767ef0babc7e04c3ed60",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.txt"
+      ]
+    },
+    {
+      "name": "trn-original-base.xml",
+      "bytes": 4335,
+      "sha256": "377843d4decb188a1dcc6999b3d8edd6b22e1cac1317371e75ee45ea67662ad2",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-base.xml"
+      ]
+    },
+    {
+      "name": "trn-original-corrected-started.json",
+      "bytes": 1128,
+      "sha256": "f4e67a06a5bc9cb66e2f22d223404bd1af5f5167f88bfe3b5bc71479f1174b2d",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-corrected-started.json"
+      ]
+    },
+    {
+      "name": "trn-original-corrected.json",
+      "bytes": 437316,
+      "sha256": "3172b6765bcf0523c7c487e71abdb2510086848e4d1e9663dedfee6139b7470c",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-corrected.json"
+      ]
+    },
+    {
+      "name": "trn-original-corrected.txt",
+      "bytes": 21,
+      "sha256": "ee3707bcc8eb259af9c0a7807a88ceff0b461d07506062497ef97e8f2279c40f",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-corrected.txt"
+      ]
+    },
+    {
+      "name": "trn-original-native-final-started.json",
+      "bytes": 1099,
+      "sha256": "2431e429c3d317d926a8bdf8cccce613fdfce8693c2fc29181a903694b5a5693",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-native-final-started.json"
+      ]
+    },
+    {
+      "name": "trn-original-native-final.json",
+      "bytes": 219978,
+      "sha256": "f54f515ceca915d66bb42d8db4c6a8a1eab7718dc129d4a6f62ec13c9c03904d",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-native-final.json"
+      ]
+    },
+    {
+      "name": "trn-original-native-final.txt",
+      "bytes": 8,
+      "sha256": "d09f0ad06d6e59b908037317d6c044f7ababd3466cb46d5b901cf6f0855baf04",
+      "retained_matching_paths": [
+        "/workspace/e02-D3-receipts/transfer-criteria-review/trn-original-native-final.txt"
+      ]
+    }
+  ],
+  "source_card_bindings": [
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "git_blob": "b5f389adf3b09727af6812bbf33a06825449b759",
+      "bytes": 14094,
+      "sha256": "1067af38eca416779e2c67684e3ec9904dd4d5c675526ae0eb29d463e256f870"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "git_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "bytes": 33891,
+      "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "git_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+      "bytes": 4897,
+      "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "git_blob": "6897d15921f9b5ea09db7e57aa5330c31ab6468f",
+      "bytes": 43584,
+      "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "git_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "bytes": 10087,
+      "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "git_blob": "5e135c9a53ee2e9a75abf177afa98d4e0a9cd5e2",
+      "bytes": 8035,
+      "sha256": "52b224c045395b34f750f19c86e696dbb7433d41882b918faab0c4a6b9d2fe31"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/tests/unit/scientist/search/test_transfer_context_criteria.py",
+      "git_blob": "22539ef17eb8cb193fda6c6ec24224d584027516",
+      "bytes": 1729,
+      "sha256": "d22edd4e3a5fe5032f9d92ac0b1e184285358bdd0c2479c587e9a25ed30161d1"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-transfer-admitted-source-limit.toml",
+      "git_blob": "f34da16a0cb83ade3b3acae53ba6ff0e656e29b8",
+      "bytes": 1378,
+      "sha256": "af9d2223fe213903602449c6d050ac9add14ee523665d72351fbb1e5eaacb2ad"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "git_blob": "be64b5a3f916bf5e5009d8a2701f834e494c044a",
+      "bytes": 21441,
+      "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+      "git_blob": "eae89b8ccfe27e68b9e4599f34a5c932f7457e22",
+      "bytes": 17678,
+      "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+    },
+    {
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "git_blob": "cce61650d0e6d743b102171edf6e412dd2b350c0",
+      "bytes": 16604,
+      "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+    }
+  ],
+  "original_criteria": [
+    {
+      "finding_id": "B128",
+      "card": "TRN-01",
+      "acceptance_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B129",
+      "card": "TRN-02",
+      "acceptance_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B130",
+      "card": "TRN-01",
+      "acceptance_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B131",
+      "card": "TRN-01",
+      "acceptance_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+      "author_proposal": "held",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B132",
+      "card": "TRN-01",
+      "acceptance_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B133",
+      "card": "TRN-02",
+      "acceptance_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B134",
+      "card": "TRN-02",
+      "acceptance_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B135",
+      "card": "TRN-03",
+      "acceptance_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B136",
+      "card": "TRN-03",
+      "acceptance_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+      "author_proposal": "closed_proposed",
+      "G_accepted": false
+    },
+    {
+      "finding_id": "B137",
+      "card": "TRN-03",
+      "acceptance_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+      "author_proposal": "held",
+      "G_accepted": false
+    }
+  ],
+  "deciding_run_summaries": [
+    {
+      "name": "trn-original-base",
+      "source_sha": "05850c83c77f2d38a3c42cb31f370dd3c7db1074",
+      "tree": "3bbdf51370377391335ae1637612d3b11fc9fc37",
+      "exit_code": 1,
+      "wall_seconds": 12.277342557907104,
+      "junit": {
+        "tests": 10,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "output_sha256": "e2bb83f8a38fc8b826308b9695ac87682df656289223767ef0babc7e04c3ed60"
+    },
+    {
+      "name": "trn-cas-hnsw-only",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+      "exit_code": 1,
+      "wall_seconds": 6.478541612625122,
+      "junit": {
+        "tests": 32,
+        "failures": 0,
+        "errors": 28,
+        "skipped": 0
+      },
+      "output_sha256": "e287290c0f586e0d1ba56439bbfad7ef9279cc6fa67fbf093d670ef094608710"
+    },
+    {
+      "name": "trn-cas-hnsw-tmp",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+      "exit_code": 0,
+      "wall_seconds": 6.859033584594727,
+      "junit": {
+        "tests": 32,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "output_sha256": "2dba4ee786c9c802cb6772fd45adc91fcf4a9776fdd3b5a4f01fe93bfc83ad95"
+    },
+    {
+      "name": "trn-discovery-property-removal",
+      "source_sha": "4ac49418289a31e77329bf92b1c2bf990cf2a087",
+      "tree": "4aab1d49fbd6766c7275f43b7d43f07b906a2057",
+      "exit_code": 1,
+      "wall_seconds": 5.724459171295166,
+      "junit": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "output_sha256": "257b67603f29f60fccc311c7027e3d36a95ebbe66a6a376e7c789b6cd8e68e1c"
+    }
+  ],
+  "material_bindings_lossless_pointer": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria-output.json.gz#/material_input_paths and /material_input_bytes_base64_by_sha256",
+  "independent_verdict": "published receipt losslessly matches previously independently reviewed bounded cost/transfer evidence; no new own-fixable blocker found",
+  "scope_and_limits": [
+    "No new test/backend run was performed by this reviewer; independently decoded/recomputed author deciding outputs and actual retained bytes.",
+    "32 native HNSW/CAS-only checks and1expectedFAIL/1healthyPASS property removal are exact4ac. Torch/BoTorch/GPyTorch are explicitly denied for this profile; installed-distribution absence and GP properties are not established.",
+    "The ENOSPC28ERROR/4PASS and two SIGKILL runs remain errors without successful verdict; complete error outputs are preserved.",
+    "A changed query(None) native generation reader has a bounded barrier test; prior >1000 two-process native checks retain prior source bindings and are not rerun at4ac.",
+    "B128/B129/B130/B133/B134 current mechanism proposals were independently reviewed as described in prior review; B132/B136 full historical lineage adjudication remains outside this new code delta review. B135 new contextual equivalence tests were reviewed. Author eight closed_proposed are not G acceptance.",
+    "B134 original local native failure/shape/capacity/coherence criterion is distinct from B131 live tenant/split authority and B137 authorized revalidation; live issuer input must not be added to B134 merely to block its original local criterion.",
+    "No inherited-red waiver made: characterization058 is not the original continuation slice base."
+  ],
+  "G_accepted": false,
+  "closure_ids": [],
+  "author_proposals": [
+    "B128",
+    "B129",
+    "B130",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136"
+  ],
+  "author_held": [
+    "B131",
+    "B137"
+  ],
+  "own_fixable_blockers": [],
+  "repository_writes": [],
+  "product_or_test_writes": []
+}

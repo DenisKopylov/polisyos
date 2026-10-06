@@ -1,0 +1,1229 @@
+{
+  "schema": "e02.D.final-accounting.bindings.v1",
+  "target_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+  "target_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+  "original_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "original_documents": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "bytes": 110393,
+      "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "bytes": 1336380,
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "bytes": 648034,
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+      "bytes": 17621,
+      "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+      "bytes": 16456,
+      "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+      "bytes": 16904,
+      "sha256": "96e6ce518edd40fa702efe89415427396b8e086ad4f7f3533c9227cb2919065e",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+      "bytes": 15946,
+      "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+      "bytes": 18569,
+      "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+      "bytes": 16050,
+      "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+      "bytes": 20853,
+      "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+      "bytes": 16968,
+      "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+      "bytes": 12239,
+      "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+      "bytes": 13217,
+      "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+      "bytes": 8706,
+      "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+      "bytes": 9440,
+      "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+      "bytes": 11176,
+      "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+      "bytes": 11099,
+      "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "bytes": 21441,
+      "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+      "bytes": 17678,
+      "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12",
+      "MATCH": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "bytes": 16604,
+      "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a",
+      "MATCH": true
+    }
+  ],
+  "original_fragment_and_acceptance_occurrences": 46,
+  "D_finding_owner_rows": 45,
+  "D_canonical_bundles": 17,
+  "B119_current": {
+    "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+    "outcomes": {
+      "tests": 12,
+      "PASS": 12,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "wall_seconds": 13.212587836998864,
+    "exit_code": 0,
+    "source_before_after_equal": true,
+    "recorded_status_before_after": [
+      "",
+      ""
+    ],
+    "output": {
+      "path": "/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f/complete.txt",
+      "bytes": 10906,
+      "sha256": "0045f3664a9892f5d277f3a71448cf7e8d22be23616772d1f58f26b9e701c102",
+      "Git_publication_ref": null,
+      "scope": "local deciding output; not a domain input or asserted Git member"
+    },
+    "junit": {
+      "path": "/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f/junit.xml",
+      "bytes": 2792,
+      "sha256": "56b369af110ff2a4477f997f0071a6a50dd87a16e4cb009e48acdcac598a7527",
+      "Git_publication_ref": null,
+      "scope": "local deciding output; not a domain input or asserted Git member"
+    },
+    "runtime_metadata": {
+      "path": "/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f/result.json",
+      "bytes": 1514,
+      "sha256": "d3476a33948de4d88aeae60757392cbf4f6b44741d8779d19382fa3d80e6f9b7",
+      "Git_publication_ref": null,
+      "scope": "local deciding output; not a domain input or asserted Git member"
+    },
+    "loaded_origin_metadata": {
+      "path": "/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f/origins.json",
+      "bytes": 286037,
+      "sha256": "8f8b2e94d52f5652a214d52df432ff435ee14c76b433dcee6cb8ff871f13d745",
+      "Git_publication_ref": null,
+      "scope": "local deciding output; not a domain input or asserted Git member"
+    },
+    "loaded_origin_count": 836,
+    "independent_origin_mismatches": [],
+    "selector_bindings": [
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "sha256": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035",
+        "recorded_sha256": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035",
+        "MATCH": true
+      }
+    ],
+    "environment": {
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-locked-env/bin/python",
+      "versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      }
+    },
+    "actual_command_and_environment": {
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "measure",
+        "--basetemp=/tmp/e02-D-hv-fixtures-764f081fe6e640b796886fd6eec55230",
+        "--junitxml=/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f/junit.xml",
+        "-q",
+        "-rA",
+        "-s",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+      ],
+      "env_changes": {
+        "PYTHONPATH": "/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f:src:.:/workspace/e02-D-published-search/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      }
+    },
+    "predicate_basis": "independently_reconciled",
+    "scope": "Read-only independent reconciliation of retained source-qualified output, selectors, 836 actual module-origin bytes and JUnit. No backend rerun; no generic cancellation API or new nonempty-batch policy."
+  },
+  "original_independent_review": {
+    "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/review.json",
+    "bytes": 158968,
+    "sha256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f",
+    "Git_publication_ref": null,
+    "scope": "local deciding output; not a domain input or asserted Git member"
+  },
+  "B136_independent_local_delta": {
+    "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/B136-partial-consumer-delta.json",
+    "bytes": 44941,
+    "sha256": "b6d1c51f26b69a4305bf0d3747b56ab039b7533970e8da8ad53ac030dd33c2d7",
+    "Git_publication_ref": null,
+    "scope": "local deciding output; not a domain input or asserted Git member"
+  },
+  "errors": [],
+  "check": "PASS",
+  "runtime_executions_here": 0,
+  "scope": "Artifact and criterion accounting only; no final broad-wave, quality, formal closure or G verdict.",
+  "complete_census_and_canonical_route_pointer_checks": [
+    {
+      "finding_id": "B106",
+      "census_pointer": "/findings/1",
+      "canonical_coverage_pointer": "/findings/16/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B107",
+      "census_pointer": "/findings/2",
+      "canonical_coverage_pointer": "/findings/17/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B108",
+      "census_pointer": "/findings/3",
+      "canonical_coverage_pointer": "/findings/18/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B109",
+      "census_pointer": "/findings/4",
+      "canonical_coverage_pointer": "/findings/19/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B110",
+      "census_pointer": "/findings/5",
+      "canonical_coverage_pointer": "/findings/21/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B111",
+      "census_pointer": "/findings/6",
+      "canonical_coverage_pointer": "/findings/22/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B112",
+      "census_pointer": "/findings/7",
+      "canonical_coverage_pointer": "/findings/23/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B113",
+      "census_pointer": "/findings/8",
+      "canonical_coverage_pointer": "/findings/24/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B114",
+      "census_pointer": "/findings/9",
+      "canonical_coverage_pointer": "/findings/25/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B115",
+      "census_pointer": "/findings/10",
+      "canonical_coverage_pointer": "/findings/26/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B116",
+      "census_pointer": "/findings/11",
+      "canonical_coverage_pointer": "/findings/27/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B117",
+      "census_pointer": "/findings/12",
+      "canonical_coverage_pointer": "/findings/28/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B118",
+      "census_pointer": "/findings/13",
+      "canonical_coverage_pointer": "/findings/29/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B119",
+      "census_pointer": "/findings/14",
+      "canonical_coverage_pointer": "/findings/30/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B120",
+      "census_pointer": "/findings/15",
+      "canonical_coverage_pointer": "/findings/32/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B121",
+      "census_pointer": "/findings/16",
+      "canonical_coverage_pointer": "/findings/33/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B122",
+      "census_pointer": "/findings/17",
+      "canonical_coverage_pointer": "/findings/34/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B123",
+      "census_pointer": "/findings/18",
+      "canonical_coverage_pointer": "/findings/35/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B124",
+      "census_pointer": "/findings/19",
+      "canonical_coverage_pointer": "/findings/36/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B125",
+      "census_pointer": "/findings/20",
+      "canonical_coverage_pointer": "/findings/37/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B126",
+      "census_pointer": "/findings/21",
+      "canonical_coverage_pointer": "/findings/38/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B127",
+      "census_pointer": "/findings/22",
+      "canonical_coverage_pointer": "/findings/39/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B128",
+      "census_pointer": "/findings/23",
+      "canonical_coverage_pointer": "/findings/40/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B129",
+      "census_pointer": "/findings/24",
+      "canonical_coverage_pointer": "/findings/41/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B130",
+      "census_pointer": "/findings/25",
+      "canonical_coverage_pointer": "/findings/43/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B131",
+      "census_pointer": "/findings/26",
+      "canonical_coverage_pointer": "/findings/44/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B132",
+      "census_pointer": "/findings/27",
+      "canonical_coverage_pointer": "/findings/45/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B133",
+      "census_pointer": "/findings/28",
+      "canonical_coverage_pointer": "/findings/46/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B134",
+      "census_pointer": "/findings/29",
+      "canonical_coverage_pointer": "/findings/47/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B135",
+      "census_pointer": "/findings/30",
+      "canonical_coverage_pointer": "/findings/48/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B136",
+      "census_pointer": "/findings/31",
+      "canonical_coverage_pointer": "/findings/49/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B137",
+      "census_pointer": "/findings/32",
+      "canonical_coverage_pointer": "/findings/50/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B156",
+      "census_pointer": "/findings/33",
+      "canonical_coverage_pointer": "/findings/71/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B157",
+      "census_pointer": "/findings/34",
+      "canonical_coverage_pointer": "/findings/72/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B158",
+      "census_pointer": "/findings/35",
+      "canonical_coverage_pointer": "/findings/73/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B159",
+      "census_pointer": "/findings/36",
+      "canonical_coverage_pointer": "/findings/74/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B160",
+      "census_pointer": "/findings/37",
+      "canonical_coverage_pointer": "/findings/76/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B161",
+      "census_pointer": "/findings/38",
+      "canonical_coverage_pointer": "/findings/77/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B162",
+      "census_pointer": "/findings/39",
+      "canonical_coverage_pointer": "/findings/78/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B163",
+      "census_pointer": "/findings/40",
+      "canonical_coverage_pointer": "/findings/79/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B164",
+      "census_pointer": "/findings/41",
+      "canonical_coverage_pointer": "/findings/80/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B165",
+      "census_pointer": "/findings/42",
+      "canonical_coverage_pointer": "/findings/81/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "B41",
+      "census_pointer": "/findings/0",
+      "canonical_coverage_pointer": "/findings/166/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "LA-014",
+      "census_pointer": "/findings/43",
+      "canonical_coverage_pointer": "/findings/238/selected_plan_not_executed",
+      "MATCH": true
+    },
+    {
+      "finding_id": "LA-015",
+      "census_pointer": "/findings/44",
+      "canonical_coverage_pointer": "/findings/239/selected_plan_not_executed",
+      "MATCH": true
+    }
+  ],
+  "outcome_subset_source_quantities_reconciled": true,
+  "reference_byte_bindings": [
+    {
+      "namespace": "ledger",
+      "key": "continuation_ledger",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/criterion-ledger.json",
+      "sha256": "dcfeaad1fb6289a3baf52f7a597dd62c3c09d5e229d99fb1c3c74d8a0552b854",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "historical_accounting",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "complete_result_pack",
+      "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+      "sha256": "b35d8860e60d926f4b99cd464cfb141fb1166a7318ea7a12147e28348e55ca11",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "stress_absent_independent",
+      "source_sha": "c40e633fc01398cdf757f3361f6e1ed0d62497ab",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-absent-independent-review.json",
+      "sha256": "31b797fc6d52f552cb05f41b1bfc8cfe761285d25e3a725e3dc18f78443e1079",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "stress_ordinary",
+      "source_sha": "f8ebe5f714d42398d07d9797f853c03553ec1603",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-ordinary-DOE-and-absent-basis.json",
+      "sha256": "ae16a277dba3170265fdc5a6f58cac885a9e0f9da6912ee3160cb7670514ff64",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "stress_actual_consumers",
+      "source_sha": "0905131301921f9256bf0e9b4e62f41292f8e2dd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-actual-consumer.json",
+      "sha256": "4e6446f11bff7c1a1d5e5efc9b8239ce448330ead631e1fb24f3d4c50c56e7f3",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "stress_doe_independent",
+      "source_sha": "09598aa3a07694089499d7d11156248b39131e1b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-doe-independent-review.json",
+      "sha256": "2f8834b31fa03db004018dbc313957953f28cafa1a05e50e855f5b3302fed07b",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "stress_component_independent",
+      "source_sha": "5084a2f596a4478d3e5a15926010e23affe4976c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-correction-independent-review.json",
+      "sha256": "30535b8355cac99396f4b2cbd32af956456d4abb602679dd36c6c848fe21ad81",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "transfer_criteria",
+      "source_sha": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria.json",
+      "sha256": "f266455a686de71a5e59f900a8913a9b33a0739f980b49afb17f165850236b6d",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "funnel_native",
+      "source_sha": "56d1ee7b0837b361c34937d384b423fd86d72f29",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json",
+      "sha256": "b2e996186916ddb8871f1c60d8e8e9740f4d6fa764fafc4ceeeb1270bf82f1ce",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "funnel_native_independent",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-funnel-d796-review.json",
+      "sha256": "b59815b3534e8cdbb3f51e56e72619e8aaccf461ecf1c6b1b041c8a056623ac3",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "funnel_node",
+      "source_sha": "d877127c6fae40de0bd1b33ac8f126dee7b93f26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-node.json",
+      "sha256": "db5218da598210bdf37435dfa059fd542001f3ae523aadaec259f512c073ec81",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "funnel_cost_stopping",
+      "source_sha": "1159cad1c970c783b30c943cf2eb38b61265f48d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping.json",
+      "sha256": "37ff90ee4be290e932eaba25cb3018162947ea214bb460a7c11cce371041a269",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "native_champion",
+      "source_sha": "b2fefca972c4fddb8cd372a3c4cef0f0de94fca0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "sha256": "f30c1ed99a02549de5d695cdd45ff821f62b26de6277ce2c33f1590e946b623d",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "native_service_independent_red",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-review.json",
+      "sha256": "8bcb867a94566766c7d023a9863cbf02fcbe8b5c461655f202e4d7daa9be3295",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "stopping_prior",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress.json",
+      "sha256": "55081ea8d40f7c879e816431c03fcfbebeef51796201b197c2bdb3b8c360d046",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "search_quantity",
+      "source_sha": "2a129be622ac8c54a37021b1aa6becbdfc4305d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-exact-quantity-continuation.json",
+      "sha256": "54c5100bd26f4e997185b090ecb6c4b25cd90017ae1b1c221578771ac7461c88",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "search_quantity_independent",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent-review.json",
+      "sha256": "cd5db98ec99f15566e0dabe337a4d35056810f76ac4de95c39602b8915b5e8f9",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "frontier_transport_independent",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/frontier-export-independent-review.json",
+      "sha256": "888bf0471dce9c00abef5caa2224ed523d604a28b58e94f3e5a1f773a1584aba",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "search_generators",
+      "source_sha": "3a4e8f211a5384d9d61bec24d54477532b100574",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-generator-source-bound-continuation.json",
+      "sha256": "9ac4bf4170243b4f938fdc916613e69819147f29da715c99bc898a6aac6391fe",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "gp4_independent",
+      "source_sha": "22b5fd724414416e3d617f0546479b122ed6f313",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent-review.json",
+      "sha256": "137bb8751854b99f469fac20bd7a25bcfcaeccb7c8ecd7f2ff9a3ec753c05e17",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "search_numeric_space",
+      "source_sha": "594b14654f5446f3900c564e05fc3cf5a5c4c498",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-space-numeric-continuation.json",
+      "sha256": "f55c8f2ffdfcd15ab2f5ab248f552f3a1d32aab4cba626ed6a8d87a8ed617ee6",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "prior_current142",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+      "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "prior_search",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+      "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "served_hierarchical_packet",
+      "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/served-search-owner-input.json",
+      "sha256": "21fd375730b486242658ae404180a3ee6c4ea2863782613d4460969aeff97e7b",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "G_owner_actions",
+      "source_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-delta-owner-actions-2026-10-06.md",
+      "sha256": "a502ec7666873b7629d6f0e5469690b8adc09cfb496d66be1f05d32c022ce25a",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "DOE_coordinate_independent",
+      "source_sha": "4a4475c78938883b45a59133fc7d4cfea410b064",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/doe-coordinate-independent-review.json",
+      "sha256": "53a23eee0e68a5934df7d334aed850776bf59aa733f29fa1e87f1125e26c98b6",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "quantity_corrective",
+      "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+      "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "quantity_independent13",
+      "source_sha": "0a20b5012f9c9d46b6a45a1d7723d142ccebe556",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate-review.json",
+      "sha256": "3613fda2c25b6b4acb53ee69d5a04acaf53b771c30c37879209bf595e7a3784a",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "quantity_ordinary_independent2",
+      "source_sha": "e54d00205f19493a7495b8daf8aa3df6a276bb61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-review.json",
+      "sha256": "5a91e2f0f6817b4fdf9aae877a2c097b3bb1a27628f36718e8a64dbdcf3110e9",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "quantity_ordinary_binding",
+      "source_sha": "e54d00205f19493a7495b8daf8aa3df6a276bb61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-binding.json",
+      "sha256": "626c0f505ab13843ff24268890247c7e79c8a52d3eb795fb9c3e1d906a03ca0a",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "native_factory_current",
+      "source_sha": "0f8802c2bb90fe05676c2273703364c0c491ea35",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "sha256": "9d24b294462fbd10cd7835d4b3c72de4b91fe15691ed8cf1839ed58c50402bbd",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "native_factory_independent",
+      "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-search-independent-review.json",
+      "sha256": "452b3f747d149854ddfe3264dd05b738ed4bfb1fe121b95f069cd58639d52dfa",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "lesson_partial_current",
+      "source_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-consumer.json",
+      "sha256": "40ec0aa1ee186a6fd8d8b2c5e09b209bde7a5f6de7eeaaba24d5241ba5dd55d7",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "gateway_b11_current",
+      "source_sha": "782a9270d5ac77ce3a4a6ba7ce413de4a19e5424",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current.json",
+      "sha256": "59a59156a209ad728c1863a423e320292088f027dc3e75b4892d48304a2102c5",
+      "MATCH": true
+    },
+    {
+      "namespace": "ledger",
+      "key": "gateway_b11_owner_input",
+      "source_sha": "782a9270d5ac77ce3a4a6ba7ce413de4a19e5424",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-owner-input.json",
+      "sha256": "6ee475d73ed1ce19546153a0eff3eb12a634456ced720f9f2ea2b540055fbb21",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "G_owner_actions",
+      "source_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-delta-owner-actions-2026-10-06.md",
+      "sha256": "a502ec7666873b7629d6f0e5469690b8adc09cfb496d66be1f05d32c022ce25a",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "canonical_D_ledger",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/criterion-ledger.json",
+      "sha256": "dcfeaad1fb6289a3baf52f7a597dd62c3c09d5e229d99fb1c3c74d8a0552b854",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "transfer_criteria",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria.json",
+      "sha256": "f266455a686de71a5e59f900a8913a9b33a0739f980b49afb17f165850236b6d",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "funnel_owner",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json",
+      "sha256": "b2e996186916ddb8871f1c60d8e8e9740f4d6fa764fafc4ceeeb1270bf82f1ce",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "funnel_node",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-node.json",
+      "sha256": "db5218da598210bdf37435dfa059fd542001f3ae523aadaec259f512c073ec81",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "funnel_cost_stopping",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping.json",
+      "sha256": "37ff90ee4be290e932eaba25cb3018162947ea214bb460a7c11cce371041a269",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "resource_owner_requests",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-owner-requests.json",
+      "sha256": "94b40322da8a3b6ede9b430062f3073452b9c45d045b4042ae73fc5ce25b71ad",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "budget_snapshot_request",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/budget-snapshot-owner-input.json",
+      "sha256": "5e59aada57cb4b541eb210012ebed7c4439cd3f7670003cd7e7e688fda1b6818",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "B_owner_dependency",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-dependency.json",
+      "sha256": "8a8f599813e64b98729119478a0f9a2926a23505538dcc256af829e8a2130f0f",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "served_factory_request",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/served-search-owner-input.json",
+      "sha256": "21fd375730b486242658ae404180a3ee6c4ea2863782613d4460969aeff97e7b",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "stress_E_actual",
+      "source_sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-ordinary-DOE-and-absent-basis.json",
+      "sha256": "ae16a277dba3170265fdc5a6f58cac885a9e0f9da6912ee3160cb7670514ff64",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "native_factory_manifest",
+      "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/manifest.json",
+      "sha256": "c7ab82a954527cc6a4f5716c23a1f1969e4e675c624213d962f02a66b42b19bd",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "native_factory15",
+      "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-junit.xml.gz",
+      "sha256": "15c71243938415d91b594a60173d201d23fd51ad7e0b8b5c938c9df9950462a5",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "native_factory_scan",
+      "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-final-caller-inventory.json.gz",
+      "sha256": "03c9e410d8a64e837cd1f87d6f3b7a49b7cda51e999feaf84e13bdd597d72b87",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "gateway_current24",
+      "source_sha": "08c53946395b53be61ea1ac7b22ac37060b6cfde",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current-proof/output.json.gz",
+      "sha256": "adcf6dbb5b9a627043dfc6215742068fbf99879f6b241e108ff1238f1413290d",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "quantity_corrective",
+      "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+      "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "quantity_independent13",
+      "source_sha": "0a20b5012f9c9d46b6a45a1d7723d142ccebe556",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate-review.json",
+      "sha256": "3613fda2c25b6b4acb53ee69d5a04acaf53b771c30c37879209bf595e7a3784a",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "quantity_ordinary_independent2",
+      "source_sha": "e54d00205f19493a7495b8daf8aa3df6a276bb61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-review.json",
+      "sha256": "5a91e2f0f6817b4fdf9aae877a2c097b3bb1a27628f36718e8a64dbdcf3110e9",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "quantity_ordinary_binding",
+      "source_sha": "e54d00205f19493a7495b8daf8aa3df6a276bb61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-binding.json",
+      "sha256": "626c0f505ab13843ff24268890247c7e79c8a52d3eb795fb9c3e1d906a03ca0a",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "native_factory_current",
+      "source_sha": "0f8802c2bb90fe05676c2273703364c0c491ea35",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "sha256": "9d24b294462fbd10cd7835d4b3c72de4b91fe15691ed8cf1839ed58c50402bbd",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "native_factory_independent",
+      "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-search-independent-review.json",
+      "sha256": "452b3f747d149854ddfe3264dd05b738ed4bfb1fe121b95f069cd58639d52dfa",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "lesson_partial_current",
+      "source_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-consumer.json",
+      "sha256": "40ec0aa1ee186a6fd8d8b2c5e09b209bde7a5f6de7eeaaba24d5241ba5dd55d7",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "gateway_b11_current",
+      "source_sha": "782a9270d5ac77ce3a4a6ba7ce413de4a19e5424",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current.json",
+      "sha256": "59a59156a209ad728c1863a423e320292088f027dc3e75b4892d48304a2102c5",
+      "MATCH": true
+    },
+    {
+      "namespace": "packets",
+      "key": "gateway_b11_owner_input",
+      "source_sha": "782a9270d5ac77ce3a4a6ba7ce413de4a19e5424",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-owner-input.json",
+      "sha256": "6ee475d73ed1ce19546153a0eff3eb12a634456ced720f9f2ea2b540055fbb21",
+      "MATCH": true
+    }
+  ],
+  "exact_final_selector_navigation": [
+    {
+      "finding_id": "B114",
+      "selector": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "2dcac359161fd10bccbb14091890268ba9c511f188909680cefbeaeb099f2030",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B117",
+      "selector": "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_promoted_champion_executes_and_publishes_strong_fulltext",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "87ba94f15c6a9acdf66dd12bcb134787a561cee317ce7113f062ba1c3eb4bc28",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B117",
+      "selector": "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_evaluation_candidate_mismatch_blocks_admission",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "87ba94f15c6a9acdf66dd12bcb134787a561cee317ce7113f062ba1c3eb4bc28",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B117",
+      "selector": "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_required_guardrail_false_blocks_admission",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "87ba94f15c6a9acdf66dd12bcb134787a561cee317ce7113f062ba1c3eb4bc28",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B119",
+      "selector": "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "167be5e22eb2f4e52203e95fdae860ef5284adc6ee4344d80a271fca6ccada56",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B123",
+      "selector": "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B123",
+      "selector": "tests/unit/remediation/test_srv_01.py::test_malformed_typed_feedback_cannot_fall_back_to_scalar_best",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "cf5f4f6963200a848c8f3a41159afa8bfe80439f85f2d0a5440e6f910f446d5d",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B123",
+      "selector": "tests/unit/scientist/methods/search/test_service_persistence.py::test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "27ca58db276560aa8dec8f19684aebcb0cf638f6111bd258340fefbbd757d7e3",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B125",
+      "selector": "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "B128",
+      "selector": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "2dcac359161fd10bccbb14091890268ba9c511f188909680cefbeaeb099f2030",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "LA-014",
+      "selector": "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    },
+    {
+      "finding_id": "LA-015",
+      "selector": "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "path_sha256": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a",
+      "declared_nodes_found": true,
+      "runtime": "UNRUN here; final wave pending"
+    }
+  ],
+  "packet_scope_checks": [
+    {
+      "key": "tenant_split_transfer",
+      "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "authorized_revalidation",
+      "requested_canonical_owner": "Actual lesson/evidence revalidation issuer appointed by G; D TRN-03 reader",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "native_draw_producer",
+      "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "same_scope_refinement",
+      "requested_canonical_owner": "Appointed same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "typed_write_permit",
+      "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner appointed by A/B/G; D FUN-03 consumer",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "lossless_gateway_cost",
+      "requested_canonical_owner": "B LLM-01/LLM-02 B-W09 Gateway text decoder owner; D CTL-03 composed consumer",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "owned_multikey_durability",
+      "requested_canonical_owner": "B DUR-01 B-W05 ledger/middleware owner, B-W09 enforcer; D native caller attribution",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "public_typed_budget_snapshot",
+      "requested_canonical_owner": "B DUR-01 configured middleware owner via G appointment; D CTL-03/SRV consumers",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "A_frontier_default_workflow",
+      "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "served_hierarchical_context",
+      "requested_canonical_owner": "A-W01/CYC-01 actual workflow owner and evaluator owner; G to confirm the actual served caller; D native API/bridge consumers",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "ordinary_blueprint_configured_owner",
+      "requested_canonical_owner": "A actual node/evaluator caller owner; B existing resource owner; D blueprint node owner",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "B_canonical_history_compatibility",
+      "requested_canonical_owner": "B DUR-01 canonical ledger owner and CAS-01 qualified ref owner; D consumes compatible profile",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "B_public_API_surface",
+      "requested_canonical_owner": "B DUR-01/LLM-01/LLM-02 API owners plus G public inventory/contract owner",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "E_mutable_cardinality_cap",
+      "requested_canonical_owner": "E DOE-01 E-W06 canonical SensitivityPlan/sampling owner; D actual E->stress consumer",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "owner_declared_fiscal_profile",
+      "requested_canonical_owner": "Actual fiscal unit/sign/source-law declaring owner to be confirmed by A/G",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    },
+    {
+      "key": "D_coordinate_volume_corrective",
+      "requested_canonical_owner": "D-W01 search_owner producer/consumer plus numerical_oracle independent controls",
+      "appointment_not_established": true,
+      "producer_artifact_bridge_consumer_present": true,
+      "local_minimum_recipe_steps": 3
+    }
+  ]
+}

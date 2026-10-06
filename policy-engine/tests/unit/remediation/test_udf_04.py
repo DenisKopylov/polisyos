@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -230,3 +232,87 @@ def test_ops_bootstrap_composes_domain_orchestrator_with_renderer_callback(
 
     assert orchestrator.bootstrap_script_renderer is server_bootstrap.render_bootstrap_script
     assert orchestrator.server_capability_probe is server_bootstrap.probe_local_server_capabilities
+
+
+def test_installed_console_entrypoint_records_real_workspace_and_fake_gate_process(
+    tmp_path: Path,
+) -> None:
+    """The installed CLI reaches its child-process seam with the actual argv/cwd/env."""
+    policy_engine = Path(__file__).resolve().parents[3]
+    console_script = Path(sys.prefix) / "bin" / "ukraine-data"
+    if not console_script.is_file():
+        pytest.skip("the original project virtualenv has no installed ukraine-data script")
+
+    repo_root = _make_repository_checkout(tmp_path / "workspace")
+    fake_bin = tmp_path / "fake-bin"
+    fake_bin.mkdir()
+    fake_uv = fake_bin / "uv"
+    receipt_path = tmp_path / "fake-process.json"
+    fake_uv.write_text(
+        f"#!{sys.executable}\n"
+        "import json, os, pathlib, sys\n"
+        "pathlib.Path(os.environ['UKRAINE_GATE_RECEIPT']).write_text("
+        "json.dumps({'argv': sys.argv[1:], 'cwd': os.getcwd(), "
+        "'integration': os.environ.get('POLISYOS_RUN_INTEGRATION')}), "
+        "encoding='utf-8')\n"
+        "print('1 passed')\n",
+        encoding="utf-8",
+    )
+    fake_uv.chmod(0o755)
+
+    config = build_default_pipeline_config(root=tmp_path / "build-root")
+    config.server.require_server_for_build = False
+    config.server.uv_bin = str(fake_uv)
+    config_path = tmp_path / "pipeline.json"
+    config_path.write_text(config.model_dump_json(), encoding="utf-8")
+    source_root = policy_engine / "src"
+    child_env = dict(os.environ)
+    child_env["PATH"] = f"{fake_bin}{os.pathsep}{child_env.get('PATH', '')}"
+    child_env["PYTHONPATH"] = os.pathsep.join(
+        item for item in (str(source_root), child_env.get("PYTHONPATH", "")) if item
+    )
+    child_env["UKRAINE_GATE_RECEIPT"] = str(receipt_path)
+
+    completed = subprocess.run(
+        [
+            str(console_script),
+            "--config",
+            str(config_path),
+            "--workspace-root",
+            str(repo_root),
+            "validate-part-a",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        env=child_env,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    manifest = json.loads(completed.stdout)
+    assert manifest["status"] == "passed"
+    assert manifest["metrics"]["passed"] is True
+    gate_manifest = json.loads(
+        Path(manifest["outputs"][0]["path"]).read_text(encoding="utf-8")
+    )
+    assert gate_manifest["status"] == "passed"
+    assert gate_manifest["passed"] is True
+    assert gate_manifest["command"] == [
+        str(fake_uv),
+        "run",
+        "pytest",
+        "-q",
+        "tests/integration/test_c7_synthetic_full_pipeline.py",
+    ]
+    process_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assert process_receipt == {
+        "argv": [
+            "run",
+            "pytest",
+            "-q",
+            "tests/integration/test_c7_synthetic_full_pipeline.py",
+        ],
+        "cwd": str(repo_root),
+        "integration": "1",
+    }

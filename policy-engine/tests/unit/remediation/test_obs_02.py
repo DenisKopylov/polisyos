@@ -282,36 +282,110 @@ def test_small_real_parquet_reader_preserves_metric_counts_and_snapshot_values(
     assert sum(len(metric_frame) for _, _, _, metric_frame in emitted) == 8
 
 
-def test_partial_resume_aborts_when_normalized_snapshot_changes(
+def test_failure_before_first_yield_falls_back_from_the_source_copy(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A changed input cannot be resumed as though it were the old snapshot."""
+    """The pre-publication reader fallback consumes the same private source copy."""
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
-    config, source, frame = _config(tmp_path)
+    config, source, _frame = _config(tmp_path)
     artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    original_bytes = artifact.read_bytes()
+    import pyarrow.parquet as parquet
 
-    class MutatingParquetFile:
-        """Mutate the input only after the first published batch."""
+    class FailingBeforeFirstBatch:
+        """Fail the streaming reader before it publishes any metric frame."""
 
         def __init__(self, _path: Path) -> None:
             pass
 
         def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
             del batch_size, columns
-            yield _batch(frame.iloc[:2], size=2)
-            artifact.write_bytes(artifact.read_bytes() + b"changed-after-yield")
-            raise OSError("controlled reader failure after input mutation")
+            raise OSError("controlled reader failure before first batch")
+            yield  # pragma: no cover
 
+    original_full_reader = sources._read_parquet_frame
+    full_read_paths: list[Path] = []
+
+    def recording_full_reader(path: Path, *, columns: list[str] | None = None) -> pd.DataFrame:
+        full_read_paths.append(Path(path))
+        assert Path(path) != artifact
+        assert Path(path).read_bytes() == original_bytes
+        return original_full_reader(path, columns=columns)
+
+    monkeypatch.setattr(parquet, "ParquetFile", FailingBeforeFirstBatch)
+    monkeypatch.setattr(sources, "_read_parquet_frame", recording_full_reader)
+
+    emitted = list(sources._iter_observation_metric_frames(config))
+
+    assert len(full_read_paths) == 1
+    assert [(metric_id, batch_index) for _, metric_id, batch_index, _ in emitted] == [
+        ("metric_a", 0),
+        ("metric_b", 0),
+    ]
+    assert sum(len(metric_frame) for _, _, _, metric_frame in emitted) == 8
+    assert artifact.read_bytes() == original_bytes
+
+
+def test_partial_resume_uses_immutable_source_copy_when_input_changes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A partial yield resumes only from the exact per-run source copy."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    original_bytes = artifact.read_bytes()
     import pyarrow.parquet as parquet
+
+    real_parquet_file = parquet.ParquetFile
+    seen_paths: list[Path] = []
+
+    class MutatingParquetFile:
+        """Mutate the original after the first batch; resume reads the source copy."""
+
+        def __init__(self, path: Path) -> None:
+            seen_paths.append(Path(path))
+
+        def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
+            del batch_size, columns
+            if len(seen_paths) == 1:
+                yield _batch(frame.iloc[:2], size=2)
+                artifact.write_bytes(b"changed-after-yield")
+                raise OSError("controlled reader failure after input mutation")
+            assert seen_paths[-1] == seen_paths[0]
+            assert seen_paths[-1] != artifact
+            assert seen_paths[-1].read_bytes() == original_bytes
+            yield from real_parquet_file(seen_paths[-1]).iter_batches(
+                batch_size=2,
+                columns=None,
+            )
 
     monkeypatch.setattr(parquet, "ParquetFile", MutatingParquetFile)
 
-    with pytest.raises(RuntimeError, match="snapshot"):
-        list(sources._iter_observation_metric_frames(config))
+    emitted = list(sources._iter_observation_metric_frames(config))
 
+    assert len(seen_paths) == 2
+    assert seen_paths[0] != artifact
+    assert seen_paths[0] == seen_paths[1]
+    assert artifact.read_bytes() == b"changed-after-yield"
+    assert [(metric_id, batch_index) for _, metric_id, batch_index, _ in emitted] == [
+        ("metric_a", 0),
+        ("metric_b", 0),
+        ("metric_a", 1),
+        ("metric_b", 1),
+    ]
+    assert sum(len(metric_frame) for _, _, _, metric_frame in emitted) == 8
+    observation_ids = [
+        value
+        for _, _, _, metric_frame in emitted
+        for value in metric_frame["observation_id"].tolist()
+    ]
+    assert len(observation_ids) == len(set(observation_ids)) == 8
 
 def test_build_d2_materializes_unique_observation_shards_and_counts(
     tmp_path: Path,

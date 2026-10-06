@@ -4,6 +4,7 @@ import json
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from polisyos.data_forge.domains.ukraine.demography import load_reconciled_targets
 from polisyos.data_forge.read_api.ukraine import (
     build_static_aging_state,
@@ -81,6 +82,12 @@ def test_ukraine_data_shim_reads_reconciled_targets(tmp_path: Path) -> None:
             "state_ids": ["male:0-17", "female:0-17"],
             "target_state_totals": [50.0, 45.0],
             "entrant_state_totals": [5.0, 4.0],
+        },
+    )
+    _write_json(
+        root / "demography_transition_priors.json",
+        {
+            "transition_prior_matrix": [[0.8, 0.2], [0.1, 0.9]],
         },
     )
 

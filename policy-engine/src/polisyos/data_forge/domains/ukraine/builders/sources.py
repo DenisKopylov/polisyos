@@ -7,6 +7,7 @@ import json
 import shutil
 from datetime import date, timedelta
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -1367,85 +1368,92 @@ def _iter_observation_metric_frames(
                     requested_columns.append(column)
         batch_index = 0
         row_offset = 0
-        emitted_metric_ids: set[str] = set()
-        snapshot_sha256 = sha256_file(artifact_path)
-        try:
-            import pyarrow.parquet as pq
+        emitted_metric_count = 0
+        with TemporaryDirectory(prefix="ukraine-observation-") as snapshot_directory:
+            snapshot_path = Path(snapshot_directory) / artifact_path.name
+            shutil.copy2(artifact_path, snapshot_path)
+            snapshot_sha256 = sha256_file(snapshot_path)
+            try:
+                import pyarrow.parquet as pq
 
-            parquet_file = pq.ParquetFile(artifact_path)
-            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
-                frame = batch.to_pandas()
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source,
-                    frame,
-                    row_offset=row_offset,
+                parquet_file = pq.ParquetFile(snapshot_path)
+                for batch in parquet_file.iter_batches(
+                    batch_size=100_000,
+                    columns=requested_columns,
                 ):
-                    yield source, metric_id, batch_index, metric_frame
-                    emitted_metric_ids.add(metric_id)
-                row_offset += len(frame)
-                batch_index += 1
-                emitted_metric_ids.clear()
-                del frame
-        except (ImportError, OSError):
-            if sha256_file(artifact_path) != snapshot_sha256:
-                raise RuntimeError(
-                    "normalized observation artifact changed during streaming; "
-                    "cannot resume from an unconfirmed snapshot"
-                )
+                    frame = batch.to_pandas()
+                    for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                        source,
+                        frame,
+                        row_offset=row_offset,
+                    ):
+                        yield source, metric_id, batch_index, metric_frame
+                        emitted_metric_count += 1
+                    row_offset += len(frame)
+                    batch_index += 1
+                    emitted_metric_count = 0
+                    del frame
+            except (ImportError, OSError) as reader_error:
+                if sha256_file(snapshot_path) != snapshot_sha256:
+                    raise RuntimeError(
+                        "per-run observation source copy changed during streaming; "
+                        "cannot resume from an unconfirmed snapshot"
+                    ) from reader_error
 
-            if row_offset == 0 and not emitted_metric_ids:
-                # Before publication there is no cursor to preserve, so the
-                # established pandas reader remains an allowed fallback.
-                frame = _read_parquet_frame(artifact_path, columns=requested_columns)
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source, frame, row_offset=0
-                ):
-                    yield source, metric_id, batch_index, metric_frame
-                del frame
-                continue
-
-            # A reader failure after publication must resume from the same
-            # immutable snapshot.  Re-open the streaming reader and discard
-            # complete batches already accounted for.  When the failure was
-            # between metric frames, the per-batch metric cursor removes only
-            # the metric(s) already yielded; equal values are never deduped.
-            resumed_row_offset = 0
-            pending_metric_ids = set(emitted_metric_ids)
-            parquet_file = pq.ParquetFile(artifact_path)
-            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
-                frame = batch.to_pandas()
-                batch_start = resumed_row_offset
-                batch_end = batch_start + len(frame)
-                if batch_end <= row_offset:
-                    resumed_row_offset = batch_end
+                if row_offset == 0 and emitted_metric_count == 0:
+                    # Before publication there is no cursor to preserve, so the
+                    # established pandas reader remains an allowed fallback.
+                    frame = _read_parquet_frame(snapshot_path, columns=requested_columns)
+                    for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                        source, frame, row_offset=0
+                    ):
+                        yield source, metric_id, batch_index, metric_frame
                     del frame
                     continue
 
-                effective_row_offset = batch_start
-                if batch_start < row_offset:
-                    frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
-                    effective_row_offset = row_offset
-
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source,
-                    frame,
-                    row_offset=effective_row_offset,
+                # A reader failure after publication resumes from the same
+                # private per-run copy. The row cursor skips complete batches;
+                # the metric-frame ordinal handles a failure within a batch.
+                resumed_row_offset = 0
+                pending_metric_count = emitted_metric_count
+                parquet_file = pq.ParquetFile(snapshot_path)
+                for batch in parquet_file.iter_batches(
+                    batch_size=100_000,
+                    columns=requested_columns,
                 ):
-                    if effective_row_offset == row_offset and metric_id in pending_metric_ids:
-                        pending_metric_ids.remove(metric_id)
+                    frame = batch.to_pandas()
+                    batch_start = resumed_row_offset
+                    batch_end = batch_start + len(frame)
+                    if batch_end <= row_offset:
+                        resumed_row_offset = batch_end
+                        del frame
                         continue
-                    yield source, metric_id, batch_index, metric_frame
-                batch_index += 1
-                resumed_row_offset = batch_end
-                del frame
-            if pending_metric_ids:
-                raise RuntimeError(
-                    "stream restart ended before the pending observation metric cursor"
-                )
-            if resumed_row_offset < row_offset:
-                raise RuntimeError(
-                    "stream restart ended before the confirmed observation cursor"
-                )
+
+                    effective_row_offset = batch_start
+                    if batch_start < row_offset:
+                        frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
+                        effective_row_offset = row_offset
+
+                    for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                        source,
+                        frame,
+                        row_offset=effective_row_offset,
+                    ):
+                        if effective_row_offset == row_offset and pending_metric_count > 0:
+                            pending_metric_count -= 1
+                            continue
+                        yield source, metric_id, batch_index, metric_frame
+                    batch_index += 1
+                    resumed_row_offset = batch_end
+                    del frame
+                if pending_metric_count:
+                    raise RuntimeError(
+                        "stream restart ended before the pending observation metric cursor"
+                    ) from reader_error
+                if resumed_row_offset < row_offset:
+                    raise RuntimeError(
+                        "stream restart ended before the confirmed observation cursor"
+                    ) from reader_error
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

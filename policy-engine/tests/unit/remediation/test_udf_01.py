@@ -10,12 +10,15 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,
+    PartAGateManifest,
+    load_manifest,
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import (
     StageId,
     build_default_pipeline_config,
 )
+from polisyos.data_forge.domains.ukraine.orchestrator import UkraineDataOrchestrator
 from polisyos.data_forge.read_api.ukraine import (
     load_verified_stage_artifacts,
     load_verified_stage_output_bytes,
@@ -135,19 +138,39 @@ def test_d4_contract_and_handoff_namespaces_do_not_leak_common_builders() -> Non
 def test_d4_handoff_reaches_existing_read_api_and_scientist_consumer(
     tmp_path: Path,
 ) -> None:
-    config, result, output_path, _, _ = _build_d4_fixture(tmp_path)
-    manifest_path = config.build_root.manifests_dir / "build_run_d4.json"
+    config = build_default_pipeline_config(root=tmp_path / "ukraine")
+    config.server.require_server_for_build = False
+    orchestrator = UkraineDataOrchestrator(config)
+    orchestrator.ensure_layout()
     write_manifest(
-        manifest_path,
+        config.build_root.part_a_gate_manifest_path,
+        PartAGateManifest(status="passed", passed=True),
+    )
+    write_manifest(
+        orchestrator.stage_manifest_path(StageId.D3),
         BuildRunManifest(
-            run_id="d4-udf-01-fixture",
-            stage_id=StageId.D4,
+            run_id="d3-udf-01-prerequisite",
+            stage_id=StageId.D3,
             status="completed",
             started_at="2026-08-26T10:00:00+00:00",
             finished_at="2026-08-26T10:01:00+00:00",
-            outputs=[result.outputs[D4_OUTPUT]],
         ),
     )
+
+    summary = orchestrator.build_stage(StageId.D4)
+    manifest_path = orchestrator.stage_manifest_path(StageId.D4)
+    persisted = load_manifest(manifest_path, BuildRunManifest)
+    output_path = config.build_root.calibration_dir / "d4" / D4_OUTPUT
+
+    assert summary.status == "completed"
+    assert summary.manifest.stage_id is StageId.D4
+    assert persisted.model_dump(mode="json") == summary.manifest.model_dump(mode="json")
+    assert len(persisted.outputs) == 1
+    record = persisted.outputs[0]
+    assert isinstance(record, ArtifactRecord)
+    assert Path(record.path) == output_path
+    assert record.sha256 == hashlib.sha256(output_path.read_bytes()).hexdigest()
+    assert record.size_bytes == output_path.stat().st_size
 
     store = FileSystemCAS(tmp_path / "cas")
     receipt = load_verified_stage_artifacts(
@@ -161,6 +184,6 @@ def test_d4_handoff_reaches_existing_read_api_and_scientist_consumer(
     request = _load_d4_governance_request(admitted_bytes)
 
     assert admitted_bytes == output_path.read_bytes()
-    assert receipt.outputs[D4_OUTPUT].sha256 == result.outputs[D4_OUTPUT].sha256
+    assert receipt.outputs[D4_OUTPUT].sha256 == record.sha256
     assert request.model_dump(mode="json") == EXPECTED_D4_PAYLOAD
     assert "governance_admissibility" in request.may_not_use_for

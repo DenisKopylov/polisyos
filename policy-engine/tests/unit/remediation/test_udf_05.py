@@ -8,15 +8,29 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from polisyos.data_forge.domains.ukraine.demography import load_demography_artifacts
+from polisyos.data_forge.domains.ukraine.demography import (
+    load_demography_artifacts,
+    load_donor_pool,
+    load_reconciled_targets,
+    load_transition_priors,
+)
 from polisyos.data_forge.read_api.ukraine import (
     build_static_aging_state,
+)
+from polisyos.data_forge.read_api.ukraine import (
+    load_demography_artifacts as load_artifacts_from_read_api,
 )
 from polisyos.data_forge.read_api.ukraine import (
     load_demography_artifacts as load_demography_from_read_api,
 )
 from polisyos.data_forge.read_api.ukraine import (
+    load_donor_pool as load_donor_pool_from_read_api,
+)
+from polisyos.data_forge.read_api.ukraine import (
     load_reconciled_targets as load_targets_from_read_api,
+)
+from polisyos.data_forge.read_api.ukraine import (
+    load_transition_priors as load_transition_priors_from_read_api,
 )
 
 _LAYOUT_PATHS = {
@@ -137,6 +151,143 @@ def test_two_complete_layouts_require_explicit_snapshot_selection(tmp_path: Path
     assert selected_legacy.metadata["snapshot"] == "legacy-2026"
     assert selected_legacy.metadata["demography_layout"] == "legacy"
     assert np.array_equal(selected_legacy.target_state_totals, np.array([900.0, 800.0]))
+
+
+@pytest.mark.parametrize(
+    ("reader", "expected"),
+    [
+        (load_reconciled_targets, "legacy-2026"),
+        (load_targets_from_read_api, "legacy-2026"),
+    ],
+)
+def test_target_readers_share_explicit_layout_selection(
+    tmp_path: Path,
+    reader,
+    expected: str,
+) -> None:
+    """Domain and read_api target readers use the same whole-layout selector."""
+    root = tmp_path / "both-layouts"
+    _write_layout(root, "new", snapshot="new-2027")
+    _write_layout(root, "legacy", snapshot="legacy-2026", totals=(900.0, 800.0))
+
+    payload = reader(root, layout="legacy")
+
+    assert payload["metadata"]["snapshot"] == expected
+    assert payload["target_state_totals"] == [900.0, 800.0]
+
+
+@pytest.mark.parametrize(
+    ("reader", "member", "expected"),
+    [
+        (load_transition_priors, "priors", 1.6),
+        (load_transition_priors_from_read_api, "priors", 1.6),
+        (load_donor_pool, "donor", [1001, 1002]),
+        (load_donor_pool_from_read_api, "donor", [1001, 1002]),
+    ],
+)
+def test_sibling_readers_select_the_explicit_layout_as_a_unit(
+    tmp_path: Path,
+    reader,
+    member: str,
+    expected: object,
+) -> None:
+    """Priors and donor readers cannot independently take the first filename."""
+    root = tmp_path / "both-layouts"
+    _write_layout(root, "new", snapshot="new-2027")
+    _write_layout(root, "legacy", snapshot="legacy-2026", prior_scale=2.0)
+
+    payload = reader(root, layout="legacy")
+
+    if member == "priors":
+        assert payload["transition_prior_matrix"][0][0] == expected
+    else:
+        assert payload["donor_record_index"] == expected
+
+
+@pytest.mark.parametrize(
+    "reader",
+    [
+        load_reconciled_targets,
+        load_transition_priors,
+        load_donor_pool,
+        load_demography_artifacts,
+        load_targets_from_read_api,
+        load_transition_priors_from_read_api,
+        load_donor_pool_from_read_api,
+        load_artifacts_from_read_api,
+    ],
+)
+def test_all_readers_refuse_mixed_layouts_and_corrupt_members(
+    tmp_path: Path,
+    reader,
+) -> None:
+    """Every compatibility reader enforces the shared required/optional profile."""
+    mixed = tmp_path / "mixed"
+    _write_json(_path(mixed, "new", "targets"), _targets("new-2027"))
+    _write_json(_path(mixed, "legacy", "priors"), _priors(scale=2.0))
+    with pytest.raises((ValueError, FileNotFoundError)):
+        reader(mixed)
+
+    incomplete = tmp_path / "incomplete"
+    _write_json(_path(incomplete, "new", "targets"), _targets("new-2027"))
+    with pytest.raises((ValueError, FileNotFoundError)):
+        reader(incomplete)
+
+    corrupt = tmp_path / "corrupt"
+    _write_layout(corrupt, "new", snapshot="new-2027")
+    _path(corrupt, "new", "priors").write_text("{not-json", encoding="utf-8")
+    with pytest.raises(ValueError, match="malformed"):
+        reader(corrupt)
+
+    shape_mismatch = tmp_path / "shape-mismatch"
+    _write_json(_path(shape_mismatch, "new", "targets"), _targets("new-2027"))
+    _write_json(
+        _path(shape_mismatch, "new", "priors"),
+        {"transition_prior_matrix": [[1.0]], "allowed_transition_mask": [[True]]},
+    )
+    with pytest.raises(ValueError, match="transition_prior_matrix"):
+        reader(shape_mismatch)
+
+
+def test_optional_donor_is_bound_when_present_and_absent_when_omitted(
+    tmp_path: Path,
+) -> None:
+    """The optional third member follows the selected layout without fallback."""
+    with_donor = tmp_path / "with-donor"
+    _write_layout(with_donor, "new", snapshot="new-2027")
+    assert load_donor_pool(with_donor)["donor_record_index"] == [1001, 1002]
+
+    without_donor = tmp_path / "without-donor"
+    _write_layout(without_donor, "new", snapshot="new-2027", include_donor=False)
+    assert load_donor_pool(without_donor) == {}
+    assert load_demography_artifacts(without_donor).donor_record_index is None
+
+    corrupt_donor = tmp_path / "corrupt-donor"
+    _write_layout(corrupt_donor, "new", snapshot="new-2027")
+    _path(corrupt_donor, "new", "donor").write_text("{not-json", encoding="utf-8")
+    with pytest.raises(ValueError, match="malformed"):
+        load_reconciled_targets(corrupt_donor)
+
+
+def test_member_mutation_during_selection_fails_closed(tmp_path: Path, monkeypatch) -> None:
+    """A mid-call write cannot produce a mixed read selection."""
+    root = tmp_path / "mutating"
+    _write_layout(root, "new", snapshot="new-2027")
+    targets_path = _path(root, "new", "targets")
+    original_read_bytes = Path.read_bytes
+    changed = False
+
+    def mutate_after_target_read(path: Path) -> bytes:
+        nonlocal changed
+        raw = original_read_bytes(path)
+        if path == targets_path and not changed:
+            changed = True
+            path.write_bytes(json.dumps(_targets("replacement")).encode("utf-8"))
+        return raw
+
+    monkeypatch.setattr(Path, "read_bytes", mutate_after_target_read)
+    with pytest.raises(ValueError, match="changed while"):
+        load_demography_artifacts(root)
 
 
 def test_mixed_targets_and_priors_fail_before_component_composition(tmp_path: Path) -> None:

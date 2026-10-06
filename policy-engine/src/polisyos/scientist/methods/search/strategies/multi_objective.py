@@ -249,6 +249,11 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         Indicator availability never changes complete-vector front membership.
         """
         valid = self._admit_objective_rows(evaluations)
+        configured_reference = self._config.ref_point
+        invalid_reference = configured_reference is not None and (
+            (reference := _finite_vector(configured_reference)) is None
+            or len(reference) != len(self._objective_names)
+        )
         if not valid or not self._botorch_ready:
             result = HypervolumeResult(
                 value=None,
@@ -260,6 +265,8 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                     profile="dominated_box_union.float64.maximize.v1",
                 ),
             )
+        elif invalid_reference:
+            result = compute_hypervolume_assessed([], ())
         else:
             points = [tuple(self._objective_vector(evaluation)) for evaluation in valid]
             with self._arbiter.acquire("torch"):
@@ -440,7 +447,10 @@ class MOBayesianOptimizer(BaseSearchStrategy):
 
     def _update_ref_point(self, Y) -> None:
         if self._config.ref_point is not None:
-            self._ref_point = self._torch.tensor(self._config.ref_point, dtype=self._torch.float64)
+            reference = _finite_vector(self._config.ref_point)
+            if reference is None or len(reference) != len(self._objective_names):
+                raise ValueError("invalid_reference_point")
+            self._ref_point = self._torch.tensor(reference, dtype=self._torch.float64)
             if self._device != "cpu":
                 self._ref_point = self._ref_point.to(self._device)
             return

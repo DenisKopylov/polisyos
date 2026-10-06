@@ -76,3 +76,23 @@ def test_actual_zero_and_no_usable_inputs_have_different_assessments():
     assert optimizer.last_hypervolume_assessment.status == "available"
     assert optimizer.compute_hypervolume([]) is None
     assert optimizer.last_hypervolume_assessment.reason == "no_usable_inputs"
+
+
+@pytest.mark.parametrize(
+    "reference",
+    [
+        [10**400, 0, 0],
+        [True, 0, 0],
+        ["broken", 0, 0],
+        [float("nan"), 0, 0],
+        [float("inf"), 0, 0],
+        [0.0, 0.0],
+    ],
+)
+def test_reference_intake_precedes_any_torch_conversion(reference):
+    optimizer = strategy()
+    optimizer._config.ref_point = reference
+    result = optimizer.compute_hypervolume_assessed(rows())
+    assert result.value is None
+    assert result.assessment.reason == "invalid_reference_point"
+    assert optimizer._ref_point is None

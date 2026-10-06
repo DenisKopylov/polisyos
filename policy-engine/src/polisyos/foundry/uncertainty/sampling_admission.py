@@ -198,10 +198,21 @@ def verify_mean_certificate(envelope: UncertaintyEnvelope) -> BoundedIIDMeanCert
     if raw is None:
         return None
     certificate = BoundedIIDMeanCertificate.model_validate(raw)
+    recipe = certificate.evaluator_recipe
+    if (
+        set(recipe) != {"response", "input_name", "metric_id", "threshold"}
+        or recipe["response"] != "indicator_less_than"
+        or not isinstance(recipe["input_name"], str)
+        or not recipe["input_name"]
+        or not isinstance(recipe["metric_id"], str)
+        or not recipe["metric_id"]
+        or type(recipe["threshold"]) not in (int, float)
+    ):
+        raise ValueError("mean estimator evaluator recipe is not canonical")
     response = BoundedIndicatorResponse(
-        input_name=certificate.evaluator_recipe["input_name"],
-        metric_id=certificate.evaluator_recipe["metric_id"],
-        threshold=certificate.evaluator_recipe["threshold"],
+        input_name=recipe["input_name"],
+        metric_id=recipe["metric_id"],
+        threshold=recipe["threshold"],
     )
     plan = BoundedIIDMeanPlan(
         metric_id=certificate.metric_id,

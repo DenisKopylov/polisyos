@@ -518,6 +518,31 @@ def test_bounded_budget_over_declared_maximum_emits_no_certificate():
     assert verify_mean_certificate(result.envelope) is None
 
 
+@pytest.mark.parametrize("corruption", ["response", "extra", "missing", "boolean"])
+def test_mean_certificate_reconciles_entire_canonical_evaluator_recipe(corruption):
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            bounded_iid_mean=BoundedIIDMeanPlan(metric_id="y"), compute_sensitivity=False
+        )
+    ).propagate(BoundedIndicatorResponse("x", "y", 0.5), {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    raw = dict(result.envelope.metadata["mean_estimator_certificate"])
+    recipe = dict(raw["evaluator_recipe"])
+    if corruption == "response":
+        recipe["response"] = "fake_other_response"
+    elif corruption == "extra":
+        recipe["independently_verified"] = True
+    elif corruption == "missing":
+        del recipe["response"]
+    else:
+        recipe["threshold"] = False
+    raw["evaluator_recipe"] = recipe
+    modified = result.envelope.model_copy(
+        update={"metadata": {**result.envelope.metadata, "mean_estimator_certificate": raw}}
+    )
+    with pytest.raises(ValueError, match="recipe"):
+        verify_mean_certificate(modified)
+
+
 def test_draw_reconciliation_rejects_orphan_indices_codes_and_duplicate_outputs():
     from copy import deepcopy
 

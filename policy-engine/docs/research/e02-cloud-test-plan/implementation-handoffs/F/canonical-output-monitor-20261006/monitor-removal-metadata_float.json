@@ -1,0 +1,34 @@
+{
+  "name": "monitor-removal-metadata_float",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py",
+    "metadata_float"
+  ],
+  "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py metadata_float",
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+  "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+  "wall_seconds": 22.498178306996124,
+  "exit_code": 1,
+  "expected_exit_code": 1,
+  "outcome": "FAIL",
+  "deciding_expectation_met": true,
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:tools",
+    "shared_venv_read_only": true
+  },
+  "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.stdout.txt",
+    "sha256": "ca9385ff7958f970b270c639f2fcb6e6a9ba90811e50dae89f49e8a29efec7dd",
+    "bytes": 56641
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "output": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.stdout.txt"
+}

@@ -1,0 +1,43 @@
+2026-10-06 10:46:45 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 10:46:45 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 10:46:45 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 10:46:45 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 10:46:45 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+{
+  "scope": "canonical family-to-runtime descriptor admission; not economic semantics",
+  "runtime_ids": [
+    "adaptive_agent",
+    "income_tax",
+    "labor_market",
+    "queue",
+    "tax_subsidy"
+  ],
+  "families": [
+    {
+      "family_id": "bayes_tax_affine_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'bayes_tax_affine_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    },
+    {
+      "family_id": "bayes_tax_pl_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'bayes_tax_pl_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    },
+    {
+      "family_id": "license_myerson_score_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'license_myerson_score_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    },
+    {
+      "family_id": "license_scoring_reserve_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'license_scoring_reserve_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    }
+  ],
+  "finding_state": "limited",
+  "missing_input": "owner-ratified family certificate-to-state operation mapping"
+}

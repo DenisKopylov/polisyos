@@ -1,0 +1,163 @@
+........................FFF.........                                     [100%]
+=================================== FAILURES ===================================
+______ test_public_execute_cas_snapshot_consumer_uses_bound_profile[None] ______
+
+tmp_path = PosixPath('/workspace/e02-F-20261006-receipts/fry-candidate-v3-tmp/test_public_execute_cas_snapsh0')
+override = None
+
+    @pytest.mark.parametrize("override", [None, 0, 101])
+    def test_public_execute_cas_snapshot_consumer_uses_bound_profile(tmp_path, override):
+        store, report, content = _compile(tmp_path / "cas", seed=17)
+        (registry_edge,) = [
+            x
+            for x in store.get_manifest(report.program_graph_ref).inputs
+            if x.role == "registry_bundle"
+        ]
+        registry_ref = ArtifactRef(
+            artifact_id=registry_edge.artifact_id,
+            kind="core.registry_bundle",
+            media_type="application/json",
+            manifest_profile_sha256=registry_edge.manifest_profile_sha256,
+        )
+        snapshot = put_state_snapshot(store, state=_base_state(), step=0)
+        snapshot_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
+        data_ref = store.put_json(
+            DataSnapshot(data_ref=snapshot_ref),
+            PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        )
+        bindings = store.put_json(
+            FoundryInputBindings(
+                data_snapshot_ref=data_ref,
+                registry_bundle_ref=registry_ref,
+                rules=[],
+                bound_state_snapshot_ref=snapshot_ref,
+            ),
+            PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        )
+        config = FoundryExecConfig() if override is None else FoundryExecConfig(seed=override)
+        fresh = FileSystemCAS(tmp_path / "cas")
+        result = execute_foundry(
+            fresh,
+>           ExecuteRequest(
+                exec_plan_ref=report.exec_plan_ref,
+                input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings.artifact_id),
+                registry_bundle_ref=registry_ref,
+                exec_config=config,
+                welfare_bound_mode="ex_ante",
+            ),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ExecuteRequest
+E       exec_plan_ref
+E         Input should be a valid dictionary or instance of ExecPlanRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E           For further information visit https://errors.pydantic.dev/2.12/v/model_type
+
+tests/unit/foundry/compile/test_treasury_execution.py:369: ValidationError
+_______ test_public_execute_cas_snapshot_consumer_uses_bound_profile[0] ________
+
+tmp_path = PosixPath('/workspace/e02-F-20261006-receipts/fry-candidate-v3-tmp/test_public_execute_cas_snapsh1')
+override = 0
+
+    @pytest.mark.parametrize("override", [None, 0, 101])
+    def test_public_execute_cas_snapshot_consumer_uses_bound_profile(tmp_path, override):
+        store, report, content = _compile(tmp_path / "cas", seed=17)
+        (registry_edge,) = [
+            x
+            for x in store.get_manifest(report.program_graph_ref).inputs
+            if x.role == "registry_bundle"
+        ]
+        registry_ref = ArtifactRef(
+            artifact_id=registry_edge.artifact_id,
+            kind="core.registry_bundle",
+            media_type="application/json",
+            manifest_profile_sha256=registry_edge.manifest_profile_sha256,
+        )
+        snapshot = put_state_snapshot(store, state=_base_state(), step=0)
+        snapshot_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
+        data_ref = store.put_json(
+            DataSnapshot(data_ref=snapshot_ref),
+            PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        )
+        bindings = store.put_json(
+            FoundryInputBindings(
+                data_snapshot_ref=data_ref,
+                registry_bundle_ref=registry_ref,
+                rules=[],
+                bound_state_snapshot_ref=snapshot_ref,
+            ),
+            PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        )
+        config = FoundryExecConfig() if override is None else FoundryExecConfig(seed=override)
+        fresh = FileSystemCAS(tmp_path / "cas")
+        result = execute_foundry(
+            fresh,
+>           ExecuteRequest(
+                exec_plan_ref=report.exec_plan_ref,
+                input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings.artifact_id),
+                registry_bundle_ref=registry_ref,
+                exec_config=config,
+                welfare_bound_mode="ex_ante",
+            ),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ExecuteRequest
+E       exec_plan_ref
+E         Input should be a valid dictionary or instance of ExecPlanRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E           For further information visit https://errors.pydantic.dev/2.12/v/model_type
+
+tests/unit/foundry/compile/test_treasury_execution.py:369: ValidationError
+______ test_public_execute_cas_snapshot_consumer_uses_bound_profile[101] _______
+
+tmp_path = PosixPath('/workspace/e02-F-20261006-receipts/fry-candidate-v3-tmp/test_public_execute_cas_snapsh2')
+override = 101
+
+    @pytest.mark.parametrize("override", [None, 0, 101])
+    def test_public_execute_cas_snapshot_consumer_uses_bound_profile(tmp_path, override):
+        store, report, content = _compile(tmp_path / "cas", seed=17)
+        (registry_edge,) = [
+            x
+            for x in store.get_manifest(report.program_graph_ref).inputs
+            if x.role == "registry_bundle"
+        ]
+        registry_ref = ArtifactRef(
+            artifact_id=registry_edge.artifact_id,
+            kind="core.registry_bundle",
+            media_type="application/json",
+            manifest_profile_sha256=registry_edge.manifest_profile_sha256,
+        )
+        snapshot = put_state_snapshot(store, state=_base_state(), step=0)
+        snapshot_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
+        data_ref = store.put_json(
+            DataSnapshot(data_ref=snapshot_ref),
+            PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        )
+        bindings = store.put_json(
+            FoundryInputBindings(
+                data_snapshot_ref=data_ref,
+                registry_bundle_ref=registry_ref,
+                rules=[],
+                bound_state_snapshot_ref=snapshot_ref,
+            ),
+            PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        )
+        config = FoundryExecConfig() if override is None else FoundryExecConfig(seed=override)
+        fresh = FileSystemCAS(tmp_path / "cas")
+        result = execute_foundry(
+            fresh,
+>           ExecuteRequest(
+                exec_plan_ref=report.exec_plan_ref,
+                input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings.artifact_id),
+                registry_bundle_ref=registry_ref,
+                exec_config=config,
+                welfare_bound_mode="ex_ante",
+            ),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ExecuteRequest
+E       exec_plan_ref
+E         Input should be a valid dictionary or instance of ExecPlanRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E           For further information visit https://errors.pydantic.dev/2.12/v/model_type
+
+tests/unit/foundry/compile/test_treasury_execution.py:369: ValidationError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[None]
+FAILED tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[0]
+FAILED tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[101]
+3 failed, 33 passed in 24.22s

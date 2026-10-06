@@ -33,7 +33,7 @@ from polisyos.foundry.methods.backends.validated import (
     split_validated_execution_params,
     validated_bound_to_envelopes,
 )
-from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature, SlotType
 from polisyos.foundry.methods.equivalence import (
     EquivalenceCertificateResolver,
     assess_certificate_applicability,
@@ -693,12 +693,19 @@ class MethodDispatcher:
                     },
                 )
 
-        # Basic anomaly detection: NaN/Inf + key sanity (vectorised, near-zero cost)
+        # Slot names are canonical; backend aliases/sidecars retain numeric diagnostics.
         expected_keys: set[str] | None = None
         if signature.output_slots:
             expected_keys = {s.name for s in signature.output_slots}
         monitor = get_output_monitor()
-        flags = monitor.check_basic(result.output, expected_keys=expected_keys)
+        flags = monitor.check_output_contract(
+            slot_outputs=result.slot_outputs,
+            raw_output=result.output,
+            expected_keys=expected_keys,
+            array_keys={
+                s.name for s in signature.output_slots if s.slot_type is not SlotType.SCALAR
+            },
+        )
         if flags:
             import warnings
 

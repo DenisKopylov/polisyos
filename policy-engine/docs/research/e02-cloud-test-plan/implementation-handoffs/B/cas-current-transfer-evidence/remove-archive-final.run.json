@@ -1,0 +1,28 @@
+{
+  "target_sha": "df2fd08f2550c2e3ff78b5656058484f928a7323",
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+    "--basetemp=_build/e02-B-current-cas-generation/remove-archive-final-tmp",
+    "-o",
+    "cache_dir=_build/e02-B-current-cas-generation/remove-archive-final-cache",
+    "--junitxml=_build/e02-B-current-cas-generation/raw/remove-archive-final.xml"
+  ],
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "Python 3.14.2",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "PYTHONPATH": "src",
+  "property_removal": "cas-private-archive",
+  "returncode": 1,
+  "wall_s": 1.5227505400107475,
+  "max_rss_kib": 90104,
+  "rusage_boundary": "os.wait4 of exact pytest PID, kernel accounting for that child and descendants; not VM peak",
+  "runner_quota": null
+}

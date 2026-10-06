@@ -1120,8 +1120,12 @@
   },
   "independent_review": {
     "reviewer": "/root/cas_probe",
-    "frozen_source": "b7d966af6551fc0ff63d3a830c70fe300c320967",
-    "source_only_message": "Full generator/README/release/four outputs read; narrow contract nonblocking, no reviewer execution. Immutable reviewer custody packet pending; this message is not a future Git receipt."
+    "receipt_sha": "e2ba66ec56c2eafb0ae285d5a27f9cdcd9e140fb",
+    "receipt_tree_sha": "a575455bf20dbc0be2a344738db898a0e053b998",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review.json",
+    "bytes": 6048,
+    "sha256": "b79842b9189403574da44447a8d1e29355e6c49dd7ab3f636277208c5dd91280",
+    "scope": "Frozenb7 full source/all4stubAST/5468source-test blobmap and37 peerobjects456406B reconciled; actualchecker0 and genuinecopyDRIFT1 parsed/read. No independent reviewer execution, no root/G global candidate or gates closure."
   },
   "limitations_and_next_owner": [
     "Initial d6 explicit pyproject config was not actual repository Ruff owner; its2drift/producer layout outcomes do not establish proper freshness.",
@@ -1138,5 +1142,9 @@
     "Final producer actual066 and final checker/styles/negative actualb7 are separate recorded source points. No dry-run or broad runtime outcome is relabeled to a future source.",
     "A/C protected consumers are unchanged by this companion; typed crossunit/production-data limits remain active."
   ],
-  "created_at_utc": "2026-10-06T22:04:29.217090+00:00"
+  "created_at_utc": "2026-10-06T22:04:29.217090+00:00",
+  "metadata_forward_history": {
+    "prior_receipt_sha": "ac341467b72c3be8a5905e223704daeafe73e3e8",
+    "change": "Bind now immutable independent source/evidence review; all implementation source, inputs, checks, footprints and actual deciding bytes unchanged."
+  }
 }

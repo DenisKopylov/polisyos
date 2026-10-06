@@ -452,6 +452,7 @@ class SearchController:
         elif policy_evaluation is not None:
             effective_objective = policy_evaluation.legacy_scalar_proxy
             effective_details = policy_evaluation.as_legacy_objectives()
+            stage_b_result = {**stage_b_result, "policy_evaluation": policy_evaluation}
 
         is_sentinel = extract_sentinel_metadata(candidate) is not None
         feedback = stage_b_result.get("feedback")

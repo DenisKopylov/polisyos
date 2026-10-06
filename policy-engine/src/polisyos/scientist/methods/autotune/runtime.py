@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
@@ -82,7 +82,7 @@ def seed_loop_baseline(
     evaluation_ref = persist_benchmark_evaluation(
         active_store,
         evaluation,
-        inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+        inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
     )
     return active_registry.seed_baseline(
         loop_id,

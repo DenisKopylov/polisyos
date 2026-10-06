@@ -244,7 +244,6 @@
     "bytes": 3197,
     "sha256": "688533428d1c1db6ac0785e3ab6994e6862097ce305de523161993911066911a"
   },
-  "initial_fourteen_controls_qualification": "Only the two narrow style checks and selected AST parity ran; original five author controls are preserved at369, not repeated or reattributed to final source",
   "accepted_cache_input": {
     "path": "/home/agent/.cache/uv",
     "role": "Root-supplied explicit shared readonly input",
@@ -262,11 +261,24 @@
       "role": "Separate EXE full source review, not runtime"
     },
     "historical73": {
-      "source_ref": "3da02f260f40c64b8bdaf80f7f8324bfbd442cfd",
-      "role": "Historical source-only guard flow; exact path needs verified locator below",
-      "locator_qualification": "Published EXE receipt source-only head; root resolves exact retained-review path, no runtime proof"
+      "receipt": {
+        "source_ref": "3da02f260f40c64b8bdaf80f7f8324bfbd442cfd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retained-review.json",
+        "git_blob": "117072a7a19968de8a4cd829ad759c16e017e960",
+        "bytes": 9746,
+        "sha256": "17d61556174220071e2fdb533ff93fe90ebb83b6c4aed3a0ae14c5a30ccd490f"
+      },
+      "role": "Historical source-only guard flow; actual cache/offline completeness not established"
     },
-    "current_be836": "Independent EXE delta review requested; canonical receipt pending publication"
+    "current_be836": {
+      "receipt": {
+        "source_ref": "e0884a5d4ac0a7f0a58f3db5336ef30275995fc5:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-explicit-cache-review.json",
+        "git_blob": "c68949ad432af3fdbcb8408f9e34192e02c829d9",
+        "bytes": 9996,
+        "sha256": "012bdacbe93b8607eded2433c63d7b798098a0b1760b8c8ee40d716ac463f882"
+      },
+      "verdict": "NONBLOCKING source-only finite explicit-cache profile",
+      "runtime": "8UNRUN; foreign reviewer ran no query/gate/build/native"
+    }
   },
   "limitations_and_next_owner": [
     "Root must supply exact settled clean candidate and explicit cache flag before any actual gate",
@@ -276,5 +288,6 @@
     "Old73 relative-cache metadata failure and106 style observation retained; no immutable gate result invented",
     "Full changed research py/pyi and real imported stub mypy may be red; preserve literal deciding outputs",
     "No root/product/test writes or new native/build/gate during this preparation"
-  ]
+  ],
+  "prior_controls_qualification": "Only the two narrow style checks and selected AST parity ran; original five author controls are preserved at369, not repeated or reattributed to final source"
 }

@@ -40,8 +40,8 @@ def test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen(
     payload = _serialize_funnel_outcome(outcome)
     state = ExperimentState(run_id="run-1", params={"_funnel_outcome": payload})
     store_path = tmp_path / "cas"
-    ref = FileSystemCAS(store_path).put_json(
-        state.model_dump(mode="json"),
+    ref = FileSystemCAS(store_path).put_bytes(
+        state.model_dump_json().encode("utf-8"),
         PutOptions(kind="scientist.experiment_state", media_type="application/json"),
     )
     reopened = ExperimentState.model_validate_json(FileSystemCAS(store_path).get_bytes(ref))

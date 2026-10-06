@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Generator
 from dataclasses import replace
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -41,6 +43,24 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
     _fixture_bearer,
     _install_bound_test_step_up,
 )
+
+
+@pytest.fixture
+def runtime_api_env(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Generator[dict[str, Any]]:
+    from tests._helpers import runtime_http
+    from tests._helpers.bounded_run_catalog import bind_bounded_run_api_catalog
+
+    if runtime_http.TestClient is None:
+        pytest.skip("fastapi is not installed")
+    bind_bounded_run_api_catalog(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    env = runtime_http.build_runtime_api_env(tmp_path, include_test_client=True)
+    try:
+        yield env
+    finally:
+        runtime_http.close_runtime_api_env(env)
 
 
 def _read_first_sse_snapshot(client: Any, path: str) -> dict[str, Any]:

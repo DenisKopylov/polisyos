@@ -21,7 +21,13 @@ Bayesian и multi-objective контуров.
 
 - **Resource arbitration** — лимиты памяти/ресурсов для дорогих strategy paths.
 
-## Public API
+## Internal API
+
+Этот дочерний пакет является internal по
+[public-surface manifest](../../../../../../architecture/public_surface/contract.toml).
+Перечисленные экспорты предназначены для внутренних callers; `__all__` не
+назначает им статус `public_stable`. Публичные search aliases определены отдельно
+в root facade `polisyos.scientist` и описаны в [search README](../README.md#internal-entrypoints).
 
 - `SearchStrategy`, `BaseSearchStrategy`, `StrategyAdapter`
 - `SearchSpace`, `ParameterCodec`, `ScalarParameterCodec`

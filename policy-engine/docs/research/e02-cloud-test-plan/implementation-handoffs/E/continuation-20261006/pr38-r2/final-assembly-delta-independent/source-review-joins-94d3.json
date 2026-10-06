@@ -1,0 +1,966 @@
+{
+  "current_source": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+      "git_blob": "1d0d243ada1d27ec2656c56a5976fe6d70593ffd",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+      "git_blob": "bf18b5670034762c0b86d7bc5cc9ab192e949ddc",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1914,
+      "sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5",
+      "git_blob": "d57aba89fb4df053e0cd03c32c863a0cf9a7b426",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "bytes": 2105,
+      "sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e",
+      "git_blob": "56fba4ace972656f62ebc22847252846cc5b1e5f",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "bytes": 4536,
+      "sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de",
+      "git_blob": "c3c315bda7fa73a72932a4fd3dcf772338a50475",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "bytes": 2217,
+      "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "git_blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 5379,
+      "sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c",
+      "git_blob": "091375f9c76d80e7e6385833866fe7e507446244",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 3397,
+      "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4",
+      "git_blob": "06000c239bd2ec7fd8af3abf1575ed40a598dd1a",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20616,
+      "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+      "git_blob": "638c484b28cdb8b2cdbc45e5755a9b315943abe9",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 192619,
+      "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+      "git_blob": "25b30b9efa5b8672928caa9c9b2ef7bdbb5b7ce0",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 5641,
+      "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8",
+      "git_blob": "0c393aa965fa8bcbff4f72b97ad6e4efcf8f2d4e",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "bytes": 5316,
+      "sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938",
+      "git_blob": "b933b4911da23c15617fabeabbb7a3470f82d5f2",
+      "source": "cfd79255aab85544082fcf24f93db894202fbfa2",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "owner": "backtest author / DDM independent reviewer"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 23905,
+      "sha256": "7e010e09d0c11ea8c9cf68c25b698eb9862171b81f68e50744caf087a8f66b6d",
+      "git_blob": "28a68698dd944e32408542f9272a7f1d1f217841",
+      "source": "06aec834d817b1cc90d98308f0755729a4153031",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/independent-review-06aec834.json",
+      "owner": "FRC author / independent CAL harness or DoE collector reviewer"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 38197,
+      "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc",
+      "git_blob": "20331fa1cd85acd046f2a36cc5c563662ed0b9eb",
+      "source": "2f7e7e12516dd98678903c5b4a89553a28b08608",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-independent/review.json",
+      "owner": "FRC author / independent CAL harness or DoE collector reviewer"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+      "bytes": 7038,
+      "sha256": "303e191ba53d4e5a6dd5f0b449d2146966165db62a596aeaa437cd5ef0560383",
+      "git_blob": "4c82a2b20b04511ac657b9e2d101dda649153dfa",
+      "source": "2f7e7e12516dd98678903c5b4a89553a28b08608",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-independent/review.json",
+      "owner": "FRC author / independent CAL harness or DoE collector reviewer"
+    }
+  ],
+  "retained_prior_joins": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-sampling-law.toml",
+      "prior_blob": "64e4843cbff602df22d87cad76654a7dcb9217fb",
+      "current_blob": "64e4843cbff602df22d87cad76654a7dcb9217fb",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "prior_blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+      "current_blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "prior_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+      "current_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+      "prior_blob": "64bc7fd577e919580aab990138947cd8d6b9c830",
+      "current_blob": "64bc7fd577e919580aab990138947cd8d6b9c830",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml",
+      "prior_blob": "028667a624665b21a97d4c465362087ce7528587",
+      "current_blob": "028667a624665b21a97d4c465362087ce7528587",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "prior_blob": "64666489a64c671d65c0aecfd18089581bd905e0",
+      "current_blob": "64666489a64c671d65c0aecfd18089581bd905e0",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "prior_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+      "current_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "prior_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+      "current_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+      "prior_blob": "e637c2c06523497a3992c9739c9600cb2bb3812f",
+      "current_blob": "e637c2c06523497a3992c9739c9600cb2bb3812f",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+      "prior_blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+      "current_blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "prior_blob": "d1305a7eb8d9fd94a74117d73302c392c565ae31",
+      "current_blob": "d1305a7eb8d9fd94a74117d73302c392c565ae31",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "prior_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "current_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "prior_blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+      "current_blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "prior_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "current_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+      "prior_blob": "21bd1097123237519d17ae9a0555f9c33a40dc1e",
+      "current_blob": "21bd1097123237519d17ae9a0555f9c33a40dc1e",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/README.md",
+      "prior_blob": "d523b4b733da5023e8add28885c10b8b7b4be2a5",
+      "current_blob": "d523b4b733da5023e8add28885c10b8b7b4be2a5",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "prior_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+      "current_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+      "prior_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+      "current_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+      "prior_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+      "current_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+      "prior_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+      "current_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+      "prior_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+      "current_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+      "prior_blob": "36d32874fc68496d690c110ad6411e47a5ed6977",
+      "current_blob": "36d32874fc68496d690c110ad6411e47a5ed6977",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "prior_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+      "current_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+      "prior_blob": "9801f945bb9cf91d39f1766bb77ba6bc8597b3ec",
+      "current_blob": "9801f945bb9cf91d39f1766bb77ba6bc8597b3ec",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "prior_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+      "current_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "prior_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+      "current_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+      "prior_blob": "81c11583e308041d9e026db275a0436a7a521eec",
+      "current_blob": "81c11583e308041d9e026db275a0436a7a521eec",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml",
+      "prior_blob": "56270953b3173a37cd77fa39b82d3420c7db7933",
+      "current_blob": "56270953b3173a37cd77fa39b82d3420c7db7933",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "prior_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+      "current_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "prior_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+      "current_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+      "prior_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+      "current_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py",
+      "prior_blob": "b3d55a28f1345e7d7286883345aa98bf03ac76f1",
+      "current_blob": "b3d55a28f1345e7d7286883345aa98bf03ac76f1",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "prior_blob": "46dca4dc8b5f9fd623b089d8f92d7db668adde57",
+      "current_blob": "46dca4dc8b5f9fd623b089d8f92d7db668adde57",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "prior_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "current_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "prior_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "current_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "prior_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+      "current_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "prior_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+      "current_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml",
+      "prior_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+      "current_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "prior_blob": "6d55aad4d5b25d1851fd626d863718ee7fefc9b7",
+      "current_blob": "25b30b9efa5b8672928caa9c9b2ef7bdbb5b7ce0",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "prior_blob": "4898ce5f70c3ba917983550b218d68d0d5da49cc",
+      "current_blob": "4898ce5f70c3ba917983550b218d68d0d5da49cc",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+      "prior_blob": "704355fada8f62da6f71d3f2049370b5ea30b461",
+      "current_blob": "704355fada8f62da6f71d3f2049370b5ea30b461",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-empirical-law.toml",
+      "prior_blob": "0ef411ffdcd7a4e2887277d8a52728feac6432cc",
+      "current_blob": "0ef411ffdcd7a4e2887277d8a52728feac6432cc",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/README.md",
+      "prior_blob": "85c8915809fbf8734e4fff0664dfe627449f2c69",
+      "current_blob": "85c8915809fbf8734e4fff0664dfe627449f2c69",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+      "prior_blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+      "current_blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-legacy-consumer.toml",
+      "prior_blob": "93f6304146f639edfb8c6c2f0ca99489ccf6cc36",
+      "current_blob": "93f6304146f639edfb8c6c2f0ca99489ccf6cc36",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "prior_blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+      "current_blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+      "prior_blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+      "current_blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "prior_blob": "941e326c19c3823a82756fb9053746b8aed05510",
+      "current_blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "prior_blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+      "current_blob": "06000c239bd2ec7fd8af3abf1575ed40a598dd1a",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "prior_blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+      "current_blob": "638c484b28cdb8b2cdbc45e5755a9b315943abe9",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "prior_blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "current_blob": "0c393aa965fa8bcbff4f72b97ad6e4efcf8f2d4e",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "prior_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+      "current_blob": "1d0d243ada1d27ec2656c56a5976fe6d70593ffd",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "prior_blob": "2f7c1139a076177051d5214031a3747bb3548a6b",
+      "current_blob": "bf18b5670034762c0b86d7bc5cc9ab192e949ddc",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "prior_blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+      "current_blob": "091375f9c76d80e7e6385833866fe7e507446244",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+      "prior_blob": "fbcd5df0ea0115683da3c2216bd00e3e2274d489",
+      "current_blob": "fbcd5df0ea0115683da3c2216bd00e3e2274d489",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "prior_blob": "dd18e0111e5d19b3db6dc0044ea63f5a2e9c5abf",
+      "current_blob": "d57aba89fb4df053e0cd03c32c863a0cf9a7b426",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml",
+      "prior_blob": "206e3a53397eef556e878c008a63cab9a5bc3cf3",
+      "current_blob": "206e3a53397eef556e878c008a63cab9a5bc3cf3",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "prior_blob": "398da121a350921287fe4dee0e1ad7e7226d63f2",
+      "current_blob": "398da121a350921287fe4dee0e1ad7e7226d63f2",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+      "prior_blob": "1699b60fe0ea1e65ccb814966528e2b90ba422b1",
+      "current_blob": "1699b60fe0ea1e65ccb814966528e2b90ba422b1",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "prior_blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+      "current_blob": "c3c315bda7fa73a72932a4fd3dcf772338a50475",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "prior_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "current_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "prior_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+      "current_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "prior_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+      "current_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-runtime-plan-admission.toml",
+      "prior_blob": "b361c01f5dc710aada5b67b81ee3e338b498fbe0",
+      "current_blob": "b361c01f5dc710aada5b67b81ee3e338b498fbe0",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "prior_blob": "d1305a7eb8d9fd94a74117d73302c392c565ae31",
+      "current_blob": "d1305a7eb8d9fd94a74117d73302c392c565ae31",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "prior_blob": "d8a97a0995175a651edf81d7324ec7fea670a558",
+      "current_blob": "d8a97a0995175a651edf81d7324ec7fea670a558",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "prior_blob": "b86c9df1447b8621f6f9b776eeb33ba59674d31a",
+      "current_blob": "b86c9df1447b8621f6f9b776eeb33ba59674d31a",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "prior_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "current_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "prior_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+      "current_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "prior_blob": "eebd843dc9be7678b1ec5fc2b5276225b2e9dd61",
+      "current_blob": "eebd843dc9be7678b1ec5fc2b5276225b2e9dd61",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "prior_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+      "current_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "prior_blob": "6d28ba31e9df39ef21be5ba2514c6116b29bed3d",
+      "current_blob": "6d28ba31e9df39ef21be5ba2514c6116b29bed3d",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py",
+      "prior_blob": "6cdb769e374597f5fefc8c3ceeded814d611241d",
+      "current_blob": "6cdb769e374597f5fefc8c3ceeded814d611241d",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "prior_blob": "dd18e0111e5d19b3db6dc0044ea63f5a2e9c5abf",
+      "current_blob": "d57aba89fb4df053e0cd03c32c863a0cf9a7b426",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+      "prior_blob": "21bd1097123237519d17ae9a0555f9c33a40dc1e",
+      "current_blob": "21bd1097123237519d17ae9a0555f9c33a40dc1e",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "prior_blob": "398da121a350921287fe4dee0e1ad7e7226d63f2",
+      "current_blob": "398da121a350921287fe4dee0e1ad7e7226d63f2",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+      "prior_blob": "1699b60fe0ea1e65ccb814966528e2b90ba422b1",
+      "current_blob": "1699b60fe0ea1e65ccb814966528e2b90ba422b1",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+      "prior_blob": "fbcd5df0ea0115683da3c2216bd00e3e2274d489",
+      "current_blob": "fbcd5df0ea0115683da3c2216bd00e3e2274d489",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-uncertainty-evidence-facade.toml",
+      "prior_blob": "c0bba917f7e82fbfbb6d60324264e92dfd17eca4",
+      "current_blob": "c0bba917f7e82fbfbb6d60324264e92dfd17eca4",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+      "prior_blob": "61272726907b340c1d1d7a1c85c82f0c5feb3665",
+      "current_blob": "4c82a2b20b04511ac657b9e2d101dda649153dfa",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "prior_blob": "7a3612828cd5cd4edc5a2bf48545bf64dab6b1fc",
+      "current_blob": "28a68698dd944e32408542f9272a7f1d1f217841",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "prior_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+      "current_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "prior_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+      "current_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "prior_blob": "7a3612828cd5cd4edc5a2bf48545bf64dab6b1fc",
+      "current_blob": "28a68698dd944e32408542f9272a7f1d1f217841",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "prior_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+      "current_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "prior_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+      "current_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+      "prior_blob": "61272726907b340c1d1d7a1c85c82f0c5feb3665",
+      "current_blob": "4c82a2b20b04511ac657b9e2d101dda649153dfa",
+      "unchanged": false,
+      "basis": "superseded only by exact independently reviewed canonical facade companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "prior_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+      "current_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "prior_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+      "current_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "prior_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "current_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "prior_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "current_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "prior_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "current_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "prior_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "current_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "prior_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+      "current_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/verify.py",
+      "prior_blob": "c8c884f8edafdcf9f63d6572cb41a2929f3a64a9",
+      "current_blob": "c8c884f8edafdcf9f63d6572cb41a2929f3a64a9",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "prior_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+      "current_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/package.json",
+      "prior_blob": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "current_blob": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    },
+    {
+      "path": "policy-engine/pnpm-lock.yaml",
+      "prior_blob": "095a555d9a1eb173732f409550d5a1436c3be861",
+      "current_blob": "095a555d9a1eb173732f409550d5a1436c3be861",
+      "unchanged": true,
+      "basis": "prior independent assembly exact blob retained"
+    }
+  ],
+  "independent_reuse": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/review.json",
+      "bytes": 20105,
+      "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec",
+      "git_blob": "35d76948c14f5dd9210a5f4ab368ec940a94d913",
+      "family": "CAL/DDM",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-independent-review-f07.json",
+      "bytes": 16838,
+      "sha256": "5efd1bbc2f423a33918aa8c74dd905c3577ff562314ced7a93ca75cb9f467ba5",
+      "git_blob": "de0b20c230f5b87d6a3cf8982c5b3d86cf02ec5e",
+      "family": "DoE",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/review.json",
+      "bytes": 6948,
+      "sha256": "6addb4521bd2d637a8075d416a363e993780fdeedf8778d8e50c08cc8ac8e7e3",
+      "git_blob": "185e022129f53bb7d36c6b760d4f1706321cadaf",
+      "family": "MC",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/review.json",
+      "bytes": 47288,
+      "sha256": "0b9341bb2fdd27d0568b7557390dc553f65447e7127949e97c61134e5517a805",
+      "git_blob": "6d9e615e942b1fb5d8d0128de24a3b1b8bc5a0f0",
+      "family": "PCL",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+      "bytes": 50351,
+      "sha256": "1eae3da73b365a740e90f8b565b9667d55a545726c3ed8ec441d0e8868b3a5f9",
+      "git_blob": "a4abbb1069104ebbe7bee0e51c235984641348cc",
+      "family": "BKT",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+      "bytes": 14831,
+      "sha256": "639ea31dbd960c6985e87056d360763e54d78db8f07299df7c91fdca771cd12b",
+      "git_blob": "44c22f68b58aa585808d278880f8da825dad6c4c",
+      "family": "FRC",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/welfare-independent-review-884681.json",
+      "bytes": 17274,
+      "sha256": "fbc90699b4135f4fb6df07e2bfdcf06e5cb163755fe97ae739b9fd52d1ec25c9",
+      "git_blob": "2ffb97f33ffd0f1960ee301415b9e403c8513b34",
+      "family": "Welfare",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/legacy-consumer-independent-review-1e942.json",
+      "bytes": 13984,
+      "sha256": "b38e81902342c3f88edfff0c319bf1938f45ce1b8354e7a7888da10378fed401",
+      "git_blob": "b06c3beda43bb2ad85066e6910cb897efc9a81bb",
+      "family": "Legacy B197",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/review.json",
+      "bytes": 7290,
+      "sha256": "d913dba4d01866a46dc414c568128465ea3d1fce283621c766a19248ca1f45c7",
+      "git_blob": "1b7cacb1044d7512500a4810abcccab731aeaab0",
+      "family": "Common law guard",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review-r5.json",
+      "bytes": 5732,
+      "sha256": "2b79be60d9624114937ee4436b81ae3ffd09ab9d81937339b6d016c9d3495399",
+      "git_blob": "8d6ca505a68e2cf9d7281b3c93e1044275323a3c",
+      "family": "Canonical routing/metadata",
+      "basis": "unchanged independent receipt; reuse source identities, not historical check counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "bytes": 14630,
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b",
+      "git_blob": "b50eda7fd82fa88bda6ad7bfe34357186f501a8e",
+      "family": "DoE mutable-plan delta",
+      "basis": "own independent70c review; unchanged complete source blobs"
+    }
+  ],
+  "consumer_body_AST": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "old_sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98",
+      "new_sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+      "nonimport_AST_sha256": "bcd4a6dcf6deb28878a150720e1934f334a7ce9a812d006be73e300d3ee3fd54",
+      "nonimport_AST_equal": true,
+      "delta_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "old_sha256": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f",
+      "new_sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+      "nonimport_AST_sha256": "1cb7da1970afb6fc3060855c5f0ad005dff9f5e03bc797751374fcc59f55d9ae",
+      "nonimport_AST_equal": true,
+      "delta_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json"
+    }
+  ],
+  "fixed_CAL_UQ_source_wholeblob_paths": [
+    "policy-engine/src/polisyos/foundry/calibration/README.md",
+    "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/calibration/auxiliary.py",
+    "policy-engine/src/polisyos/foundry/calibration/bijectors.py",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+    "policy-engine/src/polisyos/foundry/calibration/dp_ci.py",
+    "policy-engine/src/polisyos/foundry/calibration/fabric_quality.py",
+    "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+    "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+    "policy-engine/src/polisyos/foundry/calibration/loss.py",
+    "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+    "policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+    "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "policy-engine/src/polisyos/foundry/calibration/report.py",
+    "policy-engine/src/polisyos/foundry/calibration/robust_set_selector.py",
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/fabric_quality.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sensitivity.py"
+  ]
+}

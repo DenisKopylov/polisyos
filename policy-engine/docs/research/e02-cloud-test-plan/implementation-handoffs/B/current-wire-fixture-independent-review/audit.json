@@ -1,0 +1,597 @@
+{
+  "result": "PASS_BOUNDED_SOURCE_AND_CAPTURED_OUTPUT_CONSISTENCY",
+  "mode": "Read-only Git/AST/hash/XML; no product imports, decoder or pytest execution",
+  "base_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+  "candidate_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "candidate_tree": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+  "changed_tracked_paths": [
+    "policy-engine/tests/unit/remediation/test_wire_01.py"
+  ],
+  "source_changed_paths": [],
+  "ast": {
+    "all_other_module_statements_identical": true,
+    "original_assertions": 8,
+    "candidate_assertions": 15,
+    "all_original_assertions_preserved": true,
+    "old_assertion_source": [
+      "assert encoded_ref['_type'] == 'model'",
+      "assert encoded_ref['module'] == 'polisyos.core.artifacts.manifest'",
+      "assert encoded_ref['qualname'] == 'ArtifactRef'",
+      "assert encoded_id['_type'] == 'model'",
+      "assert encoded_id['module'] == 'polisyos.core.artifacts.ids'",
+      "assert encoded_id['qualname'] == 'ArtifactID'",
+      "assert type(restored.inputs['input']) is ArtifactRef",
+      "assert type(restored.inputs['input'].artifact_id) is ArtifactID"
+    ]
+  },
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "bytes": 32381,
+        "sha256": "32e552ede3c755de0577e934ffb80f8a30dfea79f4b1dd08c1b66124b08d9b05"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "bytes": 32381,
+        "sha256": "32e552ede3c755de0577e934ffb80f8a30dfea79f4b1dd08c1b66124b08d9b05"
+      },
+      "same_bytes": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "bytes": 16009,
+        "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "bytes": 16009,
+        "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f"
+      },
+      "same_bytes": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "bytes": 10251,
+        "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "bytes": 10251,
+        "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03"
+      },
+      "same_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "bytes": 79312,
+        "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "bytes": 55247,
+        "sha256": "15f9c9e09afdb01561a586ac52d003aff551b78c7c33b15777c625b4c3bcda27"
+      },
+      "same_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "bytes": 17554,
+        "sha256": "62fb2e57ba2a7fda2cd5832c5d76a586f0642252f15a0488e60602c7177a0814"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "bytes": 17516,
+        "sha256": "4ab2dbf51ce6b41d4b091557aca6794429cc526696f85632a970c94cca14309e"
+      },
+      "same_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "bytes": 2794,
+        "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "bytes": 2794,
+        "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6"
+      },
+      "same_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "bytes": 12758,
+        "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "bytes": 12758,
+        "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+      },
+      "same_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+        "bytes": 3769,
+        "sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+        "bytes": 3769,
+        "sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9"
+      },
+      "same_bytes": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "root4e": {
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+        "bytes": 10466,
+        "sha256": "0d465e83ba5fe77e37be0d8ceacda1a5c5fc2ad15ec1b1878d748641a6a07421"
+      },
+      "candidate": {
+        "source_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+        "bytes": 12091,
+        "sha256": "20a9f68b15462ca6e20a2ffa602828a1b64354a2457f2cc18cb8fed70430e507"
+      },
+      "same_bytes": false
+    }
+  ],
+  "root4e_junit_input": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+    "bytes": 1333443,
+    "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b",
+    "scope": "Captured root execution, not runtime executed by this reviewer"
+  },
+  "root4e_exact_cases": [
+    {
+      "attributes": {
+        "classname": "tests.unit.remediation.test_wire_01",
+        "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native]",
+        "time": "0.001"
+      },
+      "reports": [
+        {
+          "tag": "failure",
+          "attributes": {
+            "message": "KeyError: 'inputs'"
+          },
+          "text": "@pytest.mark.usefixtures(\"_wire_backend\")\n    def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:\n        ref = _artifact_ref()\n        state = ExperimentState(run_id=\"wire-01-artifact-tags\", inputs={\"input\": ref})\n    \n        payload = serialize_state(state)\n        encoded = serialization_module._loads(payload)\n>       encoded_ref = encoded[\"inputs\"][\"input\"]\n                      ^^^^^^^^^^^^^^^^^\nE       KeyError: 'inputs'\n\ntests/unit/remediation/test_wire_01.py:259: KeyError"
+        }
+      ]
+    },
+    {
+      "attributes": {
+        "classname": "tests.unit.remediation.test_wire_01",
+        "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib]",
+        "time": "0.001"
+      },
+      "reports": [
+        {
+          "tag": "failure",
+          "attributes": {
+            "message": "KeyError: 'inputs'"
+          },
+          "text": "@pytest.mark.usefixtures(\"_wire_backend\")\n    def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:\n        ref = _artifact_ref()\n        state = ExperimentState(run_id=\"wire-01-artifact-tags\", inputs={\"input\": ref})\n    \n        payload = serialize_state(state)\n        encoded = serialization_module._loads(payload)\n>       encoded_ref = encoded[\"inputs\"][\"input\"]\n                      ^^^^^^^^^^^^^^^^^\nE       KeyError: 'inputs'\n\ntests/unit/remediation/test_wire_01.py:259: KeyError"
+        }
+      ]
+    }
+  ],
+  "root4e_selected_whole_file_counts": {
+    "tests.unit.remediation.test_wire_01": {
+      "PASS": 49,
+      "FAIL": 2
+    },
+    "tests.unit.scientist.orchestration.engine.runner.test_serialization": {
+      "PASS": 32
+    },
+    "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02": {
+      "PASS": 32
+    }
+  },
+  "root4e_actual_worker_cases": [
+    {
+      "attributes": {
+        "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+        "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]",
+        "time": "0.165"
+      },
+      "grade": "PASS"
+    },
+    {
+      "attributes": {
+        "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+        "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]",
+        "time": "0.181"
+      },
+      "grade": "PASS"
+    }
+  ],
+  "author_evidence_audit": {
+    "publication_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+    "publication_tree": "b59fa4c28479e538ef1fef9c3de037520ffac28f",
+    "handoff": {
+      "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer.json",
+      "bytes": 46697,
+      "sha256": "dd7f6a6f323c574ab9371ef6e51a5e2144cefe9cf941cfdd2307361c14d71ddb"
+    },
+    "bound_companion_count": 18,
+    "bound_companion_bytes": 165329,
+    "bound_companions": [
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/actual-profiles.json",
+        "bytes": 37760,
+        "sha256": "d169a195af4ff3838d89588227b5053f25defc499e1a8f106789c5b54f43fe13"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/diff.json",
+        "bytes": 627,
+        "sha256": "00b9160c0a9e26e69246d4eabf33f4edf6153426c7bde98e8c053b01a22147b9"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/diff.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/format.json",
+        "bytes": 899,
+        "sha256": "00317eed0681ff258176c9086047ce7996593cd854ca801bcd428e0fbbc88135"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/format.txt",
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.json",
+        "bytes": 1549,
+        "sha256": "07f5d8959cda2be985680ed64f5b8daadb7026d5038e2c8f2a1b212824e5307c"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.txt",
+        "bytes": 18996,
+        "sha256": "1dabd8011436c8dce2b59168be502b34b806b28e294e89d77cac6243979df15c"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.xml",
+        "bytes": 19801,
+        "sha256": "8e5621923e0526a34bd3f56ff65bccd837443bda3ae0495939bff5003891aec6"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/original-root4e-two-failures.json",
+        "bytes": 6269,
+        "sha256": "cba6b9ba77be50ded5cce7ec5b30fb03bcff824e5ebdf94ade29897b38d184cb"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.json",
+        "bytes": 1643,
+        "sha256": "63c96b9f9b5e8867dda04c3912211d72b716d39af37a45dcde751e47ba76eaa2"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.txt",
+        "bytes": 28865,
+        "sha256": "b18d7b7538fb06636eb917223c5155e245bfae6055b75dcc6306b963e67ac5ae"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.xml",
+        "bytes": 26086,
+        "sha256": "d2d6a834de9b1eb5433f2862a9f8019d5921fc08f94c093204f60daa29cbe84e"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/ruff.json",
+        "bytes": 899,
+        "sha256": "cfdb4efc179f9737ce519b4f4902a0946d91b0f438217966ef2a82d8b1a59041"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/ruff.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "bytes": 6669,
+        "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/slice-base.json",
+        "bytes": 744,
+        "sha256": "fa1f8fa3f5bdabca867480cc735bb444218cc5f5d8f94d057419404732086ca5"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/source-context.json",
+        "bytes": 13866,
+        "sha256": "cdfe5798f6d7f8f77647fd5d6326b6ac9980671dd00c2184bd0488c35e0d0d6d"
+      },
+      {
+        "source_sha": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/syntax.json",
+        "bytes": 611,
+        "sha256": "9d2397d3e30d718779b663f4206d908d636e978592ab34492997674be329b8cf"
+      }
+    ],
+    "source_context_present_identities_verified": 28,
+    "source_context_absent_identities_verified": 2,
+    "author_profiles": [
+      {
+        "mode": "native",
+        "case_counts": {
+          "PASS": 119
+        },
+        "whole_file_counts": {
+          "tests.unit.remediation.test_wire_01": {
+            "PASS": 55
+          },
+          "tests.unit.scientist.orchestration.engine.runner.test_serialization": {
+            "PASS": 32
+          },
+          "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02": {
+            "PASS": 32
+          }
+        },
+        "actual_child_exit": 0,
+        "wall_seconds": 16.57170449401019,
+        "rss_kib": 655920,
+        "six_actual_reader_cases": [
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-current-v2]",
+              "time": "0.001"
+            },
+            "grade": "PASS"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-v0]",
+              "time": "0.001"
+            },
+            "grade": "PASS"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-framed-v1]",
+              "time": "0.001"
+            },
+            "grade": "PASS"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-current-v2]",
+              "time": "0.001"
+            },
+            "grade": "PASS"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-v0]",
+              "time": "0.001"
+            },
+            "grade": "PASS"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-framed-v1]",
+              "time": "0.001"
+            },
+            "grade": "PASS"
+          }
+        ],
+        "actual_own_worker_cases": [
+          {
+            "attributes": {
+              "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+              "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]",
+              "time": "7.371"
+            },
+            "grade": "PASS"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+              "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]",
+              "time": "7.148"
+            },
+            "grade": "PASS"
+          }
+        ],
+        "wrapper": {
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+            "--repo",
+            "/workspace/e02-B-current-adapters",
+            "--output",
+            "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+            "--mode",
+            "native",
+            "--child"
+          ],
+          "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+          "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+          "target_tree": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+          "head_after": "a4dd3b25c369be19c80727395c689a121950fc64",
+          "mode": "native",
+          "actual_child_exit": 0,
+          "wall_s": 16.57170449401019,
+          "maxrss_kib": 655920,
+          "stdout": {
+            "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4/native.txt",
+            "sha256": "1dabd8011436c8dce2b59168be502b34b806b28e294e89d77cac6243979df15c",
+            "bytes": 18996
+          },
+          "environment": {
+            "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+            "POLISYOS_METRICS_PORT": "0",
+            "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+          },
+          "profile": "native pytest.main -vv, isolated filesystem fixtures/cache; no marker exclusions or process/worker/thread quotas",
+          "input_overlay": "none"
+        }
+      },
+      {
+        "mode": "remove",
+        "case_counts": {
+          "FAIL": 6
+        },
+        "whole_file_counts": {
+          "tests.unit.remediation.test_wire_01": {
+            "FAIL": 6
+          }
+        },
+        "actual_child_exit": 1,
+        "wall_seconds": 1.7285352799954126,
+        "rss_kib": 105404,
+        "six_actual_reader_cases": [
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-current-v2]",
+              "time": "0.005"
+            },
+            "grade": "FAIL",
+            "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-v0]",
+              "time": "0.001"
+            },
+            "grade": "FAIL",
+            "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-framed-v1]",
+              "time": "0.001"
+            },
+            "grade": "FAIL",
+            "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-current-v2]",
+              "time": "0.001"
+            },
+            "grade": "FAIL",
+            "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-v0]",
+              "time": "0.001"
+            },
+            "grade": "FAIL",
+            "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+          },
+          {
+            "attributes": {
+              "classname": "tests.unit.remediation.test_wire_01",
+              "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-framed-v1]",
+              "time": "0.001"
+            },
+            "grade": "FAIL",
+            "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+          }
+        ],
+        "actual_own_worker_cases": [],
+        "wrapper": {
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+            "--repo",
+            "/workspace/e02-B-current-adapters",
+            "--output",
+            "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+            "--mode",
+            "remove",
+            "--child"
+          ],
+          "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+          "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+          "target_tree": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+          "head_after": "a4dd3b25c369be19c80727395c689a121950fc64",
+          "mode": "remove",
+          "actual_child_exit": 1,
+          "wall_s": 1.7285352799954126,
+          "maxrss_kib": 105404,
+          "stdout": {
+            "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4/remove.txt",
+            "sha256": "b18d7b7538fb06636eb917223c5155e245bfae6055b75dcc6306b963e67ac5ae",
+            "bytes": 28865
+          },
+          "environment": {
+            "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+            "POLISYOS_METRICS_PORT": "0",
+            "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+          },
+          "profile": "native pytest.main -vv, isolated filesystem fixtures/cache; no marker exclusions or process/worker/thread quotas",
+          "input_overlay": "isolated interpreter removes exactly _decode_wire_tag model branch; module file bytes stay frozen"
+        }
+      }
+    ],
+    "reader_removal_canonical_AST_matches_recorded_overlay": true,
+    "reviewer_runtime_execution": false
+  },
+  "historical_qualification": "Both captured failures precede deserialize_state; preserve literal FAIL. Revised fixture supplies the unchanged producer's actual v2 envelope and independently authored legacy inputs; it does not retroactively alter root4e or prove full B94 closure."
+}

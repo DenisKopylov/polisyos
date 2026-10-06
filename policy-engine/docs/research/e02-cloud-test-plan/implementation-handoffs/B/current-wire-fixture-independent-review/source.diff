@@ -1,0 +1,108 @@
+diff --git a/policy-engine/tests/unit/remediation/test_wire_01.py b/policy-engine/tests/unit/remediation/test_wire_01.py
+index ca0cd2a1d..6f5458b39 100644
+--- a/policy-engine/tests/unit/remediation/test_wire_01.py
++++ b/policy-engine/tests/unit/remediation/test_wire_01.py
+@@ -41,9 +41,7 @@ def _stdlib_loads(data: bytes) -> Any:
+ 
+ 
+ @pytest.fixture(params=("native", "stdlib"), ids=("native", "stdlib"))
+-def _wire_backend(
+-    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+-) -> str:
++def _wire_backend(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> str:
+     """Exercise the import-selected backend and the stdlib fallback explicitly."""
+     if request.param == "stdlib":
+         monkeypatch.setattr(serialization_module, "_dumps", _stdlib_dumps)
+@@ -70,9 +68,7 @@ def _typed_state() -> ExperimentState:
+             },
+         },
+         budgets={"compute": Decimal("7.5000")},
+-        causal_method_params={
+-            "nested": [{"decimal": Decimal("1.2300"), "blob": b"\x01\x02"}]
+-        },
++        causal_method_params={"nested": [{"decimal": Decimal("1.2300"), "blob": b"\x01\x02"}]},
+     )
+ 
+ 
+@@ -179,9 +175,7 @@ def test_legacy_outcome_budget_strings_reject_non_finite_values(
+ @pytest.mark.usefixtures("_wire_backend")
+ @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+ @pytest.mark.parametrize("wire_kind", ["plain", "safe", "outcome"])
+-def test_nested_non_finite_values_are_rejected(
+-    wire_kind: str, value: float
+-) -> None:
++def test_nested_non_finite_values_are_rejected(wire_kind: str, value: float) -> None:
+     state = ExperimentState(run_id="wire-01-non-finite", params={"nested": [value]})
+ 
+     with pytest.raises((TypeError, ValueError)):
+@@ -250,13 +244,16 @@ def test_real_artifact_ref_and_output_aware_outcome_round_trip() -> None:
+ 
+ 
+ @pytest.mark.usefixtures("_wire_backend")
+-def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:
++@pytest.mark.parametrize("wire_profile", ["current-v2", "legacy-v0", "legacy-framed-v1"])
++def test_artifact_ref_and_artifact_id_tags_are_compatible(wire_profile: str) -> None:
+     ref = _artifact_ref()
+     state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+ 
+     payload = serialize_state(state)
+     encoded = serialization_module._loads(payload)
+-    encoded_ref = encoded["inputs"]["input"]
++    assert set(encoded) == {"wire_schema", "value"}
++    assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
++    encoded_ref = encoded["value"]["inputs"]["input"]
+ 
+     assert encoded_ref["_type"] == "model"
+     assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+@@ -265,10 +262,43 @@ def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:
+     assert encoded_id["_type"] == "model"
+     assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+     assert encoded_id["qualname"] == "ArtifactID"
++    assert encoded_id["value"] == str(ref.artifact_id)
++
++    if wire_profile != "current-v2":
++        # This explicit historical input is independent of the current writer.
++        # Framing v1 adds integrity bytes; it does not change the legacy JSON tags.
++        legacy = {
++            "run_id": state.run_id,
++            "inputs": {
++                "input": {
++                    "_type": "model",
++                    "module": "polisyos.core.artifacts.manifest",
++                    "qualname": "ArtifactRef",
++                    "value": {
++                        "artifact_id": {
++                            "_type": "model",
++                            "module": "polisyos.core.artifacts.ids",
++                            "qualname": "ArtifactID",
++                            "value": str(ref.artifact_id),
++                        },
++                        "kind": ref.kind,
++                        "media_type": ref.media_type,
++                    },
++                }
++            },
++        }
++        payload = serialization_module._dumps(legacy)
++        if wire_profile == "legacy-framed-v1":
++            payload = b"\x01" + payload + hashlib.sha256(payload).digest()
+ 
+     restored = deserialize_state(payload)
++    assert restored.run_id == state.run_id
+     assert type(restored.inputs["input"]) is ArtifactRef
+     assert type(restored.inputs["input"].artifact_id) is ArtifactID
++    assert restored.inputs["input"] == ref
++    assert restored.inputs["input"].artifact_id == ref.artifact_id
++    if wire_profile == "legacy-framed-v1":
++        assert deserialize_state_safe(payload) == restored
+ 
+ 
+ @pytest.mark.usefixtures("_wire_backend")
+@@ -297,6 +327,4 @@ def test_naive_datetime_tag_normalizes_to_utc() -> None:
+     restored = deserialize_outcome(serialize_outcome(outcome))
+ 
+     assert restored.skip_blocker is not None
+-    assert restored.skip_blocker.generated_at == datetime(
+-        2026, 9, 21, 12, 34, 56, tzinfo=UTC
+-    )
++    assert restored.skip_blocker.generated_at == datetime(2026, 9, 21, 12, 34, 56, tzinfo=UTC)

@@ -1,0 +1,9 @@
+
+=========================== short test summary info ============================
+SKIPPED [1] ../../../dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:15: UNRUN: native numerical adapter requires Torch
+SKIPPED [1] ../../../dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py:37: UNRUN: native transfer workflow requires Torch
+SKIPPED [1] ../../../dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py:41: UNRUN: native receiver review requires Torch
+SKIPPED [1] ../../../dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py:27: UNRUN: native analytic GP continuation requires Torch
+SKIPPED [1] ../../../dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py:19: UNRUN: native CAS/ANN producer requires hnswlib
+SKIPPED [1] ../../../dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py:9: UNRUN: optional numerical runtime unavailable
+SKIPPED [1] ../../../dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py:7: UNRUN: optional numerical runtime unavailable

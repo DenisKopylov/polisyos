@@ -1,0 +1,51 @@
+{
+  "base_source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+  "base_tree": "d4e217a2b4e620e22bc0f2fa1a8bf2fcdb6fe3e0",
+  "projection_overrides": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py": "18699ce536fca6ce174ff1caf1435a79912f0920",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": "18699ce536fca6ce174ff1caf1435a79912f0920",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py": "784584d13f94ac7565d5ab159592281597b253ce",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py": "784584d13f94ac7565d5ab159592281597b253ce",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py": "c1343a44101eab350c886319bcf511e78aafc37b"
+  },
+  "cwd": "/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b/policy-engine",
+  "scratch": "/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b",
+  "input_scope": [
+    "policy-engine/src",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/unit/scientist/conftest.py"
+  ],
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "--collect-only",
+    "-q",
+    "-p",
+    "deny_optional_profile",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+    "-ra",
+    "--basetemp=/dev/shm/optional-collection-7fa57fa86b544a8dbacbb7a832887428",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/collection-junit.xml"
+  ],
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "returncode": 2,
+  "wall_seconds": 6.261224309986574,
+  "fresh_basetemp": "/dev/shm/optional-collection-7fa57fa86b544a8dbacbb7a832887428",
+  "basetemp_observed_after": false,
+  "agent_added_caps": false,
+  "expected": "3 collectionSKIP/UNRUN, zero numericPASS; collect-only no tests may exit5",
+  "actualminimal_environment": "UNRUN: actualminimal environment lacks pytest/pydantic; this is controlled installed-runtime import denial only",
+  "omitted_inputs": "Other tests/docs/data omitted; no claim those inputs pass."
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.D.adjacent-owner-contract-read.v1",
+  "unit": "D",
+  "slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "root_checkpoint_sha": "9cfe108376df509cbfd6edd7fd0d7e24e3dd277d",
+  "refs": {
+    "origin/codex/e02-A-full-queue": {
+      "commit": "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c",
+      "tree": "90691a963409c3417f15ba13dca10f774316125f"
+    },
+    "origin/codex/e02-A-selection-full": {
+      "commit": "0c8842191a69e4c47158ad29de37ea1268b3fa41",
+      "tree": "9bdba874270f9679b0de56d5face042c5b62848e"
+    },
+    "origin/codex/e02-B-current-cas-generation": {
+      "commit": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+      "tree": "9984ee6e727edeeea5ee4fa969bcfec0adc55ca6"
+    },
+    "origin/codex/e02-B-current-execution-state": {
+      "commit": "a4640e6812123877ce40685a3ca9c7974c856fc7",
+      "tree": "576b1c322f8ee4eb86048d2341025f1e32f2bb12"
+    },
+    "origin/codex/e02-B-current-coordination": {
+      "commit": "b824930d0269bb6808675cf764d0394899106e4c",
+      "tree": "d1e1c68282e05ebb6b901183fef3db847f6c8e09"
+    }
+  },
+  "inspections": [
+    {
+      "owner": "A-W04/SEL-01",
+      "source_ref": "origin/codex/e02-A-selection-full",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/selection-full.json",
+      "actual_contract": "Foundry selection eligibility/registry. Not the PolicySearchCoordinator parameter-frontier provider/export requested by D.",
+      "D_requested_input_state": "frontier provider/actual source denominator still pending",
+      "transfer_of_owner_PASS": "not performed"
+    },
+    {
+      "owner": "A",
+      "source_ref": "origin/codex/e02-A-full-queue",
+      "production_delta": "8 runtime/quality/control contract files; no D-requested policy_design/search.py frontier provider activation",
+      "D_requested_input_state": "ordinary current frontier export/source appointment still pending"
+    },
+    {
+      "owner": "B/CAS-03",
+      "source_ref": "origin/codex/e02-B-current-cas-generation",
+      "new_contract": "Later followup changes failed-snapshot integrity reporting/public capture in store.py/_integrity_ops.py. D consumes original exact b6 verified snapshot minref, not this later source.",
+      "new_checks_adopted_as_D_PASS": false,
+      "D_consumer_state": "Own positive/tamper/second-process tests bind actually consumed b6 production source; later failure-report receipt remains adjacent evidence."
+    },
+    {
+      "owner": "B execution context",
+      "source_ref": "origin/codex/e02-B-current-execution-state",
+      "actual_contract": "ExecutionContext has no BudgetMiddleware port. D-owned typed PolicyBudgetExecutionContext bridge is being implemented in the canonical FUN-03 node; no shared B context field or ledger schema invented."
+    }
+  ],
+  "limits": [
+    "Source inspection is bounded read-only evidence, not new runtime replay or owner acceptance",
+    "No deployed served-frontier/authority or production data claims",
+    "G integration unchanged363e7ae; D not accepted"
+  ]
+}

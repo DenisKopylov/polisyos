@@ -282,6 +282,8 @@ def test_default_cli_resume_executes_residual_from_native_partial_checkpoint(
         check=False,
         timeout=180,
     )
+    (tmp_path / "cli.stdout.log").write_text(cli.stdout, encoding="utf-8")
+    (tmp_path / "cli.stderr.log").write_text(cli.stderr, encoding="utf-8")
     cli_payload: dict[str, Any] = json.loads(cli.stdout)
     assert cli_payload["checkpoint"]["completed_nodes_count"] == len(partial_completed)
     assert cli_payload["resume"]["status"] == "ok"

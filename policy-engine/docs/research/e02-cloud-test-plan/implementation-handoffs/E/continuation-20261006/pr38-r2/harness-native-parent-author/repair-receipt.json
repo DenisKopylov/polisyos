@@ -1,0 +1,297 @@
+{
+  "schema_version": "e02.harness-native-parent-repair.v1",
+  "scope": "Scratch applicable source patch and bounded native fixture proof; author evidence, not independent review/full common wave/finding closure",
+  "exact_base": {
+    "sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0"
+  },
+  "root_after": {
+    "sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+    "tracked_status": "",
+    "unchanged": true
+  },
+  "footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md"
+  ],
+  "property": {
+    "runtime": "Existing pytest --basetemp requires its parent; create the shared numeric parent exclusively before any importer/process without creating/removing basetemps",
+    "admission": "derive all numeric jobs; reject existing parent or basetemp/dangling symlink/outside-root path; check individual basetemp again before subprocess",
+    "oracle": "real pytest tmp_path followed by FileSystemCAS put_json then fresh-store get_bytes/get_manifest/verify against independently declared payload/hash",
+    "predicate_basis_frozen": "P37: every numeric basetemp must be absent but its admitted parent must exist at real pytest initialization; stale paths preserve contents and cause zero subprocess refusal"
+  },
+  "deciding_native_output": "native-parent-results-r2.json",
+  "old_exact_native_outcome": "1 ERROR, callback0; missing basetemp parent FileNotFoundError",
+  "new_native_outcome": "1 PASS, callback1; canonicalCAS persisted/fresh read/integrity valid",
+  "property_removal_outcome": "1 ERROR, callback0; deleting only parent helper behavior repeats exact old class",
+  "pure_controls": "parent-admission-controls.json",
+  "execute_controls": "execute-parent-refusal-controls.json",
+  "nondeciding_iteration": {
+    "directory": "native-checks",
+    "description": "First corrected-harness child reached nativeCAS but test wrongly read Pydantic schema method instead of artifact_schema; initial1FAIL preserved, corrected fixture r2 uses actual typed field; no product failure reclassification"
+  },
+  "umbrella_sibling": {
+    "source": "uncapped_umbrella.py",
+    "hash": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173",
+    "result": "temp_root.mkdir(parents=True) already creates parent before stages; per-application basetemp remains absent; no patch"
+  },
+  "current_actual_wave": {
+    "source": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "output_root": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276",
+    "state": "still preserve as actual failed attempt; not modified/relaunched",
+    "limitations": "Collector must bind complete terminal actual outputs separately; present packet is not actual wave closure"
+  },
+  "checks": "configured-checks.json",
+  "raw_custody": [],
+  "backend_scope": "No E numerical/product family wave repeated. run_check post-command JAX observer belongs to observer process, not child configuration evidence.",
+  "environment": "Every native check receipt binds full argv, cwd, actual selected environment/caps absent/source before-after/git config/pyproject+uvlock/source input identities/wallRSS/combined stdout and JUnit.",
+  "next_owner": {
+    "root": "After current terminal completion apply patch append-only, freeze distinct candidate and obtain independent CAL/DoE harness review before new wave",
+    "CAL": "Independent actual tmp_path/CAS and zero-child controls against committed candidate; author result alone is not GO"
+  },
+  "closure_ratified": false,
+  "cleanup": {
+    "action": "none; no nativeTrash confirmed; permanent deletion forbidden",
+    "candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/execute-refusals",
+      "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-checks",
+      "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276/native-checks-r2"
+    ],
+    "preserve": "source patch/scripts/docs/all deciding or iteration outputs/private raw/source/ref identities until handoff and no active users"
+  },
+  "asset_count": 46,
+  "complete_moderate_asset_bytes": 209637,
+  "assets": [
+    {
+      "path": "README.md",
+      "bytes": 5640,
+      "sha256": "5fc763a6d77045a89721458c8fe31dbf3c6f73090fa240ee305b0cbf39866ae0"
+    },
+    {
+      "path": "configured-checks.json",
+      "bytes": 2817,
+      "sha256": "c581234cfbe457617f1bc3a2b1917cda35aeaa5e853d0c1ed7b0727c79f21352"
+    },
+    {
+      "path": "configured-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "configured-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "configured-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "configured-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "execute-parent-refusal-controls.json",
+      "bytes": 1571,
+      "sha256": "4c6c49c08c782c4b9190006c3236c78ee9dc25584c1de2b52cb285782f53cd4a"
+    },
+    {
+      "path": "git-apply-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "git-apply-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-checks-r2/new-parent-admission/checks/native-fixture-preflight/native-fixture-preflight.json",
+      "bytes": 8205,
+      "sha256": "9dd408a0ecbc9129dcb1c1bea5b90930ea8c09fd6122093e574bc56ca8331716"
+    },
+    {
+      "path": "native-checks-r2/new-parent-admission/checks/native-fixture-preflight/native-fixture-preflight.stdout.txt",
+      "bytes": 60,
+      "sha256": "969e9ffdff55fff38e5c72cbd46bfd00165c65b8f0d78d256a1a1f1b6679ba10"
+    },
+    {
+      "path": "native-checks-r2/new-parent-admission/checks/native-tmp-cas/native-tmp-cas.json",
+      "bytes": 9183,
+      "sha256": "9dd42e56852467226de469b7d7e66b1cfbc76efe718a7cd3204969a56bf6358b"
+    },
+    {
+      "path": "native-checks-r2/new-parent-admission/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "bytes": 373,
+      "sha256": "e2a17dad9306e4081a27328783a5098ea735f518e8b37262c025b7e34549a89a"
+    },
+    {
+      "path": "native-checks-r2/new-parent-admission/checks/native-tmp-cas/pytest.xml",
+      "bytes": 335,
+      "sha256": "71869e1190b98abe9eb58a04028490cb9b0b1140cb6950998c8c158f0abb751f"
+    },
+    {
+      "path": "native-checks-r2/old-exact/checks/native-fixture-preflight/native-fixture-preflight.json",
+      "bytes": 8171,
+      "sha256": "6f708e1362a0e2e5c4ee605f7866228fc701fe5627042e55a80f140e9ca53bb3"
+    },
+    {
+      "path": "native-checks-r2/old-exact/checks/native-fixture-preflight/native-fixture-preflight.stdout.txt",
+      "bytes": 60,
+      "sha256": "969e9ffdff55fff38e5c72cbd46bfd00165c65b8f0d78d256a1a1f1b6679ba10"
+    },
+    {
+      "path": "native-checks-r2/old-exact/checks/native-tmp-cas/native-tmp-cas.json",
+      "bytes": 9097,
+      "sha256": "38021084c45a709a9933098f44bfae148127cf2f8c557c9526518d018c0c3198"
+    },
+    {
+      "path": "native-checks-r2/old-exact/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "bytes": 1919,
+      "sha256": "2574661cec5679cd65184cf49b1027fb61412b80e617c2c0c09f775adad60dab"
+    },
+    {
+      "path": "native-checks-r2/old-exact/checks/native-tmp-cas/pytest.xml",
+      "bytes": 2200,
+      "sha256": "4cbec08e17229f6c646e335ee620b8c490434024d614e9a42c70b9a6e54069a3"
+    },
+    {
+      "path": "native-checks-r2/removed-parent-property/checks/native-fixture-preflight/native-fixture-preflight.json",
+      "bytes": 8214,
+      "sha256": "e3fddd5851fbe95dd8189a8ad32dd54b9f6f65ad0cad73b70726581858182135"
+    },
+    {
+      "path": "native-checks-r2/removed-parent-property/checks/native-fixture-preflight/native-fixture-preflight.stdout.txt",
+      "bytes": 60,
+      "sha256": "969e9ffdff55fff38e5c72cbd46bfd00165c65b8f0d78d256a1a1f1b6679ba10"
+    },
+    {
+      "path": "native-checks-r2/removed-parent-property/checks/native-tmp-cas/native-tmp-cas.json",
+      "bytes": 9221,
+      "sha256": "93d9562d4c253eb2d021382935a58dd073c3d457199b5d5b09655b36d8db85b6"
+    },
+    {
+      "path": "native-checks-r2/removed-parent-property/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "bytes": 1947,
+      "sha256": "bca4579328d7a8f5d45599eeb7944be220f07b92a6e1ae15cd666af3bf8b0b05"
+    },
+    {
+      "path": "native-checks-r2/removed-parent-property/checks/native-tmp-cas/pytest.xml",
+      "bytes": 2242,
+      "sha256": "b94f0b2bb4dfb2299443c415b0408362c72e91b0c192c6fc30b56d45fac7339b"
+    },
+    {
+      "path": "native-checks/new-parent-admission/checks/native-fixture-preflight/native-fixture-preflight.json",
+      "bytes": 8201,
+      "sha256": "937e81e6707f9f4807eceddac4e4156433e1cd65780fd9884c21dba556e0d6cd"
+    },
+    {
+      "path": "native-checks/new-parent-admission/checks/native-fixture-preflight/native-fixture-preflight.stdout.txt",
+      "bytes": 60,
+      "sha256": "969e9ffdff55fff38e5c72cbd46bfd00165c65b8f0d78d256a1a1f1b6679ba10"
+    },
+    {
+      "path": "native-checks/new-parent-admission/checks/native-tmp-cas/native-tmp-cas.json",
+      "bytes": 9159,
+      "sha256": "85082805fd876e594bfff489908729996b815e125e5eb939beca0a001ece5590"
+    },
+    {
+      "path": "native-checks/new-parent-admission/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "bytes": 1692,
+      "sha256": "7d74700932d0621b27410f2e3dc293579d05205cb5f33d908b8586c61f93ac79"
+    },
+    {
+      "path": "native-checks/new-parent-admission/checks/native-tmp-cas/pytest.xml",
+      "bytes": 1807,
+      "sha256": "35002ebb2bc76e26f8f74698f6098bb0b546c93bf86cf3216a6b9ec4684e2e6a"
+    },
+    {
+      "path": "native-checks/old-exact/checks/native-fixture-preflight/native-fixture-preflight.json",
+      "bytes": 8166,
+      "sha256": "5a333c5092165e3e4c2a277faf0d42df1f01e59e3313916bab4fbfac8e5abec6"
+    },
+    {
+      "path": "native-checks/old-exact/checks/native-fixture-preflight/native-fixture-preflight.stdout.txt",
+      "bytes": 60,
+      "sha256": "969e9ffdff55fff38e5c72cbd46bfd00165c65b8f0d78d256a1a1f1b6679ba10"
+    },
+    {
+      "path": "native-checks/old-exact/checks/native-tmp-cas/native-tmp-cas.json",
+      "bytes": 9082,
+      "sha256": "6de55ee8883b52584869130f88f2e6bb0dde8052cb3d09628127b1c47ed19b34"
+    },
+    {
+      "path": "native-checks/old-exact/checks/native-tmp-cas/native-tmp-cas.stdout.txt",
+      "bytes": 1913,
+      "sha256": "0b9c6af7526ece2948c459e622fe0a02053eda36591b5b98c63051757fb4926a"
+    },
+    {
+      "path": "native-checks/old-exact/checks/native-tmp-cas/pytest.xml",
+      "bytes": 2191,
+      "sha256": "3c44d95222c885b71eddf7ff9d5033ff0943d094b455c0815f6f7f8a9f02d96f"
+    },
+    {
+      "path": "native-parent-repair.patch",
+      "bytes": 4380,
+      "sha256": "96ad896046aae355f9896db3fbca9cbe993bff551c6440b0ee2c1714f813bb8a"
+    },
+    {
+      "path": "native-parent-results-r2.json",
+      "bytes": 2655,
+      "sha256": "7a102f040183b4e687475a284423fe402d9e2a725f9c9c375bb952c5c53314c8"
+    },
+    {
+      "path": "old-exact/plan_wave.py",
+      "bytes": 23015,
+      "sha256": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87"
+    },
+    {
+      "path": "old-exact/run_check.py",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "path": "parent-admission-controls.json",
+      "bytes": 1163,
+      "sha256": "adb8316b9d0e84e59833e4da527215f0e3641b70a46986ee1c36ce4c2ea3078d"
+    },
+    {
+      "path": "plan_wave.py",
+      "bytes": 23905,
+      "sha256": "7e010e09d0c11ea8c9cf68c25b698eb9862171b81f68e50744caf087a8f66b6d"
+    },
+    {
+      "path": "probe_native_parent.py",
+      "bytes": 4136,
+      "sha256": "afc1b01a3346994cdda31eec9fef87167ab77565867f3b86082ff879e24fa590"
+    },
+    {
+      "path": "probe_native_parent_r2.py",
+      "bytes": 4156,
+      "sha256": "8ccafaeb97d89cc02631392c4164bb0bbb7696d113d66581aef692d136e25fb4"
+    },
+    {
+      "path": "run_check.py",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "path": "test_native_tmp_cas.py",
+      "bytes": 1459,
+      "sha256": "1ec7bca9160bede6d1627c90871c80513ba6e7f616d48c84fa6555e18c735524"
+    },
+    {
+      "path": "test_native_tmp_cas_r2.py",
+      "bytes": 1468,
+      "sha256": "4b749a712c974289e34d01e5475960e345f18d6271b6a3dada39cfb9c53befd4"
+    },
+    {
+      "path": "uncapped_umbrella.py",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    }
+  ]
+}

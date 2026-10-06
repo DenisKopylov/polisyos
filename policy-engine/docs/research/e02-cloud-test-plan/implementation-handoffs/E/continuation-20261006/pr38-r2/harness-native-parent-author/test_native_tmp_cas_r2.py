@@ -1,0 +1,28 @@
+"""Real tmp_path/CAS harness witness; no calibration or production-law claim."""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+
+
+def test_real_tmp_path_cas_and_fresh_readback(tmp_path: Path) -> None:
+    callback = Path(os.environ['NATIVE_CALLBACK_RECEIPT'])
+    callback.write_text(json.dumps({'native_callback_count': 1, 'tmp_path': str(tmp_path)}))
+    expected = Path(os.environ['NATIVE_EXPECTED_BASETEMP'])
+    assert tmp_path.is_relative_to(expected)
+    payload = {'witness': 'native tmp_path -> CAS -> fresh readback', 'value': 7}
+    store = FileSystemCAS(tmp_path / 'cas')
+    ref = store.put_json(payload, PutOptions(kind='tests.e02.native_harness', media_type='application/json', schema=SchemaInfo(name='tests.e02.NativeHarnessWitness',version='1')))
+    fresh = FileSystemCAS(tmp_path / 'cas')
+    raw = fresh.get_bytes(ref)
+    assert json.loads(raw) == payload
+    manifest = fresh.get_manifest(ref)
+    assert manifest.kind == 'tests.e02.native_harness'
+    assert manifest.artifact_schema.name == 'tests.e02.NativeHarnessWitness'
+    assert manifest.integrity.sha256.removeprefix('sha256:') == hashlib.sha256(raw).hexdigest()
+    assert fresh.verify(ref).ok
+    print(json.dumps({'scope':'native harness IO only','ref':str(ref.artifact_id),'tmp_path':str(tmp_path),'manifest_kind':manifest.kind,'fresh_cas_readback':True}))

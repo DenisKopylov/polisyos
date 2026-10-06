@@ -1,0 +1,1 @@
+Native harness fixture preflight only; not results importer

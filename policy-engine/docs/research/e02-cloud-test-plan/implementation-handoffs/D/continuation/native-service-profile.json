@@ -1,0 +1,1048 @@
+{
+  "schema": "e02-D-continuation-handoff.v1",
+  "implementation_sha": "c35214cb0f60bbd9ff6698fcba80f4c8e8160e60",
+  "implementation_tree": "10a8fad4aef72703e12109b5455a260a7625cdd2",
+  "defining_test_successor_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+  "defining_test_successor_tree": "03c8971189df101d6603204231951e03e26f78c5",
+  "production_identity": "test-only fb9 successor preserves all c352 production bytes",
+  "evidence_commit": "104bd75695daf89ed76d146b10042227a600bc68",
+  "supplier_selected_sha": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+  "supplier_merge_sha": "2147004eaca571e7120a5a7c039cc3e33c661e4c",
+  "status": "bounded native replay configuration/scalar evidence PASS; no global/served appointment/authority closure",
+  "footprint": [
+    {
+      "path": "policy-engine/README.md",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "3957d8b07e3bf55fb11dbb93da14a5063a0879ed",
+      "bytes": 16875,
+      "sha256": "373b59ea85f198a91ad373f3b566180e796c1ea9f05c224984b623b8b87cdf99"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "88e913ad89ad99923532cac50ee1de77fdb7ec3b",
+      "bytes": 5000,
+      "sha256": "4c10626771e009f314f3a1d4f08c0629d72e46980cb6df07555531302667ffd5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "7cb82b22969d78fdc21f055130d17e58faa51cc7",
+      "bytes": 14342,
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "e9b25eb5cad358f5a9f12a7f4c99e6150ee71feb",
+      "bytes": 54963,
+      "sha256": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "24cb6d3bb3f0ace2379e75c7fa00a4c6fcb3c613",
+      "bytes": 17172,
+      "sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "cda0dfc1173422247ef1bc48a7514b275875c98c",
+      "bytes": 38381,
+      "sha256": "91b158602ff6c5b19582e3c5f38d14ca386fd0c44f560a6098f81bf9240f3808"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "533befa968e43ea734b729d0932c39b5128c26bf",
+      "bytes": 19715,
+      "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "83f427da55c1dc8a78cc88760fcb695ad1f2a560",
+      "bytes": 39369,
+      "sha256": "3ef7b43d5aceb3d5e053ebc8c6a4b72b0cceb09bf67bdf6b6deb2adb638b2dec"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "702894d5640c698b51809d63aeac82fadb396ac7",
+      "bytes": 14296,
+      "sha256": "ec3ae60aa2a292631d1071a4cc870083a2d1c64ad90d6d51d996021d8d1a90b2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+      "blob": "d559d8182b5fc6b5deaafbb7dbcae8267cf2214b",
+      "bytes": 13294,
+      "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-negative-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "c238b6ce67a3d6ef4f07754a5e9839b98c76f166",
+      "bytes": 7749,
+      "sha256": "e8018776770b7eda124f96393b6e0350721a00993691263ce7d2b6d0d640f4e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-negative-junit.xml",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "2dd2e315b727868427715fd4dbb1cf639c059a64",
+      "bytes": 7381,
+      "sha256": "d3b527710b0ffc3390d45f61a942b25e9bf13778363ed89851af87ceb869cf88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-positive-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "2e9c460d43fdd8343eaef61060c6eef8ba073560",
+      "bytes": 4867,
+      "sha256": "fd7d94e3f6da36b5d72d6559edabd93ab1629714d45b33ff52abae3c1826b3d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-positive-junit.xml",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "1ffc06aaca523223b8cce229c5ef0c2552083b16",
+      "bytes": 23653,
+      "sha256": "8627d90c61e9cd123e73701be8a1964c8532047429cb0865b9aece13f3217917"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-removal.py.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "a6097c24d45f13bfa310afcf3c2b5eb41a0f1163",
+      "bytes": 1467,
+      "sha256": "ef05a3a28783e7c6001168ddcb91438abf83dbe4d16268b476aba7c8e20d77be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-verify.py.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "931afecb68048a22a5af8329a7332953d2ea1a35",
+      "bytes": 2218,
+      "sha256": "027e678329e3b46ec84e992488f67021aaa16d0986b9b95579a3a1f2b2e77ab8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-negative-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "cba5e8e5a99a61340446221addf97e0014718cec",
+      "bytes": 3906,
+      "sha256": "979003ee13a36c4d4d358f7f790b63ab3c54f60472900b7a297f7d0e7c877152"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-negative-junit.xml",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "d65db0bdc1cf1fdfe0634f1a5913c9c8ec6d093b",
+      "bytes": 3716,
+      "sha256": "ce7b7a4e6fbbda41b5e771f77718557e6ceac9daba3082dfd4fb2fbfd1f56aae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-positive-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "f0cd179548e4ead90ecd71753b239a27f7df8ab8",
+      "bytes": 4856,
+      "sha256": "78916b7d611f526a52fcc84092eb0094a0a1f4559cb6d2527ad1689673d03640"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-positive-junit.xml",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "739e41f10d0d44a23d5dcfcb4c4e6941890a4de3",
+      "bytes": 23654,
+      "sha256": "e84f5851aaa4ccdb1253dac99b42565db2c17cdd00a62aeda854efea427569bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-precommit-2-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "1e057b6a5abe7e398e72dd9ccdf7a7d332e9e41a",
+      "bytes": 733,
+      "sha256": "a42e6d824f7b263c36be1323f8032ac785e06b1c476e08f7a15741a340eb00be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-precommit-3-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "f33522053eb57793b91c97719f589d84a9901343",
+      "bytes": 757,
+      "sha256": "607d924b9fb837158ef04782fb03849754b9d5b3c9492b2f6d80efaf5f8e062e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-precommit-4-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "5160d444539e6e6fa99e9b5cf8a8c7040b7846fa",
+      "bytes": 80,
+      "sha256": "4cf2124032e464147e816ec20702b3b32e3647b01af12dd56f695de26cf6f779"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-precommit-complete.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "ca5625494df665b82bc5be3c7baaf422d85e9cc7",
+      "bytes": 204830,
+      "sha256": "65ef9cee30fbc9630157b4d61f2d6f093e5d3e95de9a0dfe5bbbb17e7395d43e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-removal.py.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "f6370ddad07428398060e3f1f0ff8bc441c10d93",
+      "bytes": 1455,
+      "sha256": "2448456e823d06f9a1cce6ce9a5c7e1d8a5f3c920fd250dce1d7fb8e6ffc29bd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-verify.py.txt",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "1889281f94bfa1afb60d10ac664b1fb4e2f48a8b",
+      "bytes": 2206,
+      "sha256": "b6b14a66a3b22b52c51fc4fc82e0460715627f2a1ce0f85682de78832915e254"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/preserved-fixtures.json",
+      "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+      "blob": "5c520e3ce9004e4c9b2a51b6a67376e7207002a7",
+      "bytes": 576945,
+      "sha256": "9f77a5fa2bc6e178b43d20ae723ecb31938dd47de5407e14a311345f7cbe9838"
+    }
+  ],
+  "original_criteria": [
+    {
+      "id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "criterion_card": "SRV-01",
+      "canonical_closure_owner": "SRV-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          455,
+          481
+        ],
+        "byte_offset": 52637,
+        "bytes": 2835,
+        "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+        "byte_offset": 54712,
+        "bytes": 284,
+        "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-01",
+      "missing_input_pointer": "/findings/43/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "criterion_card": "SRV-03",
+      "canonical_closure_owner": "SRV-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-03",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-03",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    }
+  ],
+  "criteria_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+    "source_sha": "5bd73d8d61f652e8628528bb9b49ef49c8e03a2a",
+    "git_blob": "04658d357e384d770c488d841cac7b17a64efebd",
+    "bytes": 176452,
+    "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
+  },
+  "actual_runtime": {
+    "argv": [
+      "tests/unit/scientist/methods/search/test_service_persistence.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/remediation/test_srv_01.py",
+      "tests/unit/remediation/test_srv_03.py",
+      "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "-s",
+      "--basetemp=/workspace/e02-D-continuation-receipts/champion-profile-final-positive-27a7f28fc0a64f2f8bc40e2e9b4971f3",
+      "--junitxml=/workspace/e02-D-continuation-receipts/champion-profile-final-positive-junit.xml"
+    ],
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "native_origins": {
+      "polisyos.common.serialization": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/common/serialization.py",
+        "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852"
+      },
+      "polisyos.core.artifacts._integrity_ops": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+      },
+      "polisyos.core.artifacts.store": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+      },
+      "polisyos.scientist": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/__init__.py",
+        "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3"
+      },
+      "polisyos.scientist.methods.autotune.runtime": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "sha256": "ec3ae60aa2a292631d1071a4cc870083a2d1c64ad90d6d51d996021d8d1a90b2"
+      },
+      "polisyos.scientist.methods.search": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+        "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7"
+      },
+      "polisyos.scientist.methods.search.contracts": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+      },
+      "polisyos.scientist.methods.search.controller": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "sha256": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5"
+      },
+      "polisyos.scientist.methods.search.run_state": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"
+      },
+      "polisyos.scientist.methods.search.service": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "sha256": "91b158602ff6c5b19582e3c5f38d14ca386fd0c44f560a6098f81bf9240f3808"
+      },
+      "polisyos.scientist.methods.search.stopping": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+      },
+      "polisyos.scientist.orchestration.engine.budget_ledger": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+      },
+      "polisyos.scientist.orchestration.engine.budget_middleware": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+      }
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "source": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+    "tree": "03c8971189df101d6603204231951e03e26f78c5"
+  },
+  "actual_final_module_presence": {
+    "torch": false,
+    "botorch": false,
+    "gpytorch": false
+  },
+  "positive": {
+    "status": "PASS",
+    "passed": 119,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_seconds": 8.27,
+    "cases": [
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[version]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[counter_bool]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[history_count]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[generator_cursor]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_order]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_huge]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_origin_claim]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[stage_a_integer]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_generator_without_checkpoint_contract_refuses_public_resume",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_pending_batch_order_survives_canonical_json_key_sorting",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_initial_sentinel_failure_resume_preserves_initial_termination",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_registered_checkpoint_facade_and_normal_contract_imports_do_not_load_runtime",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_readback]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_custom_parameterized_objective_checkpoint_refuses_resume_instead_of_build_identity",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resume",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[warm_corpus]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[policy_stack]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[external_arbiter]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_history",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_checkpoint_requires_exact_public_snapshot_profile_on_resume",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_split_reads",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[nan]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[inf]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[-1]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[0]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[maximum6]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-min_improvement]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-absolute_tolerance]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-min_improvement]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-absolute_tolerance]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-min_improvement]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-absolute_tolerance]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-min_improvement]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-absolute_tolerance]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-min_improvement]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-absolute_tolerance]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-min_improvement]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-absolute_tolerance]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[invalid1]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[nan]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[inf]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[-1]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[None]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[cost6]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_recorded_cost_public_owner_port_reopens_without_receipt_or_provider_origin_authority",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_recorded_memory_zero_is_available_without_durable_identity_or_measured_zero",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[evaluator]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[context]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[callback]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[codec]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[opaque]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_native_same_content_configuration_and_context_fresh_resume",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[canonical_tag]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_native_failure_leaves_only_pending_candidate_then_same_instance_tell_continues",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_native_partial_batch_stop_retains_unaccepted_pending_without_double_count",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[ask]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_public_call_removal_trap_is_reached_before_history_acceptance[tell]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_public_runner_two_runs_detach_history_and_preserve_actual_cas_evaluation",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_public_runner_refuses_zero_iteration_budget_before_any_evaluation",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.autotune.test_native_search_lifecycle",
+        "name": "test_native_empty_supplier_exhausts_without_accepting_history",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_contracts_import_without_runtime_controller_or_funnel",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_legacy_adapter_alias_is_lazy_and_points_to_canonical_bridge",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_ask_tell_uses_owner_transition_and_resumes_frontier",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_ask_tell_stage_a_rejection_does_not_count_stage_b",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_ask_tell_disabled_stage_a_keeps_stage_b_counting",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_unknown_and_duplicate_candidate_ids_do_not_create_history",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_malformed_typed_feedback_cannot_fall_back_to_scalar_best",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_01",
+        "name": "test_run_search_compatibility_path_remains_available",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_03",
+        "name": "test_current_controller_trace_preserves_warm_sentinel_empty_error_resume",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_03",
+        "name": "test_native_service_rejects_explicit_falsy_candidate_id[0]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_03",
+        "name": "test_native_service_rejects_explicit_falsy_candidate_id[]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_03",
+        "name": "test_native_service_preserves_negative_string_candidate_id",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_03",
+        "name": "test_native_service_generates_id_only_when_candidate_id_is_absent",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_srv_03",
+        "name": "test_current_autotune_runner_characterizes_real_cas_consumer_path",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-100-99-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-100-98-False]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--100--99-True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--100--98-False]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_unit_conversion_also_scales_absolute_tolerance",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_custom_coefficients_use_their_declared_tolerance",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_present_invalid_observation_cannot_establish_plateau[None]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_present_invalid_observation_cannot_establish_plateau[1.0]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_present_invalid_observation_cannot_establish_plateau[True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_present_invalid_observation_cannot_establish_plateau[nan]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_present_invalid_observation_cannot_establish_plateau[inf]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_absent_observation_does_not_shorten_plateau_basis",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+        "name": "test_declared_plateau_stops_native_controller_and_preserves_best",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_limitations",
+        "name": "test_missing_unit_cannot_claim_objective_convergence",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_limitations",
+        "name": "test_missing_profile_cannot_claim_objective_convergence",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_limitations",
+        "name": "test_standard_preset_still_honors_budget_without_objective_unit",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_limitations",
+        "name": "test_malformed_patience_is_rejected[True]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_limitations",
+        "name": "test_malformed_patience_is_rejected[False]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_limitations",
+        "name": "test_malformed_patience_is_rejected[1.5]",
+        "status": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_stopping_limitations",
+        "name": "test_malformed_patience_is_rejected[2]",
+        "status": "PASS"
+      }
+    ]
+  },
+  "property_removal": {
+    "status": "EXPECTED_NEGATIVE",
+    "failed": 2,
+    "passed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_seconds": 3.67,
+    "cases": [
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]",
+        "status": "FAIL"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+        "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]",
+        "status": "FAIL"
+      }
+    ],
+    "mutation": "same process replaces only _same_configuration with legacy equality and _decode_checkpoint with existing canonical decoder; real store/controller/service remain active",
+    "deciding_effect": "unchanged actual CAS controls fail because malformed alias and underflow checkpoints no longer refuse"
+  },
+  "preliminary_evidence": {
+    "c352_positive": "119PASS16.10s",
+    "c352_removal": "1FAIL1PASS: hard-limit alias control was independently refused by target constructor100/source1 mismatch",
+    "test_successor": "fb9 changes only two lines so target also uses1; final isolated removal bothFAIL",
+    "uncommitted_diagnostics": "full precommit1 FAIL output retained; initial raw decoder lost canonical float tags; repaired before b39 source commit; precommit2/3/4 diagnostic passes are not immutable closure"
+  },
+  "behavior": [
+    "native replay profile content-binds actual suite/data snapshots, full suite configuration, policy, codec schema/build, declared evaluator configuration and supported context/callback source/defaults/closure/global JSON values",
+    "four generic built-in objective/stateless-port profile retained; custom/opaque evaluator/objective, unknown policy stack or external resource/Pareto handles explicitly refuse persisted resume",
+    "configured initial warm observations and canonical ObjectiveStack parameters are included; bool/int equality aliases refuse before live state/generator/evaluation effects",
+    "shared finite_real_scalar handles represented real values; stopping adapts Decimal and refuses nonzero-underflow, invalid/nonfinite/huge coefficients or observations; existing plateau .01 unit/direction formula retained",
+    "same actual warm corpus survives fresh reader with training1,current2 and history[-1,0,1]; ordinary native callback unchanged context fresh terminal history equals original"
+  ],
+  "limitations": [
+    "served hierarchical caller remains unappointed; original served-owner input packet persists",
+    "no actual hypervolume-to-stopping caller found in scoped search/runtime production inventory; no unused availability field introduced; objective None already cannot establish plateau",
+    "provider aggregates are recorded accounting only; current budget middleware has no public typed snapshot delegation, receipt/revision and provider cost-origin unavailable",
+    "custom checkpoint_configuration is an explicit caller-declared configuration contract, not discovered scientific or callback-source appointment authority",
+    "publication across external registry/evaluator effects and service checkpoints remains separate atomic boundaries, no distributed/exactly-once claim",
+    "root sibling ask cursor/pending publication failure watchpoint is independently under review; this receipt does not claim that unsupported fault boundary is closed",
+    "real configured warm GP/current corpus receiver consumer is separately owned and awaiting composed immutable source; unchanged GP witnesses were not replayed",
+    "preserved fixture index records1563 currently present regular files/1907615 bytes, not remote fixture-byte archive; no manual cleanup; fresh unique basetemps never reused"
+  ],
+  "preservation": {
+    "fresh_basetemps": true,
+    "manual_cleanup": false,
+    "fixture_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/preserved-fixtures.json"
+  },
+  "public_compatibility": {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+    "source_sha": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70",
+    "blob": "88e913ad89ad99923532cac50ee1de77fdb7ec3b",
+    "bytes": 5000,
+    "sha256": "4c10626771e009f314f3a1d4f08c0629d72e46980cb6df07555531302667ffd5"
+  }
+}

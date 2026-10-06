@@ -10,7 +10,6 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
 from functools import wraps
-from math import isfinite
 from threading import Lock
 from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import uuid4
@@ -32,13 +31,16 @@ from polisyos.scientist.methods.search.run_state import (
     _EvaluationTransition,
 )
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
-from polisyos.scientist.methods.search.stopping import StoppingCriterion
+from polisyos.scientist.methods.search.stopping import StoppingCriterion, _nonnegative_cost
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+    from polisyos.scientist.methods.search.strategies.transfer import (
+        RunFingerprint,
+        TransferLearningManager,
+    )
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from polisyos.scientist.policy_design.objectives import (
         ObjectiveStack,
@@ -213,6 +215,7 @@ class SearchConfig:
     batch_size: int = 1
     resource_arbiter: Any | None = None
     transfer_manager: TransferLearningManager | None = None
+    transfer_fingerprint: RunFingerprint | None = None
     initial_evaluations: list[dict[str, Any]] = field(default_factory=list)
     policy_objective_stack: ObjectiveStack | None = None
     pareto_registry: ParetoRegistry | None = None
@@ -227,6 +230,8 @@ class SearchConfig:
             raise ValueError("max_iterations_hard_limit must be >= 1")
         if self.max_empty_generation_attempts < 1:
             raise ValueError("max_empty_generation_attempts must be >= 1")
+        if (self.transfer_manager is None) != (self.transfer_fingerprint is None):
+            raise ValueError("transfer_manager and transfer_fingerprint must be supplied together")
 
 
 class SearchController:
@@ -262,6 +267,15 @@ class SearchController:
             raise ValueError("SearchController requires Stage A and Stage B evaluators")
         self._stage_a = stage_a_evaluator
         self._stage_b = stage_b_evaluator
+        if config.transfer_manager is not None:
+            from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+
+            configure_transfer = getattr(candidate_generator, "configure_transfer", None)
+            if not callable(configure_transfer):
+                raise ValueError("configured generator does not support numeric transfer")
+            configure_transfer(
+                WarmStartBridge(config.transfer_manager), config.transfer_fingerprint
+            )
 
         self._run_lock = Lock()
         self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)
@@ -570,6 +584,7 @@ class SearchController:
             "budget_available": snapshot.budget_available,
             "budget_snapshot": deepcopy(snapshot.budget_snapshot),
             "budget_snapshot_source": snapshot.budget_snapshot_source,
+            "budget_evidence": deepcopy(snapshot.budget_evidence),
             "budget_ledger_id": snapshot.budget_ledger_id,
             "budget_ledger_revision": snapshot.budget_ledger_revision,
             "budget_spent": (snapshot.budget_spent if snapshot.budget_available else None),
@@ -621,6 +636,7 @@ class SearchController:
             "empty_generation_attempts": self._run_state.empty_generation_attempts,
             "best_objective": self._best_objective,
             "budget_spent": self._run_state.budget_spent,
+            "budget_evidence": deepcopy(self._run_state.budget_evidence),
         }
         state.update(self._run_state.budget_snapshot)
         return state
@@ -636,28 +652,53 @@ class SearchController:
         required_keys = self._config.stopping.state_keys()
         snapshot: dict[str, float] = {}
         owner = self._config.budget_middleware
-        self._run_state.budget_snapshot_source = (
-            "legacy_context" if required_keys else "unavailable"
-        )
+        source = "legacy_context" if required_keys else "unavailable"
         self._run_state.budget_ledger_id = None
         self._run_state.budget_ledger_revision = None
+        evidence: dict[str, Any] = {
+            "source": source,
+            "receipt_revision_available": False,
+            "provider_cost_origin_available": False,
+            "recorded_by_provider": None,
+            "unavailable_reason": "budget_not_requested" if not required_keys else None,
+        }
         if owner is not None:
-            accounting = owner.resource_snapshot()
-            self._run_state.budget_snapshot_source = "persisted_owner"
-            self._run_state.budget_ledger_id = accounting.ledger_id
-            self._run_state.budget_ledger_revision = accounting.revision
-            if self._config.budget_cost_key in required_keys:
-                snapshot[self._config.budget_cost_key] = float(
-                    accounting.state.spent.get(self._config.budget_key, Decimal(0))
-                )
+            source = "configured_owner_recorded_state"
+            evidence["source"] = source
+            identity = self._budget_owner_identity()
+            if identity is not None:
+                self._run_state.budget_ledger_id = identity[0]
+                evidence.update(canonical_contract=identity[1], coordination_mode=identity[2])
+            try:
+                accounting = owner.budget_state.model_copy(deep=True)
+            except (OSError, ValueError, RuntimeError) as exc:
+                evidence["unavailable_reason"] = f"owner_state_unavailable:{type(exc).__name__}"
+            else:
+                evidence["recorded_spend_key_present"] = self._config.budget_key in accounting.spent
+                providers = {
+                    key: _nonnegative_cost(value)
+                    for key, value in accounting.provider_spent.items()
+                }
+                if all(value is not None for value in providers.values()):
+                    evidence["recorded_by_provider"] = providers
+                if self._config.budget_cost_key in required_keys:
+                    value = _nonnegative_cost(
+                        accounting.spent.get(self._config.budget_key, Decimal(0))
+                    )
+                    if value is not None:
+                        snapshot[self._config.budget_cost_key] = value
+                    else:
+                        evidence["unavailable_reason"] = "recorded_cost_invalid"
         for key in required_keys:
             if owner is not None:
                 continue
-            value = context.get(key)
-            if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
-                numeric_value = float(value)
-                if isfinite(numeric_value):
-                    snapshot[key] = numeric_value
+            value = _nonnegative_cost(context.get(key))
+            if value is not None:
+                snapshot[key] = value
+            else:
+                evidence["unavailable_reason"] = "context_cost_missing_or_invalid"
+        self._run_state.budget_snapshot_source = source
+        self._run_state.budget_evidence = evidence
         self._run_state.budget_snapshot = snapshot
         self._run_state.budget_available = bool(required_keys) and all(
             key in snapshot for key in required_keys
@@ -668,6 +709,23 @@ class SearchController:
             self._run_state.budget_spent = next(iter(snapshot.values()))
         else:
             self._run_state.budget_spent = 0.0
+
+    def _budget_owner_identity(self) -> tuple[str, str, str] | None:
+        """Use the public owner identity; in-memory accounting has no durable identity."""
+        owner = self._config.budget_middleware
+        if owner is None:
+            return None
+        try:
+            identity = getattr(owner, "settlement_owner_identity", None)
+        except (OSError, ValueError, RuntimeError):
+            return None
+        if (
+            isinstance(identity, tuple)
+            and len(identity) == 3
+            and all(isinstance(part, str) and part for part in identity)
+        ):
+            return identity
+        return None
 
     def _generate_candidates(
         self,

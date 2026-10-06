@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.D.served-search-owner-input.v1",
+  "source_sha": "5bd73d8d61f652e8628528bb9b49ef49c8e03a2a",
+  "finding_occurrences": [
+    "LA014@SRV01",
+    "LA015@SRV03",
+    "LA015@CTL01_supplier"
+  ],
+  "missing_state": "appointed_served_factory_and_input_not_established",
+  "existing_owner_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "source_sha": "5bd73d8d61f652e8628528bb9b49ef49c8e03a2a",
+      "git_blob": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+      "bytes": 49880,
+      "sha256": "d300849e7f631d864358162150678d5f1f8872c152e72404ca54bb005fe91567"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "source_sha": "5bd73d8d61f652e8628528bb9b49ef49c8e03a2a",
+      "git_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+      "bytes": 55516,
+      "sha256": "a9045842cbfe78123f42d702317f4c65b979ebbc2c3ce46ef192d1472f51412e"
+    }
+  ],
+  "available_D_api": "NativeSearchService/SearchLoopRunner exact-ref persistence and public fresh resume",
+  "requested_owner": "A/G appoint actual existing hierarchical node/coordinator publisher; D does not appoint it",
+  "required_input": [
+    "exact caller source/owner appointment and runnable request terminus",
+    "owner-approved mapping of ParameterSearchSpec/PolicyEvaluationBundle/StrategyAdapter numerical state to configured native service",
+    "actual admitted suite/data/split/metric/source-law and CAS refs for that caller",
+    "persisted checkpoint owner/ref exposure and fresh API-reader profile",
+    "cutover/rollback scenarios for new/resumed/stopped/empty/evaluator-failure with same evaluated subjects"
+  ],
+  "scope": "Available native Runner mechanism is implemented independently. This packet neither invents a served workflow nor claims repository-wide absence.",
+  "instrument": {
+    "operations": "git grep over source5bd policy-engine/src literal SearchLoopRunner/NativeSearchService/_NativeSearchServiceDriver and HierarchicalSearchCoordinator; inspected actual node/coordinator source",
+    "selector_boundary": "literal references in tracked production src plus named actual owner files",
+    "unresolved_by_construction": [
+      "dynamic/aliased calls outside lexical selector",
+      "external deployment/factory appointment",
+      "runtime caller/config outside tracked source",
+      "institutional appointment and scientific source-law rights"
+    ]
+  }
+}

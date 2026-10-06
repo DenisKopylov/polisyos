@@ -1,0 +1,55 @@
+id = "2026-10-06-native-search-resume"
+title = "Persist and reopen native search runs"
+type = "added"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "public_stable: polisyos.scientist"
+summary = "The native autotune factory persists exact CAS checkpoints and resumes pending evaluations through the existing ask/tell and controller state owner with restored history, frontier, candidate IDs, generator cursor and stopping clock."
+change_class = "python-public-api"
+compatibility = "Existing ask/tell adapters remain supported. Current persisted checkpoints accept only search-service.v2 and the same exact verified manifest profile, suite, metric policy, generator configuration, stopping rule and supported evaluation/objective replay profile; malformed, old-version and incompatible checkpoints refuse before run-state admission. Failed tell publication/readback restores local pending ownership and run ledger."
+migration = "Read the exact checkpoint_ref from the result telemetry or exposed service after an evaluator interruption. Reopen the configured artifact store and call SearchLoopRunner.resume with the same active suite and supported generator replay contract. Old in-memory service instances have no persisted checkpoint to migrate."
+api = "polisyos.scientist lazily exports NativeSearchService, SearchServiceCheckpoint and SearchLoopRunner. SearchLoopRunner.create_service constructs its actual native evaluator/registry consumer; resume restores an exact artifact reference."
+limitations = "The served hierarchical caller remains unappointed here. Checkpoint identity does not appoint evaluator or promotion authority. Native replay binds actual evaluator settings via known built-in constructors or explicit checkpoint_configuration, suite/data snapshots, codec build/schema and supported context values/callbacks; opaque profiles refuse. External owner handles remain caller inputs. External promotion/frontier effects and service-checkpoint publication are separate atomic boundaries. Generic custom objectives, unsupported generator/stopping profiles and enabled diversity tracking refuse resume. Budget state supplies recorded accounting only; receipt/revision and provider cost-origin authority remain unavailable through the current middleware port."
+evidence = ["tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["README.md"]
+
+[[compatibility_change]]
+id = "native-search-checkpoint-reader-window"
+change_class = "runtime-state-format"
+impact = "migration_required"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "new_format_no_legacy_reader"
+release_note = "Persist and restore only search-service.v2 exact profile-qualified CAS references with compatible native configuration. Original search-service.v1 artifacts are preserved and refused: reopen with the original reader or start a new configured run, without relabeling old artifacts. Unknown formats fail closed; in-memory histories are not automatically converted into durable checkpoints. Terminal stopped runs remain stopped after reopen."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "native-recorded-cost-evidence"
+change_class = "python-public-api"
+impact = "migration_required"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate_validation_refusal"
+release_note = "CostBudgetStopping refuses boolean, huge, nonfinite and nonpositive limits; invalid, negative or nonzero values that underflow the consumer float stop with unavailable evidence. Literal zero remains available. Checkpoint v2 wire/canonical-tag underflow refuses before admission. Recorded-accounting metadata does not promote provider aggregates to provider-reported cost."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "native-plateau-scalar-admission"
+change_class = "python-public-api"
+impact = "migration_required"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate_validation_refusal"
+release_note = "ImprovementPlateau refuses invalid or unrepresentable nonnegative coefficients without an uncaught overflow. Invalid or nonzero-underflow observations cannot establish convergence. The existing 0.01 absolute objective-unit and 0.01 relative defaults, direction and declared-unit formula are retained. Literal zero remains a usable observation."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md"]
+runbook_docs = []

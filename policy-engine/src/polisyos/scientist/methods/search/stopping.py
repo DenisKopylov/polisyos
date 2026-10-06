@@ -9,6 +9,7 @@ from decimal import Decimal
 from math import isfinite
 from typing import Any
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.objective import OptimizationDirection
 
 
@@ -55,6 +56,59 @@ class StoppingCriterion(ABC):
     def state_keys(self) -> tuple[str, ...]:
         """Return externally-owned state keys required by this criterion."""
         return ()
+
+    def checkpoint_state(self) -> dict[str, Any]:
+        """Persist built-in criteria, including the original wall-clock origin."""
+        supported = (
+            MaxIterations,
+            MaxWallTime,
+            ImprovementPlateau,
+            TargetAchieved,
+            CostBudgetStopping,
+            CompositeStoppingCriterion,
+            AllStoppingCriteria,
+        )
+        if type(self) not in supported:
+            raise ValueError("search_resume_unsupported_stopping_profile")
+        from polisyos.scientist.methods.search.run_state import checkpoint_json
+
+        configuration = {
+            name: value
+            for name, value in vars(self).items()
+            if name not in ("_start_time", "_criteria")
+        }
+        return {
+            "version": "search-stopping.v1",
+            "criterion": type(self).__name__,
+            "configuration": checkpoint_json(configuration),
+            "started_at": (
+                self._start_time.isoformat()
+                if isinstance(self, MaxWallTime) and self._start_time is not None
+                else None
+            ),
+            "children": [child.checkpoint_state() for child in getattr(self, "_criteria", [])],
+        }
+
+    def restore_state(self, state: dict[str, Any]) -> None:
+        """Admit only the same built-in rule; restoring never resets its timer."""
+        current = self.checkpoint_state()
+        if set(state) != set(current) or any(
+            state[name] != current[name] for name in ("version", "criterion", "configuration")
+        ):
+            raise ValueError("search_resume_stopping_configuration_mismatch")
+        children = getattr(self, "_criteria", [])
+        if not isinstance(state["children"], list) or len(state["children"]) != len(children):
+            raise ValueError("search_resume_stopping_children_mismatch")
+        for child, saved in zip(children, state["children"], strict=True):
+            child.restore_state(saved)
+        if isinstance(self, MaxWallTime):
+            raw = state["started_at"]
+            restored = datetime.fromisoformat(raw) if isinstance(raw, str) else None
+            if restored is None or restored.tzinfo is None:
+                raise ValueError("search_resume_wall_clock_unavailable")
+            self._start_time = restored
+        elif state["started_at"] is not None:
+            raise ValueError("search_resume_unexpected_wall_clock")
 
 
 class MaxIterations(StoppingCriterion):
@@ -139,14 +193,15 @@ class ImprovementPlateau(StoppingCriterion):
     ):
         if isinstance(patience, bool) or not isinstance(patience, int) or patience < 1:
             raise ValueError("patience must be an integer >= 1")
+        coefficients = {}
         for name, value in (
             ("min_improvement", min_improvement),
             ("absolute_tolerance", absolute_tolerance),
         ):
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
+            coefficient = _finite_stopping_scalar(value)
+            if coefficient is None or coefficient < 0:
                 raise ValueError(f"{name} must be a finite nonnegative number")
-            if not isfinite(value) or value < 0:
-                raise ValueError(f"{name} must be a finite nonnegative number")
+            coefficients[name] = coefficient
         if objective_unit is not None and (
             not isinstance(objective_unit, str) or not objective_unit.strip()
         ):
@@ -154,11 +209,11 @@ class ImprovementPlateau(StoppingCriterion):
         if profile_version not in (None, "1.0"):
             raise ValueError("Unknown plateau profile version")
         self._patience = patience
-        self._min_improvement = min_improvement
+        self._min_improvement = coefficients["min_improvement"]
         self._objective_key = objective_key
         self._objective_unit = objective_unit
         self._direction = OptimizationDirection(direction)
-        self._absolute_tolerance = absolute_tolerance
+        self._absolute_tolerance = coefficients["absolute_tolerance"]
         self._profile_version = profile_version
 
     @property
@@ -174,14 +229,9 @@ class ImprovementPlateau(StoppingCriterion):
         values: list[float] = []
         for row in history:
             raw = row.get(self._objective_key)
-            if isinstance(raw, bool) or not isinstance(raw, (int, float, Decimal)):
+            value = _finite_stopping_scalar(raw)
+            if value is None:
                 return self._unavailable("objective_observation_missing_or_invalid")
-            try:
-                value = float(raw)
-            except (OverflowError, ValueError):
-                return self._unavailable("objective_observation_nonfinite")
-            if not isfinite(value):
-                return self._unavailable("objective_observation_nonfinite")
             values.append(value)
 
         recent_values = values[-self._patience :]
@@ -265,16 +315,23 @@ class TargetAchieved(StoppingCriterion):
 
 
 class CostBudgetStopping(StoppingCriterion):
-    """Stop when cumulative cost exceeds a USD budget."""
+    """Stop on finite recorded USD accounting, or unavailable accounting.
+
+    A scalar and provider aggregate do not establish provider-reported origin,
+    receipt identity or a persisted ledger revision.
+    """
 
     def __init__(
         self,
         max_cost_usd: float,
         cost_key: str = "cumulative_cost_usd",
     ):
-        if max_cost_usd <= 0:
-            raise ValueError("max_cost_usd must be > 0")
-        self._max_cost = max_cost_usd
+        maximum = _nonnegative_cost(max_cost_usd)
+        if maximum is None or maximum <= 0:
+            raise ValueError("max_cost_usd must be a finite positive number")
+        if not isinstance(cost_key, str) or not cost_key:
+            raise ValueError("cost_key must be a nonempty string")
+        self._max_cost = maximum
         self._cost_key = cost_key
 
     @property
@@ -284,26 +341,27 @@ class CostBudgetStopping(StoppingCriterion):
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         del history
         raw_cost = state.get(self._cost_key)
-        if not isinstance(raw_cost, (int, float, Decimal)) or isinstance(raw_cost, bool):
+        cost = _nonnegative_cost(raw_cost)
+        evidence = state.get("budget_evidence")
+        details = {
+            "budget": self._max_cost,
+            "cost_key": self._cost_key,
+            "budget_evidence": evidence
+            if isinstance(evidence, dict)
+            else {
+                "source": "caller_state",
+                "receipt_revision_available": False,
+                "provider_cost_origin_available": False,
+            },
+        }
+        if cost is None:
             return StoppingCondition(
                 should_stop=True,
                 reason=f"Cost budget unavailable for key {self._cost_key!r}",
                 details={
-                    "budget": self._max_cost,
-                    "cost_key": self._cost_key,
+                    **details,
                     "budget_available": False,
-                },
-            )
-        cost = float(raw_cost)
-        if not isfinite(cost):
-            return StoppingCondition(
-                should_stop=True,
-                reason=f"Cost budget unavailable for key {self._cost_key!r}",
-                details={
-                    "budget": self._max_cost,
-                    "cost": raw_cost,
-                    "cost_key": self._cost_key,
-                    "budget_available": False,
+                    "unavailable_reason": "cost_missing_or_invalid",
                 },
             )
         if cost >= self._max_cost:
@@ -312,8 +370,7 @@ class CostBudgetStopping(StoppingCriterion):
                 reason=f"Cost budget ({self._max_cost} USD) exhausted",
                 details={
                     "cost": cost,
-                    "budget": self._max_cost,
-                    "cost_key": self._cost_key,
+                    **details,
                     "budget_available": True,
                 },
             )
@@ -321,8 +378,7 @@ class CostBudgetStopping(StoppingCriterion):
             should_stop=False,
             details={
                 "cost": cost,
-                "budget": self._max_cost,
-                "cost_key": self._cost_key,
+                **details,
                 "budget_available": True,
             },
         )
@@ -330,6 +386,29 @@ class CostBudgetStopping(StoppingCriterion):
     def state_keys(self) -> tuple[str, ...]:
         """Return the exact budget key this criterion reads."""
         return (self._cost_key,)
+
+
+def _nonnegative_cost(value: Any) -> float | None:
+    """Admit strict numeric cost only after conversion to the consumer scale."""
+    numeric = _finite_stopping_scalar(value)
+    return numeric if numeric is not None and numeric >= 0 else None
+
+
+def _finite_stopping_scalar(value: Any) -> float | None:
+    """Keep nonzero accounting/objective values from becoming a false zero."""
+    if isinstance(value, Decimal):
+        try:
+            converted = float(value)
+        except (OverflowError, ValueError):
+            return None
+        numeric = finite_real_scalar(converted)
+    else:
+        numeric = finite_real_scalar(value)
+    if numeric is None:
+        return None
+    if numeric == 0 and value != 0:
+        return None
+    return numeric
 
 
 class CompositeStoppingCriterion(StoppingCriterion):

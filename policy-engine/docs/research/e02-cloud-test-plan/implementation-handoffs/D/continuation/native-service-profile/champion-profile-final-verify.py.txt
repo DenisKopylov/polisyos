@@ -1,0 +1,14 @@
+from __future__ import annotations
+import hashlib, importlib, json, platform, subprocess, sys
+from pathlib import Path
+import pytest, pydantic
+source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+tree = subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip()
+assert source == 'fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70', source
+names = ('polisyos.scientist','polisyos.scientist.methods.search','polisyos.scientist.methods.search.service','polisyos.scientist.methods.search.controller','polisyos.scientist.methods.search.run_state','polisyos.scientist.methods.search.contracts','polisyos.scientist.methods.search.stopping','polisyos.scientist.methods.autotune.runtime','polisyos.core.artifacts.store','polisyos.core.artifacts._integrity_ops','polisyos.scientist.orchestration.engine.budget_middleware','polisyos.scientist.orchestration.engine.budget_ledger','polisyos.common.serialization')
+modules = [importlib.import_module(name) for name in names]
+argv = ['tests/unit/scientist/methods/search/test_service_persistence.py','tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py','tests/unit/remediation/test_srv_01.py','tests/unit/remediation/test_srv_03.py','tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py','tests/unit/scientist/methods/search/test_stopping_limitations.py','-s','--basetemp=/workspace/e02-D-continuation-receipts/champion-profile-final-positive-27a7f28fc0a64f2f8bc40e2e9b4971f3','--junitxml=/workspace/e02-D-continuation-receipts/champion-profile-final-positive-junit.xml']
+print(json.dumps({'source': source,'tree': tree,'argv': argv,'python': sys.version,'executable': sys.executable,'pytest': pytest.__version__,'pydantic': pydantic.__version__,'platform': platform.platform(),'native_origins': {module.__name__: {'path': module.__file__,'sha256': hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()} for module in modules}}, sort_keys=True), flush=True)
+status = pytest.main(argv)
+print(json.dumps({'pytest_exit': int(status),'torch_loaded': 'torch' in sys.modules,'botorch_loaded': 'botorch' in sys.modules,'gpytorch_loaded': 'gpytorch' in sys.modules}), flush=True)
+raise SystemExit(status)

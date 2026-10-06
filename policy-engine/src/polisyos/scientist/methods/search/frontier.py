@@ -164,7 +164,7 @@ def _strip_volatile_candidate_fields(
                 continue
             sanitized[key] = _strip_volatile_candidate_fields(
                 raw_item,
-                technical=technical or lowered in _TECHNICAL_CANDIDATE_ENVELOPES,
+                technical=technical or (root and lowered in _TECHNICAL_CANDIDATE_ENVELOPES),
                 root=False,
             )
         return sanitized

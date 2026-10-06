@@ -51,9 +51,28 @@ def test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer(
     if os.environ.get("E02_B_PROPERTY_REMOVAL") == "cas-put-digest":
         import hashlib
 
+        from polisyos.core.artifacts import ownership
+        from polisyos.core.artifacts import store as source
+
+        real_hash = source._file_content_hash
+        real_owner_hash = ownership._file_sha256
+
         monkeypatch.setattr(
             "polisyos.core.artifacts.store._file_content_hash",
-            lambda _: hashlib.sha256(_PAYLOAD).hexdigest(),
+            lambda target: (
+                hashlib.sha256(_PAYLOAD).hexdigest() if target == blob else real_hash(target)
+            ),
+        )
+        # Publication independently reconciles the same persisted blob again.
+        # Remove that byte predicate too, preserving every manifest and owner
+        # check, so this control removes the property across its full put path.
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.ownership._file_sha256",
+            lambda target: (
+                "sha256:" + hashlib.sha256(_PAYLOAD).hexdigest()
+                if target == blob
+                else real_owner_hash(target)
+            ),
         )
     with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
         store.put_bytes(_PAYLOAD, opts)

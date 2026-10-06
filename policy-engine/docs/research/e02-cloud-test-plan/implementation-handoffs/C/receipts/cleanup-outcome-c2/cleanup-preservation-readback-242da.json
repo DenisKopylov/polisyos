@@ -1,0 +1,1360 @@
+{
+  "schema": "policyos.e02.C.cleanup.preservation-readback.v1",
+  "created_utc": "2026-10-06T20:09:24.186322+00:00",
+  "moves_read_back": 21,
+  "preserved_path_count": 180,
+  "preserved_paths": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168638132,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 169644698,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/.tmp/e02-C2/raw/installed",
+      "device": 16777231,
+      "inode": 171291829,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168805155,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 169135026,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168683693,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 169512425,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-installed-audit-receipt.json",
+      "device": 16777231,
+      "inode": 172984820,
+      "sha256_checked": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-command.json",
+      "device": 16777231,
+      "inode": 172985319,
+      "sha256_checked": "a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168744411,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+      "device": 16777231,
+      "inode": 169779646,
+      "sha256_checked": "6f377d5ccbe5a21fda904e988c4f0190172f6fec26bdce42ad015512bc1fa602",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/pnpm-lock.yaml",
+      "device": 16777231,
+      "inode": 168751819,
+      "sha256_checked": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168622680,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 170566725,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+      "device": 16777231,
+      "inode": 172984115,
+      "sha256_checked": "e0b96555683d52c15cf36e698924b1ffe84ccdfa60695ca57a5701deb68042ac",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+      "device": 16777231,
+      "inode": 172984117,
+      "sha256_checked": "a48071b7d8887eeab131a88ba4d21205d6874808606cc7167c6a971e763101f7",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+      "device": 16777231,
+      "inode": 173066970,
+      "sha256_checked": "2db919d222a3534d2b82524b53f425e9f73f6ae2c2490bb726b38d785b4f902d",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/environment-provenance.json",
+      "device": 16777231,
+      "inode": 169235558,
+      "sha256_checked": "3980f315df5c742df346860bfc926abb11eed776ea9b475eca71428ce8410e89",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.command.json",
+      "device": 16777231,
+      "inode": 169205900,
+      "sha256_checked": "05eb842bd89816fce637ce552ac088fcd0a053195b8a47a3ec87f8f2eb063f70",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.result.json",
+      "device": 16777231,
+      "inode": 169235401,
+      "sha256_checked": "ee44309441236816279cee36b4610d8065387b7e41b10801e1cf5c29dabc3ef1",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed",
+      "device": 16777231,
+      "inode": 169514903,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/command-results.json",
+      "device": 16777231,
+      "inode": 171913234,
+      "sha256_checked": "a15ffb852af6ff48ebfa545ad875fec00460c21575fa453230b63e6f19b742ea",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/provision.stderr",
+      "device": 16777231,
+      "inode": 171889312,
+      "sha256_checked": "c6313b40fc98fc2399708414585164ed9478ef1ff56d4e3bfa958468aadcebd2",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/candidate.tar",
+      "device": 16777231,
+      "inode": 171506617,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/dist",
+      "device": 16777231,
+      "inode": 171506613,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/dist-attempt1",
+      "device": 16777231,
+      "inode": 171522057,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/source",
+      "device": 16777231,
+      "inode": 171506614,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/candidate.tar",
+      "device": 16777231,
+      "inode": 171191724,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/dist",
+      "device": 16777231,
+      "inode": 171221456,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/source",
+      "device": 16777231,
+      "inode": 171191762,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv",
+      "device": 16777231,
+      "inode": 171206921,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv-parent",
+      "device": 16777231,
+      "inode": 171206917,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/canon/dist",
+      "device": 16777231,
+      "inode": 169514906,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/canon/source",
+      "device": 16777231,
+      "inode": 169514905,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/canon/venv",
+      "device": 16777231,
+      "inode": 169530428,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/build-wheelhouse",
+      "device": 16777231,
+      "inode": 172269458,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/buildenv",
+      "device": 16777231,
+      "inode": 172269488,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/candidate.tar",
+      "device": 16777231,
+      "inode": 172254203,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/dist",
+      "device": 16777231,
+      "inode": 172269413,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/source",
+      "device": 16777231,
+      "inode": 172254219,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/venv-base",
+      "device": 16777231,
+      "inode": 172280104,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/candidate.tar",
+      "device": 16777231,
+      "inode": 172843997,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-installed-audit-receipt.json",
+      "device": 16777231,
+      "inode": 172974113,
+      "sha256_checked": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/dist",
+      "device": 16777231,
+      "inode": 172859409,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/editable-install-nobi3-command.json",
+      "device": 16777231,
+      "inode": 172913215,
+      "sha256_checked": "a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/command.json",
+      "device": 16777231,
+      "inode": 173048818,
+      "sha256_checked": "fd011f4d0f1e4981fa8dd3744b0c7dafa12b17ee77d389cd430983b8d8b05590",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source",
+      "device": 16777231,
+      "inode": 172844003,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/candidate.tar",
+      "device": 16777231,
+      "inode": 172003875,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/dist",
+      "device": 16777231,
+      "inode": 172019042,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/source",
+      "device": 16777231,
+      "inode": 172003882,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/venv-vector-search",
+      "device": 16777231,
+      "inode": 172028636,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/candidate.tar",
+      "device": 16777231,
+      "inode": 172731661,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/dist",
+      "device": 16777231,
+      "inode": 172733309,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/source",
+      "device": 16777231,
+      "inode": 172733308,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-sync.stderr",
+      "device": 16777231,
+      "inode": 172758117,
+      "sha256_checked": "fcc43293d7def6a47ef254ebc0a2147a2bb5599db411b28d978d8329dd4fe492",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/wheel-install.stderr",
+      "device": 16777231,
+      "inode": 172772316,
+      "sha256_checked": "edcae28791e4b870c80ee819a7370723ae680d4749620541e32cb087d77fb8a0",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/sdist_source-extract",
+      "device": 16777231,
+      "inode": 172425237,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/sdist_source.tar",
+      "device": 16777231,
+      "inode": 172425233,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/wheel_source-extract",
+      "device": 16777231,
+      "inode": 172410111,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/wheel_source.tar",
+      "device": 16777231,
+      "inode": 172410107,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/candidate.tar",
+      "device": 16777231,
+      "inode": 171400487,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/dist",
+      "device": 16777231,
+      "inode": 171400486,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/source",
+      "device": 16777231,
+      "inode": 171400485,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/venv",
+      "device": 16777231,
+      "inode": 171425374,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/candidate.tar",
+      "device": 16777231,
+      "inode": 170434878,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/dist",
+      "device": 16777231,
+      "inode": 170434875,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/dist-clean",
+      "device": 16777231,
+      "inode": 170608292,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/dist-from-sdist",
+      "device": 16777231,
+      "inode": 171108335,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/source",
+      "device": 16777231,
+      "inode": 170434874,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/source-clean",
+      "device": 16777231,
+      "inode": 170593144,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/source-from-sdist",
+      "device": 16777231,
+      "inode": 171108334,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/venv",
+      "device": 16777231,
+      "inode": 170522171,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/ing-successor-68eed/candidate.tar",
+      "device": 16777231,
+      "inode": 171545387,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/ing-successor-68eed/dist",
+      "device": 16777231,
+      "inode": 171545386,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/ing-successor-68eed/source",
+      "device": 16777231,
+      "inode": 171545385,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/ing/candidate.tar",
+      "device": 16777231,
+      "inode": 171267063,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/ing/dist",
+      "device": 16777231,
+      "inode": 171267062,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/ing/source",
+      "device": 16777231,
+      "inode": 171267061,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/candidate.tar",
+      "device": 16777231,
+      "inode": 172359464,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/dist",
+      "device": 16777231,
+      "inode": 172374963,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/install-wheel.command.json",
+      "device": 16777231,
+      "inode": 172406571,
+      "sha256_checked": "5d8ba88ba8cc695d219de481b0941652fb295bbb1db0874dfdf0427b787b6419",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-converter-delta.command-results.json",
+      "device": 16777231,
+      "inode": 172548510,
+      "sha256_checked": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json",
+      "device": 16777231,
+      "inode": 172409381,
+      "sha256_checked": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source",
+      "device": 16777231,
+      "inode": 172359501,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-5a72/candidate.tar",
+      "device": 16777231,
+      "inode": 171816148,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-5a72/dist",
+      "device": 16777231,
+      "inode": 171816146,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-5a72/source",
+      "device": 16777231,
+      "inode": 171816147,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-c62/candidate.tar",
+      "device": 16777231,
+      "inode": 171913680,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-c62/dist",
+      "device": 16777231,
+      "inode": 171913677,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-c62/source",
+      "device": 16777231,
+      "inode": 171913676,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/build-wheelhouse",
+      "device": 16777231,
+      "inode": 171978001,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse-retry.exit",
+      "device": 16777231,
+      "inode": 171978726,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse-retry.stderr",
+      "device": 16777231,
+      "inode": 171978090,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse-retry.stdout",
+      "device": 16777231,
+      "inode": 171978089,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse.exit",
+      "device": 16777231,
+      "inode": 171978013,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse.stderr",
+      "device": 16777231,
+      "inode": 171978012,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse.stdout",
+      "device": 16777231,
+      "inode": 171978011,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install.stderr",
+      "device": 16777231,
+      "inode": 171977892,
+      "sha256_checked": "1d2b170542f3b41429af8f0f74ef63d989fa56bae4b9824b435546d28e2aaa77",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/candidate.tar",
+      "device": 16777231,
+      "inode": 171957007,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/command-results.json",
+      "device": 16777231,
+      "inode": 172003836,
+      "sha256_checked": "8e9a4d8523a281af5f2910d8843d7d1d6b46b3e7f1ff34d415b665030a0f6336",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dist",
+      "device": 16777231,
+      "inode": 171977701,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.exit",
+      "device": 16777231,
+      "inode": 171978008,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.py",
+      "device": 16777231,
+      "inode": 171977997,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.retry.exit",
+      "device": 16777231,
+      "inode": 171978053,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.retry.stderr",
+      "device": 16777231,
+      "inode": 171978051,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.retry.stdout",
+      "device": 16777231,
+      "inode": 171978050,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.stderr",
+      "device": 16777231,
+      "inode": 171978000,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.stdout",
+      "device": 16777231,
+      "inode": 171977999,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/source",
+      "device": 16777231,
+      "inode": 171957214,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/candidate.tar",
+      "device": 16777231,
+      "inode": 172159447,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/dist",
+      "device": 16777231,
+      "inode": 172174749,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-receipt.json",
+      "device": 16777231,
+      "inode": 172253844,
+      "sha256_checked": "81ab51f487eba3e6233fc892b0749f4adc06812cb7550f074c64ea2d6a04f1da",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/source",
+      "device": 16777231,
+      "inode": 172159509,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/candidate.tar",
+      "device": 16777231,
+      "inode": 172105734,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/dist",
+      "device": 16777231,
+      "inode": 172120962,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/source",
+      "device": 16777231,
+      "inode": 172105738,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/venv-base",
+      "device": 16777231,
+      "inode": 172131140,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/candidate.tar",
+      "device": 16777231,
+      "inode": 171669868,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist",
+      "device": 16777231,
+      "inode": 171669845,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/source",
+      "device": 16777231,
+      "inode": 171669844,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/candidate.tar",
+      "device": 16777231,
+      "inode": 172595930,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist",
+      "device": 16777231,
+      "inode": 172611135,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/env-install-results.json",
+      "device": 16777231,
+      "inode": 172651279,
+      "sha256_checked": "55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.command-results.json",
+      "device": 16777231,
+      "inode": 172697468,
+      "sha256_checked": "523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-verified.command-results.json",
+      "device": 16777231,
+      "inode": 172709402,
+      "sha256_checked": "ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source",
+      "device": 16777231,
+      "inode": 172595929,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/candidate.tar",
+      "device": 16777231,
+      "inode": 171864335,
+      "sha256_checked": null,
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/dist",
+      "device": 16777231,
+      "inode": 171864331,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/source",
+      "device": 16777231,
+      "inode": 171864330,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/publication/dfi-final-push-readback.json",
+      "device": 16777231,
+      "inode": 172985688,
+      "sha256_checked": "ca249847f0d071405e4cb8d338dc158f8a0aee18dcc45bc7d7557e02c638d50f",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "device": 16777231,
+      "inode": 171106905,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "device": 16777231,
+      "inode": 171106912,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+      "device": 16777231,
+      "inode": 173158443,
+      "sha256_checked": "9a037bb5bb1f82c1918758a206e235843ce44de4b6189fb3741909dd8eec4752",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-environment.provenance.json",
+      "device": 16777231,
+      "inode": 173158411,
+      "sha256_checked": "3980f315df5c742df346860bfc926abb11eed776ea9b475eca71428ce8410e89",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.command.json",
+      "device": 16777231,
+      "inode": 173158409,
+      "sha256_checked": "05eb842bd89816fce637ce552ac088fcd0a053195b8a47a3ec87f8f2eb063f70",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.result.json",
+      "device": 16777231,
+      "inode": 173158410,
+      "sha256_checked": "ee44309441236816279cee36b4610d8065387b7e41b10801e1cf5c29dabc3ef1",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment-install.stderr",
+      "device": 16777231,
+      "inode": 173158413,
+      "sha256_checked": "1d2b170542f3b41429af8f0f74ef63d989fa56bae4b9824b435546d28e2aaa77",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment.command-results.json",
+      "device": 16777231,
+      "inode": 173158412,
+      "sha256_checked": "8e9a4d8523a281af5f2910d8843d7d1d6b46b3e7f1ff34d415b665030a0f6336",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-environment.provenance.json",
+      "device": 16777231,
+      "inode": 173158416,
+      "sha256_checked": "8c1b7322a19670b6fdd4dabfdce78373a6e7700d0b4e0a5ea6c6f156c40017d5",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.command.json",
+      "device": 16777231,
+      "inode": 173158414,
+      "sha256_checked": "ef810f891dfb072efeee20162651c761a7d4976e71ce529c595ad448115333bc",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.result.json",
+      "device": 16777231,
+      "inode": 173158415,
+      "sha256_checked": "30ab6a03591289e7ebf2cc4fc576742fde2c355cb5155066aea652eaea0e2d7b",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/node_modules",
+      "device": 16777231,
+      "inode": 171039106,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "device": 16777231,
+      "inode": 171106913,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/packages/cli/node_modules",
+      "device": 16777231,
+      "inode": 171106916,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "device": 16777231,
+      "inode": 171106917,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168653314,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/.pytest_cache",
+      "device": 16777231,
+      "inode": 171292310,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 171292295,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json",
+      "device": 16777231,
+      "inode": 172984298,
+      "sha256_checked": "0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441.json",
+      "device": 16777231,
+      "inode": 172984817,
+      "sha256_checked": "ca05094d1efa91667845d2f733bd4f3830faee32340be7cbfe8fcf77b85ccbd5",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168668498,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 169081238,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168759606,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+      "device": 16777231,
+      "inode": 171717852,
+      "sha256_checked": "f3d98ace32b92eda6d4f2a590259fd5adb4a31938e8ac7bc366c0ed4d6ef29d8",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+      "device": 16777231,
+      "inode": 171831582,
+      "sha256_checked": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json",
+      "device": 16777231,
+      "inode": 172697490,
+      "sha256_checked": "83ef9f2f94043b62a6fe47c0c5110bd0570e6883ea013ab54b9543fcfbd039c0",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168890125,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/.pytest_cache",
+      "device": 16777231,
+      "inode": 169869896,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 170996291,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168714055,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 169083390,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.command.json",
+      "device": 16777231,
+      "inode": 172708657,
+      "sha256_checked": "5d8ba88ba8cc695d219de481b0941652fb295bbb1db0874dfdf0427b787b6419",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-converter-delta.command-results.json",
+      "device": 16777231,
+      "inode": 172708653,
+      "sha256_checked": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final2.command-results.json",
+      "device": 16777231,
+      "inode": 172708652,
+      "sha256_checked": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168729235,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-receipt.json",
+      "device": 16777231,
+      "inode": 172294482,
+      "sha256_checked": "81ab51f487eba3e6233fc892b0749f4adc06812cb7550f074c64ea2d6a04f1da",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168774790,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 169079633,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168698875,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 169510889,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-install-results.json",
+      "device": 16777231,
+      "inode": 172722480,
+      "sha256_checked": "55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json",
+      "device": 16777231,
+      "inode": 172722453,
+      "sha256_checked": "523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json",
+      "device": 16777231,
+      "inode": 172722471,
+      "sha256_checked": "ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos",
+      "device": 16777231,
+      "inode": 168789972,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/.ruff_cache",
+      "device": 16777231,
+      "inode": 171186322,
+      "sha256_checked": null,
+      "same_regular_file_size": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-command-results.json",
+      "device": 16777231,
+      "inode": 171947176,
+      "sha256_checked": "a15ffb852af6ff48ebfa545ad875fec00460c21575fa453230b63e6f19b742ea",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-provision.stderr",
+      "device": 16777231,
+      "inode": 171947974,
+      "sha256_checked": "c6313b40fc98fc2399708414585164ed9478ef1ff56d4e3bfa958468aadcebd2",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/environment-provenance.json",
+      "device": 16777231,
+      "inode": 169198605,
+      "sha256_checked": "8c1b7322a19670b6fdd4dabfdce78373a6e7700d0b4e0a5ea6c6f156c40017d5",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.command.json",
+      "device": 16777231,
+      "inode": 169198572,
+      "sha256_checked": "ef810f891dfb072efeee20162651c761a7d4976e71ce529c595ad448115333bc",
+      "same_regular_file_size": true
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.result.json",
+      "device": 16777231,
+      "inode": 169198575,
+      "sha256_checked": "30ab6a03591289e7ebf2cc4fc576742fde2c355cb5155066aea652eaea0e2d7b",
+      "same_regular_file_size": true
+    }
+  ],
+  "admitted_worktrees": [
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "branch": "codex/e02-C-berl-20261006",
+      "head": "8aecb0b6e08f8d37f09c70927761576583a89828",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "branch": "codex/e02-C-canon-20261006",
+      "head": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos",
+      "branch": "codex/e02-C-catalog-20261006",
+      "head": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos",
+      "branch": "codex/e02-C-client-20261006",
+      "head": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "branch": "codex/e02-C-continuation-20261006",
+      "head": "242da377ddae9868907edcca1976d74e46fe6aa5",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "branch": "codex/e02-C-dfi-emb-20261006",
+      "head": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos",
+      "branch": "codex/e02-C-federation-20261006",
+      "head": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos",
+      "branch": "codex/e02-C-hygiene-20261006",
+      "head": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos",
+      "branch": "codex/e02-C-ing-oracle-20261006",
+      "head": "5231cf93a399fcc2944870c8a590b8770f3ba931",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos",
+      "branch": "codex/e02-C-migrations-20261006",
+      "head": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
+      "branch": "codex/e02-C-obs-udf-20261006",
+      "head": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos",
+      "branch": "codex/e02-C-plugins-20261006",
+      "head": "976212bbefb684da4823f61d810bf7a208a6e298",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos",
+      "branch": "codex/e02-C-schema-20261006",
+      "head": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+      "clean": true
+    },
+    {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos",
+      "branch": "codex/e02-C-scholar-20261006",
+      "head": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+      "clean": true
+    }
+  ],
+  "all_14_attached_heads_unchanged_and_clean": true,
+  "source_extractions_preserved": 24,
+  "unreleased_env_cache_candidates_preserved": 28,
+  "permanent_deletion": false,
+  "trash_emptied": false,
+  "method": "Every preserved path compared device/inode; files with retained SHA compared content; regular files compared size. The operator only renamed the exact 21 directories."
+}

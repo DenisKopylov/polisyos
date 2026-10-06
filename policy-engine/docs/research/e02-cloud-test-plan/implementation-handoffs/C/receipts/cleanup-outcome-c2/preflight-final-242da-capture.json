@@ -1,0 +1,14 @@
+{
+  "created_utc": "2026-10-06T20:06:43.200207+00:00",
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-I",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/build_cleanup_preflight_v5.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "source_sha256": "ca4ab833df0579a100fc915fcf01626572245c06688bf88bda090e455a2dad4b",
+  "source_identical_after": true,
+  "exit_code": 0,
+  "stdout": "{\n  \"selection_path\": \"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v5-preflight-20261006T200643194248Z.json\",\n  \"selection_sha256\": \"cc771632f08f81ef39eeb0c435c645b853d01614edf2a1fd1d0c3ca594903029\",\n  \"selection_bytes\": 121596,\n  \"release_template_path\": \"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-release-template-v2-preflight-20261006T200643194248Z.json\",\n  \"release_template_sha256\": \"4ff4d455eee4c6756e0944e16299fa7d347bea928c07598bf653a7341798c5e3\",\n  \"release_template_bytes\": 61560,\n  \"candidate_count\": 21,\n  \"held_count\": 28,\n  \"source_extractions_preserve_only\": 24,\n  \"admitted_roots\": 14,\n  \"clean_roots_observed\": 14,\n  \"resolved_candidate_rows\": 21,\n  \"unresolved_candidate_rows\": [],\n  \"provenance_ref_index_count\": 25,\n  \"retained_git_ref_count\": 66,\n  \"final54_docs_committed_observation\": true,\n  \"mover_sha256\": \"5dfe312ea92a95956046291a9d8bd776aa8e610b6ad70e952c077d4cf0efa611\",\n  \"trash_authorized_now\": false,\n  \"released_paths\": 0,\n  \"blockers\": [\n    \"candidate_row_10:root_release_decision_missing\",\n    \"candidate_row_11:root_release_decision_missing\",\n    \"candidate_row_16:root_release_decision_missing\",\n    \"candidate_row_18:root_release_decision_missing\",\n    \"candidate_row_21:root_release_decision_missing\",\n    \"candidate_row_22:root_release_decision_missing\",\n    \"candidate_row_24:root_release_decision_missing\",\n    \"candidate_row_32:root_release_decision_missing\",\n    \"candidate_row_33:root_release_decision_missing\",\n    \"candidate_row_38:root_release_decision_missing\",\n    \"candidate_row_39:root_release_decision_missing\",\n    \"candidate_row_40:root_release_decision_missing\",\n    \"candidate_row_41:root_release_decision_missing\",\n    \"candidate_row_42:root_release_decision_missing\",\n    \"candidate_row_43:root_release_decision_missing\",\n    \"candidate_row_4:root_release_decision_missing\",\n    \"candidate_row_5:root_release_decision_missing\",\n    \"candidate_row_6:root_release_decision_missing\",\n    \"candidate_row_7:root_release_decision_missing\",\n    \"candidate_row_8:root_release_decision_missing\",\n    \"candidate_row_9:root_release_decision_missing\"\n  ]\n}\n",
+  "stderr": ""
+}

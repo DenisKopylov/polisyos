@@ -1,0 +1,110 @@
+{
+  "schema": "policyos.e02.C.cleanup.outcome-index.v1",
+  "created_utc": "2026-10-06T20:11:31.554871+00:00",
+  "entries": [
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-preparation-commit-capture.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preparation-commit-capture.json",
+      "source_sha256": "0c8c758bd649df6b35fc128388124ca124aab0051f552d1885d18617dbdd8973",
+      "source_bytes": 12897,
+      "stored_sha256": "0c8c758bd649df6b35fc128388124ca124aab0051f552d1885d18617dbdd8973",
+      "stored_bytes": 12897,
+      "lossless_gzip": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/preflight-final-242da-capture.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/preflight-final-242da-capture.json",
+      "source_sha256": "0bf8736d5812b8549ed1ecfef48772a5ceb4eee20fd9d965355b11151f72e766",
+      "source_bytes": 2903,
+      "stored_sha256": "0bf8736d5812b8549ed1ecfef48772a5ceb4eee20fd9d965355b11151f72e766",
+      "stored_bytes": 2903,
+      "lossless_gzip": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-operation-242da.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.json",
+      "source_sha256": "1afca1366300a0404e99667e6d7d6a05b3e0de04fda4837769e88dc34e8c02c3",
+      "source_bytes": 38413,
+      "stored_sha256": "1afca1366300a0404e99667e6d7d6a05b3e0de04fda4837769e88dc34e8c02c3",
+      "stored_bytes": 38413,
+      "lossless_gzip": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-operation-242da-capture.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da-capture.json",
+      "source_sha256": "09dbe461b9d7e7f2deb88bef03ec8c89de565a3b52aa548b4a0feaf154b542b6",
+      "source_bytes": 2035,
+      "stored_sha256": "09dbe461b9d7e7f2deb88bef03ec8c89de565a3b52aa548b4a0feaf154b542b6",
+      "stored_bytes": 2035,
+      "lossless_gzip": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-operation-242da.intent.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl",
+      "source_sha256": "3c854473eb0e7778f69d25c77bb21456a13f012aea317ef94b5c28d02957f398",
+      "source_bytes": 15271,
+      "stored_sha256": "3c854473eb0e7778f69d25c77bb21456a13f012aea317ef94b5c28d02957f398",
+      "stored_bytes": 15271,
+      "lossless_gzip": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-preservation-readback-242da.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preservation-readback-242da.json",
+      "source_sha256": "dedb11fb39d29f26d106771a89c6dacade68f018036e002c1ce9e2a947c9048b",
+      "source_bytes": 57388,
+      "stored_sha256": "dedb11fb39d29f26d106771a89c6dacade68f018036e002c1ce9e2a947c9048b",
+      "stored_bytes": 57388,
+      "lossless_gzip": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-root-released-242da.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-root-released-242da.json.gz",
+      "source_sha256": "951eccfd1b968a4ea959cfb8ca09d1e179bcc6fc20c7207678b2dfabeb54f1f0",
+      "source_bytes": 120362,
+      "stored_sha256": "e30e3e3eb9323b2adc2c2115403f94df1362925091f6089dba9f79dfd73c6d6a",
+      "stored_bytes": 10948,
+      "lossless_gzip": true
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-root-release-242da.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-root-release-242da.json.gz",
+      "source_sha256": "1ddaabd96c30a78589fb4764789ab14cac1023b2452cc756c81140acdb5a09bf",
+      "source_bytes": 92367,
+      "stored_sha256": "4f8961cb3704b7d448298c61d36625b356df4dff4cae35bcb29207096534d819",
+      "stored_bytes": 10106,
+      "lossless_gzip": true
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v5-preflight-20261006T200643194248Z.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-v5-preflight-20261006T200643194248Z.json.gz",
+      "source_sha256": "cc771632f08f81ef39eeb0c435c645b853d01614edf2a1fd1d0c3ca594903029",
+      "source_bytes": 121596,
+      "stored_sha256": "65710adc8ee4f2db77ad996a467e020c3060441358444839c79323a95e23e6b9",
+      "stored_bytes": 10588,
+      "lossless_gzip": true
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-release-template-v2-preflight-20261006T200643194248Z.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-release-template-v2-preflight-20261006T200643194248Z.json.gz",
+      "source_sha256": "4ff4d455eee4c6756e0944e16299fa7d347bea928c07598bf653a7341798c5e3",
+      "source_bytes": 61560,
+      "stored_sha256": "de90e3bdfaa9e2fdeacadd493606a0875ee5f23f6fe59ae6e78972a22ab3fecd",
+      "stored_bytes": 7920,
+      "lossless_gzip": true
+    }
+  ],
+  "result": {
+    "moved_to_trash": 21,
+    "held_env_cache_candidates": 28,
+    "preserved_source_extractions": 24,
+    "preserved_paths_read_back": 180,
+    "admitted_attached_clean_worktrees": 14,
+    "permanent_deletion": false,
+    "trash_emptied": false
+  },
+  "private_operator_implementation": {
+    "commit": "242da377ddae9868907edcca1976d74e46fe6aa5",
+    "tree": "605818f11bd13bb5a08aa3a7d02543987d65c11d"
+  },
+  "method_limit": "Preservation checks compare inode/device and retained small-file SHA/regular-file size; no bulk full-production or archive payload hash/replay."
+}

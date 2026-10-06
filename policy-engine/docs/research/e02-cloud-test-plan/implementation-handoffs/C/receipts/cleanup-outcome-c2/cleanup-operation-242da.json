@@ -1,0 +1,426 @@
+{
+  "schema": "policyos.e02.C.trash_cleanup.v1",
+  "selection_sha256": "951eccfd1b968a4ea959cfb8ca09d1e179bcc6fc20c7207678b2dfabeb54f1f0",
+  "release_sha256": "1ddaabd96c30a78589fb4764789ab14cac1023b2452cc756c81140acdb5a09bf",
+  "started_utc": "2026-10-06T20:08:34.461000+00:00",
+  "trash_directory": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da",
+  "permanent_deletion": false,
+  "trash_emptied": false,
+  "moves": [
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/000-e02-c-client-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 168889386,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/pnpm-lock.yaml",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.856993+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/001-e02-c-client-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 168889393,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/pnpm-lock.yaml",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.858490+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/002-e02-c-client-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 168821615,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/pnpm-lock.yaml",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.859913+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/003-e02-c-client-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 168889394,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/pnpm-lock.yaml",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.861400+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/packages/cli/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/004-e02-c-client-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 168889397,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/pnpm-lock.yaml",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.862824+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/005-e02-c-client-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 168889398,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/pnpm-lock.yaml",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.864240+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/.venv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/006-e02-c-client-20261006-.venv",
+      "category": "private_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 169205902,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/environment-provenance.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.result.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-environment.provenance.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.result.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.865572+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/007-e02-c-continuation-20261006-venv",
+      "category": "installed_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171889314,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/provision.stderr",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-provision.stderr"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.866845+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/008-e02-c-continuation-20261006-venv-base",
+      "category": "installed_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 172898713,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-installed-audit-receipt.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-installed-audit-receipt.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/editable-install-nobi3-command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.868183+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/009-e02-c-continuation-20261006-venv-vector-search",
+      "category": "installed_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 172758119,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-sync.stderr",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/wheel-install.stderr",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/publication/dfi-final-push-readback.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.869642+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/010-e02-c-continuation-20261006-venv-base",
+      "category": "installed_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 172384589,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/install-wheel.command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-converter-delta.command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-converter-delta.command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final2.command-results.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.871071+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/011-e02-c-continuation-20261006-venv-base",
+      "category": "installed_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 172228460,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-receipt.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-receipt.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.872443+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/012-e02-c-continuation-20261006-venv-base",
+      "category": "installed_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 172629418,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/env-install-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-verified.command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-install-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.873855+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/013-e02-c-continuation-20261006-buildenv",
+      "category": "private_build_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171977866,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install.stderr",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/command-results.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment-install.stderr",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment.command-results.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.875283+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/014-e02-c-continuation-20261006-.venv",
+      "category": "private_python_environment",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 168962343,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-environment.provenance.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.command.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.result.json",
+        "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/environment-provenance.json",
+        "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.command.json",
+        "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.result.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.876903+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/015-e02-c-hygiene-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171785625,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.878312+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/016-e02-c-hygiene-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171785624,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.879907+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/017-e02-c-hygiene-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171717858,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.881246+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/018-e02-c-hygiene-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171785632,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.882739+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/packages/cli/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/019-e02-c-hygiene-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171785635,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.884111+00:00"
+    },
+    {
+      "original_path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/020-e02-c-hygiene-20261006-node_modules",
+      "category": "node_modules",
+      "owner_uid": 501,
+      "device": 16777231,
+      "inode": 171785636,
+      "source_absent_and_destination_inode_matches": true,
+      "preserved_refs_exist_after": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json"
+      ],
+      "moved_utc": "2026-10-06T20:08:36.885464+00:00"
+    }
+  ],
+  "skips": [],
+  "complete": true,
+  "recovery_journal": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-operation-242da.intent.jsonl",
+  "recovery_rule": "For each durable intent without confirmation, compare the recorded device/inode at original and Trash destination. Never rerun a rename blindly or permanently delete either path.",
+  "completed_utc": "2026-10-06T20:08:36.885665+00:00"
+}

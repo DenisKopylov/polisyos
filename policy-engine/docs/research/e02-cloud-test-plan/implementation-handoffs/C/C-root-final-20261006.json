@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.C.final_root_git_handoff.v1",
+  "created_utc": "2026-10-06T20:11:31.566454+00:00",
+  "unit": "C",
+  "branch": "codex/e02-C-continuation-20261006",
+  "slice_base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "required_anchor_ancestor": "1ddcd7b3905e52c0d19db091823a64830139fa64"
+  },
+  "analysis_source": {
+    "sha": "97c85fae2d4505ec8248540d98b9556296244208",
+    "tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3"
+  },
+  "implementation": {
+    "sha": "d50d28e4555c4e87e1d4732b81836ae8502c6849",
+    "tree": "58d0bfc902b9cff182fe959a99a337223bcb1656",
+    "scope": "Full C54 criterion-backed final table, canonical generator/checker and required Git inputs/evidence; runtime source families are indexed by the separately committed C54 handoff."
+  },
+  "C54_machine_handoff": {
+    "commit": "1c9766f8305de3c64989d3d8a10470076bd75d2d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/final-handoff.json",
+    "sha256": "8936eb2b12f69f601c11c42086b7378f446fca73c802c20db05a0fa46f7212ef",
+    "bytes": 34153
+  },
+  "final_table": {
+    "commit": "d50d28e4555c4e87e1d4732b81836ae8502c6849",
+    "json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+    "json_sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+    "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.md",
+    "markdown_sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+    "C_bundles": 33,
+    "C_findings": 54,
+    "C_criterion_occurrences": 59,
+    "verdicts": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "historical_status_separate": true
+  },
+  "cleanup_outcome": {
+    "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/index.json",
+    "index_sha256": "4a23a3569cf30d35b0f97004eee90e5ed7db9944c94f1c31763651d67e5a3a18",
+    "result": {
+      "moved_to_trash": 21,
+      "held_env_cache_candidates": 28,
+      "preserved_source_extractions": 24,
+      "preserved_paths_read_back": 180,
+      "admitted_attached_clean_worktrees": 14,
+      "permanent_deletion": false,
+      "trash_emptied": false
+    },
+    "trash_directory": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da"
+  },
+  "verification": {
+    "generic_bookkeeping": "Independent v10 delta GO; 210 receipt bindings/282 RFC pointers/59 source spans; live summary-count drift fails; post-implementation canonical generator bit-exact replay",
+    "semantic_boundary": "Per-finding deciding evidence, unavailable inputs, skipped backends and remaining checks are in the exact C54 table/13 source-family handoffs. Bookkeeping counts are not semantic PASS.",
+    "P37_P38": "Gate bases and property/proxy divergences are recorded per slice and in validator/cleanup controls.",
+    "P40": "Same binding class was widened to live source/hash and all actual verdict-summary aliases; false-green controls retained.",
+    "P41": "No unknown-origin red is attributed as inherited without exact slice-base replay and complete input-denominator disjointness."
+  },
+  "production_data": {
+    "full_inputs": "local read-only; no production payload included in Git handoffs",
+    "allowed_metadata_scope": "MIG manifest/information_schema audit and private copies only; exact scope in C54 handoff",
+    "full_history_or_model_residuals": "G by immutable source SHA; full model assets/history/raw VM archives/backend replay not transferred or inferred from bounded fixtures"
+  },
+  "next_owner": {
+    "unit": "G",
+    "channel": "ordinary Git topic branches and committed handoffs",
+    "work": "Use all 13 indexed source-family DAGs/ancestry, integrate accepted source once, preserve per-finding held/limited states, run dependent expensive wave after frozen integration SHA. Resolve named cross-unit/source inputs through tracked owners.",
+    "main_publication": "Requires separate explicit human authorization for the specific future publication."
+  },
+  "publication_scope": "Own codex/e02-C-* topics only; this receipt authorizes no main publication or other user-chat messages."
+}

@@ -1,0 +1,130 @@
+{
+  "created_utc": "2026-10-06T20:06:25.935399+00:00",
+  "parent": "1c9766f8305de3c64989d3d8a10470076bd75d2d",
+  "head": "242da377ddae9868907edcca1976d74e46fe6aa5",
+  "tree": "605818f11bd13bb5a08aa3a7d02543987d65c11d",
+  "files": 28,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "1c9766f8305de3c64989d3d8a10470076bd75d2d\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "## codex/e02-C-continuation-20261006\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "--",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/build_cleanup_preflight_v5.py\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204000Z.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204300Z.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.md\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.md\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.md\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/eligible-env-cache-v2.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/execute_cleanup_capture.py\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/index.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/move_released_to_trash.py\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-controls-latest-5dfe.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-precondition-controls-v2-0ccb29b1f100.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-environment.provenance.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.command.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.result.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment-install.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment.command-results.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-environment.provenance.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.command.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.result.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "commit",
+        "-m",
+        "Retain C cleanup provenance before Trash release\n\nCommit exact setup/use captures, the independent scoped mover review, explicit negative controls and the private cleanup mechanism before any move. Large read-only census inputs remain local and are cited by SHA; no production payload or source archive is copied.\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "[codex/e02-C-continuation-20261006 242da377d] Retain C cleanup provenance before Trash release\n 28 files changed, 4947 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/build_cleanup_preflight_v5.py\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204000Z.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204300Z.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.md\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.md\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.md\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/eligible-env-cache-v2.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/execute_cleanup_capture.py\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/index.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/move_released_to_trash.py\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stderr\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stdout\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stderr\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stdout\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-controls-latest-5dfe.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-precondition-controls-v2-0ccb29b1f100.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-environment.provenance.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.command.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.result.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment-install.stderr\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment.command-results.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-environment.provenance.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.command.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.result.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "242da377ddae9868907edcca1976d74e46fe6aa5\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "605818f11bd13bb5a08aa3a7d02543987d65c11d\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "## codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    }
+  ],
+  "readback_all_staged_files": true,
+  "hook_note": "command-local hooksPath=/dev/null; known unavailable Lefthook, no hook receipt inferred"
+}

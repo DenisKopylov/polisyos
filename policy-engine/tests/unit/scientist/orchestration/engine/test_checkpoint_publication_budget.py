@@ -67,12 +67,13 @@ def _verified_generation(store, run_dir):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("stage", ["artifact", "head", "gc"])
 @pytest.mark.parametrize("wrapped", [False, True])
+@pytest.mark.parametrize("workflow_timeout", [None, 2])
 async def test_native_workflow_budget_replaces_hidden_helper_default(
-    tmp_path, monkeypatch, stage, wrapped
+    tmp_path, monkeypatch, stage, wrapped, workflow_timeout
 ):
-    store, ctx, node, workflow, executor, hook, _ = await _native_input(tmp_path)
-    node.calls = 0
-    node.refs.clear()
+    store = FileSystemCAS(tmp_path / "cas")
+    ctx, node, workflow, executor = _setup(store, timeout=workflow_timeout)
+    hook = checkpoint.CASCheckpointHook(store=store, run_dir=ctx.run.trace_path.parent)
     monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.01)
     entered = []
     if stage == "artifact":
@@ -131,6 +132,57 @@ async def test_native_workflow_budget_replaces_hidden_helper_default(
     head = _verified_generation(store, ctx.run.trace_path.parent)
     assert result.state.last_checkpoint_ref == head.checkpoint_ref
     assert sum(row.get("event") == "RUN_FINALIZED" for row in _events(ctx)) == 1
+
+
+@pytest.mark.asyncio
+async def test_cancelled_checkpoint_cannot_adopt_reused_executor_owner(tmp_path, monkeypatch):
+    store = FileSystemCAS(tmp_path / "cas")
+    ctx, node, workflow, executor = _setup(store)
+    executor._checkpoint_hook = checkpoint.CASCheckpointHook(
+        store=store, run_dir=ctx.run.trace_path.parent
+    )
+    entered, release, finished = threading.Event(), threading.Event(), threading.Event()
+    original_fsync = checkpoint.os.fsync
+
+    def held_fsync(fd):
+        if ".checkpoint_head_" not in os.readlink(f"/proc/self/fd/{fd}"):
+            return original_fsync(fd)
+        entered.set()
+        try:
+            assert release.wait(5)
+            return original_fsync(fd)
+        finally:
+            finished.set()
+
+    monkeypatch.setattr(checkpoint.os, "fsync", held_fsync)
+    old_task = asyncio.create_task(
+        executor.execute(workflow, ExperimentState(run_id="R_deadline", params={"seed": 7}))
+    )
+    try:
+        assert await asyncio.to_thread(entered.wait, 5)
+        old_task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await old_task
+        old_owner = executor._cache_seed_owner
+        executor._checkpoint_hook = None
+        current = await executor.execute(
+            workflow, ExperimentState(run_id="R_deadline", params={"seed": 7})
+        )
+        assert current.report.status == "ok"
+        assert executor._cache_seed_owner is not old_owner
+        assert executor._workflow_task is asyncio.current_task()
+        assert executor._workflow_cancelling == 0 and old_task.cancelling() == 1
+    finally:
+        release.set()
+        assert await asyncio.to_thread(finished.wait, 5)
+        for _ in range(500):
+            if not list(ctx.run.trace_path.parent.glob(".checkpoint_head_*.tmp")):
+                break
+            await asyncio.sleep(0.002)
+    assert checkpoint.resolve_latest_checkpoint(FileSystemCAS(store.root), "R_deadline") is None
+    assert not list(ctx.run.trace_path.parent.glob(".checkpoint_head_*.tmp"))
+    assert node.calls == 1  # The later actual invocation reuses verified native cache.
+    assert len(node.refs) == 1 and FileSystemCAS(store.root).verify(node.refs[0]).ok
 
 
 @pytest.mark.asyncio

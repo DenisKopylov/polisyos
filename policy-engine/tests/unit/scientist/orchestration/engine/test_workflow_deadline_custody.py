@@ -308,19 +308,22 @@ async def test_entered_mutable_publication_is_unacknowledged_unknown_not_rollbac
     head_release = threading.Event()
     head_finished = threading.Event()
     if operation == "checkpoint":
-        original_update = checkpoint.update_checkpoint_head
+        original_replace = checkpoint.os.replace
 
-        def held_update(*args, **kwargs):
+        def held_replace(source, target):
+            if Path(target).name != checkpoint.CHECKPOINT_HEAD_FILENAME:
+                return original_replace(source, target)
             head_entered.set()
             try:
                 assert head_release.wait(5)
-                return original_update(*args, **kwargs)
+                return original_replace(source, target)
             finally:
                 head_finished.set()
 
-        # Instrument the real filesystem boundary, then call its original
-        # atomic updater with the complete native checkpoint/ref/history.
-        monkeypatch.setattr(checkpoint, "update_checkpoint_head", held_update)
+        # The original budget fence has admitted this atomic replacement.
+        # Once this real syscall enters, expiry cannot claim rollback; required
+        # head durability and history must complete without a caller ACK.
+        monkeypatch.setattr(checkpoint.os, "replace", held_replace)
         executor._checkpoint_hook = checkpoint.CASCheckpointHook(
             store=store, run_dir=ctx.run.trace_path.parent
         )

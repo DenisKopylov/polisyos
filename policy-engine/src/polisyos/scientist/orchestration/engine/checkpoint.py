@@ -166,7 +166,7 @@ async def _run_checkpoint_blocking[T](
     **kwargs: Any,
 ) -> T:
     if publication_budget is None:
-        return await run_blocking_async(func, *args, **kwargs)
+        return cast("T", await run_blocking_async(func, *args, **kwargs))
     remaining = publication_budget.remaining_seconds(operation)
 
     def admitted_call() -> T:
@@ -185,7 +185,7 @@ async def _run_checkpoint_blocking[T](
         publication_budget.require_active(operation, execution_state="unknown")
         raise
     publication_budget.require_active(operation, execution_state="unknown")
-    return result
+    return cast("T", result)
 
 
 class CheckpointRegistry(Protocol):

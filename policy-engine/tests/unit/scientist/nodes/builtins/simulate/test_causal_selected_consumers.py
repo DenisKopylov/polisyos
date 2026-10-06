@@ -289,7 +289,7 @@ runpy.run_path(sys.argv[1],run_name='__main__')
         "graph_ref": "different graph",
         "assumptions": {"unknown graph law": "established"},
         "status_reason": "different computation status",
-        "diagnostics": {"fake passed test": True},
+        "diagnostics": [{"test_name": "fabricated diagnostic", "passed": True}],
         "method_params": {"method_name": "different estimator"},
     }
     if not point_only:

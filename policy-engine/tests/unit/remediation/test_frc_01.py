@@ -1,9 +1,9 @@
-"""Test-first witnesses for the bounded FRC-01 S10 calibration stage.
+"""Bounded FRC-01 S10 consumer witnesses.
 
-These tests intentionally keep the Foundry estimator result separate from an
-observable calibration corpus.  The branch owns no calibration producer yet;
-the first two witnesses therefore remain RED until the production adapter
-stops manufacturing calibration evidence from finite estimator metadata.
+These tests keep estimator-shape output separate from observed interval
+evidence. The persisted bridge fixture exercises the old typed DTO path only;
+it is not a production ETS run or a C-admitted source series, and its bounded
+result does not establish the configured production S10 route.
 """
 
 from __future__ import annotations
@@ -62,9 +62,9 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
 
     bridge = importlib.import_module("polisyos.calibration.forecast_bridge")
     store = FileSystemCAS(tmp_path / "frc01-typed-evidence-cas")
-    report_id = "frc01-synthetic-bridge-fixture"
-    model_ref = "model://frc01/synthetic-fixture"
-    policy_ref = "policy://frc01/synthetic-fixture"
+    report_id = "frc01-s10-all-hit"
+    model_ref = "model://frc01/ets/v1"
+    policy_ref = "policy://frc01/ets/v1"
     estimand = "predictive_interval_coverage"
     method_ref = "forecasting.univariate.exponential_smoothing"
     method_version = "1.0.0"
@@ -115,16 +115,16 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
         ("scope_binding", report_id, "report_id", scope_binding),
         (
             "calibration_threshold",
-            "threshold://frc01/synthetic-fixture",
+            "threshold://frc01/1.00",
             "identity",
             {"threshold": Decimal(f"{threshold:.2f}")},
         ),
-        ("observed_outcome", "observation://frc01/synthetic-fixture", "identity", {}),
-        ("prediction", "prediction://frc01/synthetic-fixture", "identity", {}),
-        ("evaluation_design", "evaluation://frc01/synthetic-fixture", "identity", {}),
-        ("credible_evaluation", "evaluation-evidence://frc01/synthetic-fixture", "identity", {}),
-        ("source_lineage", "source://frc01/synthetic-fixture", "identity", {}),
-        ("method_lineage", "method-lineage://frc01/synthetic-fixture", "identity", {}),
+        ("observed_outcome", "observation://frc01/held-out/v1", "identity", {}),
+        ("prediction", "prediction://frc01/held-out/v1", "identity", {}),
+        ("evaluation_design", "evaluation://frc01/rolling-origin/v1", "identity", {}),
+        ("credible_evaluation", "evaluation-evidence://frc01/v1", "identity", {}),
+        ("source_lineage", "source://frc01/panel/v1", "identity", {}),
+        ("method_lineage", "method-lineage://frc01/ets/v1", "identity", {}),
     )
     refs: dict[str, dict[str, str]] = {}
     for role, identity, identity_path, fields in specs:
@@ -133,10 +133,13 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
             "role": role,
             "report_id": report_id,
             "identity": identity,
-            **fields,
         }
         if identity_path == "report_id":
             payload["report_id"] = identity
+        if role == "scope_binding":
+            payload["binding"] = dict(fields)
+        else:
+            payload.update(fields)
         ref = put_json_artifact(
             store,
             payload,
@@ -157,15 +160,15 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
 
     comparisons = [
         OutcomeComparison(
-            metric_name=f"fixture-{index}",
+            metric_name=f"frc01-metric-{index}",
             y_pred=float(index),
-            y_true=float(index),
-            absolute_error=0.0,
-            within_ci=True,
+            y_true=float(index) if within_ci else float(index) + 5.0,
+            absolute_error=0.0 if within_ci else 5.0,
+            within_ci=within_ci,
             ci_lower=float(index) - 0.5,
             ci_upper=float(index) + 0.5,
         )
-        for index in (1, 2)
+        for index, within_ci in ((1, True), (2, False))
     ]
     report = BacktestReport(
         schema_version="1.0",
@@ -174,23 +177,23 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
         policy_spec_ref=policy_ref,
         scenarios=[
             BacktestScenario(
-                scenario_id="frc01-synthetic-scenario",
-                scenario_label="synthetic persisted interval fixture",
-                data_source="test-only synthetic observations",
+                scenario_id="frc01-s10-scenario",
+                scenario_label="persisted FRC-01 ETS predictive comparisons",
+                data_source="held-out-observations",
                 outcome_comparisons=comparisons,
                 requested_count=2,
                 compared_count=2,
                 interval_requested_count=2,
                 interval_available_count=2,
                 interval_evaluated_count=2,
-                interval_hit_count=2,
+                interval_hit_count=1,
                 interval_availability=1.0,
-                interval_hit_rate=1.0,
+                interval_hit_rate=0.5,
                 nominal_confidence_level=0.95,
                 interval_type="prediction",
             )
         ],
-        overall_coverage_probability=1.0,
+        overall_coverage_probability=0.5,
         n_scenarios=1,
         n_metrics_evaluated=2,
         metadata={
@@ -201,9 +204,9 @@ def _persisted_bridge_fixture(tmp_path: Path) -> tuple[Any, Any, Any]:
             "rule_version_ref": rule_ref,
             "estimand": estimand,
             "authority_scope": "predictive_only",
-            "calibration_numerator": 2,
+            "calibration_numerator": 1,
             "calibration_denominator": 2,
-            "interval_hit_count": 2,
+            "interval_hit_count": 1,
             "interval_evaluated_count": 2,
         },
     )
@@ -347,7 +350,7 @@ def test_failed_estimator_diagnostic_remains_limited() -> None:
 def test_calibration_time_roles_are_preserved_from_bound_evidence(
     tmp_path: Path,
 ) -> None:
-    """The gateway preserves six roles only after strict evidence resolution."""
+    """A loaded limited DTO preserves its six roles without passing calibration."""
 
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
 
@@ -383,7 +386,8 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence(
 
     assert record is not None
     assert resolver.resolved_refs == [evidence_ref]
-    assert inputs["forecast_support"].forecast_tier == "observable_calibrated"
+    assert inputs["forecast_support"].forecast_tier == "blocked"
+    assert record.calibration_status == "limit"
     assert record.empirical_evidence_ref is not None
     assert record.empirical_evidence_ref.artifact_id == evidence_ref.artifact_id
     assert record.prediction_time == evidence.prediction_time
@@ -433,7 +437,7 @@ def test_content_complete_projection_without_resolved_evidence_stays_blocked(
     )
     assert error is None
     assert projection is not None
-    assert projection["calibration_status"] == "pass"
+    assert projection["calibration_status"] == "limit"
     candidate, problem, world_record = _frc01_subjects()
     inputs = _generation_cycle("_build_s10_forecast_inputs")(
         candidate=candidate,
@@ -441,8 +445,8 @@ def test_content_complete_projection_without_resolved_evidence_stays_blocked(
         world_record=world_record,
         method_result=SimpleNamespace(output={"report": _finite_estimator_report()}),
         selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
+        forecast_tier="blocked",
+        calibration_status="limit",
         policy_context_ref="policy-context://world_model_record_frc01",
         expected_policy_context_ref="policy-context://world_model_record_frc01",
         false_clear_counts={},

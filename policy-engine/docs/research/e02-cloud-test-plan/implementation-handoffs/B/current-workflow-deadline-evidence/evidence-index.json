@@ -1,0 +1,422 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-create.json",
+    "sha256": "7f4ab5f246e50329c7a177777512cfbe01f20b3754258feb913eac108fb656f5",
+    "bytes": 123382
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-resume.json",
+    "sha256": "dd0055c100deebabd3cccf5e4aaba574b92cdd7ea695c47daa4c0c0b5b757a0e",
+    "bytes": 129721
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+    "sha256": "e5883415b9ec8c39b476bc102abe4cb7147e20899083d14ba2203c25e0c16f3f",
+    "bytes": 2398
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+    "sha256": "98467fae4d169725ce780e4add274e21abe05509db6c453984aa6f7199a65927",
+    "bytes": 2155
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/environment-5ffa6944b3cd.json",
+    "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+    "bytes": 9887
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-stdout.txt",
+    "sha256": "f745685cd4c2de496ad73b383dd5be515606da66abebb12173a3c1c613e54270",
+    "bytes": 115208
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-wrapper.json",
+    "sha256": "80dfe6a1e35431adcd32e13d8f58bb66c73c10955221e73e01bfde3d54a7700c",
+    "bytes": 1815
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-cohort.xml",
+    "sha256": "5dcde62ab2e13bf876f20800b6e40da37cbbf76092d5ea6c960e74183836712c",
+    "bytes": 6364
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-stdout.txt",
+    "sha256": "65d2366f3b160956a8e060170f17e32ff60ae8b10d88d8a896895a7f7b38fc43",
+    "bytes": 6179
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-wrapper.json",
+    "sha256": "ae49911f187a693daa859cad5d29bc8573db3002e7fc884785b089db829d9dbd",
+    "bytes": 2965
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-stdout.txt",
+    "sha256": "f745685cd4c2de496ad73b383dd5be515606da66abebb12173a3c1c613e54270",
+    "bytes": 115208
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-wrapper.json",
+    "sha256": "9f7838843619be75fd9b1caf4a17da46e301f6ba07264d426194a834a2577273",
+    "bytes": 1863
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-stdout.txt",
+    "sha256": "b1d6d0161c0af31032b3b7f086354227a64dd0805368e963430592c36461fd87",
+    "bytes": 257
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-wrapper.json",
+    "sha256": "485f7dfc4725a0d8ef10e09bd6abdf22fa71158748ab3f352f63ce21bda12e64",
+    "bytes": 1823
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-cohort.xml",
+    "sha256": "cb8f9437ffe3b70ba6575bd4198ee09d346b8927679015c643e93a4559c08e5f",
+    "bytes": 6373
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-stdout.txt",
+    "sha256": "605de0448daffdcd7bf5711800c05f92f00d14691625c8c63dbe00624970108e",
+    "bytes": 6188
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-wrapper.json",
+    "sha256": "2f81133ede840cdfcdb2385d7bd637b4a420d6fcd81ae6856ca363a805922e8a",
+    "bytes": 3037
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-stdout.txt",
+    "sha256": "4d0a5cc1929349cae96f10af2b80ac1279e5104c48177983f995ff432b31cfb3",
+    "bytes": 6256
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-summary.json",
+    "sha256": "cd33e35d13a3ac3ce44b9b7cddb1f570798853cab1b83d29cbcb064e65745191",
+    "bytes": 6574
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-wrapper.json",
+    "sha256": "568b3a9826e5a1089fb81377ee5c47ee3a488925aa6ae8cf6313f36f550fcb1e",
+    "bytes": 2375
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-stdout.txt",
+    "sha256": "a807c6ef8a4c5060e68fdda05d0ff004c0bd303c0e396dfe9b3f24789b7f3b12",
+    "bytes": 290
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-wrapper.json",
+    "sha256": "770095feb1592519ff302a54abe6a03f9398f4f6910eedd514e4ccdf306eedc9",
+    "bytes": 2006
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-stdout.txt",
+    "sha256": "762079b2e57b0ba724becf96642cf3f82c97cf24dfa4083294434812b1e808b9",
+    "bytes": 4518
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-summary.json",
+    "sha256": "f7cd6efe7019fc045766afc3f0c7ef21e0cbce9cfd477601e27d96e752abbc10",
+    "bytes": 4752
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-wrapper.json",
+    "sha256": "0410c6a50f13a4bd6ad646718413413c1d515c9718edb5a19e8cccd981ecb687",
+    "bytes": 2295
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-stdout.txt",
+    "sha256": "f745685cd4c2de496ad73b383dd5be515606da66abebb12173a3c1c613e54270",
+    "bytes": 115208
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-wrapper.json",
+    "sha256": "8abe19dc8e974a73fcd84d0228a31c47c84693bd6f62b99a441810ddf31835e3",
+    "bytes": 1851
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-stdout.txt",
+    "sha256": "7bad0e0cf1c23164bc24e1424963b43df6ec7b17df38040b5f5b001d7bac7eac",
+    "bytes": 106
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-wrapper.json",
+    "sha256": "48a9be4e178cec0d4023f756e3d54ba1604263867edc2a9c10480827d8100481",
+    "bytes": 1884
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-stdout.txt",
+    "sha256": "e5327c80f36517036291a39730995043ce69b7e0ba292053412806e343fcb4ce",
+    "bytes": 5568
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-summary.json",
+    "sha256": "9211b8a28da34b1480882e93176243201445cd7f8130aca60a25035cac027aec",
+    "bytes": 5854
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-wrapper.json",
+    "sha256": "9e030b2fde11bbd5b466d01c46f13f05401a784e84d6f9ba88ba5b05303f670a",
+    "bytes": 2320
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/input-derivations.json",
+    "sha256": "514382d06d7e75afa8fbb7fb6dbbff6d03c9da77d7d6c14eb708a8edf0b904be",
+    "bytes": 46320
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-cohort.xml",
+    "sha256": "d2c2c906b1c2aa5b27f706586b8924d7b90983e30495eb8132592c85e4d87f49",
+    "bytes": 45937
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-stdout.txt",
+    "sha256": "9b96c99f4738ba51c5865f05fcae35e99606d3857fd5400f98993bfa10e9abcd",
+    "bytes": 37950
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-wrapper.json",
+    "sha256": "f9d0eeb2f36a3294b2fd026a8e048f437c57e84dde68cce06d466aece3f6f3c8",
+    "bytes": 2915
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-cohort.xml",
+    "sha256": "8dcb3573efd6d552cdc4700be5e8bc7f6307a973039877dd3f2d45e983b9f7bc",
+    "bytes": 7249
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-stdout.txt",
+    "sha256": "4475d98bfa007b6c5567683cbf0601e6c64d987548f44a9f7b4a1747edaaa48f",
+    "bytes": 6291
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-wrapper.json",
+    "sha256": "10ce051364cd4c994cf47bee1607ddb323fb5d97b9aca537e3ad358eaf241275",
+    "bytes": 3195
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-cohort.xml",
+    "sha256": "fd62665fe29dececbec216f385affd231020602cb327e3831645efa1716d06d4",
+    "bytes": 1055
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-stdout.txt",
+    "sha256": "75227c142fdcdf0122c93ef67321bba631511e311a6596a448c9467ad0c1e905",
+    "bytes": 1057
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-wrapper.json",
+    "sha256": "072f9c9b04fdc0d52f9d365eed401d47a6ef55bc6f0e04ea2a8208d94f7396cf",
+    "bytes": 3399
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-cohort.xml",
+    "sha256": "f8000b9e8cedc8896537ed1647dff36a3f1566582692049714787af44df669fd",
+    "bytes": 9526
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-stdout.txt",
+    "sha256": "6dd786dc72d45e02d32f9a2c96fbee7f0ea69261b610e86a41d1a671dd0186ef",
+    "bytes": 80
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-wrapper.json",
+    "sha256": "ce7bfe70824ede4fd9eaf8d35ba00d4f3219700bee3c1d71a3ccf958e859b2aa",
+    "bytes": 3364
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight-wrapper.json",
+    "sha256": "31e94eb1ba5f3feaf3edab64b835a37b267a27f024f282912815fc950894f64b",
+    "bytes": 1191
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight.txt",
+    "sha256": "30760da12ff28536505e866b975d9860aa73fda034d88100efd172aef4bf1dd6",
+    "bytes": 314
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-cohort.xml",
+    "sha256": "c9a5e2094b06cf14399f826771d56400674092e7db45016a8e640fae57753b4c",
+    "bytes": 49476
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-stdout.txt",
+    "sha256": "52f5af6767d9746756be81ca51fccba3702081f554bc35e8fc8d6b39e9553f8b",
+    "bytes": 5262
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-wrapper.json",
+    "sha256": "84349dd07c313fae2622127aae8d59b204c7bd01b4fd1933dcd42910c637c861",
+    "bytes": 4583
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
+    "sha256": "3f4b14d2bdbd228feb2f01df79a5c13e863ff0cae11de116e4800892b80eb3a0",
+    "bytes": 106158
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-stdout.txt",
+    "sha256": "8ed3b2f3273ab613c1dbd90923c673502704e02e84f6ef9c4a736d183912094f",
+    "bytes": 105580
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-wrapper.json",
+    "sha256": "0e41a47bd85ebf0ce0c9a65e9b87109754fdbc904d63534fad8c92b43db589bd",
+    "bytes": 4750
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-cohort.xml",
+    "sha256": "a0b5341a0d29794e3d9f7acd8a14bc75e0f8ae63635a3009f2bd801d886299cb",
+    "bytes": 19573
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-stdout.txt",
+    "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+    "bytes": 160
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-wrapper.json",
+    "sha256": "37a983de39d26ac064282c6ad3ec0b91713c8ec755d79ae566210f8c0ca8d675",
+    "bytes": 3257
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-cohort.xml",
+    "sha256": "0469e69de6c3d57c85371e8f22072abef8b830d8895642a7131fc3b4f6318de1",
+    "bytes": 8406
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-stdout.txt",
+    "sha256": "bd5ede7f1bc6f7d5d4f2d5c94bf82df4746bcda7ada636fb34bc8419a1c9990d",
+    "bytes": 769
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-wrapper.json",
+    "sha256": "43f9b6a58f86105905110a79d348fa7eb04105285c8928ed29552db873f6b4dc",
+    "bytes": 3311
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-cohort.xml",
+    "sha256": "d1f43ffa53eca9352606ee37dfdb4eeb9c98b8b22cbccee288329029aebf5cc1",
+    "bytes": 78582
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-stdout.txt",
+    "sha256": "cf51d0022be01d7f1be91f82013332af1cab42a69097cca7b5e729a4789657c8",
+    "bytes": 33086
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-wrapper.json",
+    "sha256": "cc19b10bde3cf9d2c248a0108272f862515d880d96188e9157b5aee95ccf2b6e",
+    "bytes": 4716
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-cohort.xml",
+    "sha256": "74363c5e5606c51699c306fca091eae51904c9a352d79aa8a83ad2bc558afaa5",
+    "bytes": 168645
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-stdout.txt",
+    "sha256": "80791757438bb1b07eab7e4890137b394d89d4708d0f4eb75138107039e432a6",
+    "bytes": 142201
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-wrapper.json",
+    "sha256": "a7f6f2c7b3c6fe04729089847fceaf8bec2a704955257cec08201d3d5d539cdd",
+    "bytes": 3237
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-cohort.xml",
+    "sha256": "29902e29e398e49deb6bb283c064146873259d9614053e0a24e1ed3804c1ef4b",
+    "bytes": 12280
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-stdout.txt",
+    "sha256": "931331a40712b55f766cfc4ec2539d11beca58f02a8b1344f8303e4f07bf2b05",
+    "bytes": 10322
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-wrapper.json",
+    "sha256": "1f84cbfa4853dc43817d6e76ca1ebb3d848822e03c2b15d7c7c9aa03578c4f53",
+    "bytes": 2936
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-cohort.xml",
+    "sha256": "01395733f200b0a1d6b4c7745825d3ac202f2e62dd4c42e900e35865954728f7",
+    "bytes": 4618
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-stdout.txt",
+    "sha256": "8ccff457dc42ec2a1b12aa165b5302f6f860099f195a4d67f03ec6f0eb8d6fef",
+    "bytes": 3301
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-wrapper.json",
+    "sha256": "5f3baa206423520da9e8782ab5a27439a046b1f8f26e4c0ecf983d36f6525c44",
+    "bytes": 3271
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-cohort.xml",
+    "sha256": "213d5bbd5486c70b5ce3d8bd531a8106bd7c8ce28b252de0ea59b1474d4e6080",
+    "bytes": 5438
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-stdout.txt",
+    "sha256": "64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d",
+    "bytes": 80
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-wrapper.json",
+    "sha256": "9da23e3134f876522ef56e3a554dea9a57da9e01f1bbd25d716de8c2ccc9750e",
+    "bytes": 3217
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-cohort.xml",
+    "sha256": "989562e1b60fdaf86f7b411e6ff033f1a67096c9ccca5ea018cba66bbecc312c",
+    "bytes": 30671
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-stdout.txt",
+    "sha256": "ddcddfd7d5dca7e5f522cd29987761d45d539f9137bb54a843a69d614fe99589",
+    "bytes": 27733
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-wrapper.json",
+    "sha256": "91c6600b80b8eebeeafa6d7d08722443160c382577b2b7c2b6da6ad1641b07f8",
+    "bytes": 3030
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.json",
+    "sha256": "253bdb9830009e61ed79a0abb57e5e73cdd4e901ca068dfb27aa269f9f41128b",
+    "bytes": 75140
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+    "sha256": "be8560bf5dce5c76e42256392beaa17e4494e86bf4c5906cf6be12c9658de6e6",
+    "bytes": 5311
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.json",
+    "sha256": "86219f39a4fd7452ae726d50ad863ff5b2adfcd5f19dd9d33477ee9b16d2929b",
+    "bytes": 74764
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+    "sha256": "cd5b096fa85a2d35c91dc16333536134e510c64852620cb32d09692544ee46eb",
+    "bytes": 5335
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+    "sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+    "bytes": 2404
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+    "sha256": "18a3c914d1503301308188d89474ddea80ca4be65a0a0f0bfca922fa2aea86df",
+    "bytes": 4325
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
+    "sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+    "bytes": 4192
+  }
+]

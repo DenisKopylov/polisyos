@@ -45,6 +45,7 @@ from polisyos.scientist.orchestration.engine.executor import (
     _merge_cached_outcome_state,
 )
 from polisyos.scientist.orchestration.engine.idempotency import (
+    STATE_MUTATIONS_VERSION,
     NodeCacheEntry,
     NodeResultCache,
     compute_idempotency_key,
@@ -85,6 +86,7 @@ class StepOneNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_step_one@1.0.0", "StepOne"),
         state_reads=["params.seed"],
+        state_writes=["params.step1"],
     )
 
     @property
@@ -103,6 +105,7 @@ class StepTwoNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_step_two@1.0.0", "StepTwo"),
         state_reads=["params.step1"],
+        state_writes=["params.step2"],
     )
 
     @property
@@ -122,6 +125,7 @@ class FlakyFinalNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_flaky_final@1.0.0", "FlakyFinal"),
         state_reads=["params.step2"],
+        state_writes=["params.final"],
     )
 
     @property
@@ -185,6 +189,7 @@ class FlakyAfterParallelNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_parallel_final@1.0.0", "ParallelFinal"),
         state_reads=["params.left", "params.right"],
+        state_writes=["params.final"],
     )
 
     @property
@@ -1038,7 +1043,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
         raise AssertionError("B73 removal probe executor source origin changed")
     source_bytes = module_path.read_bytes()
     source_sha256 = hashlib.sha256(source_bytes).hexdigest()
-    if source_sha256 != ("76667948344753481859679eb29a8f811805b5af8c4fcafc4e48b171f72997c8"):
+    if source_sha256 != ("dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"):
         raise AssertionError("B73 removal probe executor source digest changed")
 
     source_tree = ast.parse(source_bytes.decode("utf-8"), filename=str(module_path))
@@ -1132,7 +1137,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
     )
     ast.fix_missing_locations(compiled_module)
     namespace = dict(executor_module.__dict__)
-    exec(
+    exec(  # noqa: S102 - hash-pinned native AST property-removal control
         compile(compiled_module, filename=str(module_path), mode="exec"),
         namespace,
     )
@@ -1293,7 +1298,7 @@ def _assert_tier_cache_entries_bind_node_identity_and_content(
         assert outcome.state.params.get(invocation.alias) == peer_values[invocation.alias]
         # The existing cache reader verifies CAS integrity, manifest profile,
         # run binding, and the versioned replay proof including the cache key.
-        assert entry.state_mutations_version == "1.0"
+        assert entry.state_mutations_version == STATE_MUTATIONS_VERSION
         assert entry.replay_epoch == "2.1"
         assert [(op.path, op.operation, op.value) for op in entry.state_mutations] == [
             ("params." + invocation.alias, "set", peer_values[invocation.alias])
@@ -1502,7 +1507,7 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             if remove_left_for_cut:
                 assert observed["mutation_receipt"] == {
                     "source_sha256": (
-                        "76667948344753481859679eb29a8f811805b5af8c4fcafc4e48b171f72997c8"
+                        "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"
                     ),
                     "method": "AsyncWorkflowExecutor.execute",
                     "original_expression": "completed_nodes.extend(tier_completed)",

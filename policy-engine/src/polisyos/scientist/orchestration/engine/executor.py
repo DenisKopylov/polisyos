@@ -65,6 +65,7 @@ from polisyos.scientist.orchestration.engine.retry import (
     execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.state_branching import (
+    _completed_producer_state,
     branch_state,
     mutation_journal_for_state,
     snapshot_state,
@@ -1355,6 +1356,7 @@ class WorkflowExecutor:
                     branched_state = branch_state(
                         state,
                         write_paths=getattr(node.spec, "state_writes", ()),
+                        enforce_write_scope=True,
                     )
                     node_state = branched_state.state
                     set_span_attribute(
@@ -1538,6 +1540,9 @@ class WorkflowExecutor:
                             _CACHE_BYPASS_PREPARED_READ,
                         )
 
+                outcome = outcome.model_copy(
+                    update={"state": _completed_producer_state(outcome.state)}
+                )
                 duration_ms = int((time.perf_counter() - started) * 1000)
                 if self._ctx.metrics is not None:
                     self._ctx.metrics.record_node_completed(

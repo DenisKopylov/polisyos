@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="15" time="7.920" timestamp="2026-10-06T13:37:43.801599+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_build_worker_context_reconstructs_run_and_registry_bundle" time="0.020" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_build_worker_context_bootstraps_registry_bundle_when_missing" time="0.006" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_non_simulation_worker_without_eval_safety_port_fails_closed" time="0.008" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_node_worker_rejects_transported_scope_before_context_or_execution" time="0.003" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_build_worker_context_records_degraded_path_for_invalid_registry_bundle" time="0.004" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_build_worker_context_reuses_shared_filesystem_store" time="0.026" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_build_worker_context_prefers_store_config" time="0.252" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_restore_parent_trace_context_records_degraded_path_on_runtime_error" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_remote_worker_timeout_wire_replays_only_declared_branch_operations" time="0.190" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_node_worker_transport_preserves_native_non_ok_status[SkippedWorkerNode-scientist.node_worker_skip@1.0.0-skip]" time="0.033"><failure message="ValueError: undeclared state_writes at live paths: ['params.worker_status_mutation']">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-worker-consumers/tmp/test_node_worker_transport_pre0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd38755850&gt;
+node = &lt;class 'engine.runner.test_activity_worker.SkippedWorkerNode'&gt;
+node_id = 'scientist.node_worker_skip@1.0.0', expected_status = 'skip'
+
+    @pytest.mark.parametrize(
+        ("node", "node_id", "expected_status"),
+        [
+            (SkippedWorkerNode, "scientist.node_worker_skip@1.0.0", "skip"),
+            (FailedWorkerNode, "scientist.node_worker_fail@1.0.0", "fail"),
+        ],
+    )
+    def test_node_worker_transport_preserves_native_non_ok_status(
+        tmp_path: Path,
+        monkeypatch,
+        node,
+        node_id: str,
+        expected_status: str,
+    ) -&gt; None:
+        def _discover_nodes(registry) -&gt; None:
+            registry.register(node())
+    
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+            _discover_nodes,
+        )
+        state = ExperimentState(run_id="R_worker_native_status")
+    
+&gt;       result = asyncio.run(
+            run_node_in_worker(
+                {
+                    "node_id": node_id,
+                    "alias": "skipped",
+                    "params": {},
+                    "state_bytes": serialize_state(state),
+                    "context_meta": {
+                        "run_id": state.run_id,
+                        "store_config": {
+                            "backend": "filesystem",
+                            "root": str(tmp_path),
+                        },
+                    },
+                }
+            )
+        )
+
+policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py:499: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:113: in run_node_in_worker
+    outcome = await execute_with_retry_async(
+policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:2075: in execute_with_retry_async
+    raise exc.error from None
+policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:908: in _execute_capture_failure
+    return node.execute(ctx, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py:369: in execute
+    state.params["worker_status_mutation"] = "skip"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:630: in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+container = {}
+
+    def _authorize_container_mutation(
+        container: _TrackedDict | _TrackedList,
+        *,
+        suffixes: Iterable[tuple[str, ...]] = ((),),
+    ) -&gt; None:
+        """Refuse a moved or aliased live target before changing any branch bytes."""
+        if not container._mutation_journal.enforce_write_scope:
+            return
+        declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+        suffixes = tuple(suffixes)
+        paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+        unauthorized = [
+            path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+        ]
+        if unauthorized:
+&gt;           raise ValueError(
+                f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+            )
+E           ValueError: undeclared state_writes at live paths: ['params.worker_status_mutation']
+
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:1037: ValueError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_node_worker_transport_preserves_native_non_ok_status[FailedWorkerNode-scientist.node_worker_fail@1.0.0-fail]" time="0.031"><failure message="ValueError: undeclared state_writes at live paths: ['params.worker_status_mutation']">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-worker-consumers/tmp/test_node_worker_transport_pre1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd38756e50&gt;
+node = &lt;class 'engine.runner.test_activity_worker.FailedWorkerNode'&gt;
+node_id = 'scientist.node_worker_fail@1.0.0', expected_status = 'fail'
+
+    @pytest.mark.parametrize(
+        ("node", "node_id", "expected_status"),
+        [
+            (SkippedWorkerNode, "scientist.node_worker_skip@1.0.0", "skip"),
+            (FailedWorkerNode, "scientist.node_worker_fail@1.0.0", "fail"),
+        ],
+    )
+    def test_node_worker_transport_preserves_native_non_ok_status(
+        tmp_path: Path,
+        monkeypatch,
+        node,
+        node_id: str,
+        expected_status: str,
+    ) -&gt; None:
+        def _discover_nodes(registry) -&gt; None:
+            registry.register(node())
+    
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+            _discover_nodes,
+        )
+        state = ExperimentState(run_id="R_worker_native_status")
+    
+&gt;       result = asyncio.run(
+            run_node_in_worker(
+                {
+                    "node_id": node_id,
+                    "alias": "skipped",
+                    "params": {},
+                    "state_bytes": serialize_state(state),
+                    "context_meta": {
+                        "run_id": state.run_id,
+                        "store_config": {
+                            "backend": "filesystem",
+                            "root": str(tmp_path),
+                        },
+                    },
+                }
+            )
+        )
+
+policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py:499: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:113: in run_node_in_worker
+    outcome = await execute_with_retry_async(
+policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:2075: in execute_with_retry_async
+    raise exc.error from None
+policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:908: in _execute_capture_failure
+    return node.execute(ctx, state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py:407: in execute
+    failed_state.params["worker_status_mutation"] = "fail"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:630: in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+container = {}
+
+    def _authorize_container_mutation(
+        container: _TrackedDict | _TrackedList,
+        *,
+        suffixes: Iterable[tuple[str, ...]] = ((),),
+    ) -&gt; None:
+        """Refuse a moved or aliased live target before changing any branch bytes."""
+        if not container._mutation_journal.enforce_write_scope:
+            return
+        declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+        suffixes = tuple(suffixes)
+        paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+        unauthorized = [
+            path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+        ]
+        if unauthorized:
+&gt;           raise ValueError(
+                f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+            )
+E           ValueError: undeclared state_writes at live paths: ['params.worker_status_mutation']
+
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:1037: ValueError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract" time="0.058" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_worker_rejects_invalid_or_colluding_scope_before_merge[tenant-b-tenant-b-tenant-b-False]" time="0.006" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_worker_rejects_invalid_or_colluding_scope_before_merge[tenant-a-17-tenant-a-False]" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.runner.test_activity_worker" name="test_worker_rejects_invalid_or_colluding_scope_before_merge[tenant-b-tenant-b-tenant-a-True]" time="0.006" /></testsuite></testsuites>

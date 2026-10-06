@@ -356,7 +356,7 @@ class SkippedWorkerNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_worker_skip@1.0.0", "WorkerSkip"),
         state_reads=[],
-        state_writes=[],
+        state_writes=["params.worker_status_mutation"],
     )
 
     @property
@@ -394,7 +394,7 @@ class FailedWorkerNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_worker_fail@1.0.0", "WorkerFail"),
         state_reads=[],
-        state_writes=[],
+        state_writes=["params.worker_status_mutation"],
     )
 
     @property

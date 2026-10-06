@@ -1,0 +1,79 @@
+{
+  "source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+  "source_tree": "185dc1e866579d48712580bd62b39aff83529158",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "policy-engine/tests/unit/remediation/test_res_01.py",
+    "policy-engine/tests/unit/remediation/test_res_02.py",
+    "policy-engine/tests/unit/remediation/test_exe_02.py",
+    "policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+    "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/input-closure.json",
+    "sha256": "de2dc83144e172841a0f2c6efe120caa0c441db2f8e2d9912e2e94cb5e318f05",
+    "paths": 2753,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T12:12:44.768661+00:00",
+  "end_utc": "2026-10-06T12:15:20.854140+00:00",
+  "wall_s": 155.9849755680043,
+  "max_rss_kib": 822976,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/cohort.xml",
+      "sha256": "c9a5e2094b06cf14399f826771d56400674092e7db45016a8e640fae57753b4c",
+      "bytes": 49476
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/input-closure.json",
+      "sha256": "de2dc83144e172841a0f2c6efe120caa0c441db2f8e2d9912e2e94cb5e318f05",
+      "bytes": 523254
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-all15/native.txt",
+      "sha256": "52f5af6767d9746756be81ca51fccba3702081f554bc35e8fc8d6b39e9553f8b",
+      "bytes": 5262
+    }
+  ]
+}

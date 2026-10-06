@@ -9,7 +9,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
-import polisyos.scientist.orchestration.engine.async_executor as async_executor_module
+
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -18,6 +18,7 @@ from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflow
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
@@ -520,12 +521,12 @@ class TestAsyncCacheBoundaries:
         assert ticks > 0
 
     @pytest.mark.asyncio
-    async def test_cache_timeout_passes_remaining_deadline_to_producer(self, tmp_path, monkeypatch):
-        """A cache timeout leaves only the remaining workflow budget for production."""
+    async def test_expired_workflow_cache_wait_refuses_producer_admission(self, tmp_path, monkeypatch):
+        """An elapsed owner deadline grants no refreshed producer or cache budget."""
         node_id = "test.async_cache_deadline@1.0.0"
         node = _CacheTestNode(_cache_node_spec(node_id))
-        registry = MagicMock(spec=NodeRegistry)
-        registry.get.return_value = node
+        registry = NodeRegistry()
+        registry.register(node)
         store, ctx = _make_real_store_ctx(tmp_path)
         executor = AsyncWorkflowExecutor(ctx, registry, workflow_timeout_s=0.08)
         executor._cache = NodeResultCache(store, run_id="async-cache-deadline")
@@ -540,32 +541,17 @@ class TestAsyncCacheBoundaries:
             return original_get(*args, **kwargs)
 
         monkeypatch.setattr(executor._cache, "get", slow_get)
-        monkeypatch.setattr(executor._cache, "put", lambda *args, **kwargs: None)
-        producer_timeouts: list[float | None] = []
+        state = ExperimentState(run_id="async-cache-deadline", params={"seed": 1})
+        original_state = state.model_dump(mode="json")
+        original_artifacts = _artifact_id_strings(store)
 
-        async def fake_execute_with_retry(node, ctx, state, **kwargs):
-            del node, ctx
-            producer_timeouts.append(kwargs["timeout_s"])
-            return NodeOutcome(status="ok", state=state)
+        with pytest.raises(WorkflowTimeoutError):
+            await executor._execute_node("cached", invocation, state, workflow)
 
-        monkeypatch.setattr(
-            async_executor_module,
-            "execute_with_retry_async",
-            fake_execute_with_retry,
-        )
-
-        outcome, _, cache_hit, _ = await executor._execute_node(
-            "cached",
-            invocation,
-            ExperimentState(run_id="async-cache-deadline", params={"seed": 1}),
-            workflow,
-        )
-
-        assert outcome.status == "ok"
-        assert cache_hit is False
-        assert producer_timeouts
-        assert producer_timeouts[0] is not None
-        assert 0 < producer_timeouts[0] <= 0.01
+        assert node.calls == 0
+        assert executor._cache.size == 0
+        assert _artifact_id_strings(store) == original_artifacts
+        assert state.model_dump(mode="json") == original_state
 
     @pytest.mark.asyncio
     async def test_cache_put_does_not_block_and_failed_entry_is_not_published(

@@ -1,0 +1,62 @@
+{
+  "source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+  "source_tree": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "18a3c914d1503301308188d89474ddea80ca4be65a0a0f0bfca922fa2aea86df",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/input-closure.json",
+    "sha256": "1684949f4be8f2052d3c3aac629a710b531104c208373ef60e7324bbc2e1f9f8",
+    "paths": 2738,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T13:32:26.211905+00:00",
+  "end_utc": "2026-10-06T13:33:34.909616+00:00",
+  "wall_s": 68.60132033999253,
+  "max_rss_kib": 953296,
+  "exit": 0,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/cohort.xml",
+      "sha256": "a0b5341a0d29794e3d9f7acd8a14bc75e0f8ae63635a3009f2bd801d886299cb",
+      "bytes": 19573
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/input-closure.json",
+      "sha256": "1684949f4be8f2052d3c3aac629a710b531104c208373ef60e7324bbc2e1f9f8",
+      "bytes": 520285
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-graph/native.txt",
+      "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "bytes": 160
+    }
+  ]
+}

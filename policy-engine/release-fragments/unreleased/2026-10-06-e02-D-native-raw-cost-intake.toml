@@ -1,0 +1,6 @@
+kind = "fix"
+summary = "Validate retained native Gateway cost fields before measured resource settlement."
+surface_classification = "internal"
+compatibility = "Present invalid original cost fields now raise instead of settling a normalized zero or alternate amount. A finite first-present zero remains zero; absent raw reports preserve normalized SDK cost handling. Nonzero amounts outside the float result range remain unresolved rather than becoming zero."
+migration_owner = "A/G core response intake and reported resource-accounting owners"
+validation = "Immutable native Gateway proof 678a8bdb06103009d0547e55e00022061dfca4c3 retains 98 cases. Four additional native numeric-range controls and existing response/enforcer consumers pass in the corrective source. Exact source-bound output is published separately in the D corrective receipt."

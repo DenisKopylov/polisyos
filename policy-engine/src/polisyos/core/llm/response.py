@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from math import isfinite
 from typing import Any
 
@@ -148,6 +148,13 @@ def _as_float(value: Any) -> float | None:
         raise _InvalidLLMCostError("provider cost must be finite and nonnegative") from exc
     if not isfinite(parsed) or parsed < 0:
         raise _InvalidLLMCostError("provider cost must be finite and nonnegative")
+    if parsed == 0:
+        try:
+            original_is_zero = Decimal(str(value)) == 0
+        except InvalidOperation as exc:
+            raise _InvalidLLMCostError("provider cost must be numeric") from exc
+        if not original_is_zero:
+            raise _InvalidLLMCostError("nonzero provider cost cannot normalize to zero")
     return parsed
 
 
@@ -155,8 +162,16 @@ def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
     def field(source: Any, name: str) -> Any:
         return source.get(name) if isinstance(source, dict) else getattr(source, name, None)
 
+    sources: tuple[Any, ...] = (usage, payload)
+    raw = field(payload, "raw")
+    if isinstance(raw, dict):
+        # The native Gateway retains its original report here. Its normalized
+        # envelope can erase a negative amount or a finite, falsy zero. Preserve
+        # the original fields' first-present order, while validating both forms.
+        sources = (field(raw, "usage"), raw, *sources)
+
     candidates: list[float | None] = []
-    for source in (usage, payload):
+    for source in sources:
         # Validate every declared cost before choosing one, for mapping and
         # SDK-object responses alike. Bad alternate fields cannot become absent.
         candidates.extend(

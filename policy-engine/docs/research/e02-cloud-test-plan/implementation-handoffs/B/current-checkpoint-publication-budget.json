@@ -1076,7 +1076,7 @@
       "Real fixed legacy NodeOnly wrapper and fixed tieroverride inherit context without keywordbreakage"
     ]
   },
-  "predicate_basis": "consumer_asserted and independent filesystem falsifiers; source-only reviewers separate from author",
+  "predicate_basis": "independently_reconciled",
   "capability_state_or_finding_state": "Bounded checkpoint budget/custody mechanism implemented and independently reviewed; formal finding closure pending root/G criterion adjudication. closure_ids remains empty.",
   "finding_dispositions": [
     {
@@ -1328,5 +1328,31 @@
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/driver-custody.json",
     "bytes": 11417,
     "sha256": "d7932581f28fb0bfe5a36d293ffa9614fd27821b26824b672ec219ec3f91881f"
+  },
+  "predicate_premises": {
+    "finite_snapshot_observations": {
+      "predicate_basis": "independently_reconciled",
+      "qualification": "DUR exact6af7filesystemPASS/4materialremovalFAIL and exact84B73two-policy2PASS; source targets explicit, no successor relabel."
+    },
+    "author_native40_at84": {
+      "predicate_basis": "consumer_asserted",
+      "qualification": "Author actual40nativePASS at84; independent source/custody reviews do not become reviewer runtime."
+    },
+    "bc_import_identity": {
+      "predicate_basis": "consumer_asserted",
+      "qualification": "Author actualfreshprocess objectidentity/import/annotation observations atbc; finite import surface only."
+    },
+    "bc_full_checkpoint_behavior": {
+      "predicate_basis": "not_established",
+      "qualification": "Actualbc checkpoint runtimeUNRUN; import-only source equivalence reviewed separately. Prior84/6af actualruntime stays at thoseSHAs."
+    },
+    "source_only_equivalence": {
+      "predicate_basis": "independently_reconciled",
+      "qualification": "CMPbc exactoneimportmodule delta and samecanonicalobject source closure; reviewer runtimeUNRUN."
+    },
+    "future_root_cohort_and_formal_closure": {
+      "predicate_basis": "not_established",
+      "qualification": "No futurecohort/rootGcriterion verdict claimed; closure_ids[] retained."
+    }
   }
 }

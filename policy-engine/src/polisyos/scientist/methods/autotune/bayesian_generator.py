@@ -109,13 +109,11 @@ def _try_import_bayesian():
         return None
 
 
-class SearchSpace:
+class SearchSpace(NativeSearchSpace):
     """Autotune adapter backed by the canonical strategy ``SearchSpace``."""
 
     def __init__(self, bounds: list[dict[str, Any] | ParameterBounds]) -> None:
-        self._native = NativeSearchSpace(
-            bounds=[self._to_parameter_bound(bound) for bound in bounds]
-        )
+        super().__init__(bounds=[self._to_parameter_bound(bound) for bound in bounds])
 
     @staticmethod
     def _to_parameter_bound(bound: dict[str, Any] | ParameterBounds) -> ParameterBounds:
@@ -143,39 +141,8 @@ class SearchSpace:
         )
 
     @property
-    def bounds(self) -> list[ParameterBounds]:
-        """Return the canonical parameter bounds used by the strategy."""
-        return self._native.bounds
-
-    @property
-    def dim(self) -> int:
-        return self._native.dim
-
-    @property
-    def param_bounds(self) -> list[Any]:
-        """Compatibility alias for consumers that inspect parameter bounds."""
-        return self._native.bounds
-
-    @property
-    def names(self) -> list[str]:
-        """Return canonical expanded parameter names."""
-        return self._native.names
-
-    def normalize(self, params: dict[str, Any]) -> tuple[float, ...]:
-        """Normalize parameters through the canonical strategy implementation."""
-        return self._native.normalize(params)
-
-    def denormalize(self, vector: tuple[float, ...]) -> dict[str, Any]:
-        """Resolve a relaxed vector to the effective typed execution."""
-        return self._native.denormalize(vector)
-
-    def sample_sobol(self, n_samples: int, seed: int = 42) -> list[tuple[float, ...]]:
-        """Sample relaxed vectors through the canonical strategy implementation."""
-        return self._native.sample_sobol(n_samples=n_samples, seed=seed)
-
-    def to_botorch_bounds(self) -> Any:
-        """Delegate optional BoTorch bounds construction to the native space."""
-        return self._native.to_botorch_bounds()
+    def param_bounds(self) -> list[ParameterBounds]:
+        return self.bounds
 
 
 class BayesianCandidateGenerator:
@@ -258,7 +225,9 @@ class BayesianCandidateGenerator:
         return dict(context) if context else {}
 
     @staticmethod
-    def _history_parts(entry: Any) -> tuple[
+    def _history_parts(
+        entry: Any,
+    ) -> tuple[
         dict[str, Any],
         dict[str, Any],
         dict[str, Any],
@@ -396,7 +365,9 @@ class BayesianCandidateGenerator:
             try:
                 normalized = tuple(self._search_space.normalize(params))
             except (TypeError, ValueError):
-                logger.warning("Skipping history entry %s: candidate params cannot be normalized", idx)
+                logger.warning(
+                    "Skipping history entry %s: candidate params cannot be normalized", idx
+                )
                 continue
 
             identity = self._history_identity(
@@ -463,7 +434,9 @@ class BayesianCandidateGenerator:
             timestamp = getattr(entry, "timestamp", None)
             if not isinstance(timestamp, datetime):
                 timestamp = datetime.now(UTC)
-            duration = getattr(entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0))
+            duration = getattr(
+                entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0)
+            )
             try:
                 duration_seconds = float(duration)
             except (TypeError, ValueError):
@@ -552,11 +525,7 @@ def benchmark_to_evaluation(
     if dim and len(params_normalized) != dim:
         return None
 
-    scalar = (
-        -float(finite_value)
-        if direction == MetricDirection.MAXIMIZE
-        else float(finite_value)
-    )
+    scalar = -float(finite_value) if direction == MetricDirection.MAXIMIZE else float(finite_value)
     split_value = split.value
     metadata = {
         **benchmark_metadata,

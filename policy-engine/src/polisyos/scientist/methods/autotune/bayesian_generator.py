@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
@@ -122,6 +123,32 @@ class SearchSpace(NativeSearchSpace):
 
     def __init__(self, bounds: list[dict[str, Any] | ParameterBounds]) -> None:
         super().__init__(bounds=[self._to_parameter_bound(bound) for bound in bounds])
+        self._parameter_declarations = {
+            native.name: {
+                "unit": supplied.get("unit", "unspecified")
+                if isinstance(supplied, dict)
+                else "unspecified",
+                "distribution": supplied.get("distribution", "uniform")
+                if isinstance(supplied, dict)
+                else "uniform",
+                "distribution_spec": supplied.get("distribution_spec")
+                if isinstance(supplied, dict)
+                else None,
+            }
+            for native, supplied in zip(self.bounds, bounds, strict=True)
+        }
+
+    def sensitivity_parameter_basis(self) -> list[dict[str, Any]]:
+        """Project actual native bounds plus their explicitly configured declarations."""
+        return [
+            {
+                "name": bound.name,
+                "lower_bound": bound.lower,
+                "upper_bound": bound.upper,
+                **self._parameter_declarations[bound.name],
+            }
+            for bound in self.bounds
+        ]
 
     @staticmethod
     def _to_parameter_bound(bound: dict[str, Any] | ParameterBounds) -> ParameterBounds:
@@ -184,6 +211,8 @@ class BayesianCandidateGenerator:
         self._history_digests: list[str] = []
         self._history_rows: list[dict[str, Any]] = []
         self._resume_history_required = False
+        self._sensitivity_order: dict[str, Any] | None = None
+        self._sensitivity_admission: Any = None
         if (warm_start_bridge is None) != (warm_start_fingerprint is None):
             raise ValueError("Warm-start bridge and configured target fingerprint must be paired")
         numerical_basis = None
@@ -257,8 +286,137 @@ class BayesianCandidateGenerator:
         self._botorch_available = replacement._botorch_available
         self._warm_evals = replacement._warm_evals
 
+    def configure_sensitivity_order(
+        self,
+        parameter_order: list[str],
+        *,
+        analysis_ref: ArtifactRef,
+        analysis_identity: dict[str, Any],
+        parameter_basis: list[dict[str, Any]],
+        analysis_reader: Any,
+    ) -> None:
+        """Apply a resolved exploratory coordinate permutation before native activity.
+
+        Ranking assigns the existing Sobol/GP coordinates to physical parameter
+        names. It makes no optimization-quality or population-law claim. The
+        configured canonical reader is invoked before proposal and restoration.
+        """
+        if not callable(analysis_reader):
+            raise ValueError("Sensitivity ordering requires its configured analysis reader")
+        ref = ArtifactRef.model_validate(analysis_ref)
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("Sensitivity ordering requires a full selected manifest reference")
+        if (
+            not isinstance(self._search_space, SearchSpace)
+            or self._optimizer is None
+            or not self._botorch_available
+        ):
+            raise ValueError("Sensitivity ordering requires the configured native search space")
+        names = [bound.name for bound in self._search_space.bounds]
+        if (
+            not isinstance(parameter_order, list)
+            or any(not isinstance(name, str) for name in parameter_order)
+            or len(parameter_order) != len(names)
+            or len(set(parameter_order)) != len(names)
+            or set(parameter_order) != set(names)
+        ):
+            raise ValueError("Sensitivity ranking must cover each native parameter exactly once")
+        expected = {row["name"]: row for row in self._search_space.sensitivity_parameter_basis()}
+        if (
+            not isinstance(parameter_basis, list)
+            or len(parameter_basis) != len(names)
+            or any(
+                not isinstance(row, dict)
+                or not isinstance(row.get("name"), str)
+                or row["name"] not in expected
+                for row in parameter_basis
+            )
+            or len({row["name"] for row in parameter_basis}) != len(names)
+        ):
+            raise ValueError("Sensitivity parameter basis is incomplete")
+        for row in parameter_basis:
+            native = expected[row["name"]]
+            if self._json_bytes(row) != self._json_bytes(native):
+                raise ValueError("Sensitivity bounds/unit/distribution differ from native space")
+            if (
+                not isinstance(row["unit"], str)
+                or row["unit"] in {"", "unspecified"}
+                or row["distribution"] != "uniform"
+            ):
+                raise ValueError("Unsupported sensitivity unit/distribution profile")
+        if any(
+            bound.dtype != ParameterType.CONTINUOUS or bound.log_scale
+            for bound in self._search_space.bounds
+        ):
+            raise ValueError(
+                "Sensitivity order profile supports continuous non-log coordinates only"
+            )
+        if (
+            not isinstance(analysis_identity, dict)
+            or set(analysis_identity) != {"design_id", "analysis_id"}
+            or any(
+                not isinstance(value, str)
+                or len(value) != 64
+                or any(c not in "0123456789abcdef" for c in value)
+                for value in analysis_identity.values()
+            )
+        ):
+            raise ValueError("Sensitivity analysis identity is invalid")
+        policy = {
+            "profile": "exploratory_coordinate_order.v1",
+            "parameter_order": list(parameter_order),
+            "analysis_ref": ref.model_dump(mode="json"),
+            "analysis_identity": dict(analysis_identity),
+            "parameter_basis": parameter_basis,
+            "authority_purpose": "exploratory_parameter_experiment",
+            "population_law_status": "not_established",
+        }
+        if self._json_bytes(analysis_reader()) != self._json_bytes(policy):
+            raise ValueError("Sensitivity source does not reproduce its ordering configuration")
+        if self._sensitivity_order is not None and self._json_bytes(
+            self._sensitivity_order
+        ) == self._json_bytes(policy):
+            self._sensitivity_admission = analysis_reader
+            return  # Same configuration revalidation does not change an active stream.
+        if (
+            self._activity_started
+            or self._warm_evals
+            or self._history_digests
+            or self._optimizer._numerical_basis is not None
+        ):
+            raise ValueError("Sensitivity order must precede transfer/warm/history/generation")
+        by_name = {bound.name: bound for bound in self._search_space.bounds}
+        ordered = SearchSpace(
+            [
+                {
+                    "name": name,
+                    "lower": by_name[name].lower,
+                    "upper": by_name[name].upper,
+                    **self._search_space._parameter_declarations[name],
+                }
+                for name in parameter_order
+            ]
+        )
+        deps = _try_import_bayesian()
+        if deps is None:
+            raise ValueError("Sensitivity ordering requires the actual native receiver")
+        _, optimizer, _, _, _, _, _ = deps
+        replacement = optimizer(ordered, config=self._optimizer._config)
+        self._search_space = ordered
+        self._optimizer = replacement
+        self._botorch_available = replacement.backend_available
+        self._sensitivity_order = json.loads(self._json_bytes(policy))
+        self._sensitivity_admission = analysis_reader
+
+    def _admit_sensitivity_order(self) -> None:
+        if self._sensitivity_order is not None:
+            if not callable(self._sensitivity_admission) or self._json_bytes(
+                self._sensitivity_admission()
+            ) != self._json_bytes(self._sensitivity_order):
+                raise ValueError("Sensitivity ordering no longer matches its original CAS source")
+
     def _checkpoint_config(self) -> dict[str, Any]:
-        return {
+        config = {
             "primary_metric": self._primary_metric,
             "direction": self._direction.value,
             "compare_split": self._compare_split.value,
@@ -267,6 +425,9 @@ class BayesianCandidateGenerator:
             "seed": self._seed,
             "numerical_basis": getattr(self._optimizer, "_basis_payload", None),
         }
+        if self._sensitivity_order is not None:
+            config["sensitivity_order"] = self._sensitivity_order
+        return config
 
     @staticmethod
     def _json_bytes(value: Any) -> bytes:
@@ -308,6 +469,7 @@ class BayesianCandidateGenerator:
 
     def get_state(self) -> dict[str, Any]:
         """Return a versioned wrapper plus the actual native strategy artifact."""
+        self._admit_sensitivity_order()
         if self._optimizer is None:
             raise ValueError("Generator checkpoint requires a native strategy receiver")
         return {
@@ -322,6 +484,7 @@ class BayesianCandidateGenerator:
 
     def set_state(self, state: dict[str, Any]) -> None:
         """Validate wrapper identity before the native atomic model/RNG restore."""
+        self._admit_sensitivity_order()
         fields = {
             "schema_version",
             "config",
@@ -421,6 +584,7 @@ class BayesianCandidateGenerator:
         current_best: dict[str, Any] | None,
         context: dict[str, Any],
     ) -> dict[str, Any]:
+        self._admit_sensitivity_order()
         self._activity_started = True
         if not self._botorch_available or self._optimizer is None:
             return self._fallback_generate(history, current_best, context)

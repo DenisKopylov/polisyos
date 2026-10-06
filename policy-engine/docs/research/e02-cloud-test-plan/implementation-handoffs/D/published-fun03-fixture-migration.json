@@ -211,7 +211,7 @@
     }
   ],
   "predicate_basis": {
-    "production_src_identity": "independently_reconciled via complete src Git diff",
+    "production_src_identity": "recomputed by author via complete src Git diff; root independent reconciliation remains pending",
     "callback_and_write_counts": "recomputed by actual tests/counterfactual",
     "typed_permit_issuer_verifier_revoke_serialized_writer": "not_established"
   },

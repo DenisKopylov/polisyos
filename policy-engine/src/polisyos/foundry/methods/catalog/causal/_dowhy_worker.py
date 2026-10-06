@@ -101,7 +101,25 @@ def _reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return value
 
 
+@contextmanager
+def _refuse_malformed_binding() -> Iterator[None]:
+    """Convert every structural JSON failure at either reader into one typed refusal."""
+    try:
+        yield
+    except WorkerBindingError:
+        raise
+    except (KeyError, TypeError, ValueError, AttributeError, IndexError) as exc:
+        raise WorkerBindingError(f"malformed worker binding: {exc}") from exc
+
+
 def _validate_reply(response: Any, request: Mapping[str, Any], lock: Mapping[str, Any]) -> None:
+    with _refuse_malformed_binding():
+        _validate_reply_fields(response, request, lock)
+
+
+def _validate_reply_fields(
+    response: Any, request: Mapping[str, Any], lock: Mapping[str, Any]
+) -> None:
     fields = {
         "schema",
         "profile",
@@ -350,6 +368,15 @@ def validate_persisted_worker_response(
     This verifies candidate provenance and supported numerical shape, never causal
     assumptions, verifier authority or permission to publish. It launches no worker.
     """
+    with _refuse_malformed_binding():
+        _validate_persisted_binding(
+            response=response, state=state, store=store, source_ref=source_ref
+        )
+
+
+def _validate_persisted_binding(
+    *, response: Mapping[str, Any], state: Any, store: Any, source_ref: ArtifactRef
+) -> None:
     observed = response["parent_observed"]
     binding = observed["request_binding"]
     with worker_execution_context(store=store, source_ref=source_ref):

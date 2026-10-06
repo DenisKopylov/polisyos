@@ -7,7 +7,7 @@
     {
       "path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/all-54-closeout.json",
       "bytes": 422505,
-      "sha256": "e7b74e9717b2c9f6e24695b5369ef29263725581bb5f06ec3bd83e72344bc249"
+      "sha256": "d8b647ae0bb74fb1149482bad60796826a043b163d34b7bce1bf3c726a4fc795"
     },
     {
       "path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/all-54-closeout.md",
@@ -17,7 +17,7 @@
     {
       "path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/local-G-closeout-recipes.json",
       "bytes": 31996,
-      "sha256": "6b2adf9797ff649518d589361b72e48b1351b86565081f4d33f97bca659c1095"
+      "sha256": "4531866c135a748db1d9b1e6888949f66896ac9b825e30b970af743495af6ba8"
     },
     {
       "path": "/workspace/e02-E-20261006-receipts/closure-independent/attach_common_wave.py",
@@ -96,7 +96,7 @@
   },
   "common_wave_summary_binding": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/summary.json",
-    "sha256": "0ce085869713eb80540d088ece417ef1d116c5daabe28dc95446779d4d2a772b",
+    "sha256": "361fbbe62b9fb0f0132bda6e47960af044f81fe34a3407e7ae9c4b6ccc97081a",
     "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
     "candidate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
     "binding": "Exact current-session summary bytes observed; evidence documentation commit is owned by root and does not retag numerical source."

@@ -206,16 +206,50 @@ class SlotLinker:
         source_sig: MethodSignature,
         target_sig: MethodSignature,
         explicit_mapping: Mapping[str, str] | None = None,
+        *,
+        defer_completeness: bool = False,
     ) -> LinkResult:
+        """Admit bindings, with completeness deferred only for DAG assembly.
+
+        The composer must reconcile all incoming bindings before freezing a
+        chain when ``defer_completeness`` is true. Pair compatibility is always
+        checked; the default standalone interface keeps full-pair semantics.
+        """
         if explicit_mapping is not None:
-            return self._link_explicit(source_sig, target_sig, explicit_mapping)
-        return self._link_auto(source_sig, target_sig)
+            return self._link_explicit(
+                source_sig, target_sig, explicit_mapping, defer_completeness=defer_completeness
+            )
+        return self._link_auto(source_sig, target_sig, defer_completeness=defer_completeness)
+
+    def _pair_compatibility(self, source: SlotSpec, target: SlotSpec) -> SlotCompatibility:
+        """Apply one structural and semantic predicate to either binding path."""
+        compat = check_slot_compatibility(
+            source,
+            target,
+            strict_shape=self._config.strict_shape,
+            allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+        )
+        if not compat.compatible:
+            if compat.reason == IncompatibilityReason.UNIT_DIMENSION_MISMATCH:
+                raise UnitMismatchError(
+                    source.name, target.name, source.unit.symbol, target.unit.symbol
+                )
+            if compat.reason == IncompatibilityReason.SHAPE_MISMATCH:
+                raise ShapeMismatchError(source.name, target.name, source.shape, target.shape)
+            raise SlotConnectionError(
+                f"Cannot connect {source.name} -> {target.name}: "
+                f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
+            )
+        self._check_semantic(source.name, target.name)
+        return compat
 
     def _link_explicit(
         self,
         source_sig: MethodSignature,
         target_sig: MethodSignature,
         mapping: Mapping[str, str],
+        *,
+        defer_completeness: bool = False,
     ) -> LinkResult:
         source_outputs = _slots_by_name(source_sig.output_slots)
         target_inputs = _slots_by_name(target_sig.input_slots)
@@ -239,35 +273,7 @@ class SlotLinker:
             src_slot = source_outputs[src_name]
             tgt_slot = target_inputs[tgt_name]
 
-            compat = check_slot_compatibility(
-                src_slot,
-                tgt_slot,
-                strict_shape=self._config.strict_shape,
-                allow_unsafe_shapes=self._config.allow_unsafe_shapes,
-            )
-
-            if not compat.compatible:
-                if compat.reason == IncompatibilityReason.UNIT_DIMENSION_MISMATCH:
-                    raise UnitMismatchError(
-                        src_name,
-                        tgt_name,
-                        src_slot.unit.symbol,
-                        tgt_slot.unit.symbol,
-                    )
-                if compat.reason == IncompatibilityReason.SHAPE_MISMATCH:
-                    raise ShapeMismatchError(
-                        src_name,
-                        tgt_name,
-                        src_slot.shape,
-                        tgt_slot.shape,
-                    )
-                raise SlotConnectionError(
-                    f"Cannot connect {src_name} -> {tgt_name}: "
-                    f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
-                )
-
-            # Semantic compatibility check (respects config.check_semantic_compatibility)
-            self._check_semantic(src_name, tgt_name)
+            compat = self._pair_compatibility(src_slot, tgt_slot)
 
             binding = SlotBinding(
                 source_method=source_sig.fqn,
@@ -284,7 +290,7 @@ class SlotLinker:
 
         unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
 
-        if unconnected and not self._config.allow_partial_links:
+        if unconnected and not self._config.allow_partial_links and not defer_completeness:
             raise SlotConnectionError(
                 f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
                 f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
@@ -302,49 +308,34 @@ class SlotLinker:
         self,
         source_sig: MethodSignature,
         target_sig: MethodSignature,
+        *,
+        defer_completeness: bool = False,
     ) -> LinkResult:
         source_outputs = _slots_by_name(source_sig.output_slots)
         target_inputs = _slots_by_name(target_sig.input_slots)
 
         warnings: list[str] = []
         candidate_edges: dict[str, list[tuple[SlotSpec, SlotCompatibility]]] = {}
+        rejections: list[Exception] = []
 
         # Build the complete admissible edge set before selecting any source.
         # This keeps matching from making an irrevocable greedy choice and
         # applies the same structural and semantic checks to every edge.
         for tgt_name, tgt_slot in target_inputs.items():
             compatible: list[tuple[SlotSpec, SlotCompatibility]] = []
-            semantic_mismatches: list[tuple[str, str]] = []
 
             for src_name, src_slot in source_outputs.items():
-                compat = check_slot_compatibility(
-                    src_slot,
-                    tgt_slot,
-                    strict_shape=self._config.strict_shape,
-                    allow_unsafe_shapes=self._config.allow_unsafe_shapes,
-                )
-                if not compat.compatible:
-                    if src_name == tgt_name:
-                        warnings.append(
-                            f"Slot '{tgt_name}' exists in both but incompatible: "
-                            f"{compat.warnings[0] if compat.warnings else 'type mismatch'}"
-                        )
-                    continue
-
                 try:
-                    self._check_semantic(src_name, tgt_name)
-                except SemanticCompatibilityError:
-                    semantic_mismatches.append((src_name, tgt_name))
+                    compat = self._pair_compatibility(src_slot, tgt_slot)
+                except SemanticCompatibilityError as exc:
+                    rejections.append(exc)
+                    continue
+                except SlotConnectionError as exc:
+                    rejections.append(exc)
+                    if src_name == tgt_name:
+                        warnings.append(f"Slot '{tgt_name}' exists in both but incompatible: {exc}")
                     continue
                 compatible.append((src_slot, compat))
-
-            # A structurally compatible but semantically forbidden edge is a
-            # real rejection, not an unconnected input.  If no admissible
-            # alternative exists, surface the same semantic error as explicit
-            # linking; otherwise leave the forbidden edge out of matching.
-            if not compatible and semantic_mismatches:
-                src_name, rejected_target = semantic_mismatches[0]
-                self._check_semantic(src_name, rejected_target)
 
             candidate_edges[tgt_name] = sorted(
                 compatible,
@@ -413,18 +404,31 @@ class SlotLinker:
                         f"also available: {others}"
                     )
 
-        unconnected = tuple(
-            name for name in target_inputs if name not in matched_targets
-        )
+        unconnected = tuple(name for name in target_inputs if name not in matched_targets)
 
-        if unconnected and not self._config.allow_partial_links:
+        if not bindings and rejections:
+            semantic_rejections = [
+                error for error in rejections if isinstance(error, SemanticCompatibilityError)
+            ]
+            if semantic_rejections:
+                raise semantic_rejections[0]
+        if not bindings and rejections and not self._config.allow_partial_links:
+            if len(source_outputs) == len(target_inputs) == 1:
+                raise rejections[0]
+            raise SlotConnectionError(
+                f"No admissible bindings from {source_sig.fqn} to {target_sig.fqn}: "
+                + "; ".join(str(error) for error in rejections)
+            )
+
+        if unconnected and not self._config.allow_partial_links and not defer_completeness:
             raise SlotConnectionError(
                 f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
                 f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
             )
 
-        for name in unconnected:
-            warnings.append(f"Input slot '{name}' remains unconnected")
+        if not defer_completeness:
+            for name in unconnected:
+                warnings.append(f"Input slot '{name}' remains unconnected")
 
         return LinkResult(
             source_fqn=source_sig.fqn,

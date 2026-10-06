@@ -116,8 +116,8 @@
       "finding_id": "B108",
       "canonical_closure_owner": "OPT-01",
       "inputs_or_APIs": {
-        "signed_fiscal_unit_profile_ref": null,
-        "served_fiscal_metric_source_ref": null
+        "served_fiscal_metric_source_ref": null,
+        "owner_declared_fiscal_unit_profile_ref": null
       },
       "next_owner": "Fiscal metric/input owner / search_owner / G"
     },
@@ -229,10 +229,12 @@
     "Original cross-unit planned tests/unit/remediation/test_opt_04.py is absent in finalDtree. Actual existing localOPT04 command is source-bound separately; this does not implement or execute that absent combined-edge selector."
   ],
   "criterion_accounting_receipt": {
-    "source_sha": "e8c27984472bea72ed1a565ac816aa75db5e3bbe",
+    "source_sha": "300119d268bea0bcff0fb55dd5f447250589e2a1",
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
-    "bytes": 171442,
-    "sha256": "4af18432fca4a8915df64c7ffb710cdd8f1972d69d918ccce417ba15fef51182"
+    "bytes": 176452,
+    "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
   },
-  "predicate_basis": "consumer_contract_proposal; actual local source/receipt bytes independently reconciled; unknown combined-source predicates not_established"
+  "predicate_basis": "consumer_contract_proposal; actual local source/receipt bytes independently reconciled; unknown combined-source predicates not_established",
+  "optional_profile_extension_scope": "Unreceived optional profile/extensions are recorded as null outside new mandatory canonical criteria. Owner-declared fiscal unit/profile input does not require a new cryptographic signature.",
+  "metadata_correction": "Append-only terminology and pointer-target clarification only; corrected accounting byte binding replaces the prior reference. Production, tests, runtime outputs and unknown upstream minrefs are unchanged."
 }

@@ -1,0 +1,51 @@
+[
+  {
+    "control": "existing-parent",
+    "outcome": "REFUSED_BEFORE_ANY_CHILD",
+    "launch_count": 0,
+    "reason": "numerical pytest basetemp parent exists; preserve it and choose fresh scratch",
+    "existing_unique_data_preserved": true
+  },
+  {
+    "control": "existing-basetemp",
+    "outcome": "REFUSED_BEFORE_ANY_CHILD",
+    "launch_count": 0,
+    "reason": "numerical pytest basetemp exists; preserve it and choose fresh scratch",
+    "existing_unique_data_preserved": true
+  },
+  {
+    "control": "dangling-parent-symlink",
+    "outcome": "REFUSED_BEFORE_ANY_CHILD",
+    "launch_count": 0,
+    "reason": "numerical pytest basetemp parent exists; preserve it and choose fresh scratch",
+    "existing_unique_data_preserved": true
+  },
+  {
+    "control": "live-outside-parent-symlink",
+    "outcome": "REFUSED_BEFORE_ANY_CHILD",
+    "launch_count": 0,
+    "reason": "numerical basetemp parent escapes admitted wave output",
+    "existing_unique_data_preserved": true
+  },
+  {
+    "control": "dangling-basetemp-symlink",
+    "outcome": "REFUSED_BEFORE_ANY_CHILD",
+    "launch_count": 0,
+    "reason": "numerical pytest basetemp exists; preserve it and choose fresh scratch",
+    "existing_unique_data_preserved": true
+  },
+  {
+    "control": "escaped-parent",
+    "outcome": "REFUSED_BEFORE_ANY_CHILD",
+    "launch_count": 0,
+    "reason": "numerical basetemp parent escapes admitted wave output",
+    "existing_unique_data_preserved": true
+  },
+  {
+    "control": "later-job-stale-parent",
+    "outcome": "REFUSED_BEFORE_ANY_CHILD",
+    "launch_count": 0,
+    "reason": "numerical pytest basetemp parent exists; preserve it and choose fresh scratch",
+    "existing_unique_data_preserved": true
+  }
+]

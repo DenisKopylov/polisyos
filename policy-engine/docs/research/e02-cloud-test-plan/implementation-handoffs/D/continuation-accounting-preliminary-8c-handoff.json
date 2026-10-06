@@ -1,0 +1,434 @@
+{
+  "schema": "policyos.e02.D.preliminary_accounting_handoff.v1",
+  "unit": "D",
+  "role": "SOURCE_BOUND_PRELIMINARY_METADATA_ONLY",
+  "recorded_at_utc": "2026-10-06 20:37:00 UTC",
+  "branch": "codex/e02-D-continuation-accounting",
+  "slice_base_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "slice_base_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+  "implementation_tree": "f24fa7cd9f97a9507c891c968878f98641c6b13a",
+  "repository": "DenisKopylov/polisyos",
+  "publication": {
+    "method": "Explicitly root-authorized GitHub Git-object/ref API",
+    "parent_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "expected_ref_before_advance": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "force": false,
+    "local_checkout_or_worktree_created": false,
+    "local_hooks_executed": false,
+    "local_hook_scope": "No local commit is performed in this metadata-only API publication; no global hook or runtime unavailability assertion.",
+    "no_root_PR_main_G_ref_mutation": true,
+    "remote_readback": {
+      "method": "Git ls-remote plus full GitHub UTF8 files",
+      "head": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "raw_ref_stdout": "6d791e11e77caaf82df5c2ab098eed20273ae58b\trefs/heads/codex/e02-D-continuation-accounting\n"
+    }
+  },
+  "denominator": {
+    "finding_ids": 45,
+    "criterion_occurrences": 46,
+    "canonical_owner_occurrences": 45,
+    "supplier_companion_occurrences": 1,
+    "bundles": 17,
+    "baseline_routes": 456,
+    "baseline_unique_cells": 115
+  },
+  "disposition_counts": {
+    "OPEN_VERIFICATION_PENDING": 39,
+    "LIMITED_UPSTREAM_CURRENT_FAIL": 1,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5
+  },
+  "conditional_proposal_count": 39,
+  "formally_closed": 0,
+  "accepted_in_G": false,
+  "closure_ids": [],
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Actual Git artifact/reference/criterion/owner/task/hash/path/import/navigation bytes only; no new runtime, scientific law or authority admission.",
+  "acceptance_assertion": {
+    "predicate_basis": "not_established",
+    "scope": "Final composed finite criterion verification remains pending; five original owner positives are held and B120 has current upstream product FAIL.",
+    "accepted_in_G": false,
+    "formal_closed": 0
+  },
+  "original_criterion_integrity": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+    "original_draft_payload_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+    "full_original_document_checks": 23,
+    "original_occurrence_checks": 46,
+    "owner_TSV_rows": 45,
+    "canonical_cards": 17,
+    "all_original_acceptance_text_unchanged": true,
+    "LA_015_CTL_role": "supplier_companion_only",
+    "LA_015_canonical_closure_owner": "SRV-03",
+    "errors": []
+  },
+  "checks": [
+    {
+      "name": "Original draft Git transport full bytes",
+      "outcome": "MATCH",
+      "records": 4,
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+        "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+        "json_pointer": "/original_transported_draft_review"
+      }
+    },
+    {
+      "name": "Pinned original reference/source/selector bodies",
+      "outcome": "MATCH",
+      "records": 90,
+      "quantity": {
+        "ledger_refs": 36,
+        "packet_refs": 24,
+        "current_contracts": 18,
+        "selectors": 12
+      },
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+        "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+        "json_pointer": "/original_reference_checks"
+      }
+    },
+    {
+      "name": "Current8c contract/selector navigation",
+      "outcome": "MATCH",
+      "records": 30,
+      "unchanged_prior5050": 29,
+      "test_fixture_successor": 1,
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+        "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+        "json_pointer": "/current_contract_and_selector_checks"
+      },
+      "scope": "Changed independent B119 fixture has current bytes, not a relabeled old PASS. No runtime here."
+    },
+    {
+      "name": "Complete exact base to candidate tracked diff",
+      "outcome": "MATCH",
+      "records": 815,
+      "quantity": {
+        "added": 729,
+        "modified": 86,
+        "source": 64,
+        "tests": 74
+      },
+      "method": "git -C /workspace/e02-D-published-stress diff --raw --no-abbrev --no-renames cae5589aa7080b628e93d594eeb4ff7c2fc2414d 8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+        "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+        "json_pointer": "/full_changed_path_binding"
+      }
+    },
+    {
+      "name": "Retained interruption payload and imports",
+      "outcome": "MATCH",
+      "full_members": 14,
+      "product_import_records": 1052,
+      "Git_matches": 1052,
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "payload_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+        "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+        "json_pointer": "/interrupted_wave_binding"
+      },
+      "scope": "14 full member hashes and actual immutable source paths/blobs independently reconciled. Import/configure does not prove tests or model fitting."
+    },
+    {
+      "name": "Implementation9-file complete remote readback",
+      "outcome": "MATCH",
+      "records": 9,
+      "all_files_full_bytes": true,
+      "no_source_or_test_files": true,
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "64faad6d715ec49d78af258ea52d2da2a63d5866",
+            "bytes": 386508,
+            "sha256": "45c2bdc79457593a5e3d7a84c860d49f8a520ff5f2609f575a464e0affd2ce8d"
+          },
+          "actual": {
+            "git_blob": "64faad6d715ec49d78af258ea52d2da2a63d5866",
+            "bytes": 386508,
+            "sha256": "45c2bdc79457593a5e3d7a84c860d49f8a520ff5f2609f575a464e0affd2ce8d"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/owner-inputs.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "c867acc538e1597871b2780120e4006ec41e5065",
+            "bytes": 278555,
+            "sha256": "7dff16b5d7d64aae0fbcda38d5fe40c231d4c4efdc36bc4650922a717ee12ddf"
+          },
+          "actual": {
+            "git_blob": "c867acc538e1597871b2780120e4006ec41e5065",
+            "bytes": 278555,
+            "sha256": "7dff16b5d7d64aae0fbcda38d5fe40c231d4c4efdc36bc4650922a717ee12ddf"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "c29100337c71bee29c84fad1d1e3a000fbf2bc9b",
+            "bytes": 138670,
+            "sha256": "f262b48d6946a9dc0840713bf76bbe9289c123c25074e45400447bf45c64fb7a"
+          },
+          "actual": {
+            "git_blob": "c29100337c71bee29c84fad1d1e3a000fbf2bc9b",
+            "bytes": 138670,
+            "sha256": "f262b48d6946a9dc0840713bf76bbe9289c123c25074e45400447bf45c64fb7a"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/changed-paths.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "ace5b1737a5c81861832c10087f63001bd4e6fab",
+            "bytes": 276275,
+            "sha256": "694876caf74951477c8675239aef7bd498dcc85dcd882f96af90b33564bb3425"
+          },
+          "actual": {
+            "git_blob": "ace5b1737a5c81861832c10087f63001bd4e6fab",
+            "bytes": 276275,
+            "sha256": "694876caf74951477c8675239aef7bd498dcc85dcd882f96af90b33564bb3425"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/README.md",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "a3af98c2553a986198107acef67d8e4284d437a0",
+            "bytes": 3220,
+            "sha256": "65d995a87c6faf31fb3f6a153dcbf825a4d2287ed510e72edd61f16c9618431d"
+          },
+          "actual": {
+            "git_blob": "a3af98c2553a986198107acef67d8e4284d437a0",
+            "bytes": 3220,
+            "sha256": "65d995a87c6faf31fb3f6a153dcbf825a4d2287ed510e72edd61f16c9618431d"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/ledger.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "a90af4086f9e4d97056be93863289314bda248b7",
+            "bytes": 242325,
+            "sha256": "d11542a4c64b19d490802635d1b4cf2d1033c2ce4cc42f01d0dd044beaea37f9"
+          },
+          "actual": {
+            "git_blob": "a90af4086f9e4d97056be93863289314bda248b7",
+            "bytes": 242325,
+            "sha256": "d11542a4c64b19d490802635d1b4cf2d1033c2ce4cc42f01d0dd044beaea37f9"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/owner-inputs.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "4f4529ef272e4aa15d177399c9582235ebbd49ca",
+            "bytes": 193537,
+            "sha256": "953452e33f7e19c00792681382570020c80a12a941d1c850b4065b6f9e7a9f48"
+          },
+          "actual": {
+            "git_blob": "4f4529ef272e4aa15d177399c9582235ebbd49ca",
+            "bytes": 193537,
+            "sha256": "953452e33f7e19c00792681382570020c80a12a941d1c850b4065b6f9e7a9f48"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/binding.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "174712fd27b1d6e62ae3c36520ac03bcdced97d2",
+            "bytes": 52200,
+            "sha256": "dff0b86e89156e21dc86c13aabf682090583d03772c3b2dbb872d189c45465ad"
+          },
+          "actual": {
+            "git_blob": "174712fd27b1d6e62ae3c36520ac03bcdced97d2",
+            "bytes": 52200,
+            "sha256": "dff0b86e89156e21dc86c13aabf682090583d03772c3b2dbb872d189c45465ad"
+          },
+          "MATCH": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/summary.json",
+          "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+          "expected": {
+            "git_blob": "cf17b25de9290188729d8cc974445647813ac82d",
+            "bytes": 3124,
+            "sha256": "7a97fd02bc64f58c47737108926aa9f6e93f72b1fbd4f18c9842da9c4755ac53"
+          },
+          "actual": {
+            "git_blob": "cf17b25de9290188729d8cc974445647813ac82d",
+            "bytes": 3124,
+            "sha256": "7a97fd02bc64f58c47737108926aa9f6e93f72b1fbd4f18c9842da9c4755ac53"
+          },
+          "MATCH": true
+        }
+      ]
+    }
+  ],
+  "administrative_environment": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "purpose": "read-only Git/JSON administrative verification; no scientific backend/test execution"
+  },
+  "runtime": {
+    "new_test_or_scientific_backend_invocations_here": 0,
+    "previous_broad_99": "ERROR_UNRUN; child SIGKILL(-9), harness SIGTERM(-15), cause not_established; no completed collection/test/fit verdict",
+    "interruption_receipt": {
+      "source_sha": "83fffc0f74fe3ef88857f57e5132187c8fb7101a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption.json",
+      "git_blob": "678496b12e96df131fac306de40b77fe221e3086",
+      "bytes": 7753,
+      "sha256": "1267222ccb79b5e14e4d027f5a76203d3eeeb73dacf0762e2f41a220fe2e652e"
+    },
+    "configured_transfer_5": {
+      "state": "ERROR_UNRUN",
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "complete_Git_output_ref": null,
+      "root_reported_substeps": "Actual native SingleTaskGP on8originalCASrows constructor/fit returned and fitted state captured; full controller/acquisition positive not completed. Root-reported four prefit negatives UNRUN in that session; separate attempt receipt pending.",
+      "predicate_basis": "consumer_asserted"
+    },
+    "past_deciding_subsets": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json",
+      "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "json_pointer": "/received_outcome_subsets",
+      "limits": "Author B11912 source5050, corrected paid1 source1ff and independent3 source1ff are separate. Historical86PASS/1FAIL and removal4FAIL remain; no87PASS total. Quantity13/13/ordinary2, native15/1/SKIP, B13640+independent delta and Gateway21FAIL/3PASS remain exact source/environment/output subsets."
+    }
+  },
+  "owner_packets": {
+    "count": 16,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/owner-inputs.json",
+    "implementation_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+    "requested_canonical_owner": true,
+    "appointment_not_established": true,
+    "missing_original_positive_refs": null,
+    "source_qualified_provided_corrective": "D_coordinate_volume_corrective has exact supplied quantity/independent/ordinary receipt, final composed verification pending",
+    "scope": "Finite mechanisms and separate actual A/default/served/B/API/E law/authority tasks remain distinct; no blanket production law, signature, invoice authority or new scientific criterion."
+  },
+  "implementation_files": [
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "64faad6d715ec49d78af258ea52d2da2a63d5866",
+      "bytes": 386508,
+      "sha256": "45c2bdc79457593a5e3d7a84c860d49f8a520ff5f2609f575a464e0affd2ce8d",
+      "git_blob": "64faad6d715ec49d78af258ea52d2da2a63d5866"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/owner-inputs.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c867acc538e1597871b2780120e4006ec41e5065",
+      "bytes": 278555,
+      "sha256": "7dff16b5d7d64aae0fbcda38d5fe40c231d4c4efdc36bc4650922a717ee12ddf",
+      "git_blob": "c867acc538e1597871b2780120e4006ec41e5065"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c29100337c71bee29c84fad1d1e3a000fbf2bc9b",
+      "bytes": 138670,
+      "sha256": "f262b48d6946a9dc0840713bf76bbe9289c123c25074e45400447bf45c64fb7a",
+      "git_blob": "c29100337c71bee29c84fad1d1e3a000fbf2bc9b"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/changed-paths.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ace5b1737a5c81861832c10087f63001bd4e6fab",
+      "bytes": 276275,
+      "sha256": "694876caf74951477c8675239aef7bd498dcc85dcd882f96af90b33564bb3425",
+      "git_blob": "ace5b1737a5c81861832c10087f63001bd4e6fab"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a3af98c2553a986198107acef67d8e4284d437a0",
+      "bytes": 3220,
+      "sha256": "65d995a87c6faf31fb3f6a153dcbf825a4d2287ed510e72edd61f16c9618431d",
+      "git_blob": "a3af98c2553a986198107acef67d8e4284d437a0"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/ledger.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a90af4086f9e4d97056be93863289314bda248b7",
+      "bytes": 242325,
+      "sha256": "d11542a4c64b19d490802635d1b4cf2d1033c2ce4cc42f01d0dd044beaea37f9",
+      "reused_original_source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "git_blob": "a90af4086f9e4d97056be93863289314bda248b7"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/owner-inputs.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4f4529ef272e4aa15d177399c9582235ebbd49ca",
+      "bytes": 193537,
+      "sha256": "953452e33f7e19c00792681382570020c80a12a941d1c850b4065b6f9e7a9f48",
+      "reused_original_source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "git_blob": "4f4529ef272e4aa15d177399c9582235ebbd49ca"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/binding.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "174712fd27b1d6e62ae3c36520ac03bcdced97d2",
+      "bytes": 52200,
+      "sha256": "dff0b86e89156e21dc86c13aabf682090583d03772c3b2dbb872d189c45465ad",
+      "reused_original_source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "git_blob": "174712fd27b1d6e62ae3c36520ac03bcdced97d2"
+    },
+    {
+      "source_sha": "6d791e11e77caaf82df5c2ab098eed20273ae58b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/summary.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cf17b25de9290188729d8cc974445647813ac82d",
+      "bytes": 3124,
+      "sha256": "7a97fd02bc64f58c47737108926aa9f6e93f72b1fbd4f18c9842da9c4755ac53",
+      "reused_original_source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "git_blob": "cf17b25de9290188729d8cc974445647813ac82d"
+    }
+  ],
+  "preservation": {
+    "four_original_draft_blobs_reused_unchanged": true,
+    "original_historical_receipts_unmodified": true,
+    "source_test_hook_registry_edits": 0,
+    "backend_replays": 0,
+    "children": 0,
+    "cleanup_or_moves": 0
+  },
+  "pattern_pass": [
+    "P35 complete45/46/17 plus all815 paths; no sampled/capped denominator",
+    "P37 canonical predicate labels; source/byte reconciliation does not appoint authority",
+    "P38 received output hashes/imports do not prove uncompleted final runtime",
+    "P40 current raw-cost class and explicit unsupported/missing inputs retained; no new parser/law project",
+    "P41 historical/fixture/removal reds retained without inherited waiver"
+  ]
+}

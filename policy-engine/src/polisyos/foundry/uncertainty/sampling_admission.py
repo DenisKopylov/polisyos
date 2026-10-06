@@ -55,7 +55,10 @@ def _real_float64(values: object) -> np.ndarray:
         array.dtype.kind == "O" and all(isinstance(value, numbers.Real) for value in array.flat)
     ):
         raise ValueError("sampling coordinates and masses require real numeric values")
-    return np.asarray(array, dtype=np.float64)
+    converted = np.asarray(array, dtype=np.float64)
+    if np.any((array != 0) & (converted == 0)):
+        raise ValueError("nonzero sampling support collapses during float64 conversion")
+    return converted
 
 
 def admit_float32_range(values: object) -> np.ndarray:

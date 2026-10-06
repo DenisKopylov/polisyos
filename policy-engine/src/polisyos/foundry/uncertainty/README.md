@@ -72,3 +72,5 @@ The common numerical inlet requires real numeric values before float64
 conversion. Complex arrays, including complex values stored in object arrays,
 refuse instead of projecting away their imaginary components. The same inlet
 protects backend range admission and independent-pilot budget calculations.
+Nonzero real values that become zero during float64 conversion also refuse;
+canonicalization cannot silently delete a positive category or covariance.

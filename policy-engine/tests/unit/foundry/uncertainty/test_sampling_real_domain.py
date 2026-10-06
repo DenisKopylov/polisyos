@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import warnings
+from fractions import Fraction
 
 import numpy as np
 import pytest
@@ -60,3 +61,23 @@ def test_iid_mean_budget_retains_independent_analytic_oracle():
     variance_bound, main_count = frozen_bernstein_budget(np.zeros(256), plan)
     assert variance_bound == pytest.approx(0.0995612812, abs=1e-9)
     assert main_count == 408
+
+
+@pytest.mark.parametrize("representation", ["longdouble", "fraction"])
+@pytest.mark.parametrize("inlet", ["weights", "cdf", "uniform", "range", "pilot"])
+def test_nonzero_real_support_cannot_be_admitted_as_zero(representation, inlet):
+    tiny = np.longdouble("1e-400") if representation == "longdouble" else Fraction(1, 10**400)
+    if tiny == 0:
+        pytest.skip("platform longdouble does not represent this positive fixture")
+    values = np.array([tiny, 1], dtype=np.longdouble if representation == "longdouble" else object)
+    plan = BoundedIIDMeanPlan(metric_id="y", pilot_samples=2)
+    call = {
+        "weights": lambda: admit_empirical_weights(values, 2),
+        "cdf": lambda: empirical_cdf(values),
+        "uniform": lambda: admit_unit_uniform(values),
+        "range": lambda: admit_float32_range(values),
+        "pilot": lambda: frozen_bernstein_budget(values, plan),
+    }[inlet]
+    assert values[0] > 0 and float(values[0]) == 0
+    with pytest.raises(ValueError, match="nonzero sampling support"):
+        call()

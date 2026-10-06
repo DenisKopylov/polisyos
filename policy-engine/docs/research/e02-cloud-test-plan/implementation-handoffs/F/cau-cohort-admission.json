@@ -11,14 +11,16 @@
   ],
   "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
   "implementation_commits": [
-    "c8e16d0abb7d10605475862ede8c6f327ff7cce9"
+    "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+    "d27227d03a7c78b90c442e6f258c45987104f8a1"
   ],
-  "candidate_tree_sha": "a7b2625d8dc41f7ae364a5d98ebf6f3c4f60a2cf",
+  "candidate_tree_sha": "f8f48556b06648b51364389595d17470fd94beb2",
   "branch": "codex/e02-F-cau",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/18",
   "changed_paths": [
     "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
-    "policy-engine/tests/unit/remediation/test_cau_02.py"
+    "policy-engine/tests/unit/remediation/test_cau_02.py",
+    "policy-engine/docs/reference/foundry/causal-statistical-validity.md"
   ],
   "baseline_cells": [
     "F01-P067",
@@ -143,6 +145,36 @@
         "stdout": "status=passed coverage=partial regressions=[] new_unresolved_by_construction=[] runtime_invocation_established=false"
       },
       "evidence_transfer_verdict": "not_established for full static-detail receipt; not a runtime or closure gate"
+    },
+    {
+      "command": "PYTHONPATH=src:. UV_PROJECT_ENVIRONMENT=/workspace/polisyos/policy-engine/.venv UV_NO_SYNC=1 PYTHONUNBUFFERED=1 /workspace/polisyos/policy-engine/.venv/bin/python -m tools.cli validation check-docs-gate --repo-root . --base-ref c40d4acae1ce58b597267255026d9356565828fd",
+      "target_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "environment": "shared real Python3.14.2 env read-only; uv synchronization disabled; candidate tools/source on PYTHONPATH",
+      "input_closure": "full actual git changed-path denominator, complete gate plan companion; normal canonical command dispatch without --changed-path override or skips; global source-owned freshness inputs remain global",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "interpretation": "Pre-doc companion check on prior topic head: missing foundry_docs plus docs_accuracy global freshness FAIL.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.txt",
+        "bytes": 1425,
+        "sha256": "ec5cecf19cc7c4b1c900c23eb19d762e24676281950a63a5c0965087e2141610"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.json"
+    },
+    {
+      "command": "PYTHONPATH=src:. UV_PROJECT_ENVIRONMENT=/workspace/polisyos/policy-engine/.venv UV_NO_SYNC=1 PYTHONUNBUFFERED=1 /workspace/polisyos/policy-engine/.venv/bin/python -m tools.cli validation check-docs-gate --repo-root . --base-ref c40d4acae1ce58b597267255026d9356565828fd",
+      "target_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+      "environment": "shared real Python3.14.2 env read-only; uv synchronization disabled; candidate tools/source on PYTHONPATH",
+      "input_closure": "full actual git changed-path denominator, complete gate plan companion; normal canonical command dispatch without --changed-path override or skips; global source-owned freshness inputs remain global",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "interpretation": "Canonical Foundry companion requirement satisfied (no foundry_docs finding); docs_accuracy global freshness FAIL persists (expired baseline,10observed vs0expected,hash459cc4ff...). Full docs gate is FAIL; strict_docs_build is UNRUN because canonical gate stops at first failing command.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.txt",
+        "bytes": 1033,
+        "sha256": "3b486d999d00b9c7c666ed721f0fdcb4cbb0a53c015eaa9454b6e601cdc0237b"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.json"
     }
   ],
   "environment": {
@@ -411,6 +443,95 @@
     "Causal ABI consumers: MethodDispatcher emits pre-existing raw-key warnings result/report and uncertainty_envelope/envelope; components/io has downstream canonical aliases. This slice changes no signature/facade; does not claim raw-output ABIgreen.",
     "G: reconcile LA-016 residual prose that mentions DoWhy against authoritative DiD source card before any closure.",
     "G: four-base historical replay for CAU-01 remains UNRUN; existing current-head tests do not substitute that replay.",
-    "G: production_invocation huge raw remains local163MiB; static detail receipt is unavailable acrossGit and runtime proof is supplied by bounded execution logs, not static summary."
-  ]
+    "G: production_invocation huge raw remains local163MiB; static detail receipt is unavailable acrossGit and runtime proof is supplied by bounded execution logs, not static summary.",
+    "G/docs freshness owner: full path-aware docs gate still FAIL on global baseline expiry/count/hash; strict MkDocs build is UNRUN after first command failure. No baseline or exception was changed.",
+    "G/C import API owner: prior PR18 Python quality/unit CI failed at canonical import policy and downstream tests were SKIPPED; native local79PASS5SKIP does not imply whole CI PASS. Source-only cause/denominator triage supplied separately to root; no estimator edit or inherited-red claim."
+  ],
+  "documentation_followup": {
+    "implementation_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+    "candidate_tree_sha": "f8f48556b06648b51364389595d17470fd94beb2",
+    "runtime_implementation_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+    "prior_published_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "scope": "Substantive canonical validity documentation companion only; whole requested observed-cohort baseline admission, strict anticipation, actual persisted refusal consumer, integer timing precondition, synthetic/calibration/real-data boundaries, Python3.14 optional backend markers and real statsmodels reference scope. No estimator, equation, benchmark fixture, baseline, exception, dependency marker or governance policy changes.",
+    "runtime_check_binding": "All existing source/test/native checks keep their original explicit c8e16d0 target SHA. Runtime/test trees byte-identical between that implementation and d272 doc candidate; no fresh estimator test run or CI PASS is claimed on the documentation SHA.",
+    "runtime_identity_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-runtime-identity.json",
+    "admission": "Own branch read-back clean and resume admitted before edit; no nested AGENTS along approved doc path. Full read-only admission companion retained.",
+    "gate_provider": "tools/quality/validation/check_docs_gate.py",
+    "gate_plan_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-gate-plan.json",
+    "bounded_property_verdict": "Canonical method-sensitive Foundry documentation companion present; global docs gate FAIL remains. Independent reviewer validates actual removal discriminator separately.",
+    "global_gates": {
+      "docs_accuracy": "FAIL: baseline expired, observed10 vs0, observedhash459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be",
+      "strict_docs_build": "UNRUN: canonical gate stops after first failed child command; not a successful build witness",
+      "python_quality_and_unit": "Prior PR18 merge2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225 for topic6a6ddfe9 failed Enforce import policy (full2697Python scan,21unadjudicated violations); all later Python quality/unit steps SKIPPED. New documentation head CI is not established by these local checks.",
+      "p41": "No inherited-red claim: exact pre-edit c40 slice-base full global freshness/import-policy command replay and disjoint complete input denominator are not established. A before-doc replay on prior topic6a is documented only for the specific companion delta."
+    },
+    "companions": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.json",
+        "bytes": 828,
+        "sha256": "c05407d34839d185f835919cd0759c3f2be5c9fc24fca27e7c96e6835618341d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.txt",
+        "bytes": 1033,
+        "sha256": "3b486d999d00b9c7c666ed721f0fdcb4cbb0a53c015eaa9454b6e601cdc0237b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.json",
+        "bytes": 829,
+        "sha256": "de48d559dfabe5661e5bcd8c0b5048ce6a5ee923b038090fbeaab37afb0ab855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.txt",
+        "bytes": 1425,
+        "sha256": "ec5cecf19cc7c4b1c900c23eb19d762e24676281950a63a5c0965087e2141610"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-gate-plan.json",
+        "bytes": 4408,
+        "sha256": "d2963bb5d18485b679102477b03a6eee075f8c2b33a77266117765c8971be110"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-after-native.txt",
+        "bytes": 1511,
+        "sha256": "57679fb3c7e2f303dd4c9076f0fd493dc872667cf2c0becdaf9305a22e841f34"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-review.json",
+        "bytes": 12232,
+        "sha256": "1dd10e413808c8e3e972f18861d4455b96384fe1c592b549cae20efef2f7cb21"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-full.txt",
+        "bytes": 45822,
+        "sha256": "18c9bb90ad2939ee609081987c67304db0eabaded32f21a1e332dd49ff0cee44"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-triage.json",
+        "bytes": 13456,
+        "sha256": "a863fe7d40627f92e53fa3e9d294ff2de2970c377779abbf18adeacae5c2d294"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-resume.json",
+        "bytes": 70307,
+        "sha256": "e9e3bc6c56596125a90e314011414d3e93333d571f3b6c3ae5a5e1f2fd6df0e4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-runtime-identity.json",
+        "bytes": 1767,
+        "sha256": "1aefbc9a3275a13f4af0aeb615e4261d35fb15a80a51c385d1ccb4433385dd04"
+      }
+    ],
+    "prior_actual_ci_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-triage.json",
+    "independent_review": {
+      "reviewer": "F graph_scm leaf",
+      "target_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+      "verdict": "GO bounded documentation companion; no blocker",
+      "property_evidence": "Complete real changed-path set before9producesfoundry_docs, after10doesnot; removing actual doc from complete after set restores foundry_docs. Text accurately separates admission/synthetic contrast/descriptive interval from calibrated/real-data/backend authority.",
+      "native_gate": "Fresh normal full gate targetd272/c40 exit1,4.041s; global expired10/hash459 remains FAIL; strict_docs_build UNRUN",
+      "full_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-review.json",
+      "complete_native_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-after-native.txt"
+    },
+    "prior_ci_log_encoding": "Full fetched plaintext PR18 job output is preserved losslessly as JSON complete_console_output in .txt companion to avoid raw log timestamp trailing whitespace. Committed artifact and decoded raw stdout have distinct byte counts/hashes in the companion and triage."
+  }
 }

@@ -1,0 +1,104 @@
+{
+  "gate_provider": "tools/quality/validation/check_docs_gate.py",
+  "records": [
+    {
+      "target_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "full_changed_path_denominator": [
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "src/polisyos/foundry/methods/catalog/causal/did.py",
+        "tests/unit/remediation/test_cau_02.py"
+      ],
+      "full_path_gate_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": [
+          {
+            "rule_id": "foundry_docs",
+            "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/did.py`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+          }
+        ]
+      }
+    },
+    {
+      "target_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+      "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "full_changed_path_denominator": [
+        "docs/reference/foundry/causal-statistical-validity.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "src/polisyos/foundry/methods/catalog/causal/did.py",
+        "tests/unit/remediation/test_cau_02.py"
+      ],
+      "full_path_gate_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": []
+      }
+    }
+  ],
+  "execution_behavior": "Canonical gate stops after first command failure; full path gate dispatch executed without skip or changed-path override; strict_docs_build scheduled but UNRUN due docs_accuracy failure."
+}

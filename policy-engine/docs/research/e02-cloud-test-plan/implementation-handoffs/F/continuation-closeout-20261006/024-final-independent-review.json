@@ -1,0 +1,329 @@
+{
+  "schema": "F-independent-final-continuation-packet-review/1",
+  "signed_by": "/root/graph_scm",
+  "reviewer_role": "independent read-only graph/SCM and metadata/custody reviewer",
+  "signed_scope": "Exact immutable metadata/custody packet and source-bound criterion/limit narrative; no institutional authority or scientific rerun.",
+  "check": "PASS",
+  "decision": "GO_BOUNDED_METADATA_CUSTODY",
+  "packet_sha": "f17b9a52784d9484ef65563dc6695240629bdfc6",
+  "packet_tree": "5f99683e2e623dceb68591607000f422ebc08bee",
+  "scientific_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "scientific_source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "ROOT_adjudication_ref": {
+    "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+    "bytes": 130025,
+    "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f"
+  },
+  "original_denominator": {
+    "findings": 35,
+    "bindings": 36,
+    "bundles": 17,
+    "LA016_is_one_ID_with_two_bindings": true
+  },
+  "required_registry": {
+    "selected_independently_before_any_final_INDEX_read": true,
+    "components": 37,
+    "seed_observations": 39,
+    "ref": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/required-registry-final.json",
+      "bytes": 20278,
+      "sha256": "e108437f8bb439d85fdb00016c9c2164d14af5a22768f542013df7eeef7b6d95"
+    }
+  },
+  "actual_full_validator": {
+    "check": "PASS",
+    "issues": [],
+    "execution": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-validation.execution.json",
+      "bytes": 5237,
+      "sha256": "35e803821d3eefa2542e2a64a511d337d387e0c92831b81b6f0fb2386939b2db"
+    },
+    "full_result": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-validation.json",
+      "bytes": 1509949,
+      "sha256": "2d8dd6c9dc5c9d58605abb7f166b7b70e845104106f75c1ad08e894c3c9ca2d2"
+    },
+    "wall_seconds": 12.76547513800324,
+    "current_artifact_refs": 3770
+  },
+  "actual_supplemental": {
+    "check": "PASS",
+    "properties": 14,
+    "issues": [],
+    "execution": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/supplemental-final.execution.json",
+      "bytes": 1113,
+      "sha256": "1a704f43604d607561fca722aaf0ed1de0cfee1231e6435d6cda93489c6ef7a3"
+    },
+    "full_result": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/supplemental-checks-final.json",
+      "bytes": 288568,
+      "sha256": "6a1bb39d030955034a61304722aae42e4ea5c75064240af29dd92f32541dc12d"
+    }
+  },
+  "actual_per_ID_full_carriers_cards_and_decision_projection": {
+    "check": "PASS",
+    "receipts": 35,
+    "complete_original_blocks": 36,
+    "shared_decision_fields": 1269,
+    "full_result": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/per-ID-projection-check.json",
+      "bytes": 55379,
+      "sha256": "050f6aeddc187f44018caa37b66c6a0ada6fb6a62b00c33fc591cfbf274c6074"
+    }
+  },
+  "transport_arithmetic": {
+    "stored_records": 3532,
+    "stored_bytes": 110747750,
+    "decoded_records": 1938,
+    "decoded_bytes": 1485298712
+  },
+  "source_order_verification": {
+    "full_current_append_commits": 215,
+    "transfer_carrier_commits": 8,
+    "implementation_source_records": 121,
+    "source_root_path_pairs": 472,
+    "explicit_full_byte_ref_occurrences": 959,
+    "distinct_full_byte_refs": 667,
+    "historical_byte_equivalence_and_runtime_result_not_conflated": true
+  },
+  "retained_marker_metadata_controls": [
+    {
+      "property": "actual_final_coherent_component_and_topic_omission",
+      "check": "PASS",
+      "detail": {
+        "actual_guard_check": "FAIL",
+        "expected_issue": "MISSING_REQUIRED_COMPONENT",
+        "actual_issues": [
+          {
+            "kind": "MISSING_REQUIRED_COMPONENT",
+            "where": "registry",
+            "message": "Independent required-input footprint is absent even if topics and registry were coherently shortened: ('90c72b51155321684c788cd5a03fbb70fc001d53', 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json')"
+          }
+        ],
+        "source_and_receipt_markers_preserved": true
+      }
+    },
+    {
+      "property": "actual_final_scientific_tree_corruption",
+      "check": "PASS",
+      "detail": {
+        "actual_guard_check": "FAIL",
+        "expected_issue": "CODE_TREE",
+        "actual_issues": [
+          {
+            "kind": "CODE_TREE",
+            "where": "registry:0",
+            "message": "Declared tree differs from actual implementation commit tree."
+          }
+        ],
+        "source_and_receipt_markers_preserved": true
+      }
+    },
+    {
+      "property": "actual_final_self_issued_G_acceptance",
+      "check": "PASS",
+      "detail": {
+        "actual_guard_check": "FAIL",
+        "expected_issue": "FORMAL_ACCEPTANCE",
+        "actual_issues": [
+          {
+            "kind": "FORMAL_ACCEPTANCE",
+            "where": "authority",
+            "message": "Formal G ledger is not issued."
+          }
+        ],
+        "source_and_receipt_markers_preserved": true
+      }
+    },
+    {
+      "property": "actual_final_missing_B56_admission_marked_closed",
+      "check": "PASS",
+      "detail": {
+        "actual_guard_check": "FAIL",
+        "expected_issue": "B56_SHARED_BUDGET",
+        "actual_issues": [
+          {
+            "kind": "ROOT_ADJUDICATION_BINDING",
+            "where": "finding:B56",
+            "message": "ROOT current row field differs from its explicit decision: check"
+          },
+          {
+            "kind": "OWNER_OUTCOME_MISMATCH",
+            "where": "finding:B56",
+            "message": "Index outcome differs from actual owner decision; any re-adjudication needs an explicit newer receipt."
+          },
+          {
+            "kind": "OUTCOME_ARITHMETIC",
+            "where": "index",
+            "message": "Summary outcome counts differ from row states."
+          },
+          {
+            "kind": "B56_SHARED_BUDGET",
+            "where": "finding:B56",
+            "message": "Genuine per-method producer/folds are not the missing admitted all-study Runtime workload/budget witness."
+          }
+        ],
+        "source_and_receipt_markers_preserved": true
+      }
+    },
+    {
+      "property": "actual_final_decoded_hash_corruption_stored_bytes_unchanged",
+      "check": "PASS",
+      "detail": {
+        "actual_guard_check": "FAIL",
+        "expected_issue": "DECODED_TRANSPORT_BYTES",
+        "actual_issues": [
+          {
+            "kind": "DECODED_TRANSPORT_BYTES",
+            "where": "transport:0",
+            "message": "Decoded full-byte hash/size mismatch."
+          }
+        ],
+        "source_and_receipt_markers_preserved": true
+      }
+    }
+  ],
+  "current_counts": {
+    "outcome_counts": {
+      "closed": 25,
+      "limited": 9,
+      "held": 1
+    },
+    "technical_original_criterion_counts": {
+      "closed": 30,
+      "limited": 4,
+      "held": 1
+    },
+    "row_states_are_proposals": true,
+    "technical_original_bounded_outcome_counts": {
+      "closed": 30,
+      "limited": 4,
+      "held": 1
+    },
+    "actual_check_counts": {
+      "PASS": 33,
+      "UNRUN": 2
+    },
+    "counts_scope": "Current continuation outcomes and technical original bounded outcomes are separate, neither is G applied closure."
+  },
+  "initial_packet": {
+    "sha": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+    "full_validator_check": "PASS",
+    "semantic_caption_check": "FAIL",
+    "review": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/initial-independent-review.json",
+      "bytes": 15913,
+      "sha256": "9aee743461f8f9bb6163a795830622c744ef0ae2cad5361545a487aba3e62438"
+    },
+    "complete_selection": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/initial-transfer-selection.json",
+      "bytes": 14013,
+      "sha256": "d19d728b271eb9b035ab08ff7bca8522e56e6b878b0e71087bae53d4d6eba6f7"
+    },
+    "original_ERROR_and_FAIL_outputs_preserved": true
+  },
+  "metadata_correction": {
+    "check": "PASS",
+    "full_delta": {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/ROOT-caption-and-product-delta.json",
+      "bytes": 14324,
+      "sha256": "e26570b1cd0f24459589810e87d1664cc6300bc16f602f247111f1648a85bff8"
+    },
+    "changed_ROOT_fields": 8,
+    "changed_original_IDs": [
+      "LA-007",
+      "LA-019",
+      "LA-020",
+      "LA-035"
+    ],
+    "current_source_delta": [],
+    "scientific_outcomes_or_limits_changed": false,
+    "stable_current_fields": {
+      "summary": true,
+      "current_root_source_sha": true,
+      "current_root_source_tree_sha": true,
+      "receipt_registry": true,
+      "topics": true,
+      "current_deciding_reference_check": true,
+      "all_reference_custody_check": true,
+      "historical_non_deciding_reference_check": true,
+      "historical_non_deciding_custody": true,
+      "runtime_limits": true,
+      "P41": true,
+      "G_integration": true
+    },
+    "REPORT_exact_byte_equal": true,
+    "source_order_changed_keys": [
+      "transfer_carrier_history_through_adjudication"
+    ],
+    "old_literal_history_preserved": true
+  },
+  "semantic_reconciliation": {
+    "all35_current_row_criteria_and_limits_read": true,
+    "complete_REPORT_read": true,
+    "source_order_current_limits_installed_denominator_and_historical_distinction_read": true,
+    "original17_bundle_35_owner_36_card_binding_denominator": "PASS",
+    "current_deciding_reference_check": "PASS",
+    "historical_non_deciding_reference_check": "UNRUN",
+    "all_reference_custody_check": "UNRUN",
+    "missing_historical175c_occurrences": 4,
+    "non_deciding_RDD_lint_raw": "unavailable UNRUN",
+    "no_current_decision_depends_on_missing_historical_refs": true,
+    "bounded_source_specific_methods_remain_distinct_from_admitted_real_data": true,
+    "B56": "UNRUN/limited, actual admitted common workload/budget absent; failed execution-context pool before0fits is not execution witness.",
+    "LA035": "UNRUN/held, exact optimizer and normative unit/population/time/sign owner packet absent.",
+    "B214_B218": "PASS/limited, compact unresolved/temporal profile refusal is not general PAG/temporal identification.",
+    "Lex": "PASS/limited, current local law corpus/jurisdiction/time/custody unestablished.",
+    "DoWhy_profile": "Actual configured Python3.12 DoWhy0.14 worker; absent marker-excluded Python3.14 DoWhy/EconML is not positive backend witness.",
+    "export_parser": "38 UNKNOWN/incomplete FAIL; declared candidates do not prove supported/public exports or arbitrary external consumers.",
+    "installed": "Source8236 both profiles199PASS,5explicit source-census deselections; all8 removal probes actualFAIL,90LGBM warnings/profile retained; no entire Runtime authority claim.",
+    "global_quality": "Ruff92PASS; format3FAIL, CoreFeedback2schemaFAIL, partial input scanner26regressions78newUNRESOLVED; P41 not_established.",
+    "formal_G_acceptance": "not_issued",
+    "production_local_packet": "UNRUN, null command; no guessed production invocation.",
+    "current_caption_check": "PASS",
+    "strict_ROOT_decision_source": "cda9c4e57a4efc68386c5896775059abcfbe189e"
+  },
+  "current_deciding_reference_check": "PASS",
+  "historical_non_deciding_reference_check": "UNRUN",
+  "all_reference_custody_check": "UNRUN",
+  "formal_G_finding_closure": "not_issued",
+  "no_scientific_or_backend_rerun": true,
+  "no_product_tracked_or_G_write": true,
+  "portable_raw_inputs_already_committed": [
+    {
+      "git_ref": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "head": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.json",
+      "bytes": 235804,
+      "sha256": "95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7",
+      "git_blob": "08130be7a0cf54dddfb9fe1af5564e67f013f3c5",
+      "check": "PASS",
+      "origins": [
+        "f_docs:evidence_transfer/manifest/26"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/companions/builder/005-validate_packet.py.gz",
+      "bytes": 8182,
+      "sha256": "f84522508e4c8b085a8e261f792581c6e82bc4a24553300942e77c18362f17fd",
+      "decoded_bytes": 26477,
+      "decoded_sha256": "51a95464831e426050bc9aac6abc0ed094a871c01d5634a8a021972acf0d9e1f",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/final35-validator/validate_packet.py",
+      "role": "Full unique preparation/review/cleanup output; no scientific PASS inference"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/companions/builder/006-root-adjudication.schema.json.gz",
+      "bytes": 1233,
+      "sha256": "7770609290b6188ca560aff7306cb7987addf2cb2e1f30aff73c2ad40ea5b843",
+      "decoded_bytes": 5944,
+      "decoded_sha256": "20d762000f692f2865972c45dd6953acf30ac41248a9154faae244dd2590a815",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/final35-validator/root-adjudication.schema.json",
+      "role": "Full unique preparation/review/cleanup output; no scientific PASS inference"
+    }
+  ],
+  "approval_boundary": "F metadata/criterion recommendation only. G must independently fetch and integrate; real production/authority inputs remain with named owners."
+}

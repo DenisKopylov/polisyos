@@ -1,0 +1,1 @@
+Metadata-only git diff --check exit=0

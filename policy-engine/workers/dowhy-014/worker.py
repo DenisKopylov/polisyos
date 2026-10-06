@@ -37,7 +37,10 @@ def _finite_numeric_array(value: object) -> NDArray[np.float64]:
         for x in raw.flat
     ):
         raise ValueError("finite numeric primitives required; no string/bool conversion")
-    a = raw.astype(float)
+    try:
+        a = raw.astype(float)
+    except OverflowError as exc:
+        raise ValueError("finite numeric primitives required") from exc
     if not np.isfinite(a).all():
         raise ValueError("finite numeric primitives required")
     return a

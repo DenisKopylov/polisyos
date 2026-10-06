@@ -1,0 +1,656 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-composition-payload",
+  "closure_ids": [
+    "B44",
+    "B75"
+  ],
+  "owned_finding_ids": [
+    "B13",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B53",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "bundle_ids": [
+    "CMP-01",
+    "RES-04"
+  ],
+  "all_owned_bundle_ids": [
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "RES-03",
+    "RES-04",
+    "JIT-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64",
+    "262bc4675d6b3c45cd003236a4a9037c9e4ed13f",
+    "e10a81470275e41ebffd3324412c47707aa7dafd"
+  ],
+  "implementation_sha": "e10a81470275e41ebffd3324412c47707aa7dafd",
+  "candidate_tree_sha": "e9591a38bb97129f015d4ae27eb6ad0923bb571e",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-payload.toml",
+    "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "policy-engine/tests/unit/remediation/test_res_04.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P117",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.77",
+      "rss_kib": "168580",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "245",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P010",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "state": "PASS",
+      "collected": "25",
+      "calls": "25",
+      "call_pass": "25",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.57",
+      "rss_kib": "169160.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "140",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P117",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.026620626449585",
+      "rss_kib": "256836",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "240",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P137",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.87",
+      "rss_kib": "254332",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "292",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F01-P044",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.89",
+      "rss_kib": "174068",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "161",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P065",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.04",
+      "rss_kib": "165492.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "195",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P065",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.67",
+      "rss_kib": "259996",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "475",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P041",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.371877431869507",
+      "rss_kib": "259564.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "47",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P059",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.220776319503784",
+      "rss_kib": "255460.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "65",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F12-P052",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.00252217599973",
+      "rss_kib": "246516.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "637",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F14-P054",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.704198632000043",
+      "rss_kib": "271952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "404",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P077",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.841175300000032",
+      "rss_kib": "269232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "427",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/baseline-input-closure.json",
+    "sha256": "72074203c19fb69b2c21cf42438eef708f3afc7d63652b4c4afa22e29ef684b8",
+    "bytes": 81611
+  },
+  "canonical_source_cards": {
+    "CMP-01": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e"
+    },
+    "CMP-02": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "c5f35cc8c2239918750118ab56f58ff6c0013360e0766f41e50906628389f509"
+    },
+    "CMP-03": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "db8b0d2e0032c94c377e44b931b6920b54e88bb76223fb62d9b7d028305b0016"
+    },
+    "RES-03": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "508bb623d91c7addea54b2006b296660212770eeef9f3a2dd0b09e91f8be3ccf"
+    },
+    "RES-04": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "1beb9b75bb18f74356b568fa6a2261666b7d7893c879bd8ce08c513cb0ed38c2"
+    },
+    "JIT-01": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "075aa27a93cbc77e98aa4376cb882ff218f432b2851f1aaba4773a94be487e71"
+    }
+  },
+  "baseline_limits": "Navigation only: exact transferred text and declared environment/config/manifest locators resolved; 28 unique cells/74 routes for all14 IDs are source-reported PASS. Raw archives absent and semantic adequacy not established. These old summaries do not prove this candidate.",
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-frozen-provenance-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-frozen-provenance-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-frozen-provenance.xml"
+      ],
+      "target_sha": "e10a81470275e41ebffd3324412c47707aa7dafd",
+      "target_tree": "e9591a38bb97129f015d4ae27eb6ad0923bb571e",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/environment.json",
+        "sha256": "fd13192554516ac272d40f7c7ebe838edc7e17ce39c83a5e16b8c928c3c3bde7",
+        "bytes": 10076
+      },
+      "input_closure": {
+        "test_paths": [
+          "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+          "tests/unit/foundry/methods/backends/test_checkpointing.py",
+          "tests/unit/remediation/test_res_04.py",
+          "tests/unit/remediation/test_cmp_01.py"
+        ],
+        "fixtures": "Fresh in-process MethodRegistry, actual NumPy dispatcher, compiled occurrence IDs and slot bindings; x=4/factor=3/offset=5 produces17, product12→bound scalar consumer total13. Each native test uses isolated pytest tmp/cache. No production dataset, catalog, external service or numeric thread quota.",
+        "source_before_after": true
+      },
+      "outcome": "PASS",
+      "native_counts": {
+        "tests": 43,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native.txt",
+        "sha256": "99ae06d2b5eb65fd5ebeececf6b2081918578239d9f6bd0d6a6b43048485dda8",
+        "bytes": 99
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native.xml",
+        "sha256": "732e23807a36fa1fe80f0fa38763aa3cecd5d56f44f24bc670308962a61148ba",
+        "bytes": 7061
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native-wrapper.json",
+        "sha256": "516846a5d015232889238c734f175fe58127c65e9937d77a6cb8d85b1335c40c",
+        "bytes": 1608
+      }
+    },
+    {
+      "command": "Corrected five-case real registry payload input replay on clean production base198 with new test input only; exact deciding source bytes committed as payload-red-input.txt.",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "test_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red-input.txt",
+        "sha256": "000ef923bf13439e01e5eb2f428726d8374b661af9dd21ac307b77c6be5e52df",
+        "bytes": 7148
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "FAIL",
+      "counts": {
+        "pass": 2,
+        "fail": 3
+      },
+      "actual_failures": [
+        "Undeclared invented seed rejected by real NumpyRunner",
+        "Cold bound scalar replaced by accumulated dict",
+        "Resumed bound scalar replaced by accumulated dict"
+      ],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red.txt",
+        "sha256": "89ac6dcb28c3d659dea34fd92cc109b6697430e25e383cb1b919dcb1b2304e37",
+        "bytes": 13446
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red.xml",
+        "sha256": "92d5b1d4436ffeb0399fe067a5bc6dea55835b54f700acee6023a16c022d3550",
+        "bytes": 10248
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red-wrapper.json",
+        "sha256": "4c2b4180490165e454bd9e914f069f6de92838f8024bed227320a00ff0549c28",
+        "bytes": 1246
+      }
+    },
+    {
+      "command": "Full checkpoint execution file with independent-review provenance controls, source84b9 + exact test input e8c1cf... in test-only262bc4675d6b3c45cd003236a4a9037c9e4ed13f.",
+      "target_sha": "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64",
+      "test_source_commit": "262bc4675d6b3c45cd003236a4a9037c9e4ed13f",
+      "outcome": "FAIL",
+      "counts": {
+        "pass": 13,
+        "fail": 2
+      },
+      "actual_failures": [
+        "False header with full original rows revives complete status",
+        "Original history_incomplete warning with full rows revives complete status"
+      ],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red.txt",
+        "sha256": "eb49aedd7c725dff145b531ceb06395bb01bf3334ba29720d6040cd667f85f27",
+        "bytes": 8722
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red.xml",
+        "sha256": "e28b87b183fcd522261c5480c4197800253657c2ba314c2218b0424f8b896503",
+        "bytes": 8075
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red-wrapper.json",
+        "sha256": "8e3b019b7ded57d08ac8087e07a8e933a424aae1122ecfac95d862af646ca5f6",
+        "bytes": 1960
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "_build/e02-B-current-composition/raw/invocation-84b9c91.receipt.json"
+      ],
+      "target_sha": "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64",
+      "target_tree": "8e102fff35a4ad98e4cdc6be8322fca572e0f584",
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Complete tracked Python static model against lane base; not execution/persistence/property proof. Candidate84 source unchanged before/after. e10 later changes are not scanned by this receipt.",
+      "outcome": "UNRESOLVED",
+      "actual_exit": 3,
+      "coverage": "partial",
+      "modeled_regressions": [],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/invocation.txt",
+        "sha256": "4def1b05240e5ccd606f5f71c9a1e62225853575a3ef2c1030da8b805bb0a819",
+        "bytes": 1603
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/invocation-wrapper.json",
+        "sha256": "acef9549f8c2a84939089ad047d8815b8ff611c829392ecf8279f6baf13c6e23",
+        "bytes": 1120
+      },
+      "large_receipt": {
+        "path": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/invocation-84b9c91.receipt.json",
+        "sha256": "7e2679bcc6e00f22367bdb4c49501f80189b68a55118daeaae6452d62523c146",
+        "bytes": 170874225,
+        "disposition": "Ignored raw retained locally; static summary and full moderate wrapper/stdout committed, no runtime invocation claim."
+      }
+    }
+  ],
+  "property": {
+    "statement": "All3 execution modes materialize the same compiled slot/parameter request; resume consumes original producer outputs and can never turn incomplete history provenance into complete history from row count.",
+    "runtime_path": [
+      "MethodComposer/real registry compiled nodes and bindings",
+      "NumPy MethodDispatcher→typed MethodResult and slot_outputs",
+      "ChainCheckpoint snapshot/JSON+NumPy sidecars",
+      "ChainCheckpoint.load and original MethodResult restoration",
+      "CheckpointingChainExecutor→real bound NumPy suffix consumer"
+    ],
+    "proxy_divergence": "A checkpoint with full node count/rows and matching structural digest still carries incomplete provenance when the header is false/missing/unknown or an original row warns history_incomplete. A method FQN match also does not permit changed effective payload reuse.",
+    "negative_controls": [
+      "Unknown method override is refused before arithmetic in all3 modes",
+      "Changed static/override request refuses warm checkpoint reuse before dispatch",
+      "Missing original bound producer slot refuses suffix before dispatch",
+      "Foreign node history is refused",
+      "Unknown/missing/false history header and original incomplete warning remain incomplete through re-persist"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_candidate_runtime_verified; all14 source finding statuses remain partial, no formal E02 closure",
+  "finding_classification": {
+    "B13": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B42": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B43": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B44": {
+      "source_status": "partial",
+      "candidate_status": "bounded_runtime_verified",
+      "formal_closure": false,
+      "basis": "Real registry NumPy arithmetic agrees across sequential/async/checkpoint; actual bound scalar restored on resume; unknown parameter and changed effective payload refuse before execution."
+    },
+    "B45": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B46": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B47": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B48": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B49": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B50": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B53": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B74": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B75": {
+      "source_status": "partial",
+      "candidate_status": "bounded_runtime_verified",
+      "formal_closure": false,
+      "basis": "Original per-node records survive filesystem resume; absent records remain absent; false/missing/unknown complete header and original warning retain incomplete provenance through continuation and re-persist; missing required producer slots refuse."
+    },
+    "B76": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    }
+  },
+  "independent_review": {
+    "owner": "root B orchestrator",
+    "source_point": "e10a81470275e41ebffd3324412c47707aa7dafd",
+    "review_type": "Read-only full source/delta review; root review is separate from author runtime runs. Root accepted finite materializer/history/provenance slice after 2 actual review RED cases and43 PASS.",
+    "status": "accepted_bounded",
+    "source_changes_by_reviewer": false,
+    "separate_root_runtime_replay": "pending at receipt construction, not inherited as a PASS"
+  },
+  "limitations_and_next_owner": [
+    "B74 selected-view/acquisition refs, content/tenant/origin/config and exact dependency closure pending in this lane; current request digest alone is not global dataset identity acceptance.",
+    "B76 immutable filesystem generation/publication/fault/restart acceptance pending; this slice does not attest existing save rollback or parent fsync behavior.",
+    "B42/B43 real required-edge consumer controls, B45/B46 occurrence/merge, B47/B48 exhaustive typed matcher oracle and unified typed link acceptance, B49/B50/B53 actual JAX/cache/shape controls remain pending in this continuation.",
+    "B13 true earlier-success/later-failure fixture producer/artifact/readback and A/G public generation/lifecycle route still pending. Only A/G writes shared lifecycle files; full production dataset remains local.",
+    "No Scientist workflow recovery, automatic orchestration retry, external-effect exactly-once, GPU/Metal or production catalog attestation.",
+    "Initial fixture/harness failures before corrected payload RED are retained in ignored raw and not attributed to product. No old a3 ignored outputs/cherry-picks supplied as current evidence.",
+    "Maintenance scanner actual exit3/partial on84 has no runtime-invocation authority and does not certify e10 delta."
+  ]
+}

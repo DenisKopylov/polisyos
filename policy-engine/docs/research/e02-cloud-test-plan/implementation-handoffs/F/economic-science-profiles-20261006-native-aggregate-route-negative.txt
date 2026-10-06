@@ -1,0 +1,56 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economics-20261006/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economics-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 118 items / 114 deselected / 4 selected
+
+tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[0.0] FAILED [ 25%]
+tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[1e-12] FAILED [ 50%]
+tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[1.0] FAILED [ 75%]
+tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[1e+30] FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_native_aggregate_and_pure_executor_share_active_population_oracle[0.0] __
+tests/unit/foundry/agent_sim/test_gini_science.py:170: in test_native_aggregate_and_pure_executor_share_active_population_oracle
+    assert float(direct.gini_coefficient) == pytest.approx(expected, abs=2e-7)
+E   assert 1.0 == 0.0 ± 2.0e-07
+E
+E     comparison failed
+E     Obtained: 1.0
+E     Expected: 0.0 ± 2.0e-07
+_ test_native_aggregate_and_pure_executor_share_active_population_oracle[1e-12] _
+tests/unit/foundry/agent_sim/test_gini_science.py:170: in test_native_aggregate_and_pure_executor_share_active_population_oracle
+    assert float(direct.gini_coefficient) == pytest.approx(expected, abs=2e-7)
+E   assert 1.0 == 0.2222222222222222 ± 2.0e-07
+E
+E     comparison failed
+E     Obtained: 1.0
+E     Expected: 0.2222222222222222 ± 2.0e-07
+_ test_native_aggregate_and_pure_executor_share_active_population_oracle[1.0] __
+tests/unit/foundry/agent_sim/test_gini_science.py:170: in test_native_aggregate_and_pure_executor_share_active_population_oracle
+    assert float(direct.gini_coefficient) == pytest.approx(expected, abs=2e-7)
+E   assert 0.4166666865348816 == 0.2222222222222222 ± 2.0e-07
+E
+E     comparison failed
+E     Obtained: 0.4166666865348816
+E     Expected: 0.2222222222222222 ± 2.0e-07
+_ test_native_aggregate_and_pure_executor_share_active_population_oracle[1e+30] _
+tests/unit/foundry/agent_sim/test_gini_science.py:170: in test_native_aggregate_and_pure_executor_share_active_population_oracle
+    assert float(direct.gini_coefficient) == pytest.approx(expected, abs=2e-7)
+E   assert 0.4166666865348816 == 0.2222222222222222 ± 2.0e-07
+E
+E     comparison failed
+E     Obtained: 0.4166666865348816
+E     Expected: 0.2222222222222222 ± 2.0e-07
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[0.0]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[1e-12]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[1.0]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_native_aggregate_and_pure_executor_share_active_population_oracle[1e+30]
+====================== 4 failed, 114 deselected in 1.57s =======================

@@ -1,0 +1,19 @@
+{
+  "candidate_sha": "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+  "candidate_tree": "71f1cfbff46fa832f40b4a032f0a1467c486eac8",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/b37-oracle-retained.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/b-durability/policy-engine",
+  "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/b-durability/policy-engine/src",
+  "exit_code": 0,
+  "wall_seconds": 0.832,
+  "script_sha256": "1e87c6ce2e8348f6ef638041ea4ff75d18028a92ac717355b1b227c96b271fa6",
+  "output_sha256": "2ccdddd7125d2279fcdf21d30fae94d08ac2ac1aaf7c3ce4e1a9dae8d2e57e5f",
+  "fixtures_retained": true,
+  "unsupported_version_admission": "FAIL if load_accepted true; diagnostic evaluated from observation, not process exit",
+  "property_outcome": "FAIL: unsupported 99.0 is accepted and rewritten as 1.0; exit 0 also includes separate passing scoped controls.",
+  "tracked_script_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-first-wave/b37-oracle.py",
+  "tracked_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-first-wave/b37-independent-oracle.stdout.txt"
+}

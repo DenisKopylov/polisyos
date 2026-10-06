@@ -1,8 +1,12 @@
 # Непрерывная интеграция E02
 
-Current continuation checkpoint: [checkpoint-09](checkpoint-09.json), with
-[second-wave accepted code and owner actions](reviews/2026-10-06-second-wave.md).
-Source312 has58 passing affected-consumer cases; broad E02 freeze/replay remains pending.
+Current continuation checkpoint: [checkpoint-10](checkpoint-10.json), with
+[third-wave code decisions and owner actions](reviews/2026-10-06-third-wave.md).
+B38 has 40 exact-source fixture PASS and 59 composed-source consumer PASS.
+B retry e187 remains HOLD after six actual Mac control failures. No new finding closure.
+The [E continuation prompt](../execution-prompts/continuation-2026-10-06/E-resume-after-pr38.md)
+and [PR38 audit](reviews/E-pr38-continuation-audit-2026-10-06.md) are published in G.
+Broad E02 freeze/replay remains pending; [checkpoint-09](checkpoint-09.json) retains its earlier accepted slices.
 
 G ведёт `codex/e02-integration` от опубликованного `origin/main`:
 `c40d4acae1ce58b597267255026d9356565828fd`, tree

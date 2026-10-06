@@ -162,7 +162,9 @@ def retained_architecture_inputs(sha: str, cache: Path) -> dict[str, object]:
     return {
         "retained_workspace_root": str(workspace),
         "uv_cache_dir": str(cache),
-        "cache_selection": "Explicit --architecture-uv-cache-dir caller input; no query or fallback",
+        "cache_selection": (
+            "Explicit --architecture-uv-cache-dir caller input; no query or fallback"
+        ),
         "cache_directory_identity": {
             "resolved_path": str(resolved),
             "device": stat.st_dev,

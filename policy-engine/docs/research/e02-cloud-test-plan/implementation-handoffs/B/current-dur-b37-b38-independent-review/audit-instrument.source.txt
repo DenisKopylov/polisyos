@@ -1,0 +1,297 @@
+"""Read only immutable, published Git objects; do not import product or run tests."""
+import ast
+import collections
+import csv
+import datetime
+import hashlib
+import io
+import json
+import os
+import platform
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+REPO = '/workspace/e02-B-current-cas-generation'
+SOURCE = '0fdc39831bc95f059dd220c054494fd410bde9da'
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+DUR_SOURCE = '4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d'
+ROOT_NATIVE = '81c3f2ac8318fcf79d7c99b21f3e51a77310c609'
+PG_RECEIPT = '9dcf877a037a9814f18ac7ddc75b992049c737b5'
+PG_EVIDENCE = '12fcabd5d0002cb7719f5570d1aad1be8fe3490b'
+PG_NATIVE = '85f2417187396d40ef0a41e9d7f6651286f55754'
+PG_SUCCESSOR = '414c7ec3148a857c3a4e5554dde5d5503fec6e95'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+PACKAGE = 'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/'
+cache = {}
+
+def git(*argv):
+    return subprocess.check_output(['/usr/bin/git', '-C', REPO, *argv])
+
+def read(ref, path):
+    key = (ref, path)
+    if key not in cache:
+        cache[key] = git('show', ref + ':' + path)
+    return cache[key]
+
+def load(ref, path):
+    return json.loads(read(ref, path))
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def pinned(ref, path):
+    data = read(ref, path)
+    return {'commit': ref, 'path': path, 'bytes': len(data), 'sha256': sha(data),
+            'git_blob': git('rev-parse', ref + ':' + path).decode().strip()}
+
+def check_artifact(ref, item):
+    record = pinned(item.get('commit', ref), item['path'])
+    assert record['sha256'] == item['sha256'], (item['path'], 'hash')
+    if 'bytes' in item:
+        assert record['bytes'] == item['bytes'], (item['path'], 'bytes')
+    return record
+
+def output_items(check):
+    result = []
+    for name in ('output', 'outputs', 'wrapper', 'junit'):
+        value = check.get(name, [])
+        if isinstance(value, dict):
+            value = [value]
+        for item in value:
+            if isinstance(item, dict) and 'path' in item and 'sha256' in item:
+                result.append(item)
+    return result
+
+def xml_cases(ref, path):
+    root = ET.fromstring(read(ref, path))
+    cases = list(root.iter('testcase'))
+    ids = [(c.get('classname'), c.get('name')) for c in cases]
+    assert len(ids) == len(set(ids)), path
+    counts = collections.Counter()
+    groups = collections.defaultdict(collections.Counter)
+    classified = []
+    for case in cases:
+        tags = [tag for tag in ('error', 'failure', 'skipped') if case.find(tag) is not None]
+        assert len(tags) <= 1, (path, case.attrib)
+        outcome = {'error': 'ERROR', 'failure': 'FAIL', 'skipped': 'SKIP'}.get(tags[0] if tags else '', 'PASS')
+        counts[outcome] += 1
+        groups[case.get('classname')][outcome] += 1
+        classified.append({'classname': case.get('classname'), 'name': case.get('name'), 'outcome': outcome})
+    return {'unique_cases': len(cases), 'counts': dict(counts),
+            'class_counts': {name: dict(value) for name, value in groups.items()}}, cases, classified
+
+started = datetime.datetime.now(datetime.timezone.utc).isoformat()
+result = {'schema': 'policyos.e02.readonly_published_DUR_evidence_audit.v1',
+          'started_at_utc': started, 'execution_kind': 'Git/JSON/XML/AST metadata only; no product import/native run',
+          'environment': {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(), 'uid': os.getuid()},
+          'actual_own_head_before': git('rev-parse', 'HEAD').decode().strip(),
+          'refs': {}, 'artifact_checks': [], 'source_comparison': [], 'method_locations': {}}
+for ref in (BASE, SOURCE, DUR_SOURCE, ROOT_NATIVE, PG_RECEIPT, PG_EVIDENCE, PG_NATIVE, PG_SUCCESSOR):
+    result['refs'][ref] = git('rev-parse', ref + '^{tree}').decode().strip()
+assert subprocess.run(['/usr/bin/git', '-C', REPO, 'merge-base', '--is-ancestor', BASE, SOURCE], check=False).returncode == 0
+result['base_ancestor_of_source'] = True
+
+canonical_paths = [PACKAGE + 'bundle_manifest.json', PACKAGE + 'bundles/DUR-01.md',
+                   PACKAGE + 'bundles/DUR-02.md', PACKAGE + 'source/B_r19_original.md']
+result['canonical_refs'] = [pinned(SOURCE, path) for path in canonical_paths]
+manifest = load(SOURCE, canonical_paths[0])
+selected = [bundle for bundle in manifest['bundles'] if bundle['id'] in ('DUR-01', 'DUR-02')]
+assert {bundle['id'] for bundle in selected} == {'DUR-01', 'DUR-02'}
+result['canonical_manifest_selected_bundles'] = selected
+
+source_paths = [
+    'policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py',
+    'policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py',
+    'policy-engine/src/polisyos/runtime/http/services/control_plane_store.py',
+    'policy-engine/src/polisyos/runtime/http/services/control_worker.py',
+]
+for path in source_paths:
+    current = read(SOURCE, path)
+    result['source_comparison'].append({'path': path, 'current': pinned(SOURCE, path),
+        'same_as_DUR_4f': current == read(DUR_SOURCE, path),
+        'same_as_ROOT_native_81': current == read(ROOT_NATIVE, path),
+        'same_as_PG_native_85': current == read(PG_NATIVE, path),
+        'same_as_PG_successor_414': current == read(PG_SUCCESSOR, path),
+        'same_as_BASE_198': current == read(BASE, path)})
+    tree = ast.parse(current)
+    names = {'_require_wire_fields', '_decode_snapshot', '_load_snapshot', '_persist_snapshot', '_lock',
+             'load_or_bootstrap', 'load', 'record_spend', 'settle_spend', 'resolve_settlement',
+             'pre_check', 'get_budget_state', '_bound_transaction_admission', '_job_transaction',
+             '_sqlite_mutation_connection', '_postgres_mutation_cursor', '_execute',
+             'complete_job', 'fail_job', 'renew_job_lease', '_run_with_lease_heartbeat',
+             'job_execution_fence', 'current_execution_job_record', '_require_active_job_fence',
+             '_require_completed_proof_publication'}
+    result['method_locations'][path] = [
+        {'name': node.name, 'line_start': node.lineno, 'line_end': node.end_lineno}
+        for node in ast.walk(tree) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in names]
+assert all(row['same_as_DUR_4f'] and row['same_as_ROOT_native_81'] and row['same_as_PG_native_85'] and row['same_as_PG_successor_414'] for row in result['source_comparison'])
+result['base_diff'] = git('diff', '--stat', BASE, SOURCE, '--', *source_paths).decode()
+
+routes_path = 'policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv'
+cells_path = 'policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv'
+routes = [row for row in csv.DictReader(io.StringIO(read(SOURCE, routes_path).decode()), delimiter='\t') if row['finding_id'] in ('B37', 'B38')]
+cells = {row['id']: row for row in csv.DictReader(io.StringIO(read(SOURCE, cells_path).decode()), delimiter='\t')}
+nav_paths = [PREFIX+'current-durability-evidence/bootstrap/baseline-navigation.json',
+             PREFIX+'current-durability-evidence/settlement/baseline-navigation.json']
+nav37, nav38 = [load(SOURCE, path) for path in nav_paths]
+nav_cells = {row['id']: row for row in nav37['cells'] + nav38['cells']}
+nav_jobs = {row['metadata']['job'].removeprefix('E02-full-').removeprefix('E02-'): row for row in nav38['job_metadata']}
+result['baseline_navigation_refs'] = [pinned(SOURCE, path) for path in [routes_path, cells_path, *nav_paths]]
+result['baseline_routes_resolved'] = []
+for route in routes:
+    cell = cells[route['cell_id']]
+    assert nav_cells[cell['id']] == cell, (cell['id'], 'navigation cell')
+    meta = nav_jobs[cell['job']]
+    assert meta['metadata'].get('source', meta['metadata'].get('source_sha')) == cell['source_sha'], (cell['id'], 'job source')
+    declared_role = meta['metadata'].get('role', meta['metadata'].get('source_role'))
+    if declared_role is not None:
+        assert declared_role == route['source_ref'], (cell['id'], 'job ref')
+    environment_fields = {key: meta['metadata'][key] for key in ('environment', 'environment_compact', 'profile', 'native_profile', 'selected_profile', 'toolchain', 'platform') if key in meta['metadata']}
+    assert environment_fields, (cell['id'], 'environment locator')
+    original = pinned(SOURCE, meta['source_locator'])
+    assert original['sha256'] == meta['source_text_sha256'], (cell['id'], 'text provenance')
+    result['baseline_routes_resolved'].append({
+        'finding_id': route['finding_id'], 'cell_id': cell['id'], 'source_sha': cell['source_sha'],
+        'source_ref': route['source_ref'], 'path': cell['path'], 'state': cell['state'],
+        'source_message': original, 'source_line': cell['source_line'],
+        'job_declared_role': declared_role, 'source_ref_basis': 'canonical route; job role agrees where supplied, absent role stays absent',
+        'environment_fields': list(environment_fields),
+        'environment_sha256': sha(json.dumps(environment_fields, sort_keys=True).encode()),
+        'environment_locator': nav_paths[1]+'#job_metadata/'+cell['job'],
+        'input_closure': meta['input_closure'], 'raw_archive_transfer': meta['metadata']['raw_archive_transfer'],
+        'semantic_adequacy': route['semantic_adequacy']})
+assert len(routes) == 19 and sum(r['finding_id']=='B37' for r in routes)==1 and sum(r['finding_id']=='B38' for r in routes)==18
+result['baseline_qualification'] = 'Navigation only. All 19 exact route/cell/source/ref/environment/compact input closures reconciled; original raw runtime fixtures/archives absent. No baseline PASS or red attribution is new evidence.'
+
+receipts = {
+    'bootstrap': load(SOURCE, PREFIX+'current-durability-bootstrap.json'),
+    'dur_final': load(SOURCE, PREFIX+'current-durability.json'),
+    'root_fenced_consumer': load(SOURCE, PREFIX+'current-fenced-budget-consumer.json'),
+    'independent_wire': load(SOURCE, PREFIX+'current-independent-budget-cas.json'),
+}
+result['published_historical_checks'] = []
+check_selection = {'bootstrap': [0,1], 'dur_final':[0,1,2,3,4,5,6,7], 'root_fenced_consumer':[0], 'independent_wire':[1,2]}
+for owner, numbers in check_selection.items():
+    for number in numbers:
+        check = receipts[owner]['checks'][number]
+        items = output_items(check)
+        verified = [check_artifact(SOURCE, item) for item in items]
+        result['artifact_checks'].extend(verified)
+        row = {'receipt': owner, 'check_index': number, 'target_sha': check['target_sha'],
+               'outcome': check['outcome'], 'declared_counts': check.get('counts'), 'verified_artifacts': verified,
+               'command': check.get('command', check.get('command_argv')), 'environment': check.get('environment'),
+               'input_closure': check.get('input_closure')}
+        xmls = [item for item in verified if item['path'].endswith('.xml')]
+        if xmls:
+            assert len(xmls) == 1
+            parsed, cases, classified = xml_cases(xmls[0]['commit'], xmls[0]['path'])
+            row['actual_junit'] = parsed
+            if owner == 'root_fenced_consumer':
+                selected_cases = [case for case in classified if any(token in case['name'] for token in (
+                    'fault', 'paused', 'cold', 'unlimited', 'concurrent', 'reopen', 'writer_schema', 'required', 'stale', 'terminal', 'expiry', 'renewal', 'forge'))]
+                row['criterion_consumer_case_ids'] = selected_cases
+                assert parsed['unique_cases'] == 230 and parsed['counts'] == {'PASS':230}
+            if owner == 'independent_wire' and number == 2:
+                row['property_removal_failed_cases'] = [case for case in classified if case['outcome']=='FAIL']
+                assert parsed['unique_cases'] == 24 and parsed['counts'] == {'PASS':12,'FAIL':12}
+        else:
+            row['junit_qualification'] = 'No Git JUnit for this check; no independently recomputed full-case count from XML.'
+        result['published_historical_checks'].append(row)
+
+root_check = receipts['root_fenced_consumer']['checks'][0]
+root_argv = root_check['command']
+root_tests = [arg for arg in root_argv if arg.startswith('tests/') and arg.endswith('.py')]
+result['root_81_native_test_source_equality'] = [
+    {'path': 'policy-engine/'+path, 'same_bytes_at_81_and_0fd': read(ROOT_NATIVE,'policy-engine/'+path)==read(SOURCE,'policy-engine/'+path), 'source':pinned(SOURCE,'policy-engine/'+path)}
+    for path in root_tests]
+assert len(root_tests)==10
+assert all(row['same_bytes_at_81_and_0fd'] for row in result['root_81_native_test_source_equality'])
+
+census_path = PREFIX+'current-durability-evidence/final/B38-source-census-73.json'
+census = load(SOURCE, census_path)
+store_path = source_paths[2]
+assert sha(read(SOURCE,store_path)) == census['source_sha256']
+store_ast = ast.parse(read(SOURCE,store_path))
+store_class = next(node for node in store_ast.body if isinstance(node,ast.ClassDef) and node.name=='ControlPlaneStore')
+methods = {node.name for node in store_class.body if isinstance(node,ast.FunctionDef)}
+assert set(census['all_mutator_methods']) <= methods
+assert len(census['all_mutator_methods']) == 35 and census['unadmitted_raw_resource_methods'] == []
+result['B38_mutator_source_census'] = {'source': pinned(SOURCE,census_path), 'current_store_bytes_match':True,
+   'own_method_count':len(methods), 'publication_mutator_count':len(census['all_mutator_methods']),
+   'unadmitted_raw_resource_methods':0, 'denominator':census['denominator'],
+   'qualification':'Canonical source census and common transaction admission; not a claim that all 35 inlets independently ran on PostgreSQL.'}
+
+pg_path = PREFIX+'current-postgres-fencing.json'
+pg = load(PG_RECEIPT,pg_path)
+index_path = PREFIX+'current-postgres-fencing-evidence/index.json'
+pg_index = load(PG_EVIDENCE,index_path)
+assert pg['evidence_index']['sha256'] == sha(read(PG_EVIDENCE,index_path))
+pg_objects = [check_artifact(PG_EVIDENCE, item) for item in pg_index['objects']]
+assert len(pg_objects)==45 and len({r['path'] for r in pg_objects})==45
+assert sum(r['bytes'] for r in pg_objects)==pg_index['total_bytes']==320285
+result['PG_published_packet'] = {'receipt':pinned(PG_RECEIPT,pg_path), 'index':pinned(PG_EVIDENCE,index_path),
+    'all_objects_verified':45, 'total_object_bytes':320285, 'object_binding_mismatches':[],
+    'qualified_target_source':PG_NATIVE, 'successor_affected_source':PG_SUCCESSOR,
+    'formal_closure_ids':pg['closure_ids'], 'whole_8_at_414':'UNRUN by author; four affected fault cases only at 414'}
+result['artifact_checks'].extend(pg_objects)
+pg_dir = PREFIX+'current-postgres-fencing-evidence/'
+profile = load(PG_EVIDENCE,pg_dir+'input-profile-85.json')
+for item in profile['paths']:
+    verified=check_artifact(PG_NATIVE,item)
+    assert verified['git_blob']==item['git_blob']
+assert profile['head']==PG_NATIVE and profile['tree']==result['refs'][PG_NATIVE] and profile['clean'] is True
+result['PG_input_profile'] = {'source':pinned(PG_EVIDENCE,pg_dir+'input-profile-85.json'),
+    'all_six_declared_source_blob_hashes_match':True, 'driver_distributions':profile['target_distributions'],
+    'source_profile':'Bound six explicit source/config/test paths, task-local psycopg3.3.2 overlay and actual isolated root Python executable. Full ambient installed-distribution census not duplicated in this PG packet; replay requires owned environment closure.',
+    'secrets':'No DSN/password bytes read by this audit; private task inputs omitted by author.'}
+pg_observed = {}
+for number in (0,1):
+    check = pg['checks'][number]
+    wrapper = load(PG_EVIDENCE,check['wrapper']['path'])
+    assert wrapper['head']==wrapper['head_after']==check['target_sha']
+    assert wrapper['tree']==result['refs'][check['target_sha']]
+    assert wrapper['command']==check['command'] and wrapper['exit_code']==0 and wrapper['exec_setup_error'] is None
+    parsed,cases,classified=xml_cases(PG_EVIDENCE,check['junit']['path'])
+    wanted = 8 if number==0 else 4
+    assert parsed['unique_cases']==wanted and parsed['counts']=={'PASS':wanted}
+    entries=[]
+    for case in cases:
+        props={prop.get('name'):prop.get('value') for prop in case.findall('./properties/property')}
+        tables=json.loads(props['table_denominator'])
+        assert len(tables)==len(set(tables))==11
+        assert props['driver_version']=='3.3.2' and 'PostgreSQL 17.11' in props['postgres_identity']
+        entry={'case':case.get('name'),'schema':props['postgres_schema'],'table_count':len(tables),'properties':props}
+        if case.get('name').startswith('test_postgres_stale'):
+            assert len(json.loads(props['stale_rejected_inlets']))==18 and props['unchanged_rows_after_each_rejection']=='True'
+        entries.append(entry)
+    pg_observed[check['id']]={'actual_junit':parsed,'observed_cases':entries,'wrapper':check['wrapper'],
+        'actual_command':wrapper['command'],'cwd':wrapper['cwd'],'source_environment':wrapper['source_environment'],
+        'runtime_predicate_basis':'author consumer assertions; this independent audit rereads published actual outputs, not rerun'}
+result['PG_actual_published_native_checks']=pg_observed
+readback_path=pg_dir+'retained-tables-85.json'
+readback=load(PG_EVIDENCE,readback_path)
+assert readback['head']==readback['head_after']==PG_NATIVE
+assert readback['xml_sha256']==sha(read(PG_EVIDENCE,pg_dir+'native-85.xml'))
+assert len(readback['schemas'])==8
+observed_schemas={entry['schema']:entry for entry in pg_observed['native-85']['observed_cases']}
+assert set(observed_schemas)=={record['properties']['postgres_schema'] for record in readback['schemas']}
+for record in readback['schemas']:
+    schema=record['properties']['postgres_schema']
+    assert len(record['tables'])==11
+    assert set(record['tables'])==set(json.loads(observed_schemas[schema]['properties']['table_denominator']))
+    assert record['case']['name']==observed_schemas[schema]['case']
+result['PG_all_table_readback_reconciled']={'artifact':pinned(PG_EVIDENCE,readback_path),
+    'schema_count':8,'table_counts':[len(record['tables']) for record in readback['schemas']],
+    'actual_total_rows':[sum(len(table['rows']) for table in record['tables'].values()) for record in readback['schemas']],
+    'schema_case_table_denominator_and_XML_hash_match':True,
+    'qualification':'Published actual postwave independent connections, not this reviewer reopening a live DB; excludes sequence/catalog/schemaDDL and external effects.'}
+result['PG_test_source_relation']={'path':profile['paths'][2]['path'],
+    '85_bytes_same_as_0fd':read(PG_NATIVE,profile['paths'][2]['path'])==read(SOURCE,profile['paths'][2]['path']),
+    '414_bytes_same_as_0fd':read(PG_SUCCESSOR,profile['paths'][2]['path'])==read(SOURCE,profile['paths'][2]['path']),
+    'successor_delta':'Formatting plus outline same terminal call into operation(); original fence/error/all-table/independent reopen assertions retained; four fault cases replayed at414.'}
+result['actual_own_head_after']=git('rev-parse','HEAD').decode().strip()
+assert result['actual_own_head_before']==result['actual_own_head_after']
+result['completed_at_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+result['outcome']='PASS bounded immutable-input custody/count/source reconciliation; no product runtime or formal criterion closure'
+print(json.dumps(result,ensure_ascii=False,indent=2))

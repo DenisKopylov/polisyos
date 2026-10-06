@@ -8,8 +8,10 @@ This is an in-process contract, not distributed publication.
 from __future__ import annotations
 
 import math
+import struct
 import tempfile
 from dataclasses import dataclass
+from importlib.metadata import version
 from pathlib import Path
 from threading import RLock
 from types import MappingProxyType
@@ -117,6 +119,31 @@ class VectorMemoryStore:
         return index
 
     @staticmethod
+    def _admit_native_header(data: bytes, dim: int, capacity: int, count: int) -> None:
+        """Admit the pinned hnswlib 0.8 native ABI before its unchecked loader.
+
+        The native file has no dimension field. Its physical float stride is
+        encoded by the label/data offsets; Index.dim only echoes its constructor.
+        These files remain native-ABI artifacts, not portable interchange data.
+        """
+        if version("hnswlib") != "0.8.0":
+            raise ValueError("Unsupported native HNSW format: requires hnswlib 0.8.0")
+        header = struct.Struct("@6N")
+        if len(data) < header.size:
+            raise ValueError("Truncated native HNSW header")
+        _, native_capacity, native_count, record_size, label_offset, data_offset = (
+            header.unpack_from(data)
+        )
+        if (
+            native_capacity != capacity
+            or native_count != count
+            or label_offset - data_offset != dim * struct.calcsize("@f")
+            or data_offset >= label_offset
+            or record_size < label_offset + struct.calcsize("@N")
+        ):
+            raise ValueError("Native HNSW dimension/count/capacity disagrees with the bundle")
+
+    @staticmethod
     def _embedding(embedding: list[float], dim: int) -> list[float]:
         if len(embedding) != dim:
             raise ValueError(f"Embedding dimension mismatch: expected {dim}, got {len(embedding)}")
@@ -222,9 +249,18 @@ class VectorMemoryStore:
         self, store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef
     ) -> None:
         """Load privately; any failure leaves the published generation unchanged."""
+        if ref.kind != "vector_memory.bundle" or ref.media_type != "application/json":
+            raise ValueError("Vector bundle reference has the wrong type")
         bundle = canon.from_canonical_bytes(store.get_bytes(ref))
         if not isinstance(bundle, dict):
             raise ValueError("Vector bundle must be an object")
+        if "schema_version" in bundle:
+            if bundle["schema_version"] != "2.0" or "index_artifact_id" in bundle:
+                raise ValueError("Unsupported vector bundle schema")
+            if "index_ref" not in bundle:
+                raise ValueError("Vector bundle v2 requires a complete native reference")
+        elif "index_artifact_id" not in bundle or "index_ref" in bundle:
+            raise ValueError("Legacy vector bundle requires its original index address")
         dim = self._positive_integer(bundle["dim"], "dim")
         capacity = self._positive_integer(bundle["max_elements"], "max_elements")
         construction = self._positive_integer(bundle["ef_construction"], "ef_construction")
@@ -253,8 +289,12 @@ class VectorMemoryStore:
             or index_ref.media_type != "application/octet-stream"
         ):
             raise ValueError("Vector native reference has the wrong type")
-        candidate = self._load_index(store.get_bytes(index_ref), dim, capacity)
-        if set(candidate.get_ids_list()) != set(range(len(keys))):
+        native_bytes = store.get_bytes(index_ref)
+        self._admit_native_header(native_bytes, dim, capacity, len(keys))
+        candidate = self._load_index(native_bytes, dim, capacity)
+        if candidate.get_current_count() != len(keys) or set(candidate.get_ids_list()) != set(
+            range(len(keys))
+        ):
             raise ValueError("Native labels and vector keys differ")
         records = tuple(
             canon.to_canonical_bytes(row, canon.CanonSpec(forbid_floats=False)) for row in metadata

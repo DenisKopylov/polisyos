@@ -284,6 +284,8 @@ def _stage_input_basis(
             "source_registry": config.registry_path or config.default_registry_path,
             "metrics_map": config.resolved_metrics_map_path,
             "harvest_receipt_artifacts": harvest_artifacts,
+            "merged_records": config.merged_records_path,
+            "duplicates_report": config.duplicates_report_path,
             "graph_database": config.db_path,
             "embedding_generation": generation_artifacts,
             "core_ingest_report": config.manifests_dir / "core_sources_ingest.json",
@@ -352,8 +354,6 @@ def _stage_input_basis(
         else:
             inputs = {
                 **common_inputs,
-                "merged_records": config.merged_records_path,
-                "duplicates_report": config.duplicates_report_path,
                 "benchmark_report": config.benchmark_report_path,
                 "qc_report": config.qc_report_path,
             }

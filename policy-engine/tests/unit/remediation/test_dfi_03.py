@@ -767,6 +767,97 @@ def test_standalone_content_receipt_requires_stable_inputs_and_real_outputs(
     assert current_content_stage_receipt(config, "qc") is None
 
 
+@pytest.mark.parametrize(
+    ("artifact_name", "changed_bytes"),
+    [
+        (
+            "merged_records_path",
+            b'{"source":"source_a","title":"Changed","description":"Description"}\n',
+        ),
+        (
+            "duplicates_report_path",
+            b"source,kept_id,dropped_id\nsource_a,1,2\n",
+        ),
+    ],
+)
+def test_real_qc_receipt_binds_shared_merged_and_duplicate_inputs(
+    tmp_path: Path,
+    artifact_name: str,
+    changed_bytes: bytes,
+) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "sources:",
+                "  - name: source_a",
+                "    family: worldbank",
+                "    wave: A",
+                "    endpoint: https://example.test/a",
+                "    enabled: true",
+                "    execution_tier: transport_ready",
+                "    run_lane: empirical",
+                "    publish_blocking: true",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"qc"}),
+        registry_path=registry_path,
+        run_profile="prod_core_blocking",
+    )
+    raw_dir = config.raw_dir / "source_a" / "20261006T000000Z"
+    raw_dir.mkdir(parents=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"fixture"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="source_a",
+        endpoint="https://example.test/a",
+        payload_path=payload,
+        count=1,
+    )
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_bytes(
+        b'{"source":"source_a","title":"Dataset","description":"Description"}\n'
+    )
+    config.duplicates_report_path.write_bytes(b"source,kept_id,dropped_id\n")
+    with duckdb.connect(str(config.db_path)) as connection:
+        connection.execute("CREATE TABLE ds_distributions (url VARCHAR)")
+        connection.execute("CHECKPOINT")
+
+    for stage in ("benchmark", "qc", "publish"):
+        basis = _stage_input_basis(config, stage)
+        for input_name, path in (
+            ("merged_records", config.merged_records_path),
+            ("duplicates_report", config.duplicates_report_path),
+        ):
+            input_spec = basis["inputs"][input_name]
+            assert isinstance(input_spec, dict)
+            records = input_spec["records"]
+            assert isinstance(records, list)
+            assert any(
+                isinstance(record, dict) and record.get("path") == str(path.resolve())
+                for record in records
+            )
+
+    result = run_content_stage_with_receipt(config, "qc")
+    assert result.passed is True
+    receipt = current_content_stage_receipt(config, "qc")
+    assert receipt is not None
+
+    artifact = getattr(config, artifact_name)
+    previous_stat = artifact.stat()
+    artifact.write_bytes(changed_bytes)
+    _restore_stat(artifact, previous_stat)
+
+    assert current_content_stage_receipt(config, "qc") is None
+
+
 def test_selected_empty_generation_is_reused_without_reencoding(
     monkeypatch, tmp_path
 ) -> None:

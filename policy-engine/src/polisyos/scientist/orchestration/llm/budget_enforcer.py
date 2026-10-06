@@ -7,11 +7,14 @@ import time
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
+from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 from polisyos.core.llm.response import extract_llm_response_data
 from polisyos.core.observability import estimate_llm_cost_usd
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import BudgetResourceEvent
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
 from polisyos.scientist.orchestration.llm.cost_anomaly import CostAnomalyDetector
@@ -41,6 +44,9 @@ def _default_operational_monitor() -> ScientistOperationalMonitor:
 class _BudgetReservation:
     estimated_cost: Decimal
     reserved_amounts: dict[str, Decimal] = field(default_factory=dict)
+    resource_reservation_id: str | None = None
+    evaluation_id: str | None = None
+    resource_pending: bool = False
 
     def outstanding_items(self) -> list[tuple[str, Decimal]]:
         return [(key, amount) for key, amount in self.reserved_amounts.items() if amount > 0]
@@ -50,7 +56,7 @@ class _BudgetReservation:
             self.reserved_amounts[key] = Decimal(0)
 
     def has_outstanding(self) -> bool:
-        return any(amount > 0 for amount in self.reserved_amounts.values())
+        return self.resource_pending or any(amount > 0 for amount in self.reserved_amounts.values())
 
 
 class LLMBudgetEnforcer:
@@ -73,9 +79,11 @@ class LLMBudgetEnforcer:
         run_id: str = "",
         metrics: MetricsRegistry | None = None,
         operational_monitor: ScientistOperationalMonitor | None = None,
+        budget_middleware: BudgetMiddleware | None = None,
     ) -> None:
         self._client = client
         self._budget_state = budget_state
+        self._budget_middleware = budget_middleware
         self._budget_keys = budget_keys
         self._model_name = model_name
         self._audit_log = audit_log
@@ -87,11 +95,14 @@ class LLMBudgetEnforcer:
 
     @property
     def budget_state(self) -> BudgetState:
+        if self._budget_middleware is not None:
+            return self._budget_middleware.budget_state
         return self._budget_state
 
     def remaining_budget(self) -> Decimal | None:
         """Return the smallest remaining budget across configured keys."""
         with self._lock:
+            self._budget_state = self.budget_state
             remaining: list[Decimal] = [
                 value
                 for key in self._budget_keys
@@ -131,10 +142,37 @@ class LLMBudgetEnforcer:
     def _pre_check(self, kwargs: dict[str, Any]) -> _BudgetReservation:
         """Estimate cost, reserve budget, and reject calls that cannot fit."""
         estimated = self._estimate_cost(kwargs)
-        run_id = kwargs.get("_run_id", "")
+        run_id = kwargs.get("_run_id", self._run_id)
 
         reserved_keys: list[str] = []
         reservation = _BudgetReservation(estimated_cost=estimated)
+        if self._budget_middleware is not None:
+            reservation_id = str(uuid4())
+            evaluation_id = kwargs.get("_evaluation_id")
+            if not self._budget_middleware.reserve_resource(
+                reservation_id,
+                run_id=run_id,
+                budget_keys=tuple(self._budget_keys),
+                estimated_usd=estimated,
+                evaluation_id=evaluation_id,
+            ):
+                raise BudgetExhaustedError("LLM call cannot reserve its measured resource scope")
+            reservation.resource_reservation_id = reservation_id
+            reservation.evaluation_id = evaluation_id
+            reservation.resource_pending = True
+            self._budget_state = self._budget_middleware.budget_state
+            if self._audit_log:
+                self._audit_log.append(
+                    run_id=run_id,
+                    actor="budget_enforcer",
+                    action="BUDGET_RESERVED",
+                    metadata={
+                        "reservation_id": reservation_id,
+                        "estimated_cost_usd": str(estimated),
+                        "budget_keys": self._budget_keys,
+                    },
+                )
+            return reservation
         with self._lock:
             for key in self._budget_keys:
                 has_limit = key in self._budget_state.limits
@@ -198,6 +236,22 @@ class LLMBudgetEnforcer:
         reason: str,
     ) -> None:
         """Release any outstanding reservation for the current call."""
+        if reservation.resource_reservation_id is not None:
+            if reservation.resource_pending:
+                assert self._budget_middleware is not None
+                self._budget_middleware.require_reconciliation(reservation.resource_reservation_id)
+                reservation.resource_pending = False
+                if self._audit_log:
+                    self._audit_log.append(
+                        run_id=run_id,
+                        actor="budget_enforcer",
+                        action="BUDGET_RECONCILIATION_REQUIRED",
+                        metadata={
+                            "reservation_id": reservation.resource_reservation_id,
+                            "reason": reason,
+                        },
+                    )
+            return
         released_keys: list[str] = []
         with self._lock:
             for key, reserved in reservation.outstanding_items():
@@ -229,6 +283,45 @@ class LLMBudgetEnforcer:
         reservation = reservation or _BudgetReservation(estimated_cost=Decimal(0))
         resolved_run_id = self._run_id if run_id is None else run_id
         data = extract_llm_response_data(response)
+        if self._budget_middleware is not None:
+            if reservation.resource_reservation_id is None:
+                raise ValueError("measured provider settlement requires its owned reservation")
+            if data.cost_usd is None or not data.provider or not data.request_id:
+                raise ValueError(
+                    "measured provider cost, provider identity and request ID are required"
+                )
+            event = BudgetResourceEvent(
+                provider=data.provider,
+                request_id=data.request_id,
+                run_id=resolved_run_id,
+                budget_keys=tuple(self._budget_keys),
+                amount_usd=self._coerce_cost_decimal(data.cost_usd),
+                evaluation_id=reservation.evaluation_id,
+                source="cache_reuse" if data.cache_hit else "provider_reported",
+                reuse_event_id=data.reuse_event_id,
+            )
+            result = self._budget_middleware.settle_resource(
+                reservation.resource_reservation_id, event
+            )
+            reservation.resource_pending = False
+            self._budget_state = result.state
+            if self._audit_log:
+                self._audit_log.append(
+                    run_id=resolved_run_id,
+                    actor="budget_enforcer",
+                    action="BUDGET_COMMITTED",
+                    metadata={
+                        "reservation_id": reservation.resource_reservation_id,
+                        "resource_event_id": event.event_id,
+                        "reported_cost_usd": str(event.amount_usd),
+                        "new_charge_usd": str(result.applied_amount),
+                        "source": event.source,
+                        "request_id": event.request_id,
+                        "ledger_revision": result.revision,
+                    },
+                )
+            self._emit_cost_metrics(result.applied_amount, data)
+            return result.applied_amount
         try:
             actual_cost = self._resolve_actual_cost(data)
         except (ArithmeticError, TypeError, ValueError) as exc:
@@ -388,7 +481,7 @@ class LLMBudgetEnforcer:
         """Budget-aware async generate wrapper."""
         _stripped = {k: v for k, v in kwargs.items() if not k.startswith("_")}
         reservation = self._pre_check(kwargs)
-        run_id = kwargs.get("_run_id", "")
+        run_id = kwargs.get("_run_id", self._run_id)
         t0 = time.perf_counter()
         committed = False
         try:
@@ -412,11 +505,13 @@ class LLMBudgetEnforcer:
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
         """Budget-aware sync invoke wrapper."""
         reservation = self._pre_check(kwargs)
-        run_id = kwargs.get("_run_id", "")
+        run_id = kwargs.get("_run_id", self._run_id)
         t0 = time.perf_counter()
         committed = False
         try:
-            response = self._client.invoke(prompt, **kwargs)
+            response = self._client.invoke(
+                prompt, **{key: value for key, value in kwargs.items() if not key.startswith("_")}
+            )
             self._record_latency(time.perf_counter() - t0)
             self._post_record(
                 response,

@@ -1,0 +1,12 @@
+{
+  "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "payload_sha256": "1c58127a077d02b84f5164dcbd1879c1b7aad7dd16fb86d0d3f990cf3275d5d0",
+  "member_count": 1683,
+  "total_bytes": 8650933,
+  "member_validation_errors": [],
+  "scope": "Static lossless member audit; product/test source bodies identified by exact Git blob; no execution.",
+  "empty_member_count": 372,
+  "nonempty_git_identical_count": 0,
+  "product_or_test_source_body_copies": [],
+  "nonempty_other_tracked_matches": []
+}

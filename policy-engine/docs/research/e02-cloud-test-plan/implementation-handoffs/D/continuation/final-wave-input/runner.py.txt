@@ -1,0 +1,328 @@
+"""Prepare or explicitly run one uncapped, source-pinned standard pytest union."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import resource
+import subprocess
+import sys
+import time
+import uuid
+import xml.etree.ElementTree as ET
+
+PLAN_SCRIPT = Path('/tmp/e02-D-final-selector-plan.py')
+OBSERVER = Path('/tmp/e02_broad_observer.py')
+CAP_KEYS = ('OMP_NUM_THREADS', 'OMP_THREAD_LIMIT', 'MKL_NUM_THREADS',
+            'OPENBLAS_NUM_THREADS', 'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS',
+            'BLIS_NUM_THREADS', 'GOTO_NUM_THREADS', 'TBB_NUM_THREADS',
+            'TORCH_NUM_THREADS', 'JAX_NUM_THREADS', 'TF_NUM_INTRAOP_THREADS',
+            'TF_NUM_INTEROP_THREADS', 'RAYON_NUM_THREADS', 'LOKY_MAX_CPU_COUNT',
+            'PYTEST_XDIST_AUTO_NUM_WORKERS')
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def write_json(path, value):
+    path.write_text(json.dumps(value, indent=2, default=str) + '\n')
+
+
+def git(repo, *args):
+    return subprocess.check_output(['git', '-C', str(repo), *args])
+
+
+def state(repo):
+    return {'head': git(repo, 'rev-parse', 'HEAD').decode().strip(),
+            'tree': git(repo, 'rev-parse', 'HEAD^{tree}').decode().strip(),
+            'branch': git(repo, 'branch', '--show-current').decode().strip(),
+            'status_porcelain': git(repo, 'status', '--porcelain=v1').decode()}
+
+
+def resources(repo, output):
+    result = {'self_ru_maxrss_KiB_linux': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+              'filesystems': {}}
+    for p in (repo, output):
+        s = os.statvfs(p)
+        result['filesystems'][str(p)] = {'available_bytes': s.f_bavail * s.f_frsize,
+                                         'free_bytes': s.f_bfree * s.f_frsize}
+    for name in ('memory.current', 'memory.max', 'memory.events', 'cpu.max'):
+        p = Path('/sys/fs/cgroup') / name
+        try:
+            result[name] = p.read_text().strip()
+        except OSError as exc:
+            result[name] = {'read_error': repr(exc)}
+    return result
+
+
+def tree_files(repo, source):
+    result = {}
+    for record in git(repo, 'ls-tree', '-rz', source).split(b'\0'):
+        if not record:
+            continue
+        header, raw_path = record.split(b'\t', 1)
+        mode, kind, blob = header.decode().split()
+        if kind == 'blob':
+            result[raw_path.decode()] = {'git_blob': blob, 'mode': mode}
+    return result
+
+
+def file_identity(path, entry=None):
+    try:
+        raw = path.read_bytes()
+        sha = digest(raw)
+        actual_blob = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
+        return {'bytes': len(raw), 'sha256': sha,
+                'git_blob': entry['git_blob'] if entry else None,
+                'matches_frozen_git_blob': actual_blob == entry['git_blob'] if entry else None}
+    except OSError as exc:
+        return {'read_error': repr(exc), 'errno': exc.errno, 'matches_frozen_git_blob': False}
+
+
+def input_snapshot(repo, names, tree, external):
+    files = {name: file_identity(repo / name, tree.get(name)) for name in sorted(names)}
+    outside = {str(p): file_identity(p) for p in sorted(external)}
+    return {'files': files, 'external_input_files': outside,
+            'frozen_file_mismatches': [name for name, item in files.items()
+                                       if not item.get('matches_frozen_git_blob')]}
+
+
+def deduplicate(selectors):
+    selectors = list(dict.fromkeys(selectors))
+    whole = {x for x in selectors if '::' not in x}
+    return sorted(x for x in selectors if '::' not in x or x.split('::')[0] not in whole)
+
+
+def junit(path):
+    if not path.exists():
+        return {'status': 'MISSING_INCOMPLETE_UNRUN'}
+    try:
+        root = ET.fromstring(path.read_bytes())
+        cases = []
+        for case in root.iter('testcase'):
+            failure, error, skip = (case.find(name) for name in ('failure', 'error', 'skipped'))
+            outcome = 'FAIL' if failure is not None else 'ERROR' if error is not None else 'SKIP' if skip is not None else 'PASS'
+            cases.append({'class': case.get('classname'), 'name': case.get('name'),
+                          'seconds': case.get('time'), 'outcome': outcome})
+        return {'status': 'COMPLETE_PARSE', 'testsuites': [x.attrib for x in root.iter('testsuite')],
+                'case_count': len(cases),
+                'outcomes': {key: sum(x['outcome'] == key for x in cases)
+                             for key in ('PASS', 'FAIL', 'ERROR', 'SKIP')}, 'cases': cases}
+    except (OSError, ET.ParseError) as exc:
+        return {'status': 'ERROR_JUNIT_INCOMPLETE', 'exception': repr(exc)}
+
+
+def probe_commands(plan, python, source, output):
+    result = []
+    for entry in plan['non_pytest_probe_inputs']:
+        rel = entry['path'].removeprefix('policy-engine/')
+        name = Path(rel).name
+        commands = []
+        if name == 'stress_absent_report_probe.py':
+            commands = [{'role': 'positive', 'argv': [python, rel, 'positive', source]},
+                        {'role': 'property_removal', 'argv': [python, rel, 'invent_attempt', source], 'expected_exit': 1}]
+        elif name == 'stress_case_intake_probe.py':
+            commands = [{'role': 'positive', 'argv': [python, rel, 'positive', source]},
+                        {'role': 'property_removal', 'argv': [python, rel, 'remove_strict_bool', source], 'expected_exit': 1}]
+        elif name == 'stress_doe_bridge_probe.py':
+            commands = [{'role': 'positive_actual_SALib', 'argv': [python, rel]}]
+        elif name == 'stress_property_removal_probe.py':
+            for mode in ('example_fraction', 'raw_bool'):
+                commands.append({'role': 'property_removal:' + mode,
+                                 'argv': [python, rel, mode, source, '-q',
+                                          'tests/unit/scientist/search/test_stress_scenario_evidence.py',
+                                          'tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py',
+                                          '-ra', '--run-quarantine',
+                                          '--basetemp=' + str(output / ('UNCREATED-probe-' + mode + '-' + uuid.uuid4().hex)),
+                                          '--junitxml=' + str(output / ('probe-' + mode + '.xml'))],
+                                 'expected_exit': 1})
+        result.append({'path': entry['path'], 'commands': commands,
+                       'status': 'UNRUN_SEPARATE_COMMISSION',
+                       'cwd': plan['pytest_union']['cwd'],
+                       'environment': {'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': 'src:.',
+                                       'TIKTOKEN_CACHE_DIR': '/workspace/e02-D2-receipts/tokenizer'},
+                       'source_default_temp_warning': 'absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness'})
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--repo', type=Path, default=Path('/workspace/e02-D-published-root'))
+    parser.add_argument('--source', required=True, help='exact final reviewed forty-character commit')
+    parser.add_argument('--base', default='cae5589aa7080b628e93d594eeb4ff7c2fc2414d')
+    parser.add_argument('--champion-review-source', default='6fe84b7dbfd8342b543e798fdeacd9be38fba7eb')
+    parser.add_argument('--python', default='/workspace/e02-D-doe-env/bin/python')
+    parser.add_argument('--tokenizer-cache', type=Path, default=Path('/workspace/e02-D2-receipts/tokenizer'))
+    parser.add_argument('--extra-selector', action='append', default=[])
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--run', action='store_true', help='explicitly launch ONE pytest session; default is preparation only')
+    args = parser.parse_args()
+    repo = args.repo.resolve()
+    assert re.fullmatch('[0-9a-f]{40}', args.source), 'use complete immutable commit'
+    assert git(repo, 'rev-parse', args.source).decode().strip() == args.source
+    before_state = state(repo)
+    assert before_state['head'] == args.source, 'root must be at supplied exact freeze'
+    assert not before_state['status_porcelain'], 'tracked/untracked root state must be clean before execution'
+    output = args.output or Path('/tmp/e02-D-root-wave-' + args.source[:12] + '-' + uuid.uuid4().hex)
+    output = output.resolve()
+    assert Path('/tmp') in output.parents and not output.exists(), 'fresh nonexistent /tmp output required'
+    output.mkdir()
+    plan_path = output / 'selector-plan.json'
+    argv = [sys.executable, str(PLAN_SCRIPT), '--repo', str(repo), '--base', args.base,
+            '--source', args.source, '--champion-review-source', args.champion_review_source,
+            '--output', str(plan_path)]
+    plan_call = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    (output / 'plan.stdout.txt').write_text(plan_call.stdout)
+    (output / 'plan.stderr.txt').write_text(plan_call.stderr)
+    assert plan_call.returncode == 0, 'read-only upstream plan preparation failed; output retained'
+    plan = json.loads(plan_path.read_text())
+    selectors = deduplicate(plan['pytest_union']['selectors'] + args.extra_selector)
+    for selector in selectors:
+        assert selector.startswith('tests/') and '..' not in Path(selector.split('::')[0]).parts
+    tree = tree_files(repo, args.source)
+    names = set(x['path'] for x in plan['changed_test_inputs'] if x['status'] != 'D')
+    names.update('policy-engine/' + x.split('::')[0] for x in selectors)
+    # Hash every frozen product Python source and every tracked test Python input,
+    # including imported helpers defined outside tests/_helpers or conftest.py.
+    # This stores only identities, never a fresh source copy/archive.
+    names.update(p for p in tree if p.startswith('policy-engine/src/') and p.endswith('.py'))
+    names.update(p for p in tree if p.startswith('policy-engine/tests/') and
+                 (p.endswith('.py') or p.startswith('policy-engine/tests/_helpers/')))
+    names.update(['policy-engine/pytest.ini', 'policy-engine/tests/quarantine.toml',
+                  'policy-engine/pyproject.toml', 'policy-engine/uv.lock',
+                  plan['canonical_D']['path']])
+    assert args.tokenizer_cache.is_dir(), 'existing tokenizer cache required; no installer/fetch here'
+    external = [PLAN_SCRIPT, OBSERVER, Path(__file__).resolve(), Path('/tmp/e02-D-broad-wave.py')]
+    external += [p for p in args.tokenizer_cache.rglob('*') if p.is_file() and not p.is_symlink()]
+    before = input_snapshot(repo, names, tree, external)
+    before['git_state'] = before_state
+    before['resources'] = resources(repo, output)
+    write_json(output / 'before.json', before)
+    assert not before['frozen_file_mismatches'], 'input disk bytes differ from supplied frozen Git source'
+    assert Path(args.python).is_file(), 'actual approved DOE environment interpreter missing'
+    cap_environment = {name: os.environ[name] for name in CAP_KEYS if os.environ.get(name)}
+    if os.environ.get('PYTEST_ADDOPTS'):
+        cap_environment['PYTEST_ADDOPTS'] = os.environ['PYTEST_ADDOPTS']
+    assert not cap_environment, 'inherited cap/filter/addopts profile must be explicitly reconciled; harness never silently strips it'
+    env = os.environ.copy()
+    env.update(PYTHONDONTWRITEBYTECODE='1', PYTHONUNBUFFERED='1',
+               PYTHONPATH=str(repo / 'policy-engine/src') + ':' + str(repo / 'policy-engine') + ':' + str(OBSERVER.parent),
+               TIKTOKEN_CACHE_DIR=str(args.tokenizer_cache), E02_BROAD_OUTPUT=str(output),
+               E02_BROAD_REPO=str(repo), E02_BROAD_SOURCE=args.source)
+    basetemp = output / ('pytest-basetemp-' + uuid.uuid4().hex)
+    assert not basetemp.exists()
+    pytest_argv = [args.python, '-m', 'pytest', '-p', OBSERVER.stem, '-q', *selectors,
+                   '-ra', '--run-quarantine', '--basetemp=' + str(basetemp),
+                   '--junitxml=' + str(output / 'junit.xml')]
+    manifest = {'schema': 'e02.broad_wave_execution_manifest.v1',
+                'status': 'PREPARED_NOT_EXECUTED', 'source_sha': args.source,
+                'source_tree': before_state['tree'], 'cwd': str(repo / 'policy-engine'),
+                'complete_argv': pytest_argv,
+                'argv_sha256': digest(json.dumps(pytest_argv).encode()),
+                'canonical_commands': plan['canonical_D']['commands'],
+                'canonical_plan_counts': plan['counts'], 'union_selectors': selectors,
+                'union_selector_count': len(selectors), 'extra_selectors': args.extra_selector,
+                'extra_selector_rationale': 'Parent requires full test_claim_adjudication_runtime.py for original B117 claim-pointer/promotion_basis coherence; other extra selectors require an explicit parent rationale.',
+                'plan_generator_argv': argv,
+                'plan_generator_sha256': digest(PLAN_SCRIPT.read_bytes()),
+                'selector_plan_sha256': digest(plan_path.read_bytes()),
+                'harness_sha256': digest(Path(__file__).read_bytes()),
+                'observer_sha256': digest(OBSERVER.read_bytes()),
+                'before_manifest_sha256': digest((output / 'before.json').read_bytes()),
+                'environment_assignments': {name: env[name] for name in
+                     ('PYTHONDONTWRITEBYTECODE', 'PYTHONUNBUFFERED', 'PYTHONPATH', 'TIKTOKEN_CACHE_DIR')},
+                'inherited_numeric_caps_and_addopts': cap_environment,
+                'native_worker_inputs': [x for x in plan['changed_test_inputs'] if x['role'] == 'worker_helper_dependency'],
+                'separate_standalone_probes': probe_commands(plan, args.python, args.source, output),
+                'scope_notes': ['One standard pytest session; no marker/keyword/ignore/maxfail/time/worker/thread/process caps or result whitelist.',
+                                'Quarantines explicitly included; actual optional-backend SKIP is UNRUN, never fit/property PASS.',
+                                'Historical parent-reported24FAIL are retained as failures if they recur; no inherited waiver/filter/xfail introduced.',
+                                'All loaded main-process product-module disk origins plus transient module-exec identities are observed. Child-worker module census is not invented; pinned worker bytes and complete parent outputs are retained.',
+                                'Harness never deletes files or creates source/env copies. Canonical pytest/conftest/internal test helpers may perform their own teardown cleanup; retention claim covers only listed files still present, not deleted historical temporary files.',
+                                'No GP/backend/collection subprocess occurs in preparation mode. Four standalone probe files have explicit separate commands and remain UNRUN.']}
+    assert state(repo) == before_state, 'root changed during preparation; retain ERROR/preparation outputs, do not launch'
+    write_json(output / 'execution-manifest.json', manifest)
+    if not args.run:
+        print(json.dumps({'status': 'PREPARED_NOT_EXECUTED', 'output': str(output),
+                          'source_sha': args.source, 'counts': plan['counts'],
+                          'union_selector_count_with_extras': len(selectors),
+                          'manifest_sha256': digest((output / 'execution-manifest.json').read_bytes())}, indent=2))
+        return 0
+    # No timeout, polling cutoff, quota, kill, cleanup or repeated collection.
+    start = time.monotonic()
+    manifest['status'] = 'RUNNING'
+    manifest['started_wall_ns'] = time.time_ns()
+    write_json(output / 'execution-manifest.json', manifest)
+    with (output / 'complete.stdout.txt').open('wb') as stdout, (output / 'complete.stderr.txt').open('wb') as stderr:
+        child = subprocess.Popen(pytest_argv, cwd=repo / 'policy-engine', env=env,
+                                 stdout=stdout, stderr=stderr)
+        manifest['child_pid'] = child.pid
+        write_json(output / 'execution-manifest.json', manifest)
+        _, wait_status, usage = os.wait4(child.pid, 0)
+        child.returncode = os.waitstatus_to_exitcode(wait_status)
+    after = input_snapshot(repo, names, tree, external)
+    after['git_state'] = state(repo)
+    after['resources'] = resources(repo, output)
+    write_json(output / 'after.json', after)
+    observation_path = output / 'observer-summary.json'
+    observed = json.loads(observation_path.read_text()) if observation_path.exists() else None
+    xml = junit(output / 'junit.xml')
+    unchanged = before['files'] == after['files'] and before['git_state'] == after['git_state']
+    external_inputs_unchanged = before['external_input_files'] == after['external_input_files']
+    finished = [name for name, case in observed['cases'].items()
+                if 'finished_wall_ns' in case and any(p['when'] == 'teardown' for p in case['phases'])] if observed else []
+    denominator_reconciled = bool(observed and len(observed['collected_nodeids']) == len(finished)
+                                  and set(observed['collected_nodeids']) == set(finished))
+    provenance_ok = unchanged and external_inputs_unchanged and observed is not None and not observed['source_mismatches'] and not observed['observer_errors']
+    if child.returncode < 0:
+        status = 'ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN'
+    elif observed is None or xml['status'] != 'COMPLETE_PARSE':
+        status = 'ERROR_INCOMPLETE_OBSERVER_OR_JUNIT'
+    elif not provenance_ok:
+        status = 'ERROR_SOURCE_OR_OBSERVER_IDENTITY'
+    elif not denominator_reconciled:
+        status = 'ERROR_INCOMPLETE_COLLECTED_CASE_DENOMINATOR'
+    elif child.returncode != 0:
+        status = 'FAIL_PYTEST' if child.returncode == 1 else 'ERROR_PYTEST'
+    elif xml['outcomes']['SKIP'] or observed['deselected']:
+        status = 'PASS_PYTEST_WITH_SKIPS_OR_DESELECTIONS_NOT_FULL_NATIVE_VERDICT'
+    else:
+        status = 'PASS_PYTEST_WITHIN_RECORDED_UNION_NOT_GLOBAL_CLOSURE'
+    remaining = []
+    if basetemp.exists():
+        for p in sorted(basetemp.rglob('*')):
+            if p.is_file() and not p.is_symlink():
+                remaining.append({'path': str(p), **file_identity(p)})
+    write_json(output / 'retained-fixture-file-identities.json', remaining)
+    backend_loaded = observed['backend_state'] if observed else None
+    report = {'source_sha': args.source, 'source_tree': before_state['tree'], 'status': status,
+              'child_pid': child.pid, 'actual_exit': child.returncode,
+              'actual_signal': -child.returncode if child.returncode < 0 else None,
+              'wall_seconds': time.monotonic() - start,
+              'child_usage': dict(user_seconds=usage.ru_utime, system_seconds=usage.ru_stime,
+                                  maxrss_KiB_linux=usage.ru_maxrss),
+              'git_and_entire_input_identity_unchanged': unchanged,
+              'external_input_hashes_unchanged': external_inputs_unchanged,
+              'actual_collected_to_finished_denominator_reconciled': denominator_reconciled,
+              'actual_collected_case_count': observed['collected_count'] if observed else None,
+              'finished_case_count': len(finished),
+              'main_process_product_origin_verification_complete': provenance_ok,
+              'junit': xml, 'actually_loaded_backends': backend_loaded,
+              'requested_backends': plan['backend_request_classification'],
+              'raw_outputs': {name: file_identity(output / name) for name in
+                              ('complete.stdout.txt', 'complete.stderr.txt', 'events.jsonl')},
+              'source_and_resource_before': 'before.json', 'source_and_resource_after': 'after.json',
+              'retained_regular_fixture_count': len(remaining),
+              'no_cause_inference': 'SIGKILL is recorded as signal9, not assumed OOM; before/after cgroup counters may support a separate cause review. Reported ENOSPC/test exceptions remain complete in reports; no resource failure is converted to PASS.',
+              'no_cleanup_or_repeat': True}
+    write_json(output / 'result.json', report)
+    print(json.dumps({'status': status, 'source_sha': args.source, 'output': str(output),
+                      'actual_exit': child.returncode, 'wall_seconds': report['wall_seconds'],
+                      'junit_outcomes': xml.get('outcomes')}, indent=2))
+    return child.returncode if child.returncode >= 0 else 128 - child.returncode
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -1,0 +1,116 @@
+{
+  "schema": "e02.final_harness_input_snapshot_preparation.v1",
+  "status": "SOURCE_ONLY_PREPARED_NOT_EXECUTED",
+  "scope_source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+  "scope_source_tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+  "observed_root_head": "1a77ebd123d44646e9099a0ff4101b135590c419",
+  "observed_root_tree": "725d2640be2215c7dc381ec807c709529aecec6e",
+  "observed_root_status": "",
+  "new_harness": {
+    "path": "/tmp/e02-D-broad-wave-final.py",
+    "bytes": 20589,
+    "sha256": "02ff94cbf1f2bc01af5f9687c7a31339802f5cde36cb9829b01f0f182702cd9b"
+  },
+  "preserved_original_harness": {
+    "path": "/tmp/e02-D-broad-wave.py",
+    "bytes": 20492,
+    "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7"
+  },
+  "diff": {
+    "path": "/tmp/e02-D-broad-wave-final.diff",
+    "bytes": 1749,
+    "sha256": "c0e6bcea0f82f48be798d3be7067c26b5d006b7f5f7e2b0dd0e5d85bf6241978"
+  },
+  "change_contract": "Only broaden names.update product/test Python snapshot selectors and append preserved original harness to external input identities. Reversing these two exact replacements reproduces the entire original file byte-for-byte.",
+  "all_other_source_bytes_unchanged": true,
+  "harness_or_pytest_executed": false,
+  "cli_and_helper_relation": {
+    "cli": "Same flags/defaults; main remains guarded by __name__. --run is required for ONE actual pytest session.",
+    "selector_plan": "/tmp/e02-D-final-selector-plan.py is still called with the actual final --source; its canonical17 and changed-test union/extra-selector derivation is unchanged.",
+    "observer": "/tmp/e02_broad_observer.py still consumes before.json.files; this change broadens frozen file identities without changing pytest reporting, backend inspection or source-origin observer behavior.",
+    "original_pin_behavior": "Exact source/tree/clean-state assertions and before/after entire-input identity comparison unchanged. Actual final --source must match the root HEAD after remaining documentation merges."
+  },
+  "snapshot_scope": {
+    "product_python_selector": "Every tracked policy-engine/src/**/*.py blob from supplied frozen Git tree",
+    "test_python_selector": "Every tracked policy-engine/tests/**/*.py blob from supplied frozen Git tree, including helpers inside test modules",
+    "pinned_product_python_count": 2701,
+    "pinned_test_python_count": 2860,
+    "pinned_old_conftest_helper_scope_count": 52,
+    "pinned_old_helper_non_python_paths": [
+      "policy-engine/tests/_helpers/AUTHORING.md",
+      "policy-engine/tests/_helpers/README.md"
+    ],
+    "pinned_test_python_paths_beyond_old_conftest_helper_scope_count": 2810,
+    "preserved_non_python_helper_subtree": "All tracked files under tests/_helpers remain included, as in the original harness.",
+    "product_python_outside_polisyos": [],
+    "nonregular_python_git_modes": [],
+    "still_included": [
+      "Every non-deleted changed test input",
+      "Every selected file",
+      "policy-engine/pytest.ini",
+      "policy-engine/tests/quarantine.toml",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock",
+      "Canonical D card from actual selector plan"
+    ],
+    "external_inputs": [
+      {
+        "path": "/tmp/e02-D-broad-wave.py",
+        "bytes": 20492,
+        "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7"
+      },
+      {
+        "path": "/tmp/e02-D-broad-wave-final.py",
+        "bytes": 20589,
+        "sha256": "02ff94cbf1f2bc01af5f9687c7a31339802f5cde36cb9829b01f0f182702cd9b"
+      },
+      {
+        "path": "/tmp/e02-D-final-selector-plan.py",
+        "bytes": 12531,
+        "sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8"
+      },
+      {
+        "path": "/tmp/e02_broad_observer.py",
+        "bytes": 12753,
+        "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81"
+      },
+      {
+        "path": "/workspace/e02-D2-receipts/tokenizer/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+        "bytes": 1681126,
+        "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+      },
+      {
+        "path": "/workspace/e02-D2-receipts/tokenizer/fetch-receipt.json",
+        "bytes": 493,
+        "sha256": "f9d644d626c82ee5c1a1dd9007162154dad124d2aead9848b779e6e84eb286d5"
+      },
+      {
+        "path": "/workspace/e02-D2-receipts/tokenizer/mirror-census.json",
+        "bytes": 1105,
+        "sha256": "6f523900e4f943660deecac9e48fbd1ee13633e9710bccd3fd68874b749c3fb2"
+      },
+      {
+        "path": "/workspace/e02-D2-receipts/tokenizer/verified-cache-receipt.json",
+        "bytes": 352,
+        "sha256": "6cf326dd3de6d9f6173158019f0e088ad6cb42dfd2e5d41fffd68e27c172f51e"
+      }
+    ],
+    "tokenizer_regular_file_count": 4,
+    "tracked_source_bodies_copied": false
+  },
+  "unchanged_execution_semantics": [
+    "Selectors/deduplication and pytest argv",
+    "Actual configured interpreter/backend",
+    "Default pytest collection and assertions",
+    "All existing flags, quarantine inclusion, no new caps/filters/timeouts",
+    "Complete stdout/stderr/JUnit and observer reports",
+    "Existing configs and current external original inputs",
+    "No cleanup, backend execution or root Git/source writes"
+  ],
+  "limitations": [
+    "This is a metadata/source preparation check, not a collection/runtime/backend verdict.",
+    "Counts bind f2d5401c9cd8a02a74579e4c47b836042a12eb99; final harness re-enumerates the actual later freeze rather than inheriting those counts.",
+    "Imported helpers are input files, not new test selectors. No assertion or collected-case denominator is inferred from file counts.",
+    "Existing observer scope remains main-process polisyos imports/module execs; no invented child-worker origin census."
+  ]
+}

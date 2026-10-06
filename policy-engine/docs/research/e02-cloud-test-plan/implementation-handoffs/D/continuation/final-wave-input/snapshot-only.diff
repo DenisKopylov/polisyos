@@ -1,0 +1,24 @@
+--- /tmp/e02-D-broad-wave.py
++++ /tmp/e02-D-broad-wave-final.py
+@@ -184,16 +184,17 @@
+     tree = tree_files(repo, args.source)
+     names = set(x['path'] for x in plan['changed_test_inputs'] if x['status'] != 'D')
+     names.update('policy-engine/' + x.split('::')[0] for x in selectors)
+-    # Hash every frozen product source, every conftest and shared test helper.
++    # Hash every frozen product Python source and every tracked test Python input,
++    # including imported helpers defined outside tests/_helpers or conftest.py.
+     # This stores only identities, never a fresh source copy/archive.
+-    names.update(p for p in tree if p.startswith('policy-engine/src/polisyos/') and p.endswith('.py'))
++    names.update(p for p in tree if p.startswith('policy-engine/src/') and p.endswith('.py'))
+     names.update(p for p in tree if p.startswith('policy-engine/tests/') and
+-                 (Path(p).name == 'conftest.py' or p.startswith('policy-engine/tests/_helpers/')))
++                 (p.endswith('.py') or p.startswith('policy-engine/tests/_helpers/')))
+     names.update(['policy-engine/pytest.ini', 'policy-engine/tests/quarantine.toml',
+                   'policy-engine/pyproject.toml', 'policy-engine/uv.lock',
+                   plan['canonical_D']['path']])
+     assert args.tokenizer_cache.is_dir(), 'existing tokenizer cache required; no installer/fetch here'
+-    external = [PLAN_SCRIPT, OBSERVER, Path(__file__).resolve()]
++    external = [PLAN_SCRIPT, OBSERVER, Path(__file__).resolve(), Path('/tmp/e02-D-broad-wave.py')]
+     external += [p for p in args.tokenizer_cache.rglob('*') if p.is_file() and not p.is_symlink()]
+     before = input_snapshot(repo, names, tree, external)
+     before['git_state'] = before_state

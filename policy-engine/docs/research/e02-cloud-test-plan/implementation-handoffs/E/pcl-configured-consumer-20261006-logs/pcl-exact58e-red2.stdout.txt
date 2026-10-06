@@ -1,0 +1,108 @@
+{"source": "58e2d97965c0826c44843a78dcb2f8698d9950a3", "mode": "exact_git_blob_import_overlay", "modules": {"polisyos.foundry.methods.backends.numpy_runner": {"path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py", "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505", "bytes": 5225}, "polisyos.foundry.methods.catalog.econometrics.advanced": {"path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py", "sha256": "0135c8acc19e8f213ae4bd5304eb0ce0272ba2232a95f9a47ec3cb6244688521", "bytes": 83910}, "polisyos.foundry.execute._internal.graph": {"path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py", "sha256": "beac46a425509e47d8f0ba364e06b9b105ee056e19b859d3d2c2d20c5bdb51c5", "bytes": 41564}}}
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___________ test_real_dispatch_reopens_all_three_summary_call_sites ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_dispatch_reopens_all0')
+
+    def test_real_dispatch_reopens_all_three_summary_call_sites(tmp_path) -> None:
+        pytest.importorskip("arch")
+        store = FileSystemCAS(tmp_path / "cas")
+>       data = _panel()
+               ^^^^^^^^
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _panel() -> PanelData:
+        rng = np.random.default_rng(20261006)
+>       return PanelData(
+            dependent=rng.normal(scale=0.25, size=120),
+            exog=np.zeros((120, 1)),
+            entity_ids=np.zeros(120, dtype=int),
+            time_ids=np.arange(120),
+            feature_names=["constant"],
+            metadata={"target_id": "synthetic-return", "unit": "return", "group_labels": ["g"]},
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for PanelData
+E         Value error, panel data requires at least 2 entities [type=value_error, input_value={'dependent': array([-0.1... 'group_labels': ['g']}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:50: ValidationError
+____________ test_native_graph_returns_refs_from_its_configured_cas ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_native_graph_returns_refs0')
+
+    def test_native_graph_returns_refs_from_its_configured_cas(tmp_path) -> None:
+        pytest.importorskip("arch")
+        store = FileSystemCAS(tmp_path / "configured-cas")
+        MethodRegistry.get_instance().register(NonstationaryGARCHEstimator)
+        ir_ref = ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+        )
+        lowered = store.put_json(
+            LoweredIR(ir_ref=ir_ref, mechanisms=[], constraints=[]),
+            ArtifactWriteOptions(kind="foundry.lowered_ir", media_type="application/json"),
+        )
+        client_params = {**_params(), "artifact_store": "untrusted-client-store"}
+        node = ProgramNode(
+            node_id="calibration",
+            node_kind="method",
+            method_fqn=NonstationaryGARCHEstimator.signature.fqn,
+            method_params=client_params,
+        )
+        graph = ProgramGraph(
+            ir_ref=ir_ref,
+            lowered_ir_ref=LoweredIRRef(artifact_id=lowered.artifact_id),
+            nodes=[node],
+            entrypoints=[node.node_id],
+        )
+>       graph_ref = store.put_json(
+            graph,
+            ArtifactWriteOptions(kind="foundry.program_graph", media_type="application/json"),
+        )
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/artifacts/store.py:2460: in put_json
+    data = to_canonical_bytes(obj, canon_spec)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/canon/canon_json.py:40: in to_canonical_bytes
+    return _to_canonical_bytes(
+src/polisyos/common/canonical.py:232: in to_canonical_bytes
+    canon_obj = _canonicalize_obj(
+src/polisyos/common/canonical.py:152: in _canonicalize_obj
+    return _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:210: in _canonicalize_obj
+    _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:193: in _canonicalize_obj
+    _raise_violation(violation_type, "float forbidden in canonical JSON")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+violation_type = <class 'polisyos.core.canon.canon_json.CanonViolation'>
+message = 'float forbidden in canonical JSON'
+
+    def _raise_violation(violation_type: type[ValueError], message: str) -> NoReturn:
+>       raise violation_type(message)
+E       polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON
+
+src/polisyos/common/canonical.py:67: CanonViolation
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:04:37 [info     ] method_registered              backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 lazy=False namespace=econometrics.panel override=False tags=['econometrics', 'estimation', 'garch', 'panel', 'policy-risk', 'structural-break', 'tabular', 'uncertainty'] version=1.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py::test_real_dispatch_reopens_all_three_summary_call_sites
+FAILED tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py::test_native_graph_returns_refs_from_its_configured_cas

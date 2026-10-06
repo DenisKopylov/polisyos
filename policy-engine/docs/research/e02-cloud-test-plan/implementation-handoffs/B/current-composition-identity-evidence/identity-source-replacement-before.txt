@@ -1,0 +1,52 @@
+2026-10-06 10:48:43 [info     ] method_registered              backend=numpy fqn=tests.e02_identity.source@1.0.0 lazy=False namespace=tests.e02_identity override=False tags=['test'] version=1.0.0
+2026-10-06 10:48:43 [info     ] method_registered              backend=numpy fqn=tests.e02_identity.consumer@1.0.0 lazy=False namespace=tests.e02_identity override=False tags=['test'] version=1.0.0
+2026-10-06 10:48:43 [debug    ] method_dispatch_start          backend=numpy fqn=tests.e02_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:48:43 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.22 fqn=tests.e02_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:48:43 [debug    ] method_dispatch_start          backend=numpy fqn=tests.e02_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:48:43 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.73 fqn=tests.e02_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:48:43 [info     ] method_registered              backend=numpy fqn=tests.e02_identity.source@1.0.0 lazy=False namespace=tests.e02_identity override=True tags=['test'] version=1.0.0
+2026-10-06 10:48:43 [debug    ] method_dispatch_start          backend=numpy fqn=tests.e02_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:48:43 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.32 fqn=tests.e02_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:48:43 [debug    ] method_dispatch_start          backend=numpy fqn=tests.e02_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:48:43 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.31 fqn=tests.e02_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "property": "Actual source replacement is NOT bound by existing request digest; cold10 versus accepted warm7 on same compiledsignature/config/input/seed",
+  "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/source-replacement-138583f207f845a7aec0ce39cf60eecc",
+  "source_module": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+  "source_module_sha256": "b0181ea2f8b9a814424bab11dde98c06b67c595d19c47c40c0fe58e315dbbd9b",
+  "inputs": {
+    "x": 3,
+    "factor": 2,
+    "increment": 1,
+    "seed": 7
+  },
+  "compiled_required_edge": [
+    "b26a3c98-d0b8-4f8e-bb84-4b6c2f14994d",
+    "12240878-c024-43b7-8d98-487f5b065ceb"
+  ],
+  "signature_digest_unchanged": true,
+  "old_outputs": [
+    {
+      "product": 6
+    },
+    {
+      "total": 7
+    }
+  ],
+  "cold_outputs": [
+    {
+      "product": 9
+    },
+    {
+      "total": 10
+    }
+  ],
+  "warm_outputs": [
+    {
+      "product": 6
+    },
+    {
+      "total": 7
+    }
+  ]
+}

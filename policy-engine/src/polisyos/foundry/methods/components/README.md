@@ -82,3 +82,48 @@ generations remain on disk. This protocol assumes a local filesystem with
 flock, atomic replacement and directory fsync. It does not establish power-loss
 behavior, protection from hostile filesystem mutation, or Scientist workflow
 recovery.
+
+## Checkpoint execution identity
+
+Checkpoint-bound execution resolves the actual registry classes once. A registry
+replacement during a producer does not substitute another implementation into
+the remaining suffix. The effective digest includes the current class and
+payload/result callback source, immutable captured values, current ABI, compiled
+bindings and requirements, parameters, initial state and seed. Registering an
+unrelated method does not change this identity.
+
+For artifact-backed identity, supply `artifact_store=` to the executor and a
+`CheckpointArtifactContext` to `execute(artifact_context=...)`. Its fields are
+`input_refs`, `config_refs`, `origin_ref`, `dependency_refs` and occurrence-keyed
+`cache_refs`. Every declared `ArtifactRef` must select an explicit manifest
+profile. The guarded store reads its bytes and selected manifest, and the
+checkpoint reconciles content, type and the canonical profile independently
+before cold execution or resume. Ambient tenant/cell, declared acquisition
+origin/config/dependencies/cache references and selected backend versions and
+configuration join state, completed frontier and original history in the same
+immutable checkpoint generation. The owning method source/ABI and ambient scope
+are checked immediately before and after each actual dispatch; a changed identity
+raises `CheckpointIdentityError` before a checkpoint acknowledges that result.
+Large CAS payloads are read once per cold/resume validation, not once per node.
+
+The declaration is a lineage premise. It grants no read permission, decodes no
+input, and does not assert that a declared cache artifact materializes a node's
+output. Callers still supply the actual initial state; both it and the refs are
+bound. The guarded store decides authorization. Strict identity supports
+inspectable classes/functions with immutable scalar/tuple captures and versioned
+imported modules. The shared artifact identity projection also binds runtime
+class helper functions, static/class methods, property accessors and immutable
+record field values. Unknown source, mutable captures, unsupported wrapped or
+dynamic descriptors, and unavailable declared runtime
+versions, missing selected views and invalid occurrence cache refs fail before
+dispatch. Mutable external effects and hostile environment mutation are outside
+this profile. Operational checkpoint frequency and persistence-error policy do
+not change numerical identity.
+
+`artifact_context=None` retains a limited request/source profile. It does not
+establish artifact, tenant or acquisition authority; unavailable mutable captures
+remain explicitly unbound. Checkpoints created before the source-identity profile
+cannot be resumed as that new profile and must be recomputed. Both profiles refuse
+an incompatible effective request rather than silently reuse the old prefix;
+partial graph recomputation is not implemented here. This is Foundry checkpoint
+validation, not Scientist cache restoration or public generation-route acceptance.

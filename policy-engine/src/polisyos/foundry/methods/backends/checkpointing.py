@@ -62,6 +62,7 @@ import json
 import logging
 import os
 import shutil
+import sys
 import time
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
@@ -72,8 +73,24 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_projection,
+    artifact_manifest_profile_sha256,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.observability import DeterminismTier
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
+from polisyos.foundry.methods.artifacts import (
+    SourceIdentityUnavailableError,
+    implementation_identity_projection,
+)
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
@@ -86,6 +103,10 @@ from polisyos.foundry.methods.backends.protocol import (
     ReproducibilityInfo,
     SolverStatus,
 )
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
+    capture_versions,
+)
 from polisyos.foundry.methods.backends.validated import (
     ValidatedBound,
     ValidatedMethodFamily,
@@ -96,9 +117,11 @@ from polisyos.foundry.methods.selection.registry import MethodRegistry, get_regi
 
 __all__ = [
     "ChainCheckpoint",
+    "CheckpointArtifactContext",
     "CheckpointDigestMismatchError",
     "CheckpointError",
     "CheckpointIssue",
+    "CheckpointIdentityError",
     "CheckpointLoadError",
     "CheckpointPublicationUncertainError",
     "CheckpointSaveError",
@@ -137,6 +160,36 @@ class CheckpointLoadError(CheckpointError):
 
 class CheckpointDigestMismatchError(CheckpointError):
     """Raised when a checkpoint's chain_digest doesn't match the current chain."""
+
+
+class CheckpointIdentityError(CheckpointError):
+    """Required source, scope or exact artifact identity cannot be established."""
+
+
+class CheckpointArtifactContext(BaseModel):
+    """Declared artifact lineage, reconciled through the supplied guarded store.
+
+    This declaration supplies identity premises, not authorization or a data
+    decoder. Every reference selects an exact manifest profile. The caller
+    supplies the actual initial state independently; its content is also bound.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    input_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    config_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    origin_ref: ArtifactRef | None = None
+    dependency_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    cache_refs: dict[UUID, ArtifactRef] = Field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class _ExecutionMethods:
+    """Resolve each actual method once for one checkpoint-bound execution."""
+
+    methods: Mapping[str, type]
+
+    def get(self, fqn: str) -> type:
+        return self.methods[fqn]
 
 
 @dataclass(frozen=True, slots=True)
@@ -188,6 +241,7 @@ class ChainCheckpoint:
     execution_digest: str | None = None
     node_results: list[dict[str, Any]] = field(default_factory=list)
     history_complete: bool = False
+    identity_snapshot: dict[str, Any] | None = None
     checkpoint_path: Path | None = field(default=None, compare=False, repr=False)
 
     # ------------------------------------------------------------------
@@ -235,6 +289,7 @@ class ChainCheckpoint:
                     "created_at": self.created_at,
                     "execution_digest": self.execution_digest,
                     "history_complete": self.history_complete,
+                    "identity_snapshot": self.identity_snapshot,
                 }
                 for sidecar_name, arr in sidecars.items():
                     sidecar_path = generation_dir / sidecar_name
@@ -326,6 +381,7 @@ class ChainCheckpoint:
                 execution_digest=data.get("execution_digest"),
                 node_results=node_results,
                 history_complete=data.get("history_complete") is True,
+                identity_snapshot=data.get("identity_snapshot"),
                 checkpoint_path=path,
             )
         except (
@@ -379,6 +435,7 @@ class CheckpointingChainExecutor:
         registry: MethodRegistry | None = None,
         dispatcher: MethodDispatcher | None = None,
         fail_on_checkpoint_error: bool = True,
+        artifact_store: ArtifactStore | None = None,
     ) -> None:
         self._checkpoint_dir = checkpoint_dir
         self._checkpoint_every = max(1, checkpoint_every)
@@ -386,6 +443,7 @@ class CheckpointingChainExecutor:
         self._dispatcher = dispatcher
         self._fail_on_checkpoint_error = fail_on_checkpoint_error
         self._checkpoint_issues: list[CheckpointIssue] = []
+        self._artifact_store = artifact_store
 
     # ------------------------------------------------------------------
     # Public API
@@ -399,6 +457,7 @@ class CheckpointingChainExecutor:
         *,
         checkpoint: ChainCheckpoint | None = None,
         seed: int = 0,
+        artifact_context: CheckpointArtifactContext | None = None,
     ) -> ChainExecutionResult:
         """
         Execute *chain*, optionally resuming from *checkpoint*.
@@ -424,15 +483,32 @@ class CheckpointingChainExecutor:
         reg = self._registry or get_registry()
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_per_node = params_per_node or {}
+        if artifact_context is not None:
+            artifact_context = _validated_artifact_context(artifact_context)
 
         chain_digest = _compute_chain_digest(chain)
         execution_digest = None
-        if checkpoint is not None or self._checkpoint_dir is not None:
+        identity_snapshot = None
+        if (
+            checkpoint is not None
+            or self._checkpoint_dir is not None
+            or artifact_context is not None
+        ):
+            reg = _ExecutionMethods(
+                {
+                    chain.get_node(node_id).method_fqn: reg.get(chain.get_node(node_id).method_fqn)
+                    for node_id in chain.execution_order
+                }
+            )
+            identity_snapshot = _capture_execution_identity(
+                chain, reg, artifact_context, self._artifact_store, seed=seed
+            )
             execution_digest = _compute_execution_digest(
                 chain,
                 initial_state=initial_state,
                 params_per_node=params_per_node,
                 seed=seed,
+                identity_snapshot=identity_snapshot,
             )
         execution_order: list[UUID] = chain.execution_order
 
@@ -461,6 +537,10 @@ class CheckpointingChainExecutor:
                 raise CheckpointDigestMismatchError(
                     "Checkpoint execution identity does not match the effective "
                     "chain plan, inputs, parameters, or seed."
+                )
+            if checkpoint.identity_snapshot != identity_snapshot:
+                raise CheckpointDigestMismatchError(
+                    "Checkpoint source, scope or selected artifact view does not match."
                 )
             skip_until = checkpoint.n_completed
             state = dict(checkpoint.intermediate_state)
@@ -511,6 +591,10 @@ class CheckpointingChainExecutor:
                 current_context=state,
                 params_per_node=params_per_node,
             )
+            if artifact_context is not None:
+                _validate_dispatch_identity(
+                    method_class, signature.fqn, identity_snapshot, seed=seed
+                )
             result = disp.dispatch(
                 method_class=method_class,
                 signature=signature,
@@ -518,6 +602,10 @@ class CheckpointingChainExecutor:
                 params=node_params,
                 seed=seed,
             )
+            if artifact_context is not None:
+                _validate_dispatch_identity(
+                    method_class, signature.fqn, identity_snapshot, seed=seed
+                )
             node_slot_outputs[node_id] = dict(result.slot_outputs)
             if isinstance(result.output, dict):
                 state.update(result.output)
@@ -539,6 +627,7 @@ class CheckpointingChainExecutor:
                     state=state,
                     execution_digest=execution_digest,
                     history_provenance_complete=history_complete,
+                    identity_snapshot=identity_snapshot,
                 )
 
         reproducibility_contract = _build_chain_reproducibility_contract(
@@ -596,6 +685,7 @@ class CheckpointingChainExecutor:
         state: dict[str, Any],
         execution_digest: str | None = None,
         history_provenance_complete: bool = True,
+        identity_snapshot: dict[str, Any] | None = None,
     ) -> None:
         if self._checkpoint_dir is None:
             raise CheckpointSaveError("checkpoint_dir is not configured")
@@ -635,6 +725,7 @@ class CheckpointingChainExecutor:
             execution_digest=execution_digest,
             node_results=node_results,
             history_complete=history_complete,
+            identity_snapshot=identity_snapshot,
         )
         try:
             chk.save(path)
@@ -666,6 +757,180 @@ class CheckpointingChainExecutor:
 # ---------------------------------------------------------------------------
 
 
+def _source_identity(value: Any, *, strict: bool) -> Any:
+    try:
+        return implementation_identity_projection(value, strict=strict)
+    except SourceIdentityUnavailableError as exc:
+        raise CheckpointIdentityError("Strict checkpoint " + str(exc)) from exc
+
+
+def _checkpoint_scope() -> dict[str, str | None]:
+    tenant = get_current_tenant_id_or_none()
+    cell = get_current_cell_id()
+    access = get_current_access_scope_or_none()
+    if access is not None:
+        if tenant is not None and tenant != access.tenant_id:
+            raise CheckpointIdentityError(
+                "Active checkpoint tenant scope disagrees with access scope."
+            )
+        if cell is not None and access.cell_id is not None and cell != access.cell_id:
+            raise CheckpointIdentityError(
+                "Active checkpoint cell scope disagrees with access scope."
+            )
+        tenant = tenant or access.tenant_id
+        cell = cell if cell is not None else access.cell_id
+    if cell is not None and tenant is None:
+        raise CheckpointIdentityError("Checkpoint cell scope lacks a tenant.")
+    return {"tenant_id": tenant, "cell_id": cell}
+
+
+def _capture_execution_identity(
+    chain: Any,
+    registry: MethodRegistry | _ExecutionMethods,
+    context: CheckpointArtifactContext | None,
+    store: ArtifactStore | None,
+    *,
+    seed: int,
+) -> dict[str, Any]:
+    strict = context is not None
+    methods: dict[str, Any] = {}
+    for node_id in chain.execution_order:
+        fqn = chain.get_node(node_id).method_fqn
+        if fqn in methods:
+            continue
+        method = registry.get(fqn)
+        methods[fqn] = _method_identity(method, fqn, strict=strict, seed=seed)
+    snapshot: dict[str, Any] = {
+        "profile": "artifact-source-v1" if strict else "legacy-request-source-v1",
+        "methods": methods,
+    }
+    if context is None:
+        return snapshot
+    if store is None:
+        raise CheckpointIdentityError("Artifact context requires a guarded artifact store.")
+    # Copy/validate nested mutable ref maps before reads; a frozen Pydantic
+    # model alone does not freeze its maps or the individual ArtifactRefs.
+    context = _validated_artifact_context(context)
+    if not set(context.cache_refs).issubset(set(chain.execution_order)):
+        raise CheckpointIdentityError(
+            "Checkpoint cache reference does not name a chain occurrence."
+        )
+    snapshot["scope"] = _checkpoint_scope()
+    snapshot["python"] = sys.version
+    snapshot["artifacts"] = {}
+    groups = {
+        "input_refs": context.input_refs,
+        "config_refs": context.config_refs,
+        "dependency_refs": context.dependency_refs,
+        "cache_refs": {str(key): ref for key, ref in context.cache_refs.items()},
+        "origin_ref": {} if context.origin_ref is None else {"origin": context.origin_ref},
+    }
+    for group, refs in groups.items():
+        resolved = {}
+        for name, ref in sorted(refs.items()):
+            if ref.manifest_profile_sha256 is None:
+                raise CheckpointIdentityError(
+                    f"Exact selected manifest view is required: {group}/{name}"
+                )
+            try:
+                data = store.get_bytes(ref)
+                manifest = store.get_manifest(ref)
+                content_hash = hashlib.sha256(data).hexdigest()
+                if (
+                    content_hash != ref.artifact_id.hex
+                    or manifest.artifact_id != ref.artifact_id
+                    or manifest.integrity.sha256 != content_hash
+                    or manifest.byte_size != len(data)
+                    or manifest.kind != ref.kind
+                    or manifest.media_type != ref.media_type
+                    or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+                ):
+                    raise CheckpointIdentityError(
+                        f"Artifact bytes or selected manifest disagree: {group}/{name}"
+                    )
+            except CheckpointIdentityError:
+                raise
+            except Exception as exc:
+                raise CheckpointIdentityError(
+                    f"Guarded artifact identity read failed: {group}/{name}: {type(exc).__name__}"
+                ) from exc
+            resolved[name] = {
+                "ref": list(artifact_ref_identity_key(ref)),
+                "manifest_profile": artifact_manifest_profile_projection(manifest),
+                "content_sha256": content_hash,
+            }
+        snapshot["artifacts"][group] = resolved
+    if snapshot["scope"] != _checkpoint_scope():
+        raise CheckpointIdentityError("Active scope changed during artifact identity reads.")
+    return snapshot
+
+
+def _validated_artifact_context(context: CheckpointArtifactContext) -> CheckpointArtifactContext:
+    try:
+        return CheckpointArtifactContext.model_validate(context.model_dump(mode="python"))
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise CheckpointIdentityError("Artifact context is not a valid typed declaration.") from exc
+
+
+def _method_identity(method: type, fqn: str, *, strict: bool, seed: int) -> dict[str, Any]:
+    signature = getattr(method, "signature", None)
+    digest = getattr(signature, "stable_digest", None)
+    if strict and (digest is None or not callable(getattr(method, "pure_step", None))):
+        raise CheckpointIdentityError(f"Current method ABI or implementation is unavailable: {fqn}")
+    entry = {
+        "signature_digest": digest() if digest is not None else None,
+        "class_source": _source_identity(method, strict=strict),
+        "callbacks": {
+            name: _source_identity(callback, strict=strict)
+            for name in (
+                "pure_step",
+                "materialize_input",
+                "dematerialize_output",
+                "postprocess_output",
+            )
+            if callable(callback := getattr(method, name, None))
+        },
+    }
+    if strict:
+        posture = capture_backend_runtime_fingerprint(
+            signature.backend, method_class=method, seed=seed
+        )
+        if not posture.available:
+            raise CheckpointIdentityError(f"Current backend identity is unavailable: {fqn}")
+        if any(
+            not capture_versions(base_packages=(), runtime_stack=(package,))
+            for package in posture.runtime_stack
+        ):
+            raise CheckpointIdentityError(
+                f"Declared runtime dependency version is unavailable: {fqn}"
+            )
+        entry["runtime"] = {
+            "backend": posture.backend.value,
+            "runtime_stack": list(posture.runtime_stack),
+            "library_versions": dict(posture.library_versions),
+            "execution_device": posture.execution_device,
+            "runtime_backend": posture.runtime_backend,
+            "route_key": dict(posture.route_key),
+            "determinism_tier": None
+            if posture.determinism_tier is None
+            else posture.determinism_tier.value,
+        }
+    return entry
+
+
+def _validate_dispatch_identity(
+    method: type, fqn: str, snapshot: dict[str, Any], *, seed: int
+) -> None:
+    """Fence actual source/scope around dispatch without rereading large CAS inputs."""
+    if (
+        _method_identity(method, fqn, strict=True, seed=seed) != snapshot["methods"][fqn]
+        or _checkpoint_scope() != snapshot["scope"]
+    ):
+        raise CheckpointIdentityError(
+            "Strict checkpoint identity changed during execution or dispatch."
+        )
+
+
 def _compute_chain_digest(chain: Any) -> str:
     """SHA-256 of the execution-order FQN list."""
     fqns = []
@@ -681,6 +946,7 @@ def _compute_execution_digest(
     initial_state: Mapping[str, Any],
     params_per_node: Mapping[UUID, Mapping[str, Any]],
     seed: int,
+    identity_snapshot: Mapping[str, Any] | None = None,
 ) -> str:
     """Bind a checkpoint to the effective execution request.
 
@@ -768,6 +1034,7 @@ def _compute_execution_digest(
             },
             "initial_state": dict(initial_state),
             "seed": seed,
+            "identity_snapshot": identity_snapshot,
         }
     )
 

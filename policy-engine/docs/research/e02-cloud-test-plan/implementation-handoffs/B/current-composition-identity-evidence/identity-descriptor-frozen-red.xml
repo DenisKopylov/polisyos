@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="35" time="8.166" timestamp="2026-10-06T11:34:06.905306+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_registry_source_or_abi_replacement_refuses_original_history[source]" time="0.172" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_registry_source_or_abi_replacement_refuses_original_history[abi]" time="0.076" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_unrelated_registration_preserves_exact_effective_checkpoint_request" time="0.077" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_exact_selected_artifact_view_resumes_real_required_suffix_and_joint_generation" time="0.329" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[input-content]" time="0.239" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[input-view]" time="0.247" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[config-content]" time="0.234" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[config-origin]" time="0.226" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[same-content-new-origin]" time="0.230" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[dependency]" time="0.236" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[cache-content]" time="0.231" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[cache-view]" time="0.233" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[input-role]" time="0.226" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_cas_identity_change_refuses_before_required_suffix[legacy-profile]" time="0.199" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_protected_checkpoint_refuses_changed_actual_ambient_scope[scope0]" time="0.268" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_protected_checkpoint_refuses_changed_actual_ambient_scope[scope1]" time="0.288" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_strict_unestablished_ref_identity_refuses_before_any_dispatch[no-store]" time="0.116" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_strict_unestablished_ref_identity_refuses_before_any_dispatch[selector-missing]" time="0.116" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_strict_unestablished_ref_identity_refuses_before_any_dispatch[unknown-cache-node]" time="0.109" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_strict_unestablished_ref_identity_refuses_before_any_dispatch[tampered-blob]" time="0.126" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_strict_unestablished_ref_identity_refuses_before_any_dispatch[missing-selected-view]" time="0.125" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_strict_unestablished_ref_identity_refuses_before_any_dispatch[forged-kind]" time="0.115" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_strict_unavailable_actual_source_is_typed_refusal_not_artifact_authority" time="0.109" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_same_source_signature_new_immutable_capture_refuses_actual_stale_output" time="0.287" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_source_class_attribute_change_refuses_actual_stale_output" time="0.281" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_class_helper_replacement_refuses_stale_required_resume[static]" time="0.446"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla0')
+descriptor = 'static'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+&gt;       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_class_helper_replacement_refuses_stale_required_resume[class]" time="0.428"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla1')
+descriptor = 'class'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+&gt;       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_class_helper_replacement_refuses_stale_required_resume[method]" time="0.421"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla2')
+descriptor = 'method'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+&gt;       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_class_helper_replacement_refuses_stale_required_resume[property]" time="0.432"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla3')
+descriptor = 'property'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+&gt;       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_consumed_frozen_metadata_change_refuses_stale_resume" time="0.329"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_consumed_frozen_me0')
+
+    def test_actual_consumed_frozen_metadata_change_refuses_stale_resume(tmp_path):
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = MethodMetadata(description="2")
+    
+            @staticmethod
+            def pure_step(state, params):
+                return {"product": state["x"] * int(Source.metadata.description)}
+    
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        assert (
+            executor.execute(chain, initial_state={"x": 3}, artifact_context=context).final_state[
+                "total"
+            ]
+            == 7
+        )
+        checkpoint = ChainCheckpoint.load(next((tmp_path / "checkpoints").glob("*_0000_*.json")))
+        Source.metadata = MethodMetadata(description="3")
+        assert (
+            CheckpointingChainExecutor(registry=registry)
+            .execute(chain, initial_state={"x": 3})
+            .final_state["total"]
+            == 10
+        )
+        dispatcher.calls.clear()
+&gt;       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:682: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_mutable_source_capture_is_explicit_strict_boundary" time="0.152" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_registry_change_during_actual_producer_uses_pinned_source_snapshot" time="0.258" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_source_mutation_during_dispatch_cannot_ack_old_identity" time="0.169" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_declared_runtime_dependency_without_exact_version_refuses_strict_dispatch" time="0.113" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_operational_checkpoint_policy_change_reuses_actual_numerical_prefix" time="0.275" /></testsuite></testsuites>

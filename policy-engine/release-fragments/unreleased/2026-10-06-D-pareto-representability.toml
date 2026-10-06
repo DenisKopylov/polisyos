@@ -1,0 +1,24 @@
+id = "2026-10-06-D-pareto-representability"
+title = "Distinguish positive quantity underflow and refuse invalid MO references"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "persisted-artifact-format"
+surface_classification = "internal"
+summary = "The existing shared1–4D float64 quantity adapter carries positive-box zero underflow as unavailable/null instead of available0. Native MO reference admission validates derived spans and reference values before model construction; single/batch suggestion propagate invalid_reference_point rather than random fallback. Full-coordinate readback also binds every missing/non-finite omission ID to the current schema, including no-usable-input fronts. Paired reindexing is checked through actual CAS and native reader/dominance consumers."
+compatibility = "Finite representable quantities and genuine boundary/outside-reference zero retain their meanings. Existing available/unavailable assessments remain readable; current writers may emit the additional nonzero_derived_hypervolume_underflow reason. Native optimization with unsupported float64 reference arithmetic now raises a typed ValueError before fitting instead of returning random fallback, including an overflowing intermediate span whose exact rearranged final reference could be finite."
+migration = "Preserve null and the complete assessment through persistence and indicator consumers. No hypervolume stopping adapter is wired. Treat invalid_reference_point as refusal of the unsupported numeric profile. Preserve original inputs; independently justify any changed units/reference rather than silently rewriting the scientific basis. Coordinate definitions, versions, values, reference keys and omission IDs move together when axes are renamed or reindexed."
+evidence = ["tests/unit/scientist/methods/autotune/test_hypervolume_representability.py", "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py"]
+limitations = "Float64 supported dimensions1–4 only;3/4D require pinned CPU BoTorch0.16.1/Torch2.10.0. No arbitrary precision, optimization-quality, population-law, source authority or external A denominator/exporter claim."
+
+[[compatibility_change]]
+id = "D-Pareto-range-refusal"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: Pareto hypervolume assessment and native MO reference admission"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Positive geometry underflow is unavailable, and unsupported derived references refuse before fitting or random fallback."
+migration_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/generator-quantity-migration.md"]
+runbook_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/generator-quantity-migration.md"]

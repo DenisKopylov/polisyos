@@ -649,7 +649,7 @@ def _load_core_ingest_context(
     }
     blocked = bool(
         observation_count <= 0
-        and stage_status == "running"
+        and stage_status in {"running", "warning"}
         and (
             current_phase in {"planning", "blocked_sources"}
             or blocked_by_source

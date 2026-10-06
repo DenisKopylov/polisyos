@@ -328,6 +328,218 @@ def test_graph_receipts_bind_database_after_selected_downstream_writers(
     assert not _should_skip_stage(config, "graph_index")
 
 
+def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from datetime import UTC, datetime
+
+    import pandas as pd
+
+    from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetRecord,
+        DistributionRecord,
+    )
+    from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "sources:",
+                "  - name: worldbank",
+                "    family: worldbank",
+                "    wave: A",
+                "    endpoint: https://example.test/worldbank",
+                "    connector_id: worldbank.wdi",
+                "    profile_id: worldbank_wdi",
+                "    enabled: true",
+                "    execution_tier: transport_ready",
+                "    run_lane: empirical",
+                "    publish_blocking: true",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        registry_path=registry_path,
+        stages=frozenset({"core_sources_ingest", "benchmark"}),
+        run_profile="preflight_core",
+        promoted_sources=("worldbank",),
+        preflight_sources=("worldbank",),
+        active_countries=("UA",),
+        active_year_window=(2020, 2020),
+        observation_mode="core",
+        max_datasets_per_source=1,
+    )
+    record = DatasetRecord(
+        id="wb-gdp",
+        title="GDP per capita",
+        description="GDP per capita",
+        source="worldbank",
+        source_portal="worldbank",
+        dataset_id="NY.GDP.PCAP.PP.CD",
+        source_dataset_id="NY.GDP.PCAP.PP.CD",
+        execution_tier="transport_ready",
+        update_frequency="annual",
+        polisyos_metrics=["gdp_per_capita"],
+        variables=["NY.GDP.PCAP.PP.CD"],
+        preferred_distribution_id="dist-wb",
+        distributions=[
+            DistributionRecord(
+                id="dist-wb",
+                connector_type="worldbank.wdi",
+                profile_id="worldbank_wdi",
+                source_locator="NY.GDP.PCAP.PP.CD",
+                parser_supported=True,
+                machine_readable=True,
+            )
+        ],
+    )
+    build_graph(records=[record], db_path=config.db_path)
+
+    async def _describe_dataset(
+        _connector: WorldBankConnector, _handle: object, dataset_id: str
+    ) -> DatasetCapabilitySnapshot:
+        return DatasetCapabilitySnapshot(
+            source="worldbank",
+            dataset_id=dataset_id,
+            resolved_dataset_id=dataset_id,
+            last_checked_at=datetime.now(UTC),
+        )
+
+    fetch_state = {"fail": False}
+
+    async def _fetch_dataset(
+        _connector: WorldBankConnector, _handle: object, _request: object
+    ) -> object:
+        if fetch_state["fail"]:
+            raise RuntimeError("fixture World Bank fetch failure")
+        return type(
+            "WorldBankFixtureResult",
+            (),
+            {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])},
+        )()
+
+    monkeypatch.setattr(WorldBankConnector, "describe_dataset", _describe_dataset)
+    monkeypatch.setattr(WorldBankConnector, "fetch", _fetch_dataset)
+
+    stats = run_dataset_pipeline_sync(config)
+
+    assert stats.metrics["core_observations"] == 1
+    state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))["core_sources_ingest"]
+    producer_manifest = json.loads(
+        (config.manifests_dir / "core_sources_ingest.json").read_text(encoding="utf-8")
+    )
+    benchmark = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+
+    assert producer_manifest["status"] == "ok"
+    assert producer_manifest["metrics"]["completed_shards"] == 1
+    assert state["metadata"]["publishable_core_complete"] is True
+    assert state["metadata"]["publishable_core_pending"] == 0
+    assert state["metadata"]["source_core_completion_pct"] == {"worldbank": 100.0}
+    assert state["status"] == "complete"
+    assert state.get("input_basis") is None
+    assert state.get("output_inventory") is None
+    assert benchmark["evaluation_mode"] == "full-ready"
+
+    retry_config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "retry-snapshot",
+        registry_path=registry_path,
+        stages=frozenset({"core_sources_ingest", "benchmark"}),
+        run_profile="preflight_core",
+        promoted_sources=("worldbank",),
+        preflight_sources=("worldbank",),
+        active_countries=("UA",),
+        active_year_window=(2020, 2020),
+        observation_mode="core",
+        max_datasets_per_source=1,
+        resume=True,
+        resume_mode="force",
+    )
+    build_graph(records=[record], db_path=retry_config.db_path)
+    retry_config.stage_state_path.parent.mkdir(parents=True, exist_ok=True)
+    retry_config.stage_state_path.write_text(
+        json.dumps({"core_sources_ingest": state}), encoding="utf-8"
+    )
+
+    fetch_state["fail"] = True
+    failed_stats = run_dataset_pipeline_sync(retry_config)
+    failed_state = json.loads(retry_config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]
+    failed_manifest = json.loads(
+        (retry_config.manifests_dir / "core_sources_ingest.json").read_text(encoding="utf-8")
+    )
+    deferred_shards = json.loads(
+        (retry_config.manifests_dir / "deferred_observation_plans.json").read_text(encoding="utf-8")
+    )
+    failed_benchmark = json.loads(retry_config.benchmark_report_path.read_text(encoding="utf-8"))
+    failed_checkpoint = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        failed_observation_count = con.execute(
+            "SELECT count(*) FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchone()[0]
+
+    successful_shards = json.loads(
+        (config.manifests_dir / "completed_observation_shards.json").read_text(encoding="utf-8")
+    )
+    assert failed_stats.metrics["core_failures"] == 1
+    assert failed_manifest["status"] == "warning"
+    assert failed_state["status"] == "warning"
+    assert failed_state["metadata"]["publishable_core_complete"] is False
+    assert failed_state["metadata"]["publishable_core_pending"] == 1
+    assert failed_state["metadata"]["source_core_completion_pct"] == {"worldbank": 0.0}
+    assert failed_state["metadata"]["subphases"]["publishable_core"] == {
+        "status": "running",
+        "remaining": 1,
+    }
+    assert deferred_shards[0]["shard_id"] == successful_shards[0]["shard_id"]
+    assert failed_checkpoint["deferred"][deferred_shards[0]["shard_id"]]["status"] == "deferred"
+    assert deferred_shards[0]["shard_id"] not in failed_checkpoint["completed"]
+    assert failed_observation_count == 0
+    assert failed_benchmark["evaluation_mode"] == "partial-eval"
+
+    fetch_state["fail"] = False
+    retried_stats = run_dataset_pipeline_sync(retry_config)
+    retried_state = json.loads(retry_config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]
+    retried_shards = json.loads(
+        (retry_config.manifests_dir / "completed_observation_shards.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    retried_benchmark = json.loads(retry_config.benchmark_report_path.read_text(encoding="utf-8"))
+    retried_checkpoint = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        persisted_observations = con.execute(
+            "SELECT dataset_id, raw_variable, country_code, year, value "
+            "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchall()
+
+    assert retried_stats.metrics["core_failures"] == 0
+    assert retried_state["status"] == "complete"
+    assert retried_state["metadata"]["publishable_core_complete"] is True
+    assert retried_state["metadata"]["publishable_core_pending"] == 0
+    assert retried_shards[0]["shard_id"] == deferred_shards[0]["shard_id"]
+    assert (
+        retried_checkpoint["completed"][retried_shards[0]["shard_id"]]["status"]
+        == "complete_with_rows"
+    )
+    assert retried_shards[0]["shard_id"] not in retried_checkpoint["deferred"]
+    assert persisted_observations == [("wb-gdp", "NY.GDP.PCAP.PP.CD", "UA", 2020, 1.1)]
+    assert retried_benchmark["evaluation_mode"] == "full-ready"
+
+
 def test_core_sources_ingest_is_not_resumed_without_bound_fetch_receipt(tmp_path) -> None:
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",

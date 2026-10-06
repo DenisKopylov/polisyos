@@ -838,11 +838,6 @@ async def run_dataset_pipeline(
                 stats.metrics["core_observations_inserted"] = cstats.observations_inserted
                 stats.metrics["core_observations_replaced"] = cstats.observations_replaced
                 stats.metrics["core_failures"] = cstats.failures
-                _record_stage_completion(
-                    config,
-                    "core_sources_ingest",
-                    metadata={"failures": cstats.failures, "observations": cstats.observations},
-                )
 
         # These stages share a DuckDB artifact, and core-source ingestion may
         # update it after graph/index construction. Record both receipts after

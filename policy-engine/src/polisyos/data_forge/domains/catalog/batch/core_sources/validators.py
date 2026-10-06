@@ -1108,6 +1108,8 @@ def _write_core_ingest_stage_progress(
     config: DatasetBatchConfig,
     *,
     metadata: dict[str, Any],
+    status: str = "running",
+    input_fingerprint: str | None = None,
 ) -> None:
     state = load_json(config.stage_state_path, default={})
     if not isinstance(state, dict):
@@ -1116,12 +1118,16 @@ def _write_core_ingest_stage_progress(
     if not isinstance(current, dict):
         current = {}
     state["core_sources_ingest"] = {
-        "status": "running",
-        "input_fingerprint": str(current.get("input_fingerprint", "")),
+        "status": str(status),
+        "input_fingerprint": str(
+            current.get("input_fingerprint", "") if input_fingerprint is None else input_fingerprint
+        ),
         "outputs": [str(config.db_path)],
         "metadata": metadata,
     }
     write_json(config.stage_state_path, state)
+
+
 def _chunked_observation_requests(
     *,
     plan: ObservationPlan,

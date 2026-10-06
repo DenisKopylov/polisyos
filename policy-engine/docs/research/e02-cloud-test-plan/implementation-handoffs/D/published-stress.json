@@ -1,0 +1,1054 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "published-stopping-stress",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B41",
+    "B122",
+    "B106",
+    "B107"
+  ],
+  "bundle_ids": [
+    "STP-01",
+    "STR-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "publication_anchor_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "implementation_commits": [
+    "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+    "6e7ca714de6462bc5dc40feeb75f8ace6b59d64d",
+    "592b6943c198b1b08295708bf065f29c635339fe"
+  ],
+  "candidate_tree_sha": "1bcde59c9d99d85bc5e722fac5babc03e4fb8f74",
+  "branch": "codex/e02-D-published-stress",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-stopping-stress-profile.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "policy-engine/tests/unit/scientist/search/README.md",
+    "policy-engine/tests/unit/scientist/search/queue5_removal_controls.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+    "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+  ],
+  "source_input_bindings": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-stopping-stress-profile.toml",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "299c78feef3242169c6072f67c9f19b5b61fe8955c0e7d0c5e1ed9136e16879b",
+      "bytes": 3467
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "029be8eba27a7ee0be9067d96feb9fb918201f982c631cb13791965af7f9b818",
+      "bytes": 7514
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "6766a3bdf3575885e7d304d3b0064a56bc37de2268af747b743f9cfbbdc98b4b",
+      "bytes": 37080
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "a56a6d60874a44335b27cfb0bd62bef914516b353f09276e83b037d4fc1aa1e2",
+      "bytes": 16566
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "50be760cd99772cab25a0613494e264d468182b3507cdda7ea3f7ebda2b5664d",
+      "bytes": 1248
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff",
+      "bytes": 5129
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "a7b7c7bfd7d0e83f6e2306484c42b78eeb0f8fe16afffc90c749b4b0621a8dce",
+      "bytes": 2076
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5",
+      "bytes": 11914
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/README.md",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "8fe5f4650af66d70a940a4a96840f123b09c0149b0db3f5aa6e5a80e1abef62a",
+      "bytes": 757
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/queue5_removal_controls.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "f19ea76a9b7473f6646fa850db84379638c04ad680817a2f3bbdb4431a3a8503",
+      "bytes": 3422
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "4afd6424485fcbaeb9a4b6e9f468d5d0f297bc95596a278e6d8bd34af1cfe9fa",
+      "bytes": 19728
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+      "bytes": 10766
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818",
+      "bytes": 36072
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "0d41b7dd0330b9d466a13d4091e042e223c129c1b3a6a9c4f90c7c593b9edfaf",
+      "bytes": 19089,
+      "role": "read-only shared/runtime or verification input"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "1fe6bd289de0ba9582628442111f984bb7928184250d1de9464e94b3e57d8290",
+      "bytes": 9995,
+      "role": "read-only shared/runtime or verification input"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+      "bytes": 20691,
+      "role": "read-only shared/runtime or verification input"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "f6a76e683ef4fa3519d9af056e5b1466e2a26f2a8da4126d0353d9aa2b70bd17",
+      "bytes": 2479,
+      "role": "read-only shared/runtime or verification input"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "role": "read-only shared/runtime or verification input"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715,
+      "role": "read-only shared/runtime or verification input"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d",
+      "bytes": 220738,
+      "role": "read-only shared/runtime or verification input"
+    }
+  ],
+  "criterion_bindings": [
+    {
+      "finding_id": "B106",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966",
+      "byte_start": 4637,
+      "byte_end_exclusive": 7630,
+      "criterion_block_sha256": "fcd8dace0572a1897e5e00bfbc84a115dc8da2234b19a7fb95d4e0ac4d767114",
+      "canonical_original": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "lines": [
+          2738,
+          2749
+        ],
+        "byte_start": 614780,
+        "byte_end_exclusive": 617772,
+        "criterion_block_sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+      },
+      "task_anchor": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md#bundle-str-01"
+    },
+    {
+      "finding_id": "B107",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966",
+      "byte_start": 7832,
+      "byte_end_exclusive": 11071,
+      "criterion_block_sha256": "0c19dcfe01e3f6075253552bf9db59e5c9a2bb5a14327333d16c40c1a99e30df",
+      "canonical_original": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "lines": [
+          2750,
+          2761
+        ],
+        "byte_start": 617772,
+        "byte_end_exclusive": 621010,
+        "criterion_block_sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+      },
+      "task_anchor": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md#bundle-str-01"
+    },
+    {
+      "finding_id": "B122",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c",
+      "byte_start": 8035,
+      "byte_end_exclusive": 11148,
+      "criterion_block_sha256": "3e0a030982f4ef928341cd7b3927baa2ae7883c047ecf6a1a620d486c6756ba6",
+      "canonical_original": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "lines": [
+          3222,
+          3235
+        ],
+        "byte_start": 727307,
+        "byte_end_exclusive": 730419,
+        "criterion_block_sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c"
+      },
+      "task_anchor": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md#bundle-stp-01"
+    },
+    {
+      "finding_id": "B41",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c",
+      "byte_start": 4754,
+      "byte_end_exclusive": 7834,
+      "criterion_block_sha256": "46644b2b831773c843084c9da04c1045494e3d7aa6ea6012bf229e1bd5799315",
+      "canonical_original": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "lines": [
+          770,
+          783
+        ],
+        "byte_start": 157036,
+        "byte_end_exclusive": 160115,
+        "criterion_block_sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a"
+      },
+      "task_anchor": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md#bundle-stp-01"
+    }
+  ],
+  "baseline_cells": [
+    "F01-P022",
+    "F02-P029",
+    "F02-P067",
+    "F03-P026",
+    "F04-P120",
+    "F05-P042",
+    "F06-P046",
+    "F06-P088",
+    "F08-P120",
+    "F09-P032",
+    "F09-P035",
+    "F09-P068",
+    "F10-P068",
+    "F11-P031",
+    "F11-P034",
+    "F13-P031",
+    "F15-P028",
+    "F15-P079",
+    "F15-P142"
+  ],
+  "baseline_navigation": {
+    "input_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "route_path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+    "route_sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2",
+    "complete_relevant_route_count": 38,
+    "distinct_cells": 19,
+    "finding_cells": {
+      "B106": [
+        "F02-P067",
+        "F04-P120",
+        "F06-P088",
+        "F08-P120",
+        "F09-P068",
+        "F10-P068",
+        "F15-P079",
+        "F15-P142"
+      ],
+      "B107": [
+        "F02-P067",
+        "F04-P120",
+        "F06-P088",
+        "F08-P120",
+        "F09-P068",
+        "F10-P068",
+        "F15-P079",
+        "F15-P142"
+      ],
+      "B122": [
+        "F01-P022",
+        "F02-P029",
+        "F03-P026",
+        "F05-P042",
+        "F06-P046",
+        "F09-P032",
+        "F09-P035",
+        "F11-P031",
+        "F11-P034",
+        "F13-P031",
+        "F15-P028"
+      ],
+      "B41": [
+        "F01-P022",
+        "F02-P029",
+        "F03-P026",
+        "F05-P042",
+        "F06-P046",
+        "F09-P032",
+        "F09-P035",
+        "F11-P031",
+        "F11-P034",
+        "F13-P031",
+        "F15-P028"
+      ]
+    },
+    "interpretation": "Source-reported historical PASS cells are navigation, not candidate closure; original backend/raw independently established status remains not_established."
+  },
+  "checks": [
+    {
+      "name": "final-origin",
+      "outcome": "PASS",
+      "target_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-c",
+        "import pathlib,sys; from polisyos.scientist.methods.search import stopping,adversarial; from polisyos.scientist.orchestration.engine import convergence; print(sys.version); print(sys.executable); expected=pathlib.Path.cwd().resolve(); [(print(m.__file__), None if pathlib.Path(m.__file__).resolve().is_relative_to(expected) else (_ for _ in ()).throw(AssertionError(m.__file__))) for m in (stopping,adversarial,convergence)]"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 11.328235296998173,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-origin.txt",
+        "sha256": "fa1213caf4c13e5a47eda50db07947c31699770bb3ce218d5b229b7b5dfdf94a",
+        "bytes": 458
+      },
+      "deciding_result": "Locked Python 3.14.7 and all checked module origins belong to immutable 592b694 archive.",
+      "expected_exit_code": 0,
+      "max_rss_kib": 1148988,
+      "max_rss_scope": "cumulative child high-water mark in sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "final-focused",
+      "outcome": "PASS",
+      "target_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 50.39365532199736,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-focused.txt",
+        "sha256": "6afdb992ac4182124bc98491f3db976d9f21ae032a3b0b0e93838eb42f1e8ffc",
+        "bytes": 759
+      },
+      "deciding_result": "117 passed, 2 PyTorch Python3.14 deprecation warnings; complete selected files.",
+      "expected_exit_code": 0,
+      "max_rss_kib": 1328864,
+      "max_rss_scope": "cumulative child high-water mark in sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "final-removal-absolute_tolerance",
+      "outcome": "FAIL",
+      "target_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "--case",
+        "absolute_tolerance",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 13.754752765002195,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-removal-absolute_tolerance.txt",
+        "sha256": "ffc973bc68aefe86e3a9fbfea4fd3963006f12d1c8a1008c1e5e26ea1300e349",
+        "bytes": 27168
+      },
+      "deciding_result": "Expected falsifier:13 assertion failures/10 passes with profile markers retained and absolute tolerance removed.",
+      "expected_exit_code": 1,
+      "max_rss_kib": 1328864,
+      "max_rss_scope": "cumulative child high-water mark in sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "final-ruff-check",
+      "outcome": "PASS",
+      "target_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/methods/search/adversarial.py",
+        "src/polisyos/scientist/methods/search/stopping.py",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_search_loop.py"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.0540653779899003,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-ruff-check.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "deciding_result": "All changed Python paths pass Ruff.",
+      "expected_exit_code": 0,
+      "max_rss_kib": 1328864,
+      "max_rss_scope": "cumulative child high-water mark in sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "final-ruff-format",
+      "outcome": "PASS",
+      "target_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/methods/search/adversarial.py",
+        "src/polisyos/scientist/methods/search/stopping.py",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_search_loop.py"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-592b6943c/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.04785622800409328,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/final-ruff-format.txt",
+        "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+        "bytes": 27
+      },
+      "deciding_result": "All10 changed Python paths already formatted.",
+      "expected_exit_code": 0,
+      "max_rss_kib": 1328864,
+      "max_rss_scope": "cumulative child high-water mark in sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "immutable-focused-configured",
+      "outcome": "PASS",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "--import-mode=importlib",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 49.098674939988996,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/immutable-focused-configured.txt",
+        "sha256": "972edd51021c03e0ba02ce77af89d9e59e1802ac82664673c7f2474399c2a3b0",
+        "bytes": 759
+      },
+      "deciding_result": "Exact b85 archive:112 passed, 2 warnings after importlib collection restored.",
+      "max_rss_kib": 1330276,
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "harness_correction": "Preserve repository importlib collection while overriding only duplicate quiet flags for explicit pytest summary; preceding immutable-focused collection ERROR retained."
+    },
+    {
+      "name": "immutable-focused",
+      "outcome": "ERROR",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 2,
+      "wall_seconds": 17.694015836998005,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/immutable-focused.txt",
+        "sha256": "e077c0f87dac354f6484a508f447858347b8197abef868257bde9de31c864824",
+        "bytes": 1730
+      },
+      "deciding_result": "Harness collection error: overriding addopts dropped configured importlib collection; retained complete error and corrected replay.",
+      "expected_exit_code": 0,
+      "max_rss_kib": 1309616,
+      "max_rss_scope": "cumulative child high-water mark in this sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "removal-absolute_tolerance",
+      "outcome": "FAIL",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "--case",
+        "absolute_tolerance",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 13.77605719899293,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-absolute_tolerance.txt",
+        "sha256": "bd1bb26a1b94581b853cf37176601a1450447fb9c2d0b74b692f6f845c68da94",
+        "bytes": 26139
+      },
+      "deciding_result": "Expected falsifier on b85:12 failures/10 passes.",
+      "expected_exit_code": 1,
+      "max_rss_kib": 1309616,
+      "max_rss_scope": "cumulative child high-water mark in this sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "removal-current_embedding",
+      "outcome": "FAIL",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "--case",
+        "current_embedding",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 1.3674371230008546,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-current_embedding.txt",
+        "sha256": "5d58ac619c9f5a509d72a6d02d56a2715f63ed3c1293aedce501f88671bd8a81",
+        "bytes": 6386
+      },
+      "deciding_result": "Expected falsifier on b85:4 failures/2 passes; dimension defense also exists in cosine itself.",
+      "expected_exit_code": 1,
+      "max_rss_kib": 1309616,
+      "max_rss_scope": "cumulative child high-water mark in this sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "removal-payload_bound",
+      "outcome": "FAIL",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "--case",
+        "payload_bound",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/search/test_adversarial_streaming.py::test_full_vulnerability_payloads_are_bounded_during_real_run",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 24.947009605995845,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-payload_bound.txt",
+        "sha256": "1992f095a93dcb8472c4f10bf2cf462db7b10ef402c4a1b41410580eb1afdce2",
+        "bytes": 1682
+      },
+      "deciding_result": "Expected falsifier on b85:1 assertion failure while counters/capped examples remain intact.",
+      "expected_exit_code": 1,
+      "max_rss_kib": 1309616,
+      "max_rss_scope": "cumulative child high-water mark in this sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "removal-objective_direction",
+      "outcome": "FAIL",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "--case",
+        "objective_direction",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/search/test_adversarial_streaming.py::test_typed_adaptive_extremum_and_best_feedback_survive_cas",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 13.682621642001322,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-objective_direction.txt",
+        "sha256": "d1e40d1239b0a2c807ee69853eb0f0a40ca776ae9f9759455f3ddf2077e961c7",
+        "bytes": 4896
+      },
+      "deciding_result": "Expected falsifier on b85:both typed adaptive GDP/cost physical oracles fail.",
+      "expected_exit_code": 1,
+      "max_rss_kib": 1309616,
+      "max_rss_scope": "cumulative child high-water mark in this sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "removal-scenario_fraction",
+      "outcome": "FAIL",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "--case",
+        "scenario_fraction",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/search/test_adversarial_streaming.py::test_repeated_scenarios_are_not_unique_issue_denominator",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 13.261072786990553,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-scenario_fraction.txt",
+        "sha256": "2736917058d1856c561c9decdae56523ae17427c833ce6e40ec7074a5fd225f8",
+        "bytes": 4006
+      },
+      "deciding_result": "Expected falsifier on b85:both top-k controls fail when score uses retained issues.",
+      "expected_exit_code": 1,
+      "max_rss_kib": 1309616,
+      "max_rss_scope": "cumulative child high-water mark in this sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "removal-zero_denominator",
+      "outcome": "FAIL",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/search/queue5_removal_controls.py",
+        "--case",
+        "zero_denominator",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/search/test_adversarial_streaming.py::test_unknown_outcomes_are_separate_from_finite_fraction",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 13.529246092002722,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/removal-zero_denominator.txt",
+        "sha256": "18af96fc3fc41b5b3b91f30b74de27277c253afab9b63e57971333a310b69765",
+        "bytes": 1956
+      },
+      "deciding_result": "Expected falsifier on b85:all-unknown outcome fails when unavailable score becomes numeric.",
+      "expected_exit_code": 1,
+      "max_rss_kib": 1309616,
+      "max_rss_scope": "cumulative child high-water mark in this sequential capture process",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "name": "slice-base-final-tests",
+      "outcome": "FAIL",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "--import-mode=importlib",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D2-receipts/stress/slice-base-198-tests-b85/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 50.3906903169991,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/slice-base-final-tests.txt",
+        "sha256": "f9641ed8ea261ee2b7190faf9ec08aece90de6be437bd492058a5bf15c8b0ed4",
+        "bytes": 77985
+      },
+      "deciding_result": "Exact admitted198 production + exact b85 final test bytes:48 failed/64 passed; no inherited-red exclusion.",
+      "max_rss_kib": 1330576,
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "test_source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0"
+    },
+    {
+      "name": "patience-before",
+      "outcome": "FAIL",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "/workspace/e02-D-published-stress/policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "-k",
+        "malformed_patience",
+        "-ra"
+      ],
+      "cwd": "/workspace/e02-D-published-stress/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 18.86248950001027,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/patience-before.txt",
+        "sha256": "956204e54dfad2f2f96cd14f64309676ff17f53cf84cb73f863f696f3b0e92c9",
+        "bytes": 3399
+      },
+      "deciding_result": "Exact b85 stopping implementation + exact final limitation-test bytes:3 failed/1 passed/3 deselected.",
+      "test_input": {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+        "sha256": "50be760cd99772cab25a0613494e264d468182b3507cdda7ea3f7ebda2b5664d"
+      }
+    },
+    {
+      "name": "production-invocation",
+      "outcome": "ERROR",
+      "target_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tools/quality/validation/check_production_invocation.py",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-D2-receipts/stress/production-invocation.json"
+      ],
+      "cwd": "/workspace/e02-D-published-stress/policy-engine",
+      "exit_code": -9,
+      "wall_seconds": 248.3964029750059,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/production-invocation.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "deciding_result": "Full static invocation diagnostic ended by SIGKILL, return−9; no report or predicate verdict. Cause not established.",
+      "max_rss_kib": 7175376,
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_binding_limitation": "The helper reads the full tracked working-tree denominator into memory; no completed census hash/report was produced. The invocation started at b85; subsequent small stopping companion commits do not turn this incomplete diagnostic into an exact-final-source verdict."
+    }
+  ],
+  "property": {
+    "statement": "Declared-unit signed plateau tolerance and finite per-scenario empirical stress accounting independent of grouping/top-k; current embedding admission preserved.",
+    "runtime_path": [
+      "SearchController -> StoppingCriterion.check -> plateau condition -> actual stop/best candidate",
+      "AdversarialPlan -> typed CompositeObjective -> finite evaluation admission/scenario counters -> StressTestReport -> FileSystemCAS canonical JSON -> reopen/model_validate",
+      "ScenarioAdversaryWorker.execute -> run_stress_test -> report ArtifactRef -> CAS reopen"
+    ],
+    "profile": {
+      "version": "1.0",
+      "version_role": "formula identifier; custom coefficients do not assert canonical default-coefficient equivalence",
+      "default_absolute_tolerance": 0.01,
+      "default_relative_tolerance": 0.01,
+      "unit_role": "caller-declared objective unit; conversions scale absolute tolerance",
+      "gain": "recent_best-historical_best for maximize; historical_best-recent_best for minimize",
+      "predicate": "gain <= max(absolute_tolerance,relative_tolerance*abs(historical_best))"
+    },
+    "stress_counts": "Each attempted scenario contributes at most one finite violation; issue occurrences/severity are separate and counted before presentation grouping/top-k.",
+    "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated; zero denominator unavailable",
+    "score_scope": "observed_finite_scenarios; incomplete/unknown remains partial/conditional; even complete planned sampling is not population probability or model uncertainty",
+    "negative_controls": [
+      "absolute_tolerance",
+      "current_embedding",
+      "payload_bound",
+      "objective_direction",
+      "scenario_fraction",
+      "zero_denominator"
+    ],
+    "proxy_divergence": "Native typed GDP/cost adapters, actual adaptive best feedback, actual controller stopping and worker/CAS chain are exercised; no proxy objective substitutes the new deciding typed witnesses."
+  },
+  "shared_schema": "StressTestReport unchanged; existing nullable score, adequacy status and metadata fields used.",
+  "payload_bound": "Retained full issue objects <= collect_top_k+1 transient; O(unique digest identities), initial sample arrays and adaptive history are outside this bound.",
+  "producer_consumer_coordination": {
+    "producer_fields": [
+      "attempted",
+      "finite_evaluated",
+      "violated_scenarios",
+      "unknown_or_nonfinite",
+      "planned_scenarios",
+      "completeness",
+      "score_scope",
+      "score_formula",
+      "score_status"
+    ],
+    "set_adequacy_status": "complete only for all planned finite observed outcomes; partial otherwise",
+    "score_status": "unavailable at finite0; observed for complete finite stream; conditional otherwise",
+    "L5_next_owner": "FUN owner of funnel/level5_refutation_governance.py and G must merge/replay actual downstream consumer on one immutable combined source; this standalone slice does not establish L5 adequacy/uncertainty handling."
+  },
+  "unchanged_control_source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "compared_source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "6766a3bdf3575885e7d304d3b0064a56bc37de2268af747b743f9cfbbdc98b4b",
+      "result": "identical bytes; earlier falsifier remains scoped to its recorded b85 source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "compared_source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "0d41b7dd0330b9d466a13d4091e042e223c129c1b3a6a9c4f90c7c593b9edfaf",
+      "result": "identical bytes; earlier falsifier remains scoped to its recorded b85 source"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/queue5_removal_controls.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "compared_source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "f19ea76a9b7473f6646fa850db84379638c04ad680817a2f3bbdb4431a3a8503",
+      "result": "identical bytes; earlier falsifier remains scoped to its recorded b85 source"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "compared_source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+      "result": "identical bytes; earlier falsifier remains scoped to its recorded b85 source"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+      "compared_source_sha": "b85a17e0ebc53b4d151ab51f8196b8fe121717a0",
+      "sha256": "a7b7c7bfd7d0e83f6e2306484c42b78eeb0f8fe16afffc90c749b4b0621a8dce",
+      "result": "identical bytes; earlier falsifier remains scoped to its recorded b85 source"
+    }
+  ],
+  "private_removed_helper_reference_census": {
+    "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress/private-helper-references.json",
+    "scope": "all tracked .py/.pyi exact Git blobs",
+    "base_files": 6444,
+    "initial_candidate_files": 6449,
+    "result": "Base matches only helper definition+same-module call; candidate zero references.",
+    "limitation": "Literal-reference census does not establish reflection/non-Python callers."
+  },
+  "predicate_basis": "recomputed",
+  "authority_purpose": "bounded engineering verification; no institutional authority, promotion signature, general probability or finding closure",
+  "capability_state_or_finding_state": "verification_missing",
+  "finding_residuals": {
+    "B41": "verification_missing: current mechanism tested, accepted historical four-base and live embedding-profile equivalence remain outside slice.",
+    "B122": "verification_missing: selected formula/defaults and custom-coefficient scope implemented/tested, G finding-level acceptance pending.",
+    "B106": "semantic_test_missing: standalone producer accounting tested; combined L5 consumer adequacy/uncertainty verification pending FUN/G.",
+    "B107": "verification_missing: typed physical/adaptive/CAS witnesses supplied; accepted historical/finding-level and production sampling law remain separately bounded."
+  },
+  "limitations_and_next_owner": [
+    "G independently reviews frozen source and deciding bytes before integration/closure.",
+    "FUN/G replay producer and actual L5 consumer plus removal falsifier on the same immutable combined source; partial fractions cannot become complete probability/model uncertainty.",
+    "Original received backend/raw and historical four-base deciding verification are not supplied by this continuation.",
+    "Generic static invocation diagnostic produced no verdict: exact SIGKILL ERROR retained, cause not established. Quality-tool owner may replace retained full ASTs with same-denominator streaming/two-pass graph facts and run existing instrument tests; no owner/denominator baseline changes here.",
+    "The current producer objective classifier creates at most one objective issue per finite scenario; a future multi-issue detector must preserve one violated-scenario increment while issue-occurrence counts may differ.",
+    "No production population/sampling-distribution law, embedding equivalence or statistical-significance claim is established."
+  ],
+  "corrections": [
+    {
+      "context": "New census write proposal and first stopping red harness called StoppingPresets.standard; actual tracked API is StoppingPresets.default.",
+      "resolution": "Corrected new test/proposal explanation before implementation, preserved initial failure log locally as nondeciding. Entire6439 tracked .py literal census had no default preset callers; this does not exclude dynamic calls. Native controller injection is tested.",
+      "old_census_proposal_sha256": "c05b6317b835b9401cba30c48a2f41b56b2258ec93bcc2f5dc527ef107b8bbac"
+    },
+    {
+      "context": "An archive summary run reset configured addopts including importlib collection.",
+      "resolution": "Retained ERROR and source-bound configured replay; final117 replay preserves original non-quiet import mode, strict markers and benchmark storage options."
+    }
+  ],
+  "P41": "No inherited-red or zero-input-intersection waiver claimed. Final-test slice-base replay is explicit production198/testsb85 mixed-source identity and returns48FAIL64PASS.",
+  "time_roles": {
+    "implementation_source_freeze": "Git592b6943c198b1b08295708bf065f29c635339fe",
+    "measurements": "monotonic subprocess wall time; RSS scope recorded per check; no historical receipt freshness claim"
+  },
+  "selected_task_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+    "anchors": [
+      "bundle-stp-01",
+      "bundle-str-01"
+    ],
+    "scope": "Full tracked selected D clauses define this continuation; original criterion block and selected profile have separate source roles."
+  }
+}

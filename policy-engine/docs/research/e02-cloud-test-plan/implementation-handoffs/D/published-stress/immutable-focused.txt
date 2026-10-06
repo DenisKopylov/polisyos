@@ -1,0 +1,23 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/scientist/policy_design/test_phase_b_policy_workers.py _
+ImportError while importing test module '/workspace/e02-D2-receipts/stress/immutable-b85a17e0e/policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/scientist/policy_design/test_phase_b_policy_workers.py:39: in <module>
+    from .test_phase_b_output import _candidate, _evaluation_vector
+E   ImportError: attempted relative import with no known parent package
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/policy_design/test_phase_b_policy_workers.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+2 warnings, 1 error in 12.34s

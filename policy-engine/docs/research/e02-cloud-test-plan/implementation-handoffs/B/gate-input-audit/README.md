@@ -14,11 +14,18 @@ does not remove it. The cloud HANDOFF instruction forbids artificial numerical
 caps. The canonical capped CLI profile therefore remains unrun/incompatible in
 this cloud task; any future uncapped execution is recorded separately.
 
-The runner expands that nested verify into all its constituents, preserves every
-argv, cwd, assertion, selector and non-numerical environment value, and removes
+The runner expands that nested verify into all its constituents, preserves its
+argv, cwd, assertions, selectors and top-level non-numerical environment, and removes
 only `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS`,
 `NUMEXPR_NUM_THREADS`, `VECLIB_MAXIMUM_THREADS` and `BLIS_NUM_THREADS` from each
-child environment. It imposes no worker or CPU quota. `--execute` is opt-in and
+child environment. Parity's npm coverage consumer also hardcodes
+`--maxWorkers=1`; the runner expands it into actual local Vitest with only that
+argument removed, followed by the unchanged coverage ratchet after success.
+The coverage, selectors and existing timeouts remain intact. This is a separately
+disclosed argv projection; direct leaf execution does not reproduce npm lifecycle
+metadata variables. No canonical package script changes. The complete default
+profiles have 15 backend constituents and 35 expanded parity constituents.
+`--execute` is opt-in and
 requires the actual current HEAD to equal `--expected-source`; execution retains
 the canonical fail-fast ordering. Planning has no gate outcome.
 

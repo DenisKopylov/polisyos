@@ -1,10 +1,12 @@
-"""Plan or execute canonical workspace constituents with only six caps omitted.
+"""Plan or execute complete workspace constituents with disclosed cap removals.
 
 Planning reads immutable Git source and constructs CommandSpec metadata; it runs
 no gate. Execution is opt-in, checks the actual frozen HEAD, and retains every
-constituent's argv/cwd and non-numerical environment. Nested ci-parity verify is
-expanded instead of launching a fresh capped verify child. No canonical file is
-modified, and no assertion, test selector, doctor or docs gate is removed.
+constituent's cwd and top-level non-numerical environment. Nested ci-parity
+verify is expanded instead of launching a fresh capped verify child. Frontend
+coverage is expanded into actual Vitest without its numeric worker cap and the
+unchanged successful-coverage ratchet. No canonical file is modified, and no
+assertion, test selector, doctor or docs gate is removed.
 """
 
 from __future__ import annotations
@@ -13,6 +15,7 @@ import argparse
 import ast
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -88,6 +91,29 @@ def require_canonical_uv_binding(root: Path, uv: str) -> str:
     return version
 
 
+def expand_coverage(root: Path, spec: CommandSpec) -> list[CommandSpec]:
+    """Keep both canonical coverage consumers while omitting its worker cap."""
+    rel = "policy-engine/apps/runtime-dashboard/package.json"
+    raw = git(root, "show", CONFIG_SOURCE + ":" + rel)
+    if (root / rel).read_bytes() != raw:
+        raise RuntimeError("canonical coverage script changed; re-audit " + rel)
+    tokens = shlex.split(json.loads(raw)["scripts"]["test:coverage"])
+    if tokens.count("&&") != 1:
+        raise RuntimeError("coverage success-condition changed; re-audit")
+    separator = tokens.index("&&")
+    left, right = tokens[:separator], tokens[separator + 1 :]
+    if left[0] != "vitest" or left.count("--maxWorkers=1") != 1:
+        raise RuntimeError("coverage worker-cap source changed; re-audit")
+    if right != ["node", "./scripts/check-coverage-ratchet.mjs"]:
+        raise RuntimeError("coverage ratchet source changed; re-audit")
+    argv = [str(spec.cwd / "node_modules/.bin/vitest"), *left[1:]]
+    argv.remove("--maxWorkers=1")
+    return [
+        CommandSpec("actual Vitest coverage without worker cap", tuple(argv), spec.cwd, spec.env),
+        CommandSpec("unchanged successful-coverage ratchet", tuple(right), spec.cwd, spec.env),
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--product-root", type=Path, required=True)
@@ -117,10 +143,25 @@ def main() -> int:
 
     original = plan(args.suite, flags)
     expanded = []
+    coverage_projection = None
     for spec in original:
         if "tools.devx.workspace.verify" in spec.argv:
             index = spec.argv.index("tools.devx.workspace.verify")
             expanded.extend(plan("verify", list(spec.argv[index + 1 :])))
+        elif spec.argv == ("npm", "run", "test:coverage"):
+            coverage_projection = {
+                "original_argv": list(spec.argv),
+                "cwd": str(spec.cwd),
+                "source": "policy-engine/apps/runtime-dashboard/package.json@" + CONFIG_SOURCE,
+                "removed_vitest_argument": "--maxWorkers=1",
+                "expanded_indices": [len(expanded), len(expanded) + 1],
+                "success_condition": "second command runs only after first succeeds",
+                "environment_qualification": (
+                    "direct leaf execution inherits the same top-level environment; "
+                    "npm-generated lifecycle metadata is not reproduced"
+                ),
+            }
+            expanded.extend(expand_coverage(root, spec))
         else:
             expanded.append(spec)
     current = git(root, "rev-parse", "HEAD").decode().strip()
@@ -142,10 +183,11 @@ def main() -> int:
         ],
         "original_top_level_commands": len(original),
         "expanded_commands": len(expanded),
-        "sole_environment_delta": {
+        "environment_delta": {
             "omit": sorted(CAPS),
             "ambient_names_present": sorted(CAPS & os.environ.keys()),
         },
+        "additional_argv_projection": coverage_projection,
         "numerical_cap_option_exists": False,
         "commands": [
             {

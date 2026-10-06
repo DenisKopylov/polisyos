@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/e02-D2-receipts/search-generator-quality-672/release-gate.py", line 4, in <module>
+    spec=importlib.util.spec_from_file_location('release_gate',p);m=importlib.util.module_from_spec(spec);sys.modules[spec.name]=m;spec.loader.exec_module(m)
+                                                                                                                                   ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "/workspace/e02-D-published-search/policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py", line 13, in <module>
+    from tools.lib.imports import repo_root_from
+ModuleNotFoundError: No module named 'tools'

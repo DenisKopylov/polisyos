@@ -17,6 +17,11 @@ migration primitives. Keep domain logic out of this package.
   unregistered `common/llm_json.py` implementation is consolidated here.
 
 - `src/polisyos/common/timestamps.py` for aware-UTC parsing and formatting.
+- `src/polisyos/common/serialization.py:finite_real_scalar` for internal finite
+  real scalar admission.
+  It rejects booleans, non-real values and float64 overflow before numerical
+  consumers perform arithmetic. It establishes representability only, with no
+  metric units, scientific meaning or source authority, and is not added to the public facade or `__all__`.
 - `src/polisyos/common/async_tools.py` for sync/async bridge utilities and the
   shared executor.
 

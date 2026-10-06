@@ -1,0 +1,10 @@
+{
+  "target_sha": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D2-receipts/search-generator-quality-672/release-gate.py"
+  ],
+  "returncode": 1,
+  "output_sha256": "c8074f543b88b621869b00d62e62d897a550c727963a994e0036a47608ebbcdd"
+}

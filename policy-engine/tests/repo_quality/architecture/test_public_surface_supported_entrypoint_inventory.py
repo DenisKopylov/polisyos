@@ -53,11 +53,19 @@ def test_supported_entrypoint_inventory_resolves_module_and_package_facades() ->
 
 
 def test_foundry_public_surface_exposes_only_embedding_contract_from_backends() -> None:
+    import polisyos.foundry as facade
+    from polisyos.foundry.methods import backends
+
     foundry = next(package for package in _inventory() if package.module == "polisyos.foundry")
-    root_exports = set(foundry.exports)
-    internal_backend_exports = set(
-        guardrails._entrypoint_inventory("polisyos.foundry.methods.backends").exports
-    )
+    root_entrypoint = next(row for row in foundry.entrypoints if row.module == foundry.module)
+    assert foundry.export_count is None
+    assert foundry.known_export_count == 0
+    assert root_entrypoint.export_resolution["complete"] is False
+    assert "not an empty runtime namespace" in root_entrypoint.export_resolution["exports_scope"]
+    # Real declaration consumers preserve the original embedding boundary;
+    # import/name checks do not execute any optional estimator backend.
+    root_exports = set(facade.__all__)
+    internal_backend_exports = set(backends.__all__)
     embedding_exports = {
         "EmbedderProtocol",
         "SentenceTransformerEmbedder",
@@ -92,15 +100,30 @@ def test_supported_entrypoint_inventory_rejects_missing_or_ambiguous_facade(
 
 
 def test_runtime_quality_inventory_contains_human_decision_record() -> None:
+    import hashlib
+
+    import polisyos.runtime.quality as native
+    from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import HumanDecisionRecord
+
+    inventory = _inventory()
     entrypoint = next(
         entrypoint
-        for package in _inventory()
+        for package in inventory
         for entrypoint in package.entrypoints
         if entrypoint.module == "polisyos.runtime.quality"
     )
 
     assert entrypoint.source_file == "src/polisyos/runtime/quality/__init__.py"
-    assert "HumanDecisionRecord" in entrypoint.exports
+    assert entrypoint.export_count is None and entrypoint.known_export_count == 0
+    assert entrypoint.export_resolution["complete"] is False
+    assert "HumanDecisionRecord" in entrypoint.export_resolution["declared_export_candidates"]
+    source_read = next(row for row in entrypoint.export_resolution["inputs"] if row["path"] == entrypoint.source_file and row["operation"] == "read_bytes")
+    assert source_read["sha256"] == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
+    assert any(row.subject == entrypoint.module and row.detail == "incomplete_exports" for row in guardrails._check_public_surface_contracts(inventory))
+    # Native object identity is an independent consumer observation, not proof
+    # that arbitrary import-time declarations fall within the static grammar.
+    assert "HumanDecisionRecord" in native.__all__
+    assert native.HumanDecisionRecord is HumanDecisionRecord
 
 
 def test_runtime_quality_eval_safety_facade_exports_canonical_objects() -> None:
@@ -238,7 +261,24 @@ def test_generated_inventory_serializes_each_resolved_facade() -> None:
 
 
 def test_ddm_facade_policy_matches_observed_lazy_boundary() -> None:
-    ddm = next(package for package in _inventory() if package.module == "polisyos.ddm")
+    import hashlib
+
+    import polisyos.ddm as native
+    from polisyos.ddm.integration.monitor import DDMWindowResult
+
+    inventory = _inventory()
+    ddm = next(package for package in inventory if package.module == "polisyos.ddm")
 
     assert ddm.facade_mode_expected == "lazy_facade"
-    assert ddm.facade_mode_observed == ddm.facade_mode_expected
+    assert ddm.facade_mode_observed == "unresolved_exports"
+    assert ddm.export_count is None and ddm.known_export_count == 0
+    entrypoint = ddm.entrypoints[0]
+    assert entrypoint.export_resolution["complete"] is False
+    assert entrypoint.export_resolution["declared_export_candidates"] == native.__all__
+    source_read = next(row for row in entrypoint.export_resolution["inputs"] if row["path"] == entrypoint.source_file and row["operation"] == "read_bytes")
+    assert source_read["sha256"] == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
+    assert any(row.subject == ddm.module and row.detail == "incomplete_exports" for row in guardrails._check_public_surface_contracts(inventory))
+    assert callable(native.__getattr__)
+    assert native.__getattr__("DDMWindowResult") is DDMWindowResult
+    with pytest.raises(AttributeError):
+        native.__getattr__("unknown_public_candidate")

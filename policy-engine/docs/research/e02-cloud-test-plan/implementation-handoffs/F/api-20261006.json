@@ -1,0 +1,659 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "api-20261006",
+  "closure_ids": [],
+  "bundle_ids": [
+    "API-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "729d137279b7d6334230045e420255762fe55f08"
+  ],
+  "candidate_tree_sha": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+  "branch": "codex/e02-F-api-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+  ],
+  "source_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/source-identity.json",
+  "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+  "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/outputs.json",
+  "baseline_cells": [
+    {
+      "id": "F01-P076",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.82",
+      "rss_kib": "481848",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "193",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F01-P089",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "state": "PASS",
+      "collected": "11",
+      "calls": "11",
+      "call_pass": "11",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "13.43",
+      "rss_kib": "496284",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "206",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F02-P068",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.72",
+      "rss_kib": "493172",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "196",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F09-P091",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "state": "PASS",
+      "collected": "11",
+      "calls": "11",
+      "call_pass": "11",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "28.34",
+      "rss_kib": "651388",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "207",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P104",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "state": "PASS",
+      "collected": "11",
+      "calls": "11",
+      "call_pass": "11",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "20.7901945349995",
+      "rss_kib": "649280",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "454",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_grade": {
+    "reported": "source_reported_compact_text_only; candidate_routes",
+    "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "raw_receipt_available": false,
+    "use": "Source-reported compact baseline navigation; not candidate PASS or fullraw independent evidence."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+        "tests/unit/remediation/test_api_01.py",
+        "tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+        "tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+        "tests/unit/foundry/contracts/test_layout.py",
+        "tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Seven exact selector files, native source imports, real algorithms and CAS readers.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.json",
+      "wall_s": 15.402607255993644,
+      "rss_kib": 1213376,
+      "passed": 49,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+        "--root",
+        "/workspace/e02-F-api-20261006",
+        "--ref",
+        "729d13727",
+        "--output",
+        "/workspace/e02-F-20261006-receipts/api/census-candidate.json"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Complete immutable729 Git tree;13701 entries,6441 Python parsed,64 nonUTF8 exclusions; unresolved candidates named.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.json",
+      "wall_s": 82.1579015340103,
+      "rss_kib": 243256
+    },
+    {
+      "command": [
+        "uv",
+        "build",
+        "--wheel",
+        "--sdist",
+        "--out-dir",
+        "/workspace/e02-F-20261006-receipts/api/candidate-dist"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Exact frozen729 source, actual hatch builder, wheel and sdist product distributions.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.json",
+      "wall_s": 23.776419817004353,
+      "rss_kib": 30880
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/api/archive_binding_replayer.py"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Every2909 tracked product blob plus separately mappedresource byte-equal both builtarchives; no cache members.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.json",
+      "wall_s": 54.317018863002886,
+      "rss_kib": 202408
+    },
+    {
+      "command": [
+        "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/api/installed_launch.py",
+        "wheel"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/api/wheel-consumer",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Owned wheel install, neutral cwd Python-I,76 census literal imports plus seven unchanged selectors except one explicit Gitcheckout-only deselection.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.json",
+      "wall_s": 15.149198294995585,
+      "rss_kib": 1203876,
+      "passed": 48,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 1,
+      "warnings": 1,
+      "deselection_reason": "One source-repository Git census test not executable from neutral install; all76 full census literal imports executed separately by installed launcher."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-20261006-receipts/api/sdist-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/api/installed_launch.py",
+        "sdist"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/api/sdist-consumer",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Owned install rebuilt from sdist, same neutral consumer denominator and deliberate deselection.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.json",
+      "wall_s": 15.433982874004869,
+      "rss_kib": 1212660,
+      "passed": 48,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 1,
+      "warnings": 1,
+      "deselection_reason": "One source-repository Git census test not executable from neutral install; all76 full census literal imports executed separately by installed launcher."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/api/installed_binding_replayer.py"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/api/wheel-consumer",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "All2910 installedproduct bytes in each owned environment; three ordinarypackage and retiredfilename controls.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.json",
+      "wall_s": 7.407238729996607,
+      "rss_kib": 573116
+    },
+    {
+      "command": [
+        "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/api/removal_replayer.py",
+        "clone"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/api/wheel-consumer",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Unchanged positive identity/pickle/docs oracle after same-name class clone, declarations preserved; expected negative.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.json",
+      "wall_s": 11.614603474998148,
+      "rss_kib": 587624,
+      "negative_control_expected_outcome": "FAIL",
+      "deciding_property": "Original positive consumer oracle rejects mutated implementation while __all__ remains unchanged."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/api/removal_replayer.py",
+        "bridge"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/api/wheel-consumer",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Unchanged real algorithm patch oracle after bridge removal, exports preserved; expected negative.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.json",
+      "wall_s": 11.556441705994075,
+      "rss_kib": 581656,
+      "negative_control_expected_outcome": "FAIL",
+      "deciding_property": "Original positive consumer oracle rejects mutated implementation while __all__ remains unchanged."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+        "docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Two changed Python files on exact frozen729.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.json",
+      "wall_s": 0.1701868209929671,
+      "rss_kib": 21640
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+        "docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Two changed Python files on exact frozen729.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.json",
+      "wall_s": 0.17252785299206153,
+      "rss_kib": 21968
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Actual configured full scanner denominator; two frontendmeasurements unavailable, completedartifactpartialFAIL; attributionnot_established.",
+      "outcome": "UNRUN",
+      "exit": 2,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.json",
+      "wall_s": 210.60034203699615,
+      "rss_kib": 908668,
+      "partial_completed_findings": "FAIL",
+      "whole_command_status_basis": "Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict.",
+      "unavailable_measurements": [
+        "runtime-api-client generator exit254/openapi-typescript absent",
+        "runtime-dashboard-api-types generator exit254/openapi-typescript absent"
+      ],
+      "failure_attribution": "not_established",
+      "P41_exact_slice_base_and_full_denominator_disjointness": "not_established"
+    },
+    {
+      "command": "Independent ownedwheel interpreter -I independent/launch.py wheel",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "All13 newnative tests frozen729, independentconsumer process,776 installedorigins, zero source violations.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/wheel-independent.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/api-independent-review.json",
+      "passed": 13,
+      "skipped": 0,
+      "errors": 0
+    },
+    {
+      "command": "Independent ownedsdist interpreter -I independent/launch.py sdist",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "Same13tests, independentneutralconsumer,776 installedorigins, zero violations.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/sdist-independent.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/api-independent-review.json",
+      "passed": 13,
+      "skipped": 0,
+      "errors": 0
+    },
+    {
+      "command": "Independent python3 byte_census_review.py",
+      "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "input_closure": "13701 complete immutabletree entries,6441independentASTs,2909sourceblobs botharchives and2910 installedproductbytes bothenvs.",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/independent-byte-census.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/independent-byte-census.json"
+    }
+  ],
+  "property": {
+    "statement": "Canonical supported causal facade bindings survive actual source/wheel/sdist imports, FQN/pickle/docs and real algorithm patch consumers; incidental exports cannot expand their explicit supported manifests.",
+    "runtime_path": [
+      "complete immutable trackedsource/config/docs census",
+      "hatch wheel and sdist construction",
+      "owned isolated product installations",
+      "76 literal imports and native algorithm/identification consumers",
+      "typed evidence/layout persisted throughFileSystemCAS",
+      "fresh reader reconstructs original canonical object/types"
+    ],
+    "proxy_divergence": "Same-name CausalEngine class clone retains __all__ but fails canonicalidentity; removed algorithm override bridge retains exports but fails all4 actual patchconsumer observations.",
+    "negative_controls": [
+      "Independent clone removal1FAIL1PASS11deselected1warning expected; original positive oracle unchanged.",
+      "Independent override bridge removal4FAIL9deselected1warning expected; publicmanifest unchanged.",
+      "Actual unknown/incidental leaf import plus stale package export fail on reload; no name-only success.",
+      "Census fixture changed/untracked/binary/computed/absent input controls distinguish immutablebasis from currentcheckout.",
+      "Retired sibling filenames absent; exact-file loaders fail expected while real packagealgorithms execute."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_classification": {
+    "supported_runtime_ABI": "recomputed",
+    "complete_tracked_static_denominator": "independently_reconciled",
+    "source_archive_installed_byte_identity": "independently_reconciled",
+    "arbitrary_computed_external_callers": "not_established",
+    "real_data_identification_authority": "not_established",
+    "historical_red_attribution": "not_established"
+  },
+  "per_id": {
+    "LA-020": {
+      "owner_bundle": "API-01",
+      "state": "limited",
+      "finding_closure": false,
+      "criteria": [
+        {
+          "criterion": "Explicit public and retained private/test export manifest, canonical symbol identity, direct/star import, serialized FQN and actual pydoc",
+          "outcome": "PASS",
+          "basis": "recomputed",
+          "evidence_checks": [
+            "native",
+            "wheel-installed",
+            "sdist-installed",
+            "clone-removal"
+          ],
+          "limit": "Supported surface window only; no symbols retired in this verification slice."
+        },
+        {
+          "criterion": "All four historical real monkeypatch targets execute and restore native algorithms",
+          "outcome": "PASS",
+          "basis": "recomputed",
+          "evidence_checks": [
+            "native",
+            "wheel-installed",
+            "sdist-installed",
+            "bridge-removal"
+          ]
+        },
+        {
+          "criterion": "Unknown/stale/incidental internal export cannot widen public surface on actual reload",
+          "outcome": "PASS",
+          "basis": "recomputed",
+          "evidence_checks": [
+            "native",
+            "wheel-installed",
+            "sdist-installed"
+          ]
+        },
+        {
+          "criterion": "Complete tracked source/config/docs/FQN lexical and literal-import census denominator",
+          "outcome": "PASS",
+          "basis": "independently_reconciled",
+          "evidence_checks": [
+            "census",
+            "wheel-installed",
+            "sdist-installed"
+          ],
+          "limit": "182 computed import candidates unresolved; no arbitrary alias flow/exec/plugin or third-party private-caller census claim."
+        },
+        {
+          "criterion": "Actual wheel and sdist product installation resolves canonical packages and fresh CAS evidence/layout readers outside checkout",
+          "outcome": "PASS",
+          "basis": "recomputed",
+          "evidence_checks": [
+            "build",
+            "artifact-bindings-run",
+            "installed-bindings-run",
+            "wheel-installed",
+            "sdist-installed"
+          ],
+          "limit": "Third-party dependencies reused readonly rather than independently re-resolved."
+        },
+        {
+          "criterion": "Arbitrary computed/external consumers and hosted docs/API client compatibility",
+          "outcome": "UNRUN",
+          "basis": "not_established",
+          "limit": "External input basis and consumer authority not supplied; remain limited. Runtime pydoc exercised, hosted surfaces not admitted."
+        }
+      ],
+      "residual_classification": {
+        "code_mechanism": "Existing accepted explicitfacades verified; no new runtime migration.",
+        "verification_oracle": "Actual imports/FQN/pickle/pydoc/patch/CAS and removaloracles established in boundedscope.",
+        "missing_input": "Arbitrary computed/external client callgraph and hosted surface inputs absent.",
+        "semantic_owner": "API primaryowner must admit any additional symbolretirement or supportedclientwindow."
+      }
+    }
+  },
+  "companion_checks": {
+    "GRF-01/LA-007/LA-019": {
+      "outcome": "PASS",
+      "scope": "Installed3 canonicalpackages, emptyretiredsiblings absent and exactfilename negative; real idpackage identification/CAS reader.",
+      "finding_closure": false,
+      "owner": "GRF-01 primary owner"
+    },
+    "FRY-01/LA-037": {
+      "outcome": "PASS",
+      "scope": "Both Foundrylayout addresses canonicalIRidentity and actualslotpaths/CAS; existingnativeICcertificate only.",
+      "state_activation_outcome": "UNRUN",
+      "finding_closure": false,
+      "owner": "FRY-01 primary owner",
+      "limitation": "Four catalog family IDs lack live runtime state mappings; certificate is not family-to-state operation."
+    }
+  },
+  "capability_state_or_finding_state": "LA-020 limited; bounded installed ABI verification complete, no full external-client closure",
+  "limitations_and_next_owner": [
+    "API owner/G: bounded source729 ABI receipts are transportable; computed imports/exec/plugin externalinputs remainnot_established until exactclientbasis supplied.",
+    "GRF primaryowner retains LA007/019 decisions; directoldfilename clients requiremigration, no arbitraryloaderretirement claim.",
+    "FRY primaryowner retains LA037; familycertificate is not stateconsumer.",
+    "DoWhy/EconML excluded in Python3.14 baseline UNRUN; separate selectedworker packaging composition is a future distinctslice, not included in729.",
+    "Architecture overallUNRUN exit2; partialartifactred attributionnot_established, no blanket inheritedred claim.",
+    "Historical utilityjudge and completeproduction/institutionaldata authority areUNRUN here; no productiondata needed for bounded generic ABI property.",
+    "Product-installation isolation is proved; reused third-party dependencies are not independently resolved.",
+    "Three draft harness failures corrected dataclass/CAS canonicalfloat assumptions; complete diagnostic outputs retained, no productdefect attribution."
+  ],
+  "authority_purpose": "Nonauthoritative engineering compatibility evidence; does not admit real-data causal inference or govern protectedaction.",
+  "surface": "Actual public Python docs/pickle/import consumers; hosted API/dashboard surfaces out_of_scope for this boundedslice.",
+  "patterns": [
+    "P02",
+    "P29",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "independent_review": {
+    "status": "GO",
+    "target_sha": "729d137279b7d6334230045e420255762fe55f08",
+    "reviewer": "F economics independent directleaf",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/api-independent-review.json",
+    "full_outputs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/wheel-independent.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/sdist-independent.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/independent-byte-census.txt"
+    ],
+    "scope": "Bounded installedABI/complete staticdenominator/source+archive+installedbytes; LA020limited, no statefamily or realdata claim."
+  },
+  "G_exact_replay": {
+    "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+    "native_command": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+      "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "tests/unit/remediation/test_api_01.py",
+      "tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+      "tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+      "tests/unit/foundry/contracts/test_layout.py",
+      "tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+    ],
+    "installed_strategy": "Rebuild uv build wheel+sdist exact729; install own product in neutralenv, Python-I; use committed installed_launch/removalreplayers with scratchpaths adjusted explicitly. Preserve pyprojectmarkers.",
+    "input_requirement": "No productiondata for generic ABI; arbitrary externalclient inputs unavailable and mustnotinvent."
+  },
+  "time_roles": {
+    "execution_date_UTC": "2026-10-06",
+    "baseline_date": "source-reported earlier immutable69780761 receipt",
+    "claim_scope": "Frozen implementation729 only, not future packaging composition or receiptcommit."
+  },
+  "finding_ids": [
+    "LA-020"
+  ],
+  "related_finding_ids": [
+    "LA-020"
+  ],
+  "closure_id_semantics": "Only findings explicitly closed by this receipt in their declared technical scope. Related limited/held/open findings are retained in finding_ids/related_finding_ids and their original decisions; accepted code and finite property PASS do not imply their closure.",
+  "receipt_corrections": [
+    "Normalized closure_ids to explicitly closed technical IDs only and retained every related finding ID. Metadata-only correction: implementation/source/test/evidence/check/finding decisions unchanged; no tests repeated."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "cwd": "/tmp/e02-F-continuation-20261006/api/sdist-consumer-5484",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/sdist-env-retry-5484/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261006/api/installed_launch_current.py",
+    "sdist"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/sdist-installed-current",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/api/sdist-installed-current-proof.json"
+  ],
+  "tree_sha": "0406094722182749d3f7b9a64fa00c5337a9b391",
+  "source_status_before": "",
+  "elapsed_seconds": 11.784981489181519,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/sdist-installed-current.stdout",
+    "bytes": 174,
+    "sha256": "bc9c34921c8b45061ea8311ce42b47049ec3491a9293a4f997b2e599db90fdc5"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/sdist-installed-current.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/sdist-installed-current-proof.json",
+      "bytes": 145798,
+      "sha256": "3afd5e95cefdcf73f345df1f8d312bb38f95da34e2c5653523557ad7a58fcf0c"
+    }
+  ]
+}

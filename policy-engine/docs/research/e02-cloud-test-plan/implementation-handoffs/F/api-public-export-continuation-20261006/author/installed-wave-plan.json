@@ -1,0 +1,61 @@
+{
+  "state": "UNRUN until root immutable composed freeze and source review GO",
+  "source_hold": "fd36 frozen resolver; generated artifacts and archive build not started",
+  "actual_pipeline_basis": "/tmp/e02-F-continuation-20261006/api/build-5484-spec.json",
+  "stages": [
+    "Root candidate tracked-clean, attached branch/SHA/tree plus complete Git input denominator",
+    "uv build --wheel --sdist to unique /tmp output with isolated UV_CACHE_DIR; no application env mutation",
+    "Fresh wheel+rebuilt-sdist Python3.14 environments install --no-deps, literal shared readonly dependency directory only",
+    "Every tracked src/polisyos and tools blob byte-reconciled against wheel, sdist and both sites; every force-include resource from actual hatch TOML reconciled",
+    "Canonical six worker assets/code+lock binding, external genuine3.12 interpreter profile measured; no application DoWhy dependency",
+    "Neutral cwd Python -I fixture carriers pinned byte-exact to final composed Git; all imported polisyos/tools origins from own installed site",
+    "Own ABI/FQN/pickle/pydoc/monkeypatch/literal runtime caller readback",
+    "Real DoWhy MethodJob->CAS->fresh -I reader plus supported factory invocation; private installed asset retirement/refusal/restoration; true GCM40refits via existing carrier",
+    "Selected actual normalized-monitor sibling and configured+default TMLE common-report CAS consumer from final root source",
+    "B220 new11 rows plus four maintained8performance cases actual installed origin",
+    "No production authority-positive; absent lawful inputs UNRUN. Complete warnings membership retained."
+  ],
+  "carrier_sources_available_now": {
+    "own_api": {
+      "ref": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "paths": [
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py"
+      ]
+    },
+    "existing_installed": {
+      "ref": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"
+    },
+    "root_current": {
+      "ref": "8f69812ec28098385b2063db89f7e04d354c18cb",
+      "paths": [
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+        "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+        "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py"
+      ]
+    }
+  },
+  "selectors_to_pin_on_final_source": [
+    "test_installed_worker_profile.py (all3)",
+    "test_installed_facade_contract.py and test_facade_consumer_continuation.py (-k not case_insensitive and not computed_import: original16cases; sourcecensus distinct)",
+    "test_tmle_common_report.py::test_real_configured_method_job_projects_exact_native_eif_and_cas_reader",
+    "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+    "test_dispatch_output_contract.py (full self-contained module)",
+    "test_causal_graph_cache_rows.py (all11)",
+    "test_performance_primitives.py::test_cached_adjacency_reuse",
+    "test_performance_primitives.py::test_cached_adjacency_eviction",
+    "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation",
+    "test_performance_primitives.py::test_warmed_derived_rows_are_not_reused_after_copy_update"
+  ],
+  "not_repeated": [
+    "RDD4000",
+    "DiD160",
+    "global architecture interpreter",
+    "accepted early548 wheel/sdist until final composed wave"
+  ],
+  "contended_resource": "Private installed worker assets mutated serially within each site test then exact full hash restoration; wheel/sdist sites independent. External3.12 dependency env read-only."
+}

@@ -1,0 +1,25 @@
+id = "2026-10-06-api-installed-causal-profile"
+title = "Preserve the canonical selected-worker profile in distributions"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-policyos-runtime"
+change_class = "internal"
+surface_classification = "internal: installed selected-worker resources; existing public causal facade identities unchanged"
+summary = "Project six existing canonical DoWhy worker assets into the private wheel profile and retain their original sdist source paths for rebuilding."
+compatibility = "The application remains Python 3.14 with unchanged dependency markers. Existing public method/factory addresses and the canonical Python 3.12 worker source are preserved. Missing configuration or profile assets remain typed unavailability."
+migration = "Configure the existing server-owned POLISYOS_DOWHY_WORKER_PYTHON absolute interpreter with the separately locked standalone dependencies."
+limitations = "Installed numerical/CAS reader and ABI witnesses use known synthetic inputs; production Scientist admission, real-data assumptions and scientific authority remain separate and unestablished."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"]
+
+[[compatibility_change]]
+id = "api-canonical-installed-worker-resources"
+change_class = "internal"
+impact = "added"
+surface = "private installed causal/_dowhy_profile assets"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Wheel and rebuilt-sdist consumers use the same six canonical selected-worker files and preserve typed unavailable-profile refusals."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md", "workers/dowhy-014/README.md"]
+runbook_docs = ["workers/dowhy-014/README.md"]

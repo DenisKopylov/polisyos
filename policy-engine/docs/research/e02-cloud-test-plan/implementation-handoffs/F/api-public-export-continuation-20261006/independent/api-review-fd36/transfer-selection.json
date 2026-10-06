@@ -1,0 +1,160 @@
+{
+  "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+  "source_tree": "c441031428cc5039f84eef188936a6a904c21f71",
+  "check": "FAIL",
+  "decision": "BLOCK",
+  "unique_full_files": 24,
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/review.json",
+      "bytes": 48574,
+      "sha256": "8a318d34f8a85dd0bba13133c2eced56a7377c4ec87b5b9e7e9d8266d463f677",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/finish_review.py",
+      "bytes": 9077,
+      "sha256": "c51f465a2e9cde7ed2074280cb3fd3170454c31eea6dc4859cde150b283b78d6",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/run_check.py",
+      "bytes": 2225,
+      "sha256": "19ecf126894717f36d5c88e798eaced938ed31818fdc548b872db9c3cdf6cb93",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/root-probe-current.py",
+      "bytes": 1748,
+      "sha256": "396b7f862fce8915b3e3f265831accf9b871747b2163cc522e96ed13d201a31f",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/root-probe-results.json",
+      "bytes": 1735,
+      "sha256": "e93a652d0a7b5a834a7a518d7dbedf7e905e6f87608cfddc7c20b2de7149b8a7",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/test_effect_boundary_extended.py",
+      "bytes": 3383,
+      "sha256": "385910f8c332e6b58df47a0a72627d400769215deff024b36c857e692692ff75",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/test_implicit_function_effect.py",
+      "bytes": 4470,
+      "sha256": "e5dbff6e91b75812bc83a1e8e51f71453a77ed22265b3096a2fb62c75c6e1c5f",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/measure_namespace_gate.py",
+      "bytes": 3479,
+      "sha256": "192345b5663c3c5545005c7f68f5086f6ecc303ec365d7a1ab928aab362ec16d",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/e576-to-fd36.diff.txt",
+      "bytes": 19547,
+      "sha256": "02b4cc6006630ed272f648024080c3c39733f6637f7854b8d5cccff4578655ca",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/native76.json",
+      "bytes": 6854,
+      "sha256": "445cb0c6e7bf7ea0c270ecf2b5c7a5fbd6a70058743dc127dae0a7c5eb3ed48c",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/native76.stdout.txt",
+      "bytes": 700,
+      "sha256": "ba293845efd36bd5cf20af7d7c262d003ba6c60d962da4fb2dff2d6e1b2fa67a",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/native76.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/root-probe.json",
+      "bytes": 6556,
+      "sha256": "c0aaf644f5006840ded4a77b3cc02f4b1fda2215d408c56c7da75627d7ad9cdd",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/root-probe.stdout.txt",
+      "bytes": 1735,
+      "sha256": "e93a652d0a7b5a834a7a518d7dbedf7e905e6f87608cfddc7c20b2de7149b8a7",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/root-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/effect-boundary.json",
+      "bytes": 6817,
+      "sha256": "70af7562e8ead97f89526ee341df0c4cd94d185c0658cf3d093fde9b9ce9f5b9",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/effect-boundary.stdout.txt",
+      "bytes": 11448,
+      "sha256": "90cbc07ff669a2bfe06d526e41ee3e04224ac1a47aae4816add5b4fb05f36741",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/effect-boundary.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/namespace-gate.json",
+      "bytes": 6574,
+      "sha256": "235558db72b2078a1171c7d28167728306e91f5096bb3c4ff8028377ea9feca2",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/namespace-gate.stdout.txt",
+      "bytes": 122721,
+      "sha256": "b39054203453bb45236bf21eb7c72978a704183ebde8323de5da62fe26519c61",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/namespace-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/decorator-and-errors.json",
+      "bytes": 6902,
+      "sha256": "e0dee65c6db51110aac1f0fa9049727e6a1e655d77e271184898463525655413",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/decorator-and-errors.stdout.txt",
+      "bytes": 6171,
+      "sha256": "2842070d9723a59a773850e37110c064c4fe1285e7695ec5403c88abfe7720e6",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/decorator-and-errors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    }
+  ],
+  "historical_selection_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/api-review/transfer-selection.json",
+    "bytes": 7876,
+    "sha256": "ae5af7ceeacd65dfab6a5224da79e25c437a5d058441dec0ed23e2df2399963a",
+    "full": true
+  },
+  "full_bytes": 270716
+}

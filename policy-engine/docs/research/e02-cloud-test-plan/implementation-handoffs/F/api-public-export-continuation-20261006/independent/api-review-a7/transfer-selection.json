@@ -1,0 +1,166 @@
+{
+  "source_sha": "a7a96a53894defa6311a0f8d9428bac26e583673",
+  "source_tree": "360ff1fef25146df16512da35078dc8e95f5c6d8",
+  "check": "PASS",
+  "decision": "GO_bounded_passive_dunder_profile",
+  "unique_full_files": 25,
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/review.json",
+      "bytes": 97253,
+      "sha256": "fbf91ee93703bae2e082ab965e51ff87622e687d6c9c93012ca1d347d1f7b1c5",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/finish_review.py",
+      "bytes": 10131,
+      "sha256": "85e7186763e45f77c6692fce0adabb976deedc69d4f8663956a601e8b95050db",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/run_check.py",
+      "bytes": 2223,
+      "sha256": "9f537acf61710a35ad24d981889a1809e0e81c4f508c2843f886c1e911448f14",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/measure_namespace_gate.py",
+      "bytes": 3479,
+      "sha256": "192345b5663c3c5545005c7f68f5086f6ecc303ec365d7a1ab928aab362ec16d",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/test_passive_protocol_profile.py",
+      "bytes": 3515,
+      "sha256": "e6b1244f95e117c459747b41123ce1e2b9447920294db8a2c3ced1a55fd05a0c",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/test_passive_protocol_profile_corrected.py",
+      "bytes": 3684,
+      "sha256": "6b22f427da3902c8d34995405d7b7d76411fbf1f8529947aa292d54169416236",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/native7.json",
+      "bytes": 6966,
+      "sha256": "e5d9bf156618d7827d9ba7f7c56dde4b0febf595df48e1b88cb952890b05cd48",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/native7.stdout.txt",
+      "bytes": 618,
+      "sha256": "76fcce2ab82b641955e4aff074b33847a07621b3d583f142b1f001c4e95a406b",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/native7.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/independent-controls.json",
+      "bytes": 6829,
+      "sha256": "e6966f4ccc5f201f3a28f2cfd0a12b2733b84b400d6ead6448ec89fe5b67dd1c",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/independent-controls.stdout.txt",
+      "bytes": 32665,
+      "sha256": "5694e9e329ed6f2466155f819540d790519dca475c55b595a6d73b36818aa189",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/independent-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/independent-controls-corrected.json",
+      "bytes": 6879,
+      "sha256": "9e70dc7486905ef6cf73587f463dbb3df3ce178a00c2287ec53ae0a9d8123c55",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/independent-controls-corrected.stdout.txt",
+      "bytes": 29146,
+      "sha256": "e468ef484f6516485a15e37f91a4c9a315d3bf6e1da39be49470586d554a8aaf",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/independent-controls-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/namespace-gate.json",
+      "bytes": 6567,
+      "sha256": "530edd26bd20e96c604a67977f91ed29e93558cf4d90fa0d397477fa4f6decd9",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/namespace-gate.stdout.txt",
+      "bytes": 270777,
+      "sha256": "39455beb7c37ae20ac18390ce98f88facb53dba44e007ea7a0724abdcedc7370",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/namespace-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-final-frozen.json",
+      "bytes": 1344,
+      "sha256": "43c10c1f2adcb92050641532576e0ed5dae6b8ec458fb9813b122a070aca7da8",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-final-frozen-spec.json",
+      "bytes": 737,
+      "sha256": "357ed548358d1b5fc47ead2662ff41917fb71610aedcbbe3872c4d55e0141da6",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-final-frozen.stdout",
+      "bytes": 701,
+      "sha256": "020421de03ddf2bd130e91e296043e789543c4db47595e9dd131024be3828c61",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-final-frozen.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-binding-probe.py",
+      "bytes": 1565,
+      "sha256": "c076341b00e07e9ddc481611c1812a20b93a4cad22f837dedf962b9799129009",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-binding-probe.stdout",
+      "bytes": 4430,
+      "sha256": "83fd269d5350997161c2bba6e144451b2497438c9de4efc2eebbf3539d0af8cc",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-binding-probe.stderr",
+      "bytes": 380,
+      "sha256": "d09a0a85f9b35e5393798263bb8216414df592dd499d37589f1f0e7ebb27fe0d",
+      "full": true
+    }
+  ],
+  "separately_preserved_historical_selection": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/api-review-0c6/transfer-selection.json",
+    "bytes": 10858,
+    "sha256": "929b14cf5371ceb4f5b2b261a52abdfeb42880b9cbdd018b9128d6b23661d276",
+    "full": true
+  },
+  "full_bytes": 489889
+}

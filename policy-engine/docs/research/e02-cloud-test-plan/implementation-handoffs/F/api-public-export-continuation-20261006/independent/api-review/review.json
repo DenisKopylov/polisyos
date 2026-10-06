@@ -1,0 +1,505 @@
+{
+  "schema": "policyos.e02.independent-review.v1",
+  "reviewer": "F/graph_scm independent of API author",
+  "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+  "source_tree": "85299d465d34317fb040b4f272e30f99f7d1d67a",
+  "slice_base_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+  "delta_predecessor_sha": "2458891c9714404982110ee4c513a8d0142b34c3",
+  "scope": "Full base449\u2192e5769-path migration/guardrails footprint and prior245\u2192e5764-path typed unknown representation delta; finite source-bound namespace grammar and real canonical consumer.",
+  "specification_verdict": "BLOCK bounded export-effect property: three actual false-complete controls",
+  "engineering_quality_verdict": "BLOCK same generic source-effect admission boundary; positive finite resolver/typed representation mechanisms otherwise have bounded native evidence",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-020",
+    "LA-007",
+    "LA-019"
+  ],
+  "findings": [
+    {
+      "severity": "medium",
+      "confidence": "high",
+      "bucket": "SAME P40 export-effect class one level deeper, not a new scientific/ABI class",
+      "source_path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "locations": [
+        "audit_consumers: call threshold uses selected binding.end_lineno",
+        "audit_consumers: only classes with bases/keywords/decorators refuse",
+        "_value: builtin identity inferred from direct AST symbol bindings"
+      ],
+      "requirement": "A bounded declared-export resolver must return typed unknown rather than complete when unproved import-time effects change the selected export interpretation.",
+      "cases": [
+        "prebinding globals()[sorted] rebind changes the invoked builtin",
+        "unknown call inside a multiline selected mapping initializer occurs before binding.end_lineno",
+        "plain class construction invokes a pre-created descriptor __set_name__ hook"
+      ],
+      "actual_consequence": "Actual canonical inventory/renderJSON emits complete=True and StaticName/export_count1, while controlled real fixture __all__ differs. Actual _check_public_surface_contracts returns no incomplete violation.",
+      "minimum_direction": "One conservative whole import-time effect admission boundary, including all class construction, with typed unknown for unsupported effects. No per-callback/global-name/descriptor ladder, provider whitelist or arbitrary-Python execution by the static reader.",
+      "proof_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.stdout.txt",
+          "bytes": 11227,
+          "sha256": "14fa3e91337aa392f20af1f69e27fc326824931a221249ed165a3e1e38c6516c"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.stdout.txt",
+          "bytes": 5773,
+          "sha256": "864c48aa4267ce78118cbe90968b374b4fad0982472c5406ec1489e9c9174437"
+        }
+      ],
+      "not_claimed": "No demonstrated current production recommendation, data-dependent causal claim, external caller census completeness, or optional backend failure."
+    }
+  ],
+  "checks": [
+    {
+      "name": "native71",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/repo_quality/architecture/test_public_surface_export_resolution.py tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261006/graph/api-review/native71-tmp",
+      "target_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine/tools:/workspace/e02-F-api-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true,
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact read-only frozen9-path source and the complete argv selector; wholly authored closed runtime fixtures for adversarial effects only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 29.851898191001965,
+      "rss_kib": 1433060,
+      "output": "/tmp/e02-F-continuation-20261006/graph/api-review/native71.stdout.txt",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/native71.stdout.txt",
+          "bytes": 620,
+          "sha256": "2fe9d07f49415590b7914069249977f0ad2dcdb47a6119609d706714e85c3843"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/native71.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review/native71.json",
+        "bytes": 6842,
+        "sha256": "f0ce6c5d121e03ba3c0de5acb4e7c7371847f03d3b12a21d817ea691cdc522a8"
+      },
+      "counts": {
+        "PASS": 71,
+        "FAIL": 0,
+        "SKIP": 0,
+        "ERROR": 0,
+        "warnings": 1
+      }
+    },
+    {
+      "name": "root-probe-current",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.py",
+      "target_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine/tools:/workspace/e02-F-api-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true,
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact read-only frozen9-path source and the complete argv selector; wholly authored closed runtime fixtures for adversarial effects only.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.1794351499993354,
+      "rss_kib": 30036,
+      "output": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.stdout.txt",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.stdout.txt",
+          "bytes": 1735,
+          "sha256": "af2ca4117631ca0f1748aad86be230ae9a7a26846393590bba446517eb3d711f"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.json",
+        "bytes": 6564,
+        "sha256": "baa000514ba867898304643466c77ceb3d6da8db2b504045598f7cc27365e205"
+      }
+    },
+    {
+      "name": "effect-boundary",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest /tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary.py -q -s -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary-tmp",
+      "target_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine/tools:/workspace/e02-F-api-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true,
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact read-only frozen9-path source and the complete argv selector; wholly authored closed runtime fixtures for adversarial effects only.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 1.022465406000265,
+      "rss_kib": 88052,
+      "output": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.stdout.txt",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.stdout.txt",
+          "bytes": 11227,
+          "sha256": "14fa3e91337aa392f20af1f69e27fc326824931a221249ed165a3e1e38c6516c"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.json",
+        "bytes": 6787,
+        "sha256": "f865fe5c09fc592e135468f7b79370cf9a636b577b790b339f316606cb9e5c5e"
+      },
+      "counts": {
+        "PASS": 1,
+        "FAIL": 2,
+        "SKIP": 0,
+        "ERROR": 0,
+        "warnings": 0
+      }
+    },
+    {
+      "name": "descriptor-hook",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest /tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary_extended.py -k implicit_descriptor_hook -q -s -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp /tmp/e02-F-continuation-20261006/graph/api-review/descriptor-tmp",
+      "target_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine/tools:/workspace/e02-F-api-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true,
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact read-only frozen9-path source and the complete argv selector; wholly authored closed runtime fixtures for adversarial effects only.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 1.3913481630006572,
+      "rss_kib": 88072,
+      "output": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.stdout.txt",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.stdout.txt",
+          "bytes": 5773,
+          "sha256": "864c48aa4267ce78118cbe90968b374b4fad0982472c5406ec1489e9c9174437"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.json",
+        "bytes": 6833,
+        "sha256": "d5a8c60798d34d89099e7ea270bce7cbca5970859ad37d7f1e6ad44395e9dccb"
+      },
+      "counts": {
+        "FAIL": 1,
+        "SKIP": 0,
+        "ERROR": 0,
+        "deselected": 3,
+        "warnings": 0
+      }
+    },
+    {
+      "name": "namespace-gate",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/api-review/measure_namespace_gate.py",
+      "target_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine/tools:/workspace/e02-F-api-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true,
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact read-only frozen9-path source and the complete argv selector; wholly authored closed runtime fixtures for adversarial effects only.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 1.3109052349900594,
+      "rss_kib": 190880,
+      "output": "/tmp/e02-F-continuation-20261006/graph/api-review/namespace-gate.stdout.txt",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/namespace-gate.stdout.txt",
+          "bytes": 60158,
+          "sha256": "dc1191804b49b1a438704945582506a70aac1593c4d963b79562fdd7140943e7"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/graph/api-review/namespace-gate.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review/namespace-gate.json",
+        "bytes": 6558,
+        "sha256": "de8be194dbf8c888b181f570e49ed3071434750b6a84a7736014811b7ea87030"
+      },
+      "classification": "Correctly preserved actual6 incomplete-export violations; this FAIL is distinct from the three false-complete falsifiers."
+    }
+  ],
+  "source_refs": [
+    {
+      "source_path": "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 34130,
+      "sha256": "9c53991623e83ee40bac954477027998fca453f53eefb1ade51e2689a4f01e1f"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 20731,
+      "sha256": "4a50d07c34921b487a9c21a9c383a52fe72d32c0f9e982b24300369b13c3b2bc"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 3340,
+      "sha256": "6cce04f8a775a0ea49d958e8f0c67a64114b373b77ee16d7074793924ddc3c76"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 11176,
+      "sha256": "38e785a644456c097fc4ee1a9fc6fd497cd0cbde673c63f3ee1bfb3d7b4f8696"
+    },
+    {
+      "source_path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 15873,
+      "sha256": "d18b8dfab66e7cb0993981be662c4aec66929ca1fe38e1b3c8b3dda0ef1de517"
+    },
+    {
+      "source_path": "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 10411,
+      "sha256": "3839d118e1159932866c4662b97f3f2f8f7c8b21129551632b7e73c46ae109f7"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 109248,
+      "sha256": "6ab5e81bef1addfccd8a1d2c5ab931c086c4262096df77060e6852630faf8713"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 4578,
+      "sha256": "e6331f14c891cd8ac6b20d0e61f075edb02132428f13c375019e385622fb875e"
+    },
+    {
+      "source_path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "source_sha": "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "bytes": 123200,
+      "sha256": "c7939516a4cd4e5e85bf82828dae4537b8671ba053414d0d56406ea494862e04"
+    }
+  ],
+  "delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml",
+    "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+    "policy-engine/tools/devx/architecture/guardrails.py"
+  ],
+  "full_paths": [
+    "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+    "policy-engine/tools/devx/architecture/guardrails.py"
+  ],
+  "requirement_matrix": [
+    {
+      "requirement": "Named/imported map keys and literal sequence declarations resolve without source execution; owner dependency actualreadhashes propagate",
+      "result": "PASS bounded",
+      "evidence": "native71 actual analytics278 and changed dependency/no-facade-change, unreadable/outside selector controls"
+    },
+    {
+      "requirement": "Parser-only deliberate refusal is represented as unknown total; known0 never means empty runtime namespace",
+      "result": "PASS bounded",
+      "evidence": "native71 +complete namespace-gate38 rows,6 actual incomplete gate violations"
+    },
+    {
+      "requirement": "Unexpected ValueError/TypeError/Syntax/OSError remain ERROR rather than parser unknown",
+      "result": "PASS bounded",
+      "evidence": "actual native unexpected exception injection and missing/unreadable source cases"
+    },
+    {
+      "requirement": "Original root190 call/alias/all mutation and builtin shadow cases refuse",
+      "result": "PASS bounded",
+      "evidence": "retarget COPY:4UNRESOLVED,1correct supportedliteral; original190 outputs preserved"
+    },
+    {
+      "requirement": "Unknown import-time effects cannot produce wrong complete selected namespace",
+      "result": "FAIL",
+      "evidence": "2builtin timing falsecomplete +1implicitdescriptor falsecomplete; supportedliteral positive1PASS"
+    },
+    {
+      "requirement": "Compatibility migration keeps actual supported facade owner identities and explicit old-filename boundary",
+      "result": "static delta PASS; current independent installed review UNRUN",
+      "evidence": "Nine fullchangedpaths exclude runtime facade providers; docs/fixtures/census retain no actualruntime-client assertion. Earlier author548 wheel/sdist observations not relabelled to e576."
+    }
+  ],
+  "complete_denominator": {
+    "supported_entrypoints": 38,
+    "unknown_total_rows": 6,
+    "actual_incomplete_gate_violations": 6,
+    "explicit_successful_source_reads": 40,
+    "actual_analytics_current_runtime_exports": 278,
+    "actual_world_current_runtime_exports": 59,
+    "world_known_literal_prefix": 41,
+    "interpretation": "Representation completeness is separate from semantic total completeness. Full canonical namespace gate is FAIL, no full architecture PASS claimed."
+  },
+  "property_vs_proxy": "Direct AST binding absence and declaration.end_lineno are proxies for effect-free builtin/namespace interpretation. Controlled unknown effects retain literal maps and __all__ markers but actual namespaces differ while completeness remains true.",
+  "predicate_basis": "recomputed",
+  "P41_inherited": "not_established and not claimed",
+  "limits": [
+    "Wholly authored fixtures execute only under reviewer control; product parser never executes source modules or does runtime import resolution.",
+    "Function bodies/runtime dataflow/external plugin configuration are outside a finite static grammar; unknown effects still must not admit a concrete complete quantity.",
+    "No new scientific wave, wheel/sdist rebuild, full architecture/schema generation, production-data claim or authority ratification.",
+    "The six actual incomplete entrypoints are retained FAIL, not auto-closed or suppressed. Full generated snapshot awaits root composition.",
+    "Native71 has one cache_dir instrumentation warning retained; no skip/error promoted to PASS."
+  ],
+  "source_guard": "All five actual runs bound clean attached e576 HEAD/tree and9 sourcefile hashes before/end. Author source hold released only after all runs completed; later report reads immutable Git blobs, not mutable forward source.",
+  "allowed_actions": {
+    "product_source_writes": false,
+    "git_mutations": false,
+    "env_mutations": false,
+    "children": false
+  },
+  "content_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.json",
+      "bytes": 6833,
+      "sha256": "d5a8c60798d34d89099e7ea270bce7cbca5970859ad37d7f1e6ad44395e9dccb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/descriptor-hook.stdout.txt",
+      "bytes": 5773,
+      "sha256": "864c48aa4267ce78118cbe90968b374b4fad0982472c5406ec1489e9c9174437"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.json",
+      "bytes": 6787,
+      "sha256": "f865fe5c09fc592e135468f7b79370cf9a636b577b790b339f316606cb9e5c5e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary.stdout.txt",
+      "bytes": 11227,
+      "sha256": "14fa3e91337aa392f20af1f69e27fc326824931a221249ed165a3e1e38c6516c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/finish_review.py",
+      "bytes": 9889,
+      "sha256": "d169cee09575fe1b2a57f495ce96e2542e16cc6936e2e41773256abe5c5202c7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/measure_namespace_gate.py",
+      "bytes": 3002,
+      "sha256": "df75ce61a1d999f6d7a8f6a6e9f2489ceb52f2a4a7f75467b02cd36bee2e8c5b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/namespace-gate.json",
+      "bytes": 6558,
+      "sha256": "de8be194dbf8c888b181f570e49ed3071434750b6a84a7736014811b7ea87030"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/namespace-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/namespace-gate.stdout.txt",
+      "bytes": 60158,
+      "sha256": "dc1191804b49b1a438704945582506a70aac1593c4d963b79562fdd7140943e7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/native71.json",
+      "bytes": 6842,
+      "sha256": "f0ce6c5d121e03ba3c0de5acb4e7c7371847f03d3b12a21d817ea691cdc522a8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/native71.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/native71.stdout.txt",
+      "bytes": 620,
+      "sha256": "2fe9d07f49415590b7914069249977f0ad2dcdb47a6119609d706714e85c3843"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.json",
+      "bytes": 6564,
+      "sha256": "baa000514ba867898304643466c77ceb3d6da8db2b504045598f7cc27365e205"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.py",
+      "bytes": 1743,
+      "sha256": "64499909147c5b51d87f12f070a4d35be7ab7145c25f31aeaef6e0b674651c8e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/root-probe-current.stdout.txt",
+      "bytes": 1735,
+      "sha256": "af2ca4117631ca0f1748aad86be230ae9a7a26846393590bba446517eb3d711f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/run_check.py",
+      "bytes": 2220,
+      "sha256": "8f70e22e533df30c154442cc6a209c4ecd53b0cd84bc237761b35718a30e6053"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary.py",
+      "bytes": 3131,
+      "sha256": "3deec2dbaa2bb8a6d6aca3f8354ed0a9ba3ebb2b7af2542ffaeba82546e37183"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary_extended.py",
+      "bytes": 3383,
+      "sha256": "385910f8c332e6b58df47a0a72627d400769215deff024b36c857e692692ff75"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-api-symbol-consumer-probe.json",
+      "bytes": 1432,
+      "sha256": "e533f4147dfd1cc7c3035ecca2d63a21a4112ba02ed28d192df8af72d9b4d649"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-api-symbol-consumer-probe.py",
+      "bytes": 1738,
+      "sha256": "2ae60632f999fb114cbbdc305d3be1adb6e23531ffab2b4f608c7110099a39c8"
+    }
+  ],
+  "source_hold_released": true
+}

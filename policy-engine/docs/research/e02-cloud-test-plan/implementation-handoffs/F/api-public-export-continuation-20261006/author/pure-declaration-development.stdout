@@ -1,0 +1,74 @@
+F....................................................................... [ 77%]
+...............F....F                                                    [100%]
+=================================== FAILURES ===================================
+____________ test_actual_analytics_mapping_is_not_reported_as_empty ____________
+
+    def test_actual_analytics_mapping_is_not_reported_as_empty() -> None:
+        from polisyos.ir import analytics
+        from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+    
+        result = guardrails._entrypoint_inventory("polisyos.ir.analytics")
+        assert tuple(analytics.__all__) == tuple(sorted(ANALYTICS_FACADE_EXPORTS))
+        assert len(analytics.__all__) == 278
+        # The native profile has these names, but the imported source also creates
+        # classes outside the finite static grammar. Do not infer an empty namespace.
+        assert result.export_count is None
+        assert result.known_export_count == 0
+        assert result.export_resolution["complete"] is False
+        assert result.export_resolution["declared_export_candidates"] == sorted(ANALYTICS_FACADE_EXPORTS)
+        assert "pure-declaration grammar" in result.export_resolution["reason"]
+        inputs = result.export_resolution["inputs"]
+        paths = {row["path"] for row in inputs if row["operation"] == "read_bytes"}
+>       assert paths == {
+            "src/polisyos/ir/api.py",
+            "src/polisyos/ir/analytics/__init__.py",
+        }
+E       AssertionError: assert {'src/polisyo...os/ir/api.py'} == {'src/polisyo...os/ir/api.py'}
+E         
+E         Extra items in the left set:
+E         'src/polisyos/ir/__init__.py'
+E         'src/polisyos/__init__.py'
+E         Use -v to get more diff
+
+tests/repo_quality/architecture/test_public_surface_export_resolution.py:47: AssertionError
+________ test_runtime_quality_inventory_contains_human_decision_record _________
+
+    def test_runtime_quality_inventory_contains_human_decision_record() -> None:
+        entrypoint = next(
+            entrypoint
+            for package in _inventory()
+            for entrypoint in package.entrypoints
+            if entrypoint.module == "polisyos.runtime.quality"
+        )
+    
+        assert entrypoint.source_file == "src/polisyos/runtime/quality/__init__.py"
+>       assert "HumanDecisionRecord" in entrypoint.exports
+E       AssertionError: assert 'HumanDecisionRecord' in ()
+E        +  where () = SupportedEntrypointInventory(module='polisyos.runtime.quality', facade_mode_observed='unresolved_exports', export_coun...t/operator/callback protocols remain unknown. Function bodies are excluded. No module execution or runtime dispatch.'}).exports
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:111: AssertionError
+____________ test_ddm_facade_policy_matches_observed_lazy_boundary _____________
+
+    def test_ddm_facade_policy_matches_observed_lazy_boundary() -> None:
+        ddm = next(package for package in _inventory() if package.module == "polisyos.ddm")
+    
+        assert ddm.facade_mode_expected == "lazy_facade"
+>       assert ddm.facade_mode_observed == ddm.facade_mode_expected
+E       AssertionError: assert 'unresolved_exports' == 'lazy_facade'
+E         
+E         - lazy_facade
+E         + unresolved_exports
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:252: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_actual_analytics_mapping_is_not_reported_as_empty
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_runtime_quality_inventory_contains_human_decision_record
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_ddm_facade_policy_matches_observed_lazy_boundary
+3 failed, 90 passed, 1 warning in 24.33s

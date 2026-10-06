@@ -1,0 +1,493 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "api-public-export-continuation-20261006",
+  "closure_ids": [],
+  "finding_ids": [
+    "LA-020"
+  ],
+  "related_finding_ids": [
+    "LA-020",
+    "LA-007",
+    "LA-019",
+    "LA-017"
+  ],
+  "bundle_ids": [
+    "API-01"
+  ],
+  "slice_base_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+  "implementation_commits": [
+    "9eaca0ae66932844fb54414f472cbc875d629c42",
+    "544df5628bfaa3bb1f496fff22d629ea3bcc0699",
+    "5484db7a25014953bdab7cb2418df735f972ff93",
+    "190f4a98a9fc2e3b1b12af3ab87375abc71f5c81",
+    "737ecba79eb505ba3ec0af1fc7ef7e8308abcba7",
+    "2458891c9714404982110ee4c513a8d0142b34c3",
+    "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+    "fd36b2f66d7226e001b4e96bf78f019841da6541",
+    "35b1808c63fa84dd0555ff9043e0aaffe9831e7b",
+    "0c6c7efaab3eba502b44bf6471e7a3c675608f2a",
+    "a7a96a53894defa6311a0f8d9428bac26e583673",
+    "a8c40ac9dca0d680dd82187e2538cbba9a34eb08",
+    "f9095536592150362747b063c0f4cf3aac899bb0",
+    "0c522b88cff658aa4cdf4990ada70dd363989e0d"
+  ],
+  "candidate_tree_sha": "0b308e5f5993121db26e1b3d0a3347817ef371c5",
+  "candidate_source_sha": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+  "branch": "codex/e02-F-api-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59",
+  "changed_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "policy-engine/hatch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-api-installed-causal-profile.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+    "policy-engine/tools/devx/architecture/guardrails.py"
+  ],
+  "dependency_carry": [
+    {
+      "merge_commit": "34808bdae09b4a8dbd35bda989c4dc787dcb4e86",
+      "source_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "scope": "Root-authorized append-only composed dependency merge; inherited runtime/G inputs belong their maintained owners, not new API delivery."
+    }
+  ],
+  "baseline_cells": [],
+  "baseline_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json@449d32909928caf39382f4ff02ac74b0adf277eb",
+  "checks": [
+    {
+      "name": "frozen author finite-profile controls",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/repo_quality/architecture/test_public_surface_export_resolution.py tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py -q -o addopts= --import-mode=importlib -p no:cacheprovider",
+      "target_sha": "a7a96a53894defa6311a0f8d9428bac26e583673",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "a7 exact clean source;108PASS0SKIP/ERROR; complete two explicit modules; one actual pytest cache-provider config warning retained",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/passive-protocol-final-frozen.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/passive-protocol-final-frozen.stdout",
+        "bytes": 701,
+        "sha256": "020421de03ddf2bd130e91e296043e789543c4db47595e9dd131024be3828c61",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-final-frozen.stdout",
+        "decoded_bytes": 701,
+        "decoded_sha256": "020421de03ddf2bd130e91e296043e789543c4db47595e9dd131024be3828c61",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/passive-protocol-final-frozen.json",
+        "bytes": 1344,
+        "sha256": "43c10c1f2adcb92050641532576e0ed5dae6b8ec458fb9813b122a070aca7da8",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/passive-protocol-final-frozen.json",
+        "decoded_bytes": 1344,
+        "decoded_sha256": "43c10c1f2adcb92050641532576e0ed5dae6b8ec458fb9813b122a070aca7da8",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "current maintained analytics map/object consumer",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_actual_analytics_mapping_is_not_reported_as_empty -q -o addopts= --import-mode=importlib -p no:cacheprovider",
+      "target_sha": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "0c522 clean source; exact current map plus CausalEstimatorInterval/CausalResultKind owner identity;1PASS; static280 declared candidates remains UNKNOWN",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/composed-analytics-final-native.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/composed-analytics-final-native.stdout",
+        "bytes": 618,
+        "sha256": "bceb11d94bbac4f57553698eff042fd66c6cbeb98816722664e02e5853a8ba02",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/composed-analytics-final-native.stdout",
+        "decoded_bytes": 618,
+        "decoded_sha256": "bceb11d94bbac4f57553698eff042fd66c6cbeb98816722664e02e5853a8ba02",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/composed-analytics-final-native.json",
+        "bytes": 1313,
+        "sha256": "9e25a9c4f09b3885579ef891e6952732a6492e08cdca954646c2d85dfad93cac",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/composed-analytics-final-native.json",
+        "decoded_bytes": 1313,
+        "decoded_sha256": "9e25a9c4f09b3885579ef891e6952732a6492e08cdca954646c2d85dfad93cac",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "marker-kept passive module admission removal",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/api/remove_passive_import_profile.py",
+      "target_sha": "0c6c7efaab3eba502b44bf6471e7a3c675608f2a",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "0c6 runtime-only removal; actual fresh CPython namespace differs while export markers remain;1 expected semantic FAIL; restore in memory; no product writes",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/passive-import-profile-removal.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/passive-import-profile-removal.stdout",
+        "bytes": 3316,
+        "sha256": "900a2209fa9f83d49486ca694e1ce33cd6be1601e4f01f7c5197a29d88741a13",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/passive-import-profile-removal.stdout",
+        "decoded_bytes": 3316,
+        "decoded_sha256": "900a2209fa9f83d49486ca694e1ce33cd6be1601e4f01f7c5197a29d88741a13",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/passive-import-profile-removal.json",
+        "bytes": 1127,
+        "sha256": "a44ee4e46375014b9ac8743565b6dc47a09982839dddda43817305c8e6b9acb5",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/passive-import-profile-removal.json",
+        "decoded_bytes": 1127,
+        "decoded_sha256": "a44ee4e46375014b9ac8743565b6dc47a09982839dddda43817305c8e6b9acb5",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "historical source548 complete tracked-source caller census",
+      "command": "python3 /workspace/e02-F-api-20261006/policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py --root /workspace/e02-F-api-20261006 --ref 5484db7a25014953bdab7cb2418df735f972ff93 --output /tmp/e02-F-continuation-20261006/api/census-final-complete.json",
+      "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+      "environment": {
+        "PYTHONPATH": "src:tools:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Source-specific static census;13788tracked/6451Python;206dynamic AST candidates (185computed), not established clients; no current composition census claim",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/census-final-replayed.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/census-final-replayed.stdout",
+        "bytes": 1510,
+        "sha256": "5c39d5e38f1c98ed13176ea10a08c309933c6669f78cc9bd8ee8def763bfadbe",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/census-final-replayed.stdout",
+        "decoded_bytes": 1510,
+        "decoded_sha256": "5c39d5e38f1c98ed13176ea10a08c309933c6669f78cc9bd8ee8def763bfadbe",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/census-final-replayed.json",
+        "bytes": 1586,
+        "sha256": "42a949b9f31f882d28790e6938c3686bd62393d540553811c5535bceedb9060a",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/census-final-replayed.json",
+        "decoded_bytes": 1586,
+        "decoded_sha256": "42a949b9f31f882d28790e6938c3686bd62393d540553811c5535bceedb9060a",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "current composed canonical inventory representation",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tools:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/api/generate_composed_public_inventory.py",
+      "target_sha": "a8c40ac9dca0d680dd82187e2538cbba9a34eb08",
+      "environment": "App3.14 readonly env; current root718 composed source; no imported provider execution in parser",
+      "input_closure": "All38supported entrypoints;103explicit Git source reads independently rebound; canonical renderers onlytwoownedoutputs; analytics280/world41 unproved declared candidates",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/composed-inventory-generation.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/composed-inventory-generation.stdout",
+        "bytes": 535,
+        "sha256": "60b2c1d923465eaaa861baf2a3dbdab6a5b4fbd00e13b55c006152f904174ccd",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/composed-inventory-generation.stdout",
+        "decoded_bytes": 535,
+        "decoded_sha256": "60b2c1d923465eaaa861baf2a3dbdab6a5b4fbd00e13b55c006152f904174ccd",
+        "encoding": "identity"
+      },
+      "scope": "Generation represents known unknowns; completeness verdict is separately FAIL"
+    },
+    {
+      "name": "current canonical export completeness",
+      "command": "guardrails._check_public_surface_contracts(current canonical build_public_surface_inventory)",
+      "target_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "environment": "Exact independent current source read profile",
+      "input_closure": "38actual supported entrypoints; all38UNKNOWN/export_count=null/known_export_count0; native observations do not repair static completeness",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-f909/review.json.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-f909/review.json.gz",
+        "bytes": 9753,
+        "sha256": "620e62a6f7eeb9543099981747de97ed648ad06563db00b66d11fc3a1c699d41",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/api-review-f909/review.json",
+        "decoded_bytes": 64314,
+        "decoded_sha256": "4b2e992253298b194ae45322bd0cd5f5da208f173a9d63cc85f337d0a78bb83f",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "current composed installed numerical consumer wave",
+      "command": "No command issued; root holds final composed archive build pending canonical G127 owner fixes/fiscal precision",
+      "target_sha": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+      "environment": "Selected genuine worker3.12 profile and App3.14 available; fresh current wheel/sdist not built",
+      "input_closure": "Current assets/manifest/protocol ready; fresh archive/site numerical/CAS/monitor/TMLE consumers unmeasured on this current composition",
+      "outcome": "UNRUN",
+      "output": "Current source-only handoff; installed-wave-plan/probes committed as unexecuted preparation, earlier548/5cd installed evidence remains source-specific"
+    }
+  ],
+  "full_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/outputs.json",
+    "bytes": 242732,
+    "sha256": "962fcbb7f741c64b203c88ec6b47e0ae7f80b6d8b1fcd0827921c52a17af06b6"
+  },
+  "independent_review": [
+    {
+      "name": "api-review",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review/review.json",
+        "bytes": 25818,
+        "sha256": "3b146fa224fa2d06af6366e686be48fbb6d455d4a7452702ac54c47ff5a20c84",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/api-review/review.json",
+        "decoded_bytes": 25818,
+        "decoded_sha256": "3b146fa224fa2d06af6366e686be48fbb6d455d4a7452702ac54c47ff5a20c84",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "api-review-fd36",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-fd36/review.json.gz",
+        "bytes": 5245,
+        "sha256": "5db89b7843fe3f8d33ef5380890821b77a186448c842f36b8fef9bc6d017e22a",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/review.json",
+        "decoded_bytes": 48574,
+        "decoded_sha256": "8a318d34f8a85dd0bba13133c2eced56a7377c4ec87b5b9e7e9d8266d463f677",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "api-review-35",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-35/review.json.gz",
+        "bytes": 6525,
+        "sha256": "a6522856b2c79b3e66e2bcb0a21d2369129775b57ce0623fc641d377b0f392d6",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/review.json",
+        "decoded_bytes": 66397,
+        "decoded_sha256": "1aa165509c5309f0d23ed91f447223bdbbcd647107f7a20a9a439706a3b6b6f2",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "api-review-0c6",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-0c6/review.json.gz",
+        "bytes": 9681,
+        "sha256": "e24a2622afe50af6d905cb868d5af2f9707ac2e35898fb1a322633bf44d3a138",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/api-review-0c6/review.json",
+        "decoded_bytes": 83722,
+        "decoded_sha256": "fbad13777204a2dc7692c5b7f4918ef44c0981ef639899fa972cf5543fcc3f53",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "api-review-a7",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-a7/review.json.gz",
+        "bytes": 10812,
+        "sha256": "0b8cdb855a7cafe8a8091ec528aaf911e048773e2bc1343d176a3814bbb9570f",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/api-review-a7/review.json",
+        "decoded_bytes": 97253,
+        "decoded_sha256": "fbf91ee93703bae2e082ab965e51ff87622e687d6c9c93012ca1d347d1f7b1c5",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "api-review-f909",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-f909/review.json.gz",
+        "bytes": 9753,
+        "sha256": "620e62a6f7eeb9543099981747de97ed648ad06563db00b66d11fc3a1c699d41",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/api-review-f909/review.json",
+        "decoded_bytes": 64314,
+        "decoded_sha256": "4b2e992253298b194ae45322bd0cd5f5da208f173a9d63cc85f337d0a78bb83f",
+        "encoding": "gzip-lossless"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Static public inventory records finite declared candidates separately from proven exports and refuses unsupported import-time declaration effects; supported causal facade consumers retain canonical owners. Current packaging projects exactlysixcanonical worker files without a source fork.",
+    "runtime_path": [
+      "canonical local source declarations",
+      "bounded AST/profile reader and explicit source-read receipt",
+      "typed unknown inventory/rendered snapshots",
+      "canonical completeness predicate; separate actual facade/native consumers"
+    ],
+    "proxy_divergence": "Markers, finite source-name keys, absence of reflection, successful imports and parser representation do not establish complete runtime exports, all callers or causal/authority validity.",
+    "negative_controls": [
+      "e576 hiddenprebinding/multiline/descriptor effects actualFAIL retained",
+      "fd36 implicitdecorator actualFAIL retained",
+      "35 localimport hooks/builtin fallback +hashseed nondeterminism actualFAIL retained",
+      "0c literal-assigned moduleprotocol importTypeError falsecomplete actualFAIL retained",
+      "a7 corrected dependency/parentinitializer dunder profile, marker-kept removal expectedFAIL",
+      "f909 canonical JSON total/complete corruption and Markdown unknown-label corruption reject drift while full38completeness remainsFAIL"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_classification": {
+    "representation": "PASS current source/re-render/hash/source-read basis",
+    "complete_exports": "FAIL38",
+    "current_installed_consumer": "UNRUN until finalrootfreeze",
+    "production_authority": "not_established; missing owner-issued realworld inputs/verifier/context/freshchallenge"
+  },
+  "per_id": [
+    {
+      "id": "LA-020",
+      "state": "limited",
+      "criterion": "Existing explicit causal_engine/interference facades already accepted at base198; this slice migrates five actual private test-helper callers, inventories supported loader/AST cases, preserves native and historical source-specific installed ABI, and publishes truthful current inventory/package assets. No new reflection removal claimed; current installed composition awaiting finalwave; computed AST candidates are not established clients."
+    },
+    {
+      "id": "LA-007",
+      "state": "limited/related owner evidence",
+      "criterion": "id_engine.py shadow sibling already absent at accepted base; preserve supported package and canonical owners. Internal loader/file/spec/archive characterization is source-specific; external filenames/config clients unresolved. No new deletion delivered."
+    },
+    {
+      "id": "LA-019",
+      "state": "limited/related owner evidence",
+      "criterion": "causal_engine.py/interference.py siblings already absent at accepted base; supported package entrypoints maintained. No removal of packages or fabricated absent-file closure."
+    },
+    {
+      "id": "LA-017",
+      "state": "limited/read-only packet",
+      "criterion": "Accepted Lex00a6 source not remerged/redelivered. Current simulator/report/NormPack local-owner input packet identifies actual missing legal/authority refs; no production legal scope test/claim."
+    }
+  ],
+  "capability_state_or_finding_state": "Source implementation/representation and narrow canonical assets ready; LA-020 remains limited. Current composed installed/backend/admission scientific authority are not promoted from historical/source markers. All38 static complete-export predicates remain FAIL.",
+  "limitations_and_next_owner": [
+    "Root final common freeze incorporates current G127 canonical monitor/confidence fixes plus fiscal precision; then one exact wheel+sdist+rebuilt-wheel installedwave with complete Git/archive/site byte denominator, maintained ABI, real worker/CAS freshreader, normalizedmonitor, TMLE and B220 consumers. Prepared probes are UNRUN.",
+    "App Python3.14 excludes DoWhy/EconML by current profile; absence is not positive backend evidence. Separate pinned genuine Python3.12 worker source/config assets are unchanged; this slice does not introduce application deps, downgrade or backend shim.",
+    "Static finite grammar excludes all class creation, foreign/external effects, passive dependency callable/dunder bindings, unsupported headers/control/protocols; selected plain function bodies are excluded. Unknown totals never mean namespace zero. Analytics280/world41 are unproved current source candidates; historical278 belongs earlier source.",
+    "Historical548 wheel/sdist16PASS and source census206/185computed plus actual runtime caller observations retain exact original source/input denominator; they are not fresh current composition acceptance.",
+    "Maintained C/Runtime PDC physical-byte/content-identity input/manifest/context/verifier/challenge packet handed root; no copied/replayed/self-issued authority-positive. G needs actual owner-issued observational/admission refs for realdata/production runs.",
+    "Whole gate/CI is not PASS; no P41 inherited attribution or provenance exemption from source-disjointness assumptions. Global generated families/quality axes not rerun here; exact full gate still required by receiving owner."
+  ],
+  "surface": {
+    "public": "Existing causal_engine/id_engine/interference facade addresses and class/function/pickle/patch ABI; existing canonical CausalEstimatorInterval/CausalResultKind owners observed separately",
+    "internal": "AST inventory/census, five test helper imports, private installed _dowhy_profile assets",
+    "schema": "Publicinventory JSONv1 additive known_export_count/export_resolution; null means unknown; declared candidates unproved; no new module registry/loader/facade/shim"
+  },
+  "authority_purpose": "Bounded implementation and consumer ABI observations only; no causal identification, lawfulness, production admission or normative economics grant.",
+  "patterns": [
+    "P01",
+    "P10",
+    "P27",
+    "P31",
+    "P32",
+    "P33",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "closure_id_semantics": "No entire finding closure asserted by this source-only handoff; all related owner/G decisions remain separate.",
+  "carried_slice_base_footprint": {
+    "base_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/F-failures-baseline.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/LA-020-baseline.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.stdout.txt.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/archive_binding_replayer.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census-candidate.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/commands.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment-run.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment-run.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment-run.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment_replayer.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/api-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/byte_census_review.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/independent-byte-census.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/independent-byte-census.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/launch.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/sdist-independent.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/sdist-proof.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/wheel-independent.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/wheel-proof.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_binding_replayer.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_launch.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft2.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft2.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft3.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft3.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/outputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/readback-draft.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/readback-draft.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/removal_replayer.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-env-create.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-env-create.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-install.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-install.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed-proof.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/source-identity.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-base-install.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-base-install.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-env-create.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-env-create.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-install.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-install.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed-proof.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+    ],
+    "scope": "Already committed API baseline source/receipt paths carried by approved branch ancestry; not implemented by this continuation. Compare own implementation commits for actual writer footprint."
+  },
+  "observer_errors": [
+    {
+      "phase": "source handoff transport metadata",
+      "outcome": "ERROR",
+      "meaning": "Historical reviewer transfer selection uses files rather than items; first publisher KeyError captured in full, corrected metadata-only collection without source/numerical rerun.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/publish-source-first-observer-error.stderr"
+    }
+  ],
+  "receipt_corrections": [
+    {
+      "scope": "metadata only before publication",
+      "details": "Own14 source paths are the union of exact implementation commit diffs;86 prior API slice-base receipt/source paths are separately carried, not new implementation. Complete publisher draft telemetry captured after writer finished; initial draft counts remain historical. Source0c522/tree0b308 and all deciding tests/reviews unchanged."
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.590" timestamp="2026-10-06T16:39:01.996573+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.methods.catalog.causal.test_tmle_common_report" name="test_typed_confounders_preserve_complete_native_adjustment_basis" time="0.307"><failure message="AssertionError: assert {'assumption_...63566729, ...} == {'assumption_...39557899, ...}&#10;  &#10;  Omitting 11 identical items, use -vv to show&#10;  Differing items:&#10;  {'ci_upper': 0.3874968663566729} != {'ci_upper': 0.3901696439557899}&#10;  {'targeting_summary': {'assumption_basis': 'consumer_asserted', 'converged': True, 'final_residual_mse': 0.20858168160043863, 'fluctuation_link': 'logit', ...}} != {'targeting_summary': {'assumption_basis': 'consumer_asserted', 'converged': True, 'final_residual_mse': 0.2101834452351343, 'fluctuation_link': 'logit', ...}}&#10;  {'standard_error': 0.037125442016194714} != {'standard_error': 0.03727043551549104}&#10;  {'nuisance_diagnostics': {'calibration_mod...&#10;  &#10;  ...Full output truncated (7 lines hidden), use '-vv' to show">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa86d011f30&gt;
+
+    def test_typed_confounders_preserve_complete_native_adjustment_basis(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        data = _data()
+        confounder = np.linspace(-1.0, 1.0, len(data.outcome))[:, None]
+        data = data.model_copy(update={"confounders": confounder, "confounder_names": ["calendar"]})
+        shapes = []
+        native = core._fit_crossfit_fold
+    
+        def observe(**kwargs):
+            shapes.append(kwargs["X"].shape)
+            return native(**kwargs)
+    
+        monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE", {})
+        monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE_ORDER", [])
+        monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+        typed = TMLEEstimator.pure_step(data, _params())
+        raw = TMLEEstimator.pure_step(_legacy(data), _params())
+&gt;       assert typed["result"] == raw["result"]
+E       AssertionError: assert {'assumption_...63566729, ...} == {'assumption_...39557899, ...}
+E         
+E         Omitting 11 identical items, use -vv to show
+E         Differing items:
+E         {'ci_upper': 0.3874968663566729} != {'ci_upper': 0.3901696439557899}
+E         {'targeting_summary': {'assumption_basis': 'consumer_asserted', 'converged': True, 'final_residual_mse': 0.20858168160043863, 'fluctuation_link': 'logit', ...}} != {'targeting_summary': {'assumption_basis': 'consumer_asserted', 'converged': True, 'final_residual_mse': 0.2101834452351343, 'fluctuation_link': 'logit', ...}}
+E         {'standard_error': 0.037125442016194714} != {'standard_error': 0.03727043551549104}
+E         {'nuisance_diagnostics': {'calibration_mod...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py:204: AssertionError</failure></testcase></testsuite></testsuites>

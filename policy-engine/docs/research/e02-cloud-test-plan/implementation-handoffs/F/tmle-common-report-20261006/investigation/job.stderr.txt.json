@@ -1,0 +1,4 @@
+{
+  "schema": "policyos.e02.lossless_utf8_output.v1",
+  "text": "Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use\nTraceback (most recent call last):\n  File \"/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/probe.py\", line 30, in <module>\n    assert not result.issues,result.issues\n           ^^^^^^^^^^^^^^^^^\nAssertionError: [{'loc': ['method_runner'], 'message': \"Unknown parameters for causal.treatment_effects.tmle@1.0.0: ['__disable_shared_nuisance_cache', 'calibration_mode', 'ci_mode', 'coverage_guard', 'crossfit_folds', 'inference_profile', 'n_repeats', 'outcome_backend', 'outcome_scaling', 'propensity_backend', 'random_seed']\", 'error_type': 'runtime', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}]\n"
+}

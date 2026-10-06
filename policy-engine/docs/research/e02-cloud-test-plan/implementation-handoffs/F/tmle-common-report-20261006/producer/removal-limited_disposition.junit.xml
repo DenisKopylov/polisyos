@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.067" timestamp="2026-10-06T16:39:01.968245+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.methods.catalog.causal.test_tmle_common_report" name="test_actual_limited_profiles_preserve_result_and_emit_point_free_report[changes0-unsupported_inference_profile-assumption_failed]" time="1.986"><failure message="AssertionError: assert &lt;EstimationStatus.SUCCESS: 'success'&gt; is &lt;EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'&gt;&#10; +  where &lt;EstimationStatus.SUCCESS: 'success'&gt; = CausalEffectReport(schema_version='1.0', method=&lt;CausalMethod.TMLE: 'tmle'&gt;, status=&lt;EstimationStatus.SUCCESS: 'succes...argeting_score': 9.958589508585191e-13}}, sample_size=600, n_treated=309, n_control=291, pre_periods=0, post_periods=0).status">tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/tmle-common-report/removal-tmp/limited_disposition/test_actual_limited_profiles_p0')
+changes = {'inference_profile': 'clustered'}
+limitation = 'unsupported_inference_profile'
+status = &lt;EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'&gt;
+
+    @pytest.mark.parametrize(
+        ("changes", "limitation", "status"),
+        [
+            (
+                {"inference_profile": "clustered"},
+                "unsupported_inference_profile",
+                EstimationStatus.ASSUMPTION_FAILED,
+            ),
+            (
+                {"propensity_clipping": 0.49},
+                "observed_positivity_failure",
+                EstimationStatus.ASSUMPTION_FAILED,
+            ),
+            (
+                {"propensity_trimming": 0.48, "weak_overlap_mode": "trim"},
+                "trimmed_target_not_population_ate",
+                EstimationStatus.ASSUMPTION_FAILED,
+            ),
+            (
+                {"max_targeting_iter": 1, "targeting_step_limit": 1e-10},
+                "targeting_score_not_converged",
+                EstimationStatus.NUMERICAL_FAILURE,
+            ),
+        ],
+    )
+    def test_actual_limited_profiles_preserve_result_and_emit_point_free_report(
+        tmp_path,
+        changes,
+        limitation,
+        status,
+    ) -&gt; None:
+        saved, _ = _run(tmp_path, _data(), _params(**changes))
+        result = saved["result"]
+        report = CausalEffectReport.model_validate(saved["report"])
+        envelope = UncertaintyEnvelope.model_validate(saved["envelope"])
+        assert limitation in result["inference_limitations"]
+        assert result["status"] == "limited" and np.isfinite(result["ate"])
+        assert result["ci_lower"] is None and result["ci_upper"] is None
+&gt;       assert report.status is status
+E       AssertionError: assert &lt;EstimationStatus.SUCCESS: 'success'&gt; is &lt;EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'&gt;
+E        +  where &lt;EstimationStatus.SUCCESS: 'success'&gt; = CausalEffectReport(schema_version='1.0', method=&lt;CausalMethod.TMLE: 'tmle'&gt;, status=&lt;EstimationStatus.SUCCESS: 'succes...argeting_score': 9.958589508585191e-13}}, sample_size=600, n_treated=309, n_control=291, pre_periods=0, post_periods=0).status
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py:247: AssertionError</failure></testcase></testsuite></testsuites>

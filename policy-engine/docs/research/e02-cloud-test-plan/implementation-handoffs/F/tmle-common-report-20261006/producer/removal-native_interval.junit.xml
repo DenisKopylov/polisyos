@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="3.981" timestamp="2026-10-06T16:39:02.123519+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.methods.catalog.causal.test_tmle_common_report" name="test_real_configured_method_job_projects_exact_native_eif_and_cas_reader" time="3.758"><failure message="assert (-0.258032192...4968663566729) == (0.2419678078...4968663566729)&#10;  &#10;  At index 0 diff: -0.2580321921670705 != 0.24196780783292948&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/tmle-common-report/removal-tmp/native_interval/test_real_configured_method_jo0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f8e08d19ba0&gt;
+
+    def test_real_configured_method_job_projects_exact_native_eif_and_cas_reader(
+        tmp_path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        data = _data()
+        params = _params()
+        calls = []
+        native = core._fit_crossfit_fold
+    
+        def observe(**kwargs):
+            calls.append((kwargs["rep_seed"], kwargs["fold_id"], kwargs["test_idx"].copy()))
+            return native(**kwargs)
+    
+        monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE", {})
+        monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE_ORDER", [])
+        monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+        saved, job = _run(tmp_path, data, params)
+        assert len(calls) == 6
+        assert {(seed, fold) for seed, fold, _ in calls} == {
+            (seed, fold) for seed in (18, 1015) for fold in range(3)
+        }
+        for seed in (18, 1015):
+            held_out = [i for current, _, indices in calls if current == seed for i in indices]
+            assert sorted(held_out) == list(range(len(data.outcome)))
+        result = saved["result"]
+        report = CausalEffectReport.model_validate(saved["report"])
+        envelope = UncertaintyEnvelope.model_validate(saved["envelope"])
+        assert report.method is CausalMethod.TMLE
+        assert report.status is EstimationStatus.SUCCESS
+        assert report.point_estimate == result["ate"]
+        assert report.standard_error == result["standard_error"]
+&gt;       assert report.confidence_interval == (result["ci_lower"], result["ci_upper"])
+E       assert (-0.258032192...4968663566729) == (0.2419678078...4968663566729)
+E         
+E         At index 0 diff: -0.2580321921670705 != 0.24196780783292948
+E         Use -v to get more diff
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py:130: AssertionError</failure></testcase></testsuite></testsuites>

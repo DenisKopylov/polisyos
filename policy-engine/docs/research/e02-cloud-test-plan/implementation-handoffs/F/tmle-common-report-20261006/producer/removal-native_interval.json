@@ -1,0 +1,23 @@
+{
+  "source_sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+  "source_tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/tmle-common-report/removal_replay.py",
+    "native_interval"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp",
+    "inherited_environment": true,
+    "artificial_cloud_quota": false
+  },
+  "exit_code": 1,
+  "wall_seconds": 16.107252469999366,
+  "output": "/tmp/e02-F-continuation-20261006/tmle-common-report/removal-native_interval.stdout.txt",
+  "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/removal-native_interval.stderr.txt",
+  "removal_scope": "native_interval",
+  "source_clean_after": true
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="10.189" timestamp="2026-10-06T16:29:38.740357+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.methods.catalog.causal.test_tmle_common_report" name="test_real_configured_method_job_projects_exact_native_eif_and_cas_reader" time="5.231"><failure message="AssertionError: [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10;assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:62aa0313808bce68dfb77b0cd74023066723df0021b9db5f75bbdfbafa7531a2'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues">tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/tmle-common-report/baseline-red-v2/pytest-tmp/test_real_configured_method_jo0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f298cca6190&gt;
+
+    def test_real_configured_method_job_projects_exact_native_eif_and_cas_reader(
+        tmp_path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        data = _data()
+        params = _params()
+        calls = []
+        native = core._fit_crossfit_fold
+    
+        def observe(**kwargs):
+            calls.append((kwargs["rep_seed"], kwargs["fold_id"], kwargs["test_idx"].copy()))
+            return native(**kwargs)
+    
+        monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE", {})
+        monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE_ORDER", [])
+        monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+&gt;       saved, _ = _run(tmp_path, data, params)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/tmle-common-report/baseline-red-v2/pytest-tmp/test_real_configured_method_jo0')
+data = HTEObservationalData(outcome=array([1., 1., 0., 1., 0., 0., 0., 0., 1., 1., 0., 0., 0., 1., 0., 1., 1.,
+       0., 0.,... 582, 583, 584,
+       585, 586, 587, 588, 589, 590, 591, 592, 593, 594, 595, 596, 597,
+       598, 599]), metadata={})
+params = {'calibration_mode': 'none', 'ci_mode': 'wald', 'coverage_guard': 'off', 'crossfit_folds': 3, ...}
+
+    def _run(tmp_path, data: HTEObservationalData, params: dict[str, object]):
+        store = FileSystemCAS(tmp_path / "cas")
+        source = store.put_json(
+            data.model_dump(mode="json"),
+            PutOptions(kind="ir.observational_data", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        job = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn=TMLEEstimator.signature.fqn,
+                method_params=params,
+                seed=18,
+                input_refs={"causal_observational_data": source},
+            ),
+            cas_root=store.root,
+            method_state=data,
+        )
+&gt;       assert not job.issues, job.issues
+E       AssertionError: [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E       assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:62aa0313808bce68dfb77b0cd74023066723df0021b9db5f75bbdfbafa7531a2'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py:85: AssertionError</failure></testcase></testsuite></testsuites>

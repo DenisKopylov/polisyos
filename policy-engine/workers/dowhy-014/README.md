@@ -44,6 +44,14 @@ or synthesized. Mediation, other estimators/targets/contrasts and effect modifie
 require separate scientific profiles. `legacy-inprocess` remains explicitly named
 for existing internal tests and is not this supported backend path.
 
+The parent uses the existing class's pure
+`DoWhyIdentifyEstimate.report_from_worker_result` to construct the whole report.
+Source-validating consumers reuse it after validating the reply and compare the
+complete typed object, including absent diagnostics/p-values and signature-derived
+method parameters. Matching selected numeric fields or matching peer projections
+alone does not justify additional report claims. This builder performs no launch,
+source admission, CAS write or authority promotion.
+
 `gcm_fit` constructs a real DoWhy SCM, explicitly assigns `EmpiricalDistribution`
 to roots and linear `AdditiveNoiseModel` to children, then calls actual `gcm.fit`.
 It exports fitted coefficients/intercepts and complete observed/root and fitted

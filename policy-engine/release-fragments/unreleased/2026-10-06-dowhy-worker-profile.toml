@@ -22,3 +22,15 @@ release_note = "The selected default uses an isolated source-resolved DoWhy 0.14
 migration_docs = ["workers/dowhy-014/README.md"]
 runbook_docs = ["workers/dowhy-014/README.md"]
 generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "causal-dowhy-complete-report-projection"
+change_class = "internal"
+impact = "added"
+surface = "DoWhyIdentifyEstimate.report_from_worker_result on existing exported class"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+release_note = "Producer and source-validating consumer share one complete pure typed-report projection; existing class and function pickle addresses remain canonical."
+migration_docs = ["workers/dowhy-014/README.md"]
+runbook_docs = ["workers/dowhy-014/README.md"]
+generated_client_compatibility = "not_applicable"

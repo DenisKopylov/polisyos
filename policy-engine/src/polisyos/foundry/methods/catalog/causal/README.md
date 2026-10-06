@@ -76,6 +76,12 @@ broader `polisyos.foundry.methods` facade.
   aligned input and result bindings, and persists the typed result. Native
   synthetic-DGP tests establish bounded implementation properties; they do not
   establish admitted real-data assumptions or Scientist evaluation authority.
+  `DoWhyIdentifyEstimate.report_from_worker_result` is the complete pure report
+  projection shared by the actual producer and source-validating consumers.
+  It derives parameter defaults from the registered signature and preserves
+  default diagnostics, assumptions and absent p-values; it launches no backend
+  and grants no authority. The existing class facades retain the same object and
+  pickle addresses, and their supported method override reaches the producer.
 
 ## Extension Points
 

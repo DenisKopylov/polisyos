@@ -21,8 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core import artifacts, canon
 
 _MAX_BYTES = 8 * 1024 * 1024
 _TIMEOUT_S = 60.0
@@ -40,7 +39,7 @@ class WorkerBindingError(ValueError):
 
 @dataclass(frozen=True)
 class _WorkerContext:
-    source_ref: ArtifactRef
+    source_ref: artifacts.ArtifactRef
     source_sha256: str
     source_payload: dict[str, Any]
 
@@ -59,7 +58,7 @@ def _digest(value: Any) -> str:
 
 
 @contextmanager
-def worker_execution_context(*, store: Any, source_ref: ArtifactRef) -> Iterator[None]:
+def worker_execution_context(*, store: Any, source_ref: artifacts.ArtifactRef) -> Iterator[None]:
     """Admit one actual typed CAS source around an existing method-job invocation.
 
     Args:
@@ -69,12 +68,12 @@ def worker_execution_context(*, store: Any, source_ref: ArtifactRef) -> Iterator
     Yields:
         A content-resolved execution context; this function performs no writes.
     """
-    ref = ArtifactRef.model_validate(source_ref)
+    ref = artifacts.ArtifactRef.model_validate(source_ref)
     raw = store.get_bytes(ref)
     manifest = store.get_manifest(ref)
     if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
         raise WorkerBindingError("source artifact manifest/ref mismatch")
-    payload = from_canonical_bytes(raw)
+    payload = canon.from_canonical_bytes(raw)
     if not isinstance(payload, dict):
         raise WorkerBindingError("source artifact must contain a typed input object")
     if "contract_payload" in payload:
@@ -378,7 +377,7 @@ def run_worker(
 
 
 def validate_persisted_worker_response(
-    *, response: Mapping[str, Any], state: Any, store: Any, source_ref: ArtifactRef
+    *, response: Mapping[str, Any], state: Any, store: Any, source_ref: artifacts.ArtifactRef
 ) -> None:
     """Revalidate a persisted candidate against actual reopened source content.
 
@@ -398,7 +397,7 @@ def validate_persisted_worker_response(
 
 
 def _validate_persisted_binding(
-    *, response: Mapping[str, Any], state: Any, store: Any, source_ref: ArtifactRef
+    *, response: Mapping[str, Any], state: Any, store: Any, source_ref: artifacts.ArtifactRef
 ) -> None:
     observed = response["parent_observed"]
     binding = observed["request_binding"]

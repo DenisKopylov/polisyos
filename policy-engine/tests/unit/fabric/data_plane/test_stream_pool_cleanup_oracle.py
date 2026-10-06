@@ -95,10 +95,13 @@ def _valid_rows(
     return [dict(row) for row in batch], [], 0
 
 
-def _file_fds(path: Path) -> list[str]:
+def _file_fds(path: Path) -> list[str] | None:
     """Observe actual Linux file descriptors without inventing retained file I/O."""
+    fd_root = Path("/proc/self/fd")
+    if not fd_root.is_dir():
+        return None
     result: list[str] = []
-    for fd in Path("/proc/self/fd").iterdir():
+    for fd in fd_root.iterdir():
         try:
             if os.readlink(fd) == str(path):
                 result.append(fd.name)
@@ -113,6 +116,7 @@ def _snapshot(
     registry: ConnectorRegistry,
     path: Path,
 ) -> dict[str, Any]:
+    file_fds = _file_fds(path)
     return {
         "stats": asdict(pool.get_stats()),
         "available_permits": pool._semaphore._value,
@@ -129,7 +133,8 @@ def _snapshot(
         "actual_handles_without_disconnect_confirmation": sorted(connector.active),
         "confirmed_disconnects": list(connector.disconnected),
         "disconnect_calls": list(connector.disconnect_calls),
-        "jsonl_open_fds": _file_fds(path),
+        "jsonl_open_fds": file_fds,
+        "jsonl_fd_observation": "UNRUN: procfs unavailable" if file_fds is None else "observed",
     }
 
 

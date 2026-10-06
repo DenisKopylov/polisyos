@@ -1,5 +1,5 @@
 {
-  "schema": "policyos.e02.D.taskboard.v3",
+  "schema": "policyos.e02.D.taskboard.v4",
   "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
   "slice_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
   "queues": [
@@ -28,7 +28,7 @@
         "B126",
         "B127"
       ],
-      "state": "native analytic/coordinate/vector independent66 PASS; canonical planned test placement pending, production unchanged",
+      "state": "All canonical paths present at ab7577; exact893 independent fiscal30 PASS. New real receiver stage_a primitive and legacy controller incomplete-frontier falsifiers FAIL; owner corrections and unchanged replay active. Earlier66 profile superseded by explicit uncapped7 proof.",
       "independent_reviewer": [
         "root",
         "numerical_oracle"
@@ -36,7 +36,7 @@
       "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
       "admission_create": "admission/search-create.json",
       "admission_resume": "admission/search-resume.json",
-      "implementation_source_sha": "ebeb7040dd66250752a1ccb10a28c939d201fb30"
+      "implementation_source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e"
     },
     {
       "owner": "transfer_owner",
@@ -60,7 +60,7 @@
         "B136",
         "B137"
       ],
-      "state": "actual frozen8eb CAS to GP48 PASS; initial native fit1, restore fit0/MLL0; receipt and ten finding matrix pending",
+      "state": "Actual frozen8eb CAS to GP48 PASS, fit1 then restore fit0/MLL0; final2aa ten-finding matrix7 limited/3 held. Owner now independent reviewer of Q1/Q3 preserved-basis intake controls.",
       "independent_reviewer": [
         "root"
       ],
@@ -85,7 +85,7 @@
         "LA-014",
         "LA-015"
       ],
-      "state": "independent real callback and competing writer controls af3 FAIL/b328 PASS; canonical native lifecycle test pending; served/persisted consumer missing",
+      "state": "Independent real callback and competing writers af3 FAIL/b328 PASS; canonical lifecycle185 eight PASS. New raw CAS numeric/bool coercion3 FAIL; owner corrects existing typed model admission. Served/persisted consumer missing; full quality wave waits freeze.",
       "independent_reviewer": [
         "root",
         "baseline_census"
@@ -124,7 +124,7 @@
         "B164",
         "B165"
       ],
-      "state": "root production delta reviewed; actual paid projection8eb FAIL; unchanged corrective/combined reviewer replay pending; typed promotion permit bridge_missing",
+      "state": "Paid projection8eb FAIL/a23 PASS; independent actual consumer57 PASS, paid2 PASS, stress4 PASS and removal rejects MODEL complement. Final510 receipt retained; new actual Gateway raw negative cost normalized0 falsifier reopened core cost intake. Typed permit positive UNRUN/bridge_missing.",
       "independent_reviewer": [
         "root",
         "numerical_oracle",
@@ -150,7 +150,7 @@
         "B122",
         "B41"
       ],
-      "state": "four bounded mechanisms root117 execute PASS and six removal falsifiers FAIL; native stress producer to actual downstream L5 independent replay active",
+      "state": "Four bounded mechanisms root117 execute PASS and six removal falsifiers FAIL; independent actual stress producer/CAS/L5/Funnel4 PASS plus MODEL-complement removal rejection. Owner now independent45-finding denominator/accounting reviewer.",
       "independent_reviewer": [
         "root"
       ],
@@ -167,7 +167,9 @@
     "test_lease": [
       "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
       "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
-      "policy-engine/tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py"
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py"
     ]
   },
   "finding_count": 45,
@@ -175,7 +177,7 @@
   "criterion_occurrences": 46,
   "input_predicate_basis": "recomputed",
   "closure_ids": [],
-  "state": "production_review_complete_canonical_tests_and_independent_receipts_pending",
+  "state": "canonical_paths_complete_new_actual_receiver_falsifiers_reopened_before_aggregate_freeze",
   "rules": [
     "one writer per leased path",
     "no children",
@@ -183,7 +185,7 @@
     "G sole integration publisher",
     "one broad wave after source review/freeze"
   ],
-  "recorded_source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+  "recorded_source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
   "active_agent_slots": 7,
   "direct_helpers": 6,
   "maximum_available_slots": 7,

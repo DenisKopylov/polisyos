@@ -1,0 +1,286 @@
+{
+  "schema_version": "1",
+  "kind": "independent_source_and_native_consumer_review",
+  "review_author": "/root/funnel_owner",
+  "implementation_author": "/root/search_owner",
+  "product_source": {
+    "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+    "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+    "node": {
+      "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "git_blob": "cae57ad7bbe3f667862a185f8bcba909f3283024",
+      "sha256": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+      "bytes": 63816
+    },
+    "delta_base": "f47914ddd15c2afc90e809c4d308cace1feaf20c",
+    "production_delta": {
+      "paths": [
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+      ],
+      "additions": 307,
+      "deletions": 34
+    },
+    "accepted_response_dependency": "f47914ddd15c2afc90e809c4d308cace1feaf20c; byte-identical accepted root 8c response seam; no new B decoder write"
+  },
+  "source_review": {
+    "status": "accepted_bounded",
+    "additional_actionable_source_discrepancy": false,
+    "read_scope": [
+      "complete owned node and entire final delta",
+      "all three existing coordinator construction calls",
+      "existing coordinator structure/parameter paths and seed readers",
+      "strict PolicyEvaluationVector normalization and policy subject contract",
+      "existing ParetoRegistry publication/snapshot/project_view and report denominator",
+      "candidate full hash, declared parameter shape, MoneyValue and canonical CAS decoder",
+      "mirrored author tests, fixture predecessors, guide and release fragment"
+    ],
+    "properties": [
+      {
+        "property": "configured registry port",
+        "mechanism": "Canonical ParetoRegistry is accepted explicitly and the same object reaches instantiate_coordinator, validate_policy_design_api, and run_search. No default registry or scientific basis is constructed.",
+        "evidence_class": "source review; author runtime35 separate"
+      },
+      {
+        "property": "whole-call tenant routing",
+        "mechanism": "Raw tenant/cell copied into merged call context; explicit tenant hashes must agree with derived hash. Existing tenant_scope covers parameter discovery, coordinator execution and parameterless path, and resets on return/error. Late external context mutation cannot rewrite copied scope.",
+        "evidence_class": "source review plus independent actual tenant ContextVar/reset/seed-reader checks",
+        "limit": "Routing is not access authorization or owner appointment. Cell text forwarding is observed; cell ContextVar reset is source-reviewed only. Cell does not add a transfer partition coordinate."
+      },
+      {
+        "property": "strict parameterless observation and subject",
+        "mechanism": "Present policy_evaluation is normalized before publication; malformed None/bool/string/mapping refuses despite scalar/feasible markers. Configured publication requires matching policy ID or canonical metadata hash and refuses every contradictory present identity; absent legacy/no-registry DTO semantics remain available.",
+        "evidence_class": "source review and independent four actual strict-present refusals"
+      },
+      {
+        "property": "actual parameterless publication/custody",
+        "mechanism": "Each actually evaluated accepted structure publishes one vector through configured existing registry, using its produced canonical candidate hash. Returned projections are read from that same registry; fresh filesystem registry and fresh CAS frontier report reconcile to actual evaluated history.",
+        "evidence_class": "independent actual callback/disk/reopen/report; registry-port removal requires failed custody oracle",
+        "limit": "Controlled finite callback observation is not an appointed default scientific producer. No-evaluator empty history stays unavailable."
+      },
+      {
+        "property": "full subject identity",
+        "mechanism": "Native structure metadata enrichment participates in full candidate hash. Actual callback subject, structured candidate, typed history vector, registry entry and fresh report agree. Pre-production input hash is preserved distinctly rather than used as an incorrect custody identity.",
+        "evidence_class": "independent actual produced subject/readback; first oracle failure preserved"
+      },
+      {
+        "property": "technical policy envelope export",
+        "mechanism": "Shared helper removes only candidate_hash, exact empty semantic interventions and dict strategy metadata; meaningful/malformed semantic, non-dict strategy metadata and unknown rich fields refuse. Original native history remains retained.",
+        "evidence_class": "complete source review; author native report/champion and malformed envelope tests"
+      },
+      {
+        "property": "declared Money transport",
+        "mechanism": "Only declared tunable MoneyValue or explicit amount/currency carrier is restored through canonical kernel DTO. Bounds, current intervention values, schedule and fallback carriers retain declared currency/year; mapping and direct Decimal CAS ingress retain full JSON/hash identity. Private serializer remembers nullable-year presence only and serializes current validated fields, so modified values cannot be concealed by retained presentation flags.",
+        "evidence_class": "complete source review and author35 actual ordinary JSON/CAS/node/adapter paths; independent earlier null-presence watchpoint corroborated author30 failure",
+        "limit": "Bounded transport profile; no arbitrary object/unit inference or new quantitative law."
+      },
+      {
+        "property": "denominator and ranking limits",
+        "mechanism": "Fresh report validates full source-feasible/unknown candidate denominator. Missing basis does not rank; missing axes give unavailable/null quantity; legitimate computed zero remains available when supported.",
+        "evidence_class": "source review and independent fresh report basis_limited/ranked-empty observation; author full-denominator checks"
+      }
+    ]
+  },
+  "independent_execution": {
+    "status": "PASS_BOUNDED",
+    "final_run": "legacy-carrier-correction-final",
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_seconds": 13.54,
+    "wall_seconds": 21.43847011899925,
+    "maxrss_kib": 519484,
+    "actual_product_unique_paths": 1345,
+    "origin_errors": 0,
+    "source_before_after_clean_equal": true,
+    "partition": {
+      "native_callback_custody_fresh_registry_and_CAS_report": 1,
+      "malformed_present_no_scalar_fallback": 4,
+      "removal_conformance_with_expected_meaningful_AssertionError": 2
+    },
+    "removal_controls": [
+      {
+        "removed": "configured registry port only",
+        "retained": "real callback, scalar/feasible/vector and actual tenant-hash markers",
+        "deciding_result": "actual custody oracle AssertionError; callback once, fresh registry empty"
+      },
+      {
+        "removed": "module tenant_scope only, in memory",
+        "retained": "real callback, actual registry publication, derived tenant-hash text and subject markers",
+        "deciding_result": "actual seed-reader routing oracle AssertionError; ambient tenant observed instead of declared tenant; fresh registry still one entry"
+      }
+    ],
+    "prior_failures_preserved": [
+      {
+        "run": "initial-oracle-failure",
+        "passed": 5,
+        "failed": 2,
+        "classification": "independent oracle input-vs-produced-subject identity error; tenant-removal precondition therefore non-deciding"
+      },
+      {
+        "run": "produced-identity-correction",
+        "passed": 6,
+        "failed": 1,
+        "classification": "independent oracle assumed typed object for legacy dictionary history when configured registry absent; not product failure"
+      }
+    ],
+    "corrective_input_refs": [
+      {
+        "source_sha": "58ead558b922397a82d31ca9c876e1449f1a2121",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/test-registry-consumer.py.txt",
+        "git_blob": "bc44b1cf1c8e31452563240e8082ec5d054bbdaf",
+        "sha256": "993705320aaf0d0da010e0715101f94eb8e29258cda77293dcb8cb920d33bacb",
+        "bytes": 8168
+      },
+      {
+        "source_sha": "4afccae46ce91b03d2b916afc50aa8da10251c71",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/test-registry-consumer.py.txt",
+        "git_blob": "aa7252460792404a7cd1b8cb29546e3772dbf9b9",
+        "sha256": "9868176f275c0108c6b217ec735202b5c93ee6b079650c7ee8066963b5abc5b0",
+        "bytes": 10316
+      },
+      {
+        "source_sha": "4dbd0c6dbc071241a36123319785eca04f21f2ec",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/test-registry-consumer.py.txt",
+        "git_blob": "9f6fb83a8d8b33575ec55c41bf80d03836a46300",
+        "sha256": "68eea64a1cf88c61dff2ddd6459449e81b2f22334b191900336f2eee6504d56e",
+        "bytes": 10368
+      }
+    ],
+    "original_directories_retained": [
+      "/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma",
+      "/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy",
+      "/tmp/e02-D-registry-independent-f471-final-o4jjzy1b"
+    ],
+    "runner": {
+      "source_sha": "a7387d3548745ad2f7861b4fe77ebe9ac99e55d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/runner.py.txt",
+      "git_blob": "5cfe82c2ddfa079edd273028dbf208ad913ec0a1",
+      "sha256": "b099e9e398b68eede2baab9dcafd52b6be8c05d03a8ba9984811db2c81443f6f",
+      "bytes": 3941
+    },
+    "observer": {
+      "source_sha": "566574237b0e7a6c8bcb196425226d76c952efff",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/observer.py.txt",
+      "git_blob": "9b2deee3d56ddfba86e85db90762923cc68b7f80",
+      "sha256": "386e3fb5cd7ca31633b5281b4b5f6c24d9ef220c13cf68db2e28393e310523f8",
+      "bytes": 1470
+    }
+  },
+  "environment": {
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "frozen_distribution_count": 148,
+    "profile_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7",
+    "immutable_profile_receipt": {
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859"
+    },
+    "optional_extras": [
+      "Torch",
+      "BoTorch",
+      "GPyTorch",
+      "HNSW",
+      "SALib"
+    ],
+    "optional_extra_bodies_status": "UNRUN; absent backend is not numeric PASS",
+    "source_PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:<run output>",
+    "no_import_blocking_or_backend_substitution": true,
+    "new_basetemp_nonexisting_each_run": true,
+    "added_runtime_quotas_or_skip_filters": false,
+    "ordinary_minimal_profile_tests_not_GP_fits": true,
+    "no_active_child_cache_or_HEAD_hold": true
+  },
+  "complete_output": {
+    "source_sha": "95a9173ddcb1afbc9a755c9d94683507a11a54cf",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/output.json.gz",
+    "git_blob": "1a8fafec64701a49f46889b87dcc849e2c0f4df6",
+    "sha256": "a1c2b74f40ab55f62f0f384d1c50b725c07d8e9b4d73ab3d6433114fd4b24d8f",
+    "bytes": 397477,
+    "decoded_sha256": "e03221a296c8d384d1affed2edfaa84f514aaa6b15e25fe26dc20b90d22df5f7",
+    "decoded_bytes": 2151626,
+    "members": 141,
+    "git_ref_members": 9,
+    "all_members_original_bytes_and_references_verified": true,
+    "source_origins_recomputed_against_frozen_Git": {
+      "carrier_sha256": "a1c2b74f40ab55f62f0f384d1c50b725c07d8e9b4d73ab3d6433114fd4b24d8f",
+      "member_count": 141,
+      "unique_product_origin_paths_across_three_runs": 1345,
+      "all_raw_product_SHA256_and_git_blobs_recomputed_from_frozen_f471_objects": true,
+      "errors": []
+    },
+    "decoder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/README.md@a7387d3548745ad2f7861b4fe77ebe9ac99e55d6"
+  },
+  "root_composition": {
+    "map": {
+      "source_sha": "a7387d3548745ad2f7861b4fe77ebe9ac99e55d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/root-source-compatibility.json",
+      "git_blob": "675324e39076a8347a85e48bead086e33c0b6c1d",
+      "sha256": "2acb5a572fef58d395ec4b2ead6b9e8cb89748a1183068bbc691fa0b5da87204",
+      "bytes": 9157
+    },
+    "root_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "source_differences": 26,
+    "critical_existing_contracts_identical": 10,
+    "root_combined_runtime_status": "UNRUN in this independent review; f471 execution must not be relabeled root composed runtime"
+  },
+  "author_execution_kept_separate": {
+    "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+    "actual_completed_file_cases": 35,
+    "passed": 35,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "wall_seconds": 28.0703,
+    "pytest_seconds": 20.46,
+    "actual_product_unique_paths": 1344,
+    "origins_Git_match": true,
+    "original_directory": "/tmp/e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395",
+    "classification": "author runtime, read-only reconciled; not this reviewer’s execution",
+    "author_removals": "six author modes, eight expected failing cases, no errors/skips; separate authored source/output transport pending final Git locator",
+    "supplier_recipe": "unapplied A structure task-family/run-ID recipe actual 1 FAIL + two strict wire controls PASS; initial external pytest-config collection ERROR remains distinct"
+  },
+  "residuals": [
+    {
+      "class": "bridge_missing",
+      "requested_canonical_owner": "A policy-design coordinator / G integration",
+      "missing_capability": "Existing structure seed reader does not consume supplied initial_context task_family/run_id; foreign supplier patch remains unapplied.",
+      "consumer": "coordinator _load_structure_seed_candidates through configured registry",
+      "falsifier": "Actual native author recipe source run becomes registry_policy rather than appointed_source_run despite supplied context; tenant routing fixed does not establish this basis.",
+      "next_step": "Adopt canonical owner reviewed context-forwarding contract and replay original native recipe on composed source."
+    },
+    {
+      "class": "missing_input_or_owner_appointment",
+      "requested_canonical_owner": "A scientific objective/evaluator supplier / registry basis owner / G",
+      "missing_capability": "Actual default scientific vector producer and appointed ranking/basis profile for ordinary deployment are not established by configured callback consumer wiring.",
+      "consumer": "default node _evaluate_candidate_payload and ParetoRegistry view assessment",
+      "falsifier": "Missing basis yields basis_limited candidate-only projection and empty ranked frontier despite finite callback observation.",
+      "next_step": "Supply real producer/vector artifact and validated basis profile through existing configured consumer, then replay full denominator and rank controls."
+    },
+    {
+      "class": "bounded_profile",
+      "requested_canonical_owner": "G combined source acceptance",
+      "missing_capability": "Final root composed source/runtime verdict not supplied here; f471 differs at 26 source paths.",
+      "consumer": "root integration source/test denominator",
+      "falsifier": "Exact blob compatibility map disproves whole-source equality.",
+      "next_step": "Review selected node/companions and perform applicable composed caller/criterion acceptance; preserve original broad-wave interruption/collection scopes."
+    },
+    {
+      "class": "unrun_optional_backend",
+      "requested_canonical_owner": "scientific backend owner / G",
+      "missing_capability": "Numerical extras absent from actual minimal supported profile.",
+      "consumer": "GP/DOE scientific runtime",
+      "falsifier": "Physical backend absence and no fit/body execution.",
+      "next_step": "Use actual provisioned optional backend for those separate properties; do not infer them from these ordinary state/custody cases."
+    }
+  ],
+  "closure_ids": [],
+  "finding_ids": [],
+  "finding_acceptance": "reserved_to_G_original_criterion_reconciliation",
+  "formal_findings_closed": 0,
+  "G_integration_accepted": false,
+  "source_merge_permission": "No root or foreign source writes performed; parent handles aggregation",
+  "verification_limits": "Source review accepts the bounded available consumer mechanism. Independent seven-case execution is a subset consumer/refusal/counterfactual proof; it does not independently rerun author35, appoint a provider/basis, authorize tenant access, claim cell partitioning, perform GP fits, or establish default deployment."
+}

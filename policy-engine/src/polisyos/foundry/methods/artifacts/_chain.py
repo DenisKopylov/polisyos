@@ -481,7 +481,7 @@ class CompiledChainPlan:
     @classmethod
     def from_chain(cls, chain: CompiledMethodChain) -> CompiledChainPlan:
         """Capture concrete nodes, data flow and the frozen effective graph."""
-        successors = {node_id: set() for node_id in chain.dag.nodes}
+        successors: dict[UUID, set[UUID]] = {node_id: set() for node_id in chain.dag.nodes}
         for node_id, parents in chain.dag.predecessors.items():
             for parent in parents:
                 if parent not in successors or node_id not in successors:

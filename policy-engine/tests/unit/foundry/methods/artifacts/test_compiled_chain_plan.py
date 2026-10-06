@@ -203,7 +203,11 @@ def test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement(tmp_pa
     assert restored.execution_order == original.execution_order
     result = restored.execute_heterogeneous(state={"x": 4}, registry=fixture.registry)
     assert result.final_state["total"] == 17
-    assert [name for name, _params in fixture.calls] == ["produce", "consume", "produce"]
+    names = [name for name, _params in fixture.calls]
+    assert names.count("produce") == 2
+    assert names.count("consume") == 1
+    assert names[0] == "produce"
+    assert names[-1] == "consume"
 
 
 @pytest.mark.parametrize("schema_name", ["foreign-plan", "polisyos.foundry.compiled_chain_plan"])

@@ -64,7 +64,8 @@ def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
         "--export-less",
         *(
             ("--include-private",)
-            if module in (
+            if module
+            in (
                 "polisyos.foundry.methods.base",
                 "polisyos.foundry.methods.components.composer",
             )

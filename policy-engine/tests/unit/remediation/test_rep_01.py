@@ -1,11 +1,4 @@
-"""RED witness and compatibility controls for the REP-01 replay relocation.
-
-The four direct-owner checks are expected to be RED until production cutover:
-the Runtime root facade, delayed Core CLI import, benchmark import, and dynamic
-import inventory must all point at Scientist's deterministic owner.  The
-remaining tests are controls for the supported ABI and persisted contracts;
-they should remain GREEN across that relocation.
-"""
+"""Ownership witnesses and compatibility controls for the REP-01 relocation."""
 
 from __future__ import annotations
 
@@ -92,10 +85,11 @@ import importlib
 import sys
 
 runtime = importlib.import_module('polisyos.runtime')
-canonical = importlib.import_module('polisyos.scientist.replay.deterministic')
 expected = {ROOT_EXPORTS!r}
 assert tuple(runtime.__all__) == expected
+assert 'polisyos.scientist.replay.deterministic' not in sys.modules
 assert 'polisyos.runtime.replay' not in sys.modules
+canonical = importlib.import_module('polisyos.scientist.replay.deterministic')
 for name in expected:
     assert getattr(runtime, name) is getattr(canonical, name), name
 assert 'polisyos.runtime.replay' not in sys.modules

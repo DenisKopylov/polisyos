@@ -1,0 +1,565 @@
+{
+  "schema": "e02.independent_native_doe_review.v1",
+  "reviewer": "D transfer owner, not production author of reviewed defaultfactory/service/ordering paths",
+  "reviewed_source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+  "reviewed_source_tree": "ae90a66a882ee9b434cd21554043d887056d75b2",
+  "comparison_base": "d885707935d8432fcf942db5b432edc4ace99f73",
+  "status": "BOUNDED_POSITIVE_READ_ONLY_REVIEW_NO_NEW_BLOCKER_FOUND",
+  "closure_ids": [],
+  "G_accepted": false,
+  "reconciliation": {
+    "path": "/tmp/e02-D-native-doe-6fe-independent-reconciliation.json",
+    "rawfile_sha256": "a316c9b51b2f2238e4a49d0a75f36bc26eceb2cdbed8b3f748487689059453fc",
+    "evidence_source": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+    "payload_files": 32,
+    "declared_payload_byte_bindings": 30,
+    "computed_manifest_and_recompression_raw_identities": 2,
+    "source_and_companion_bindings": 58,
+    "actual_origin_rows": 144,
+    "actual_origin_headers": 144,
+    "actual_fixture_files": 1217,
+    "actual_fixture_bytes": 4649093,
+    "all_reconciled": true,
+    "normalized_AST_removal_methods": 9
+  },
+  "source_review": {
+    "own_delta": "models metadata; runtime factory/strict codec/analysis lineage; service conditional canonical native subject binding/restore validation; native generator ordering and canonical CAS reader/adapter dependencies; complete corresponding new test and companion diffs read. Transfer production code is outside this independent review.",
+    "known_native_activation": "Caller supplies full selected analysis_ref + known order profile + exploratory purpose via SearchLoopSpec.metadata. Existing canonical snapshot/E reader recomputes complete finite experiment, basis units/bounds/distribution/ranking checked against actual native space before ordering. Actual candidate coordinates use changed native order, not metadata alone.",
+    "strict_codec": "Only exact canonical generator/known adapter and exact PydanticMutationCodec receive technical envelope projection. Nonempty semantic changes, unknown fields and mismatched sensitivity metadata are not dropped; strict typed mutation rejects. Exact sensitivity_analysis fullref retained in actual candidate/evaluation manifests.",
+    "public_resume": "Canonical native subject assigned from persisted run/public candidate before publication; pending/history/derived subjects and consumed history digests validated before numerical restore/live state. Factory source/profile basis retains original analysis/configuration. Actual second evaluation after fresh public restore is exercised. Sequence/custom generators retain their original identity scheme and generic custody behavior.",
+    "migration": "Structured runtime-state-format breaking compatibility record, reader window and operational recipe explicitly preserve earlier checkpoints for original reader or new run; no relabeling. native_service_run_candidate.v1 required only for canonical native generator. Existing search-service.v2 format remains exact configuration admission, not a guessed migration. Final29836061d companion marks exactly its five records inventory-reviewed after independent/static root approval, without broader release/runtime/G verdict.",
+    "lineage_snapshot": "Existing B get_verified_snapshot single capture backs canonical E reader; exact fullref enforced in adapter, before proposal/get_state/set_state and persisted lineage. No new registry/latest pointer or authority issuer."
+  },
+  "actual_author_run_partitions": [
+    {
+      "key": "049-positive",
+      "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+      "observed": {
+        "tests": 7,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 5
+      },
+      "time": "3.998"
+    },
+    {
+      "key": "ccc-positive",
+      "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+      "observed": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 1
+      },
+      "time": "3.748"
+    },
+    {
+      "key": "65e-positive",
+      "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+      "observed": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 7
+      },
+      "time": "4.001"
+    },
+    {
+      "key": "f320-negative",
+      "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+      "observed": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "time": "4.245"
+    },
+    {
+      "key": "0188-positive",
+      "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "observed": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 11
+      },
+      "time": "4.550"
+    },
+    {
+      "key": "0188-remove-port",
+      "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "observed": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "time": "3.706"
+    },
+    {
+      "key": "0188-remove-identity",
+      "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "observed": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "time": "3.575"
+    },
+    {
+      "key": "6fe-positive",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "observed": {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 15
+      },
+      "time": "5.176"
+    }
+  ],
+  "deciding_runtime_scope": {
+    "interpreter": "/workspace/e02-D-doe-env/bin/python",
+    "readonly_optional_backend_origin": "/workspace/e02-D-locked-env/lib/python3.14/site-packages",
+    "versions": {
+      "torch": "2.10.0+cu128",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "SALib": "1.5.2",
+      "pytest": "9.0.2"
+    },
+    "final15": "11 new ordinary DOE/native subject cases plus4 existing native service Sequence failure/pending/order/stopped cases; zero failures/errors/skips. Native Sobol proposal/typed evaluator/CAS/resume path, no fitted GP model.",
+    "removed_port": "Actual native order call removed while backend/ref/basis/reader markers retained; ordinary coordinate comparison fails.",
+    "removed_identity": "Actual native subject binding removed while identity profile/analysis/native markers retained; same next public proposal/resume control fails.",
+    "removal_source_boundary": "0188 removal sources; nine relevant method normalized ASTs equal6fe. Changed canonical-generator helper narrows identity profile to exact native types; final6fe15 includes Sequence controls. No wholemodule-equivalence claim.",
+    "no_new_backend_execution": true
+  },
+  "limitations": [
+    "No actual MLL fit or GP23/26 replay in this review or these15 bounded factory tests.",
+    "No production history/evaluator appointment, input-law independence, statistical advantage, tenant/split authority or promotion authorization inferred from analytic fixture.",
+    "No current/root broadwave, CI or G acceptance claimed.",
+    "New root/search4393 underflow/identity omission corrections are subsequent source dependency deltas; finalselector and actual deciding wave must bind final frozen source.",
+    "Ordinary configured transfer controller8CAS\u2192GP test at rootbf84 is included in selector plan but positive remains UNRUN until actualwave.",
+    "Final owner HANDOFF is immutable0f; optional-profile successor9de does not relabel6fe full15. All1248 initial/profile fixture byte records checked separately."
+  ],
+  "selector_preparation": {
+    "helper": "/tmp/e02-D-final-selector-plan.py",
+    "latest_preparation_source": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+    "plan": "/tmp/e02-D-final-selector-bf84.json",
+    "selectors": 89,
+    "canonical_commands": 17,
+    "expected_regenerate": "Use --source exactfinalroot --champion-review-source6fe84b7dbfd8342b543e798fdeacd9be38fba7eb --output freshnonexisting/tmp path. No pytest launches."
+  },
+  "mutations": "Only new /tmp JSON/helper preparation, no production/source copies, root writes, Git writer or runtime child.",
+  "owner_handoff": {
+    "source_sha": "0f8802c2bb90fe05676c2273703364c0c491ea35",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+    "rawfile_sha256": "9d24b294462fbd10cd7835d4b3c72de4b91fe15691ed8cf1839ed58c50402bbd"
+  },
+  "profile_successor": {
+    "source_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+    "source_tree": "2147a817db5e70d960bf8ba8ffe611a5eabb9bf7",
+    "runtime_source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+    "production_delta": [],
+    "owner_handoff": {
+      "sha": "0f8802c2bb90fe05676c2273703364c0c491ea35",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "rawfile_sha256": "9d24b294462fbd10cd7835d4b3c72de4b91fe15691ed8cf1839ed58c50402bbd"
+    },
+    "encoded_decoded_bindings": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-verify.py.gz": {
+        "encoded_sha256": "74f234b9853b6884200c9c5811a8a931c93bec53223ed09543107bc9a46907c5",
+        "decoded_sha256": "ef1c57526dbedbf615ea7ec0e360a5b816627a4d65683b1a707fa51b71bb23e6",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile.py.gz": {
+        "encoded_sha256": "4e19e688d32e3a2a73d563496fe3de0a7a7080e2b9b09afab7766b6ae127103a",
+        "decoded_sha256": "0c6d870457baa02e459c352d0ee42d68260db6008cd04228216b7cfb6e475b87",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-release-review.json.gz": {
+        "encoded_sha256": "c6aa6f054246ec46732945730fb3fffa69994febddbe9a43982297925f01931b",
+        "decoded_sha256": "e97dc9f6ac831a7ad0ac57beb7de6ef6b042043ce705036c9b8c6474d9750c80",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/applied.json.gz": {
+        "encoded_sha256": "2a77891f2bce67a73813907f1620cc20e5880cf17f40092e57e5b1a8bde83e43",
+        "decoded_sha256": "56a726a8e7f352ec22fa5e9044972830d59bf8f565c21166846250597eedee83",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-positive-complete.txt.gz": {
+        "encoded_sha256": "7724f90eddd7dcc154b8de66fdf7f824cb7024cbf8acbaecd58b73cf9e173a22",
+        "decoded_sha256": "bf61b3778518fc4cf3238a9656b613f23846caf3d791094d0472da6e65c3883f",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-positive-junit.xml.gz": {
+        "encoded_sha256": "61ccd437c2272d234b265286297284fe80d5299abfdfe4e3c49baa2eb7888ab8",
+        "decoded_sha256": "e5d3b19902d1417e47f61c1ad714e27b856d6ebf9c9cb6f3a01b7952b15d5646",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile-complete.txt.gz": {
+        "encoded_sha256": "555761fa995a19ac8c425ee2b8fa6c0c0f87f33aa16e09250a69a4fe9679bd45",
+        "decoded_sha256": "e59cfca88b56ccd58dd443cf26d6a3697bb7f360621bebb6e3fd206eeaf53063",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile-junit.xml.gz": {
+        "encoded_sha256": "20a8ecb06fd3f41f1b83f5066fb22f21afa9ef2a735cc634c02bcd18d4fe4882",
+        "decoded_sha256": "a39ffa28763ecd31248c1b4893a8b19ab981bb44b17c6ab1a37c3a30a603d1c8",
+        "matches": true
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-profile-actual-inputs.json.gz": {
+        "encoded_sha256": "107ce130d1367970bd50e692c55224d127a75a02babb10a0e3c351369e190dd8",
+        "decoded_sha256": "7ddb1e46a776d1223ab243be22fd51f1d99afa97d0a768ec0288e8bac89e5d7a",
+        "matches": true
+      }
+    },
+    "actual_profile_fixture_files": 31,
+    "actual_profile_fixture_bytes": 126058,
+    "all_fixture_bytes_match": true,
+    "actual_positive_origins": 18,
+    "junit_counts": [
+      {
+        "key": "positive",
+        "source_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+        "junit": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "exit": 0,
+        "outcome": "1PASS"
+      },
+      {
+        "key": "missing-profile",
+        "source_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+        "junit": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        "exit": 5,
+        "outcome": "SKIP_UNRUN_EXPECTED_MISSING_PROFILE"
+      }
+    ],
+    "five_test_function_normalized_AST_equal": true,
+    "scope": "Read-only stdlib reconciliation. Full15 actual verdict stays6fe;9de1PASS andmissingbackend1SKIP/UNRUN exit5 distinct."
+  },
+  "publication": {
+    "kind": "independent read-only source/evidence review; no backend execution",
+    "preserved_original_review_file": "/tmp/e02-D-native-doe-6fe-independent-review-final.json",
+    "preserved_original_review_rawfile_sha256": "7a5710010b0f9d56e1341524c3b4f55dabc43eb2fd055f4cb4b8e155151228e4",
+    "owner_evidence": "Existing immutable0f HANDOFF and3c49/e53 payloads reused by reference; no fixture/source copies in this publication",
+    "root_context": {
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "current_actual_run": "UNRUN by this reviewer",
+      "default_factory_dependency_identity": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "reviewed_rawfile_sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528",
+          "composed_rawfile_sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "reviewed_rawfile_sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+          "composed_rawfile_sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "reviewed_rawfile_sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+          "composed_rawfile_sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "reviewed_rawfile_sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+          "composed_rawfile_sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "reviewed_rawfile_sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98",
+          "composed_rawfile_sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "reviewed_rawfile_sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2",
+          "composed_rawfile_sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "reviewed_rawfile_sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06",
+          "composed_rawfile_sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9",
+          "byte_identical": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "reviewed_rawfile_sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610",
+          "composed_rawfile_sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+          "reviewed_rawfile_sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+          "composed_rawfile_sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "reviewed_rawfile_sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46",
+          "composed_rawfile_sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "reviewed_rawfile_sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+          "composed_rawfile_sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "reviewed_rawfile_sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e",
+          "composed_rawfile_sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/serialization.py",
+          "reviewed_rawfile_sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852",
+          "composed_rawfile_sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "reviewed_rawfile_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+          "composed_rawfile_sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "reviewed_rawfile_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+          "composed_rawfile_sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+          "byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+          "reviewed_rawfile_sha256": "359aa938d9e16f057245c9dfcdebf19394cf4516c172d13ea1ccb46f110e55d8",
+          "composed_rawfile_sha256": "d5ec3c1bdece0f56cd12fa60ce646434d8cf9f859bb48809799615e413306062",
+          "byte_identical": false
+        }
+      ],
+      "relevant_method_identity": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "reviewed_source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "composed_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "normalized_ast_sha256": {
+            "restore": "647eb2dab1f5bd368c1d430ba29dc67d8c3c6275d859b0eab089d472bea03607",
+            "_canonical_native_generator": "e32b46143a7600da1cb87727cda12935184e2f6525175cf65a816be35c9c4d63",
+            "_bind_native_candidate_identity": "4b62d803340b7e1067432efd05695de4bdcff8701b36e1cf15d0dc09a28d2fad",
+            "_validate_native_candidate_identity": "1ca8895dcb34ad10ea166ceb547e4eb7aff45bdf07965a206a54d93fe9ed7296",
+            "_ask_proposals": "af9247681260b588bb992a861ebb18bbf9041ad5c45e5f715d5de29937961b68"
+          },
+          "all_normalized_method_asts_equal": true,
+          "quantity": "normalized AST method content, not rawfile hashes"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "reviewed_source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "composed_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "normalized_ast_sha256": {
+            "create_service": "cded24e2c31eb213df70d2c38dd683c2662f9f72b5bea3c5a592322718f573b2",
+            "_configured_generator": "040f12370c8424b46064a3c604aa90bb83638aeab5160ed80c075acc7d81d2b1",
+            "_codec_payload": "2a984791be026a073dc4b1152785acd31230e362ee4362a30f9d73fa20192d87",
+            "_evaluate_candidate": "1a35ee38d80765b18c48ddc57ee4de47f887049cd794b305133bd525ff2ad788"
+          },
+          "all_normalized_method_asts_equal": true,
+          "quantity": "normalized AST method content, not rawfile hashes"
+        }
+      ],
+      "current_source_delta_review": {
+        "service": "Read full6fe\u21925050 narrow diff: ask/rollback and drive handle asyncio.CancelledError; failure checkpoint write/readback refusal fences publication and re-raises original cause. Existing candidate identity/restore/configuration bodies unchanged. Root actual12author+3independent source files read, including real FileBudgetLedger settled receipts, old ACK/fresh readers and put/readback refusal; not a new execution here.",
+        "autotune_facade": "Read full lazy __getattr__ change. Runtime/execution-plan imports deferred through existing explicit mapping; stable __all__ maintained. Heavy backend absence remains explicit UNRUN rather than silently asserting runtime availability.",
+        "other_topics": "Transfer/lesson changes are own author code, so not independently reviewed here; own published handoff readback checked only. MO, DOE stress and funnel subsequent topic deltas retain separate owner/reviewer sources and final-wave denominator."
+      },
+      "optional_boundary_static_review": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+          "rawfile_sha256": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a",
+          "top_level_unguarded_numerical_imports": [],
+          "explicit_guard_calls": [
+            {
+              "module": "SALib",
+              "reason": "UNRUN: actual DOE backend required"
+            },
+            {
+              "module": "torch",
+              "reason": "UNRUN: native Sobol backend required"
+            },
+            {
+              "module": "botorch",
+              "reason": "UNRUN: native receiver required"
+            },
+            {
+              "module": "gpytorch",
+              "reason": "UNRUN: native receiver required"
+            }
+          ],
+          "quantity": "static AST/import boundary review; no missing-backend execution on current composite"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+          "rawfile_sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+          "top_level_unguarded_numerical_imports": [],
+          "explicit_guard_calls": [
+            {
+              "module": "torch",
+              "reason": "UNRUN: native transfer workflow requires Torch"
+            },
+            {
+              "module": "gpytorch",
+              "reason": "UNRUN: native transfer workflow requires GPyTorch"
+            },
+            {
+              "module": "hnswlib",
+              "reason": "UNRUN: native transfer workflow requires HNSW"
+            },
+            {
+              "module": "botorch.models",
+              "reason": "UNRUN: native transfer workflow requires BoTorch"
+            }
+          ],
+          "quantity": "static AST/import boundary review; no missing-backend execution on current composite"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+          "rawfile_sha256": "09ab55c3ad0803e76d08b52bee04215d4d7252b78ce28ab100fadb06b509fcb0",
+          "top_level_unguarded_numerical_imports": [],
+          "explicit_guard_calls": [
+            {
+              "module": "torch",
+              "reason": "UNRUN: native receiver review requires Torch"
+            },
+            {
+              "module": "gpytorch",
+              "reason": "UNRUN: native receiver review requires GPyTorch"
+            },
+            {
+              "module": "hnswlib",
+              "reason": "UNRUN: native receiver review requires HNSW"
+            },
+            {
+              "module": "botorch.models",
+              "reason": "UNRUN: native receiver review requires BoTorch"
+            }
+          ],
+          "quantity": "static AST/import boundary review; no missing-backend execution on current composite"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "rawfile_sha256": "b5b59874df84ef46866805d8b06e81959b00662ab11937c78408f7f197adce9f",
+          "top_level_unguarded_numerical_imports": [],
+          "explicit_guard_calls": [
+            {
+              "module": "torch",
+              "reason": "UNRUN: native numerical adapter requires Torch"
+            },
+            {
+              "module": "botorch",
+              "reason": "UNRUN: native numerical adapter requires BoTorch"
+            },
+            {
+              "module": "gpytorch",
+              "reason": "UNRUN: native numerical adapter requires GPyTorch"
+            }
+          ],
+          "quantity": "static AST/import boundary review; no missing-backend execution on current composite"
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+          "rawfile_sha256": "2dcac359161fd10bccbb14091890268ba9c511f188909680cefbeaeb099f2030",
+          "top_level_unguarded_numerical_imports": [],
+          "explicit_guard_calls": [
+            {
+              "module": "torch",
+              "reason": "UNRUN: configured native transfer requires Torch"
+            },
+            {
+              "module": "gpytorch",
+              "reason": "UNRUN: configured native transfer requires GPyTorch"
+            },
+            {
+              "module": "hnswlib",
+              "reason": "UNRUN: configured native transfer requires HNSW"
+            },
+            {
+              "module": "botorch.models",
+              "reason": "UNRUN: configured native transfer requires BoTorch"
+            }
+          ],
+          "quantity": "static AST/import boundary review; no missing-backend execution on current composite"
+        }
+      ],
+      "own_lesson_handoff_readback": {
+        "rows": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+            "owner_source_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+            "root_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+            "rawfile_sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+            "byte_identical": true
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+            "owner_source_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+            "root_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+            "rawfile_sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+            "byte_identical": true
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+            "owner_source_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+            "root_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+            "rawfile_sha256": "4f7d2e34ab338fe21831e7d1f89b61bbe36a6e336191eb4d33c14dc8c62ba323",
+            "byte_identical": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-consumer.json",
+            "owner_source_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+            "root_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+            "rawfile_sha256": "40ec0aa1ee186a6fd8d8b2c5e09b209bde7a5f6de7eeaaba24d5241ba5dd55d7",
+            "byte_identical": true
+          }
+        ],
+        "scope": "Byte-identity/accounting check only, not independent review of own code. Actual route is LessonRegistry namespace discovery/exact CAS\u2192materialization\u2192fresh same-process registry. No numerical TransferLearningManager/ANN/GP route or new second-process lesson claim. Earlier two-OS-reader immutable vector/CAS controls remain a separate TRN02 proof."
+      }
+    },
+    "selector_helper": {
+      "path": "/tmp/e02-D-final-selector-plan.py",
+      "rawfile_sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8",
+      "status": "Prepared; final source-specific plan waits parent final SHA",
+      "requirements": "All17original commands/raw selectors retained; complete cae\u2192final changed pytest files plus forced wholeB117claim runtime; newB119author12/independent3 and lesson6 files included, no implicit skip/filter; standalone probes/helpers separate input roles; no backend launch."
+    },
+    "limits": [
+      "Historical author15PASS remains bound6fe; profile1PASS/missingbackendSKIP_UNRUN remains9de. Method AST equality is not a new composite runtime verdict.",
+      "Current5050 static review does not claim original owner full-source tests, optional-absence execution or root final wave occurred.",
+      "Exact local receipt settlements establish local custody/accounting, not independent external provider billing truth.",
+      "Earlier review statements and preserved reconciliation artifacts retain their immutable original source quantities."
+    ]
+  }
+}

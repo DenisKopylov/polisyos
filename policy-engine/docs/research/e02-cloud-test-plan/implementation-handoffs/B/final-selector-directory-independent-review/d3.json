@@ -1,0 +1,1538 @@
+{
+  "schema": "policyos.e02.selector_directory_independent_review.v1",
+  "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+  "tree_sha": "3641bb432d7a973398a5f0851926b0dbce235e78",
+  "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+  "source_identity": {
+    "bytes": 34682,
+    "sha256": "1c44f58dc8812df3897a0570e12bf30130e66b94bd99c97e54fff47714327d2c"
+  },
+  "compiled_helpers": [
+    "native_pytest_positionals",
+    "normalize",
+    "add",
+    "parse_native"
+  ],
+  "controlled_tracked_set": [
+    "policy-engine/tests/controlled/helper.py",
+    "policy-engine/tests/controlled/nested/test_second.py",
+    "policy-engine/tests/controlled/test_first.py",
+    "policy-engine/tests/outside/test_outside.py"
+  ],
+  "cases": [
+    {
+      "name": "positional_directory",
+      "input": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/positional_directory",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/positional_directory",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/positional_directory",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/positional_directory",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "prefixed_trailing_slash",
+      "input": [
+        "python",
+        "-m",
+        "pytest",
+        "policy-engine/tests/controlled/"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/prefixed_trailing_slash",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "policy-engine/tests/controlled/"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "policy-engine/tests/controlled/",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "policy-engine/tests/controlled/"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/prefixed_trailing_slash",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "policy-engine/tests/controlled/"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "policy-engine/tests/controlled/"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/prefixed_trailing_slash",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/prefixed_trailing_slash",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "native_string_command",
+      "input": "python -m pytest tests/controlled",
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/native_string_command",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/native_string_command",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/native_string_command",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/native_string_command",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "non_pytest",
+      "input": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/controlled"
+      ],
+      "expected_files": [],
+      "observed_files": [],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/non_pytest",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "ruff",
+            "check",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": false,
+          "grade": "complete recorded check-command lineage, no execution claim"
+        }
+      ],
+      "sources": {}
+    },
+    {
+      "name": "attached_option",
+      "input": [
+        "python",
+        "-m",
+        "pytest",
+        "--basetemp=tests/controlled"
+      ],
+      "expected_files": [],
+      "observed_files": [],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/attached_option",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "--basetemp=tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {}
+    },
+    {
+      "name": "separate_option_value",
+      "input": [
+        "python",
+        "-m",
+        "pytest",
+        "--basetemp",
+        "tests/controlled"
+      ],
+      "expected_files": [],
+      "observed_files": [],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/separate_option_value",
+          "role": "owner_recorded_command",
+          "argv": [
+            "python",
+            "-m",
+            "pytest",
+            "--basetemp",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {}
+    },
+    {
+      "name": "flag_preserves_position",
+      "input": [
+        "pytest",
+        "-q",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/flag_preserves_position",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "-q",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/flag_preserves_position",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "-q",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/flag_preserves_position",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/flag_preserves_position",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "short_group",
+      "input": [
+        "pytest",
+        "-vv",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/short_group",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "-vv",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/short_group",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "-vv",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/short_group",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/short_group",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "short_group_attached_value",
+      "input": [
+        "pytest",
+        "-qkneedle",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/short_group_attached_value",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "-qkneedle",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/short_group_attached_value",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "-qkneedle",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/short_group_attached_value",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/short_group_attached_value",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sentinel",
+      "input": [
+        "pytest",
+        "--",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/sentinel",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/sentinel",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/sentinel",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/sentinel",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sentinel_after_variable_arity",
+      "input": [
+        "pytest",
+        "--benchmark-compare-fail",
+        "mean:5%",
+        "--",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/sentinel_after_variable_arity",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--benchmark-compare-fail",
+            "mean:5%",
+            "--",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/sentinel_after_variable_arity",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--benchmark-compare-fail",
+            "mean:5%",
+            "--",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/sentinel_after_variable_arity",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/sentinel_after_variable_arity",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "variable_arity_then_flag",
+      "input": [
+        "pytest",
+        "--benchmark-compare-fail",
+        "mean:5%",
+        "stddev:7%",
+        "-q",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/variable_arity_then_flag",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--benchmark-compare-fail",
+            "mean:5%",
+            "stddev:7%",
+            "-q",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/variable_arity_then_flag",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--benchmark-compare-fail",
+            "mean:5%",
+            "stddev:7%",
+            "-q",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/variable_arity_then_flag",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/variable_arity_then_flag",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "optional_value_then_flag",
+      "input": [
+        "pytest",
+        "--debug",
+        "debug.log",
+        "-q",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/test_first.py"
+      ],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [
+        {
+          "locator": "controlled/optional_value_then_flag",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--debug",
+            "debug.log",
+            "-q",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/optional_value_then_flag",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--debug",
+            "debug.log",
+            "-q",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {
+        "tests/controlled/nested/test_second.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/optional_value_then_flag",
+            "selector": "tests/controlled/nested/test_second.py",
+            "bundle": "CAS-02"
+          }
+        ],
+        "tests/controlled/test_first.py": [
+          {
+            "kind": "owner_recorded_command",
+            "locator": "controlled/optional_value_then_flag",
+            "selector": "tests/controlled/test_first.py",
+            "bundle": "CAS-02"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filename_option_value",
+      "input": [
+        "pytest",
+        "--basetemp",
+        "tests/controlled/test_first.py"
+      ],
+      "expected_files": [],
+      "observed_files": [],
+      "outcome": "PASS",
+      "unresolved_reasons": [],
+      "native_descriptors": [],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/filename_option_value",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--basetemp",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "sources": {}
+    },
+    {
+      "name": "unknown_option",
+      "input": [
+        "pytest",
+        "--e02-unregistered",
+        "tests/controlled"
+      ],
+      "expected_files": [],
+      "observed_files": [],
+      "outcome": "PASS",
+      "unresolved_reasons": [
+        "unknown option grammar: ['--e02-unregistered']; no guessed selectors"
+      ],
+      "native_descriptors": [],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/unknown_option",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--e02-unregistered",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [],
+          "unresolved_option_grammar": [
+            "unknown option grammar: ['--e02-unregistered']; no guessed selectors"
+          ]
+        }
+      ],
+      "sources": {}
+    },
+    {
+      "name": "argument_file",
+      "input": [
+        "pytest",
+        "@not_read.args",
+        "tests/controlled"
+      ],
+      "expected_files": [],
+      "observed_files": [],
+      "outcome": "PASS",
+      "unresolved_reasons": [
+        "argument-file expansion unresolved; no guessed positional selectors"
+      ],
+      "native_descriptors": [],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/argument_file",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "@not_read.args",
+            "tests/controlled"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [],
+          "unresolved_option_grammar": [
+            "argument-file expansion unresolved; no guessed positional selectors"
+          ]
+        }
+      ],
+      "sources": {}
+    },
+    {
+      "name": "missing_value",
+      "input": [
+        "pytest",
+        "--basetemp"
+      ],
+      "expected_files": [],
+      "observed_files": [],
+      "outcome": "PASS",
+      "unresolved_reasons": [
+        "option/value grammar unresolved: argument --basetemp: expected one argument"
+      ],
+      "native_descriptors": [],
+      "complete_command_lineage": [
+        {
+          "locator": "controlled/missing_value",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "--basetemp"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [],
+          "unresolved_option_grammar": [
+            "option/value grammar unresolved: argument --basetemp: expected one argument"
+          ]
+        }
+      ],
+      "sources": {}
+    },
+    {
+      "name": "actual_pinned_phase0_directory",
+      "input": [
+        "pytest",
+        "tests/unit/core/phase0"
+      ],
+      "expected_files": [
+        "tests/unit/core/phase0/test_artifact_export_import.py",
+        "tests/unit/core/phase0/test_artifact_graph.py",
+        "tests/unit/core/phase0/test_artifact_store.py",
+        "tests/unit/core/phase0/test_audit_export_verify.py",
+        "tests/unit/core/phase0/test_audit_manifest_compat.py",
+        "tests/unit/core/phase0/test_canon_json.py",
+        "tests/unit/core/phase0/test_cli.py",
+        "tests/unit/core/phase0/test_cli_resume.py",
+        "tests/unit/core/phase0/test_cli_signing.py",
+        "tests/unit/core/phase0/test_decorators.py",
+        "tests/unit/core/phase0/test_environment_manifest.py",
+        "tests/unit/core/phase0/test_logs.py",
+        "tests/unit/core/phase0/test_metric_validation_cli.py",
+        "tests/unit/core/phase0/test_metrics.py",
+        "tests/unit/core/phase0/test_observability.py",
+        "tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+        "tests/unit/core/phase0/test_propagation.py",
+        "tests/unit/core/phase0/test_provenance_contract_shims.py",
+        "tests/unit/core/phase0/test_registry_bundle.py",
+        "tests/unit/core/phase0/test_run_context.py",
+        "tests/unit/core/phase0/test_signing.py",
+        "tests/unit/core/phase0/test_store_signing.py",
+        "tests/unit/core/phase0/test_tracer.py",
+        "tests/unit/core/phase0/test_workspace_commands.py",
+        "tests/unit/core/phase0/test_worktree_admission.py"
+      ],
+      "observed_files": [
+        "tests/unit/core/phase0/test_artifact_export_import.py",
+        "tests/unit/core/phase0/test_artifact_graph.py",
+        "tests/unit/core/phase0/test_artifact_store.py",
+        "tests/unit/core/phase0/test_audit_export_verify.py",
+        "tests/unit/core/phase0/test_audit_manifest_compat.py",
+        "tests/unit/core/phase0/test_canon_json.py",
+        "tests/unit/core/phase0/test_cli.py",
+        "tests/unit/core/phase0/test_cli_resume.py",
+        "tests/unit/core/phase0/test_cli_signing.py",
+        "tests/unit/core/phase0/test_decorators.py",
+        "tests/unit/core/phase0/test_environment_manifest.py",
+        "tests/unit/core/phase0/test_logs.py",
+        "tests/unit/core/phase0/test_metric_validation_cli.py",
+        "tests/unit/core/phase0/test_metrics.py",
+        "tests/unit/core/phase0/test_observability.py",
+        "tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+        "tests/unit/core/phase0/test_propagation.py",
+        "tests/unit/core/phase0/test_provenance_contract_shims.py",
+        "tests/unit/core/phase0/test_registry_bundle.py",
+        "tests/unit/core/phase0/test_run_context.py",
+        "tests/unit/core/phase0/test_signing.py",
+        "tests/unit/core/phase0/test_store_signing.py",
+        "tests/unit/core/phase0/test_tracer.py",
+        "tests/unit/core/phase0/test_workspace_commands.py",
+        "tests/unit/core/phase0/test_worktree_admission.py"
+      ],
+      "native_descriptors": [
+        {
+          "locator": "actual/phase0",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "tests/unit/core/phase0"
+          ],
+          "selectors": [
+            "tests/unit/core/phase0/test_artifact_export_import.py",
+            "tests/unit/core/phase0/test_artifact_graph.py",
+            "tests/unit/core/phase0/test_artifact_store.py",
+            "tests/unit/core/phase0/test_audit_export_verify.py",
+            "tests/unit/core/phase0/test_audit_manifest_compat.py",
+            "tests/unit/core/phase0/test_canon_json.py",
+            "tests/unit/core/phase0/test_cli.py",
+            "tests/unit/core/phase0/test_cli_resume.py",
+            "tests/unit/core/phase0/test_cli_signing.py",
+            "tests/unit/core/phase0/test_decorators.py",
+            "tests/unit/core/phase0/test_environment_manifest.py",
+            "tests/unit/core/phase0/test_logs.py",
+            "tests/unit/core/phase0/test_metric_validation_cli.py",
+            "tests/unit/core/phase0/test_metrics.py",
+            "tests/unit/core/phase0/test_observability.py",
+            "tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+            "tests/unit/core/phase0/test_propagation.py",
+            "tests/unit/core/phase0/test_provenance_contract_shims.py",
+            "tests/unit/core/phase0/test_registry_bundle.py",
+            "tests/unit/core/phase0/test_run_context.py",
+            "tests/unit/core/phase0/test_signing.py",
+            "tests/unit/core/phase0/test_store_signing.py",
+            "tests/unit/core/phase0/test_tracer.py",
+            "tests/unit/core/phase0/test_workspace_commands.py",
+            "tests/unit/core/phase0/test_worktree_admission.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/unit/core/phase0",
+              "members": [
+                "tests/unit/core/phase0/test_artifact_export_import.py",
+                "tests/unit/core/phase0/test_artifact_graph.py",
+                "tests/unit/core/phase0/test_artifact_store.py",
+                "tests/unit/core/phase0/test_audit_export_verify.py",
+                "tests/unit/core/phase0/test_audit_manifest_compat.py",
+                "tests/unit/core/phase0/test_canon_json.py",
+                "tests/unit/core/phase0/test_cli.py",
+                "tests/unit/core/phase0/test_cli_resume.py",
+                "tests/unit/core/phase0/test_cli_signing.py",
+                "tests/unit/core/phase0/test_decorators.py",
+                "tests/unit/core/phase0/test_environment_manifest.py",
+                "tests/unit/core/phase0/test_logs.py",
+                "tests/unit/core/phase0/test_metric_validation_cli.py",
+                "tests/unit/core/phase0/test_metrics.py",
+                "tests/unit/core/phase0/test_observability.py",
+                "tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+                "tests/unit/core/phase0/test_propagation.py",
+                "tests/unit/core/phase0/test_provenance_contract_shims.py",
+                "tests/unit/core/phase0/test_registry_bundle.py",
+                "tests/unit/core/phase0/test_run_context.py",
+                "tests/unit/core/phase0/test_signing.py",
+                "tests/unit/core/phase0/test_store_signing.py",
+                "tests/unit/core/phase0/test_tracer.py",
+                "tests/unit/core/phase0/test_workspace_commands.py",
+                "tests/unit/core/phase0/test_worktree_admission.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/unit/core/phase0"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "complete_command_lineage": [
+        {
+          "locator": "actual/phase0",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "tests/unit/core/phase0"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_pytest_argv": true,
+          "grade": "complete recorded check-command lineage, no execution claim",
+          "positional_selector_tokens": [
+            "tests/unit/core/phase0"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "name": "default_secondary_filename",
+      "input": [
+        "pytest",
+        "tests/controlled"
+      ],
+      "expected_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/secondary_test.py",
+        "tests/controlled/test_first.py"
+      ],
+      "observed_files": [
+        "tests/controlled/nested/test_second.py",
+        "tests/controlled/secondary_test.py",
+        "tests/controlled/test_first.py"
+      ],
+      "native_descriptors": [
+        {
+          "locator": "controlled/secondary_filename",
+          "role": "owner_recorded_command",
+          "argv": [
+            "pytest",
+            "tests/controlled"
+          ],
+          "selectors": [
+            "tests/controlled/nested/test_second.py",
+            "tests/controlled/secondary_test.py",
+            "tests/controlled/test_first.py"
+          ],
+          "bundle_ids": [
+            "CAS-02"
+          ],
+          "native_directory_inputs": [
+            {
+              "native_directory_token": "tests/controlled",
+              "members": [
+                "tests/controlled/nested/test_second.py",
+                "tests/controlled/secondary_test.py",
+                "tests/controlled/test_first.py"
+              ],
+              "selection_basis": "pinned tracked test_*.py or *_test.py descendants",
+              "grade": "whole-file input selection, not collection or runtime proof"
+            }
+          ],
+          "positional_selector_tokens": [
+            "tests/controlled"
+          ],
+          "unresolved_option_grammar": []
+        }
+      ],
+      "outcome": "PASS"
+    }
+  ],
+  "counts": {
+    "PASS": 19
+  },
+  "pinned_option_profile": {
+    "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json",
+    "schema": "policyos.e02.pytest_cli_option_profile.v1",
+    "pytest_version": "9.0.2",
+    "actions": 146,
+    "option_names": 176,
+    "source_observations": 32,
+    "arity_distribution": {
+      "None": 76,
+      "0": 62,
+      "'?'": 7,
+      "'+'": 1
+    },
+    "limits": [
+      "Only named installed pytest9 contributor profile; custom repository pytest_addoption not loaded. Unknown option arity must remain unresolved, not a guessed selector.",
+      "Source options observed from actual runtime objects; does not attest product tests or case counts."
+    ]
+  },
+  "filename_basis": {
+    "pytest_ini": {
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    "installed_pytest_source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/python.py",
+    "defaults_from_complete_source_ast": [
+      "test_*.py",
+      "*_test.py"
+    ],
+    "python_files_override": false,
+    "complete_tracked_python_test_paths": 2794,
+    "default_supported_non_test_prefix_paths": [],
+    "phase0_python_paths": 25,
+    "phase0_test_prefix_paths": [
+      "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+      "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+      "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+      "policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+      "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+      "policy-engine/tests/unit/core/phase0/test_cli.py",
+      "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+      "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+      "policy-engine/tests/unit/core/phase0/test_decorators.py",
+      "policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+      "policy-engine/tests/unit/core/phase0/test_logs.py",
+      "policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+      "policy-engine/tests/unit/core/phase0/test_metrics.py",
+      "policy-engine/tests/unit/core/phase0/test_observability.py",
+      "policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+      "policy-engine/tests/unit/core/phase0/test_propagation.py",
+      "policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+      "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+      "policy-engine/tests/unit/core/phase0/test_run_context.py",
+      "policy-engine/tests/unit/core/phase0/test_signing.py",
+      "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+      "policy-engine/tests/unit/core/phase0/test_tracer.py",
+      "policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+      "policy-engine/tests/unit/core/phase0/test_worktree_admission.py"
+    ]
+  },
+  "explicit_reads": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+      "bytes": 14262,
+      "sha256": "5f0b852ffd3654697e0c8cb6b2b440884331a92e55393417c21e6a615ac15b42"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/polisyos",
+        "show",
+        "d3a3df91804fa4205681703c3346041eda743836:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py"
+      ],
+      "bytes": 34682,
+      "sha256": "1c44f58dc8812df3897a0570e12bf30130e66b94bd99c97e54fff47714327d2c"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/polisyos",
+        "show",
+        "d3a3df91804fa4205681703c3346041eda743836:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json"
+      ],
+      "bytes": 29521,
+      "sha256": "39ebc5b60795ac764ec36dadb0fb997dbec9f4a809526044affba7a997a2bb7d"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/polisyos",
+        "show",
+        "d3a3df91804fa4205681703c3346041eda743836:policy-engine/pytest.ini"
+      ],
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/python.py",
+      "bytes": 68754,
+      "sha256": "fd28318a23e7afb8cf81794ab3cb028ddb0148df80a14666cc8bc9320324561e"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/polisyos",
+        "ls-tree",
+        "-r",
+        "--name-only",
+        "d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "bytes": 1233198,
+      "sha256": "82fdb6c2cf0b8c195b546de6b9001b0da05cfe23b52827134aee001340fb12a6"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "d3a3df91804fa4205681703c3346041eda743836^{tree}"
+      ],
+      "bytes": 41,
+      "sha256": "fc88d92f7cdc025224f671aa3523ab9d49b2d63b600f9f1fd6cfd3fd45f9c392"
+    }
+  ],
+  "environment": {
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "property": "Only native pytest positional directories expand into exact pinned tracked test descendants; options and nonpytest commands do not become native selector inputs.",
+  "bucket": "P40 SAME input-selection/positional-token class, not a product/runtime finding.",
+  "unresolved_by_construction": [
+    "No pytest, collection, full selector main, gate, ignored fixture or product code ran.",
+    "Tracked path/AST selection does not establish actual case counts, importability, conftest exclusions or runtime semantics.",
+    "Installed pytest source was read, not imported; full installed binary/import closure is unmeasured."
+  ],
+  "closure_ids": []
+}

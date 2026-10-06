@@ -67,7 +67,12 @@ def main() -> None:
     selector_main = next(
         node for node in module.body if isinstance(node, ast.FunctionDef) and node.name == "main"
     )
-    helpers = {node.name: node for node in selector_main.body if isinstance(node, ast.FunctionDef)}
+    helper_nodes = [*module.body, *selector_main.body]
+    helpers = {
+        node.name: node
+        for node in helper_nodes
+        if isinstance(node, ast.FunctionDef) and node.name != "main"
+    }
     names = {"parse_native", "add", "normalize"}
     pending = list(names)
     while pending:
@@ -79,9 +84,7 @@ def main() -> None:
                     names.add(dependency)
                     pending.append(dependency)
     definitions = [
-        node
-        for node in selector_main.body
-        if isinstance(node, ast.FunctionDef) and node.name in names
+        node for node in helper_nodes if isinstance(node, ast.FunctionDef) and node.name in names
     ]
     pattern = next(
         node
@@ -101,6 +104,13 @@ def main() -> None:
         "commands": [],
         "all_commands": [],
     }
+    option_profile: Row | None = None
+    if "native_pytest_positionals" in helpers:
+        profile_path = (
+            SELECTOR.rsplit("/", 1)[0] + "/final-root-evidence/pytest-cli-option-profile.json"
+        )
+        option_profile = json.loads(git("show", args.target + ":" + profile_path))
+        namespace["option_profile"] = option_profile
     executable = ast.Module(body=definitions, type_ignores=[])
     # Only exact hash-bound nested metadata definitions execute; main/imports are excluded.
     exec(compile(executable, SELECTOR, "exec"), namespace)  # noqa: S102
@@ -118,6 +128,50 @@ def main() -> None:
         ("attached_option", ["python", "-m", "pytest", "--basetemp=tests/controlled"], []),
         ("separate_option_value", ["python", "-m", "pytest", "--basetemp", "tests/controlled"], []),
     ]
+    if option_profile is not None:
+        variants.extend(
+            [
+                ("flag_preserves_position", ["pytest", "-q", "tests/controlled"], EXPECTED),
+                ("short_group", ["pytest", "-vv", "tests/controlled"], EXPECTED),
+                (
+                    "short_group_attached_value",
+                    ["pytest", "-qkneedle", "tests/controlled"],
+                    EXPECTED,
+                ),
+                ("sentinel", ["pytest", "--", "tests/controlled"], EXPECTED),
+                (
+                    "sentinel_after_variable_arity",
+                    ["pytest", "--benchmark-compare-fail", "mean:5%", "--", "tests/controlled"],
+                    EXPECTED,
+                ),
+                (
+                    "variable_arity_then_flag",
+                    [
+                        "pytest",
+                        "--benchmark-compare-fail",
+                        "mean:5%",
+                        "stddev:7%",
+                        "-q",
+                        "tests/controlled",
+                    ],
+                    EXPECTED,
+                ),
+                (
+                    "optional_value_then_flag",
+                    ["pytest", "--debug", "debug.log", "-q", "tests/controlled"],
+                    EXPECTED,
+                ),
+                (
+                    "filename_option_value",
+                    ["pytest", "--basetemp", "tests/controlled/test_first.py"],
+                    [],
+                ),
+                ("unknown_option", ["pytest", "--e02-unregistered", "tests/controlled"], []),
+                ("argument_file", ["pytest", "@not_read.args", "tests/controlled"], []),
+                ("missing_value", ["pytest", "--basetemp"], []),
+            ]
+        )
+    unresolved_names = {"unknown_option", "argument_file", "missing_value"}
     for name, argv, expected in variants:
         namespace["sources"] = {}
         namespace["commands"] = []
@@ -125,13 +179,21 @@ def main() -> None:
         parse_native(argv, "controlled/" + name, ["CAS-02"])
         sources = cast("dict[str, dict[object, Row]]", namespace["sources"])
         observed = sorted(sources)
+        lineage = cast("list[Row]", namespace["all_commands"])
+        unresolved = [
+            reason
+            for row in lineage
+            for reason in cast("list[str]", row.get("unresolved_option_grammar", []))
+        ]
+        reasons_valid = bool(unresolved) if name in unresolved_names else not unresolved
         cases.append(
             {
                 "name": name,
                 "input": argv,
                 "expected_files": expected,
                 "observed_files": observed,
-                "outcome": "PASS" if observed == expected else "FAIL",
+                "outcome": "PASS" if observed == expected and reasons_valid else "FAIL",
+                "unresolved_reasons": unresolved,
                 "native_descriptors": namespace["commands"],
                 "complete_command_lineage": namespace["all_commands"],
                 "sources": {path: list(records.values()) for path, records in sources.items()},
@@ -163,6 +225,47 @@ def main() -> None:
         and not Path(p).name.startswith("test_")
     ]
     phase0 = [p for p in tests if p.startswith("policy-engine/tests/unit/core/phase0/")]
+    if option_profile is not None:
+        namespace["tracked"] = set(all_paths)
+        namespace["sources"] = {}
+        namespace["commands"] = []
+        namespace["all_commands"] = []
+        argv = ["pytest", "tests/unit/core/phase0"]
+        parse_native(argv, "actual/phase0", ["CAS-02"])
+        observed = sorted(cast("dict[str, object]", namespace["sources"]))
+        expected = sorted(
+            p.removeprefix("policy-engine/")
+            for p in phase0
+            if any(fnmatch.fnmatchcase(Path(p).name, pat) for pat in defaults)
+        )
+        cases.append(
+            {
+                "name": "actual_pinned_phase0_directory",
+                "input": argv,
+                "expected_files": expected,
+                "observed_files": observed,
+                "native_descriptors": namespace["commands"],
+                "complete_command_lineage": namespace["all_commands"],
+                "outcome": "PASS" if observed == expected else "FAIL",
+            }
+        )
+        namespace["tracked"] = {*CONTROLLED, "policy-engine/tests/controlled/secondary_test.py"}
+        namespace["sources"] = {}
+        namespace["commands"] = []
+        namespace["all_commands"] = []
+        parse_native(["pytest", "tests/controlled"], "controlled/secondary_filename", ["CAS-02"])
+        observed = sorted(cast("dict[str, object]", namespace["sources"]))
+        expected = sorted([*EXPECTED, "tests/controlled/secondary_test.py"])
+        cases.append(
+            {
+                "name": "default_secondary_filename",
+                "input": ["pytest", "tests/controlled"],
+                "expected_files": expected,
+                "observed_files": observed,
+                "native_descriptors": namespace["commands"],
+                "outcome": "PASS" if observed == expected else "FAIL",
+            }
+        )
     report = {
         "schema": "policyos.e02.selector_directory_independent_review.v1",
         "source_sha": args.target,
@@ -173,6 +276,21 @@ def main() -> None:
         "controlled_tracked_set": sorted(CONTROLLED),
         "cases": cases,
         "counts": dict(Counter(str(row["outcome"]) for row in cases)),
+        "pinned_option_profile": None
+        if option_profile is None
+        else {
+            "source_sha": args.target,
+            "path": profile_path,
+            "schema": option_profile["schema"],
+            "pytest_version": option_profile["pytest_version"],
+            "actions": len(option_profile["actions"]),
+            "option_names": sum(len(action["options"]) for action in option_profile["actions"]),
+            "source_observations": len(option_profile["option_registration_sources"]),
+            "arity_distribution": dict(
+                Counter(repr(action["nargs"]) for action in option_profile["actions"])
+            ),
+            "limits": option_profile["limits"],
+        },
         "filename_basis": {
             "pytest_ini": {"source_sha": args.target, **ref(ini_bytes)},
             "installed_pytest_source": str(args.pytest_source),

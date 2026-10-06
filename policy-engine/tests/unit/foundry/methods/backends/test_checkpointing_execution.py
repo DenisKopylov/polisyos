@@ -484,6 +484,41 @@ def test_history_only_failed_writer_cannot_delete_peer_publication(tmp_path, mon
         worker.join(10)
 
 
+@pytest.mark.parametrize("relative_directory", [False, True], ids=["absolute", "relative"])
+@pytest.mark.parametrize("state_key", ["node_results", "independent"], ids=["collision", "control"])
+def test_executor_generation_separates_state_and_original_history_array_roots(
+    tmp_path, monkeypatch, relative_directory, state_key
+):
+    from pathlib import Path
+
+    import numpy as np
+
+    chain, registry, node, _ = _history_array_checkpoints(tmp_path / "bootstrap")
+    monkeypatch.chdir(tmp_path)
+    directory = Path("writer") if relative_directory else tmp_path / "writer"
+    initial_state = {state_key: [{"output": np.asarray(11)}]}
+    overrides = {node.id: {"value": 2}}
+    original = CheckpointingChainExecutor(registry=registry, checkpoint_dir=directory).execute(
+        chain, initial_state=initial_state, params_per_node=overrides, seed=23
+    )
+    checkpoint = ChainCheckpoint.load(next(directory.glob("checkpoint*.json")))
+    resumed = CheckpointingChainExecutor(registry=registry).execute(
+        chain,
+        initial_state=initial_state,
+        params_per_node=overrides,
+        checkpoint=checkpoint,
+        seed=23,
+    )
+    # This user state has the exact same structural array suffix as real
+    # serialized MethodResult history. Renaming only the state key removes the
+    # collision while preserving the generation pointer and array markers.
+    np.testing.assert_array_equal(resumed.final_state[state_key][0]["output"], np.asarray(11))
+    np.testing.assert_array_equal(resumed.node_results[0][1].output, np.asarray(2))
+    np.testing.assert_array_equal(resumed.node_results[0][1].slot_outputs["output"], np.asarray(2))
+    assert resumed.node_results[0][1].reproducibility == original.node_results[0][1].reproducibility
+    assert resumed.history_complete
+
+
 def test_missing_bound_history_refuses_before_consumer_dispatch(tmp_path):
     chain, registry, calls = _bound_chain()
     writer = CheckpointingChainExecutor(registry=registry, checkpoint_dir=tmp_path)

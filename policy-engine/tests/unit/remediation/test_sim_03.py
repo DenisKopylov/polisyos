@@ -19,6 +19,7 @@ from polisyos.foundry.coupling.estimation import (
 )
 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    HorizonSpec,
     JointSimulationControllerError,
     JointSimulationHorizonController,
     SimulationTrajectory,
@@ -245,7 +246,13 @@ def test_joint_request_runs_each_requested_replication_with_distinct_seeds(
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
-    request = _request().model_copy(update={"seed": 17, "replications": 2})
+    request = _request().model_copy(
+        update={
+            "seed": 17,
+            "replications": 2,
+            "horizon": HorizonSpec(start=0, end=0),
+        }
+    )
     result = JointSimulationHorizonController().run(request)
 
     assert len(calls) == 6
@@ -279,8 +286,9 @@ def test_ncm_evidence_none_and_explicit_empty_are_distinct(
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
     controller = JointSimulationHorizonController()
-    controller.run(_request().model_copy(update={"evidence_state": None}))
-    controller.run(_request().model_copy(update={"evidence_state": {}}))
+    one_step = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0)})
+    controller.run(one_step.model_copy(update={"evidence_state": None}))
+    controller.run(one_step.model_copy(update={"evidence_state": {}}))
 
     assert observed[0] == {
         "income_delta": 0.0,
@@ -299,17 +307,29 @@ def test_physical_run_ref_binds_effective_evidence_and_source_mode() -> None:
         "balance_delta": 0.0,
         "firm_survival": 1.0,
     }
+    one_step = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0)}
+    )
     implicit_baseline = controller.run(
-        _request().model_copy(update={"baseline_state": baseline, "evidence_state": None})
+        one_step.model_copy(update={"baseline_state": baseline, "evidence_state": None})
     )
     explicit_empty = controller.run(
-        _request().model_copy(update={"baseline_state": baseline, "evidence_state": {}})
+        one_step.model_copy(update={"baseline_state": baseline, "evidence_state": {}})
     )
     changed_baseline = controller.run(
-        _request().model_copy(
+        one_step.model_copy(
             update={
                 "baseline_state": {**baseline, "income_delta": 9.0},
                 "evidence_state": None,
+            }
+        )
+    )
+    changed_comparator = controller.run(
+        one_step.model_copy(
+            update={
+                "baseline_state": baseline,
+                "evidence_state": None,
+                "comparator_refs": ("comparator://new",),
             }
         )
     )
@@ -323,8 +343,9 @@ def test_physical_run_ref_binds_effective_evidence_and_source_mode() -> None:
         joint_ref(implicit_baseline),
         joint_ref(explicit_empty),
         joint_ref(changed_baseline),
+        joint_ref(changed_comparator),
     }
-    assert len(refs) == 3
+    assert len(refs) == 4
 
 
 def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
@@ -371,7 +392,9 @@ def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
         )
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
-    request = _request().model_copy(update={"seed": 17})
+    request = _request().model_copy(
+        update={"seed": 17, "horizon": HorizonSpec(start=0, end=0)}
+    )
     changed_seed = request.model_copy(update={"seed": 18})
     changed_plan = _request_with_interaction_multiplier(request, 6.0)
     controller = JointSimulationHorizonController()
@@ -430,6 +453,8 @@ _PHYSICAL_RUN_IDENTITY_FIELDS = frozenset(
         "replication_seeds",
         "evidence_state",
         "evidence_source",
+        "baseline_state",
+        "comparator_refs",
         "plan",
         "runtime_refs",
         "atoms",
@@ -604,10 +629,10 @@ def test_selected_outcome_and_engine_horizon_are_part_of_the_basis(
     assert result.higher_order_residuals == {}
 
 
-def test_static_ncm_multi_step_horizon_is_limited_not_additive(
+def test_static_ncm_multi_step_horizon_is_rejected_before_execution(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """B26: preserve a static candidate run but limit incomplete horizon claims."""
+    """B26: a static point cannot qualify as a requested multi-step run."""
 
     calls: list[None] = []
 
@@ -633,30 +658,14 @@ def test_static_ncm_multi_step_horizon_is_limited_not_additive(
     result = JointSimulationHorizonController().run(request)
 
     assert request.horizon.steps() == (0, 1, 2, 3)
-    assert result.engine_decisions[0].decision == "selected"
-    assert result.engine_decisions[0].temporal_capability == "static"
-    assert result.trajectories
-    assert calls
-    assert all(
-        tuple(point.step for point in trajectory.points) == (0,)
-        for trajectory in result.trajectories
-    )
+    assert result.engine_decisions[0].decision == "unsupported"
+    assert result.engine_decisions[0].reason == "static_engine_cannot_ground_dynamic_horizon"
+    assert not result.trajectories
+    assert not calls
+    assert result.receipt.calibration_status == "no_run"
     assert result.feedback_classification.numeric_interaction == "unsupported"
-    assert (
-        "interaction_evidence_incomplete"
-        in result.feedback_classification.limitations
-    )
-    assert (
-        "interaction_evidence_incomplete"
-        in result.promotion_ready_value_packet["authority_blockers"]
-    )
     assert result.feedback_classification.checked_interaction_orders == ()
-    assert result.interaction_terms[0].by_step == {0: 0.0}
-    assert "eligible_joint_engine_missing" not in result.feedback_classification.limitations
-    assert any(
-        issue.startswith("horizon_incomplete:")
-        for issue in result.diagnostics["interaction_evidence_issues"]
-    )
+    assert "eligible_joint_engine_missing" in result.feedback_classification.limitations
 
 
 def test_static_ncm_single_step_horizon_remains_additive(
@@ -731,7 +740,9 @@ def test_four_atom_cancellation_is_bounded_aggregate_not_additive(
 def test_joint_simulation_requires_explicit_selected_outcome_baseline() -> None:
     """B19: missing comparator state must not silently become numeric zero."""
 
-    request = _request().model_copy(update={"baseline_state": {}})
+    request = _request().model_copy(
+        update={"baseline_state": {}, "horizon": HorizonSpec(start=0, end=0)}
+    )
 
     with pytest.raises(JointSimulationControllerError) as raised:
         JointSimulationHorizonController().run(request)
@@ -756,7 +767,10 @@ def test_explicit_comparator_makes_equal_scenarios_zero_effect(
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_outcome))
     request = _request().model_copy(
-        update={"baseline_state": {"firm_survival": 100.0}},
+        update={
+            "baseline_state": {"firm_survival": 100.0},
+            "horizon": HorizonSpec(start=0, end=0),
+        },
     )
 
     result = JointSimulationHorizonController().run(request)
@@ -781,7 +795,10 @@ def test_joint_simulation_reuses_physical_spec_across_roles(
         return original(state, params)
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
-    result = JointSimulationHorizonController().run(_request())
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0)}
+    )
+    result = JointSimulationHorizonController().run(request)
 
     assert len(calls) == 3
     pairwise = result.trajectory_for("pairwise", ("income_subsidy", "balance_grant"))

@@ -606,43 +606,26 @@ def _program_graph_plan(
     )
 
 
-def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt() -> None:
-    result = JointSimulationHorizonController().run(_request())
+def test_static_ncm_multistep_request_is_typed_no_run_before_runner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = JointSimulationHorizonController()
+    runner_calls: list[None] = []
+    monkeypatch.setattr(
+        controller,
+        "_engine_runners",
+        lambda: {"ncm_parallel_worlds": lambda *_args: runner_calls.append(None)},
+    )
 
-    assert result.uncertainty_kind == "K_sim"
-    assert result.world_credal_state_after == result.world_credal_state_before
-    authority_blockers = result.promotion_ready_value_packet["authority_blockers"]
-    assert "simulation_only_k_sim_not_world_evidence" in authority_blockers
-    assert "interaction_evidence_incomplete" in authority_blockers
-    assert (
-        "interaction_evidence_incomplete"
-        in result.feedback_classification.limitations
-    )
-    assert result.feedback_classification.checked_interaction_orders == ()
-    assert any(
-        issue.startswith("horizon_incomplete:")
-        for issue in result.diagnostics["interaction_evidence_issues"]
-    )
+    result = controller.run(_request())
+
     assert result.engine_decisions[0].engine_kind == "ncm_parallel_worlds"
-    assert result.engine_decisions[0].decision == "selected"
-    assert result.engine_decisions[0].method_fqn.endswith("ncm_engine@1.0.0")
-    assert result.equilibrium_semantics["objective://firm-survival"] == "static_SCM"
-
-    levels = {trajectory.run_level for trajectory in result.trajectories}
-    assert levels == {"individual", "pairwise", "joint"}
-    joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
-    assert [point.step for point in joint.points] == [0]
-    assert joint.diagnostics["temporal_capability"] == "static"
-    assert joint.diagnostics["horizon_loop"] is False
-    assert joint.points[-1].outcomes["firm_survival"] == pytest.approx(11.0)
-
-    term = result.interaction_terms[0]
-    assert term.atom_ids == ("income_subsidy", "balance_grant")
-    assert term.outcome == "firm_survival"
-    assert term.by_step == {0: pytest.approx(5.0)}
-    assert term.formula == "joint_effect_minus_sum_individual_effects"
-    assert result.feedback_classification.numeric_interaction == "non_additive"
-
+    assert result.engine_decisions[0].decision == "unsupported"
+    assert result.engine_decisions[0].reason == "static_engine_cannot_ground_dynamic_horizon"
+    assert result.engine_decisions[0].blockers == ("static_engine_temporal_capability",)
+    assert result.trajectories == ()
+    assert result.receipt.calibration_status == "no_run"
+    assert runner_calls == []
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
 
 
@@ -657,8 +640,12 @@ def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
         persist_joint_simulation_result,
     )
 
-    result = JointSimulationHorizonController().run(_request())
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0)}
+    )
+    result = JointSimulationHorizonController().run(request)
     assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v1"
+    assert result.receipt.calibration_status == "content_bound_run_receipt"
     assert result.state_consumption is None
 
     store = FileSystemCAS(tmp_path / "n5-v1-replay-cas")

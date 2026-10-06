@@ -1,0 +1,224 @@
+"""Independent native registry state checks, without numeric/backend authority."""
+
+import json
+import os
+from contextlib import nullcontext
+from pathlib import Path
+
+import pytest
+
+from polisyos.core.security import get_current_tenant_id_or_none, tenant_scope
+from polisyos.ir.kernel.values import MoneyValue
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
+from polisyos.scientist.methods.search.transfer_context import anonymize_tenant_id
+from polisyos.scientist.nodes.builtins.planning import (
+    run_hierarchical_policy_search as module,
+)
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
+    PolicyEvaluationVector,
+)
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.policy_design.search import HierarchicalSearchConfig
+from tests.unit.scientist.nodes.builtins.planning.test_run_hierarchical_policy_search import (
+    _bundle,
+)
+
+
+def candidate():
+    original = _bundle()
+    bundle = original.model_copy(
+        update={
+            "policy_spec": original.policy_spec.model_copy(update={"parameters": []})
+        }
+    )
+    return PolicyCandidateSchema.from_trinity_bundle(
+        bundle, candidate_id="independent_policy"
+    )
+
+
+def record(name, value):
+    directory = Path(os.environ["E02_OUTPUT"]) / "native-case-observations"
+    directory.mkdir(exist_ok=True)
+    (directory / (name + ".json")).write_text(json.dumps(value, indent=2) + "\n")
+
+
+def execute(root, monkeypatch, *, configured=True):
+    item = candidate()
+    registry = ParetoRegistry(root)
+    original = registry.get_seed_bundle
+    reads = []
+    calls = []
+
+    def observe(context, **kwargs):
+        reads.append(context.model_dump(mode="json"))
+        return original(context, **kwargs)
+
+    monkeypatch.setattr(registry, "get_seed_bundle", observe)
+
+    def evaluate(payload, context):
+        parsed = PolicyCandidateSchema.model_validate(
+            {k: v for k, v in payload.items() if k != "candidate_hash"}
+        )
+        amount = MoneyValue.model_validate(
+            parsed.trinity_bundle.policy_spec.interventions[0].params["amount"]
+        )
+        calls.append(
+            {
+                "candidate_hash": parsed.candidate_hash(),
+                "context": dict(context),
+                "ambient_tenant": get_current_tenant_id_or_none(),
+                "money_currency": amount.currency,
+            }
+        )
+        vector = PolicyEvaluationVector(
+            candidate_id=parsed.candidate_id,
+            primary={
+                "policy_value": ObjectiveChannelValue(
+                    name="policy_value",
+                    kind=ObjectiveKind.PRIMARY,
+                    value=float(amount.amount),
+                    direction=ObjectiveDirection.MAXIMIZE,
+                )
+            },
+            metadata={
+                "candidate_hash": parsed.candidate_hash(),
+                "fixture": "declared finite callback observation; no default producer appointment",
+            },
+        )
+        return {
+            "policy_evaluation": vector.model_dump(mode="json"),
+            "objective_value": vector.legacy_scalar_proxy,
+            "feasible": True,
+        }
+
+    with tenant_scope(None, tenant_id="ambient"):
+        result = module.HierarchicalPolicySearchAdapter(
+            pareto_registry=registry if configured else None
+        ).run_search(
+            item,
+            loop_id="independent",
+            search_config=HierarchicalSearchConfig(
+                max_structure_candidates=1,
+                max_parameter_iterations=3,
+                enable_hybrid_seeds=False,
+            ),
+            initial_context={
+                "run_id": "source-run",
+                "tenant_id": "actual-tenant",
+                "cell_id": "trace-cell",
+            },
+            stage_b_evaluator=evaluate,
+        )
+        assert get_current_tenant_id_or_none() == "ambient"
+    return item, result, reads, calls
+
+
+def custody_oracle(root, item, result, reads):
+    snapshot = ParetoRegistry(root).get_snapshot("independent")
+    assert set(snapshot.entries) == {item.candidate_hash()}
+    assert result.pareto_projection == snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+    assert result.pareto_projection.ranked_frontier_hashes == ()
+    assert result.pareto_projection.assessment.status == "basis_limited"
+    assert reads
+    assert {r["tenant_hash"] for r in reads} == {anonymize_tenant_id("actual-tenant")}
+    return snapshot
+
+
+def test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads(
+    tmp_path, monkeypatch
+):
+    root = tmp_path / "registry"
+    item, result, reads, calls = execute(root, monkeypatch)
+    snapshot = custody_oracle(root, item, result, reads)
+    assert len(calls) == 1
+    assert calls[0]["ambient_tenant"] == "actual-tenant"
+    assert calls[0]["context"]["cell_id"] == "trace-cell"
+    assert calls[0]["candidate_hash"] == item.candidate_hash()
+    assert len(next(iter(result.state.parameter_search_results.values())).history) == 1
+    record(
+        "native-positive",
+        {
+            "reads": reads,
+            "calls": calls,
+            "snapshot": snapshot.model_dump(mode="json"),
+            "global_rank_authority": "not established",
+            "default_producer": "not exercised",
+        },
+    )
+
+
+@pytest.mark.parametrize("present", [None, True, "broken", {"unknown": "field"}])
+def test_malformed_present_vector_never_falls_back_to_scalar_or_publishes(
+    tmp_path, present
+):
+    root = tmp_path / "registry"
+    calls = []
+
+    def evaluate(payload, context):
+        calls.append(payload["candidate_hash"])
+        return {"policy_evaluation": present, "objective_value": 1.0, "feasible": True}
+
+    with tenant_scope(None, tenant_id="ambient"):
+        with pytest.raises(ValueError):
+            module.HierarchicalPolicySearchAdapter(
+                pareto_registry=ParetoRegistry(root)
+            ).run_search(
+                candidate(),
+                loop_id="malformed",
+                search_config=HierarchicalSearchConfig(max_structure_candidates=1),
+                initial_context={"tenant_id": "actual-tenant"},
+                stage_b_evaluator=evaluate,
+            )
+        assert get_current_tenant_id_or_none() == "ambient"
+    assert len(calls) == 1
+    assert ParetoRegistry(root).get_snapshot("malformed").entries == {}
+
+
+def test_removing_configured_registry_fails_actual_custody_oracle(
+    tmp_path, monkeypatch
+):
+    root = tmp_path / "registry"
+    item, result, reads, calls = execute(root, monkeypatch, configured=False)
+    assert len(calls) == 1 and calls[0]["context"][
+        "tenant_hash"
+    ] == anonymize_tenant_id("actual-tenant")
+    with pytest.raises(AssertionError):
+        custody_oracle(root, item, result, reads)
+    assert ParetoRegistry(root).get_snapshot("independent").entries == {}
+    record(
+        "registry-removal",
+        {
+            "expected_counterfactual_assertion_failure": True,
+            "calls": calls,
+            "read_contexts": reads,
+            "physical_registry_entries": 0,
+        },
+    )
+
+
+def test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retained(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(module, "tenant_scope", lambda *args, **kwargs: nullcontext())
+    root = tmp_path / "registry"
+    item, result, reads, calls = execute(root, monkeypatch)
+    assert len(calls) == 1 and calls[0]["context"][
+        "tenant_hash"
+    ] == anonymize_tenant_id("actual-tenant")
+    assert calls[0]["candidate_hash"] == item.candidate_hash()
+    assert len(ParetoRegistry(root).get_snapshot("independent").entries) == 1
+    with pytest.raises(AssertionError):
+        custody_oracle(root, item, result, reads)
+    assert {r["tenant_hash"] for r in reads} == {anonymize_tenant_id("ambient")}
+    record(
+        "tenant-scope-removal",
+        {
+            "expected_counterfactual_assertion_failure": True,
+            "calls": calls,
+            "read_contexts": reads,
+            "physical_registry_entries": 1,
+        },
+    )

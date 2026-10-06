@@ -1,0 +1,34 @@
+{
+  "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--confcutdir=/dev/shm/e02-D2-champion-base-export",
+    "-q",
+    "-rA",
+    "/dev/shm/e02-D2-champion-base-export/test_five_baseline.py"
+  ],
+  "cwd": "/workspace/e02-D-published-champion/policy-engine",
+  "export": "/dev/shm/e02-D2-champion-base-export",
+  "mode": "baseline",
+  "mutation": "AST adapter of tracked63 witness removes comparison builder import, BenchmarkSuite.data_basis and BenchmarkEvaluation.comparison_basis only",
+  "source_file_sha256": {
+    "models": "2d18efbc9d5ba0ed309515b56617ae45d5be6269ce333c57ed3f8ce159033596",
+    "registry": "639d708f0a09e323df0ac1773caecd9e286c30d5ce42f795277c131e22cc4d8d",
+    "runtime": "cfe284284adae4b6345ba01d42d2aaf2893d3a62c3ac69ab9abbebbf914acd12",
+    "calibration": "7d1a20aa4cf8fe32421b52756740a19175976b58bacd81b402386fad6beff14b"
+  },
+  "test_path": "/dev/shm/e02-D2-champion-base-export/test_five_baseline.py",
+  "test_sha256": "f67936d38f61181a458f92ece905335b20c5dddf9e4df57306a6b5ab76b15a01",
+  "exit_code": 1,
+  "wall_seconds": 13.600336818999494,
+  "log": "/workspace/e02-D2-receipts/champion/baseline-five-rebound.txt",
+  "log_sha256": "76f9b923b54c52b903e2423d103e82bb68833a29b879f3a2f0275b8f27791b93"
+}

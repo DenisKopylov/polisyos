@@ -160,3 +160,49 @@ def test_caller_mutation_and_duplicate_artifact_do_not_change_training_corpus(tm
     assert len(corpus) == 3
     assert all(0 < row.params["x"] < 1 for row in corpus)
     assert len(live._warm_data) == 3
+
+
+def test_native_single_task_gp_next_proposal_matches_fresh_cas_resume(tmp_path, monkeypatch):
+    """Observe genuine fits and native EI; no model/acquisition is substituted."""
+    import torch
+    from botorch.models import SingleTaskGP
+
+    from polisyos.scientist.methods.search.strategies import _deps
+
+    store, bridge, space, config, live, rows, basis = _prepared(tmp_path, n_initial=8, count=8)
+    fits = []
+    native_fit = _deps.fit_gpytorch_mll
+
+    def observe_actual_fit(mll, *args, **kwargs):
+        assert isinstance(mll.model, SingleTaskGP)
+        result = native_fit(mll, *args, **kwargs)
+        fits.append(mll.model)
+        return result
+
+    monkeypatch.setattr(_deps, "fit_gpytorch_mll", observe_actual_fit)
+    ambient_rng = torch.random.get_rng_state().clone()
+    first = live.suggest([])
+    assert first.source_strategy == "neural_gp"
+    assert len(fits) == 1
+    assert torch.equal(torch.random.get_rng_state(), ambient_rng)
+    ref = _persist_state(store, live)
+    fresh = _fresh(space, config, bridge, basis)
+    fresh.set_state(StrategyState.from_artifact(store.get_bytes(ref)))
+    assert len(fits) == 1, "restore admits rows without fitting a replacement model"
+    assert fresh._warm_data == rows == live._warm_data
+    uninterrupted = live.suggest([])
+    resumed = fresh.suggest([])
+    assert len(fits) == 3
+    assert uninterrupted.source_strategy == resumed.source_strategy == "neural_gp"
+    assert resumed.params_normalized == pytest.approx(uninterrupted.params_normalized, abs=1e-10)
+    assert resumed.predicted_mean == pytest.approx(uninterrupted.predicted_mean, abs=1e-10)
+    assert resumed.predicted_std == pytest.approx(uninterrupted.predicted_std, abs=1e-10)
+    assert resumed.acquisition_value == pytest.approx(uninterrupted.acquisition_value, abs=1e-10)
+    expected_x = torch.tensor([row.params_normalized for row in rows], dtype=torch.double)
+    expected_y = torch.tensor([[-row.scalar_score] for row in rows], dtype=torch.double)
+    for model in fits:
+        assert torch.equal(model.train_inputs[0], expected_x)
+        raw_targets = model.outcome_transform.untransform(model.train_targets.reshape(-1, 1))[0]
+        assert torch.allclose(raw_targets, expected_y, rtol=0, atol=1e-14)
+    assert fresh._rng.getstate() == live._rng.getstate()
+    print("ACTUAL_NATIVE_NEURAL_FITS", len(fits), "CORPUS", len(rows), "RESUMED", resumed.params)

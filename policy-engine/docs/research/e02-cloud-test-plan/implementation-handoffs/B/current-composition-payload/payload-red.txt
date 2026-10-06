@@ -1,0 +1,199 @@
+..FFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_static_dynamic_override_payload_is_identical_in_every_executor[checkpoint] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-red-corrected-tmp/test_static_dynamic_override_p2')
+mode = 'checkpoint'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "checkpoint"])
+    def test_static_dynamic_override_payload_is_identical_in_every_executor(tmp_path, mode):
+        """A declared static factor reaches actual arithmetic without repeating it."""
+        received = []
+    
+        def step(state, params):
+            received.append(dict(params))
+            return {"value": state["x"] * params["factor"] + params["offset"]}
+    
+        method = _method(
+            "affine",
+            output="value",
+            step=step,
+            parameters=(
+                ParameterSpec(name="factor", default=2, is_static=True),
+                ParameterSpec(name="offset", default=1, is_static=False),
+            ),
+        )
+        registry = MethodRegistry.get_instance()
+        composer = MethodComposer(registry=registry)
+        node = composer.add(method.signature.fqn, factor=3, offset=2)
+        chain = composer.build(validate_semantics=False)
+        overrides = {node.id: {"offset": 5}}
+        if mode == "checkpoint":
+>           result = CheckpointingChainExecutor(registry=registry).execute(
+                chain, initial_state={"x": 4}, params_per_node=overrides, seed=17
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/backends/checkpointing.py:428: in execute
+    result = disp.dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:60: in execute
+    resolved = _resolve_params(signature, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+signature = MethodSignature(name='affine', namespace='tests.checkpoint_execution', version='1.0.0', input_slots=frozenset(), outpu...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+params = {'offset': 5, 'seed': 17}
+
+    def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        known = {p.name for p in signature.parameters}
+        unknown = set(params.keys()) - known - VALIDATED_EXECUTION_PARAM_NAMES
+        if unknown:
+>           raise ValueError(f"Unknown parameters for {signature.fqn}: {sorted(unknown)}")
+E           ValueError: Unknown parameters for tests.checkpoint_execution.affine@1.0.0: ['seed']
+
+src/polisyos/foundry/methods/backends/numpy_runner.py:35: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 09:39:49 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.affine@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:39:49 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.affine@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [error    ] method_dispatch_error          attempts=[('numpy', 'ValueError')] backend=numpy elapsed_ms=0.04 exc=ValueError fqn=tests.checkpoint_execution.affine@1.0.0 requested_backend=numpy
+__ test_checkpoint_consumes_actual_bound_slot_through_canonical_materializer ___
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-red-corrected-tmp/test_checkpoint_consumes_actua0')
+
+    def test_checkpoint_consumes_actual_bound_slot_through_canonical_materializer(tmp_path):
+        """The checkpoint consumer sees product=12 and independently computes 13."""
+        chain, registry, calls = _bound_chain()
+>       result = CheckpointingChainExecutor(registry=registry, checkpoint_dir=tmp_path).execute(
+            chain, initial_state={"x": 4}, seed=7
+        )
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/backends/checkpointing.py:428: in execute
+    result = disp.dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:66: in execute
+    output = method_class.pure_step(state, resolved)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:80: in pure_step
+    return step(state, params)
+           ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = {'product': 12, 'x': 4}
+params = {'__rng__': Generator(PCG64) at 0x7FE6C51042E0, '__seed__': 7, 'increment': 1, 'seed': 7}
+
+    def add(state, params):
+        calls.append("add")
+        # The declared single-slot input is a scalar, not the accumulated context.
+>       return {"total": state + params["increment"]}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unsupported operand type(s) for +: 'dict' and 'int'
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:148: TypeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 09:39:49 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:39:49 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:39:49 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.07 fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [error    ] method_dispatch_error          attempts=[('numpy', 'TypeError')] backend=numpy elapsed_ms=0.08 exc=TypeError fqn=tests.checkpoint_execution.add@1.0.0 requested_backend=numpy
+______ test_resume_materializes_bound_slot_from_original_per_node_history ______
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/payload-red-corrected-tmp/test_resume_materializes_bound0')
+
+    def test_resume_materializes_bound_slot_from_original_per_node_history(tmp_path):
+        """Resume consumes the persisted producer slot and does not rerun that producer."""
+        chain, registry, calls = _bound_chain()
+        writer = CheckpointingChainExecutor(registry=registry, checkpoint_dir=tmp_path)
+        # Save the genuine first result even when the current next-node path is broken.
+        try:
+            writer.execute(chain, initial_state={"x": 4}, seed=7)
+        except TypeError:
+            pass
+        path = next(tmp_path.glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        calls.clear()
+>       result = CheckpointingChainExecutor(registry=registry).execute(
+            chain, initial_state={"x": 4}, checkpoint=checkpoint, seed=7
+        )
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:203: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/backends/checkpointing.py:428: in execute
+    result = disp.dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:66: in execute
+    output = method_class.pure_step(state, resolved)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:80: in pure_step
+    return step(state, params)
+           ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = {'product': 12, 'x': 4}
+params = {'__rng__': Generator(PCG64) at 0x7FE6C50EA880, '__seed__': 7, 'increment': 1, 'seed': 7}
+
+    def add(state, params):
+        calls.append("add")
+        # The declared single-slot input is a scalar, not the accumulated context.
+>       return {"total": state + params["increment"]}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unsupported operand type(s) for +: 'dict' and 'int'
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:148: TypeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 09:39:49 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:39:49 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:39:49 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.13 fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [error    ] method_dispatch_error          attempts=[('numpy', 'TypeError')] backend=numpy elapsed_ms=0.07 exc=TypeError fqn=tests.checkpoint_execution.add@1.0.0 requested_backend=numpy
+2026-10-06 09:39:49 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:39:49 [error    ] method_dispatch_error          attempts=[('numpy', 'TypeError')] backend=numpy elapsed_ms=0.07 exc=TypeError fqn=tests.checkpoint_execution.add@1.0.0 requested_backend=numpy
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_static_dynamic_override_payload_is_identical_in_every_executor[checkpoint]
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_checkpoint_consumes_actual_bound_slot_through_canonical_materializer
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_resume_materializes_bound_slot_from_original_per_node_history
+3 failed, 2 passed in 0.60s

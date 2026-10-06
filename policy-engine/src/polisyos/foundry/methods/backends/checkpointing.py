@@ -68,10 +68,10 @@ from uuid import UUID, uuid4
 import numpy as np
 
 from polisyos.core.observability import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
+    _collect_node_inputs,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
@@ -85,6 +85,7 @@ from polisyos.foundry.methods.backends.validated import (
     ValidatedMethodFamily,
     ValidatedStatus,
 )
+from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 __all__ = [
@@ -198,7 +199,7 @@ class ChainCheckpoint:
                     force_encoded=force_encoded,
                 )
                 history_payload: dict[str, Any] | None = None
-                if self.history_complete:
+                if self.node_results:
                     history_payload, history_sidecars = _serialise_state(
                         {"node_results": self.node_results},
                         stem,
@@ -259,7 +260,7 @@ class ChainCheckpoint:
                 created_at=data.get("created_at", 0.0),
                 execution_digest=data.get("execution_digest"),
                 node_results=node_results,
-                history_complete=bool(data.get("history_complete", False)),
+                history_complete=data.get("history_complete") is True,
                 checkpoint_path=path,
             )
         except (
@@ -374,6 +375,9 @@ class CheckpointingChainExecutor:
         skip_until: int = 0
         state = dict(initial_state)
         all_node_results: list[tuple[UUID, MethodResult]] = []
+        node_slot_outputs: dict[UUID, dict[str, Any]] = {}
+        missing_history_node_ids: tuple[UUID, ...] = ()
+        history_complete = True
 
         if checkpoint is not None:
             if checkpoint.chain_digest != chain_digest:
@@ -395,46 +399,65 @@ class CheckpointingChainExecutor:
                 )
             skip_until = checkpoint.n_completed
             state = dict(checkpoint.intermediate_state)
-            if checkpoint.history_complete:
-                if len(checkpoint.node_results) != skip_until:
+            prefix_ids = execution_order[:skip_until]
+            restored_by_id: dict[UUID, MethodResult] = {}
+            for snapshot in checkpoint.node_results:
+                restored_id, restored_result = _restore_node_result(snapshot, checkpoint)
+                if (
+                    restored_id not in prefix_ids
+                    or restored_id in restored_by_id
+                    or snapshot.get("method_fqn") != chain.get_node(restored_id).method_fqn
+                ):
                     raise CheckpointLoadError(
-                        "Checkpoint marks node history complete but the saved "
-                        "per-node result count does not match completed prefix."
+                        "Checkpoint per-node history does not match the execution prefix."
                     )
-                for index, snapshot in enumerate(checkpoint.node_results):
-                    restored = _restore_node_result(snapshot, checkpoint)
-                    expected_node_id = execution_order[index]
-                    expected_fqn = chain.get_node(expected_node_id).method_fqn
-                    if (
-                        restored[0] != expected_node_id
-                        or snapshot.get("method_fqn") != expected_fqn
-                    ):
-                        raise CheckpointLoadError(
-                            "Checkpoint per-node history does not match the execution prefix."
-                        )
-                    all_node_results.append(restored)
+                restored_by_id[restored_id] = restored_result
+            missing_history_node_ids = tuple(
+                node_id for node_id in prefix_ids if node_id not in restored_by_id
+            )
+            history_complete = (
+                checkpoint.history_complete
+                and not missing_history_node_ids
+                and all(
+                    "history_incomplete" not in result.warnings
+                    for result in restored_by_id.values()
+                )
+            )
+            for node_id in prefix_ids:
+                if node_id in restored_by_id:
+                    restored_result = restored_by_id[node_id]
+                    all_node_results.append((node_id, restored_result))
+                    node_slot_outputs[node_id] = dict(restored_result.slot_outputs)
 
         # Execute remaining nodes
         for idx, node_id in enumerate(execution_order):
             if idx < skip_until:
                 continue
 
-            node = chain.get_node(node_id)
-            node_params = dict(node.params)
-            node_params.update(params_per_node.get(node_id, {}))
-            node_params.setdefault("seed", seed)
-
-            method_class = reg.get(node.method_fqn)
+            signature = chain.get_signature(node_id)
+            method_class, materialized_state, signature, node_params = _collect_node_inputs(
+                chain=chain,
+                node_id=node_id,
+                reg=reg,
+                node_slot_outputs=node_slot_outputs,
+                fx_rate_provider=None,
+                current_state=state,
+                signature=signature,
+                current_context=state,
+                params_per_node=params_per_node,
+            )
             result = disp.dispatch(
                 method_class=method_class,
-                signature=method_class.signature,
-                state=state,
+                signature=signature,
+                state=materialized_state,
                 params=node_params,
                 seed=seed,
             )
+            node_slot_outputs[node_id] = dict(result.slot_outputs)
             if isinstance(result.output, dict):
                 state.update(result.output)
             all_node_results.append((node_id, result))
+            history_complete = history_complete and "history_incomplete" not in result.warnings
 
             # Save checkpoint if needed
             should_checkpoint = self._checkpoint_dir is not None and (
@@ -450,15 +473,24 @@ class CheckpointingChainExecutor:
                     all_node_results=all_node_results,
                     state=state,
                     execution_digest=execution_digest,
+                    history_provenance_complete=history_complete,
                 )
 
+        reproducibility_contract = _build_chain_reproducibility_contract(
+            all_node_results,
+            composition_kind="serial",
+        )
+        reproducibility_contract.update(
+            history_complete=history_complete,
+            completed_node_count=len(execution_order),
+            missing_history_node_ids=[str(node_id) for node_id in missing_history_node_ids],
+        )
         return ChainExecutionResult(
             final_state=state,
             node_results=tuple(all_node_results),
-            reproducibility_contract=_build_chain_reproducibility_contract(
-                all_node_results,
-                composition_kind="serial",
-            ),
+            reproducibility_contract=reproducibility_contract,
+            missing_history_node_ids=missing_history_node_ids,
+            history_provenance_complete=history_complete,
         )
 
     def find_latest_checkpoint(self, chain: Any) -> ChainCheckpoint | None:
@@ -498,6 +530,7 @@ class CheckpointingChainExecutor:
         all_node_results: list[tuple[UUID, MethodResult]],
         state: dict[str, Any],
         execution_digest: str | None = None,
+        history_provenance_complete: bool = True,
     ) -> None:
         if self._checkpoint_dir is None:
             raise CheckpointSaveError("checkpoint_dir is not configured")
@@ -505,19 +538,26 @@ class CheckpointingChainExecutor:
         filename = f"checkpoint_{chain_digest[:8]}_{completed_up_to_idx:04d}_{timestamp}.json"
         path = self._checkpoint_dir / filename
 
-        completed_node_ids = [str(nid) for nid, _ in all_node_results]
-        completed_fqns = [chain.get_node(nid).method_fqn for nid, _ in all_node_results]
+        completed_prefix = list(execution_order[: completed_up_to_idx + 1])
+        completed_node_ids = [str(nid) for nid in completed_prefix]
+        completed_fqns = [chain.get_node(nid).method_fqn for nid in completed_prefix]
         timing_ms = [r.timing.wall_time_ms for _, r in all_node_results]
-        history_complete = all(
-            isinstance(result, MethodResult) and "history_incomplete" not in result.warnings
-            for _, result in all_node_results
+        history_complete = (
+            history_provenance_complete
+            and [nid for nid, _ in all_node_results] == completed_prefix
+            and all(
+                isinstance(result, MethodResult) and "history_incomplete" not in result.warnings
+                for _, result in all_node_results
+            )
         )
+        if not history_complete:
+            timing_ms = []
         node_results = (
             [
                 _snapshot_node_result(node_id, chain.get_node(node_id).method_fqn, result)
                 for node_id, result in all_node_results
             ]
-            if history_complete
+            if all(isinstance(result, MethodResult) for _, result in all_node_results)
             else []
         )
 
@@ -854,15 +894,17 @@ def _iter_array_paths(value: Any, path: tuple[str, ...] = ()):
 
 def _legacy_sidecar_names(state: Mapping[str, Any], stem: str) -> dict[tuple[str, ...], str]:
     """Build the historical flat names used by first-generation checkpoints."""
-    return {
-        path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)
-    }
+    return {path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)}
 
 
 def _encoded_sidecar_name(stem: str, path: tuple[str, ...]) -> str:
-    encoded = base64.urlsafe_b64encode(
-        json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
-    ).decode("ascii").rstrip("=")
+    encoded = (
+        base64.urlsafe_b64encode(
+            json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+        )
+        .decode("ascii")
+        .rstrip("=")
+    )
     return f"{stem}__{encoded}.npy"
 
 
@@ -889,11 +931,7 @@ def _serialise_state(
     legacy_values = list(legacy_names.values())
     use_encoded = force_encoded or len(legacy_values) != len(set(legacy_values))
     sidecar_names = {
-        path: (
-            _encoded_sidecar_name(stem, path)
-            if use_encoded
-            else legacy_name
-        )
+        path: (_encoded_sidecar_name(stem, path) if use_encoded else legacy_name)
         for path, legacy_name in legacy_names.items()
     }
     sidecars: dict[str, np.ndarray] = {}
@@ -911,9 +949,7 @@ def _serialise_state(
         if isinstance(value, (bool, int, float, str, type(None))):
             return value
         if isinstance(value, Mapping):
-            return {
-                key: encode(child, path + (str(key),)) for key, child in value.items()
-            }
+            return {key: encode(child, path + (str(key),)) for key, child in value.items()}
         if isinstance(value, (list, tuple)):
             return [encode(child, path + (str(index),)) for index, child in enumerate(value)]
         try:
@@ -941,9 +977,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
         try:
             array = np.load(sidecar_path, allow_pickle=False)
         except (EOFError, OSError, ValueError) as exc:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar is unreadable: {sidecar_path}"
-            ) from exc
+            raise CheckpointLoadError(f"Checkpoint sidecar is unreadable: {sidecar_path}") from exc
         if not isinstance(array, np.ndarray):
             raise CheckpointLoadError(f"Checkpoint sidecar is not a NumPy array: {sidecar_path}")
         expected_shape = payload.get("__npy_shape__")
@@ -958,9 +992,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
                 f"Checkpoint sidecar content binding is missing: {sidecar_path}"
             )
         if list(array.shape) != expected_shape or array.dtype.str != expected_dtype:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}"
-            )
+            raise CheckpointLoadError(f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}")
         if _array_content_digest(array) != expected_digest:
             raise CheckpointLoadError(f"Checkpoint sidecar content mismatch: {sidecar_path}")
         return array

@@ -1039,7 +1039,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
         raise AssertionError("B73 removal probe executor source origin changed")
     source_bytes = module_path.read_bytes()
     source_sha256 = hashlib.sha256(source_bytes).hexdigest()
-    if source_sha256 != ("0da9f89f0a33819ad326492b9de86dc49e0ce7004ddb9c9b4ab146e93b29b603"):
+    if source_sha256 != ("dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"):
         raise AssertionError("B73 removal probe executor source digest changed")
 
     source_tree = ast.parse(source_bytes.decode("utf-8"), filename=str(module_path))
@@ -1503,7 +1503,7 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             if remove_left_for_cut:
                 assert observed["mutation_receipt"] == {
                     "source_sha256": (
-                        "0da9f89f0a33819ad326492b9de86dc49e0ce7004ddb9c9b4ab146e93b29b603"
+                        "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"
                     ),
                     "method": "AsyncWorkflowExecutor.execute",
                     "original_expression": "completed_nodes.extend(tier_completed)",

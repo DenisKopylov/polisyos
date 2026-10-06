@@ -100,9 +100,15 @@ class _JournaledExperimentState(ExperimentState):
             journal = object.__getattribute__(self, _MUTATION_JOURNAL_ATTR)
         except AttributeError:
             journal = None
+        if isinstance(journal, StateMutationJournal) and journal.enforce_write_scope:
+            if name not in journal.isolated_paths:
+                raise ValueError(f"undeclared state_writes at live paths: {[name]}")
+            _validate_mutation_attachment(None, value)
+            value = _wrap_mutable_value(value, (name,), journal)
         if isinstance(journal, StateMutationJournal) and name in journal.isolated_paths:
             previous = getattr(self, name, _MISSING)
             super().__setattr__(name, value)
+            _bind_mutation_root(getattr(self, name), self, name, (name,))
             if previous is not _MISSING:
                 journal.record(path=(name,), operation="set", value=value, target=previous)
             return
@@ -188,6 +194,17 @@ def branch_state(
     """
 
     source_journal = mutation_journal_for_state(base_state)
+    normalized_paths = _normalize_paths(write_paths)
+    if source_journal is not None and source_journal.enforce_write_scope:
+        if enforce_write_scope is False:
+            raise ValueError("cannot release active producer write scope")
+        grant = [tuple(path.split(".")) for path in source_journal.isolated_paths]
+        if any(
+            not any(_is_path_prefix(allowed, path) for allowed in grant)
+            for path in normalized_paths
+        ):
+            raise ValueError("nested branch cannot broaden active producer write scope")
+        enforce_write_scope = True
     if enforce_write_scope is None:
         enforce_write_scope = source_journal.enforce_write_scope if source_journal else False
     branched = _promote_to_journaled_state(base_state.model_copy(deep=False))
@@ -199,7 +216,6 @@ def branch_state(
             setattr(branched, field_name, dict(value))
             isolated_fields.append(field_name)
 
-    normalized_paths = _normalize_paths(write_paths)
     isolation_memo: dict[int, Any] = {}
     journal = StateMutationJournal(
         isolated_fields=tuple(isolated_fields),
@@ -224,11 +240,55 @@ def snapshot_state(base_state: ExperimentState) -> ExperimentState:
     """Return a full rollback-safe snapshot of the mutable state surfaces."""
 
     branched = base_state.model_copy(deep=False)
+    memo: dict[int, Any] = {}
     for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
         value = getattr(base_state, field_name, None)
         if isinstance(value, dict):
-            setattr(branched, field_name, deepcopy(value))
+            object.__setattr__(branched, field_name, deepcopy(value, memo))
+            _bind_mutation_root(getattr(branched, field_name), branched, field_name, (field_name,))
     return branched
+
+
+def _completed_producer_state(state: ExperimentState) -> ExperimentState:
+    """Detach settled engine-owned completion from its producer's live grant.
+
+    The original producer view stays guarded.  Only the executor calls this
+    boundary after invocation and cache publication have settled; ordinary
+    nested branching cannot release an active grant.
+    """
+    source = mutation_journal_for_state(state)
+    if source is None or not source.enforce_write_scope:
+        return state
+    completed = state.model_copy(deep=True)
+    journal = StateMutationJournal(
+        isolated_fields=source.isolated_fields,
+        isolated_paths=source.isolated_paths,
+        operations=list(source.operations),
+    )
+    _attach_mutation_journal(completed, journal)
+    seen: set[int] = set()
+
+    def rebind(value: Any) -> None:
+        if id(value) in seen:
+            return
+        seen.add(id(value))
+        if isinstance(value, (_TrackedDict, _TrackedList)):
+            value._mutation_journal = journal
+        if isinstance(value, BaseModel):
+            children = value.__dict__.values()
+        elif isinstance(value, dict):
+            children = value.values()
+        elif isinstance(value, (list, tuple)):
+            children = value
+        else:
+            return
+        for child in children:
+            rebind(child)
+
+    rebind(completed)
+    for name in _TOP_LEVEL_MUTABLE_FIELDS:
+        _bind_mutation_root(getattr(completed, name), completed, name, (name,))
+    return completed
 
 
 def _normalize_paths(write_paths: Iterable[str]) -> list[tuple[str, ...]]:
@@ -523,11 +583,15 @@ def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
 def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
     if len(parts) == 1:
         _set_child(root, parts[0], value)
+        if isinstance(root, BaseModel):
+            _bind_mutation_root(value, root, parts[0], parts)
         return
     parent = _get_path(root, parts[:-1])
     if parent is _MISSING:
         return
     _set_child(parent, parts[-1], value)
+    if isinstance(parent, BaseModel):
+        _bind_mutation_root(value, parent, parts[-1], parts)
 
 
 def _normalize_artifacts_index_ref(path: tuple[str, ...], value: Any) -> Any:
@@ -552,6 +616,7 @@ class _TrackedDict(dict[str, Any]):
         self._mutation_path = path
         self._mutation_journal = journal
         self._mutation_owners = []
+        self._mutation_roots = []
         journal._wrapped_values[id(values)] = (values, self)
         for key, value in values.items():
             dict.__setitem__(
@@ -658,6 +723,7 @@ class _TrackedDict(dict[str, Any]):
         clone._mutation_path = self._mutation_path
         clone._mutation_journal = self._mutation_journal
         clone._mutation_owners = []
+        clone._mutation_roots = []
         dict.__init__(clone)
         for key, value in self.items():
             dict.__setitem__(clone, deepcopy(key, memo), deepcopy(value, memo))
@@ -680,6 +746,7 @@ class _TrackedList(list[Any]):
         self._mutation_path = path
         self._mutation_journal = journal
         self._mutation_owners = []
+        self._mutation_roots = []
         journal._wrapped_values[id(values)] = (values, self)
         for index, value in enumerate(values):
             list.append(
@@ -867,11 +934,19 @@ class _TrackedList(list[Any]):
         clone._mutation_path = self._mutation_path
         clone._mutation_journal = self._mutation_journal
         clone._mutation_owners = []
+        clone._mutation_roots = []
         list.__init__(clone)
         for value in self:
             list.append(clone, deepcopy(value, memo))
             _bind_mutation_parent(list.__getitem__(clone, -1), clone)
         return clone
+
+
+def _bind_mutation_root(value: Any, model: BaseModel, name: str, path: tuple[str, ...]) -> None:
+    if isinstance(value, (_TrackedDict, _TrackedList)) and not any(
+        root is model and field == name for root, field, _ in value._mutation_roots
+    ):
+        value._mutation_roots.append((model, name, path))
 
 
 def _bind_mutation_parent(
@@ -908,9 +983,13 @@ def _current_mutation_paths(
     """Resolve every live location, or none for a removed descendant view."""
     if id(value) in seen:
         return []
-    if not value._mutation_owners:
+    if not value._mutation_owners and not value._mutation_roots:
         return [value._mutation_path]
-    paths: list[tuple[str, ...]] = []
+    paths = [
+        path
+        for model, name, path in value._mutation_roots
+        if getattr(model, name, _MISSING) is value
+    ]
     for parent, owner_value, suffix in value._mutation_owners:
         parent_paths = _current_mutation_paths(parent, seen | {id(value)})
         members = parent.items() if isinstance(parent, dict) else enumerate(parent)

@@ -54,6 +54,7 @@ _CASES = {
     "initial_list_alias": [{"id": "b", "v": 5}, {"id": "c", "v": 2}, {"id": "new", "v": 3}],
     "initial_list_alias_pop": [{"id": "c", "v": 5}],
     "dict_reparent_alias": [{"id": "c", "v": 2}],
+    "dict_ior": [{"id": "b", "v": 5}, {"id": "c", "v": 2}],
 }
 
 
@@ -173,6 +174,8 @@ class _ListNode:
                 state.params["slot"] = removed
                 assert state.params["slot"] is removed
                 removed["v"] = 5
+            case "dict_ior":
+                first |= {"v": 5}
             case "custom_mutable_refusal":
                 before = state.model_dump(mode="json")
                 with pytest.raises(TypeError, match="finite JSON container graph"):
@@ -438,6 +441,48 @@ def test_independent_branch_scope_is_neutral_but_nested_producer_inherits_guard(
         nested.state.params["other"]["v"] = 5
     assert nested.state.model_dump(mode="json") == before
     assert base.params["other"] == {"v": 2}
+    for kwargs in (
+        {"write_paths": ["params"]},
+        {"write_paths": ["params.owned"], "enforce_write_scope": False},
+    ):
+        with pytest.raises(ValueError, match="active producer write scope"):
+            branch_state(producer.state, **kwargs)
+        assert producer.state.model_dump(mode="json") == base.model_dump(mode="json")
+    with pytest.raises(ValueError, match="undeclared state_writes"):
+        producer.state.params = {"other": {"v": 99}}
+    assert producer.state.model_dump(mode="json") == base.model_dump(mode="json")
+    old_values = producer.state.params["other"]
+    with pytest.raises(ValueError, match="undeclared state_writes"):
+        old_values |= {"v": 99}
+    assert producer.state.model_dump(mode="json") == base.model_dump(mode="json")
+
+
+def test_declared_root_replacement_tracks_new_graph_and_detaches_old_descendants(tmp_path):
+    from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_outcomes
+
+    base = ExperimentState(run_id="R_replace", params={"old": {"v": 1}, "neighbor": 7})
+    branch = branch_state(base, write_paths=["params"], enforce_write_scope=True)
+    held = branch.state.params["old"]
+    branch.state.params = {"new": {"v": 2}}
+    branch.state.params["new"]["v"] = 5
+    operations = list(branch.journal.operations)
+    held["v"] = 99
+    assert branch.journal.operations == operations
+    assert branch.state.params == {"new": {"v": 5}}
+    assert base.params == {"old": {"v": 1}, "neighbor": 7}
+    current = ExperimentState(run_id=base.run_id, params={"old": {"v": 3}, "neighbor": 9})
+    applied = merge_parallel_outcomes(
+        current, {"writer": NodeOutcome(status="ok", state=branch.state)}, {"writer": ["params"]}
+    ).state
+    assert applied.params == {"new": {"v": 5}}
+    assert current.params["neighbor"] == 9
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = store.put_json(
+        applied.model_dump(mode="json"),
+        PutOptions(kind="test.root_replace", media_type="application/json"),
+    )
+    assert store.verify(ref).ok
+    assert json.loads(store.get_bytes(ref))["params"] == {"new": {"v": 5}}
 
 
 @pytest.mark.asyncio
@@ -524,3 +569,48 @@ async def test_reopened_grouped_list_intents_preserve_current_rows_and_apply_onc
         assert store.verify(physical).ok
         assert json.loads(store.get_bytes(physical))["params"]["rows"] == expected
         assert node.calls == 1
+
+
+@pytest.mark.parametrize("mode", ["allowed", "neighbor", "root", "nested"])
+def test_native_remote_process_uses_original_producer_scope_before_effect(tmp_path, mode):
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
+
+    fixture = Path(__file__).parent / "fixtures/remote_scope_worker.py"
+    completed = subprocess.run(
+        [sys.executable, str(fixture), mode, str(tmp_path)],
+        env={**os.environ, "POLISYOS_METRICS_PORT": "0"},
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=True,
+    )
+    (tmp_path / "worker.txt").write_text(completed.stdout + completed.stderr)
+    reply = json.loads((tmp_path / "reply.json").read_text())
+    assert reply["pid"] != os.getpid()
+    manifests = [
+        json.loads(path.read_text()) for path in (tmp_path / "cas").rglob("*.manifest.json")
+    ]
+    effects = [manifest for manifest in manifests if manifest["kind"] == "test.remote_scope_effect"]
+    if mode != "allowed":
+        assert reply["error"]["type"] == "ValueError"
+        assert "scope" in reply["error"]["message"] or "state_writes" in reply["error"]["message"]
+        assert effects == []
+        assert not (tmp_path / "outcome.bin").exists()
+        return
+    outcome = deserialize_outcome((tmp_path / "outcome.bin").read_bytes())
+    assert outcome.status == "ok"
+    assert outcome.state.params == {"x": 2, "owned": {"v": 5}, "neighbor": {"v": 2}}
+    assert outcome.state.budgets["neighbor_reserved_usd"] == Decimal("11")
+    store = FileSystemCAS(tmp_path / "cas")
+    assert outcome.artifacts and effects
+    for ref in outcome.artifacts:
+        assert store.verify(ref).ok
+        assert json.loads(store.get_bytes(ref))["params"] == outcome.state.params
+    outcome.state.params["post"] = {"values": [3]}
+    outcome.state.params["post"]["values"].append(4)
+    assert outcome.state.params["post"] == {"values": [3, 4]}

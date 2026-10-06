@@ -80,6 +80,7 @@ from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_w
 from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
     StateMutationJournal,
+    _completed_producer_state,
     branch_state,
     mutation_journal_for_state,
     mutation_journal_from_operations,
@@ -2052,6 +2053,7 @@ class AsyncWorkflowExecutor:
                 retry_count=actual_retry_count,
             )
 
+        outcome = outcome.model_copy(update={"state": _completed_producer_state(outcome.state)})
         return outcome, duration_ms, cache_hit, cache_entry_ref
 
     async def _handle_tier_checkpoint(

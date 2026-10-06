@@ -8,6 +8,8 @@ G ведёт `codex/e02-integration` от опубликованного `origin
 decisions пока нет. Исследовательский source `6978076…` не является новым
 кандидатом. Протокол исполнения — [HANDOFF](../execution-prompts/HANDOFF.md).
 
+G-local provenance: ссылки в этом integration record на ignored `_build/**` outputs или абсолютные workspace paths относятся только к исторической локальной среде G. Их bytes не входят в Git и недоступны в cloud checkout; содержимое там `not_established`. Это не remote dependency. Сохраняйте `path@sha256`; если отсутствующий artifact станет решающим, повторите точную проверку на candidate.
+
 ## Проверка входов
 
 [Startup receipt](startup.json) сохраняет свежий `import_results.py --check`,

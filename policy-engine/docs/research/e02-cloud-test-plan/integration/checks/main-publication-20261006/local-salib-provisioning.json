@@ -1,0 +1,46 @@
+{
+  "candidate_sha": "1c0a87b385d65aa17f63b26157295976c4029ea3",
+  "lock_file": "policy-engine/uv.lock",
+  "lock_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+  "base_venv_modified": false,
+  "project_lock_modified": false,
+  "isolated_overlay": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/dependency-overlays/salib-1.5.2",
+  "overlay_size_human_readable": "4.1M",
+  "locked_packages_installed": {
+    "SALib": "1.5.2",
+    "multiprocess": "0.70.19",
+    "dill": "0.4.1"
+  },
+  "already_present_locked_declared_dependencies": {
+    "matplotlib": "3.10.8",
+    "numpy": "2.3.5",
+    "pandas": "2.3.3",
+    "scipy": "1.16.3"
+  },
+  "offline_cache_attempt": {
+    "outcome": "UNAVAILABLE",
+    "command": "uv pip install --python policy-engine/.venv/bin/python --target <overlay> --no-deps --offline --cache-dir policy-engine/_cache/uv SALib==1.5.2 multiprocess==0.70.19 dill==0.4.1",
+    "output": "SALib was not found in the cache; registry packages unavailable while offline."
+  },
+  "network_wheel_attempt": {
+    "outcome": "PASS",
+    "command": "uv pip install --python policy-engine/.venv/bin/python --target <overlay> --no-deps --cache-dir policy-engine/_cache/uv SALib==1.5.2 multiprocess==0.70.19 dill==0.4.1",
+    "output": "Resolved 3 packages; prepared 3 packages; installed the 3 exact pinned versions."
+  },
+  "statsmodels": {
+    "version_in_lock": "0.14.6",
+    "installed": false,
+    "reason": "No selected ETS check skipped or failed because of statsmodels; real ETS owner selectors ran in the initial wave."
+  },
+  "replay_receipt": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/local-salib-skipped-replay.json",
+  "replay_status": "PASS",
+  "replay_junit_summary": {
+    "tests": 53,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 53
+  },
+  "replay_log_sha256": "94258f90e88c35441486ad8c748f7821bbdbf2eba80ebda5f5d42731785f0762",
+  "replay_junit_sha256": "15d7a1770f3db9dcd354a47b3221aa8bc147bc7e55153afac8bb3aed4c1b127b"
+}

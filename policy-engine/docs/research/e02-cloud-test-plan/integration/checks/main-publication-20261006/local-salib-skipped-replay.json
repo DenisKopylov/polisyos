@@ -1,0 +1,83 @@
+{
+  "candidate_sha": "1c0a87b385d65aa17f63b26157295976c4029ea3",
+  "candidate_tree": "7c5f08b211010a468b69b8c75f0cafc68b3f4d52",
+  "checkout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3",
+  "checkout_kind": "git archive; exact tracked files verified; no production_data",
+  "dependency_overlay": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/dependency-overlays/salib-1.5.2",
+  "dependency_lock_versions": {
+    "SALib": "1.5.2",
+    "multiprocess": "0.70.19",
+    "dill": "0.4.1"
+  },
+  "base_environment_packages": {
+    "matplotlib": "3.10.8",
+    "numpy": "2.3.5",
+    "pandas": "2.3.3",
+    "scipy": "1.16.3"
+  },
+  "python": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "candidate_import_preflight": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/src/polisyos/common/async_tools.py",
+  "selectors": [
+    "tests/unit/remediation/test_doe_02.py",
+    "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+    "tests/unit/remediation/test_doe_03.py",
+    "tests/unit/scientist/methods/doe/test_stability.py",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestS2InteractionRanking::test_top_interactions_populated",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestS2InteractionRanking::test_no_interactions_for_morris",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestDropFailedForSobol::test_drop_failed_sobol_rejected_to_preserve_sample_geometry",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestDropFailedForSobol::test_drop_failed_fast_still_raises"
+  ],
+  "numeric_thread_caps": {
+    "JAX_PLATFORM_NAME": "cpu",
+    "JAX_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "NUMBA_NUM_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+  },
+  "log": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/local-salib-skipped-replay.out.log",
+  "junit": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/local-salib-skipped-replay.junit.xml",
+  "timeout_seconds": 600,
+  "started_at_utc": "2026-10-06T08:39:16.348881+00:00",
+  "status": "PASS",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "--tb=short",
+    "--durations=20",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/local-salib-skipped-replay.junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/tmp/pytest-salib-replay",
+    "tests/unit/remediation/test_doe_02.py",
+    "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+    "tests/unit/remediation/test_doe_03.py",
+    "tests/unit/scientist/methods/doe/test_stability.py",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestS2InteractionRanking::test_top_interactions_populated",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestS2InteractionRanking::test_no_interactions_for_morris",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestDropFailedForSobol::test_drop_failed_sobol_rejected_to_preserve_sample_geometry",
+    "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestDropFailedForSobol::test_drop_failed_fast_still_raises"
+  ],
+  "return_code": 0,
+  "timed_out": false,
+  "finished_at_utc": "2026-10-06T08:39:18.429276+00:00",
+  "wall_seconds": 2.08,
+  "log_sha256": "94258f90e88c35441486ad8c748f7821bbdbf2eba80ebda5f5d42731785f0762",
+  "log_bytes": 1738,
+  "junit_sha256": "15d7a1770f3db9dcd354a47b3221aa8bc147bc7e55153afac8bb3aed4c1b127b",
+  "junit_bytes": 8603,
+  "receipt": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/local-salib-skipped-replay.json",
+  "junit_summary": {
+    "tests": 53,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 53
+  }
+}

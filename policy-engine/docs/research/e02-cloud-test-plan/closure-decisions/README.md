@@ -11,6 +11,8 @@ tree `e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3`; опубликованные to
 source итогового owner-прогона и source G различаются. Коммиты с документацией,
 добавленные позже, не превращают старый run в проверку нового кода.
 
+G-local provenance: ссылки в этом пакете на ignored `policy-engine/_build/**` artifacts или абсолютные G-local workspace paths сохраняют только историческую provenance. Их bytes не входят в Git и недоступны в cloud checkout; содержимое там `not_established`. Сохраняйте исторические `path@sha256`, не копируйте и не реконструируйте outputs. Если отсутствующий artifact станет решающим, повторите точную проверку на указанном candidate. Tracked inputs доступны по repository-relative ссылкам.
+
 ## Файлы для передачи владельцам
 
 | Исполнитель | Документ | Основное решение |

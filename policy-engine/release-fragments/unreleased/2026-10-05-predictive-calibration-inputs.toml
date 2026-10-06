@@ -5,8 +5,21 @@ component = "calibration"
 owner = "team-polisyos"
 summary = "Incomplete interval curves retain measured coverage but cannot pass calibration. Curve inputs require finite observations, bounds, levels, and tolerance; continuous diagnostics apply the same level domain to supplied intervals and predictive samples."
 evidence = ["src/polisyos/calibration/curve.py", "src/polisyos/calibration/continuous.py", "tests/unit/calibration/test_curve.py", "tests/unit/calibration/test_continuous.py"]
-compatibility = "Valid finite diagnostics preserve their numerical results. Unusable curve inputs now raise ValueError. The supported Scientist calibration alias preserves object identity."
+compatibility = "Valid complete finite diagnostics preserve their numerical results. Incomplete curves can no longer return a positive calibration verdict; Empty observations and non-finite observations, interval bounds, levels, tolerance or predictive samples now raise ValueError; empty interval/level lists remain allowed and unverified. The supported Scientist calibration alias preserves object identity."
 change_class = "python-public-api"
 surface_classification = "public_experimental: polisyos.calibration.compute_calibration_curve and evaluate_continuous"
-migration = "Use nonempty finite observations, finite interval bounds and tolerance, curve levels in [0, 1], and continuous levels in (0, 1). Omit continuous levels to use defaults; explicit levels=[] requests no interval comparisons and remains unverified. Re-evaluate earlier incomplete results rather than treating their positive flag as calibration evidence."
+migration = "Use nonempty finite observations, finite predictive samples, finite interval bounds and tolerance, curve levels in [0, 1], and continuous levels in (0, 1). Omit continuous levels to use defaults; explicit levels=[] requests no interval comparisons and remains unverified. Re-evaluate earlier incomplete results rather than treating their positive flag as calibration evidence."
 limitations = "Predictive calibration remains diagnostic and does not establish causal or publication authority. Existing saved receipts are not rewritten, and no alias retirement date is introduced."
+api = "The existing public-experimental calibration exports keep their signatures and result schema; compute_calibration_curve marks a curve with any omitted interval set as not well calibrated and validates finite nonempty observations and finite interval bounds, levels, and tolerance."
+public_surface_inventory_reviewed = true
+
+[[compatibility_change]]
+id = "predictive-calibration-inputs-public-api"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.calibration.compute_calibration_curve and evaluate_continuous"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable; partial calibration results are no longer eligible for a positive verdict."
+release_note = "Calibration refuses positive verdicts from incomplete curves, rejects empty observations and non-finite observations, bounds, levels, tolerance or predictive samples, and preserves empty interval/level lists as unverified."
+public_surface_inventory_reviewed = true

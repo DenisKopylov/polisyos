@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="52" time="11.007" timestamp="2026-10-06T12:23:52.832623+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_runs_all_stages_on_passing_candidate" time="0.014" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_stops_on_blocker" time="0.004" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_stops_on_not_promising" time="0.006" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_respects_max_level" time="0.009" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_fast_track_skips_to_final" time="0.007" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_reject_routing_stops_funnel" time="0.006" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_stages_sorted_by_fidelity" time="0.005" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_empty_stages_returns_not_evaluated_result" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_context_enriched_with_level_results" time="0.006" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_as_stage_a_callable" time="0.003" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_as_stage_b_callable" time="0.003" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_stage_b_reuses_cached_stage_a_progress" time="0.007" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_stage_b_cache_miss_falls_back_to_full_execution" time="0.008" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_submit_cache_is_scoped_to_effective_context" time="0.005" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_freeze_mode_continuation_preserves_partial_progress" time="0.007" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_retry_cheaper_spend_only_does_not_resume" time="0.007" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_stage_defer_without_discriminator_does_not_resume" time="0.006" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_interleaved_context_continuation_uses_exact_context_predecessor" time="0.008" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_burn_in_policy_bypasses_cheap_rejection_until_level4" time="0.007" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_records_failure_lessons_on_terminal_reject" time="0.026" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_records_success_lesson_on_level4_success" time="0.028" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_predictive_scheduler_receives_stage_observations" time="0.008" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_level5_and_level6_runtime_generalization_collects_audit_refs" time="0.031" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_level6_respects_no_promotion_degraded_mode" time="0.029" /><testcase classname="tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator" name="test_level5_blocks_runtime_split_type_mismatch" time="0.021" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[None]" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[False]" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight2]" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[allow]" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[1]" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight5]" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[True]" time="0.001" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_revoke_after_true_preflight_barrier_has_zero_effects" time="0.002" /><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_prepared_payload_is_read_only_interpretation_without_callback_effects" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_same_scope_refinement_is_current_while_history_keeps_unknown_risk" time="0.011" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[subject_id]" time="0.004" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[value_slot]" time="0.003" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[input_signature]" time="0.004" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[procedure_id]" time="0.004" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[population_scope]" time="0.003" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_empty_tracker_has_one_explicit_not_established_routing_state" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_persisted_empty_report_fails_closed_over_stale_normal_mode" time="0.014" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_statistically_bad_tracker_is_observed_drift_not_empty_state" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_degradation_preflight_reads_existing_payload_without_runner" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_owner_recheck_happens_before_effectful_runner" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_normal_path_calls_runner_after_owner_recheck" time="0.001"><failure message="AssertionError: assert [] == ['recheck', 'runner']&#10;  &#10;  Right contains 2 more items, first extra item: 'recheck'&#10;  Use -v to get more diff">def test_level6_normal_path_calls_runner_after_owner_recheck() -&gt; None:
+        calls: list[str] = []
+    
+        def recheck(_candidate: dict[str, Any], _context: dict[str, Any]) -&gt; bool:
+            calls.append("recheck")
+            return True
+    
+        def runner(_candidate: dict[str, Any], _context: dict[str, Any]) -&gt; dict[str, str]:
+            calls.append("runner")
+            return {"decision": "complete"}
+    
+        result = Level6PromotionStage(
+            promotion_runner=runner,
+            promotion_owner_recheck=recheck,
+        ).evaluate({"candidate_id": "fun-03"}, {"funnel_degradation_mode": "normal"})
+    
+&gt;       assert calls == ["recheck", "runner"]
+E       AssertionError: assert [] == ['recheck', 'runner']
+E         
+E         Right contains 2 more items, first extra item: 'recheck'
+E         Use -v to get more diff
+
+tests/unit/remediation/test_fun_03.py:278: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_fun_03" name="test_production_owner_recheck_requires_explicit_write_permission" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_orchestrator_honors_persisted_no_promotion_projection_without_tracker" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[no_promotion]" time="0.070" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[reduced_judge]" time="0.064" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[auto_cap]" time="0.065" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_rechecks_owner_at_commit" time="0.024"><failure message="AttributeError: '_VOIScheduler' object has no attribute 'prioritize'">tmp_path = PosixPath('/dev/shm/search-canonical-243-06-FUN-03-a60850379358496aa22e786bc36423c9/test_run_policy_blueprint_exec3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f13ac7db020&gt;
+
+    def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
+        tmp_path,
+        monkeypatch,
+    ) -&gt; None:
+        harness = _install_actual_runtime_node_dependencies(
+            monkeypatch,
+            tmp_path,
+            mode="normal",
+            revoke_permission_at_commit=True,
+        )
+    
+&gt;       outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+            harness["ctx"],
+            harness["state"],
+        )
+
+tests/unit/remediation/test_fun_03.py:668: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:773: in execute
+    outcome = orchestrator.advance(ticket, policy="full")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:545: in advance
+    scheduling_action = self._maybe_schedule_transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator object at 0x7f13ac683ba0&gt;
+ticket = FunnelTicket(ticket_id='f305645b-b2bb-4747-b3ac-ec2f3e61a007', candidate_hash='bc3d99444c89789d', candidate={'candidat...61a007',), continuation_reason=None, terminal_basis=None, terminal_budget_remaining={}, terminal_degradation_mode=None)
+
+    def _maybe_schedule_transition(
+        self,
+        ticket: FunnelTicket,
+        *,
+        execution_target: int,
+        policy: AdvancePolicy | None,
+        trace_step: FunnelTraceStep | None,
+    ) -&gt; Literal["advance", "defer", "reject", "retry_cheaper"] | None:
+        if (
+            policy == "burn_in"
+            or ticket.degradation_mode != "normal"
+            or ticket.current_level not in (2, 3)
+            or ticket.next_level is None
+            or ticket.next_level &gt; execution_target
+            or ticket.last_result is None
+            or (
+                ticket.last_scheduling_decision is not None
+                and ticket.last_scheduling_decision.next_level == ticket.next_level
+            )
+        ):
+            return None
+    
+        self._maybe_update_voi_calibration_state()
+        self._refresh_resource_budget()
+&gt;       scheduling = self._voi_scheduler.prioritize(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            [ticket],
+            self._budget_state,
+            self._frontier,
+        )
+E       AttributeError: '_VOIScheduler' object has no attribute 'prioritize'
+
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:929: AttributeError</failure></testcase></testsuite></testsuites>

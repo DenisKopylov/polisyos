@@ -1,0 +1,11 @@
+{
+  "parent_pid": 202802,
+  "signal": "SIGSTOP",
+  "utc": "2026-10-06T12:17:04.222266+00:00",
+  "reason": "Pause only stdlib orchestration parent; current pytest child203142 runs to natural completion. Yield shared root_cache to independent GP26 after currentchild ends; no compute quota/child termination/source change.",
+  "first_OPT03": "9PASS0skip; actualbackend consumer events retained",
+  "resume_utc": "2026-10-06T12:21:54.664903+00:00",
+  "resume_signal": "SIGCONT",
+  "independent_scope": "Numericaloracle26actualroot243 completed26PASS0skip; explicitcache release received.",
+  "timing_limit": "CTL01 parent elapsed-to-reap includes the coordinator pause; report/session monotonic timestamps are retained separately. No child suspended or terminated."
+}

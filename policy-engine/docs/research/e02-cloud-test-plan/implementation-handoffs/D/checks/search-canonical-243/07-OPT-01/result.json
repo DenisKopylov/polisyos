@@ -1,0 +1,153 @@
+{
+  "ordinal": 7,
+  "bundle": "OPT-01",
+  "canonical_line": 240,
+  "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+  "canonical_pytest_arguments": [
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "-ra"
+  ],
+  "selectors": [
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+  ],
+  "source_before": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:24:08.169980+00:00"
+  },
+  "metadata": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py",
+      "/workspace/e02-D-published-root",
+      "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 9.617911426990759,
+    "output": {
+      "bytes": 6955,
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/events.jsonl",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-07-OPT-01-2ed7356c227947f4bb51b75017b0e618",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/junit.xml",
+    "-rA"
+  ],
+  "equivalent_pytest_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-07-OPT-01-2ed7356c227947f4bb51b75017b0e618",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/junit.xml",
+    "-rA"
+  ],
+  "basetemp": "/dev/shm/search-canonical-243-07-OPT-01-2ed7356c227947f4bb51b75017b0e618",
+  "basetemp_existed_before": false,
+  "exit_code": 1,
+  "wall_seconds": 13.161389108005096,
+  "source_after": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:24:30.981499+00:00"
+  },
+  "complete_output": {
+    "bytes": 19888,
+    "sha256": "2762077dcffadbe4c5b1c3ac284601c9f6c9ab83e08b0e3a1e7ae9fc6160591a"
+  },
+  "max_rss_kib": 1200496,
+  "rss_scope": "cumulative high-water of completed metadata and pytest children in this stdlib-only parent; not isolated per-child peak",
+  "completed_call_outcomes": {
+    "passed": 70,
+    "failed": 5
+  },
+  "failed_reports": [
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+      "when": "call",
+      "outcome": "failed"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_empty_and_invalid_front_preserves_schema_as_incomplete",
+      "when": "call",
+      "outcome": "failed"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+      "when": "call",
+      "outcome": "failed"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+      "when": "call",
+      "outcome": "failed"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+      "when": "call",
+      "outcome": "failed"
+    }
+  ],
+  "skipped_reports": [],
+  "event_stream": {
+    "bytes": 147790,
+    "sha256": "7eccc86e776929a45321eee2d53ebdced6cf6c134a60d6866ce1524867ccf23a"
+  },
+  "junit": {
+    "file": {
+      "bytes": 22812,
+      "sha256": "50a0df50596bac2d221fa6b4ad14aa6e0869b0c490b3c137bd21e307f97835dd"
+    },
+    "counts": {
+      "tests": 75,
+      "errors": 0,
+      "failures": 5,
+      "skipped": 0
+    }
+  },
+  "outcome": "FAIL",
+  "limit": "Any skipped optional/native-backend query scope remains UNRUN, even if other tests passed. A crash retains actual completed failing reports but supplies no complete command verdict. No inherited-red/P41 waiver. Native Python call entries are observations, not standalone fit/numerical acceptance."
+}

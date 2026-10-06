@@ -1,0 +1,39 @@
+............................                                             [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_native_failure_leaves_only_pending_candidate_then_same_instance_tell_continues
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_native_partial_batch_stop_retains_unaccepted_pending_without_double_count
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_public_call_removal_trap_is_reached_before_history_acceptance[ask]
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_public_call_removal_trap_is_reached_before_history_acceptance[tell]
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_public_runner_two_runs_detach_history_and_preserve_actual_cas_evaluation
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_public_runner_refuses_zero_iteration_budget_before_any_evaluation
+PASSED tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_native_empty_supplier_exhausts_without_accepting_history
+PASSED tests/unit/scientist/search/test_frontier.py::test_policy_candidate_hash_ignores_volatile_metadata
+PASSED tests/unit/scientist/search/test_frontier.py::test_policy_candidate_hash_preserves_semantic_dates
+PASSED tests/unit/scientist/search/test_frontier.py::test_update_legacy_pareto_front_dedupes_by_stable_candidate_hash
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_default_store_uses_storage_factory
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_autotune_persistence_helpers_accept_protocol_backed_store
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_search_loop_runner_promotes_and_runtime_loader_reads_champion
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_is_idempotent_for_same_candidate_and_evaluation
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_omitted_suite_binding
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_evaluation_for_different_candidate
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_evaluation_for_different_loop
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_policy_for_different_loop
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_incompatible_suite[foreign_suite-1.0-suite_mismatch]
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_incompatible_suite[dummy_suite-2.0-suite_version_mismatch]
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_evaluation_from_different_suite_basis
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_wrong_comparison_split
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_keeps_newer_champion_when_stale_score_arrives
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_serializes_compare_and_publish_against_new_predecessor
+PASSED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_search_loop_runner_rejects_evaluator_from_foreign_suite
+28 passed, 2 warnings in 8.91s

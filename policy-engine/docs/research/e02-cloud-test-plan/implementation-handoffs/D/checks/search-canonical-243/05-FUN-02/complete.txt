@@ -1,0 +1,47 @@
+....................................                                     [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_runs_all_stages_on_passing_candidate
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stops_on_blocker
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stops_on_not_promising
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_respects_max_level
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_fast_track_skips_to_final
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_reject_routing_stops_funnel
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stages_sorted_by_fidelity
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_empty_stages_returns_not_evaluated_result
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_context_enriched_with_level_results
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_as_stage_a_callable
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_as_stage_b_callable
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_b_reuses_cached_stage_a_progress
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_b_cache_miss_falls_back_to_full_execution
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_freeze_mode_continuation_preserves_partial_progress
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_retry_cheaper_spend_only_does_not_resume
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_defer_without_discriminator_does_not_resume
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_interleaved_context_continuation_uses_exact_context_predecessor
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_burn_in_policy_bypasses_cheap_rejection_until_level4
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_records_failure_lessons_on_terminal_reject
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_records_success_lesson_on_level4_success
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_predictive_scheduler_receives_stage_observations
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_and_level6_runtime_generalization_collects_audit_refs
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level6_respects_no_promotion_degraded_mode
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_blocks_runtime_split_type_mismatch
+PASSED tests/unit/remediation/test_fun_02.py::test_l3_overlays_only_owned_config_and_preserves_caller_references
+PASSED tests/unit/remediation/test_fun_02.py::test_empty_funnel_is_not_evaluated_and_never_looks_like_zero_approval
+PASSED tests/unit/remediation/test_fun_02.py::test_cap_before_first_stage_is_not_evaluated
+PASSED tests/unit/remediation/test_fun_02.py::test_executed_zero_objective_remains_a_valid_result
+PASSED tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[None-1.0-ci_width_missing]
+PASSED tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[broken-1.0-ci_width_invalid]
+PASSED tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[nan-1.0-ci_width_invalid]
+PASSED tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[0.0-0.0-full_fidelity_bootstrap]
+PASSED tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[0.4-0.1-full_fidelity_bootstrap]
+PASSED tests/unit/remediation/test_fun_02.py::test_final_defer_overrides_intermediate_approve_without_erasing_stage_result
+PASSED tests/unit/remediation/test_fun_02.py::test_final_reject_overrides_intermediate_approve
+36 passed, 2 warnings in 7.72s

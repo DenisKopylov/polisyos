@@ -1,0 +1,70 @@
+...........................................................              [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[load]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[update]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_metadata_copies_and_failed_native_mutation_preserve_generation
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_same_ref_altered_bytes_refuses_load_without_publishing
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[schema]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[dimension]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[count]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[capacity]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[index-kind]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_explicit_schema_absent_legacy_bundle_uses_default_native_view
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_same_native_ref_changed_bytes_preserves_published_generation
+PASSED tests/unit/remediation/test_trn_02.py::test_discovery_preserves_history_ref_and_reads_cas_without_second_ann
+PASSED tests/unit/remediation/test_trn_02.py::test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating
+PASSED tests/unit/remediation/test_trn_02.py::test_failed_native_add_does_not_publish_a_second_python_record
+PASSED tests/unit/remediation/test_trn_02.py::test_failed_native_load_does_not_publish_partial_bundle
+PASSED tests/unit/remediation/test_trn_02.py::test_native_roundtrip_preserves_one_small_generation
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_exact_history_faithfully_rehydrates_and_ranks_direction_normalized_minima[minimize]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_exact_history_faithfully_rehydrates_and_ranks_direction_normalized_minima[maximize]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[data_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[model_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[evaluator_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[split_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[scalarizer_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[owner_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[unit]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[direction]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[origin]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[owner_id]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[tenant_id]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required[metric]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_malformed_declared_types_are_visible_refusals[stage_a_passed-false]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_malformed_declared_types_are_visible_refusals[scalar_score-0.1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_malformed_declared_types_are_visible_refusals[params_normalized-value2]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_malformed_declared_types_are_visible_refusals[timestamp-0]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_malformed_declared_types_are_visible_refusals[status-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_malformed_declared_types_are_visible_refusals[wall_time_seconds-False]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_candidate_content_not_ref_markers_binds_the_physical_input
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_checkpoint_replay_re_resolves_original_artifacts_on_cache_hit
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_cache_full_identity_copy_lru_budget_and_exact_alias_lookup
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_missing_basis_never_uses_first_source_as_target
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_outcome_is_admitted_without_dto_coercion[promotable-false]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_outcome_is_admitted_without_dto_coercion[guardrails-value1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_outcome_is_admitted_without_dto_coercion[guardrails-value2]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_outcome_is_admitted_without_dto_coercion[selection_metrics-value3]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_outcome_is_admitted_without_dto_coercion[sample_counts-value4]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_outcome_is_admitted_without_dto_coercion[runtime_split_type-holdout]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore[data_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore[model_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore[evaluator_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore[split_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore[scalarizer_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore[owner_ref]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_physical_out_of_bounds_cannot_hide_behind_clipped_normalization
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_unknown_history_codec_refuses_before_caching_or_training
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_physical_input_cannot_coerce_boolean_to_number
+59 passed, 2 warnings in 14.66s

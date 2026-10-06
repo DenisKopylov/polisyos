@@ -92,3 +92,49 @@ and declarations; P35 uses complete diff and receipt sets; P40 separates class
 repair from bounded residual; P41 preserves unknown red attribution. Broad
 regression remains after shared source freeze. Production data remains local
 read-only; generic CAS/ledger tests require no full dataset.
+
+## Diagnostic source follow-up
+
+The G standalone probe was linted and formatted after checkpoint-08; the
+original executed script stays addressable at `b37-oracle.py@c9af0f65f`.
+[Fresh v3 receipt](../checks/2026-10-06-first-wave/b37-independent-oracle-v3.json)
+records the corrected diagnostic source, a repeat on the same immutable B
+candidate, and the same observed `99.0` → `1.0` failure. Fixtures remain in
+ignored scratch. Product code and the CAS/Budget pytest waves were not changed
+or replayed.
+
+## E owner follow-up after the four-slice review
+
+These are acceptance/verification actions, not new finding closures or claims
+that the mechanisms have no value. Exact heads are pinned above.
+
+- **DDM:** the old closed schema (`additionalProperties=false`) and new schema
+  retain the same `$id`, while new writes add `readiness_effective_at`,
+  `readiness_event_id`, `readiness_expires_at` and `source_binding_digest`.
+  Declare the schema/version and migration boundary; new-reader/old-record
+  compatibility does not imply old-reader/new-record compatibility. Source
+  DTO agreement and caller-supplied `now`/trigger lists establish a bounded
+  library reconciliation, not independently established current feed or
+  authority. LA-054/055 stay limited. Bind complete deciding outputs to their
+  exact source; basename-only references need explicit identity reconciliation.
+- **DoE:** the release fragment labels the documented/exported SensitivityPlan
+  surface internal and omits structured change/compatibility metadata. Resolve
+  the actual public classification and stricter Sobol input-law/seed migration.
+  Reconcile the sensitivity bridge/adapter consumer writer with D before a
+  default search rollout. The numeric interaction oracle for
+  `Y=x+z+2xz`, independent `U[0,1]^2`, is
+  `S1=(12/25,12/25)`, `S2=1/25`, `ST=(13/25,13/25)`.
+  Isolate order from changed observations by permuting whole valid blocks or
+  trajectories and their paired outputs identically; a samples-only mutation
+  does not establish order-only custody. Final stability delta/removal evidence
+  is separate from the earlier 117-PASS wave. B97–B105 remain limited/partial.
+- **FRC:** the producer preserves the E/A writer boundary and does not establish
+  an A trusted verifier or ordinary served route. A metric key is not a unit;
+  source `data_schema_ref` is not resolved into an explicit unit on this path.
+  Keep that limitation explicit until the canonical unit/source contract is
+  consumed. A hit-count loop over the same BacktestReport comparisons is not
+  an independent numerical oracle; compare fresh source rows and persisted
+  interval values against a separate known-answer fixture. Scope/split/time/
+  model-kwargs and false credibility controls remain consumer work. B32,
+  LA-051 and FRC-01/02 remain limited/bridge-held; the labelled base run with
+  candidate-worktree PYTHONPATH is not P41 inherited evidence.

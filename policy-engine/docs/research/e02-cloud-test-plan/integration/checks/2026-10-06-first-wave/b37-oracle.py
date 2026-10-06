@@ -1,18 +1,21 @@
 """Ignored B37 discriminator; run only in G's assigned candidate checkout/compute slot.
 
 From policy-engine/ with the candidate's own interpreter:
-  PYTHONPATH=src .venv/bin/python _build/e02-g-continuation-20261006/proposedprobe.py
+  PYTHONPATH=src python /absolute/path/to/b37-oracle.py
 This uses temporary files only and never opens production data.
 """
+
 from __future__ import annotations
 
 import copy
 import json
+import sys
 import tempfile
 from decimal import Decimal
 from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING
 
+import polisyos.scientist.orchestration.engine.budget_ledger as ledger_module
 from polisyos.scientist.orchestration.engine.budget import (
     BudgetExhaustedError,
     BudgetLimit,
@@ -20,7 +23,14 @@ from polisyos.scientist.orchestration.engine.budget import (
 )
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
-import polisyos.scientist.orchestration.engine.budget_ledger as ledger_module
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+def _emit(message: str) -> None:
+    """Write a deciding observation to the command output."""
+    sys.stdout.write(f"{message}\n")
 
 
 def _must_refuse_unchanged(name: str, path: Path, action: Callable[[], object]) -> None:
@@ -99,7 +109,7 @@ def _probe_existing_payloads(root: Path) -> None:
     variants: dict[str, object] = {
         "empty_object": {},
         "empty_nested_state": {"state": {}},
-        "malformed": "{\"state\":",
+        "malformed": '{"state":',
     }
     missing_defaulted_state_field = copy.deepcopy(complete)
     del missing_defaulted_state_field["state"]["spent"]
@@ -138,13 +148,21 @@ def _probe_existing_payloads(root: Path) -> None:
         ledger = FileBudgetLedger(path)
         middleware = BudgetMiddleware(config, ledger=ledger)
         middleware_ops = {
-            "pre_check": lambda: middleware.pre_check("node"),
-            "check_thresholds": lambda: middleware.check_thresholds(),
-            "budget_state": lambda: middleware.budget_state,
-            "record_spend_safe": lambda: middleware.record_spend_safe("run", Decimal("1")),
-            "reserve_safe": lambda: middleware.reserve_safe("run", Decimal("1")),
-            "release_safe": lambda: middleware.release_safe("run", Decimal("1")),
-            "commit_safe": lambda: middleware.commit_safe("run", Decimal("1")),
+            "pre_check": lambda middleware=middleware: middleware.pre_check("node"),
+            "check_thresholds": lambda middleware=middleware: middleware.check_thresholds(),
+            "budget_state": lambda middleware=middleware: middleware.budget_state,
+            "record_spend_safe": lambda middleware=middleware: middleware.record_spend_safe(
+                "run", Decimal("1")
+            ),
+            "reserve_safe": lambda middleware=middleware: middleware.reserve_safe(
+                "run", Decimal("1")
+            ),
+            "release_safe": lambda middleware=middleware: middleware.release_safe(
+                "run", Decimal("1")
+            ),
+            "commit_safe": lambda middleware=middleware: middleware.commit_safe(
+                "run", Decimal("1")
+            ),
         }
         for name, action in middleware_ops.items():
             path.write_text(raw, encoding="utf-8")
@@ -165,9 +183,28 @@ def _probe_existing_payloads(root: Path) -> None:
         observed_before = version_ledger.snapshot().schema_version
         version_ledger.record_spend("run", Decimal("1"))
         observed_after = json.loads(version_path.read_text())["schema_version"]
-        print(json.dumps({"probe": "unsupported_schema_version", "load_accepted": True, "before": observed_before, "after_mutation": observed_after, "bytes_rewritten": version_path.read_bytes() != original_bytes}))
+        _emit(
+            json.dumps(
+                {
+                    "probe": "unsupported_schema_version",
+                    "load_accepted": True,
+                    "before": observed_before,
+                    "after_mutation": observed_after,
+                    "bytes_rewritten": version_path.read_bytes() != original_bytes,
+                }
+            )
+        )
     except (ValueError, FileNotFoundError) as error:
-        print(json.dumps({"probe": "unsupported_schema_version", "load_accepted": False, "error_type": type(error).__name__, "bytes_rewritten": version_path.read_bytes() != original_bytes}))
+        _emit(
+            json.dumps(
+                {
+                    "probe": "unsupported_schema_version",
+                    "load_accepted": False,
+                    "error_type": type(error).__name__,
+                    "bytes_rewritten": version_path.read_bytes() != original_bytes,
+                }
+            )
+        )
 
     forged = copy.deepcopy(complete)
     forged["canonical_contract"] = "nonempty-unrecognized-contract"
@@ -176,20 +213,23 @@ def _probe_existing_payloads(root: Path) -> None:
     try:
         observed = FileBudgetLedger(forged_path).snapshot().canonical_contract
     except (ValueError, FileNotFoundError):
-        print("valid-shaped foreign contract: refused")
+        _emit("valid-shaped foreign contract: refused")
     else:
-        print(f"valid-shaped foreign contract: accepted as {observed!r} (not_established boundary)")
+        _emit(f"valid-shaped foreign contract: accepted as {observed!r} (not_established boundary)")
 
 
 def main() -> None:
-    print(f"runtime source: {Path(ledger_module.__file__).resolve()}")
-    scratch = Path(__file__).resolve().parent / "results" / "tmp"
+    _emit(f"runtime source: {Path(ledger_module.__file__).resolve()}")
+    scratch = Path.cwd() / "_build" / "e02-g-b37-oracle"
     scratch.mkdir(parents=True, exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix="e02-b37-oracle-", dir=scratch))
-    print(f"retained fixtures: {root}")
+    _emit(f"retained fixtures: {root}")
     _probe_missing_and_configured_consumers(root)
     _probe_existing_payloads(root)
-    print("B37 scoped discriminator passed; valid-content identity remains a separate not_established boundary")
+    _emit(
+        "B37 scoped discriminator passed; "
+        "valid-content identity remains a separate not_established boundary"
+    )
 
 
 if __name__ == "__main__":

@@ -386,6 +386,9 @@ export type ComponentId = RuntimeApiComponents["schemas"]["ComponentId"];
 export type ConditionalDeltaAmount =
   RuntimeApiComponents["schemas"]["ConditionalDeltaAmount"];
 
+export type ConditionalSimulationInteractionEvidence =
+  RuntimeApiComponents["schemas"]["ConditionalSimulationInteractionEvidence"];
+
 export type ConditionalSimulationObservation =
   RuntimeApiComponents["schemas"]["ConditionalSimulationObservation"];
 

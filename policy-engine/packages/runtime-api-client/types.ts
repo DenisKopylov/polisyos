@@ -5089,6 +5089,75 @@ export interface components {
             semantic_role: string;
         };
         /**
+         * ConditionalSimulationInteractionEvidence
+         * @description Recomputed numerical coverage, without causal order or time-unit authority.
+         */
+        ConditionalSimulationInteractionEvidence: {
+            /**
+             * Authority Purpose
+             * @default conditional_simulation_only
+             * @constant
+             */
+            authority_purpose: "conditional_simulation_only";
+            /** Checked Interaction Orders */
+            checked_interaction_orders: number[];
+            /** Higher Order Residuals */
+            higher_order_residuals: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+            /** Horizon End */
+            horizon_end: number;
+            /** Horizon Start */
+            horizon_start: number;
+            /** Horizon Step */
+            horizon_step: number;
+            /** Max Checked Interaction Order */
+            max_checked_interaction_order?: number | null;
+            /** Observed Steps */
+            observed_steps: number[];
+            /**
+             * Predicate Provenance
+             * @default recomputed
+             * @constant
+             */
+            predicate_provenance: "recomputed";
+            /** Requested Steps */
+            requested_steps: number[];
+            /**
+             * Residual Scope
+             * @enum {string}
+             */
+            residual_scope: "no_higher_order" | "third_order" | "aggregate_three_plus";
+            /**
+             * Sampling Uncertainty Status
+             * @default not_established
+             * @constant
+             */
+            sampling_uncertainty_status: "not_established";
+            /**
+             * Schema Version
+             * @default policyos.runtime.conditional_simulation_interaction_evidence.v1
+             * @constant
+             */
+            schema_version: "policyos.runtime.conditional_simulation_interaction_evidence.v1";
+            /**
+             * Time Binding Status
+             * @default not_established
+             * @constant
+             */
+            time_binding_status: "not_established";
+            /** Trajectory Scope Count */
+            trajectory_scope_count: number;
+            /**
+             * Unit Binding Status
+             * @default not_established
+             * @constant
+             */
+            unit_binding_status: "not_established";
+        };
+        /**
          * ConditionalSimulationObservation
          * @description A replayed simulation-only value, without causal or promotion authority.
          */
@@ -5101,6 +5170,7 @@ export interface components {
              * @constant
              */
             authority_purpose: "conditional_simulation_only";
+            conditional_interaction_evidence?: components["schemas"]["ConditionalSimulationInteractionEvidence"] | null;
             /**
              * Evaluation Mode
              * @default simulate_only

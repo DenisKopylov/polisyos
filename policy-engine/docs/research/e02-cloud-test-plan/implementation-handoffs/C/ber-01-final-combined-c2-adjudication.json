@@ -1,0 +1,181 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ber-01-final-combined-c2-adjudication",
+  "created_at": "2026-10-06T13:31:28Z",
+  "closure_ids": [],
+  "bundle_ids": ["BER-01"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_freeze_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+  "source_freeze_tree_sha": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+  "handoff_parent_sha": "21168651af639e2fe58e561e89f6ce9ce8a3c2f8",
+  "previous_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-runtime-record-readback-review-response.json",
+  "implementation_commits": [
+    "42ee488fb432cad9518dea5e611cb6d84fb86387",
+    "6797746d6ded992d3b6badecdca2d5f5ebd6edc0",
+    "aca46649664e64f7a475e7d2677bba775f4b4af1",
+    "999f56c443e3b4ef74d849828641836a8f335b3d",
+    "3148bfb589182d7f85f0d5fedbfa7f5071058456",
+    "87999f69c5f99d69ee2622ef00cd7f4e04d7d572"
+  ],
+  "dependency_promotion": {
+    "central_source_commit": "495043eb636275398ed729d9d01bec12059d8059",
+    "branch_application_commit": "999f56c443e3b4ef74d849828641836a8f335b3d",
+    "change": "Promotes the already-locked jsonschema[format-nongpl]>=4.25.1 to base runtime requirements; no package identity or version changed.",
+    "source_freeze_package_inventory": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/package-inventory.json@898fd4c3bf5fd6f22d042fae4dcf4ca58307957ee1df580e5dcb70b0ba3b3344"
+  },
+  "branch": "codex/e02-C-berl-20261006",
+  "pull_request": null,
+  "source_changes_frozen": true,
+  "changed_paths_base_to_source_freeze": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2-review-response.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2.json",
+    "policy-engine/pyproject.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-c2-runtime-jsonschema.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-berl-conditional-profile.toml",
+    "policy-engine/src/polisyos/berl/README.md",
+    "policy-engine/src/polisyos/berl/__init__.py",
+    "policy-engine/src/polisyos/berl/adapters/__init__.py",
+    "policy-engine/src/polisyos/berl/adapters/_coalition.py",
+    "policy-engine/src/polisyos/berl/adapters/conditional_shapley.py",
+    "policy-engine/src/polisyos/berl/adapters/protocol.py",
+    "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+    "policy-engine/src/polisyos/berl/contracts/__init__.py",
+    "policy-engine/src/polisyos/berl/contracts/explanation_bundle.py",
+    "policy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json",
+    "policy-engine/src/polisyos/berl/contracts/schema.py",
+    "policy-engine/src/polisyos/berl/contracts/validation_rules.py",
+    "policy-engine/src/polisyos/berl/service.py",
+    "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+    "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+    "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+    "policy-engine/tests/unit/berl/test_conditional_shapley.py",
+    "policy-engine/tests/unit/berl/test_contracts.py",
+    "policy-engine/tests/unit/remediation/test_ber_01.py",
+    "policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+    "policy-engine/uv.lock"
+  ],
+  "original_criteria": {
+    "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BER-01.md@97c85fae2d4505ec8248540d98b9556296244208",
+    "LA-034": "Reconcile the complete nested ExplanationBundle structure through the existing canonical generator; distinguish construction input defaults from the full version-pinned persisted profile; preserve historical persisted versions; prove generated-schema content and both directions of profile disagreement, then exercise actual Runtime and Scientist readers.",
+    "LA-036": "Do not label marginal background replacement as conditional SHAP. Use the shared coalition path with exact Gaussian and weighted finite-support conditional oracles, no jitter, and fixed-N bounded nonlinear intervals; do not grant conditional authority without a source-law producer and independently bound verification."
+  },
+  "test_evidence": [
+    {
+      "target_sha": "aca46649664e64f7a475e7d2677bba775f4b4af1",
+      "command": "PYTHONPATH=\"$PWD/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/remediation/test_ber_01.py policy-engine/tests/unit/berl/test_contracts.py policy-engine/tests/unit/berl/test_adapters.py policy-engine/tests/unit/berl/mirror_contracts/test_shap_kernel.py policy-engine/tests/unit/berl/test_service.py policy-engine/tests/unit/berl/test_conditional_shapley.py policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py -q",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "73 tests passed (73 progress dots); only the existing pytest cache_dir unknown-option warning.",
+      "coverage": "Included full-bundle and historical 1.0.0 profile acceptance; construction defaults distinct from persisted output; generated-schema content equality; empty nested object, nested extra, and unknown-version persisted rejections; exact Gaussian and weighted finite-support conditional oracles; fixed-N short-cap interval controls; callback and evidence-removal refusals; Runtime and Phase 5 reader suites plus the bridge integration.",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2-review-response.json@5b501a85ba17de610907809bc9a104ce612fe5d4338b4af338f8871e4d5e6a20"
+    },
+    {
+      "target_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+      "command": "PYTHONPATH=policy-engine python3 -m pytest -q policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "11 tests passed; existing JAX jax_pmap_shmap_merge deprecation warning.",
+      "coverage": "Current Runtime producer record written to a private FileSystemCAS, canonical-byte readback, and Runtime evaluator for persisted profiles 1.0.0 and 1.1.0; conditional unresolved-evidence and markers-only controls remain failed with zero verifier callback calls.",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-runtime-record-readback-review-response.json@11f0427cb7359924e0028013cfc4774ea1056bd11b5e39d0a5c71775a6dd2d91",
+      "stdout": ".tmp/e02-C2/raw/installed/berl/runtime-record-readback/pytest.stdout@3283f0bdcc3ce64cef2bfae2cca6410f933a797571440d42eb4bc363f53b11c9"
+    },
+    {
+      "target_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+      "command": "Read-only source invocation of generated_explanation_bundle_schema() twice, comparing both results with the checked-in explanation_bundle.schema.json.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": {
+        "two_generator_outputs_equal": true,
+        "generated_matches_checked_in_content": true,
+        "persisted_schema_sha256": "5e3e6a9d88e4bfb46175e6a2f0fbd2970b387ae154b5ff86d08ef76a1b3d1128",
+        "generated_canonical_sha256": "675adb581cadd799438f26ef67f3cafe1b5f9ffc10deb7c3e08ce0fb47389dc6"
+      }
+    },
+    {
+      "target_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+      "command": "Independent Runtime delta review; exact command was not retained in the supplied scratch receipt.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "11 dots; independent reviewer reports 11 tests passed.",
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/berl-review/runtime-delta/pytest.stdout@08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+      "command_limitation": "The reviewer command line is not present in the retained receipt; do not treat this as an independently reproducible command record."
+    }
+  ],
+  "installed_artifact_evidence": {
+    "candidate_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+    "candidate_tree_sha": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+    "installed_receipt": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed-berl-runtime-87999.json@6a885ddda6238dd8015bc75c01303d088d8e880969b3bc9b1a9028e52b9c01c3",
+    "probe": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/installed_berl_probe_87999.py@847d809869cecea0a49fc804ecf5f68a2be6d234d4b4abb323d9dfcf34bd0702",
+    "package_inventory": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/package-inventory.json@898fd4c3bf5fd6f22d042fae4dcf4ca58307957ee1df580e5dcb70b0ba3b3344",
+    "package_inventory_script": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/package_inventory_87999.py@60994b272f70ba270a3a6be225d53eb9a2ae9313b447bcced452707396ede06a",
+    "runtime_environment": "Isolated Python 3.14.0, policy-engine 0.1.0 installed from wheel, imports resolved from isolated site-packages, pytest absent.",
+    "wheel_sha256": "27f15cec628f5b8ab9c1e48dcb9ddf9c6d363ea6e4c413be2a0239832b0a7e2e",
+    "sdist_sha256": "222c2a0d724b883c769070a4af093186f753ac7deaf032579e969a1d5eabe549",
+    "runtime_source_packaging": "The changed Runtime module is byte-identical across source, wheel, and sdist (sha256 d81542d87f0acfeacc0a3931676e783213ef0e13c1edf2ba2889da73982af861); all 3,452 wheel payload paths occur in the sdist; inventory reports no source mismatches or unmapped wheel payload.",
+    "schema_resource_packaging_probe": {
+      "command": "Read-only zipfile membership/hash comparison of dist/policy_engine-0.1.0-py3-none-any.whl against policy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json.",
+      "outcome": "PASS",
+      "wheel_entry": "polisyos/berl/contracts/explanation_bundle.schema.json",
+      "wheel_entry_present": true,
+      "wheel_and_source_bytes_equal": true,
+      "both_sha256": "5e3e6a9d88e4bfb46175e6a2f0fbd2970b387ae154b5ff86d08ef76a1b3d1128",
+      "bytes": 30565
+    },
+    "runtime_producer_consumer_results": {
+      "1.0.0": {"producer_full_bundle": true, "cas_readback_full_bundle": true, "runtime_status": "pass", "violations": []},
+      "1.1.0": {"producer_full_bundle": true, "cas_readback_full_bundle": true, "runtime_status": "pass", "violations": []},
+      "conditional_unresolved": {"runtime_status": "fail", "violation": "conditional_law_authority_not_admitted:kernel_shap_conditional"},
+      "conditional_evidence_removed_markers_kept": {"runtime_status": "fail", "violation": "conditional_law_evidence_missing:kernel_shap_conditional"},
+      "echo_verifier_calls": 0,
+      "fixture_scope": "Synthetic profile/consumer fixture only; no production model, external source evidence, or scientific precision assertion."
+    }
+  },
+  "finding_dispositions": [
+    {
+      "id": "LA-034",
+      "verdict": "limited",
+      "criterion_test_results": [
+        {"criterion": "Canonical persisted profile is a generated, complete nested schema and checked-in JSON content equals the canonical generator output.", "result": "PASS"},
+        {"criterion": "Construction-input defaults remain distinct from version-pinned persisted output; historical 1.0.0 stays accepted; unknown 9.9.9 is rejected by the persisted profile; nested empty objects and extras are rejected.", "result": "PASS"},
+        {"criterion": "Actual Runtime and Scientist Phase 5 consumers are exercised against serialized bundles; current Runtime builder-to-CAS-to-evaluator readback preserves full 1.0.0/1.1.0 payloads.", "result": "PASS", "basis": "The 73-test source suite at aca466 includes test_service_bundle_round_trips_before_both_consumers_fail_closed, which writes and reloads canonical JSON before both Runtime and Phase 5 consume it, plus the Phase 5 suite and bridge. The 11-test Runtime suite at 87999 and installed wheel probe exercise the corrected Runtime record path."},
+        {"criterion": "Enumerate all external schema consumers and establish their runtime/resource-loader behavior.", "result": "UNRUN", "basis": "The original finding explicitly says an external saved-JSON consumer was not established. Wheel inclusion and byte identity are proven, but an external-consumer census is not."}
+      ],
+      "basis": "The original schema/profile disagreement and the later Runtime persisted-record shape escape have direct source tests, actual Runtime/Phase 5 reader coverage, private CAS serialization/readback, and an isolated installed-wheel Runtime probe. The original and versioned profiles are distinguished rather than collapsed.",
+      "residual": "External schema-consumer census and production CAS provenance remain not_established; Phase 5 was exercised in the source suite, not as an installed-wheel probe. No claim is made that unknown external readers are absent.",
+      "capability_labels": ["Runtime consumer wired", "Phase 5 consumer wired", "external schema consumer not_established"]
+    },
+    {
+      "id": "LA-036",
+      "verdict": "held",
+      "criterion_test_results": [
+        {"criterion": "Requested method identity is not allowed to self-attest an effective backend; conditional and marginal games have discriminating Gaussian and exact finite-support oracles, with PSD/support checks and no diagonal jitter.", "result": "PASS"},
+        {"criterion": "Fixed-N short-cap intervals use achieved error; zero-width N=0 and stably normalized finite-support mass controls pass; fake bounds on an unbounded model remain candidate-only.", "result": "PASS"},
+        {"criterion": "Persisted conditional authority is admitted from an E/F source-law artifact with resolved/content-bound law, model, population/time/order/schema/epoch/support and verifier provenance.", "result": "UNRUN", "basis": "The E/F law/model/bounds producer and admitted source verifier are absent; injected callback labels are ignored and the persisted Runtime/Phase 5 gate fails closed."}
+      ],
+      "basis": "The numerical and identity mechanics have bounded synthetic PASS evidence. The actual conditional-authority capability remains unavailable because its required producer/artifact/verifier chain is not present; candidate math does not close that finding.",
+      "capability_labels": ["producer_missing", "artifact_missing", "verification_missing", "conditional authority held"]
+    }
+  ],
+  "pattern_pass": {
+    "P01_P02_P05": "Conditional law authority remains unavailable; Runtime and Phase 5 use the shared central validator and fail closed instead of promoting candidate output.",
+    "P29_P32": "Evidence includes generator/content equality, nested/version corruption controls, actual serializer/CAS readback, actual consumers, and remove-evidence-keep-markers refusal; references and callback self-labels do not grant authority.",
+    "P31": "The shared persisted validator and owned Runtime builder seam close the identified cross-consumer profile and record-shape class; no consumer-specific authority exemption was added.",
+    "P37_P38": "Conditional source/model/bounds provenance is not_established and fails closed. The previous proxy was verifier-ref/digest echo plus declared recomputed label; the current gate calls no injected verifier and rejects the unresolved law despite preserved markers.",
+    "P40": "The callback trust-by-label escape was widened at the shared admission boundary and is recorded as a bounded missing-supplier residual; no trusted verifier or law producer is fabricated.",
+    "P41": "Architecture guardrails were not rerun for this freeze; no inherited/unrelated classification is asserted."
+  },
+  "limitations_and_next_owner": [
+    {"state": "external consumer not_established", "scope": "External consumers of the saved schema and production CAS provenance.", "closure_move": "Enumerate supported external/resource consumers and replay their actual validators/readers against the current and historical persisted profiles."},
+    {"state": "producer_missing / artifact_missing / verification_missing", "owner": "E/F source-law and model authority owners", "scope": "Admitted law artifact, content-bound model/profile and global output-bound proof, non-producer verifier provenance, and compatible consumer admission.", "closure_move": "Supply the real owner contracts and artifacts, then resolve and independently reconcile their content and bindings through the existing BERL gates."}
+  ],
+  "transport": {
+    "implementation_tree_readback": true,
+    "source_freeze_verified": true,
+    "handoff_is_separate_docs_only_append": true,
+    "push": "not performed; parent review/integration pending"
+  }
+}

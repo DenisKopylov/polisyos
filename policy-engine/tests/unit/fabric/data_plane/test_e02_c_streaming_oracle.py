@@ -274,6 +274,229 @@ def test_b79_supported_rest_request_uses_the_persisted_etag_cursor(
         registry.shutdown()
 
 
+def test_b80_two_source_failure_keeps_predecessors_and_retry_reads_late_event(
+    tmp_path: Path,
+) -> None:
+    """A failed B fetch preserves both source cursors and replay keeps B's late row."""
+    from polisyos.core.contracts.fabric import EvidenceBundle
+    from polisyos.fabric.connectors.base import HealthStatus
+    from polisyos.fabric.connectors.sources.rest_json import RestJsonConnector
+    from polisyos.fabric.connectors.types import FetchError
+    from polisyos.fabric.data_plane.modes import run_batch_incremental
+    from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+    from polisyos.ir.connectors import DataVersion, FetchResult, VersionStrategy
+
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    source_events: dict[str, list[tuple[str, dict[str, Any] | None]]] = {
+        "source_a": [
+            ("etag-a8", None),
+            (
+                "etag-a9",
+                {
+                    "id": "a-event-9",
+                    "source_version": "etag-a9",
+                    "event_time": "2025-01-01T00:00:00Z",
+                },
+            ),
+        ],
+        "source_b": [
+            ("etag-b4", None),
+            (
+                "etag-b5",
+                {
+                    "id": "b-late-event-5",
+                    "source_version": "etag-b5",
+                    "event_time": "2024-01-01T00:00:00Z",
+                },
+            ),
+        ],
+    }
+    observed_requests: list[tuple[str, str | None]] = []
+    fail_b_once = {"pending": True}
+    version_time = datetime(2026, 10, 6, tzinfo=UTC)
+
+    def _fixture_class(source_key: str) -> type[RestJsonConnector]:
+        async def _health_check(self: Any, handle: Any) -> HealthStatus:
+            del self, handle
+            return HealthStatus(healthy=True, message="fixture source is ready")
+
+        async def _fetch(self: Any, handle: Any, request: Any) -> FetchResult[list[dict[str, Any]]]:
+            del self, handle
+            since = (
+                request.incremental_since.value if request.incremental_since is not None else None
+            )
+            observed_requests.append((source_key, since))
+            if source_key == "source_b" and fail_b_once["pending"]:
+                fail_b_once["pending"] = False
+                raise FetchError(
+                    "fixture source_b is temporarily unavailable",
+                    connector_id="fixture." + source_key,
+                    dataset_id="events",
+                )
+
+            versions = [version for version, _row in source_events[source_key]]
+            if since in versions:
+                start_index = versions.index(since) + 1
+            else:
+                start_index = 0
+            remaining = source_events[source_key][start_index:]
+            rows = [row for _version, row in remaining if row is not None]
+            current_version = remaining[-1][0] if remaining else (since or versions[0])
+            return FetchResult(
+                data=rows,
+                row_count=len(rows),
+                schema_id="fixture.e02.source_events",
+                schema_version="1.0",
+                version=DataVersion(
+                    strategy=VersionStrategy.ETAG,
+                    value=current_version,
+                    timestamp=version_time,
+                ),
+                fetched_at=version_time,
+                completeness=1.0,
+            )
+
+        metadata = RestJsonConnector.metadata.model_copy(
+            update={
+                "connector_id": source_key,
+                "namespace": "fixture",
+                "source_name": f"Fixture {source_key}",
+                "source_organization": "E02 oracle",
+            }
+        )
+        return type(
+            f"{source_key.title()}FixtureConnector",
+            (RestJsonConnector,),
+            {
+                "__module__": __name__,
+                "connector_id": f"fixture.{source_key}",
+                "namespace": "fixture",
+                "short_id": source_key,
+                "metadata": metadata,
+                "health_check": _health_check,
+                "fetch": _fetch,
+            },
+        )
+
+    config = ConnectionConfig(url="https://fixture.invalid/events")
+    for source_key in source_events:
+        registry.register(
+            _fixture_class(source_key),
+            config=config,
+        )
+
+    class _DirectFixtureRegistry:
+        """Use fixture connectors directly while exercising ingestion/orchestration consumers."""
+
+        def get(self, connector_id: str) -> Any:
+            return registry.get(connector_id)
+
+        async def get_connection(
+            self,
+            connector_id: str,
+            connection_config: ConnectionConfig,
+        ) -> Any:
+            return await self.get(connector_id).connect(connection_config)
+
+        async def release_connection(self, connector_id: str, handle: Any) -> None:
+            await self.get(connector_id).disconnect(handle)
+
+    cas_root = tmp_path / "b80-cas"
+    store = FileSystemCAS(cas_root)
+    cursor_store = CursorStore(store)
+    predecessors: dict[str, CursorState] = {}
+    for source_key, version in (("source_a", "etag-a8"), ("source_b", "etag-b4")):
+        connector_id = f"fixture.{source_key}"
+        predecessor = CursorState(
+            cursor_id=f"{connector_id}:events",
+            connector_id=connector_id,
+            dataset_id="events",
+            watermark_type=WatermarkType.ETAG,
+            watermark_value=version,
+            created_at=version_time,
+        )
+        cursor_store.save_cursor(predecessor)
+        predecessors[source_key] = predecessor
+
+    manifest = {
+        "datasets": [
+            {"connector_id": "fixture.source_a", "dataset_id": "events"},
+            {"connector_id": "fixture.source_b", "dataset_id": "events"},
+        ]
+    }
+    fixture_registry = _DirectFixtureRegistry()
+    dependencies = resolve_ingestion_dependencies(registry=fixture_registry)  # type: ignore[arg-type]
+    try:
+        with pytest.raises(FetchError, match="temporarily unavailable"):
+            run_batch_incremental(
+                connector_manifest=manifest,
+                source="e02-b80-fixture",
+                license_name="fixture-only",
+                cas_root=cas_root,
+                connection_config=config,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        after_failure = CursorStore(FileSystemCAS(cas_root))
+        for _source_key, predecessor in predecessors.items():
+            actual = after_failure.find_latest_cursor(
+                predecessor.connector_id,
+                predecessor.dataset_id,
+            )
+            assert actual is not None
+            assert actual.model_dump(mode="json") == predecessor.model_dump(mode="json")
+
+        result = run_batch_incremental(
+            connector_manifest=manifest,
+            source="e02-b80-fixture",
+            license_name="fixture-only",
+            cas_root=cas_root,
+            connection_config=config,
+            produce_snapshot=False,
+            ingestion_dependencies=dependencies,
+        )
+        assert result.evidence_bundle_ref is not None
+        assert observed_requests == [
+            ("source_a", "etag-a8"),
+            ("source_b", "etag-b4"),
+            ("source_a", "etag-a8"),
+            ("source_b", "etag-b4"),
+        ]
+
+        evidence = EvidenceBundle.model_validate(
+            from_canonical_bytes(store.get_bytes(result.evidence_bundle_ref.artifact_id))
+        )
+        from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
+
+        observed_row_ids: set[str] = set()
+        for source_ref in evidence.sources:
+            fetched = ResultSerializer.deserialize(store.get_bytes(source_ref))
+            observed_row_ids.update(str(row["id"]) for row in fetched.data)
+        expected_row_ids = {
+            row["id"]
+            for source_events in source_events.values()
+            for _version, row in source_events[1:]
+            if row is not None
+        }
+        assert observed_row_ids == expected_row_ids
+        assert "b-late-event-5" in observed_row_ids
+
+        # Cursor writes remain fail-closed until the independent evidence binder exists.
+        after_retry = CursorStore(FileSystemCAS(cas_root))
+        for _source_key, predecessor in predecessors.items():
+            actual = after_retry.find_latest_cursor(
+                predecessor.connector_id,
+                predecessor.dataset_id,
+            )
+            assert actual is not None
+            assert actual.model_dump(mode="json") == predecessor.model_dump(mode="json")
+    finally:
+        registry.shutdown()
+        ConnectorRegistry.reset_instance()
+
+
 @pytest.mark.parametrize("strategy", ["count", "tumbling", "session", "sliding"])
 @pytest.mark.parametrize("crash_boundary", ["after_raw_chunk", "after_window_artifact"])
 @pytest.mark.asyncio

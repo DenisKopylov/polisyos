@@ -1689,7 +1689,7 @@ async def _commit_stream_frontier(
         state="committed",
     )
     try:
-        await async_cursor_store.save_stream_checkpoint(committed_checkpoint)
+        committed_ref = await async_cursor_store.save_stream_checkpoint(committed_checkpoint)
     except Exception as exc:
         await _save_unresolved_frontier(
             async_cursor_store=async_cursor_store,
@@ -1699,7 +1699,7 @@ async def _commit_stream_frontier(
         )
         exc.add_note("committed stream frontier marker could not be persisted")
         raise
-    return refs[0], refs[1], committed_checkpoint
+    return refs[0], committed_ref, committed_checkpoint
 
 
 def _window_policy_snapshot(

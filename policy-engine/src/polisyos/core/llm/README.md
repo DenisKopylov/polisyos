@@ -40,3 +40,8 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
   telemetry is isolated from required accounting. An absent durable acknowledgement is unknown,
   and cannot publish a reusable provider result. Durable budget composition is supplied by the
   Scientist budget owner; a plain traced client only records an unmanaged operational event.
+- A failed mandatory `required_accounting` callback retains its exact observed event and
+  blocks new provider calls. `reconcile_accounting(event_identity)` redelivers only that frozen
+  payload to the same trusted callback. A callback's successful return confirms local delivery;
+  its owner must deduplicate ambiguous prior effects. This legacy callback is not a durable
+  ledger acknowledgement; the initialized budget middleware supplies that separate capability.

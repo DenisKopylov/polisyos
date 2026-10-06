@@ -165,6 +165,9 @@ class TracedLLMClient:
         except Exception:
             self._tracer = None
         self._owned_calls: set[asyncio.Task[Any]] = set()
+        self._pending_accounting: dict[
+            str, tuple[tuple[tuple[str, Any], ...], LLMAccountingError]
+        ] = {}
         if metrics is not None:
             self._metrics = metrics
         else:
@@ -209,6 +212,11 @@ class TracedLLMClient:
                     )
 
     async def _await_owned_call(self, operation: Any) -> Any:
+        try:
+            self._require_accounting_ready()
+        except BaseException:
+            operation.close()
+            raise
         task = asyncio.create_task(operation)
         self._owned_calls.add(task)
 
@@ -219,6 +227,28 @@ class TracedLLMClient:
 
         task.add_done_callback(completed)
         return await asyncio.shield(task)
+
+    def _require_accounting_ready(self) -> None:
+        if self._pending_accounting:
+            raise next(iter(self._pending_accounting.values()))[1]
+
+    def reconcile_accounting(self, event_identity: str) -> None:
+        """Redeliver one retained event through the trusted mandatory callback.
+
+        This is operational delivery, not a durable ledger acknowledgement. The
+        callback owner must reconcile ambiguous prior effects by this exact event
+        identity. No caller can replace the retained payload or the callback.
+        """
+        frozen, failure = self._pending_accounting[event_identity]
+        if self._required_accounting is None:
+            raise RuntimeError("mandatory accounting owner is unavailable")
+        try:
+            self._required_accounting(dict(frozen))
+        except Exception as cause:
+            raise LLMAccountingError(
+                response=failure.response, event=dict(frozen), cause=cause
+            ) from cause
+        del self._pending_accounting[event_identity]
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -457,11 +487,14 @@ class TracedLLMClient:
             try:
                 self._required_accounting(dict(event))
             except Exception as exc:
-                raise LLMAccountingError(
+                failure = LLMAccountingError(
                     response=response,
-                    event=event,
+                    event={**event, "required_accounting_status": "unknown"},
                     cause=exc,
-                ) from exc
+                )
+                identity = str(event["event_identity"])
+                self._pending_accounting[identity] = (tuple(event.items()), failure)
+                raise failure from exc
 
         span.set_attribute("polisyos.llm.tokens.prompt", prompt_tokens)
         span.set_attribute("polisyos.llm.tokens.completion", completion_tokens)
@@ -519,6 +552,7 @@ class TracedLLMClient:
         return settlement
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
+        self._require_accounting_ready()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
@@ -566,6 +600,7 @@ class TracedLLMClient:
         return await self._await_owned_call(self._ainvoke_owned(prompt, kwargs))
 
     async def _ainvoke_owned(self, prompt: str, kwargs: dict[str, Any]) -> Any:
+        self._require_accounting_ready()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
@@ -641,6 +676,7 @@ class TracedLLMClient:
         return await self._await_owned_call(self._generate_owned(call_args, call_kwargs))
 
     async def _generate_owned(self, call_args: tuple[Any, ...], call_kwargs: dict[str, Any]) -> Any:
+        self._require_accounting_ready()
         prompt = call_args[0] if call_args else call_kwargs.get("prompt")
         prompt_kwargs = dict(call_kwargs)
         prompt_kwargs.pop("prompt", None)

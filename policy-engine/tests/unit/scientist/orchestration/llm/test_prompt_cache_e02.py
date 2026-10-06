@@ -516,3 +516,35 @@ async def test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner(tmp_
     assert producer_settlement(result).ack.durability == "ledger"
     assert middleware.budget_state.spent["run"] == Decimal("0.05")
     assert middleware.budget_state.reserved["run"] == 0
+
+
+@pytest.mark.asyncio
+async def test_unknown_mandatory_callback_blocks_new_provider_until_exact_reconciliation():
+    gateway = _Gateway()
+    gateway.release.set()
+    available = [False]
+    recorded = []
+
+    def actual_required_owner(event):
+        if not available[0]:
+            raise OSError("required event delivery unavailable")
+        recorded.append(event)
+
+    client = TracedLLMClient(
+        gateway,
+        model_name="e02",
+        tracer=_Tracer(),
+        metrics=SimpleNamespace(record_llm_call=lambda **kw: None),
+        required_accounting=actual_required_owner,
+    )
+    with pytest.raises(LLMAccountingError) as failure:
+        await client.generate(user="required owner", temperature=0.0)
+    with pytest.raises(LLMAccountingError):
+        await client.generate(user="next independent provider", temperature=0.0)
+    assert gateway.calls == 1
+    available[0] = True
+    client.reconcile_accounting(failure.value.event["event_identity"])
+    assert len(recorded) == 1 and recorded[0]["cost_usd"] == 0.02
+    assert gateway.calls == 1
+    await client.generate(user="next independent provider", temperature=0.0)
+    assert gateway.calls == 2

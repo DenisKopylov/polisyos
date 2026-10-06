@@ -164,11 +164,33 @@ def main() -> None:
         if not is_pytest:
             return
         selectors = []
+        directory_members = []
         for token in argv:
             # Options containing cache/output paths are not pytest selectors.
             if token.startswith("-"):
                 continue
             selectors += pattern.findall(token)
+            # Native pytest directory inputs select whole tracked test files too.
+            # Expand immutable Git members, never a local filesystem or ignored output.
+            directory = token.removeprefix("policy-engine/").rstrip("/")
+            if directory.startswith("tests/") and ".py" not in directory:
+                members = sorted(
+                    p.removeprefix("policy-engine/")
+                    for p in tracked
+                    if p.startswith("policy-engine/" + directory + "/")
+                    and p.endswith(".py")
+                    and Path(p).name.startswith("test_")
+                )
+                selectors.extend(members)
+                if members:
+                    directory_members.append(
+                        {
+                            "native_directory_token": token,
+                            "members": members,
+                            "selection_basis": "pinned tracked test_*.py descendants",
+                            "grade": "whole-file input selection, not collection or runtime proof",
+                        }
+                    )
         if not selectors:
             return
         commands.append(
@@ -178,6 +200,7 @@ def main() -> None:
                 "argv": argv,
                 "selectors": selectors,
                 "bundle_ids": list(bundle_ids),
+                "native_directory_inputs": directory_members,
             }
         )
         for selector in selectors:

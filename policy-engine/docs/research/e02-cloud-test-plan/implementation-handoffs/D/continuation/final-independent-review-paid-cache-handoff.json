@@ -1,0 +1,557 @@
+{
+  "schema": "policyos.e02.independent_review_handoff.v1",
+  "unit": "D",
+  "slice": "paid-cache-existing-native-owner-consumer-fixture-review",
+  "reviewer": "criterion_closeout_review independent of implementation author",
+  "branch": "codex/e02-D-final-independent-review",
+  "review_slice_base": "e40afbb3c800c3de245d07b481eff3a1e567798d",
+  "review_slice_base_tree": "ec4b3012802ad573ef0c6987ddc5629961114a98",
+  "implementation_commit": "861feab4f83bd31c9386e771838753e112df49d7",
+  "implementation_tree": "e3cb530aa3897929ee736326f484dfad627dd79c",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/paid-cache-consumer-06c-readonly-review.json"
+  ],
+  "full_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/paid-cache-consumer-06c-readonly-review.json",
+    "bytes": 74329,
+    "sha256": "97a56cc6abc00ee88bfa730ee70cefbb7cb0eaa894e7b6c3cc36497aa80f258c",
+    "git_blob": "29dc7fd9a6b971b452cafba3d7432c916a41f54c",
+    "complete_remote_body_readback": "MATCH"
+  },
+  "reviewed_fixture_implementation": {
+    "sha": "0c039c0a58981e6c33271e121d6bcb0e8621fa97",
+    "tree": "ea5d949faa09d04cec5499f3bd57773d59ff61f2",
+    "parent": "7814b2001c436097af1ee373172ad7d7630da3f9",
+    "complete_changed_paths": [
+      "policy-engine/tests/unit/remediation/test_llm_01.py"
+    ]
+  },
+  "actual_frozen_root": {
+    "sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "tree": "9662ab2e9bdfdadfc0d59a5c8ff381f498d0ba6d",
+    "fixture_blob_equal_author_root": true
+  },
+  "original_criterion_denominator": {
+    "bundles": 17,
+    "ids": 45,
+    "occurrences": 46,
+    "supplier": "LA-015@CTL-01, closure owner SRV-03",
+    "binding_changed": false,
+    "full_prior_acceptance_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/review.json",
+    "affected_original_occurrence": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "fragment_lines": [
+        3192,
+        3205
+      ],
+      "original_fragment_sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29",
+      "exact_acceptance_paragraph_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+      "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+      "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+      "original_accounting_occurrence": "B120@CTL-03"
+    },
+    "no_original_acceptance_text_replacement": true,
+    "supplier_fixture_scope": "LLM-01 fixture is related native accounting supplier/consumer coverage, not an additional D original bundle or independent closure verdict."
+  },
+  "verdict": "ACCEPTED_BOUNDED_FIXTURE_REPAIR_NO_ACTIONABLE_SOURCE_FINDING",
+  "check_outcomes": {
+    "author_actual_runtime": "PASS13 FAIL0 ERROR0 SKIP0",
+    "independent_fixture_and_existing_ports": "PASS bounded static review",
+    "independent_output_recomputation": "MATCH",
+    "independent_runtime": "UNRUN: deliberately not duplicated",
+    "B120_raw_Gateway_JSON_decoder": "existing actual FAIL21/PASS3 at canonical B source; unchanged by this fixture",
+    "final_composed_wide_wave": "pending separate root frozen source/output",
+    "formal_finding_closed": false,
+    "accepted_in_G": false
+  },
+  "runtime_property": "Existing native provider physically settles once into canonical B1.1 ledger, zero-new-charge cache reuse requires exact paid content/context/receipt lineage and fresh readback; expiry creates second real provider event/receipt. Ordinary low-level D consumer port executes.",
+  "consumer": "Explicitly configured actual native Cache→Traced→Enforcer→Middleware(FileBudgetLedger)→fresh D receipt resolver. Low-level current funnel resolver port executes; full FunnelOrchestrator/default served factory are separate existing evidence and no new claim here.",
+  "independent_oracle": "Independently parse retained actual native ledger JSON rather than calling the same product observer: seven unique physical snapshots, schema1.1, receipt sums exactly spent0.02 or0.04 (empty0), reserved0; current-directory symlink aliases excluded. This is local debit/readback evidence, not invoice truth.",
+  "divergent_proxy": "Trace cost/rawcachemarker/classname/serialized dict receipt do not establish debit or free reuse. New positives read persisted native receipts; negatives preserve paid original but remove/tamper readback.",
+  "negative_or_removal_probe": [
+    "Missing local reader with real paid origin refuses reuse, retains original paid charge and receipt, releases only current reservation.",
+    "Missing/dict lookalike/conflicting amount readback each first proves valid original canonical readback present, then changes only returned readback; reuse refuses with same original paid receipt/spent0.02 and no second provider invocation.",
+    "Unmanaged origin retains trace usage/cost and genuine cache capability; actual empty reopened ledger reader cannot confer paid status, no reuse admission or new charge."
+  ],
+  "complete_deciding_output": {
+    "author_output_directory": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0",
+    "author_actual_cases": 13,
+    "phases": 39,
+    "actually_loaded_product_origins": 115,
+    "all_origins_exact_root_Git_MATCH": true,
+    "seven_unique_native_ledgers": true,
+    "pytest_symlink_aliases_excluded": true,
+    "full_independent_reconciliation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/paid-cache-consumer-06c-readonly-review.json",
+    "author_carrier": {
+      "pending_published_locator": false,
+      "format": "lossless36memberXZ with seven real native ledger fixtures and preserved historical attempts",
+      "sha256": "e62483d0ca0d70824aef6a9cb46a5b9bd5f5cf122f5409903f40cfd520a1fd00",
+      "bytes": 43120,
+      "local_output_directory": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0",
+      "source": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+      "tree": "c7f2e3c7f3bd401b3f36dc019642e229bc53dcf6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody-proof.json.xz",
+      "member_count": 36,
+      "all_original_bytes_MATCH": true,
+      "errors": []
+    }
+  },
+  "environment": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "backend": "native cache/tracing/enforcer + canonical FileBudgetLedger shared POSIX; no optional numerical backend loaded",
+    "seed": "not_applicable_to_deterministic_fixture_response; owner emits fresh real producer/reuse UUIDs",
+    "inputs": "Complete original module 8 existing test functions/28 preserved asserts plus3 functions/5 parameterized refusal cases; exact06c producer source and temporary native ledger paths bound by complete output.",
+    "compute_limits_added": false,
+    "independent_test_execution": "UNRUN: deliberate read-only review, author output separately reconciled"
+  },
+  "predicate_basis": {
+    "source_and_original_assertions": "recomputed with actual Git blob/AST",
+    "deciding_output_metadata_and_retained_native_ledgers": "independently_reconciled and recomputed from complete actual output/raw ledger bytes",
+    "author_actual_runtime": "PASS13 at exact06c; author execution, not reviewer own PASS",
+    "invoice_authority_defaultfactory_numerical_finalwide": "not_established by this slice",
+    "inherited_P41": "not_established; no exact continuation slice-base command/zero-overlap proof in this slice"
+  },
+  "patterns": {
+    "P01": {
+      "disposition": "ACTUAL_CONFIGURED_ACCOUNTING_CHAIN_RECONCILED",
+      "evidence": "Paid fixture provider→canonical cache/tracing→LLMBudgetEnforcer→BudgetMiddleware→FileBudgetLedger receipt→fresh D read-only resolver→accepted zero-new-charge reuse; provider invoice/default factory remain not_established.",
+      "falsifier": "Retain trace cost and raw cache hit but omit original paid receipt: reuse must refuse. New unsettled-origin and missing-reader cases verify bounded refusal.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P02": {
+      "disposition": "EXISTING_D_RECEIPT_CONSUMER_EXECUTED",
+      "evidence": "New fixture binds existing resolve_funnel_local_receipt through existing llm_local_receipt_resolver; producer settlement precedes cache publication. No new permission/ledger subsystem.",
+      "falsifier": "Replace native fresh receipt with dict lookalike or remove resolver; all original paid input remains, reuse must refuse.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P05": {
+      "disposition": "ACTUAL_PAID_AND_REUSE_QUANTITY_RECONCILED",
+      "evidence": "Metrics retains cost0.02 and origin usage; real physical ledger charges1×0.02 for miss+2reuse,2×0.02 after expiry, never infers debit from trace.",
+      "falsifier": "Trace-only/unmanaged origin is not paid receipt; current guard must refuse free reuse even with actual reader.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P09": {
+      "disposition": "EXACT_OLD_TEST_ASSERTIONS_RETAINED",
+      "evidence": "All8 existingtest names and28 assertion AST occurrences preserved; first6 whole test ASTs identical. No failure made green by expectation weakening.",
+      "falsifier": "Any removed original assertion, altered original expected cost/usage or ignored real charge invalidates this review.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P10": {
+      "disposition": "REAL_CANONICAL_LEDGER_READBACK_RECONCILED",
+      "evidence": "Seven unique retained native ledgers schema1.1; fresh reader same persisted identity; sums equal spent0.02/0.04 and reserved0, negative refusals preserve paid origin receipt.",
+      "falsifier": "A typed-looking declaration without exact canonical owner resolve cannot admit reuse.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P14": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "LINEAGE_AND_PHYSICAL_EVENT_DENOMINATORS_PRESERVED",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Present one evidence row via both local/transfer or same paid event twice; quota/confidence/physical charge cannot double. Distinct replicas/new evidence remain eligible.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P27": {
+      "disposition": "NATIVE_FILE_PERSISTENCE_SCOPE_ONLY",
+      "evidence": "Actual reopened local POSIX ledger receipt, event/payload/provider/key/amount bindings; no distributed, power-loss, invoice authority or production data claim.",
+      "falsifier": "Same receipt marker with conflicting amount fails current consumer before reuse.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P29": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "REAL_RUN_RECEIPTS_QUALIFIED_NO_SELF_ATTESTED_CLOSURE",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Delete the semantic property while retaining markers or corrupt raw ref/content; effect-based oracle must fail. A PASS receipt shape or imported backend cannot replace execution.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P32": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "EXACT_REF_AND_RECEIPT_INTAKE_BOUNDED_AUTHORITY_HELD",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Keep same ref/receipt/permit label while changing content, split, owner, scope, context or revocation; numeric transfer/free reuse/write must refuse.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P35": {
+      "disposition": "COMPLETE_13_CASE_OUTPUT_RECONCILED",
+      "evidence": "Complete13 JUnit cases,39 phase records, whole module command without filtering/caps,115 actually loaded product origins exact06c Git bytes, zero optional backends loaded.",
+      "falsifier": "Mismatch of any expected param case, phase, frozen loaded origin, native ledger or full output hash invalidates this result.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P37": {
+      "disposition": "UNCHANGED_PRIOR_SOURCE_QUALIFIED_REVIEW",
+      "prior_disposition": "PREDICATE_BASIS_FROZEN_FAIL_CLOSED",
+      "delta_scope": "Fixture-only paid cache consumer admission; no changed product mechanism, original denominator or scientific/authority claim. Final composed wave remains separate.",
+      "falsifier": "Make declared threshold, corpus identity, payment, owner, time or permission premise false with labels retained; actual consumer degrades/refuses.",
+      "predicate_basis": "independently_reconciled for this fixture output and exact current source metadata; no backend rerun or new global closure"
+    },
+    "P38": {
+      "disposition": "AUTHOR_RUNTIME_AND_INDEPENDENT_RECOMPUTATION_SEPARATE",
+      "evidence": "13PASS author runtime; independent reviewer recomputed AST denominator, hashes, JUnit/events,115 Git origins and seven retained native ledgers, without issuing own runtimePASS.",
+      "falsifier": "Author receipt summary alone without complete outputs and exact source binding is insufficient.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P40": {
+      "disposition": "OWN_FIXTURE_ESCAPE_CORRECTED_AT_REAL_PAID_BOUNDARY",
+      "evidence": "Two c17 cache-positive fixture failures were repairable D intake fixtures; one fixture composition now uses existing native paid owner and fresh read-only resolver, plus five refusal cells. Product guards unchanged; no endless helper ladder or unsupported new authority.",
+      "falsifier": "If ordinary declared cache reuse can pass with unmanaged/missing/lookalike/tampered original readback, widen the existing seam; these tests must detect it.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    },
+    "P41": {
+      "disposition": "NOT_ESTABLISHED_FOR_INHERITED_CLAIMS",
+      "evidence": "No inherited classification is inferred from preserved assertion AST or unchanged product blobs; exact slice-base command and complete input zero-overlap remain mandatory.",
+      "falsifier": "Lack of exactcae slice-base execution/complete input denominator forbids inherited verdict.",
+      "predicate_basis": "independent static review and actual author output recomputation; no independent backend runtime"
+    }
+  },
+  "limitations": [
+    "Provider is a bounded response fixture, not paid external invoice authority. Its request_id is constant while actual internal producer events differ; no external invoice uniqueness/retry semantics follows.",
+    "Explicit private cache capability wiring and configured native owner are fixture composition, not ordinary default B-W09 or served-factory appointment proof.",
+    "Gateway prompt test replaces _post_json with a parsed dict. It does not exercise response-text decoder; raw1e-1000/-1e-1000/conflict currentBFAIL remains unclosed.",
+    "Readback negatives may create/release current reservation mutations; receipt/spent preservation is verified. They do not claim complete ledger byte identity for an attempted call.",
+    "TTL0.02 and wait0.04 retain the original existing expiry profile; this actual bounded runtime passed. No cross-environment timing guarantee is added.",
+    "Complete new composed regression wave and extras numerical/native properties remain exact-source execution work; missing backends never become numericalPASS.",
+    "All original45ID/46criterion occurrences remain unchanged,39 conditional engineering proposals pending complete verification, five scientific/authority holds and B120current decoder failure retained. Formal closed0/Gacceptedfalse."
+  ],
+  "publication": {
+    "method": "Git metadata API only; no checkout/worktree created",
+    "parents_preserved": true,
+    "force": false,
+    "main_or_G_writes": false,
+    "local_hooks": "UNRUN: metadata-only review documentation publication",
+    "review_then_separate_handoff": true,
+    "complete_review_body_readback": "MATCH"
+  },
+  "cleanup": {
+    "performed": false,
+    "permanent_delete": false,
+    "retained_deciding_outputs": "All original reports/fixtures/receipts preserved; runtime temporary outputs/environment are root-owned candidates, cloud Trash unavailable; no cleanup here."
+  },
+  "closure_ids": [],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "owner_publication_binding": {
+    "commit": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+    "tree": "c7f2e3c7f3bd401b3f36dc019642e229bc53dcf6",
+    "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+    "handoff_bytes": 19059,
+    "handoff_sha256": "7fce7141f096d38fa637c8acdb8e7645b48cfd0fdfd55d4a392e16fd4c7daf33",
+    "handoff_git_blob": "9c54487e8e1897a4e46b0bb7931143828ad6eccf",
+    "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody-proof.json.xz",
+    "carrier_bytes": 43120,
+    "carrier_sha256": "e62483d0ca0d70824aef6a9cb46a5b9bd5f5cf122f5409903f40cfd520a1fd00",
+    "carrier_git_blob": "45796f8f5e2c65346db7c086112d4c74640fee87",
+    "pending_locator_in_prior_review": "Resolved by this later separate handoff; earlier immutable review preserved unchanged.",
+    "full_remote_owner_handoff_body_readback": "MATCH",
+    "full_remote_carrier_base64_body_readback": "MATCH"
+  },
+  "complete_owner_carrier_independent_audit": {
+    "schema": "policyos.e02.independent_cache_carrier_audit.v1",
+    "source": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+    "tree": "c7f2e3c7f3bd401b3f36dc019642e229bc53dcf6",
+    "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody-proof.json.xz",
+    "carrier_bytes": 43120,
+    "carrier_sha256": "e62483d0ca0d70824aef6a9cb46a5b9bd5f5cf122f5409903f40cfd520a1fd00",
+    "carrier_git_blob": "45796f8f5e2c65346db7c086112d4c74640fee87",
+    "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+    "handoff_bytes": 19059,
+    "handoff_sha256": "7fce7141f096d38fa637c8acdb8e7645b48cfd0fdfd55d4a392e16fd4c7daf33",
+    "handoff_git_blob": "9c54487e8e1897a4e46b0bb7931143828ad6eccf",
+    "member_count": 36,
+    "raw_member_bytes": 181520,
+    "complete_decoded_and_original_member_checks": [
+      {
+        "path": "root13/complete.txt",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/complete.txt",
+        "bytes": 2648,
+        "sha256": "83f433cd8f52470e79601dcb9b73a65afe9e8b0941fc0b7595b87ba6a6b5d456",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/events.jsonl",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/events.jsonl",
+        "bytes": 8424,
+        "sha256": "518dbab87c04838b499bbaf5d7ac9378530c54c39bc81d8eab4c694529fdc8c9",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json",
+        "bytes": 4965,
+        "sha256": "4dbdfda747244e53379e2ab3f1b73203e1be74750654607e0254742fe5a97225",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json.lock",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_budget_enforcer_charges_m0/llm-producer-budget.json.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json",
+        "bytes": 4057,
+        "sha256": "06fe8c7469562b527b34b66de89b86a3f872af255ee973848103390de7fc560b",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json.lock",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_cache_hits_emit_reuse_wit0/llm-producer-budget.json.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_0/llm-producer-budget.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_0/llm-producer-budget.json",
+        "bytes": 3331,
+        "sha256": "3ba7b58b1c73b63d04294feb0fdbb087dd027a5f00b96e670bc36bd1736cf37d",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_0/llm-producer-budget.json.lock",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_0/llm-producer-budget.json.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_1/llm-producer-budget.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_1/llm-producer-budget.json",
+        "bytes": 3331,
+        "sha256": "52d2f706cb772ea962ba1001806d65753bb535509448b86abdac90534368ad74",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_1/llm-producer-budget.json.lock",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_1/llm-producer-budget.json.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json",
+        "bytes": 3331,
+        "sha256": "5f59e759fad5a70d236208530eb25c1ef145ebd583230d1952588b7872eb17a1",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json.lock",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_invalid_2/llm-producer-budget.json.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json",
+        "bytes": 3331,
+        "sha256": "71f0f6b183721b59cd4f7ca3a8dd2ebe5da344fb2313a0305da9ab2afa1eef62",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json.lock",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_paid_cache_reuse_without_0/llm-producer-budget.json.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json",
+        "bytes": 810,
+        "sha256": "d19da9fa4e84c9927edbf65c00ce02f6ecb2cfcd3f025608adb5bc57c9fbc68e",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json.lock",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/fixtures-3f61da4fc63d40e3922df4cfcb58b441/test_unsettled_cache_origin_ca0/unpaid-origin-budget.json.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/inputs.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/inputs.json",
+        "bytes": 1662,
+        "sha256": "cd1f0243ec37408430c31be42bf2645542e5539e32f3314a7aac5ea9cf40a9c1",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/junit.xml",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/junit.xml",
+        "bytes": 2204,
+        "sha256": "a6a82ace2ff9280d0113930cc719197737c1a6ebe0faec75fbef6f1155ab5f5b",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/llm_cache_measurement.py",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/llm_cache_measurement.py",
+        "bytes": 1028,
+        "sha256": "3382fc3acc39d872b27df6f8552761f956b4b00abb1a0ab59a3262c311b5e83f",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/origins.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/origins.json",
+        "bytes": 29921,
+        "sha256": "bb84495408d00ad42e5975bd4b66705735e890e0e054ce162e44bf88be64c939",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/pytest-cache/.gitignore",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/pytest-cache/.gitignore",
+        "bytes": 37,
+        "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/pytest-cache/CACHEDIR.TAG",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/pytest-cache/CACHEDIR.TAG",
+        "bytes": 191,
+        "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/pytest-cache/README.md",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/pytest-cache/README.md",
+        "bytes": 302,
+        "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/pytest-cache/v/cache/nodeids",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/pytest-cache/v/cache/nodeids",
+        "bytes": 1502,
+        "sha256": "2f411ca8b792a7e0454c850dc5ade29bc043d96dcec452121974295fcc30894c",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/result.json",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/result.json",
+        "bytes": 3145,
+        "sha256": "ab3bff9d89117a0c7aad86e941dac1089f23b1137dec9b46d292b5f324c7fcbd",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "root13/run-root.py",
+        "original_path": "/tmp/e02-D-llm-cache-root-06c-2vy5jtz0/run-root.py",
+        "bytes": 3691,
+        "sha256": "d7a9b73e68eccb688b8ac299a9cac1a22a2eecb1f4a0389a12f05c8b8e1db15b",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "unrun-preparation/llm_cache_measurement.py",
+        "original_path": "/tmp/e02-D-llm-cache-fixture-a4tc9vyg/llm_cache_measurement.py",
+        "bytes": 1028,
+        "sha256": "3382fc3acc39d872b27df6f8552761f956b4b00abb1a0ab59a3262c311b5e83f",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "unrun-preparation/run.py",
+        "original_path": "/tmp/e02-D-llm-cache-fixture-a4tc9vyg/run.py",
+        "bytes": 3584,
+        "sha256": "461ac1edf21f36d2a4be96fda1dad554f45bcab2d51c7de48dfc83a82c8a7598",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "receipt-recomputation/assertion-preservation.json",
+        "original_path": "/tmp/e02-D-llm-cache-proof-osachhmd/assertion-preservation.json",
+        "bytes": 1740,
+        "sha256": "7de370ebf65807d4d9a98fda2afcf9acb8303fba7e9110b86c792bddd0f34825",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "receipt-recomputation/native-ledger-inputs.json",
+        "original_path": "/tmp/e02-D-llm-cache-proof-osachhmd/native-ledger-inputs.json",
+        "bytes": 8208,
+        "sha256": "e1ace7d11038f20a76c8fc859c11d86e348b670376f7a2986b5069d3d7241fcb",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "receipt-recomputation/original-c17-named-two-failures.json",
+        "original_path": "/tmp/e02-D-llm-cache-proof-osachhmd/original-c17-named-two-failures.json",
+        "bytes": 8294,
+        "sha256": "5e814fe2054c485ce96d69d421d2761bc97eddf52d3a8760ed9fd7ce312fad80",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "receipt-recomputation/startup-error.json",
+        "original_path": "/tmp/e02-D-llm-cache-proof-osachhmd/startup-error.json",
+        "bytes": 344,
+        "sha256": "a42d8ba6731b547bbcfd5b0a88148625a540cd9f40b470650a9289860fc208a1",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "original-c17-wide/result.json",
+        "original_path": "/tmp/e02-D-final-root-wave-c17db434-20261006/result.json",
+        "bytes": 45647,
+        "sha256": "d1b65cb8f20a0786aaeaa388b5425ae4d946497970740a1e623b360feaf5f355",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "original-c17-wide/execution-manifest.json",
+        "original_path": "/tmp/e02-D-final-root-wave-c17db434-20261006/execution-manifest.json",
+        "bytes": 34461,
+        "sha256": "c4891565c88f6495be78a95909d869166b44b4419a6058c70cc1eac61307a36e",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "original-c17-wide/complete.stdout.txt",
+        "original_path": "/tmp/e02-D-final-root-wave-c17db434-20261006/complete.stdout.txt",
+        "bytes": 303,
+        "sha256": "40d9cf7cf261afd40fd641d54668234c20ac6552915488ce757ebb4787a55289",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      },
+      {
+        "path": "original-c17-wide/complete.stderr.txt",
+        "original_path": "/tmp/e02-D-final-root-wave-c17db434-20261006/complete.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoded_size_hash_MATCH": true,
+        "original_bytes_MATCH": true
+      }
+    ],
+    "supplier_blob_checks": 8,
+    "historical_scope": "Carrier retains original c17 incomplete SIGKILL metadata and two named actual FAIL fulltrace reports; neither becomes complete two-test baseline/inherited. Unrun preparation/startup error distinct from one actual canonical ROOT13 run.",
+    "source_copy_audit": "All 36 original_path values are temporary deciding-output/helper/fixture paths; no tracked implementation/test body member or environment mirror. Complete member names preserved in audit.",
+    "MATCH": true,
+    "errors": []
+  }
+}

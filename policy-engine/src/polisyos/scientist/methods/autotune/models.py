@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
+import inspect
+import json
 import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Protocol, Self, TypeVar, cast
 
 from pydantic import (
     ConfigDict,
@@ -18,13 +21,20 @@ from pydantic import (
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.canon.canon_json import CanonSpec
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Mapping
 
     from polisyos.core.artifacts.protocol import ArtifactStore
 
@@ -34,6 +44,18 @@ if TYPE_CHECKING:
         model_config: ClassVar[ConfigDict]
 
         def __init__(self, /, **data: object) -> None: ...
+
+        def model_dump(
+            self, *, mode: str = "python", exclude: set[str] | None = None
+        ) -> dict[str, Any]: ...
+
+        def model_dump_json(
+            self, *, indent: int | None = None, exclude_none: bool = False
+        ) -> str: ...
+
+        def model_copy(
+            self, *, update: Mapping[str, Any] | None = None, deep: bool = False
+        ) -> Self: ...
 
         @classmethod
         def model_validate(cls, obj: object) -> Self: ...
@@ -137,7 +159,45 @@ class BenchmarkSuite(_PydanticBaseModel):
     kind: str = Field(default="generic", min_length=1, max_length=128)
     dataset_path: str | None = None
     split_manifest_path: str | None = None
+    data_basis: Literal["unbound", "candidate_only", "dataset"] = "unbound"
+    dataset_ref: ArtifactRef | None = None
+    split_manifest_ref: ArtifactRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_input_refs(self) -> Self:
+        if self.data_basis == "dataset":
+            if self.dataset_ref is None or self.split_manifest_ref is None:
+                raise ValueError("benchmark_immutable_inputs_required")
+        elif self.dataset_ref is not None or self.split_manifest_ref is not None:
+            raise ValueError("benchmark_data_basis_mismatch")
+        return self
+
+
+class BenchmarkComparisonBasis(_PydanticBaseModel):
+    """Bind a technical comparison to consumed inputs and the executed evaluator build.
+
+    This record establishes reproducible comparison identity, not appointment
+    of an evaluator or permission to publish an authoritative policy claim.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["benchmark-comparison.v1"] = "benchmark-comparison.v1"
+    suite_ref: ArtifactRef
+    data_basis: Literal["candidate_only", "dataset"]
+    dataset_ref: ArtifactRef | None = None
+    split_manifest_ref: ArtifactRef | None = None
+    evaluator_profile: SchemaInfo
+    policy_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_input_refs(self) -> Self:
+        if (self.data_basis == "dataset") != (
+            self.dataset_ref is not None and self.split_manifest_ref is not None
+        ) or ((self.dataset_ref is None) != (self.split_manifest_ref is None)):
+            raise ValueError("benchmark_comparison_input_refs_mismatch")
+        return self
 
 
 class BenchmarkEvaluation(_PydanticBaseModel):
@@ -157,6 +217,10 @@ class BenchmarkEvaluation(_PydanticBaseModel):
     status: str = Field(default="ok", min_length=1, max_length=64)
     notes: list[str] = Field(default_factory=list)
     runtime_split_type: BenchmarkSplit | None = None
+    comparison_basis: BenchmarkComparisonBasis | None = None
+    incumbent_evaluation_ref: ArtifactRef | None = None
+    comparison_predecessor_candidate_ref: ArtifactRef | None = None
+    comparison_predecessor_evaluation_ref: ArtifactRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def metrics_for_split(self, split: BenchmarkSplit) -> dict[str, float]:
@@ -216,11 +280,9 @@ class PromotionPolicy(_PydanticBaseModel):
     required_guardrails: list[str] = Field(default_factory=list)
 
     @model_serializer(mode="wrap")
-    def _serialize_canonical_policy(
-        self, handler: SerializerFunctionWrapHandler
-    ) -> dict[str, Any]:
+    def _serialize_canonical_policy(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         """Preserve the historical policy shape while retaining explicit units."""
-        payload = handler(self)
+        payload = cast("dict[str, Any]", handler(self))
         if self.unit is None:
             payload.pop("unit", None)
         return payload
@@ -251,6 +313,28 @@ class PromotionDecision(_PydanticBaseModel):
     reason: str = Field(..., min_length=1, max_length=256)
     champion: ChampionPointer | None = None
     previous_champion: ChampionPointer | None = None
+
+
+class _ChampionReader(Protocol):
+    def get(self, loop_id: str) -> ChampionPointer | None: ...
+
+
+def resolve_comparison_incumbent(
+    registry: _ChampionReader | None, context: Mapping[str, Any], loop_id: str
+) -> ChampionPointer | None:
+    """Capture the exact incumbent used by both primary metrics and guardrails.
+
+    Native comparison supplies a detached snapshot before either evaluation.
+    Direct evaluator callers retain the existing canonical registry read.
+    """
+    if "benchmark_comparison_incumbent" in context:
+        incumbent = context["benchmark_comparison_incumbent"]
+        if incumbent is not None and (
+            not isinstance(incumbent, ChampionPointer) or incumbent.loop_id != loop_id
+        ):
+            raise ValueError("benchmark_comparison_incumbent_invalid")
+        return incumbent
+    return registry.get(loop_id) if registry is not None else None
 
 
 class CandidateGenerator(Protocol):
@@ -313,28 +397,22 @@ def default_search_registry_root() -> Path:
 
 def default_store(root: Path | None = None) -> ArtifactStore:
     """Construct the default autotune artifact store from the storage factory boundary."""
-    return cast(
-        "ArtifactStore",
-        build_artifact_store(
-            ArtifactStoreConfig(
-                backend="filesystem",
-                root=str(root or default_cas_root()),
-            )
-        ),
+    return build_artifact_store(
+        ArtifactStoreConfig(backend="filesystem", root=str(root or default_cas_root()))
     )
 
 
 def load_json_artifact(store: ArtifactStore, ref: ArtifactRef | str) -> object:
     """Load json artifact."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID(ref)
+    artifact_id = ref if isinstance(ref, ArtifactRef) else ArtifactID(ref)
     return from_canonical_bytes(store.get_bytes(artifact_id))
 
 
-def load_model_artifact(
+def load_model_artifact[ArtifactModel: _PydanticBaseModel](
     store: ArtifactStore,
     ref: ArtifactRef | str,
-    model_cls: type[_PydanticBaseModel],
-) -> _PydanticBaseModel:
+    model_cls: type[ArtifactModel],
+) -> ArtifactModel:
     """Load model artifact."""
     payload = load_json_artifact(store, ref)
     return model_cls.model_validate(payload)
@@ -374,6 +452,48 @@ def persist_benchmark_suite(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a benchmark suite definition to CAS and return its typed artifact reference."""
+    merged_inputs = list(inputs or [])
+    if (
+        suite.data_basis != "dataset"
+        and suite.dataset_path is not None
+        and suite.split_manifest_path is not None
+    ):
+        dataset_ref = store.put_bytes(
+            Path(suite.dataset_path).read_bytes(),
+            ArtifactWriteOptions(
+                kind="scientist.autotune.benchmark_dataset",
+                media_type="application/x-ndjson",
+            ),
+        )
+        split = read_split_manifest(Path(suite.split_manifest_path))
+        if split.suite_id != suite.suite_id or split.suite_version != suite.suite_version:
+            raise ValueError("benchmark_split_suite_mismatch")
+        split_ref = persist_split_manifest(
+            store,
+            split,
+            inputs=[input_ref_from_artifact_ref(dataset_ref, role="benchmark_dataset")],
+        )
+        suite = suite.model_copy(
+            update={
+                "data_basis": "dataset",
+                "dataset_ref": dataset_ref,
+                "split_manifest_ref": split_ref,
+            }
+        )
+    elif (suite.dataset_path is None) != (suite.split_manifest_path is None):
+        raise ValueError("benchmark_inputs_incomplete")
+    if suite.data_basis == "dataset":
+        load_benchmark_inputs(store, suite)
+        assert suite.dataset_ref is not None
+        assert suite.split_manifest_ref is not None
+        merged_inputs.extend(
+            [
+                input_ref_from_artifact_ref(suite.dataset_ref, role="benchmark_dataset"),
+                input_ref_from_artifact_ref(suite.split_manifest_ref, role="benchmark_split"),
+            ]
+        )
+    elif suite.dataset_ref is not None or suite.split_manifest_ref is not None:
+        raise ValueError("benchmark_data_basis_mismatch")
     return store.put_json(
         suite,
         ArtifactWriteOptions(
@@ -383,7 +503,7 @@ def persist_benchmark_suite(
                 name="polisyos.scientist.methods.autotune.BenchmarkSuite",
                 version=suite.suite_version,
             ),
-            inputs=list(inputs or []),
+            inputs=merged_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -419,12 +539,31 @@ def persist_benchmark_evaluation(
 ) -> ArtifactRef:
     """Persist a benchmark evaluation record and return its typed artifact reference."""
     merged_inputs = list(inputs or [])
-    merged_inputs.append(
-        InputRef(
-            artifact_id=evaluation.candidate_ref.artifact_id,
-            role="candidate",
+    merged_inputs.append(input_ref_from_artifact_ref(evaluation.candidate_ref, role="candidate"))
+    if evaluation.comparison_basis is not None:
+        basis = evaluation.comparison_basis
+        merged_inputs.append(input_ref_from_artifact_ref(basis.suite_ref, role="benchmark_suite"))
+        if basis.dataset_ref is not None:
+            merged_inputs.append(
+                input_ref_from_artifact_ref(basis.dataset_ref, role="benchmark_dataset")
+            )
+        if basis.split_manifest_ref is not None:
+            merged_inputs.append(
+                input_ref_from_artifact_ref(basis.split_manifest_ref, role="benchmark_split")
+            )
+    if evaluation.incumbent_evaluation_ref is not None:
+        merged_inputs.append(
+            input_ref_from_artifact_ref(
+                evaluation.incumbent_evaluation_ref,
+                role="comparison_incumbent_evaluation",
+            )
         )
-    )
+    for ref, role in (
+        (evaluation.comparison_predecessor_candidate_ref, "comparison_predecessor_candidate"),
+        (evaluation.comparison_predecessor_evaluation_ref, "comparison_predecessor_evaluation"),
+    ):
+        if ref is not None:
+            merged_inputs.append(input_ref_from_artifact_ref(ref, role=role))
     return store.put_json(
         evaluation,
         ArtifactWriteOptions(
@@ -447,6 +586,124 @@ def persist_benchmark_evaluation(
 def read_split_manifest(path: Path) -> BenchmarkSplitManifest:
     """Load a benchmark split manifest from disk and validate its split assignments."""
     return BenchmarkSplitManifest.model_validate_json(path.read_text(encoding="utf-8"))
+
+
+def load_benchmark_inputs(
+    store: ArtifactStore,
+    suite: BenchmarkSuite,
+) -> tuple[list[dict[str, Any]], BenchmarkSplitManifest]:
+    """Resolve the immutable dataset and split actually consumed by an evaluator."""
+    if (
+        suite.data_basis != "dataset"
+        or suite.dataset_ref is None
+        or suite.split_manifest_ref is None
+    ):
+        raise ValueError("benchmark_immutable_inputs_required")
+    if (
+        suite.dataset_ref.kind != "scientist.autotune.benchmark_dataset"
+        or suite.dataset_ref.media_type != "application/x-ndjson"
+    ):
+        raise ValueError("benchmark_dataset_type_mismatch")
+    if suite.split_manifest_ref.kind != "scientist.autotune.split_manifest":
+        raise ValueError("benchmark_split_type_mismatch")
+    require_benchmark_input(
+        store, suite.split_manifest_ref, suite.dataset_ref, role="benchmark_dataset"
+    )
+    rows = [
+        json.loads(line)
+        for line in store.get_bytes(suite.dataset_ref).decode().splitlines()
+        if line.strip()
+    ]
+    if any(not isinstance(row, dict) for row in rows):
+        raise ValueError("benchmark_dataset_rows_must_be_objects")
+    split = load_model_artifact(store, suite.split_manifest_ref, BenchmarkSplitManifest)
+    if split.suite_id != suite.suite_id or split.suite_version != suite.suite_version:
+        raise ValueError("benchmark_split_suite_mismatch")
+    ids = [str(row[split.id_field]) for row in rows]
+    assigned = [item for value in BenchmarkSplit for item in split.ids_for_split(value)]
+    if (
+        len(ids) != len(set(ids))
+        or len(assigned) != len(set(assigned))
+        or set(ids) != set(assigned)
+    ):
+        raise ValueError("benchmark_split_dataset_denominator_mismatch")
+    return rows, split
+
+
+def require_benchmark_input(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    expected: ArtifactRef,
+    *,
+    role: str,
+) -> None:
+    """Require one exact upstream manifest view for a benchmark lineage role."""
+    manifest = store.get_manifest(ref)
+    views = {
+        (str(item.artifact_id), item.manifest_profile_sha256)
+        for item in manifest.inputs
+        if item.role == role
+    }
+    identity = artifact_ref_identity_key(expected)
+    if views != {(identity[0], identity[3])}:
+        raise ValueError(f"benchmark_input_mismatch:{role}")
+    store.get_bytes(expected)
+
+
+def benchmark_policy_sha256(policy: PromotionPolicy) -> str:
+    """Return the canonical policy identity, including metric units and split."""
+    return hashlib.sha256(
+        json.dumps(
+            policy.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), allow_nan=False
+        ).encode()
+    ).hexdigest()
+
+
+def benchmark_evaluator_profile(evaluator: BenchmarkedEvaluator) -> SchemaInfo:
+    """Identify the executed evaluator module bytes without claiming appointment."""
+    cls = type(evaluator)
+    path = inspect.getsourcefile(cls)
+    if path is None:
+        raise ValueError("benchmark_evaluator_source_unavailable")
+    return SchemaInfo(
+        name=f"{cls.__module__}.{cls.__qualname__}",
+        version=hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+    )
+
+
+def benchmark_comparison_basis(
+    store: ArtifactStore,
+    suite_ref: ArtifactRef,
+    policy: PromotionPolicy,
+    evaluator_profile: SchemaInfo,
+) -> BenchmarkComparisonBasis:
+    """Build one comparison identity from content-resolved suite/input references."""
+    suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
+    if suite_ref.kind != f"scientist.autotune.{suite.kind}.suite":
+        raise ValueError("benchmark_suite_type_mismatch")
+    manifest = store.get_manifest(suite_ref)
+    if (
+        manifest.artifact_schema is None
+        or manifest.artifact_schema.name != "polisyos.scientist.methods.autotune.BenchmarkSuite"
+        or manifest.artifact_schema.version != suite.suite_version
+    ):
+        raise ValueError("benchmark_suite_schema_mismatch")
+    if suite.data_basis == "dataset":
+        load_benchmark_inputs(store, suite)
+        assert suite.dataset_ref is not None
+        assert suite.split_manifest_ref is not None
+        require_benchmark_input(store, suite_ref, suite.dataset_ref, role="benchmark_dataset")
+        require_benchmark_input(store, suite_ref, suite.split_manifest_ref, role="benchmark_split")
+    elif suite.data_basis != "candidate_only":
+        raise ValueError("benchmark_comparison_basis_unbound")
+    return BenchmarkComparisonBasis(
+        suite_ref=suite_ref,
+        data_basis=suite.data_basis,
+        dataset_ref=suite.dataset_ref,
+        split_manifest_ref=suite.split_manifest_ref,
+        evaluator_profile=evaluator_profile,
+        policy_sha256=benchmark_policy_sha256(policy),
+    )
 
 
 def resolve_item_split(

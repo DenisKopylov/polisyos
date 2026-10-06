@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.agent.failure_card import (
     FailureCard,
@@ -121,6 +122,7 @@ def test_reflexion_replay_benchmark_promotes_better_recoverable_route(
                 )
             ]
         ),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
     )
     evaluator = ReflexionRoutingEvaluator(store=store, registry=registry)
     evaluation = evaluator.evaluate(
@@ -132,6 +134,7 @@ def test_reflexion_replay_benchmark_promotes_better_recoverable_route(
         candidate_ref,
         evaluation_ref,
         default_reflexion_policy(),
+        suite_ref=suite_ref,
     )
 
     orchestrator = ReflexionOrchestrator()
@@ -164,6 +167,7 @@ def test_reflexion_unsafe_nonhuman_route_never_promotes(tmp_path) -> None:
                 )
             ]
         ),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
     )
     evaluator = ReflexionRoutingEvaluator(store=store, registry=registry)
     evaluation = evaluator.evaluate(
@@ -175,6 +179,7 @@ def test_reflexion_unsafe_nonhuman_route_never_promotes(tmp_path) -> None:
         candidate_ref,
         evaluation_ref,
         default_reflexion_policy(),
+        suite_ref=suite_ref,
     )
 
     assert evaluation.guardrails["unsafe_nonhuman_route_rate_zero"] is False

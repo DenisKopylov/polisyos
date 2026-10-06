@@ -45,6 +45,18 @@ translation steps.
 - **Runtime**: FastAPI runtime surface, control-plane services, and a React dashboard for
   operators.
 
+Autotune benchmark suites snapshot their dataset and split into CAS. Generic champion
+comparisons require exact candidate/evaluation/suite manifest views, the consumed data,
+and one metric policy and evaluator build. With an existing champion, every native comparison re-evaluates the incumbent
+under the active callback context and binds the exact predecessor used by guardrails
+before the registry rereads the canonical pointer under its existing POSIX lock. These comparison records establish input identity; evaluator appointment and
+promotion authority remain separate contracts. Legacy unbound generic suites are refused.
+
+`SearchLoopRunner` uses public native `ask`/`tell` around the controller-owned evaluator.
+The existing service instance supports pending-candidate continuation; persisted
+SearchService restore is unsupported. This route does not establish cutover of the
+separate served hierarchical caller or distributed registry coordination.
+
 ## Architecture Diagram
 
 ```mermaid
@@ -119,7 +131,7 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 | Python package facades | `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`, `polisyos.scientist`, `polisyos.runtime`, `polisyos.lex` | Listed in [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
 | Runtime API            | `polisyos.runtime.http.app:create_runtime_api_app`, `schemas/runtime_api_v1.openapi.json`                                       | Governed by the Runtime API contract check                                                    |
 | CLI                    | `polisyos-tools`, `polisyos`, `polisyos-foundry`, `polisyos-causal-capabilities`                                                | Generated in [Tools Reference](https://deniskopylov.github.io/polisyos/reference/tools/)      |
-| Frontend consumers     | `packages/runtime-api-client`, `apps/runtime-dashboard`, `apps/runtime-reference-shell`                                 | Governed by runtime contract and frontend contract fixtures                                   |
+| Frontend consumers     | `packages/runtime-api-client`, `apps/runtime-dashboard`, `apps/runtime-reference-shell`                                         | Governed by runtime contract and frontend contract fixtures                                   |
 
 ## Dependency Boundaries
 
@@ -157,7 +169,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 
 | Change                                    | Start here                                                                                                                                                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public package facade / supported imports | `architecture/public_surface/contract.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                          |
+| Public package facade / supported imports | `architecture/public_surface/contract.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                 |
 | Generated contract artifact               | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator                                                   |
 | New connector                             | `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md`                              |
 | New governance pass                       | `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |

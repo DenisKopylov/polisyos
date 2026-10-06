@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-admission-git-red-cache",
+    "-q",
+    "tests/unit/foundry/methods/components/test_composition_e02.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-admission-git-red-tmp",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-admission-git-red.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+    "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T12:13:49.253927+00:00",
+  "exit_code": 1,
+  "wall_seconds": 2.454813292992185,
+  "max_rss_kib": 175196,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+    "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "end_utc": "2026-10-06T12:13:51.779816+00:00"
+}

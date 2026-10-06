@@ -1684,11 +1684,7 @@ def _resolve_run_local_candidate_frontier_report_ref(
     if ref is None:
         return None, "frontier_source_report_absent"
     try:
-        artifact_ref = (
-            ref
-            if isinstance(ref, ArtifactRef)
-            else ArtifactRef.model_validate(ref)
-        )
+        artifact_ref = ref if isinstance(ref, ArtifactRef) else ArtifactRef.model_validate(ref)
     except (AttributeError, KeyError, RuntimeError, TypeError, ValidationError, ValueError):
         return None, "frontier_source_report_ref_malformed"
     if artifact_ref.kind != "scientist.policy_frontier_report":

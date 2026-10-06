@@ -170,13 +170,6 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
         )
         current_recall = self._champion_recall(
             candidate_ref=candidate_ref,
-            comparison_basis=benchmark_comparison_basis(
-                store,
-                suite_ref,
-                context.get("policy") or default_claim_adjudication_promotion_policy(),
-                benchmark_evaluator_profile(self),
-            ),
-            runtime_split_type=BenchmarkSplit.HOLDOUT,
             suite=suite,
             rows=rows,
             predictor=predictor,
@@ -212,6 +205,13 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             suite_id=suite.suite_id,
             suite_version=suite.suite_version,
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_claim_adjudication_promotion_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             selection_metrics=selection_metrics,
             holdout_metrics=holdout_metrics,
             sample_counts=sample_counts,

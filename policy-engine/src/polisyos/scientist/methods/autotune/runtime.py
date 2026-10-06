@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar, cast
-
-from pydantic import BaseModel
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, input_ref_from_artifact_ref
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
@@ -38,6 +35,10 @@ from .models import (
 )
 from .registry import ChampionRegistry
 
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+
 ModelT = TypeVar("ModelT", bound=MutationArtifact)
 
 
@@ -58,7 +59,7 @@ def seed_loop_baseline(
     *,
     loop_id: str,
     baseline: MutationArtifact,
-    store: FileSystemCAS | None = None,
+    store: ArtifactStore | None = None,
     registry: ChampionRegistry | None = None,
     suite_version: str = "1.0",
     metadata: dict[str, Any] | None = None,
@@ -100,7 +101,7 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         loop_id: str,
         model_cls: type[ModelT],
         baseline_factory: Any,
-        store: FileSystemCAS | None = None,
+        store: ArtifactStore | None = None,
         registry: ChampionRegistry | None = None,
         suite_version: str = "1.0",
     ) -> None:
@@ -126,7 +127,7 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         if champion is None:
             champion = self.ensure_baseline(context)
         payload = load_model_artifact(self._store, champion.candidate_ref, self._model_cls)
-        return cast("ModelT", payload)
+        return payload
 
 
 class _AutotuneObjective(BaseObjective):
@@ -173,14 +174,13 @@ class SequenceCandidateGenerator:
     ) -> dict[str, Any]:
         del history, current_best, context
         if self._index >= len(self._candidates):
+            last = self._candidates[-1]
             return (
-                self._candidates[-1].model_dump(mode="json")
-                if isinstance(self._candidates[-1], BaseModel)
-                else dict(self._candidates[-1])
+                last.model_dump(mode="json") if isinstance(last, MutationArtifact) else dict(last)
             )
         candidate = self._candidates[self._index]
         self._index += 1
-        if isinstance(candidate, BaseModel):
+        if isinstance(candidate, MutationArtifact):
             return candidate.model_dump(mode="json")
         return dict(candidate)
 
@@ -191,7 +191,7 @@ class SearchLoopRunner:
     def __init__(
         self,
         *,
-        store: FileSystemCAS | None = None,
+        store: ArtifactStore | None = None,
         registry: ChampionRegistry | None = None,
     ) -> None:
         self._store = store or default_store()
@@ -230,7 +230,7 @@ class SearchLoopRunner:
         )
         initial_payload = (
             initial_candidate.model_dump(mode="json")
-            if isinstance(initial_candidate, BaseModel)
+            if isinstance(initial_candidate, MutationArtifact)
             else initial_candidate
         )
         from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
@@ -254,7 +254,7 @@ class SearchLoopRunner:
         candidate = codec.decode(candidate_payload)
         candidate_ref = persist_mutation_artifact(
             self._store,
-            cast("MutationArtifact", candidate),
+            candidate,
             inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
         )
         basis = benchmark_comparison_basis(

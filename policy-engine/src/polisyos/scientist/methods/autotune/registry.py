@@ -6,15 +6,14 @@ import fcntl
 import hashlib
 import json
 import os
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from math import isfinite
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.read_api import academic
 
 from .models import (
@@ -34,9 +33,22 @@ from .models import (
     require_benchmark_input,
 )
 
-claim_promotion_policy = academic.claim_promotion_policy
-metric_is_improved = academic.metric_is_improved
-read_claim_promotion_predecessor = academic.read_claim_promotion_predecessor
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+
+class _MetricComparison(Protocol):
+    def __call__(
+        self, *, current: float, new: float, direction: str, min_improvement: float
+    ) -> bool: ...
+
+
+claim_promotion_policy = cast("Callable[[], dict[str, Any]]", academic.claim_promotion_policy)
+metric_is_improved = cast("_MetricComparison", academic.metric_is_improved)
+read_claim_promotion_predecessor = cast(
+    "Callable[[Path, dict[str, Any]], dict[str, Any] | None]",
+    academic.read_claim_promotion_predecessor,
+)
 
 
 class ChampionRegistry:
@@ -46,7 +58,7 @@ class ChampionRegistry:
         self,
         root: Path | None = None,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
     ) -> None:
         self._root = (root or default_search_registry_root()).resolve()
         self._store = store

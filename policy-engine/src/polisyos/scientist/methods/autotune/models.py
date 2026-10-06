@@ -49,7 +49,9 @@ if TYPE_CHECKING:
             self, *, mode: str = "python", exclude: set[str] | None = None
         ) -> dict[str, Any]: ...
 
-        def model_dump_json(self, *, indent: int | None = None) -> str: ...
+        def model_dump_json(
+            self, *, indent: int | None = None, exclude_none: bool = False
+        ) -> str: ...
 
         def model_copy(
             self, *, update: Mapping[str, Any] | None = None, deep: bool = False
@@ -371,14 +373,8 @@ def default_search_registry_root() -> Path:
 
 def default_store(root: Path | None = None) -> ArtifactStore:
     """Construct the default autotune artifact store from the storage factory boundary."""
-    return cast(
-        "ArtifactStore",
-        build_artifact_store(
-            ArtifactStoreConfig(
-                backend="filesystem",
-                root=str(root or default_cas_root()),
-            )
-        ),
+    return build_artifact_store(
+        ArtifactStoreConfig(backend="filesystem", root=str(root or default_cas_root()))
     )
 
 
@@ -590,10 +586,7 @@ def load_benchmark_inputs(
     ]
     if any(not isinstance(row, dict) for row in rows):
         raise ValueError("benchmark_dataset_rows_must_be_objects")
-    split = cast(
-        "BenchmarkSplitManifest",
-        load_model_artifact(store, suite.split_manifest_ref, BenchmarkSplitManifest),
-    )
+    split = load_model_artifact(store, suite.split_manifest_ref, BenchmarkSplitManifest)
     if split.suite_id != suite.suite_id or split.suite_version != suite.suite_version:
         raise ValueError("benchmark_split_suite_mismatch")
     ids = [str(row[split.id_field]) for row in rows]
@@ -655,7 +648,7 @@ def benchmark_comparison_basis(
     evaluator_profile: SchemaInfo,
 ) -> BenchmarkComparisonBasis:
     """Build one comparison identity from content-resolved suite/input references."""
-    suite = cast("BenchmarkSuite", load_model_artifact(store, suite_ref, BenchmarkSuite))
+    suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
     if suite_ref.kind != f"scientist.autotune.{suite.kind}.suite":
         raise ValueError("benchmark_suite_type_mismatch")
     manifest = store.get_manifest(suite_ref)

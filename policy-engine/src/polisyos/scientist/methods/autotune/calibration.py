@@ -190,13 +190,6 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         rows, split_manifest = load_benchmark_inputs(store, suite)
         champion_uncertainty = self._champion_uncertainty_score(
             candidate_ref=candidate_ref,
-            comparison_basis=benchmark_comparison_basis(
-                store,
-                suite_ref,
-                context.get("policy") or default_calibration_policy(),
-                benchmark_evaluator_profile(self),
-            ),
-            runtime_split_type=BenchmarkSplit.HOLDOUT,
             suite=suite,
             rows=rows,
             runner=runner,
@@ -238,6 +231,13 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             suite_id=suite.suite_id,
             suite_version=suite.suite_version,
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_calibration_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             selection_metrics=selection_metrics,
             holdout_metrics=holdout_metrics,
             sample_counts={

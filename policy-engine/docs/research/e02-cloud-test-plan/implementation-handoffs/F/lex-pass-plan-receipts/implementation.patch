@@ -1,0 +1,92 @@
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml b/policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml
+new file mode 100644
+index 000000000..9f5c181ac
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml
+@@ -0,0 +1,12 @@
++id = "2026-10-06-lex-pass-plan-deduplication"
++title = "Execute each legal impact pass once per comparison"
++type = "fixed"
++component = "lex"
++owner = "team-policyos-runtime"
++summary = "Canonicalize repeated legal impact pass references in first-occurrence order before execution, report identity and CAS persistence. Duplicate CLI or API entries no longer inflate compliance blocker counts."
++compatibility = "The historical report schema 1.0 and unique pass plans retain their meaning. Repeated entries now identify one check. Unknown pass IDs remain invalid."
++surface_classification = "public_experimental"
++change_class = "behavioral"
++migration = "No data migration. Consumers using repeated checks as multiplicities must use distinct independently defined checks."
++limitations = "Lexical candidate topics and synthetic legal checks do not establish current law, causal effects or legal authority."
++evidence = ["tests/unit/lex/legal_evaluation/test_impact_diff.py"]
+diff --git a/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py b/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py
+index f2ab4de3d..a3c786090 100644
+--- a/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py
++++ b/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py
+@@ -109,6 +109,9 @@ class NormImpactAnalyzer:
+         for pass_id in self._pass_ids:
+             if pass_id not in self.DEFAULT_PASSES:
+                 raise ValueError(f"Unsupported impact pass: {pass_id!r}")
++        # A plan identifies checks, not multiplicities. Preserve the first
++        # occurrence so repeated references cannot inflate compliance deltas.
++        self._pass_ids = tuple(dict.fromkeys(self._pass_ids))
+         self._legal_backend = legal_backend
+ 
+     def analyze(
+diff --git a/policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py b/policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py
+index e544bcb3b..8c73aaa81 100644
+--- a/policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py
++++ b/policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py
+@@ -98,6 +98,55 @@ def test_identical_policy_has_no_compliance_transition(tmp_path: Path) -> None:
+     assert persisted.affected_kpis == []
+ 
+ 
++@pytest.mark.parametrize("passes", [("legal", "legal"), ("legal", "safety", "legal", "safety")])
++def test_duplicate_pass_plan_preserves_single_execution_report(
++    tmp_path: Path, passes: tuple[str, ...]
++) -> None:
++    """Duplicate plan entries cannot manufacture additional compliance blockers."""
++    cas = FileSystemCAS(tmp_path / "cas")
++    canonical = tuple(dict.fromkeys(passes))
++    old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
++    expected = NormImpactAnalyzer(cas, passes=canonical, legal_backend="expr_ast").analyze(
++        old_pack, new_pack, context={"income": 2}
++    )
++    actual = NormImpactAnalyzer(cas, passes=passes, legal_backend="expr_ast").analyze(
++        old_pack, new_pack, context={"income": 2}
++    )
++    persisted = _read_report(FileSystemCAS(tmp_path / "cas"), actual)
++    assert persisted.new_blockers == 1
++    assert persisted.passes_executed == list(canonical)
++    assert persisted.metadata["new_issues_total"] == expected.metadata["new_issues_total"]
++    assert persisted.compliance_deltas == expected.compliance_deltas
++    assert persisted.report_id == expected.report_id
++    assert persisted.norm_diff_ref == expected.norm_diff_ref
++    assert actual.cas_artifact_id == expected.cas_artifact_id
++
++
++def test_cli_duplicate_pass_plan_is_canonical_after_persistence(tmp_path: Path, capsys) -> None:
++    """The actual CLI consumer uses the admitted unique pass sequence."""
++    paths = [tmp_path / "old.json", tmp_path / "new.json"]
++    for path, pack in zip(paths, [_pack("pack.old", 1), _pack("pack.new", 3)], strict=True):
++        path.write_text(pack.model_dump_json(), encoding="utf-8")
++    code = main(
++        [
++            "lex",
++            "impact",
++            *(str(p) for p in paths),
++            "--passes",
++            "legal,legal,safety,legal,safety",
++            "--format",
++            "json",
++            "--cas-root",
++            str(tmp_path / "cas"),
++        ]
++    )
++    assert code == 0
++    report = NormImpactReport.model_validate(json.loads(capsys.readouterr().out))
++    persisted = _read_report(FileSystemCAS(tmp_path / "cas"), report)
++    assert persisted.passes_executed == ["legal", "safety"]
++    assert persisted.schema_version == "1.0"
++
++
+ def test_explicit_empty_pass_plan_is_preserved(tmp_path: Path) -> None:
+     """An empty API plan performs a norm comparison without silently adding checks."""
+     cas = FileSystemCAS(tmp_path / "cas")

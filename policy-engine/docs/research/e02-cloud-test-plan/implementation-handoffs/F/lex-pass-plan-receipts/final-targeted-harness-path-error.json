@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+    "tests/remediation/test_lex01_impact_diff_topics.py",
+    "tests/unit/lex/simulator",
+    "tests/integration/test_normpack_factlog_bridge.py"
+  ],
+  "cwd": "/workspace/e02-F-lex-20261006/policy-engine",
+  "source_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+  "tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+  "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/",
+  "exit": 4,
+  "wall_s": 3.6306322970049223,
+  "pythonpath": "/workspace/e02-F-lex-20261006/policy-engine/src:/workspace/e02-F-lex-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/final-targeted.stdout",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/final-targeted.stderr",
+      "sha256": "50a0efabf31dd98ba2a860cd93f151f32bf1a7ba4b3947001c2a1e2ea3b1c700",
+      "bytes": 88
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "source_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+  "expected_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+  "source_sha256_before": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+  "source_sha256_after": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+    "tests/unit/lex/simulator/test_engine.py",
+    "-v",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "native_returncode": 0,
+  "controls_returncode": 0,
+  "wall_seconds": 16.23065996170044,
+  "max_child_rss_kib": 1171212,
+  "native_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/lex-independent-native.txt",
+    "bytes": 1457,
+    "sha256": "7c7b761ec8b77896c4ee5a2a8926569e2e4ca88dec3c2def4605a63831bf249c"
+  },
+  "control_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/lex-independent-controls.txt",
+    "bytes": 960,
+    "sha256": "f48938c120e0d168b50cbae6cb0db037a028477445fe80a26e8680c310d9f2be"
+  },
+  "review": "Read full three-file patch, admission validation precedes first-occurrence stable dedup; explicit empty/mutable/unknown cases unchanged; report and CAS identities canonicalized. No blocker if native/control returncodes zero.",
+  "limits": [
+    "Original LA-017 normative/report migration not wholly closed by duplicate plan correction.",
+    "Synthetic expr_ast legal checks establish no real source corpus, current legal force, or causal impact.",
+    "CLI default stub remains transport/schema evidence only."
+  ]
+}

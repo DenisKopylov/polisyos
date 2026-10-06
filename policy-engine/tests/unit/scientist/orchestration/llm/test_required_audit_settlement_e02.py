@@ -21,7 +21,11 @@ from polisyos.core.security.audit_log_adapter import ChainedAuditLog
 from polisyos.core.security.audit_models import ChainedLogEntry
 from polisyos.core.security.audit_sink import ChainedAuditSink, LocalJsonlBackend
 from polisyos.core.security.audit_verifier import ChainVerifier
-from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
@@ -204,6 +208,146 @@ def test_protected_audit_reconciliation_precedes_next_provider(
         sink.close()
 
 
+@pytest.mark.parametrize("fail_audit", [False, True], ids=["healthy", "protected-exceeded-fault"])
+def test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge(
+    tmp_path: Path, fail_audit: bool
+) -> None:
+    # A positive real limit is smaller than this supported, positive admission
+    # estimate. This is a budget refusal, not a fabricated zero-cost completion.
+    limit = Decimal("0.000000001")
+    enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+        tmp_path, "BUDGET_EXCEEDED", max_usd=limit, fail=fail_audit
+    )
+    try:
+        error = None
+        try:
+            _call(enforcer, "async-generate")
+        except (BudgetExhaustedError, LLMAccountingError) as failure:
+            error = failure
+        before = FileBudgetLedger(ledger_path).snapshot()
+        entries = [json.loads(line) for line in audit_path.read_text().splitlines()]
+        print(
+            "B65_EXCEEDED_FIRST "
+            + json.dumps(
+                {
+                    "fault": fail_audit,
+                    "actual_positive_limit": str(limit),
+                    "error_type": type(error).__name__ if error is not None else None,
+                    "attempted_actions": audit.attempted_actions,
+                    "provider_calls": len(provider.responses),
+                    "provider_file_exists": provider.path.exists(),
+                    "audit_entries": entries,
+                    "captured_entry": sink.failed_entry.model_dump(mode="json")
+                    if sink.failed_entry is not None
+                    else None,
+                    "fresh_ledger": before.model_dump(mode="json"),
+                    "fresh_chain": vars(ChainVerifier().verify_jsonl_file(audit_path)),
+                }
+            )
+        )
+        assert not provider.responses and not provider.path.exists()
+        assert not before.spend_receipts
+        assert before.state.spent.get("run", Decimal("0")) == Decimal("0")
+        assert before.state.reserved.get("run", Decimal("0")) == Decimal("0")
+        assert audit.attempted_actions == ["BUDGET_EXCEEDED"]
+        assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
+        if not fail_audit:
+            assert isinstance(error, BudgetExhaustedError)
+            assert not before.completion_obligations
+            assert len(entries) == 1
+            assert entries[0]["payload"]["action"] == "BUDGET_EXCEEDED"
+            assert Decimal(entries[0]["payload"]["estimated_cost_usd"]) > limit
+            assert resolver.calls == resolver.writes == 0
+            return
+        assert isinstance(error, LLMAccountingError)
+        assert error.response is None
+        assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+        obligation = error.event["audit_obligation"]
+        assert obligation.action == "BUDGET_EXCEEDED"
+        assert obligation.event is None and obligation.charge_ack is None
+        assert error.event["settlement_status"] == "unmanaged"
+        assert Decimal(dict(obligation.metadata)["estimated_cost_usd"]) > limit
+        assert sink.failed_entry is not None and not entries
+        retained = before.completion_obligations[obligation.act_id]
+        assert len(before.completion_obligations) == 1
+        assert retained.phase == "protected_audit_pending"
+        assert retained.budget_keys == ("run",)
+        assert retained.reserved_amounts == {"run": Decimal("0")}
+        assert retained.known_receipt_ids == ()
+        assert retained.event_payload["amount"] is None
+        reopened_initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=limit)})
+        reopened = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
+            budget_state=reopened_initial,
+            budget_keys=["run"],
+            budget_middleware=BudgetMiddleware(
+                reopened_initial, ledger=FileBudgetLedger(ledger_path)
+            ),
+            audit_log=audit,
+            audit_reconciler=resolver,
+            run_id="B65-owner-recovery",
+        )
+        original_bytes = {path: path.read_bytes() for path in (ledger_path, audit_path)}
+        for caller in (enforcer, reopened):
+            with pytest.raises(LLMAccountingError):
+                _call(caller, "async-generate")
+            assert {path: path.read_bytes() for path in original_bytes} == original_bytes
+            assert audit.attempted_actions == ["BUDGET_EXCEEDED"]
+            assert not provider.responses and not provider.path.exists()
+        ack = enforcer.reconcile_required_audit(obligation.act_id)
+        after = FileBudgetLedger(ledger_path).snapshot()
+        print(
+            "B65_EXCEEDED_RECONCILED "
+            + json.dumps(
+                {
+                    "act_id": obligation.act_id,
+                    "obligation_digest": obligation.payload_digest,
+                    "retained_entry": sink.failed_entry.model_dump(mode="json"),
+                    "ack_status": ack.status,
+                    "resolver_calls": resolver.calls,
+                    "resolver_writes": resolver.writes,
+                    "provider_calls": len(provider.responses),
+                    "before": before.model_dump(mode="json"),
+                    "after": after.model_dump(mode="json"),
+                    "fresh_chain": vars(ChainVerifier().verify_jsonl_file(audit_path)),
+                }
+            )
+        )
+        assert ack.status == "unmanaged"
+        assert ack.event_id == obligation.act_id and ack.payload_digest == obligation.payload_digest
+        assert after.state.spent == before.state.spent and not after.spend_receipts
+        assert after.state.reserved.get("run", Decimal("0")) == Decimal("0")
+        assert not after.completion_obligations
+        assert resolver.calls == resolver.writes == 1
+        assert not provider.responses and not provider.path.exists()
+        assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
+        with pytest.raises(BudgetExhaustedError):
+            _call(reopened, "async-generate")
+        final = FileBudgetLedger(ledger_path).snapshot()
+        print(
+            "B65_EXCEEDED_AFTER_RECOVERY "
+            + json.dumps(
+                {
+                    "provider_calls": len(provider.responses),
+                    "provider_file_exists": provider.path.exists(),
+                    "attempted_actions": audit.attempted_actions,
+                    "fresh_ledger": final.model_dump(mode="json"),
+                    "audit_entries": [
+                        json.loads(line) for line in audit_path.read_text().splitlines()
+                    ],
+                    "fresh_chain": vars(ChainVerifier().verify_jsonl_file(audit_path)),
+                }
+            )
+        )
+        assert audit.attempted_actions == ["BUDGET_EXCEEDED", "BUDGET_EXCEEDED"]
+        assert not provider.responses and not provider.path.exists()
+        assert not final.spend_receipts and not final.completion_obligations
+        assert final.state.reserved.get("run", Decimal("0")) == Decimal("0")
+        assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
+    finally:
+        sink.close()
+
+
 class _ObservedAuditSink(ChainedAuditSink):
     """Observe exact attempted entries; execute the unchanged real sink effect."""
 
@@ -290,7 +434,9 @@ class _RequiredAuditResolver:
         )
 
 
-def _recovery_fixture(tmp_path: Path, action: str) -> tuple[Any, ...]:
+def _recovery_fixture(
+    tmp_path: Path, action: str, *, max_usd: Decimal = Decimal("10"), fail: bool = True
+) -> tuple[Any, ...]:
     audit_path = tmp_path / "original-protected.jsonl"
     # A real empty JSONL target makes the first RESERVED fault occur in the
     # unchanged backend append, after the actual sink has created its entry.
@@ -298,10 +444,10 @@ def _recovery_fixture(tmp_path: Path, action: str) -> tuple[Any, ...]:
     audit_path.touch(exist_ok=False)
     ledger_path = tmp_path / "original-ledger.json"
     provider = _PhysicalProvider(tmp_path / "original-provider.jsonl")
-    initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+    initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=max_usd)})
     middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
     sink = _ObservedAuditSink(audit_path)
-    audit = _CommitFaultAuditLog(sink, audit_path, fail=True, fail_action=action)
+    audit = _CommitFaultAuditLog(sink, audit_path, fail=fail, fail_action=action)
     resolver = _RequiredAuditResolver(sink, audit_path, ledger_path)
     enforcer = LLMBudgetEnforcer(
         client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
@@ -316,7 +462,9 @@ def _recovery_fixture(tmp_path: Path, action: str) -> tuple[Any, ...]:
 
 
 @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
-@pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+@pytest.mark.parametrize(
+    "action", ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED", "BUDGET_COMMITTED"]
+)
 def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
     tmp_path: Path, route: str, action: str
 ) -> None:
@@ -372,7 +520,7 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
         assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
         assert obligation.payload_digest == original_digest
         initial_calls = len(provider.responses)
-        assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
+        assert initial_calls == (0 if action in {"BUDGET_RESERVED", "BUDGET_CHECK"} else 1)
         if initial_calls:
             assert error.response is provider.responses[0]
             assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
@@ -385,6 +533,13 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
             assert not before.spend_receipts
             assert before.state.reserved["run"] > Decimal("0")
         assert before.completion_obligations
+        retained_audit = before.completion_obligations[obligation.act_id]
+        assert retained_audit.budget_keys == ("run",)
+        assert set(retained_audit.reserved_amounts) == {"run"}
+        if not initial_calls:
+            assert retained_audit.reserved_amounts["run"] == before.state.reserved["run"]
+        else:
+            assert retained_audit.reserved_amounts["run"] == Decimal("0")
         with pytest.raises(LLMAccountingError):
             _call(enforcer, route)
         assert len(provider.responses) == initial_calls

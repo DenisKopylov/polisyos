@@ -1,0 +1,2833 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-cas-failure-snapshot-successor-review",
+  "reviewer": "cmp_res_probe",
+  "branch": "codex/e02-B-current-composition",
+  "related_finding_ids": [
+    "B152",
+    "B151",
+    "B148"
+  ],
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "reviewer_workspace_base_sha": "5b9b351a44ac9eb09e042f0d181ddc7191ef9f89",
+  "reviewed_source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+  "reviewed_tree_sha": "b477043e14ee8dfb4e068722c8a8395e7935fcc1",
+  "reviewed_test_only_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+  "reviewed_test_tree_sha": "4e9c65a495510758671596d3bf84a0ce236452af",
+  "slice_base_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+  "slice_base_tree_sha": "80c237125c05266ee4e992f3626ed42c04b48fde",
+  "deciding_evidence_commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+  "deciding_evidence_tree": "a654432655d9ab136c6ad0e66333e1fcddb31671",
+  "prior_blocker_receipt": {
+    "commit": "5b9b351a44ac9eb09e042f0d181ddc7191ef9f89",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-consumer-qualification.json",
+    "git_blob": "8d02609593b640b56f23ca337d4602d487dd76fb",
+    "bytes": 35845,
+    "sha256": "0bbe095e96fc6527d7e08a900da6ab6de65e3765fec518edae85b5166e67bf9b"
+  },
+  "scope": "Independent read-only full canonical794→ad555 five-path implementation, ad555→643 profile-fixture correction,9dc→836 two-path operation/lease restoration and836→463 canonical import-only fixture correction; complete final committed author outputs/removal instruments. Original643 data preserved as original point, never promoted to final836. Delta-only successor to own prior4e blocker receipt. No reviewer source/test/gate/pytest/runtime execution, helpers or new trees.",
+  "verdict": "NONBLOCKING_FOR_FINITE_LOCAL_READ_FAILURE_REPORT_AND_PUBLIC_CAPTURE_REPAIR; FINAL_ROOT_COHORT_AND_SOURCE_QUALITY_ACCEPTANCE_REMAIN_DISTINCT",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Exact source projection and completed CAS author-run native/removal data; no independently run reviewer runtime, broad root integration or universal input-read census.",
+  "property": {
+    "statement": "Public and staged invalid reports retain genuinely acquired stable blob hash/length plus available manifest measurements from the same immutable read result, while failed metadata/digest/size/ref views cannot become verified read or signature authority. Error projection never reopens repaired paths.",
+    "actual_quantity": "_snapshot_read_result_from_paths reads stable blob once with existing no-follow descriptor, hashes data once, then reads manifest once and validates decode/profile/ref/identity/digest/size. Private frozen result retains data bytes/manifest bytes/computed digest/profile/original exception plus captured string detail. Failed report projects known fields and canonical normalization; require_verified rethrows original refusal; success returns existing VerifiedArtifactSnapshot.",
+    "locks": "Corrected836 restores existing decorated _load_verified_snapshot gate; require_verified happens within its lease. Generic result reader is undecorated and called only by existing decorated public verify or decorated verified gate. Public verify preserves no-pending+shared lease across immutable acquisition/result report. Staged capture unchanged; public signature enclosing lease unchanged. No validation/owner permission/schema/allowlist weakening.",
+    "p37": "Measured digest/size from local content_hash(data)/len(data) are independently_reconciled against actual fixture bytes/hash oracle. Manifest expected SHA is never substituted as observed digest. Measurements from invalid metadata are refused-read evidence, not admission or producer authority.",
+    "p38": "Without report witness, actual bad bytes are correctly refused but real ChronologyProofArtifactReader chooses not_established instead of measured store-integrity mismatch/rejected. Removing only measured report fields preserves declarations/refusals and reproduces that actual typed consumer divergence.",
+    "p40": "SAME B152 failure snapshot/report quantity class widened across corruption, same-size corruption, wrongsize, parsed wrongprofile, invalidmanifest, wrongintegrity, wrongref and live/staged operator-repair paths. No case-name/message-only branch or caller algorithm duplicated.",
+    "report_compatibility": "Public VerificationReport fields and ArtifactIntegrityError owner/class remain unchanged; existing canonical normalizer used for sha256/byte_size/manifest identity failures, precise selected-profile/ref mismatch detail retained. Manifest missing/blob missing are derived from failed acquisition phase, without post-error exists().",
+    "read_failure_boundary": "If stable blob read never returns (missing/nonregular/symlink/mid-read-change), observed digest/size remain unavailable; no checksum inferred from metadata. If stable data acquired before later metadata refusal, fields retained. Hostile mutation of private dataclass/exception objects, external alternate loaders, universal filesystem coherence, crash/power-loss/distributed guarantees are not claimed.",
+    "public_capture": "Original _transactional_read unchanged: method name is installed during call and captured after normal return. At643 invalid result helper returned normally and polluted capture with private name before outer verify; canonical owner index rejects it. At836 direct result capture remains inside public verify operation/lease and only public verify is recorded. Genuine healthy+corrupt scoped owner capture→index persistence→fresh index reload preserves exact public operation rows. This tests closure consumption, not authority admissibility of invalid content."
+  },
+  "test_input_correction": {
+    "source": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+    "exact_change": "wrong_profile damage changes manifest.kind to foreign-profile instead of byte_size=100; assertion unchanged.",
+    "canonical_owner_basis": "ManifestLifecycle.profile_projection excludes artifact_id, byte_size, created_at and content SHA, but includes kind and other view fields. Wrong-size case independently keeps same profile and reaches byte_size guard.",
+    "original_frozen_result": "ad555 defining12=11PASS1FAIL, complete original retained; wrong_profile fixture asserted unavailable profile premise and actually got valid byte_size refusal. This is a concrete P37 oracle premise correction, not source failure waiver.",
+    "reviewer_correction": "Reviewer earlier assumed byte_size changed profile; canonical projection source disproved that assumption, corrected before acceptance.",
+    "counts": "Initial claimed13 included additional phase0 target; exact new defining wholefile denominator is12. Actual final262 XML, not guessed264, used."
+  },
+  "completed_author_checks": [
+    {
+      "executor": "CAS canonical author; independently reconciled by reviewer, not reviewer execution",
+      "label": "frozen-defining",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "pytest",
+          "-vv",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+          "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining-pytest",
+          "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "target_tree": "b15be892aa450d36427b41a9c5577431fa462b47",
+        "exit_code": 1,
+        "wall_s": 26.8114866620017,
+        "maxrss_kib": 883828,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "outputs": [
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining.txt",
+            "bytes": 7978,
+            "sha256": "0d929c8eed5d3377a214bc1517f14f64bdbc4a5bbdb4809359fd851053990326"
+          },
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining.xml",
+            "bytes": 7525,
+            "sha256": "f13d3290805b4f78dff34cdf10225d299ab96532dfb5e7f31df3bce0703b0a34"
+          }
+        ]
+      },
+      "complete_junit_cases": 12,
+      "complete_outcomes": {
+        "pass": 11,
+        "fail": 1,
+        "error": 0,
+        "skip": 0
+      },
+      "complete_new_defining_entries": [
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "519b1634762f9676a8eaa7346aa66934fd59eb7e28c45ca6ea448f06b1e505db"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        }
+      ],
+      "committed_outputs": [
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.json",
+          "git_blob": "c051bc0652e92a77b29f111979e662140c5180fb",
+          "bytes": 1576,
+          "sha256": "4684be48ae42b79902c4e13283b5d612ee419fcd92fc759b41007340ae0241a3"
+        },
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.txt",
+          "git_blob": "b8b0ce3aac0b15910e59cf5ee02fba022ff99775",
+          "bytes": 7978,
+          "sha256": "0d929c8eed5d3377a214bc1517f14f64bdbc4a5bbdb4809359fd851053990326"
+        },
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.xml",
+          "git_blob": "517ecc94df2b7d64688d1b944d5b5ba9775eb3fe",
+          "bytes": 7525,
+          "sha256": "f13d3290805b4f78dff34cdf10225d299ab96532dfb5e7f31df3bce0703b0a34"
+        }
+      ]
+    },
+    {
+      "executor": "CAS canonical author; independently reconciled by reviewer, not reviewer execution",
+      "label": "final-affected",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "pytest",
+          "-vv",
+          "tests/unit/core/phase0",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+          "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+          "tests/unit/core/artifacts/test_cas_integrity_report.py",
+          "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+          "tests/unit/core/artifacts/test_signed_evidence.py",
+          "tests/unit/core/artifacts/test_batch_completion_admission.py",
+          "tests/unit/runtime/quality/test_chronology_proof.py",
+          "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected-pytest",
+          "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+        "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+        "exit_code": 0,
+        "wall_s": 44.328664597996976,
+        "maxrss_kib": 908368,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "outputs": [
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected.txt",
+            "bytes": 37165,
+            "sha256": "4f7224e948a40af54b394cf437cc5028e1a6ec7c0fce2b0a12bafc66bf5d6c55"
+          },
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected.xml",
+            "bytes": 39622,
+            "sha256": "6755c272015681630ea57f010a138061a8b55ff42126d37663972d57bc665da1"
+          }
+        ]
+      },
+      "complete_junit_cases": 262,
+      "complete_outcomes": {
+        "pass": 262,
+        "fail": 0,
+        "error": 0,
+        "skip": 0
+      },
+      "complete_new_defining_entries": [
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        }
+      ],
+      "committed_outputs": [
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.json",
+          "git_blob": "29b354b457456bd94f7272b9ad40116f3831ca1f",
+          "bytes": 1991,
+          "sha256": "14b67f2ec69108f4b4778657a90f8683a28d708680beab310289fbfaad135387"
+        },
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.txt",
+          "git_blob": "ff8fe2295652204103d66c78eca788784dab63b3",
+          "bytes": 37165,
+          "sha256": "4f7224e948a40af54b394cf437cc5028e1a6ec7c0fce2b0a12bafc66bf5d6c55"
+        },
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.xml",
+          "git_blob": "85686d88598e95609a0b1114a8195c6ca6e89c1f",
+          "bytes": 39622,
+          "sha256": "6755c272015681630ea57f010a138061a8b55ff42126d37663972d57bc665da1"
+        }
+      ]
+    },
+    {
+      "executor": "CAS canonical author; independently reconciled by reviewer, not reviewer execution",
+      "label": "witness-removal",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/removal.py",
+          "-vv",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+          "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest",
+          "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+        "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+        "exit_code": 1,
+        "wall_s": 27.904996515004314,
+        "maxrss_kib": 887396,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "outputs": [
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.txt",
+            "bytes": 50726,
+            "sha256": "9069c392de60d927976ec33ce71c9cef1fbce69f959eafa68ba26712b7c8332a"
+          },
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.xml",
+            "bytes": 61132,
+            "sha256": "db7796524110306393a7bf0c8ccfcd453823e7c90e0b6b071c422a597b5a92b6"
+          }
+        ]
+      },
+      "complete_junit_cases": 12,
+      "complete_outcomes": {
+        "pass": 1,
+        "fail": 11,
+        "error": 0,
+        "skip": 0
+      },
+      "complete_new_defining_entries": [
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "f02759313f9d3422c60954532e843d4e31c8019f87e8496891baabd3fe6010d0"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "92056aab1052b1011a25320a5ea54760219dee397b87c18f904015ac8e739651"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "2a80369ffceeae3ef9203c27662c3d734a90a4f551994385e1be44aad347e259"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "c92a0d4424e32bb491fd6a6e96f99839420846704d34c90d9371fd808f6d2049"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+          "outcome": "fail",
+          "complete_failure_sha256": "6c7dc4a712d97cd118fb5d36657359137be00bcd9008cc678abbcad09bc8ad2f"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "c6371ba383aa1fce1a21e45a0c816c68f63a094f290fc1b910dd12f63bb35ddb"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+          "outcome": "fail",
+          "complete_failure_sha256": "219be421b09ced9765697ad8ecedf75d698b37bcf2283416f4f7002744206a76"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+          "outcome": "fail",
+          "complete_failure_sha256": "5a46923797b05e7a24c7a3b67d4169acbf7cb43b03c3b5f5fa0adcc763bee6fd"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+          "outcome": "fail",
+          "complete_failure_sha256": "f93992f976833c7b0e853214a2cb40adba4f9f4b41aea2df3806139af367f4bf"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+          "outcome": "pass",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+          "outcome": "fail",
+          "complete_failure_sha256": "f6334db41487bab41c7a9fff5245c50276aa4178ad704ec69995f87c465ed95f"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+          "outcome": "fail",
+          "complete_failure_sha256": "ef1617cd8f102edcc8320c02fbcc8a63fc6a7d9a2b860d47edaed6823ccf3d5f"
+        }
+      ],
+      "committed_outputs": [
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.json",
+          "git_blob": "37465705694bc1e97c9f1cb875f866844bd866ae",
+          "bytes": 1663,
+          "sha256": "d6a38af2817b0ba44ab10397d63e01e3aa7136064a8ca1a9c77c26afb0a27c07"
+        },
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.txt",
+          "git_blob": "75adff4c8b9822f09495e4a5a96614c827b3d463",
+          "bytes": 50726,
+          "sha256": "9069c392de60d927976ec33ce71c9cef1fbce69f959eafa68ba26712b7c8332a"
+        },
+        {
+          "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.xml",
+          "git_blob": "27aefd387d7b70d6633482b4b7b1ed2c22918c11",
+          "bytes": 61132,
+          "sha256": "db7796524110306393a7bf0c8ccfcd453823e7c90e0b6b071c422a597b5a92b6"
+        }
+      ]
+    },
+    {
+      "executor": "CAS canonical author; complete outputs independently reconciled by reviewer, no reviewer execution",
+      "label": "corrected-followup-affected",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "pytest",
+          "-vv",
+          "tests/unit/core/phase0",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+          "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+          "tests/unit/core/artifacts/test_cas_integrity_report.py",
+          "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+          "tests/unit/core/artifacts/test_signed_evidence.py",
+          "tests/unit/core/artifacts/test_batch_completion_admission.py",
+          "tests/unit/runtime/quality/test_chronology_proof.py",
+          "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected-pytest",
+          "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+        "exit_code": 0,
+        "wall_s": 47.004174702989985,
+        "maxrss_kib": 907996,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "outputs": [
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected.txt",
+            "bytes": 37499,
+            "sha256": "8aeef486ca160435bf76a5f8cdbb5f8729bcdf90886fb71375356a9641c42581"
+          },
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-affected.xml",
+            "bytes": 39995,
+            "sha256": "9c3fcfc36a1ca6cb48b6cbcd51bbec36e3be7022b906b7de2e28941b55678eab"
+          }
+        ]
+      },
+      "complete_junit_cases": 264,
+      "complete_outcomes": {
+        "fail": 0,
+        "error": 0,
+        "skip": 0,
+        "pass": 264
+      },
+      "complete_new_defining_entries": [
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        }
+      ],
+      "committed_outputs": [
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-affected.json",
+          "git_blob": "bf3aa805ef9256c100f57173554b8b80fbfe9bfd",
+          "bytes": 2043,
+          "sha256": "7535c8aba90be76379430ef101da81b8879adaee105dbaefd1b14006ac024351"
+        },
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-affected.txt",
+          "git_blob": "206c0e892913a9fe6972c46b3e36825e038cab85",
+          "bytes": 37499,
+          "sha256": "8aeef486ca160435bf76a5f8cdbb5f8729bcdf90886fb71375356a9641c42581"
+        },
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-affected.xml",
+          "git_blob": "692dd8812621338d6e57eb268ebfb9a18aa92b24",
+          "bytes": 39995,
+          "sha256": "9c3fcfc36a1ca6cb48b6cbcd51bbec36e3be7022b906b7de2e28941b55678eab"
+        }
+      ]
+    },
+    {
+      "executor": "CAS canonical author; complete outputs independently reconciled by reviewer, no reviewer execution",
+      "label": "corrected-followup-witness-removal",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/removal.py",
+          "-vv",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+          "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-witness-removal-pytest",
+          "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-witness-removal.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+        "exit_code": 1,
+        "wall_s": 28.37138912800583,
+        "maxrss_kib": 883408,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "outputs": [
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-witness-removal.txt",
+            "bytes": 53218,
+            "sha256": "7ed2f9f49a2d6a0760a3c8b4b7e2a81e520d15e5d75c7e7b441574263aebc765"
+          },
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-followup-witness-removal.xml",
+            "bytes": 63993,
+            "sha256": "d6ce8929bfcf969e18b1a5af721dd13515eebad3bd2d8be0d67abfbae6eccf8a"
+          }
+        ]
+      },
+      "complete_junit_cases": 14,
+      "complete_outcomes": {
+        "fail": 12,
+        "error": 0,
+        "skip": 0,
+        "pass": 2
+      },
+      "complete_new_defining_entries": [
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "c45423ec4a6eb4b2464ab342bfdded60c68f231b80db81193a9b6a92aaa3ae5f"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "f6b2a672c103f0472d081bcbee9e7e61a26600a08cbf3e8b670bddfb996dd1fc"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "b36eab68c00adf6acf2dfbbe81a21ab4d312a96a81bf5428b5077980985b16e6"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "ae61d126179c489d6deb77edd4990738ef9babe87abc3648d4de190089ff475e"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+          "outcome": "fail",
+          "complete_failure_sha256": "e9cff46eba72dc0cad52dfff0008f983720e5165d90135fe0ade0f8e18f04dd4"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+          "outcome": "fail",
+          "complete_failure_sha256": "f8ec484caee913190a332251db8702c7fc70857a62c2f7237e9662bda8631bf7"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+          "outcome": "fail",
+          "complete_failure_sha256": "644213ddff1ea488705eb60b5dc8583c3d09b31211eee792294811702324682e"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+          "outcome": "fail",
+          "complete_failure_sha256": "fd81178369a83239216ff5c16d186d6c821191f599650b690a984375050cf383"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+          "outcome": "fail",
+          "complete_failure_sha256": "5989110df613aad6e26e64339c0c0c3562a2a17e93a378288501d60cef2be6f3"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+          "outcome": "pass_",
+          "complete_failure_sha256": null
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+          "outcome": "fail",
+          "complete_failure_sha256": "afcdbb2da98b634c7f7c5d2bfc534f81d5412a86fe0f63b17d4072ec1307fe54"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+          "outcome": "fail",
+          "complete_failure_sha256": "c2ede8c1f647e53dc6ff7ffd309ef9f564fc8923c3c43907685a7238fa3207fc"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+          "outcome": "fail",
+          "complete_failure_sha256": "d9f1e9201df58a7d88424d478b6fcd8e5a7d8b4f7f7dfd48f0dddfe3e5f8a1b3"
+        }
+      ],
+      "committed_outputs": [
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-witness-removal.json",
+          "git_blob": "75ecbc368a82c9225b0497b8485a2dc16bc34cc4",
+          "bytes": 1738,
+          "sha256": "9bc3ad59d5511ee9a5481add236c398c1a4ae4647c87bca3c1cace960ed4f8b0"
+        },
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-witness-removal.txt",
+          "git_blob": "874731dbc629aa3ac94e2c875d5a6e952e3f777d",
+          "bytes": 53218,
+          "sha256": "7ed2f9f49a2d6a0760a3c8b4b7e2a81e520d15e5d75c7e7b441574263aebc765"
+        },
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-witness-removal.xml",
+          "git_blob": "3d25ddfcf7b651b9bb9793126eecc1fb4462f7cb",
+          "bytes": 63993,
+          "sha256": "d6ce8929bfcf969e18b1a5af721dd13515eebad3bd2d8be0d67abfbae6eccf8a"
+        }
+      ]
+    },
+    {
+      "executor": "CAS canonical author; complete outputs independently reconciled by reviewer, no reviewer execution",
+      "label": "corrected-capture-identity-removal",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture_removal.py",
+          "-vv",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index",
+          "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-capture-identity-removal-pytest",
+          "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-capture-identity-removal.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+        "exit_code": 1,
+        "wall_s": 28.185365755998646,
+        "maxrss_kib": 890876,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "outputs": [
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-capture-identity-removal.txt",
+            "bytes": 8333,
+            "sha256": "7fdfc8bd52ca8910e9bd756dc85bb9dc812116b1cb951c427417561de89d5552"
+          },
+          {
+            "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/corrected-capture-identity-removal.xml",
+            "bytes": 6959,
+            "sha256": "aee72892e0979faa8f5fa16206cd3053fb4bda4ecb065ee9b78768da106e994c"
+          }
+        ]
+      },
+      "complete_junit_cases": 2,
+      "complete_outcomes": {
+        "fail": 2,
+        "error": 0,
+        "skip": 0,
+        "pass": 0
+      },
+      "complete_new_defining_entries": [
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+          "outcome": "fail",
+          "complete_failure_sha256": "5d9655b3d191c7d4bcf243016926e56d3423954785f065c86404b0c44374a266"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+          "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+          "outcome": "fail",
+          "complete_failure_sha256": "ab231dce41f0681185727a0485429eb30691ecee14394630d5d505f1ef03c362"
+        }
+      ],
+      "committed_outputs": [
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-capture-identity-removal.json",
+          "git_blob": "311d876710e2f657b996df683039f55689a88909",
+          "bytes": 1814,
+          "sha256": "7553916ad7b5ca98ffd44b1d77896054a4274d9da0794e5b72e8582bc96d64c4"
+        },
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-capture-identity-removal.txt",
+          "git_blob": "2113eed06ada657b6ad756f27ab6b9c895919003",
+          "bytes": 8333,
+          "sha256": "7fdfc8bd52ca8910e9bd756dc85bb9dc812116b1cb951c427417561de89d5552"
+        },
+        {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-capture-identity-removal.xml",
+          "git_blob": "b8674317b6ce8a8c45ad0a2010044c094b0e6f9b",
+          "bytes": 6959,
+          "sha256": "aee72892e0979faa8f5fa16206cd3053fb4bda4ecb065ee9b78768da106e994c"
+        }
+      ]
+    }
+  ],
+  "property_removal": {
+    "instrument": {
+      "sha256": "d00021a9ae125b7c658d04c5ad752172786f30281b2c09a03b73b0690e6c5cdd",
+      "source_commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "source_container": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/instrument-custody.json"
+    },
+    "actual_delta": "Only _ArtifactSnapshotReadResult.verification_report projection is replaced in-process: invokes original report, preserves ok/error/manifest fields and replaces actual_sha256_hex+byte_size with None on invalid report. No file/source/owner/signature validation change.",
+    "actual_outcome": "Exactly same12 node IDs:11FAIL1PASS. Seven metadata/corruption variants+two repaired paths+wrong-size valid-signature case fail observed digest; chronology actual reader returns not_established instead of mismatch/rejected. Pre-read missingblob case staysPASS because no measurements existed.",
+    "reachability": "Ten field failures stop at digest assertions; later byte_size assertions are not independently reached under removal. Normal final12PASS reaches both field/count assertions. No false claim that removal separately tested isolated size loss.",
+    "original_point_qualification": "Original12-case643 removal is not final836 acceptance; complete corrected14-case removal is below."
+  },
+  "quality": {
+    "ruff": {
+      "outcome": "PASS",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "src/polisyos/core/artifacts/_integrity_ops.py",
+          "src/polisyos/core/artifacts/store.py",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+        "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+        "exit_code": 0,
+        "wall_s": 0.04355394899903331,
+        "maxrss_kib": 22720,
+        "stdout": {
+          "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/ruff.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      "output": {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    "format": {
+      "outcome": "PASS",
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "src/polisyos/core/artifacts/_integrity_ops.py",
+          "src/polisyos/core/artifacts/store.py",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+        "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+        "exit_code": 0,
+        "wall_s": 0.04258698099874891,
+        "maxrss_kib": 23264,
+        "stdout": {
+          "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/format.txt",
+          "bytes": 26,
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        }
+      },
+      "output": {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.txt",
+        "git_blob": "8e4d504182979b9ad211fb7b88757897fbed0606",
+        "bytes": 26,
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+      }
+    },
+    "mypy": {
+      "outcome": "FAIL",
+      "diagnostics": 7,
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "mypy",
+          "src/polisyos/core/artifacts/_integrity_ops.py",
+          "src/polisyos/core/artifacts/store.py"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+        "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+        "exit_code": 1,
+        "wall_s": 0.38070310799230356,
+        "maxrss_kib": 64024,
+        "stdout": {
+          "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/mypy-final.txt",
+          "bytes": 1458,
+          "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+        }
+      },
+      "output": {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.txt",
+        "git_blob": "f0dd1ce60a1a29752b469a72a7f9a35aa782a2d8",
+        "bytes": 1458,
+        "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+      },
+      "full_stdout": "src/polisyos/core/artifacts/store.py:884: error: Argument \"tenant_id\" to \"record_owner\" of \"ArtifactOwnershipIndex\" has incompatible type \"str | None\"; expected \"str\"  [arg-type]\nsrc/polisyos/core/artifacts/store.py:2093: error: Argument \"tenant_id\" to \"is_owned_by\" of \"ArtifactOwnershipIndex\" has incompatible type \"str | None\"; expected \"str\"  [arg-type]\nsrc/polisyos/core/artifacts/store.py:2256: error: Argument \"tenant_id\" to \"is_owned_by\" of \"ArtifactOwnershipIndex\" has incompatible type \"str | None\"; expected \"str\"  [arg-type]\nsrc/polisyos/core/artifacts/store.py:3241: error: Argument \"tenant_id\" to \"is_owned_by\" of \"ArtifactOwnershipIndex\" has incompatible type \"str | None\"; expected \"str\"  [arg-type]\nsrc/polisyos/core/artifacts/store.py:3518: error: Value of type \"dict[str, Any] | None\" is not indexable  [index]\nsrc/polisyos/core/artifacts/store.py:4144: error: Argument 2 to \"_member_name\" of \"FileSystemCAS\" has incompatible type \"str\"; expected \"Literal['blob', 'manifest', 'signature']\"  [arg-type]\nsrc/polisyos/core/artifacts/store.py:4147: error: Argument \"open_member\" to \"export_subgraph\" has incompatible type \"Callable[[ArtifactID | ArtifactRef | str, Literal['blob', 'manifest', 'signature']], _GeneratorContextManager[_VerifiedCASMemberStream, None, None]]\"; expected \"Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream, bool | None]]\"  [arg-type]\nFound 7 errors in 1 file (checked 2 source files)\n",
+      "qualification": "No reported diagnostic line is in changed capture/helper block, but no exact slice-base command replay + complete zero input intersection was established. Not inherited, not waived; full quality status remains FAIL."
+    },
+    "followup-ruff": {
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "src/polisyos/core/artifacts/_integrity_ops.py",
+          "src/polisyos/core/artifacts/store.py",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+        "exit_code": 0,
+        "wall_s": 0.042583312999340706,
+        "maxrss_kib": 22844,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "stdout": {
+          "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-ruff.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      "output": {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    "followup-format": {
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "src/polisyos/core/artifacts/_integrity_ops.py",
+          "src/polisyos/core/artifacts/store.py",
+          "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+        "exit_code": 0,
+        "wall_s": 0.04148947801149916,
+        "maxrss_kib": 22696,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "stdout": {
+          "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-format.txt",
+          "bytes": 26,
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        }
+      },
+      "output": {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-format.txt",
+        "git_blob": "8e4d504182979b9ad211fb7b88757897fbed0606",
+        "bytes": 26,
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+      }
+    },
+    "followup-mypy": {
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "mypy",
+          "src/polisyos/core/artifacts/_integrity_ops.py",
+          "src/polisyos/core/artifacts/store.py"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+        "exit_code": 1,
+        "wall_s": 1.0853861259965925,
+        "maxrss_kib": 166980,
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        },
+        "stdout": {
+          "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-mypy.txt",
+          "bytes": 1458,
+          "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+        }
+      },
+      "output": {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-mypy.txt",
+        "git_blob": "f0dd1ce60a1a29752b469a72a7f9a35aa782a2d8",
+        "bytes": 1458,
+        "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+      },
+      "qualification": "Actual7diagnosticsFAIL on463 preserved; no inherited attribution or broad source-quality waiver."
+    }
+  },
+  "evidence_custody": {
+    "literal_instruments": [
+      {
+        "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/reproduce.py",
+        "bytes": 2426,
+        "sha256": "13195e88ee27bd46e1bacb283e77393437443bdd60b4b2ba95d0183019dda2fc"
+      },
+      {
+        "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/run_check.py",
+        "bytes": 1906,
+        "sha256": "86a805a0f425fd8bf3e08b41e19da7ac713dc132d068e907750094551d9c812e"
+      },
+      {
+        "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/removal.py",
+        "bytes": 641,
+        "sha256": "d00021a9ae125b7c658d04c5ad752172786f30281b2c09a03b73b0690e6c5cdd"
+      },
+      {
+        "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/run_removal.py",
+        "bytes": 1915,
+        "sha256": "e73553fac706cb8b95cbd4989d1d6a9cb19e52f71df84b1af16f58ea6347a184"
+      }
+    ],
+    "literal_instrument_hashes_and_current_execution_paths_equal": true,
+    "declared_input_files_checked": 38,
+    "all_declared_input_hashes_match_exact643_git": true,
+    "input_custody": {
+      "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/input-custody.json",
+      "git_blob": "3334214153b7ec66c3aa7aa92264912ad036c536",
+      "bytes": 10164,
+      "sha256": "d9017f5985158bf69d830fc7d7736e848f083b5b4c620b0a076ffda19a28011d"
+    },
+    "environment": {
+      "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/environment.json",
+      "git_blob": "e1fbc684e957794598ad0359c55905df74a45a9b",
+      "bytes": 13253,
+      "sha256": "1a77077226eb91ad4332a283ee2b567a8af637f846b94ff37d200756a35eebe6"
+    },
+    "environment_summary": {
+      "python": "3.14.2",
+      "pytest": "9.0.2 from complete stdout",
+      "platform": "Linux6.18.44 x86_64/glibc2.41",
+      "interpreter": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "distribution_metadata_count": 194,
+      "scope": "Author environment metadata records installed distributions; not a complete runtime module/read census."
+    },
+    "source_postrun_custody": "Final wrappers target exact463SHA/tree and actual directwait4 exit/resource; completed outputs and declared source/test/config bytes independently matched exact committed data. No head_after or dynamic per-test module/read census measured. Current attached source/test byte equality and tracked clean corroborated separately below; no arbitrary loaded-resource/network/child input closure claim.",
+    "raw_equality": "All final-affected/frozen-defining/removal committed stdout/XML bytes equal complete actual ignored raw. No duplicate outputs copied onto reviewer branch.",
+    "remote_source_custody": "Author source/evidence publication/readback is separate canonical handoff; this reviewer has exact local immutableGit objects. No remote ancestry claim inferred solely from author message.",
+    "final_committed_evidence_files": [
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-after.json",
+        "git_blob": "00b9199f30f0f3ae06e4f946d8e0fe66176b9b74",
+        "bytes": 1171,
+        "sha256": "dd7d2ed6dc61eed024972c4a048ad5274712f83cfe9036badc34e4b2cacd3300"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-after.txt",
+        "git_blob": "b7f5ceb7e80a8f62001689b56eaade9aa45258c6",
+        "bytes": 1097,
+        "sha256": "ed9b7f57ff62cba1493821936bea02963c0254e024bad1a7f6b2cae9e0bc144f"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-before.txt",
+        "git_blob": "558b11899025d4977cf781ff0746e83831ed3a02",
+        "bytes": 1582,
+        "sha256": "53ee4b127db9239f8a8afb98525211e274893c3858233bba8e7abc78551c4d52"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-followup.json",
+        "git_blob": "a7f0137e06efd008d2e30380ccae4093c860b912",
+        "bytes": 1581,
+        "sha256": "fc5fdbf8b9d3b001b0ee43e4e1e2a571ab353c832f155d2c3931545cc34f6fe5"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-followup.txt",
+        "git_blob": "1fcdf1d2dfc685d7fe00a4b055c31473c8284567",
+        "bytes": 2203,
+        "sha256": "1c0b6c8c791c5b5380e74a52cf3e917d31108aeeb261d84b3b8a49366374e181"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-followup.xml",
+        "git_blob": "a47efa6dafc70ccac1da3d2eb5ac10688f9773d1",
+        "bytes": 985,
+        "sha256": "8d3e3feb753a99856368c8710c84546053d5309760ed1b6e0053b17bcf7c8a04"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-identity-removal.json",
+        "git_blob": "293f03d36f81b521adad3dbfaecf9f0d0cb40d2a",
+        "bytes": 1772,
+        "sha256": "6461b26287f4d1aa63689e1c96c1751b44cdb5d6e138a513c7d2054f6a12d6f2"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-identity-removal.txt",
+        "git_blob": "87682f909951b8826da89357b2d6d72ca910bc17",
+        "bytes": 2356,
+        "sha256": "a60ca46886a618cb8c9f4f7d441ebde79cb4179b1ed5223718c6186085d24905"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-identity-removal.xml",
+        "git_blob": "9574b743493e51b6b888568ce154c0aee8612d90",
+        "bytes": 985,
+        "sha256": "4db7d396120519b63a80ece458e270418a4105d659542bc855dba4543b5c5f3d"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-capture-identity-removal.json",
+        "git_blob": "311d876710e2f657b996df683039f55689a88909",
+        "bytes": 1814,
+        "sha256": "7553916ad7b5ca98ffd44b1d77896054a4274d9da0794e5b72e8582bc96d64c4"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-capture-identity-removal.txt",
+        "git_blob": "2113eed06ada657b6ad756f27ab6b9c895919003",
+        "bytes": 8333,
+        "sha256": "7fdfc8bd52ca8910e9bd756dc85bb9dc812116b1cb951c427417561de89d5552"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-capture-identity-removal.xml",
+        "git_blob": "b8674317b6ce8a8c45ad0a2010044c094b0e6f9b",
+        "bytes": 6959,
+        "sha256": "aee72892e0979faa8f5fa16206cd3053fb4bda4ecb065ee9b78768da106e994c"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-affected.json",
+        "git_blob": "bf3aa805ef9256c100f57173554b8b80fbfe9bfd",
+        "bytes": 2043,
+        "sha256": "7535c8aba90be76379430ef101da81b8879adaee105dbaefd1b14006ac024351"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-affected.txt",
+        "git_blob": "206c0e892913a9fe6972c46b3e36825e038cab85",
+        "bytes": 37499,
+        "sha256": "8aeef486ca160435bf76a5f8cdbb5f8729bcdf90886fb71375356a9641c42581"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-affected.xml",
+        "git_blob": "692dd8812621338d6e57eb268ebfb9a18aa92b24",
+        "bytes": 39995,
+        "sha256": "9c3fcfc36a1ca6cb48b6cbcd51bbec36e3be7022b906b7de2e28941b55678eab"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-witness-removal.json",
+        "git_blob": "75ecbc368a82c9225b0497b8485a2dc16bc34cc4",
+        "bytes": 1738,
+        "sha256": "9bc3ad59d5511ee9a5481add236c398c1a4ae4647c87bca3c1cace960ed4f8b0"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-witness-removal.txt",
+        "git_blob": "874731dbc629aa3ac94e2c875d5a6e952e3f777d",
+        "bytes": 53218,
+        "sha256": "7ed2f9f49a2d6a0760a3c8b4b7e2a81e520d15e5d75c7e7b441574263aebc765"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/corrected-followup-witness-removal.xml",
+        "git_blob": "3d25ddfcf7b651b9bb9793126eecc1fb4462f7cb",
+        "bytes": 63993,
+        "sha256": "d6ce8929bfcf969e18b1a5af721dd13515eebad3bd2d8be0d67abfbae6eccf8a"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/final-followup-affected.json",
+        "git_blob": "b27ed2835dbb0998c1e9759801a31cbe1fd2eb38",
+        "bytes": 2024,
+        "sha256": "23e3e778130ed475b61adbb19f47d9befe537b3222e1f5bac9d592525f17694c"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/final-followup-affected.txt",
+        "git_blob": "8b0b58bcaee5a45638ba1375d6d44ab7fbbdf885",
+        "bytes": 2212,
+        "sha256": "e5835b493dbca53fdb83c8c73d3a53fc8e1a89f8daaf14e61d02c99f6eabb37b"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/final-followup-affected.xml",
+        "git_blob": "9cb6c48088e0421614c0dfe3c57d9ea204646877",
+        "bytes": 986,
+        "sha256": "9ad0664e454af8216962e19a275dd4c4f89ad1a7e5d65b26a765ad5057fb6093"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-format.json",
+        "git_blob": "cf825fba3ca531e79d960e14249518b285760fc7",
+        "bytes": 1170,
+        "sha256": "1cd4ffb806a3832811363f3063ccd63ea01efbab938215d78fbe0ed69e64b6bf"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-format.txt",
+        "git_blob": "8e4d504182979b9ad211fb7b88757897fbed0606",
+        "bytes": 26,
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-mypy.json",
+        "git_blob": "a204834c41a96859f3eec93f1725806edead3ee8",
+        "bytes": 1063,
+        "sha256": "0e1f68ae97ed6dfdf35c9c9da4cba0591013b6eb755a329867194020eadd8cd7"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-mypy.txt",
+        "git_blob": "f0dd1ce60a1a29752b469a72a7f9a35aa782a2d8",
+        "bytes": 1458,
+        "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-ruff.json",
+        "git_blob": "1d465fee7ce436a1472186c77da6c9d839aa9c53",
+        "bytes": 1153,
+        "sha256": "b6befb7090b748598029695bcc7493a794a04f9bb20e71e928330997931e1011"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-witness-removal.json",
+        "git_blob": "23c710396db3f3c8e6b100646affec1b1612f702",
+        "bytes": 1695,
+        "sha256": "2e92d4b60515fdcc1dd22b23ae31e8bea99b078e5754112511a8f8d64d974589"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-witness-removal.txt",
+        "git_blob": "7bea6ec8b7d85bf7516a9a9d20445d3db0dad516",
+        "bytes": 2211,
+        "sha256": "4e99bab3e8675d8a5b47958d10e4e115933c07b69d94e8beaf9f98b8c9a5d6e4"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-witness-removal.xml",
+        "git_blob": "2cd51e8c564b4728274a7ef6ac26ae676f917fa8",
+        "bytes": 985,
+        "sha256": "a67e6d2ad8775607d5bd1e3ee905f3afdc8a7871859eba9372c9828547334761"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/input-custody.json",
+        "git_blob": "4ffa3cb3ccb8988eeb9fc49b89576d98dd972692",
+        "bytes": 2201,
+        "sha256": "a4ebc0e0020b9ff40119ce425bd58ef2ba6f20c34e81b7d0c453cad14fb847d2"
+      },
+      {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/instrument-custody.json",
+        "git_blob": "ab1684cdca5fe3d62d7c7c2c91711fc6b027273f",
+        "bytes": 5135,
+        "sha256": "a18ffef912e9bd01ff4d0fce4fc6073597cd03b7b455a02a4459b7b7969fc3a1"
+      }
+    ],
+    "original_committed_evidence_files": [
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.json",
+        "git_blob": "8fc9ffb6c289c88307afba7d96a6db26c1222a68",
+        "bytes": 1659,
+        "sha256": "4cdffa543afa996de1aa40c62ac5bafe0b4e142d984773fc757ac44323d1f9ec"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.txt",
+        "git_blob": "2102082cf8aee6c302697f749cf795729e9b410a",
+        "bytes": 48719,
+        "sha256": "338aae22ffe4aa06e76ba120de5f05cec90843da810f32805efeb4307990c073"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.xml",
+        "git_blob": "280f8fd27fe1080f25f584ed38a546004797c455",
+        "bytes": 57558,
+        "sha256": "5ef975890f029fab5d79956eecb1e4caa50bc3fd7b68bd4da3381cca12008c32"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.json",
+        "git_blob": "eeff77ca0cfd4b815646e1a601e94c3d10406a63",
+        "bytes": 1242,
+        "sha256": "6d092c6736b277a4781cca41eadd79452ff09b4be5b07b025207eed35c454cc1"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.txt",
+        "git_blob": "8f8fd90ce528b0f8b938e7a63ac4fe754035392b",
+        "bytes": 7227,
+        "sha256": "9c9007bd371836d408a7e76c22018e67aa38750b8477e5290e5f141b1c8859f9"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/environment.json",
+        "git_blob": "e1fbc684e957794598ad0359c55905df74a45a9b",
+        "bytes": 13253,
+        "sha256": "1a77077226eb91ad4332a283ee2b567a8af637f846b94ff37d200756a35eebe6"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.json",
+        "git_blob": "e62f4a8967ab2b449b7d4bcfcdc3b3a1d7bec08f",
+        "bytes": 1933,
+        "sha256": "d31764d7c5de044e0681fd56a244ab4b14f50cc5a8b95f3918ea03e8af6f5a63"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.txt",
+        "git_blob": "8dd9956e84417ecbb9c68ce831bdbb824f6ea6a5",
+        "bytes": 35075,
+        "sha256": "8d5a905ce9b5d0175e234d4861da7d996d1aefe2899b5550bbf0baead097e1cc"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.xml",
+        "git_blob": "05d34bedb0f7e61284d12f9ee43b279973d606f5",
+        "bytes": 37215,
+        "sha256": "bedfc9a44cda1624f78f754d71171079c95b32ea8625f0daf569b587facec2ab"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.json",
+        "git_blob": "29b354b457456bd94f7272b9ad40116f3831ca1f",
+        "bytes": 1991,
+        "sha256": "14b67f2ec69108f4b4778657a90f8683a28d708680beab310289fbfaad135387"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.txt",
+        "git_blob": "ff8fe2295652204103d66c78eca788784dab63b3",
+        "bytes": 37165,
+        "sha256": "4f7224e948a40af54b394cf437cc5028e1a6ec7c0fce2b0a12bafc66bf5d6c55"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.xml",
+        "git_blob": "85686d88598e95609a0b1114a8195c6ca6e89c1f",
+        "bytes": 39622,
+        "sha256": "6755c272015681630ea57f010a138061a8b55ff42126d37663972d57bc665da1"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.json",
+        "git_blob": "4ea17630d5a8219561eb9bb84eb28ab53d5080ea",
+        "bytes": 1628,
+        "sha256": "08a97a0391b175151f1c95d311772d4435942cc2deb0e09faf089326e8e3c320"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.txt",
+        "git_blob": "007573beb39def02489288c77ba4366ea0f5b802",
+        "bytes": 11766,
+        "sha256": "2ed995628011fd80a8d8783e6d404c561c35cf562c9ca1a41496b02c84193b30"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.xml",
+        "git_blob": "a37270ec91d110da9854866f89a14622294c37a5",
+        "bytes": 11946,
+        "sha256": "85161de72e2532170f046f498f5e70e4f000740a2759ceed630a2b69c59c9671"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.json",
+        "git_blob": "d9bfef42f413fa18b039ecd3a40421ed14b01882",
+        "bytes": 833,
+        "sha256": "30399b30de8d0a6a4e72e7d496c3bf27f5573f9ccfb1abd89d340da7ca6c514f"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.txt",
+        "git_blob": "8e4d504182979b9ad211fb7b88757897fbed0606",
+        "bytes": 26,
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.json",
+        "git_blob": "c051bc0652e92a77b29f111979e662140c5180fb",
+        "bytes": 1576,
+        "sha256": "4684be48ae42b79902c4e13283b5d612ee419fcd92fc759b41007340ae0241a3"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.txt",
+        "git_blob": "b8b0ce3aac0b15910e59cf5ee02fba022ff99775",
+        "bytes": 7978,
+        "sha256": "0d929c8eed5d3377a214bc1517f14f64bdbc4a5bbdb4809359fd851053990326"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.xml",
+        "git_blob": "517ecc94df2b7d64688d1b944d5b5ba9775eb3fe",
+        "bytes": 7525,
+        "sha256": "f13d3290805b4f78dff34cdf10225d299ab96532dfb5e7f31df3bce0703b0a34"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/initial-mypy-harness-stdout.txt",
+        "git_blob": "f0dd1ce60a1a29752b469a72a7f9a35aa782a2d8",
+        "bytes": 1458,
+        "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/input-custody.json",
+        "git_blob": "3334214153b7ec66c3aa7aa92264912ad036c536",
+        "bytes": 10164,
+        "sha256": "d9017f5985158bf69d830fc7d7736e848f083b5b4c620b0a076ffda19a28011d"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/instrument-custody.json",
+        "git_blob": "4c7818cc25ab19cda489fe5aec0bf789506d9caa",
+        "bytes": 8373,
+        "sha256": "32f89b7fd35d5e627e5179142db4f4d3e8dc6aa8395948d7d4f7f764666e2cde"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.json",
+        "git_blob": "e1161f1ec5983e69eb3b84ec847526e0746c6de9",
+        "bytes": 732,
+        "sha256": "7c2f0c25ff4f4d07617ea1898bc69d38520b643218122d300add7bc45eff3327"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.txt",
+        "git_blob": "f0dd1ce60a1a29752b469a72a7f9a35aa782a2d8",
+        "bytes": 1458,
+        "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.json",
+        "git_blob": "743fde6d30c049718a9621c3decea6efe051858a",
+        "bytes": 815,
+        "sha256": "f3d6fe3cf02e809cf8ac19b9314a2dc5d5f49440d52c3971a4d3738d185df2c8"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.json",
+        "git_blob": "37465705694bc1e97c9f1cb875f866844bd866ae",
+        "bytes": 1663,
+        "sha256": "d6a38af2817b0ba44ab10397d63e01e3aa7136064a8ca1a9c77c26afb0a27c07"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.txt",
+        "git_blob": "75adff4c8b9822f09495e4a5a96614c827b3d463",
+        "bytes": 50726,
+        "sha256": "9069c392de60d927976ec33ce71c9cef1fbce69f959eafa68ba26712b7c8332a"
+      },
+      {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.xml",
+        "git_blob": "27aefd387d7b70d6633482b4b7b1ed2c22918c11",
+        "bytes": 61132,
+        "sha256": "db7796524110306393a7bf0c8ccfcd453823e7c90e0b6b071c422a597b5a92b6"
+      }
+    ],
+    "final_literal_instruments": [
+      {
+        "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-probe.py",
+        "bytes": 1109,
+        "sha256": "f5d4fee37ce0a78866096905853a78f7fccf6be6425bae82054118efb85d613b"
+      },
+      {
+        "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture_removal.py",
+        "bytes": 402,
+        "sha256": "faedabbf9e4071756cf15de59b2c5d256db1a8720e1fdac9606df9f097e0f794"
+      },
+      {
+        "executed_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/run_capture_removal.py",
+        "bytes": 1923,
+        "sha256": "6fde9f1571543ccaaa1e19f196b114bfa26315d20dcd4c0222fe848feeaaa9d2"
+      }
+    ],
+    "final_input_custody": {
+      "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/input-custody.json",
+      "git_blob": "4ffa3cb3ccb8988eeb9fc49b89576d98dd972692",
+      "bytes": 2201,
+      "sha256": "a4ebc0e0020b9ff40119ce425bd58ef2ba6f20c34e81b7d0c453cad14fb847d2"
+    },
+    "final_declared_input_files_checked": 39,
+    "final_declared_input_reconciliation_all_exact463": [
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/pytest.ini",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+        "bytes": 1021,
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "git_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+        "bytes": 12619,
+        "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "git_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+        "bytes": 98037,
+        "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "574e7f473d1487c4b1d1f3c232d96b6ec6cc4e7f",
+        "bytes": 189537,
+        "sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/conftest.py",
+        "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+        "bytes": 9664,
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "git_blob": "c493db7680df69132ef36f14e951f001f0f993e9",
+        "bytes": 14133,
+        "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "git_blob": "678583397bb5375579dae6581d6ac381898d2965",
+        "bytes": 4638,
+        "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+        "git_blob": "c72691a8abb71cdb98aab15bd184c3d8ed5319e3",
+        "bytes": 7305,
+        "sha256": "08a2fc52ab0eebe5b3d1b465663ba566d6f59ceff81e545f867adce1157b0b3e"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "git_blob": "0576973cf69602c48acae759d4fc2c8769b9994f",
+        "bytes": 7246,
+        "sha256": "058fd8c5f7c117a189b9cd86c6e369339c561e5bb38f9cb904d1257a07c9d6cd"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "git_blob": "e39b376a65f7cd194b439c9695da44f3a056b5e6",
+        "bytes": 9989,
+        "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "git_blob": "a90abb5ec4a65745be7ff82b362e151d9917a287",
+        "bytes": 5578,
+        "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+        "git_blob": "58a730654c652e68815752b9f776b9066681e3a6",
+        "bytes": 1412,
+        "sha256": "c98392b794ec39606f137b17f24379cf1c165072936c2b8b7948cdefbad7c30b"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+        "git_blob": "8c52bac732da9cbec4b1783fdc72ada19b86d7bf",
+        "bytes": 2913,
+        "sha256": "cb720254abc71c32771a848948b69f88a87711b0d0e8a4996e4483fe5fa4c86b"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+        "git_blob": "5fbd693e74b17a161c7d8f4de616c2faa63c0a5f",
+        "bytes": 7257,
+        "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+        "git_blob": "d0222b65f990e1ae7a10c844bf32b056a83a1fba",
+        "bytes": 5833,
+        "sha256": "fce5b4e0c6cd7aecb12248008b7a0447322839841845a36c94abdb895858f5a7"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+        "git_blob": "0cdd2a1394ab4c2fb9f680e44cd7d0793eea9c02",
+        "bytes": 4728,
+        "sha256": "88d318dce390fdcb7e7233da897bfa0c1881cf6bc581d9aa34d2d667dfdcfff1"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+        "git_blob": "4f17806692164a475bbef1d8a5e6c076e50750c6",
+        "bytes": 1457,
+        "sha256": "19dd0144c4ff594513cbe0aa45f3eeef03065a3c4f97970ee3b8b818a3e6fad8"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_cli.py",
+        "git_blob": "fbef4db94912b1658f2056cc81063a7492748a10",
+        "bytes": 9895,
+        "sha256": "f57a9689060a90643bd1b61e060307ad177ff0270244e05ff50f84ddbeae5692"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+        "git_blob": "6a9e33cdc3cedaf59c54c5d1dd99587d6ef35ed7",
+        "bytes": 2466,
+        "sha256": "8dbd60ab636b667c41c682262feb06fd8e7a225f955f6e02d82374c75200a357"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "git_blob": "0cc9baedb0d22cfe0c0faf87a76140783e066ff7",
+        "bytes": 4595,
+        "sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_decorators.py",
+        "git_blob": "2c408a3c84ccdbb65c1ac5617aea759ad101c22e",
+        "bytes": 5714,
+        "sha256": "d633cb5896bd84fc3bfdc9a620e2d5946cb14e78307009534b98b0001ca8a008"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+        "git_blob": "bcaef2d90ca74b8902c1b309aa984cfea57bc3dd",
+        "bytes": 13363,
+        "sha256": "ecb42584e3d65a16035ef80545e154b183225f6b9c60195619ed5a807def7588"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_logs.py",
+        "git_blob": "e25f260a61c59c616fc932b95fd0d078315f0a65",
+        "bytes": 1627,
+        "sha256": "f9eb4cd7d76bfbed26479679c4028a83815965fe51728f8eb0e74ed0eac541c6"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+        "git_blob": "eb94317b0e15512a7bf4d41b79dfe58f1370d313",
+        "bytes": 1956,
+        "sha256": "0d6e2be569e39255390fa6fdf9d7948108a865e5c2219c28eb3e7597329f4a02"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_metrics.py",
+        "git_blob": "bca79543cfdb7d33e9182f7a6c5d32209c2e8b82",
+        "bytes": 4697,
+        "sha256": "f9c5559c3a1869295d28a331f827e905cd136d17e2b6611c056e4a793338ea90"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_observability.py",
+        "git_blob": "80611c68e9c01d6077d6b625b7626a8f09936be6",
+        "bytes": 2893,
+        "sha256": "9d3bab9129aff33cc2ddd5161972c56e6c11997fbcf05316bbc2e447b8086ca0"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+        "git_blob": "de07a2404f562aa31e5bd5fb3d5bcd9c1ba5bdbf",
+        "bytes": 1218,
+        "sha256": "e2c59f50e1de9dcfe5d4e4436dae0f483b762595b82e9cca84d1483786f35541"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_propagation.py",
+        "git_blob": "b7db45a54985dd0d2b5ebb6237d06f8cd761d0f4",
+        "bytes": 3844,
+        "sha256": "30456b263fc3bf4ae9731ae8ad1f7c96d216ccef6c0de56af45386bbb7fd9c02"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+        "git_blob": "8810b7bc827d5c25077784f42547ba1f1db4a03f",
+        "bytes": 2304,
+        "sha256": "6bbe79b75c96fb2dc55afe5e3e65a4caca13923fa7671af19b1761d332d0fb4c"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+        "git_blob": "0e0b6855493a4cdeb76ed1e10fcd71eeb8d911ea",
+        "bytes": 4824,
+        "sha256": "e58f4611a289e00d773f2f106137916e9311162fd789991281778d7f59b06ae5"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_run_context.py",
+        "git_blob": "b4ae73f43b3dcd5fe69616ca69f0005af4166163",
+        "bytes": 4314,
+        "sha256": "ba2e51668cccb71a0156ff912ff10d554f7383cc8dd72d6062f6183240a6d065"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_signing.py",
+        "git_blob": "f7a3fca5f3f158c6e91a275781e51fc5afc4e05a",
+        "bytes": 6894,
+        "sha256": "4af98942b89206f63cea7fa3e27ece121bdafcea179b1cc957cf4befe8c97973"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+        "git_blob": "2b49dbe9b27796a4aacce3369be5c2f4c5bbb288",
+        "bytes": 14325,
+        "sha256": "21d210a1d4b9493e3400f64b109e5f820821495c298dfbe3f3017a17bd3abf34"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_tracer.py",
+        "git_blob": "3937eb4de4a70bbfa7c8924e54e2eba8ff47a96d",
+        "bytes": 5970,
+        "sha256": "74bb2650bb6bb65b3b5db3927d84f7686efa372a16830b29de91149541310611"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+        "git_blob": "6cb6874669c6936fe1d0244db7e444d875b68961",
+        "bytes": 2918,
+        "sha256": "36ca54ffb2b3eb1ee0b72c3a07cb646a63382da720b4a9ef04ce7d800430756f"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/phase0/test_worktree_admission.py",
+        "git_blob": "754c5bcde98638fbbf9b059403b911c6406eece3",
+        "bytes": 8532,
+        "sha256": "2fc4c2c48505c8465d10cfbc44f99ea24dc03b6ef958a2af03d920fa3d8108fc"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+        "git_blob": "83640077ad0a533468c94e29f07247c116ddcbbf",
+        "bytes": 64363,
+        "sha256": "069e7d9509449da6ee232809909d864c835eff44dbb94746433cd04f5c911f8f"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      }
+    ],
+    "all_final_declared_input_hashes_match_exact_recorded_git": true,
+    "current_attached_cas_head": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+    "current_attached_cas_tracked_clean": true
+  },
+  "baseline_and_original_red": {
+    "root4e_actual_corruption_FAIL": "Retained in prior5b9 source/output receipt; never overwritten or called inherited.",
+    "canonical_before_fix_probe": {
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/reproduce.py",
+          "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/baseline-cas"
+        ],
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "head": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "tree": "80c237125c05266ee4e992f3626ed42c04b48fde",
+        "exit_code": 1,
+        "wall_s": 0.4560686210024869,
+        "maxrss_kib": 52264,
+        "stdout": {
+          "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/baseline-probe.txt",
+          "bytes": 7227,
+          "sha256": "9c9007bd371836d408a7e76c22018e67aa38750b8477e5290e5f141b1c8859f9"
+        },
+        "input_script_sha256": "13195e88ee27bd46e1bacb283e77393437443bdd60b4b2ba95d0183019dda2fc",
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "numerical_caps": "all6absent"
+        }
+      },
+      "instrument_sha256": "13195e88ee27bd46e1bacb283e77393437443bdd60b4b2ba95d0183019dda2fc",
+      "output": {
+        "commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.txt",
+        "git_blob": "8f8fd90ce528b0f8b938e7a63ac4fe754035392b",
+        "bytes": 7227,
+        "sha256": "9c9007bd371836d408a7e76c22018e67aa38750b8477e5290e5f141b1c8859f9"
+      },
+      "observation": "Actual clean794 three real damaged payload/selected-size/invalidmanifest cases: report fieldsNone despite independently measured bytes; get/proof typed refuse. Probe fails measured-field assertion. CASbase affected production byteidenticalroot4e."
+    },
+    "precommit_native_overlay": "Baseline-native/focused-native logs preserved but not deciding frozen-source acceptance; old uncommitted preformat fixture bytes not fully retained. Earlier250 affected native run actualHEAD794 with production overlayad555 is not relabeled frozenad555/643.",
+    "p41": "No inherited gate attribution. Actual current mypyFAIL remains unresolved; source comparison alone does not satisfy exact gate replay/zero complete input intersection.",
+    "original_capture_collection_errors": [
+      {
+        "label": "capture-followup",
+        "wrapper": {
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "-m",
+            "pytest",
+            "-vv",
+            "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+            "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-followup-pytest",
+            "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-followup.xml"
+          ],
+          "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+          "target_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+          "target_tree": "b477043e14ee8dfb4e068722c8a8395e7935fcc1",
+          "exit_code": 2,
+          "wall_s": 1.3756997099990258,
+          "maxrss_kib": 108324,
+          "environment": {
+            "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+            "POLISYOS_METRICS_PORT": "0",
+            "numerical_caps": "all6absent"
+          },
+          "outputs": [
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-followup.txt",
+              "bytes": 2203,
+              "sha256": "1c0b6c8c791c5b5380e74a52cf3e917d31108aeeb261d84b3b8a49366374e181"
+            },
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-followup.xml",
+              "bytes": 985,
+              "sha256": "8d3e3feb753a99856368c8710c84546053d5309760ed1b6e0053b17bcf7c8a04"
+            }
+          ]
+        },
+        "outputs": [
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-followup.txt",
+            "git_blob": "1fcdf1d2dfc685d7fe00a4b055c31473c8284567",
+            "bytes": 2203,
+            "sha256": "1c0b6c8c791c5b5380e74a52cf3e917d31108aeeb261d84b3b8a49366374e181"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-followup.xml",
+            "git_blob": "a47efa6dafc70ccac1da3d2eb5ac10688f9773d1",
+            "bytes": 985,
+            "sha256": "8d3e3feb753a99856368c8710c84546053d5309760ed1b6e0053b17bcf7c8a04"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-followup.json",
+            "git_blob": "a7f0137e06efd008d2e30380ccae4093c860b912",
+            "bytes": 1581,
+            "sha256": "fc5fdbf8b9d3b001b0ee43e4e1e2a571ab353c832f155d2c3931545cc34f6fe5"
+          }
+        ]
+      },
+      {
+        "label": "final-followup-affected",
+        "wrapper": {
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "-m",
+            "pytest",
+            "-vv",
+            "tests/unit/core/phase0",
+            "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+            "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+            "tests/unit/core/artifacts/test_cas_integrity_report.py",
+            "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+            "tests/unit/core/artifacts/test_signed_evidence.py",
+            "tests/unit/core/artifacts/test_batch_completion_admission.py",
+            "tests/unit/runtime/quality/test_chronology_proof.py",
+            "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected-pytest",
+            "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected.xml"
+          ],
+          "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+          "target_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+          "target_tree": "b477043e14ee8dfb4e068722c8a8395e7935fcc1",
+          "exit_code": 2,
+          "wall_s": 27.154021519992966,
+          "maxrss_kib": 859232,
+          "environment": {
+            "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+            "POLISYOS_METRICS_PORT": "0",
+            "numerical_caps": "all6absent"
+          },
+          "outputs": [
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected.txt",
+              "bytes": 2212,
+              "sha256": "e5835b493dbca53fdb83c8c73d3a53fc8e1a89f8daaf14e61d02c99f6eabb37b"
+            },
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-followup-affected.xml",
+              "bytes": 986,
+              "sha256": "9ad0664e454af8216962e19a275dd4c4f89ad1a7e5d65b26a765ad5057fb6093"
+            }
+          ]
+        },
+        "outputs": [
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/final-followup-affected.txt",
+            "git_blob": "8b0b58bcaee5a45638ba1375d6d44ab7fbbdf885",
+            "bytes": 2212,
+            "sha256": "e5835b493dbca53fdb83c8c73d3a53fc8e1a89f8daaf14e61d02c99f6eabb37b"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/final-followup-affected.xml",
+            "git_blob": "9cb6c48088e0421614c0dfe3c57d9ea204646877",
+            "bytes": 986,
+            "sha256": "9ad0664e454af8216962e19a275dd4c4f89ad1a7e5d65b26a765ad5057fb6093"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/final-followup-affected.json",
+            "git_blob": "b27ed2835dbb0998c1e9759801a31cbe1fd2eb38",
+            "bytes": 2024,
+            "sha256": "23e3e778130ed475b61adbb19f47d9befe537b3222e1f5bac9d592525f17694c"
+          }
+        ]
+      },
+      {
+        "label": "followup-witness-removal",
+        "wrapper": {
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/removal.py",
+            "-vv",
+            "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+            "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-witness-removal-pytest",
+            "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-witness-removal.xml"
+          ],
+          "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+          "target_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+          "target_tree": "b477043e14ee8dfb4e068722c8a8395e7935fcc1",
+          "exit_code": 2,
+          "wall_s": 1.374592906999169,
+          "maxrss_kib": 105476,
+          "environment": {
+            "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+            "POLISYOS_METRICS_PORT": "0",
+            "numerical_caps": "all6absent"
+          },
+          "outputs": [
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-witness-removal.txt",
+              "bytes": 2211,
+              "sha256": "4e99bab3e8675d8a5b47958d10e4e115933c07b69d94e8beaf9f98b8c9a5d6e4"
+            },
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-witness-removal.xml",
+              "bytes": 985,
+              "sha256": "a67e6d2ad8775607d5bd1e3ee905f3afdc8a7871859eba9372c9828547334761"
+            }
+          ]
+        },
+        "outputs": [
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-witness-removal.txt",
+            "git_blob": "7bea6ec8b7d85bf7516a9a9d20445d3db0dad516",
+            "bytes": 2211,
+            "sha256": "4e99bab3e8675d8a5b47958d10e4e115933c07b69d94e8beaf9f98b8c9a5d6e4"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-witness-removal.xml",
+            "git_blob": "2cd51e8c564b4728274a7ef6ac26ae676f917fa8",
+            "bytes": 985,
+            "sha256": "a67e6d2ad8775607d5bd1e3ee905f3afdc8a7871859eba9372c9828547334761"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/followup-witness-removal.json",
+            "git_blob": "23c710396db3f3c8e6b100646affec1b1612f702",
+            "bytes": 1695,
+            "sha256": "2e92d4b60515fdcc1dd22b23ae31e8bea99b078e5754112511a8f8d64d974589"
+          }
+        ]
+      },
+      {
+        "label": "capture-identity-removal",
+        "wrapper": {
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture_removal.py",
+            "-vv",
+            "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index",
+            "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-identity-removal-pytest",
+            "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-identity-removal.xml"
+          ],
+          "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+          "target_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+          "target_tree": "b477043e14ee8dfb4e068722c8a8395e7935fcc1",
+          "exit_code": 4,
+          "wall_s": 1.3038074520009104,
+          "maxrss_kib": 95772,
+          "environment": {
+            "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+            "POLISYOS_METRICS_PORT": "0",
+            "numerical_caps": "all6absent"
+          },
+          "outputs": [
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-identity-removal.txt",
+              "bytes": 2356,
+              "sha256": "a60ca46886a618cb8c9f4f7d441ebde79cb4179b1ed5223718c6186085d24905"
+            },
+            {
+              "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-identity-removal.xml",
+              "bytes": 985,
+              "sha256": "4db7d396120519b63a80ece458e270418a4105d659542bc855dba4543b5c5f3d"
+            }
+          ]
+        },
+        "outputs": [
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-identity-removal.txt",
+            "git_blob": "87682f909951b8826da89357b2d6d72ca910bc17",
+            "bytes": 2356,
+            "sha256": "a60ca46886a618cb8c9f4f7d441ebde79cb4179b1ed5223718c6186085d24905"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-identity-removal.xml",
+            "git_blob": "9574b743493e51b6b888568ce154c0aee8612d90",
+            "bytes": 985,
+            "sha256": "4db7d396120519b63a80ece458e270418a4105d659542bc855dba4543b5c5f3d"
+          },
+          {
+            "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-identity-removal.json",
+            "git_blob": "293f03d36f81b521adad3dbfaecf9f0d0cb40d2a",
+            "bytes": 1772,
+            "sha256": "6461b26287f4d1aa63689e1c96c1751b44cdb5d6e138a513c7d2054f6a12d6f2"
+          }
+        ]
+      }
+    ]
+  },
+  "finding_qualifications": [
+    {
+      "finding_id": "B152",
+      "technical_verdict": "Observed4e report-loss class repaired in finite native filesystem/result interface with actual removal discriminator; final root/G integrated replay and complete family adjudication pending.",
+      "formal_closure": false,
+      "next_owner": "root/G exact merged final native cohort/report consumers"
+    },
+    {
+      "finding_id": "B151",
+      "technical_verdict": "Existing digest/size validation and duplicateput mechanism source unchanged; failed verified result still raises. This successor changes invalid report projection and does not newly close all B151 retries by itself.",
+      "formal_closure": false,
+      "next_owner": "root/G genuine public duplicateput controls in final source"
+    },
+    {
+      "finding_id": "B148",
+      "technical_verdict": "HELD owner semantic recommendation unchanged. Bound-context matcher/put/ownership source algorithms preserved; failing human producer scope from priorreceipt remains A/G contract. No permission relaxation or testgreen owner-law ratification.",
+      "formal_closure": false,
+      "next_owner": "CAS semantic owner + A/G"
+    }
+  ],
+  "comments": [],
+  "remaining_limits": [
+    "Reviewer ran no pytest/gates/new runtime; completed author outcomes independently read and reconciled only.",
+    "Actual final root full native cohort, architecture and source quality statuses are root-owned and not replaced by this262case wave.",
+    "Complete dynamic loader/child/network/resource input readset was not measured by these author wrappers.",
+    "mypy7diagnosticsFAIL preserved without P41 inherited waiver.",
+    "All scope/public owner-law/human exposure producer residuals from priorreceipt remain; no A/C source edits.",
+    "Final healthy/corrupt capture controls cover scoped capture/index persistence/fresh reload, not governed authorization/full public-record replay. Existing other private read methods remain outside this finite new closure claim."
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-failure-snapshot-successor-review.json"
+  ],
+  "original_source_review_points": {
+    "reviewed_source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+    "reviewed_tree_sha": "b15be892aa450d36427b41a9c5577431fa462b47",
+    "reviewed_test_only_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+    "reviewed_test_tree_sha": "61131b3ad72f643407b80b5e07c8350c741360a3",
+    "deciding_evidence_commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+    "deciding_evidence_tree": "6c5b21baa96c30b193b45ebd9e97fc460cdeaa40"
+  },
+  "original_source_footprint": {
+    "complete_command": [
+      "git",
+      "diff",
+      "--name-status",
+      "7949854dc26204c41286ef1b6919166bb53660a0",
+      "ad55562b60dcc7b449c9bc7962e2430632b578fb"
+    ],
+    "complete_output": "A\tpolicy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-failed-snapshot-report.toml\nM\tpolicy-engine/src/polisyos/core/artifacts/README.md\nM\tpolicy-engine/src/polisyos/core/artifacts/_integrity_ops.py\nM\tpolicy-engine/src/polisyos/core/artifacts/store.py\nA\tpolicy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "complete_test_only_delta": "diff --git a/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py b/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\nindex 6f000e25b..b9c81b372 100644\n--- a/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\n+++ b/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\n@@ -53,7 +53,7 @@ def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(\n         selected.write_bytes(store._manifests.to_bytes(manifest))\n     elif damage == \"wrong_profile\":\n         selected.write_bytes(\n-            store._manifests.to_bytes(manifest.model_copy(update={\"byte_size\": 100}))\n+            store._manifests.to_bytes(manifest.model_copy(update={\"kind\": \"foreign-profile\"}))\n         )\n     elif damage == \"invalid_manifest\":\n         selected.write_bytes(b\"{}\")",
+    "source_files": [
+      {
+        "commit": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-failed-snapshot-report.toml",
+        "git_blob": "66366ed0671a0fe86b5de81f3357743f02afdfbc",
+        "bytes": 2044,
+        "sha256": "d3ae832f7510d63e3205829ffcf9568c0c0463eb09e0b017d5973586e3cae5fe"
+      },
+      {
+        "commit": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+        "git_blob": "c6a275a159db2e7d922dc6c7e2b120a3017764c6",
+        "bytes": 9464,
+        "sha256": "630403ad2de1c5a518e317e753b511e98751c321f5a9724083de9dc865dbb0e5"
+      },
+      {
+        "commit": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "git_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+        "bytes": 12619,
+        "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+      },
+      {
+        "commit": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "948646e1b74f33c1955bb2c58e62a7f348c072c7",
+        "bytes": 189538,
+        "sha256": "903f99d177cc5ea3b9b341cde8c2e2dea60b9d2d58d8c9b5969716eb08f63a74"
+      },
+      {
+        "commit": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "git_blob": "6f000e25b082fd3b7c33d220c6ada5ee3cf285d4",
+        "bytes": 8699,
+        "sha256": "e4745eb1a570a574e0f72b6939476fcdc7244f90e8bb314b519fa31cdcbc1a40"
+      },
+      {
+        "commit": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+        "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "git_blob": "b9c81b372bc587dda7d337b48c42bfd0296d7d02",
+        "bytes": 8708,
+        "sha256": "5ff2ad584c4722029154fb2cbc1d6976ebe4dc424412275ad3b9eb87c2669a04"
+      }
+    ],
+    "deciding_symbols": [
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "_transactional_read",
+        "line_start": 405,
+        "line_end": 444,
+        "sha256": "50b697fd8bdb7f99ed2a61d0aa452601617f4792bc9dcdec08e928e944307bb2"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "_transactional_read",
+        "line_start": 406,
+        "line_end": 445,
+        "sha256": "50b697fd8bdb7f99ed2a61d0aa452601617f4792bc9dcdec08e928e944307bb2"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._read_cas_file_no_follow",
+        "line_start": 4202,
+        "line_end": 4235,
+        "sha256": "c026779a6c41f53acb018eb7f380d6732a549b21b822f82105bc727f34ea7c7a"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._read_cas_file_no_follow",
+        "line_start": 4183,
+        "line_end": 4216,
+        "sha256": "c026779a6c41f53acb018eb7f380d6732a549b21b822f82105bc727f34ea7c7a"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._put_blob_and_manifest_once",
+        "line_start": 2188,
+        "line_end": 2428,
+        "sha256": "c32f02787f2e95144d8e9d078adab2fd9c81383f9c02fcd110700d12b5d7f19f"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._put_blob_and_manifest_once",
+        "line_start": 2189,
+        "line_end": 2429,
+        "sha256": "c32f02787f2e95144d8e9d078adab2fd9c81383f9c02fcd110700d12b5d7f19f"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._require_bound_context_for_owner",
+        "line_start": 2812,
+        "line_end": 2834,
+        "sha256": "31c8a1cce714752fb77be9507dcb632d34a6a601382a14a439f6e24482dab42f"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._require_bound_context_for_owner",
+        "line_start": 2793,
+        "line_end": 2815,
+        "sha256": "31c8a1cce714752fb77be9507dcb632d34a6a601382a14a439f6e24482dab42f"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._verify_signature_under_transaction_lease",
+        "line_start": 1836,
+        "line_end": 1875,
+        "sha256": "cb5890915bf0190c2f3a902356c649e989c0fdcd40813c98e459ee4aa7aa0e71"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._verify_signature_under_transaction_lease",
+        "line_start": 1837,
+        "line_end": 1876,
+        "sha256": "cb5890915bf0190c2f3a902356c649e989c0fdcd40813c98e459ee4aa7aa0e71"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "_validate_read_integrity_with_digest",
+        "line_start": 98,
+        "line_end": 113,
+        "sha256": "9b62713d2e86bd66a864a4d6baa9ca1ebae729ff898f8753bca30b8f84d20c56"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "_validate_read_integrity_with_digest",
+        "line_start": 142,
+        "line_end": 157,
+        "sha256": "9b62713d2e86bd66a864a4d6baa9ca1ebae729ff898f8753bca30b8f84d20c56"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "_normalize_verification_error",
+        "line_start": 312,
+        "line_end": 319,
+        "sha256": "12bf166ae73100ee417b2be435d5e5996a98f7fc60ed455ba8448762e3e8c90d"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "_normalize_verification_error",
+        "line_start": 356,
+        "line_end": 363,
+        "sha256": "12bf166ae73100ee417b2be435d5e5996a98f7fc60ed455ba8448762e3e8c90d"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "VerificationReport",
+        "line_start": 22,
+        "line_end": 34,
+        "sha256": "6ab28a26f9887750ac14750e5da0330f4e934bb6146481bb17e363ca90ee599a"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "VerificationReport",
+        "line_start": 22,
+        "line_end": 34,
+        "sha256": "6ab28a26f9887750ac14750e5da0330f4e934bb6146481bb17e363ca90ee599a"
+      },
+      {
+        "source_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "ArtifactIntegrityError",
+        "line_start": 37,
+        "line_end": 38,
+        "sha256": "719b958a3ce5814bdc7192c21f379d8bbee1800606bd89a53131bef8df2162a7"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "ArtifactIntegrityError",
+        "line_start": 37,
+        "line_end": 38,
+        "sha256": "719b958a3ce5814bdc7192c21f379d8bbee1800606bd89a53131bef8df2162a7"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "_ArtifactSnapshotReadResult",
+        "line_start": 69,
+        "line_end": 109,
+        "sha256": "6d843971de78019b50033c8b2a6b8115f5a1d6dc2b636d5a2e6a02f7f8c36b49"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS.verify",
+        "line_start": 2532,
+        "line_end": 2558,
+        "sha256": "07af91938543a12104a0c150ddf27a1a75e98b44c1c21aa7d9447bc3d981c002"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._verify_staged_artifact",
+        "line_start": 2568,
+        "line_end": 2584,
+        "sha256": "6d636c23038107efcc3a0a2c7c352a8a812179479271d44a62f24b8fb0686473"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._load_verified_snapshot",
+        "line_start": 4263,
+        "line_end": 4268,
+        "sha256": "6f99dcb990627876636c05ab83705a3d06e4582d668c2fee5182368b99106224"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._load_snapshot_read_result",
+        "line_start": 4271,
+        "line_end": 4294,
+        "sha256": "7a862b383a6c366a8c6dd6bfb0afab2ad86272d979ea18da86119d0c9c3622e0"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._snapshot_read_result_from_paths",
+        "line_start": 4296,
+        "line_end": 4358,
+        "sha256": "9c8768e34471935f62cb99796d1a3880a6f80c22e63ae437253b9cdc1fc9bc91"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "symbol": "ManifestLifecycle.profile_projection",
+        "line_start": 140,
+        "line_end": 161,
+        "sha256": "8a034e10ae39b8cdee1ce149b25ca51f3d4f9dbe9f4724665b513990be8f8ab5"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/core/contracts/chronology.py",
+        "symbol": "ChronologyPredicatePolicyArtifacts._verified_bytes",
+        "line_start": 843,
+        "line_end": 864,
+        "sha256": "b192d5709fd508273a2d46c8bb6936c3b95bac8b84090ef3faf1b4fee23fd0ed"
+      },
+      {
+        "source_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+        "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+        "symbol": "ChronologyProofArtifactReader.load_and_verify",
+        "line_start": 226,
+        "line_end": 299,
+        "sha256": "1a0f7e019b5777c9c0ac71df6351bdeb29dfdcca9ca5970b7e3a5dd6c36d4c7c"
+      }
+    ],
+    "preserved_owner_segments": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "_transactional_read",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._read_cas_file_no_follow",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._put_blob_and_manifest_once",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._require_bound_context_for_owner",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._verify_signature_under_transaction_lease",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "_validate_read_integrity_with_digest",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "_normalize_verification_error",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "VerificationReport",
+        "exact_source_segment_equal_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "symbol": "ArtifactIntegrityError",
+        "exact_source_segment_equal_base": true
+      }
+    ],
+    "root4e_and_testpoint_binding": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "cas_base_equals_root4e": true,
+        "candidate_binding": {
+          "commit": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "git_blob": "948646e1b74f33c1955bb2c58e62a7f348c072c7",
+          "bytes": 189538,
+          "sha256": "903f99d177cc5ea3b9b341cde8c2e2dea60b9d2d58d8c9b5969716eb08f63a74"
+        },
+        "production_source_ad555_equals_testpoint643": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "cas_base_equals_root4e": true,
+        "candidate_binding": {
+          "commit": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "git_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+          "bytes": 12619,
+          "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+        },
+        "production_source_ad555_equals_testpoint643": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "cas_base_equals_root4e": true,
+        "candidate_binding": {
+          "commit": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+          "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+          "git_blob": "cba03f8d7542954cb20dbc84a746a24baafda64e",
+          "bytes": 6664,
+          "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966"
+        },
+        "production_source_ad555_equals_testpoint643": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "cas_base_equals_root4e": true,
+        "candidate_binding": {
+          "commit": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+          "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+          "git_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+          "bytes": 98037,
+          "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a"
+        },
+        "production_source_ad555_equals_testpoint643": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+        "cas_base_equals_root4e": true,
+        "candidate_binding": {
+          "commit": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+          "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+          "git_blob": "12d6a4e1bb5cccf2d8fbe578b5a3478b3ee457ac",
+          "bytes": 48827,
+          "sha256": "55f119bb81f2a67bdee0e8e8db960b3539e5d34cac35ba236e1677d2963afb8a"
+        },
+        "production_source_ad555_equals_testpoint643": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/chronology.py",
+        "cas_base_equals_root4e": true,
+        "candidate_binding": {
+          "commit": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+          "path": "policy-engine/src/polisyos/core/contracts/chronology.py",
+          "git_blob": "7a0869fea5755c54d27cfe22e4791483b1d0b3a2",
+          "bytes": 128055,
+          "sha256": "3a187e3722e28f26d6128c11e447416263beeb6d88003ef418b294335e4572ca"
+        },
+        "production_source_ad555_equals_testpoint643": true
+      }
+    ],
+    "qualification": "Whole CAS branch is not claimed byte-identical to root4e; only explicitly bound affected source/consumer files compare equal at base. Normal root integration and final full cohort remain root-owned."
+  },
+  "source_footprint": {
+    "complete_cumulative_checkpoint_name_status": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/environment.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/initial-mypy-harness-stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/input-custody.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/instrument-custody.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.xml\nA\tpolicy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-failed-snapshot-report.toml\nM\tpolicy-engine/src/polisyos/core/artifacts/README.md\nM\tpolicy-engine/src/polisyos/core/artifacts/_integrity_ops.py\nM\tpolicy-engine/src/polisyos/core/artifacts/store.py\nA\tpolicy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "public_capture_delta_base": "9dc1c85dea9115c2fbcd596b25df082eb2940bd6",
+    "complete_public_capture_delta": "diff --git a/policy-engine/src/polisyos/core/artifacts/store.py b/policy-engine/src/polisyos/core/artifacts/store.py\nindex 948646e1b..574e7f473 100644\n--- a/policy-engine/src/polisyos/core/artifacts/store.py\n+++ b/policy-engine/src/polisyos/core/artifacts/store.py\n@@ -4260,6 +4260,7 @@ class FileSystemCAS:\n             record_integrity_failure=self._record_integrity_failure,\n         )\n \n+    @_transactional_read()\n     def _load_verified_snapshot(\n         self,\n         artifact_id: ArtifactID | ArtifactRef,\n@@ -4267,12 +4268,11 @@ class FileSystemCAS:\n         \"\"\"Load one owned, integrity-checked bytes/manifest snapshot.\"\"\"\n         return self._load_snapshot_read_result(artifact_id).require_verified()\n \n-    @_transactional_read()\n     def _load_snapshot_read_result(\n         self,\n         artifact_id: ArtifactID | ArtifactRef,\n     ) -> _ArtifactSnapshotReadResult:\n-        \"\"\"Capture one owned pair and preserve its validation failure measurements.\"\"\"\n+        \"\"\"Capture an owned pair under the calling verify/verified-snapshot lease.\"\"\"\n         aid, profile_sha256, ref = _artifact_reference(artifact_id)\n         self._require_blob_owner(aid, operation=\"verify\")\n         if profile_sha256 is None:\ndiff --git a/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py b/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\nindex b9c81b372..d2fec8d66 100644\n--- a/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\n+++ b/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\n@@ -7,6 +7,7 @@ import hashlib\n import pytest\n \n from polisyos.core.artifacts import (\n+    ArtifactTenantContextInfo,\n     FileSystemCAS,\n     PutOptions,\n     artifact_manifest_profile_sha256,\n@@ -141,6 +142,32 @@ def test_pre_read_failure_cannot_invent_blob_measurements(tmp_path):\n     assert report.actual_sha256_hex is None and report.byte_size is None\n \n \n+@pytest.mark.parametrize(\"damaged\", [False, True])\n+def test_public_verify_capture_remains_consumable_by_actual_owner_index(tmp_path, damaged):\n+    store = FileSystemCAS(tmp_path / \"cas\", tenant_id=\"snapshot-owner\", ownership_enforced=True)\n+    ref = store.put_bytes(\n+        b\"original\",\n+        PutOptions(\n+            kind=\"snapshot\",\n+            media_type=\"text/plain\",\n+            tenant_context=ArtifactTenantContextInfo(tenant_id=\"snapshot-owner\", cell_id=None),\n+        ),\n+    )\n+    if damaged:\n+        store._paths(ref.artifact_id)[0].write_bytes(b\"damaged\")\n+    owner = store._register_governed_public_read_owner()\n+    with store._capture_public_read_set() as capture:\n+        report = store.verify(ref)\n+    assert report.ok is not damaged\n+    assert report.actual_sha256_hex is not None\n+    record_id = \"gpr_\" + \"a\" * 32\n+    recorded = store._record_governed_public_read_closure(record_id, capture, owner_token=owner)\n+    reopened = FileSystemCAS(store.root, tenant_id=\"snapshot-owner\", ownership_enforced=True)\n+    loaded = reopened._ownership_index._get_public_read_closure(record_id)\n+    assert loaded == recorded\n+    assert {row[\"operation\"] for row in loaded[\"operation_refs\"]} == {\"verify\"}\n+\n+\n def test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot(tmp_path):\n     store = FileSystemCAS(tmp_path / \"cas\", ownership_enforced=False)\n     data = b\"signed original\"",
+    "complete_import_only_fixture_delta": "diff --git a/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py b/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\nindex d2fec8d66..e39b376a6 100644\n--- a/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\n+++ b/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py\n@@ -7,13 +7,13 @@ import hashlib\n import pytest\n \n from polisyos.core.artifacts import (\n-    ArtifactTenantContextInfo,\n     FileSystemCAS,\n     PutOptions,\n     artifact_manifest_profile_sha256,\n     build_cas_integrity_report,\n )\n from polisyos.core.artifacts import store as store_module\n+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo\n from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair\n from polisyos.core.contracts import chronology as contract\n from polisyos.runtime.quality.chronology_proof import ChronologyProofArtifactReader",
+    "source_and_test_bindings": [
+      {
+        "commit": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "574e7f473d1487c4b1d1f3c232d96b6ec6cc4e7f",
+        "bytes": 189537,
+        "sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187"
+      },
+      {
+        "commit": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "git_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+        "bytes": 12619,
+        "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "git_blob": "e39b376a65f7cd194b439c9695da44f3a056b5e6",
+        "bytes": 9989,
+        "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+      },
+      {
+        "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "git_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+        "bytes": 98037,
+        "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a"
+      }
+    ],
+    "operation_contexts": [
+      {
+        "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "_transactional_read",
+        "line_start": 406,
+        "line_end": 445,
+        "sha256": "50b697fd8bdb7f99ed2a61d0aa452601617f4792bc9dcdec08e928e944307bb2"
+      },
+      {
+        "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._load_verified_snapshot",
+        "line_start": 4263,
+        "line_end": 4269,
+        "sha256": "eff09761d30c9c13fed1775364644e56766694788ff4098b4f580031e8c9efae"
+      },
+      {
+        "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._load_snapshot_read_result",
+        "line_start": 4271,
+        "line_end": 4294,
+        "sha256": "eb92f4224a48801ac79fa0b9fe0dbecfb22bf7596eed723423f1175b171631ea"
+      },
+      {
+        "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS.verify",
+        "line_start": 2531,
+        "line_end": 2558,
+        "sha256": "e07e5f1011cd03c06b67bf27aad95da455e86658f2cc667a7374419b014d9d5c"
+      },
+      {
+        "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._capture_public_read_operation",
+        "line_start": 623,
+        "line_end": 635,
+        "sha256": "8a7f0bc08834283518c5d9ab42a8e567c1e9c08e317a486ea1f556ef1f013eeb"
+      },
+      {
+        "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._record_governed_public_read_closure",
+        "line_start": 590,
+        "line_end": 607,
+        "sha256": "8943e7c4763f099a1f57175cde755165e5c4605b1bc682c972b2e98f682444be"
+      },
+      {
+        "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+        "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "symbol": "_normalize_public_read_operation_refs",
+        "line_start": 2200,
+        "line_end": 2259,
+        "sha256": "8562d811abe2abee553bd3b9bc3a2d6e2fd3e8182bd3a1aefe272b162bb5b02f"
+      },
+      {
+        "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+        "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "symbol": "test_public_verify_capture_remains_consumable_by_actual_owner_index",
+        "line_start": 145,
+        "line_end": 168,
+        "sha256": "44a95e9898b1b2ae7ebc67524c2f897c05f525b9589a1586ebde648fdf0d7d9b"
+      }
+    ],
+    "production_836_equals_test_only463": true,
+    "metadata_ancestry_qualification": "Cumulative checkpoint includes original30evidence files+canonical handoff; original full implementation5path diff separately retained. No additional production algorithms beyond bound2owner files.",
+    "test_import_owner_binding": {
+      "commit": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "git_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+      "symbol": "ArtifactTenantContextInfo",
+      "line": 167,
+      "qualification": "Actual canonical existing class imported by corrected fixture, no facade/generated-surface source change. Read-only source binding, not dynamic loader census."
+    }
+  },
+  "final_property_removals": [
+    {
+      "kind": "measured failure-witness projection only",
+      "instrument_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/instrument-custody.json",
+      "evidence_commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+      "actual_outcome": "same14 defining node IDs:12FAIL2PASS. Earlier11 failure classes retained plus corrupt capture case fails measured-hash assertion before closure publication. Healthy capture and pre-read missingblob controlsPASS. No standalone byte_size-only removal asserted."
+    },
+    {
+      "kind": "public operation identity coupling only",
+      "instrument_binding": {
+        "container": {
+          "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/instrument-custody.json",
+          "git_blob": "ab1684cdca5fe3d62d7c7c2c91711fc6b027273f",
+          "bytes": 5135,
+          "sha256": "a18ffef912e9bd01ff4d0fce4fc6073597cd03b7b455a02a4459b7b7969fc3a1"
+        },
+        "entry_name": "capture_removal.py",
+        "script_sha256": "faedabbf9e4071756cf15de59b2c5d256db1a8720e1fdac9606df9f097e0f794"
+      },
+      "actual_delta": "Wrap only existing shared result loader with original _transactional_read decorator at runtime; byte-witness emission unchanged. Original verified gate remains wrapped, no schema/allowlist/source change.",
+      "actual_outcome": "Both healthy/corrupt native cases reach actual report.ok+observedhash assertions then fail at real owner-index normalizer with public_read_closure_operation_invalid. Candidate captures only verify rows and reopened index equals published closure."
+    }
+  ],
+  "capture_successor": {
+    "source_sha": "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+    "original_blocker": "New private-result wrapper returned normally for failed integrity and was recorded as _load_snapshot_read_result; exact unsupported private operation poisoned actual owner-index closure consumer.",
+    "p40": "NEW own-introduced transaction-lease/public-operation-identity coupling, distinct from original SAME B152 failure-witness emission quantity. Restore generic original verified gate decorator; do not admit private operations or duplicate report algorithm.",
+    "original_capture_driver_output": {
+      "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-before.txt",
+      "git_blob": "558b11899025d4977cf781ff0746e83831ed3a02",
+      "bytes": 1582,
+      "sha256": "53ee4b127db9239f8a8afb98525211e274893c3858233bba8e7abc78551c4d52"
+    },
+    "unchanged_capture_driver": {
+      "container": {
+        "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/instrument-custody.json",
+        "git_blob": "ab1684cdca5fe3d62d7c7c2c91711fc6b027273f",
+        "bytes": 5135,
+        "sha256": "a18ffef912e9bd01ff4d0fce4fc6073597cd03b7b455a02a4459b7b7969fc3a1"
+      },
+      "entry_name": "capture-probe.py",
+      "script_sha256": "f5d4fee37ce0a78866096905853a78f7fccf6be6425bae82054118efb85d613b"
+    },
+    "candidate_driver_wrapper": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-probe.py",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-after-cas"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+      "exit_code": 0,
+      "wall_s": 0.40512871799001005,
+      "maxrss_kib": 51236,
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "stdout": {
+        "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-after.txt",
+        "bytes": 1097,
+        "sha256": "ed9b7f57ff62cba1493821936bea02963c0254e024bad1a7f6b2cae9e0bc144f"
+      }
+    },
+    "candidate_driver_output": {
+      "commit": "6e2efb328b62e69f13ba3a35b8d6f62d3ddb7e04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-capture-evidence/capture-after.txt",
+      "git_blob": "b7f5ceb7e80a8f62001689b56eaade9aa45258c6",
+      "bytes": 1097,
+      "sha256": "ed9b7f57ff62cba1493821936bea02963c0254e024bad1a7f6b2cae9e0bc144f"
+    },
+    "scope": "Standalone before/after capture driver uses actual unscoped FileSystemCAS with ownership_enforced=False and real index recording; defining healthy/corrupt controls independently use explicit scoped-owner store and fresh index reload. Neither runs _authorize_governed_public_read nor full GovernedPublicRecord replay. No claim all governed/private read methods closed.",
+    "test_import_correction": "836 first four capture/full/removal attempts ended collectionERROR: new ArtifactTenantContextInfo imported absent facade.463 changes only import to existing canonical manifest owner; no source/facade/assertion change; initial outputs preserved without acceptance or product-failure attribution.",
+    "capture_before_qualification": "The original command used actual Python and ownsrc PYTHONPATH at ownroot9dc unchanged source. Ambient six numerical caps were absent. The wrapper combined Python with a following cat, so its final shell exit0 is not the Python child status, and child RSS/wall/status were not separately captured. Full actual assertion traceback and actual owner-index refusal are retained as diagnosis; deciding controls use separately measured frozen463 children.",
+    "candidate_original_collection_qualification": "The longer initial836 whole-selector attempt overlapped test-only463 import correction during collection, so its source binding is not a frozen complete input. Original ERROR/UNRUN actual outputs remain diagnosis only. Corrected463 deciding runs are separately bound."
+  },
+  "canonical_author_followup_receipt": {
+    "commit": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report-followup.json",
+    "git_blob": "32ed9577eacb93db28abe261947da7c9d7de760d",
+    "bytes": 48628,
+    "sha256": "55ce702927ff2335613a999ebd70cc053ef9b4e22f4450ec242c7923b132b0c6"
+  }
+}

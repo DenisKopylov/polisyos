@@ -141,7 +141,8 @@
       "name": "real worker/scientific profile",
       "observation_scope": "Actual25PASS at named e589 source; complete worker/protocol/profile/test files unchanged at final candidate, not a claimed fresh rerun of 25 cases.",
       "outcome": "PASS",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-worker.txt",
+      "output_ref": {
         "bytes": 4155,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-worker.txt",
         "sha256": "1140d97b7d6f127adbc6378b7556689a67007ad6483d559a5005b719cc65b960"
@@ -173,7 +174,8 @@
       "input_closure": "Complete three test files. Actual selected-worker producer/CAS/fresh3.14reader and actual-estimator malformed CI controls; original in-process optional DoWhy cases remain5SKIP. Explicit legacy recorder/refusal passes are not selected backend witness.",
       "name": "parent/source/importer and explicit legacy cases",
       "outcome": "SKIP",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-parent.txt",
+      "output_ref": {
         "bytes": 5932,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-parent.txt",
         "sha256": "99e4a14c62a7f4a1a35fad80f46a7c2150b4e66c2ebe851f87961569476fa2bc"
@@ -190,7 +192,8 @@
       "input_closure": "Recomputable n500 syntheticfixture seed19; actual fixedWorker launch, CASsource/content/request/row/graph/seed binding, persisted typedreport, existing job lineage/execution evidence, fresh process reader; no production authority.",
       "name": "numerical MethodJob/CAS/fresh3.14 reader",
       "outcome": "PASS",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
+      "output_ref": {
         "bytes": 17031,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
         "sha256": "faf09d2a9039e6c10c91e24216330ec4cf0840aad3d150f5a6b733aca2cd52ba"
@@ -227,7 +230,8 @@
       "input_closure": "Runtime-only isolated test-child mutation AFTER genuine CausalModel estimation; replace point/interval with0/[-.01,.01], preserve estimator/version/profile/level/source labels. Actual persisted+fresh-reader known-DGP oracle must fail.",
       "name": "remove genuine numerical estimate keep class/version/profile",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-removal-estimate.txt",
+      "output_ref": {
         "bytes": 4282,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-removal-estimate.txt",
         "sha256": "26bf8872dc8c58d431460ab9c184184216dfae468c6060f73f9a65c4fa2eefd4"
@@ -264,7 +268,8 @@
       "input_closure": "Runtime-only replacement calls same actual mechanism fits locally; preserves fitted coefficients/residuals and DoWhy/profile/fit_function strings. Installed dowhy.gcm.fitting_sampling.fit code-object witness fails0vs4calls.",
       "name": "remove installed gcm.fit keep full numeric fitted output",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-removal-gcm.txt",
+      "output_ref": {
         "bytes": 954,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-removal-gcm.txt",
         "sha256": "a35cd9208788d1815bf2b71bb94ce17f55f5983fb9f0d8e4a42918fbe87b867e"
@@ -298,7 +303,8 @@
       "input_closure": "Runtime source24ed; six actual-backend string/bool controls from subsequently committed a730 test file. Actual estimate executes first; pre-fix scalar/CI coercion silently admits malformed outputs.",
       "name": "numeric primitive coercion precursor falsifier",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-primitive-base.txt",
+      "output_ref": {
         "bytes": 7689,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-primitive-base.txt",
         "sha256": "6e7574eb2f32841c672c550b7f138c033f7eaeb65c011bfff3243cc989928a34"
@@ -324,7 +330,8 @@
       "input_closure": "Historical precursor full tracked src/tools/tests denominator5906current/5904base,2699source,401roots. Static indirect boundaries unresolved; runtime_invocation_established=false; no inherited/exclusion attribution.",
       "name": "static production invocation diagnostic",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.txt",
+      "output_ref": {
         "bytes": 1590,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.txt",
         "sha256": "8f13ce52c70836e98dbf0e437bea8f2c5487234d70cbb5f7e6114ffa4a54cef9"
@@ -344,7 +351,8 @@
       "input_closure": "Actual complete82fragments/108structuredchanges;2other-fragment public review contract errors. Own internal worker fragment has no diagnostic error. Exact slice-base/disjoint proof absent: inherited attribution not_established.",
       "name": "compatibility release complete diagnostic",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/compatibility-release.json",
+      "output_ref": {
         "bytes": 1257,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/compatibility-release.json",
         "sha256": "68ebbf8e77d163d5f0eba5cd54378bf6fe4f9f10e503bbb67fcf846cb83917b5"
@@ -363,7 +371,8 @@
       "input_closure": "Complete eight changed Python production/test files; no formatting/semantic inference from lint.",
       "name": "changed-path Ruff",
       "outcome": "PASS",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-ruff.txt",
+      "output_ref": {
         "bytes": 19,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-ruff.txt",
         "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
@@ -405,7 +414,8 @@
       "input_closure": "Implementation source changed during actual generated output probe; gate detected4out-of-scratch source paths. This run is polluted and does not establish frozen product verdict.",
       "name": "initial architecture attempt with changing input",
       "outcome": "UNRUN",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/profile-layout-architecture.txt",
+      "output_ref": {
         "bytes": 119854,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/profile-layout-architecture.txt",
         "sha256": "b8e7940c3b3aef2abefc3881524d0ce0f882dd60201f7793b7001dceacb6a675"
@@ -422,7 +432,8 @@
       "input_closure": "Complete same three files plus one newly added ABI/real producer control. Single failure is pydoc overstrike rendering test setup before real producer invocation. Original5optional skips retained.",
       "name": "complete parent suite at canonical-builder freeze",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-parent.txt",
+      "output_ref": {
         "bytes": 7472,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-parent.txt",
         "sha256": "df5a2ac08e8f7911a163c8f0fdcceed5267537f48250f658088a1cbcdab87c5f"
@@ -441,7 +452,8 @@
       "input_closure": "Three existing facade class identities, static function pickle address/identity, plaintext pydoc rendering, supported override executes genuine selected producer, actual MethodJob/CAS and whole report JSON factory/default-signature equality. Core ArtifactRef facade identity.",
       "name": "schema-corrected public class/function ABI and genuine producer",
       "outcome": "PASS",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-abi-final.txt",
+      "output_ref": {
         "bytes": 2381,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-abi-final.txt",
         "sha256": "b0e2e4ea10ace26363179b2a88c3da9a03ed629bfb241acf31da5a9277775764"
@@ -476,7 +488,8 @@
       "measured_subchecks": "Deep-import and two generated output drifts FAIL; TypeScript generated-client scanner unavailable. Own two helper deep imports fixed in later f6 source; no blanket architecture PASS.",
       "name": "frozen full architecture gate",
       "outcome": "UNRUN",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-architecture.txt",
+      "output_ref": {
         "bytes": 119514,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-architecture.txt",
         "sha256": "4b297d7d50dd6ed7ef9bde1c6295784cee1174b59e579b5f3222de3039666549"
@@ -491,7 +504,8 @@
       "input_closure": "Complete2699src/**/*.py files;3452edges; fullinputcontentSHA73833ff61f72ec95e89643c64e957cc0106891ed503ab0766f570dc14153a84f; complete151whole-gate violations in output, no sampled zero.",
       "name": "complete canonical deep-import static denominator with bounded own-helper check",
       "outcome": "PASS",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-deep-import.json",
+      "output_ref": {
         "bytes": 87986,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-deep-import.json",
         "sha256": "ded49d11908e049be55dac312d2af57573c2f5f84f57749abb956ae6ac91775d"
@@ -509,7 +523,8 @@
       "input_closure": "Complete82release fragments /109structured compatibility records; actual missing new additive record deprecation_window plus two other errors",
       "name": "compatibility gate at factory freeze before mandatory metadata correction",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.json",
+      "output_ref": {
         "bytes": 1578,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.json",
         "sha256": "b84999c4b4ff10551a944c7857b64edf12da21d338aa4d232a9c224574996c76"
@@ -530,7 +545,8 @@
       "input_closure": "Complete canonical release fragment denominator; missing own deprecation_window fixed in fragment-only commit; two remaining public review errors retained",
       "name": "compatibility gate after required own record field correction",
       "outcome": "FAIL",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.json",
+      "output_ref": {
         "bytes": 1257,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.json",
         "sha256": "220d54a32330c08311b11fa558b46de4525c40d0db44224f57fde77122dd2654"
@@ -549,7 +565,8 @@
       "input_closure": "All8changedPython paths derived from exact git diff slice-base..candidate",
       "name": "final changed Python lint",
       "outcome": "PASS",
-      "output": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-ruff.txt",
+      "output_ref": {
         "bytes": 19,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-ruff.txt",
         "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"

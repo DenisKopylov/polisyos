@@ -35,7 +35,7 @@ from polisyos.scientist.orchestration.llm import (
     prompt_cache,
 )
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
-from polisyos.scientist.policy_design import adversary, translator
+from polisyos.scientist.policy_design import _llm_accounting, adversary, translator
 from polisyos.scientist.policy_design.output import (
     ChampionPolicyDossier,
     ConstraintSatisfactionReport,
@@ -55,6 +55,7 @@ def _source_origins() -> list[dict[str, str]]:
     for module in (
         adversary,
         translator,
+        _llm_accounting,
         factory,
         gateway_client,
         prompt_cache,
@@ -161,7 +162,11 @@ def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
         BudgetMiddleware(state, ledger=FileBudgetLedger(ledger_path))
     raw = profile in {"raw-only", "mixed", "active-loop-raw"}
     bundle = _translator_input(state if raw else None)
-    cost_kind = "missing-sdk-usage" if profile == "configured-unknown" else "reported-positive"
+    cost_kind = (
+        "missing-sdk-usage"
+        if profile in {"configured-unknown", "raw-only"}
+        else "reported-positive"
+    )
     actual_content = (
         {
             "scenarios": [

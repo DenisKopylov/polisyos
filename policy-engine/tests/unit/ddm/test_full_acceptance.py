@@ -15,8 +15,8 @@ from polisyos.ddm.integration import (
     DataQualitySignal,
     DriftAndDegradationMonitor,
     MetricDirection,
-    MonitoringWindow,
     ModelRegistryReadinessRecord,
+    MonitoringWindow,
     PerformanceDegradationEvent,
     ReadinessState,
     ShiftDetectedEvent,
@@ -89,6 +89,20 @@ def _registry_context(
     timestamp: datetime = datetime(2026, 4, 26, tzinfo=UTC),
     observed_triggers: list[str] | None = None,
 ) -> tuple[CalibrationReport, CalibrationAudit, ModelRegistryReadinessRecord]:
+    report, audit, _, result = _registry_window_context(
+        report=report, timestamp=timestamp, observed_triggers=observed_triggers
+    )
+    assert result.registry_record is not None
+    return report, audit, result.registry_record
+
+
+def _registry_window_context(
+    *,
+    report: CalibrationReport | None = None,
+    timestamp: datetime = datetime(2026, 4, 26, tzinfo=UTC),
+    observed_triggers: list[str] | None = None,
+    critical_slice_budget_used: float | None = None,
+):
     report = _valid_calibration_report() if report is None else report
     audit = build_calibration_audit(calibration_id="calib-1", report=report)
     metric_budget = MetricBudgetPolicy(
@@ -107,9 +121,10 @@ def _registry_context(
         _calibration_report=report,
         _observed_invalidation_triggers=observed_triggers,
         timestamp=timestamp,
+        critical_slice_budget_used=critical_slice_budget_used,
     )
     assert result.registry_record is not None
-    return report, audit, result.registry_record
+    return report, audit, metric_budget, result
 
 
 def _valid_checker_bound_registry_record() -> ModelRegistryReadinessRecord:
@@ -240,6 +255,8 @@ def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
 
     from polisyos.ddm.contracts.events import (
         CalibrationValidityProjection as CanonicalCalibrationValidityProjection,
+    )
+    from polisyos.ddm.contracts.events import (
         ShiftDetectedEvent as CanonicalShiftDetectedEvent,
     )
     from polisyos.ddm.contracts.metric_budget import (
@@ -247,6 +264,8 @@ def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
     )
     from polisyos.ddm.integration import (
         CalibrationValidityProjection as PublicCalibrationValidityProjection,
+    )
+    from polisyos.ddm.integration import (
         ShiftDetectedEvent as PublicShiftDetectedEvent,
     )
     from polisyos.ddm.readiness import MetricBudgetPolicy as PublicMetricBudgetPolicy
@@ -480,7 +499,12 @@ def test_registry_gate_rejects_persisted_readiness_veto_for_r4_r3(
 def test_registry_gate_preserves_r2_owner_signoff_exception_after_veto() -> None:
     """R2 may still use its documented limited owner-signoff exception."""
 
-    report, audit, record = _registry_context(observed_triggers=[])
+    report, audit, budget, result = _registry_window_context(
+        observed_triggers=[], critical_slice_budget_used=0.3
+    )
+    record = result.registry_record
+    assert record is not None
+    assert result.readiness_event.readiness_state is ReadinessState.R2
     projection = record.calibration_validity
     assert projection is not None
     payload = json.loads(record.model_dump_json())
@@ -492,6 +516,8 @@ def test_registry_gate_preserves_r2_owner_signoff_exception_after_veto() -> None
         calibration_audit=audit,
         now=projection.effective_at,
         observed_invalidation_triggers=[],
+        metric_budget=budget,
+        readiness_event=result.readiness_event,
     )
 
     gate = evaluate_registry_gate(rebound, owner_signoff=True)
@@ -591,7 +617,9 @@ def test_registry_public_round_trip_fails_closed_without_durable_validity() -> N
 def test_registry_public_round_trip_rebinds_with_exact_context() -> None:
     """A public projection becomes current only after exact checker rebind."""
 
-    report, audit, record = _registry_context(observed_triggers=[])
+    report, audit, budget, result = _registry_window_context(observed_triggers=[])
+    record = result.registry_record
+    assert record is not None
     projection = record.calibration_validity
     assert projection is not None
 
@@ -604,6 +632,8 @@ def test_registry_public_round_trip_rebinds_with_exact_context() -> None:
         calibration_audit=audit,
         now=projection.effective_at,
         observed_invalidation_triggers=[],
+        metric_budget=budget,
+        readiness_event=result.readiness_event,
     )
 
     assert rebound.calibration_validity == projection

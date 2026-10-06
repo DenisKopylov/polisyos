@@ -2,12 +2,17 @@ from __future__ import annotations
 
 # ruff: noqa: S101
 from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, NoReturn
 
 import pytest
 
+from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.runtime.quality.claim_argument import validate_claim_argument_case_surfaces
 from polisyos.runtime.quality.explanation_reliability import (
     build_berl_warrant_reliability_record,
+    evaluate_warrant_berl_reliability,
 )
 from tests._helpers.hds_quality import sha
 
@@ -121,6 +126,133 @@ def test_berl_warrant_reliability_record_can_be_built_without_argument_refs() ->
     assert record["threshold_decision"]["status"] == "pass"
     assert record["empirical_bounds"]
     assert record["local_infidelity_diagnostics"]
+
+
+@pytest.mark.parametrize("schema_version", ["1.0.0", "1.1.0"])
+def test_built_reliability_record_roundtrips_full_bundle_into_evaluator(
+    schema_version: str,
+    tmp_path: Path,
+) -> None:
+    bundle = _berl_bundle(upper_bound=0.03)
+    bundle["schema_version"] = schema_version
+    record = build_berl_warrant_reliability_record(
+        reliability_id="berl-reliability-roundtrip",
+        claim_id="claim-roundtrip",
+        explanation_bundle_ref=sha("roundtrip-bundle"),
+        validation_thresholds={"max_p95_infidelity_upper_bound": 0.1},
+        explanation_bundle=bundle,
+    )
+    persisted_record = _persist_reliability_record(FileSystemCAS(tmp_path / "cas"), record)
+
+    assert persisted_record["explanation_bundle"] == bundle
+    assert persisted_record["explanation_bundle"]["created_at"] == bundle["created_at"]
+    result = evaluate_warrant_berl_reliability(
+        {"warrant_reliability_records": [persisted_record]},
+        {
+            "warrant_id": "warrant-roundtrip",
+            "claim_id": "claim-roundtrip",
+            "berl_reliability_refs": ["berl-reliability-roundtrip"],
+        },
+        claim_id="claim-roundtrip",
+    )
+
+    assert not result.issues
+    assert result.records[0]["threshold_decision"]["status"] == "pass"
+    assert result.records[0]["explanation_bundle"]["schema_version"] == schema_version
+
+
+@pytest.mark.parametrize("remove_evidence", [False, True], ids=["conditional", "markers-only"])
+def test_roundtripped_conditional_bundle_stays_refused_without_verifier_calls(
+    remove_evidence: bool,
+    tmp_path: Path,
+) -> None:
+    bundle = _conditional_bundle()
+    if remove_evidence:
+        bundle["methods"][0].pop("conditional_evidence")
+    verifier = _EchoConditionalVerifier()
+    record = build_berl_warrant_reliability_record(
+        reliability_id="berl-reliability-conditional",
+        claim_id="claim-conditional",
+        explanation_bundle_ref=sha("conditional-bundle"),
+        validation_thresholds={"max_p95_infidelity_upper_bound": 0.1},
+        explanation_bundle=bundle,
+        conditional_evidence_verifier=verifier,
+    )
+    persisted_record = _persist_reliability_record(FileSystemCAS(tmp_path / "cas"), record)
+    result = evaluate_warrant_berl_reliability(
+        {"warrant_reliability_records": [persisted_record]},
+        {
+            "warrant_id": "warrant-conditional",
+            "claim_id": "claim-conditional",
+            "berl_reliability_refs": ["berl-reliability-conditional"],
+        },
+        claim_id="claim-conditional",
+        conditional_evidence_verifier=verifier,
+    )
+
+    assert result.records[0]["threshold_decision"]["status"] == "fail"
+    expected_violation = (
+        "conditional_law_evidence_missing:kernel_shap_conditional"
+        if remove_evidence
+        else "conditional_law_authority_not_admitted:kernel_shap_conditional"
+    )
+    assert expected_violation in result.records[0]["threshold_decision"]["violations"]
+    assert verifier.calls == 0
+
+
+def _conditional_bundle() -> dict[str, Any]:
+    bundle = _berl_bundle(upper_bound=0.03)
+    bundle["schema_version"] = "1.1.0"
+    bundle["assumptions"]["feature_dependence_policy"]["primary"] = (
+        "conditional_observational"
+    )
+    method = bundle["methods"][0]
+    method["method_id"] = "kernel_shap_conditional"
+    method["conditional_evidence"] = {
+        "profile_id": "gaussian_linear_exact",
+        "authority_purpose": "prediction_attribution",
+        "law_ref": "law://unresolved/not-present",
+        "law_content_digest": "sha256:unresolved-law-bytes",
+        "model_hash": bundle["model"]["model_hash"],
+        "model_profile_ref": "model-profile://unresolved/not-present",
+        "model_profile_digest": "sha256:unresolved-model-bytes",
+        "model_verifier_ref": "verifier://unresolved/model",
+        "population_ref": "population://fixture",
+        "cohort_ref": "cohort://fixture",
+        "observation_window_ref": "window://fixture",
+        "feature_schema_version": bundle["feature_context"]["feature_schema_version"],
+        "model_epoch": "epoch://fixture",
+        "feature_order": ["employment_rate"],
+        "support_ref": "support://fixture",
+        "provenance_ref": "provenance://fixture",
+        "verifier_ref": "verifier://unresolved/law",
+        "precision_status": "exact",
+    }
+    bundle["audit"]["artifact_refs"].append("law://unresolved/not-present")
+    return bundle
+
+
+class _EchoConditionalVerifier:
+    calls = 0
+
+    def verify(self, bundle: object, method: object, evidence: object) -> NoReturn:
+        del bundle, method, evidence
+        self.calls += 1
+        raise AssertionError("unadmitted conditional verifier must not be invoked")
+
+
+def _persist_reliability_record(
+    cas: FileSystemCAS,
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    record_ref = cas.put_json(
+        record,
+        PutOptions(kind="runtime.berl_warrant_reliability", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    stored_record = from_canonical_bytes(cas.get_bytes(record_ref))
+    assert isinstance(stored_record, dict)
+    return stored_record
 
 
 def _claim_argument_case() -> dict[str, object]:
@@ -249,7 +381,7 @@ def _claim_argument_case() -> dict[str, object]:
     }
 
 
-def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
+def _berl_bundle(*, upper_bound: float) -> dict[str, Any]:
     return {
         "schema_version": "1.0.0",
         "bundle_id": "berl-bundle-1",

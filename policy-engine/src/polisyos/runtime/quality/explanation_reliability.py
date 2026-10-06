@@ -182,7 +182,6 @@ def build_berl_warrant_reliability_record(
                     "threshold_decision",
                     "empirical_bounds",
                     "local_infidelity_diagnostics",
-                    "explanation_bundle",
                 }
             }
         )

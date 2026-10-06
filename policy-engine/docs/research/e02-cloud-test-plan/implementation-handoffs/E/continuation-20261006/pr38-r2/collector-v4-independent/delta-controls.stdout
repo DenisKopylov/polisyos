@@ -1,0 +1,282 @@
+{
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py",
+    "bytes": 38197,
+    "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+  },
+  "unchanged_previous_source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+    "bytes": 38152,
+    "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec"
+  },
+  "exact_AST_changed_function": "public_evidence",
+  "complete_rest_AST_identical": true,
+  "prior_independent_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/copy-index.json",
+    "bytes": 6060,
+    "sha256": "cf178965f2f4c7548599c49cdddfe250764a4dd2535fc253f217c523896ffc03",
+    "assets": 22,
+    "asset_bytes": 189175
+  },
+  "author_index_verified": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/copy-index.json",
+    "bytes": 4308,
+    "sha256": "d380077d8e636ee33e92c8ed6343a9c59e938f0d1b350f4f1a99db976b751e42",
+    "assets": 18,
+    "asset_bytes": 97002
+  },
+  "collector_freeze_controls": [
+    {
+      "name": "raw-refusal",
+      "role": "raw",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/synthetic-controls/raw-refusal/wave/raw/source-freeze.json",
+      "publication_created": false,
+      "synthetic_payload_copied": false,
+      "product_native_or_gate_commands_executed": 0
+    },
+    {
+      "name": "private-refusal",
+      "role": "private",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/synthetic-controls/private-refusal/wave/private/source-freeze.json",
+      "publication_created": false,
+      "synthetic_payload_copied": false,
+      "product_native_or_gate_commands_executed": 0
+    },
+    {
+      "name": "standalone-positive",
+      "role": "standalone",
+      "state": "CONTROL_COMPLETE_BOUND",
+      "reason": null,
+      "publication_created": true,
+      "synthetic_payload_copied": true,
+      "product_native_or_gate_commands_executed": 0
+    }
+  ],
+  "common_role_controls": [
+    {
+      "role": "raw",
+      "payload_kind": "check.stdout.txt",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/raw/check.stdout.txt"
+    },
+    {
+      "role": "raw",
+      "payload_kind": "check.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/raw/check.json"
+    },
+    {
+      "role": "raw",
+      "payload_kind": "pytest.xml",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/raw/pytest.xml"
+    },
+    {
+      "role": "raw",
+      "payload_kind": "owner_packet.py",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/raw/owner_packet.py"
+    },
+    {
+      "role": "raw",
+      "payload_kind": "source-freeze.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/raw/source-freeze.json"
+    },
+    {
+      "role": "private",
+      "payload_kind": "check.stdout.txt",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/private/check.stdout.txt"
+    },
+    {
+      "role": "private",
+      "payload_kind": "check.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/private/check.json"
+    },
+    {
+      "role": "private",
+      "payload_kind": "pytest.xml",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/private/pytest.xml"
+    },
+    {
+      "role": "private",
+      "payload_kind": "owner_packet.py",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/private/owner_packet.py"
+    },
+    {
+      "role": "private",
+      "payload_kind": "source-freeze.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/private/source-freeze.json"
+    },
+    {
+      "role": "RaW",
+      "payload_kind": "check.stdout.txt",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/RaW/check.stdout.txt"
+    },
+    {
+      "role": "RaW",
+      "payload_kind": "check.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/RaW/check.json"
+    },
+    {
+      "role": "RaW",
+      "payload_kind": "pytest.xml",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/RaW/pytest.xml"
+    },
+    {
+      "role": "RaW",
+      "payload_kind": "owner_packet.py",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/RaW/owner_packet.py"
+    },
+    {
+      "role": "RaW",
+      "payload_kind": "source-freeze.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/RaW/source-freeze.json"
+    },
+    {
+      "role": "PRIvate",
+      "payload_kind": "check.stdout.txt",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/PRIvate/check.stdout.txt"
+    },
+    {
+      "role": "PRIvate",
+      "payload_kind": "check.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/PRIvate/check.json"
+    },
+    {
+      "role": "PRIvate",
+      "payload_kind": "pytest.xml",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/PRIvate/pytest.xml"
+    },
+    {
+      "role": "PRIvate",
+      "payload_kind": "owner_packet.py",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/PRIvate/owner_packet.py"
+    },
+    {
+      "role": "PRIvate",
+      "payload_kind": "source-freeze.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/PRIvate/source-freeze.json"
+    },
+    {
+      "role": "git-config-private-holder",
+      "payload_kind": "check.stdout.txt",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/git-config-private-holder/check.stdout.txt"
+    },
+    {
+      "role": "git-config-private-holder",
+      "payload_kind": "check.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/git-config-private-holder/check.json"
+    },
+    {
+      "role": "git-config-private-holder",
+      "payload_kind": "pytest.xml",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/git-config-private-holder/pytest.xml"
+    },
+    {
+      "role": "git-config-private-holder",
+      "payload_kind": "owner_packet.py",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/git-config-private-holder/owner_packet.py"
+    },
+    {
+      "role": "git-config-private-holder",
+      "payload_kind": "source-freeze.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/git-config-private-holder/source-freeze.json"
+    }
+  ],
+  "common_role_count": 25,
+  "external_standalone_synthetic_positive": true,
+  "actual_standalone_metadata_admission": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/source-freeze-5e3e37276.json",
+    "bytes": 2314,
+    "sha256": "78ae2264f893238742329acbad8e62ca7ac04d43e8b05ccb1c8dd430907ff032"
+  },
+  "symlink_controls": [
+    {
+      "kind": "leaf",
+      "state": "TYPED_REFUSAL",
+      "reason": "symlink component is not admitted: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/safe/leaf-link.json",
+      "payload_copied": false
+    },
+    {
+      "kind": "parent",
+      "state": "TYPED_REFUSAL",
+      "reason": "symlink component is not admitted: /workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/pure-admission-controls/linked-parent",
+      "payload_copied": false
+    }
+  ],
+  "effective_property_removal_controls": [
+    {
+      "name": "raw-property-removal",
+      "role": "raw",
+      "state": "CONTROL_COMPLETE_BOUND",
+      "reason": null,
+      "publication_created": true,
+      "synthetic_payload_copied": true,
+      "product_native_or_gate_commands_executed": 0,
+      "outcome": "EXPECTED_DISCRIMINATING_ESCAPE"
+    },
+    {
+      "name": "private-property-removal",
+      "role": "private",
+      "state": "CONTROL_COMPLETE_BOUND",
+      "reason": null,
+      "publication_created": true,
+      "synthetic_payload_copied": true,
+      "product_native_or_gate_commands_executed": 0,
+      "outcome": "EXPECTED_DISCRIMINATING_ESCAPE"
+    }
+  ],
+  "root_before": [
+    "7dad1566e9bd289aa1385b149bfcb0bfaef60bf1",
+    "fa0ca51853325f98dc73714f48b80b7c238c7f20"
+  ],
+  "root_after": [
+    "7dad1566e9bd289aa1385b149bfcb0bfaef60bf1",
+    "fa0ca51853325f98dc73714f48b80b7c238c7f20"
+  ],
+  "original_source_and_author_fixture_unchanged": true,
+  "scope": "Independent protocol delta only, no numeric/product/global gate runs. Reuses historical14controls/custody by exact unchanged AST and indexed bytes.",
+  "environment": {
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "cpu_caps": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null
+    }
+  },
+  "product_native_or_gate_commands_executed": 0,
+  "reusable_collector_verdict": "GO-bounded-common-public-role-and-exact-owner-attribution-protocol",
+  "historical_actual_custody": "GO retained, no new numerical evidence",
+  "finding_closure": false
+}

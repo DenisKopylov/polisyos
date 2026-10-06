@@ -76,12 +76,18 @@ def main() -> None:
         paths = selector["test_paths"]
         if len(paths) != len(set(paths)) or len(paths) != selector["candidate_whole_file_count"]:
             raise RuntimeError("Selector file denominator does not reconcile")
+        inventory = SCRATCH / "raw/review/successor-final-B-cohort-inventory.json"
+        for destination in (
+            inventory,
+            raw / "successor-final-B-cohort-pytest",
+            raw / "successor-final-B-cohort-cache",
+            raw / "successor-final-B-cohort.xml",
+        ):
+            if destination.exists() or destination.is_symlink():
+                raise RuntimeError(f"Refuse to reuse an existing cohort destination: {destination}")
         argsfile = raw / "successor-final-B-cohort.args"
         with argsfile.open("x") as stream:
             stream.write("\n".join(paths) + "\n")
-        inventory = SCRATCH / "raw/review/successor-final-B-cohort-inventory.json"
-        if inventory.exists():
-            raise RuntimeError("Refuse to overwrite an existing case inventory")
         env["E02_B_COHORT_INVENTORY_PATH"] = str(inventory)
         argv = [
             str(PYTHON),

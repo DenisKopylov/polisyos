@@ -112,6 +112,23 @@ cancellation cannot authorize a later successful workflow publication.
 When no owner deadline is configured, shared-executor operations explicitly
 select an unbounded wait and do not inherit the helper's default timeout.
 
+Checkpoint publication carries an invocation-local `CheckpointPublicationBudget`
+through artifact creation, atomic head publication and history GC. It captures
+the original caller, cancellation baseline and ownership token. The additive
+`BudgetedAsyncCheckpointHook` is `public_experimental`; fixed-signature legacy
+hooks retain their existing calls and can delegate to the canonical CAS hook
+through the publication context. Explicit adapter timeouts join the remaining
+owner budget; implicit helper defaults cannot shorten or renew that budget.
+Opaque native async stores retain their own policies.
+
+Cancellation closes queued worker admission and preserves `CancelledError` with
+the publication operation and `not_admitted` or `unknown` execution state.
+The canonical writer checks the original budget before artifact admission and
+again after temporary-file fsync, before replacing the head. Once replacement
+enters, it finishes directory sync and required history so fresh readers can
+resolve the committed generation. Expiry prevents acknowledgement, later GC and
+workflow finalization; it does not roll back an entered filesystem operation.
+
 The synchronous store must support access from the shared executor, matching the
 existing async artifact-store adapter contract. Already-entered synchronous
 backend I/O can finish after cancellation or expiry. Its private recovery state

@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 41 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 27 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 42 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 966 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -2471,7 +2471,7 @@ select_method_candidates_for_requirements
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 39 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 42 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
@@ -2482,9 +2482,12 @@ select_method_candidates_for_requirements
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (39)</summary>
+<details><summary>Entrypoint exports (42)</summary>
 
 ```text
+NativeSearchService
+SearchServiceCheckpoint
+SearchLoopRunner
 decision_packet_invocation_input_refs
 require_canonical_decision_packet_invocation
 DECISION_PACKET_INVOCATION_KIND
@@ -2723,9 +2726,12 @@ verify_and_persist_replay_bundle
 
 </details>
 
-<details><summary>Supported exports (39)</summary>
+<details><summary>Supported exports (42)</summary>
 
 ```text
+NativeSearchService
+SearchServiceCheckpoint
+SearchLoopRunner
 decision_packet_invocation_input_refs
 require_canonical_decision_packet_invocation
 DECISION_PACKET_INVOCATION_KIND

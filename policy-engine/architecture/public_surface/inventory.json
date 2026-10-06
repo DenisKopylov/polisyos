@@ -2487,8 +2487,11 @@
         "polisyos.scientist.replay"
       ],
       "major_subsystem": true,
-      "export_count": 39,
+      "export_count": 42,
       "exports": [
+        "NativeSearchService",
+        "SearchServiceCheckpoint",
+        "SearchLoopRunner",
         "decision_packet_invocation_input_refs",
         "require_canonical_decision_packet_invocation",
         "DECISION_PACKET_INVOCATION_KIND",
@@ -2538,8 +2541,11 @@
         {
           "module": "polisyos.scientist",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 39,
+          "export_count": 42,
           "exports": [
+            "NativeSearchService",
+            "SearchServiceCheckpoint",
+            "SearchLoopRunner",
             "decision_packet_invocation_input_refs",
             "require_canonical_decision_packet_invocation",
             "DECISION_PACKET_INVOCATION_KIND",

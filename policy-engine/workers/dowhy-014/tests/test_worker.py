@@ -126,6 +126,7 @@ def test_exact_supported_interval_shapes_and_legitimate_point_only(value):
         ("interval", [True, 3.0]),
         ("value", "2.0"),
         ("value", True),
+        ("value", 10**1000),
         ("standard_error", "0.1"),
         ("standard_error", False),
     ],

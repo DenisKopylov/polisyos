@@ -132,7 +132,12 @@ def _validate_reply(response: Any, request: Mapping[str, Any], lock: Mapping[str
 
 def _finite_json_number(value: Any) -> bool:
     """Admit finite JSON numbers, never booleans or numeric-looking strings."""
-    return type(value) in {int, float} and math.isfinite(value)
+    if type(value) not in {int, float}:
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 def _validate_reply_fields(

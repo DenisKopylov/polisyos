@@ -3,8 +3,7 @@
   "unit": "F",
   "slice": "tmle-20261006",
   "closure_ids": [
-    "B54",
-    "B56"
+    "B54"
   ],
   "bundle_ids": [
     "FIT-01"
@@ -457,6 +456,16 @@
   },
   "receipt_corrections": [
     "Added mandatory output field to original three checks; exact complete committed deciding byte refs unchanged. No source, test, outcome or finding decision delta.",
-    "Reconciled wholecommand architecture UNRUN with complete stdout and separately retained completed partial findings FAIL; exit2 is not used as wholeproperty verdict. No rerun/source/test delta."
-  ]
+    "Reconciled wholecommand architecture UNRUN with complete stdout and separately retained completed partial findings FAIL; exit2 is not used as wholeproperty verdict. No rerun/source/test delta.",
+    "Normalized closure_ids to explicitly closed technical IDs only and retained every related finding ID. Metadata-only correction: implementation/source/test/evidence/check/finding decisions unchanged; no tests repeated."
+  ],
+  "finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "related_finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "closure_id_semantics": "Only findings explicitly closed by this receipt in their declared technical scope. Related limited/held/open findings are retained in finding_ids/related_finding_ids and their original decisions; accepted code and finite property PASS do not imply their closure."
 }

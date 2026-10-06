@@ -346,27 +346,28 @@ class SlotLinker:
                 ),
             )
 
-        matched_sources: dict[str, str] = {}
-
-        def augment(target_name: str, seen_sources: set[str]) -> bool:
-            """Find an augmenting path for one target in the bounded graph."""
-            for src_slot, _compat in candidate_edges[target_name]:
-                src_name = src_slot.name
-                if src_name in seen_sources:
-                    continue
-                seen_sources.add(src_name)
-                previous_target = matched_sources.get(src_name)
-                if previous_target is None or augment(previous_target, seen_sources):
-                    matched_sources[src_name] = target_name
-                    return True
-            return False
-
-        for target_name in target_inputs:
-            augment(target_name, set())
-
-        matched_targets = {
-            target_name: source_name for source_name, target_name in matched_sources.items()
+        scores = {
+            (source.name, target): _score_candidate(
+                source,
+                target_inputs[target],
+                compat,
+                prefer_exact_names=self._config.prefer_exact_names,
+            )
+            for target, candidates in candidate_edges.items()
+            for source, compat in candidates
         }
+        utilities = _matching_utilities(scores, len(target_inputs))
+        matched_targets, utility = _maximum_weight_matching(utilities)
+        for target, source in matched_targets.items():
+            alternate, alternate_utility = _maximum_weight_matching(
+                utilities, excluded=(source, target)
+            )
+            if len(alternate) == len(matched_targets) and alternate_utility == utility:
+                raise SlotConnectionError(
+                    f"Ambiguous automatic bindings from {source_sig.fqn} to {target_sig.fqn}: "
+                    f"equally preferred assignments {sorted(matched_targets.items())} and "
+                    f"{sorted(alternate.items())}; supply an explicit mapping"
+                )
         bindings: list[SlotBinding] = []
 
         for tgt_name, tgt_slot in target_inputs.items():
@@ -501,6 +502,101 @@ def check_linkable(
 # -----------------------------------------------------------------------------
 # Internal Helpers
 # -----------------------------------------------------------------------------
+
+
+def _matching_utilities(
+    scores: Mapping[tuple[str, str], tuple[int, ...]], target_count: int
+) -> dict[tuple[str, str], int]:
+    """Encode aggregate nonlexical preferences without cross-criterion carries."""
+    if not scores:
+        return {}
+    columns = tuple(zip(*scores.values()))
+    minima = tuple(min(column) for column in columns)
+    radices = tuple(target_count * (max(column) - min(column)) + 1 for column in columns)
+    utilities = {}
+    for edge, score in scores.items():
+        value = 0
+        for component, minimum, radix in zip(score, minima, radices):
+            value = value * radix + component - minimum
+        utilities[edge] = value
+    return utilities
+
+
+@dataclass(slots=True)
+class _MatchingArc:
+    target: int
+    reverse: int
+    capacity: int
+    cost: int
+
+
+def _maximum_weight_matching(
+    utilities: Mapping[tuple[str, str], int], *, excluded: tuple[str, str] | None = None
+) -> tuple[dict[str, str], int]:
+    """Maximize cardinality, then preference, through residual augmenting paths.
+
+    Successive shortest paths solve the finite bipartite assignment without a
+    numeric slot cap. Removing each selected edge later detects every distinct
+    equally optimal assignment, including alternating cycles and unused sources.
+    """
+    source_names = sorted({source for source, _target in utilities})
+    target_names = sorted({target for _source, target in utilities})
+    source_ids = {name: index + 1 for index, name in enumerate(source_names)}
+    target_ids = {name: index + 1 + len(source_names) for index, name in enumerate(target_names)}
+    sink = len(source_names) + len(target_names) + 1
+    graph: list[list[_MatchingArc]] = [[] for _ in range(sink + 1)]
+
+    def add_arc(source: int, target: int, cost: int) -> _MatchingArc:
+        forward = _MatchingArc(target, len(graph[target]), 1, cost)
+        reverse = _MatchingArc(source, len(graph[source]), 0, -cost)
+        graph[source].append(forward)
+        graph[target].append(reverse)
+        return forward
+
+    for source_id in source_ids.values():
+        add_arc(0, source_id, 0)
+    for target_id in target_ids.values():
+        add_arc(target_id, sink, 0)
+    candidate_arcs = {
+        edge: add_arc(source_ids[edge[0]], target_ids[edge[1]], -utility)
+        for edge, utility in utilities.items()
+        if edge != excluded
+    }
+    while True:
+        distance: list[int | None] = [None] * len(graph)
+        predecessors: list[tuple[int, int] | None] = [None] * len(graph)
+        distance[0] = 0
+        for _ in range(len(graph) - 1):
+            changed = False
+            for source_id, arcs in enumerate(graph):
+                prior = distance[source_id]
+                if prior is None:
+                    continue
+                for index, arc in enumerate(arcs):
+                    candidate = prior + arc.cost
+                    if arc.capacity and (
+                        distance[arc.target] is None or candidate < distance[arc.target]
+                    ):
+                        distance[arc.target] = candidate
+                        predecessors[arc.target] = (source_id, index)
+                        changed = True
+            if not changed:
+                break
+        if distance[sink] is None:
+            break
+        target_id = sink
+        while target_id:
+            predecessor = predecessors[target_id]
+            assert predecessor is not None
+            source_id, index = predecessor
+            arc = graph[source_id][index]
+            arc.capacity -= 1
+            graph[target_id][arc.reverse].capacity += 1
+            target_id = source_id
+    matching = {
+        target: source for (source, target), arc in candidate_arcs.items() if arc.capacity == 0
+    }
+    return matching, sum(utilities[(source, target)] for target, source in matching.items())
 
 
 def _slots_by_name(slots: Sequence[SlotSpec]) -> dict[str, SlotSpec]:

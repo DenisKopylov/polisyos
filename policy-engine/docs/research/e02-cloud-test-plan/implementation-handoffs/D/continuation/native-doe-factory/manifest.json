@@ -1944,6 +1944,24 @@
       "raw_sha256": "c168594191ff5ba245c6daa325170da626d31f0c4e7ed6fb943c92015688fb62",
       "encoded_bytes": 2886,
       "encoded_sha256": "b98e0f9e841d2df66845c38a1cb8d32447107cc0985cc2791bf0993296550b80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/native-index-split-applied.json",
+      "encoding": "identity",
+      "bytes": 1198,
+      "sha256": "5e8349c21e27421f4e41e387ac607c301262a355bd20b18e441303687f4ff277"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/release-companion-preclassification.json",
+      "encoding": "identity",
+      "bytes": 1874,
+      "sha256": "b1a66f37b8029dcb07e7476778188766e01b043e50f28b7253894654fd881920"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/release-companion-final.json",
+      "encoding": "identity",
+      "bytes": 2573,
+      "sha256": "5e94e992fbeee1ba0b06d803fbbb61b1cc310bee8964f7275be79a408584bd13"
     }
   ],
   "actual_inputs": {
@@ -2441,5 +2459,41 @@
     "filesystem_available_after": 372736,
     "bytes_recovered": 1760121,
     "no_cleanup_unlink_source_fixture_env_index_or_refs_mutation": true
-  }
+  },
+  "documentation_companion_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+  "documentation_companion_tree": "35ca42df40fa1d98414261214a5a8326d56bee4c",
+  "documentation_companion_paths": [
+    {
+      "path": "policy-engine/README.md",
+      "source_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+      "blob": "1cb51ee61a8e5e1ec981ae583e6b5d3d77c6f69c",
+      "bytes": 19915,
+      "sha256": "665ec9a0b29cd8e8af4adc792e120ecf7b484fb3e69c9f57632808feb6744275"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+      "source_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+      "blob": "87bf9d8c126afaf6eddafe35ff6ee52eda977d79",
+      "bytes": 7488,
+      "sha256": "859fa058fd133fb053e7a833624da71131d9e6ad336f16bcb7fa89e43b2aa1e6"
+    }
+  ],
+  "documentation_companion_production_delta": [],
+  "root_actual_public_surface_review": {
+    "source_sha": "5eca5d0df09f3296aefe20a0797aa14837da01ff",
+    "path": "policy-engine/architecture/public_surface/inventory.json",
+    "blob": "f670668140d8c91a23d8ec32d53d2e021154d91d",
+    "bytes": 220938,
+    "sha256": "c2b799aa89eb54ae98a746e8a46fb1d17da184f13fbf7e05b527844a4a792224",
+    "scientist_export_count": 42,
+    "own_actual_stable_exports": [
+      "NativeSearchService",
+      "SearchServiceCheckpoint",
+      "SearchLoopRunner"
+    ],
+    "unlisted_child_classes_are_internal": true,
+    "own_fragment_flag_remains_false_not_blanket_authority": true,
+    "local_inventory_stale39_is_not_fullgate_PASS": true
+  },
+  "preparation_error": "first metadata extension failed at ambiguous abbreviated Git5eca; all32payloadfiles were committed normally1e8. This append resolves full matching actual5eca5d0df source and adds the three previously uncatalogued observer/metadata files; no scientific outputs changed."
 }

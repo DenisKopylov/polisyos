@@ -1,0 +1,89 @@
+"""Preserve complete frozen outputs and independently recount JUnit outcomes."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import xml.etree.ElementTree as ET
+
+SCRATCH = Path('/workspace/e02-E-20261006-receipts/common-wave')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+HANDOFF = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006'
+DEST = HANDOFF / 'common-wave'
+DEST.mkdir(parents=True, exist_ok=True)
+FROZEN = json.loads((SCRATCH / 'frozen-candidate.json').read_text())
+jobs = []
+totals = dict(cases=0, passed=0, failed=0, errors=0, skipped=0)
+for path in sorted(SCRATCH.glob('pytest-*.json')):
+    job = json.loads(path.read_text())
+    xml_path = path.with_suffix('.xml')
+    root = ET.parse(xml_path).getroot()
+    counts = dict(cases=0, passed=0, failed=0, errors=0, skipped=0)
+    failures = []
+    for case in root.iter('testcase'):
+        counts['cases'] += 1
+        failing = case.find('failure')
+        error = case.find('error')
+        skipped = case.find('skipped')
+        if failing is not None:
+            counts['failed'] += 1
+            failures.append(dict(test=f"{case.attrib.get('classname')}::{case.attrib.get('name')}", message=failing.attrib.get('message'), body=failing.text))
+        elif error is not None:
+            counts['errors'] += 1
+        elif skipped is not None:
+            counts['skipped'] += 1
+        else:
+            counts['passed'] += 1
+    for key, value in counts.items():
+        totals[key] += value
+    assert job['candidate_sha'] == FROZEN['candidate_sha']
+    assert job['head_at_end'] == FROZEN['candidate_sha']
+    assert job['source_immutable']
+    jobs.append(dict(job=path.stem, counts=counts, outcome=job['outcome'], wall_seconds=job['wall_seconds'], failures=failures, receipt=path.name, stdout=path.stem + '.stdout.txt', junit=xml_path.name))
+assert totals == dict(cases=1125, passed=1123, failed=2, errors=0, skipped=0), totals
+gate_basis = {
+    'architecture': ('163 deep-import creep reports; 35 refer to E-changed source paths, including 12 exact imports absent at fresh base and present at frozen E source. Generated runtime OpenAPI/trust-claim register drift also reported. Current gate FAIL; no baseline widening or inherited waiver.', 'E architecture follow-up for twelve introduced exact imports; G and architecture/register owners for full gate and consumer admission.'),
+    'runtime-api-contract': ('Generated runtime API contract differs; no silent shared contract regeneration by E.', 'A/G runtime contract owner'),
+    'production-invocation': ('Static direct-call model reports eleven regressions; dynamic callbacks, receiver binding, DI/router and event-bus edges remain unmeasured. This is not proof of runtime non-invocation.', 'G and production orchestration owners, with family-specific E adapters'),
+    'workspace-verify': ('Initial doctor failed on missing Chromium; retain separately from repaired-environment replay.', 'Environment repaired; subsequent receipt is deciding for preflight'),
+    'workspace-verify-after-browser': ('Doctor/browser/locks pass; lint_imports reports fifteen architecture violations. Later fail-fast umbrella checks are UNRUN.', 'G and owning architecture/import consumers'),
+    'ci-parity': ('Initial doctor also lacked Chromium; generated schemas/runtime OpenAPI drift present. Retain original failure.', 'Environment repaired; subsequent receipt is deciding for preflight'),
+    'ci-parity-after-browser': ('Chromium and frontend-contracts pass; feedback_solve_result schema/_manifest and runtime OpenAPI are stale. Later umbrella steps are UNRUN.', 'G/A schema and runtime contract owners'),
+    'ruff': ('All changed Python paths pass.', 'E'),
+    'ruff-format': ('All changed Python paths pass format check.', 'E'),
+}
+gates = []
+for name, (basis, owner) in gate_basis.items():
+    job = json.loads((SCRATCH / (name + '.json')).read_text())
+    assert job['candidate_sha'] == FROZEN['candidate_sha'] and job['source_immutable']
+    gates.append(dict(job=name, outcome=job['outcome'], exit_code=job['exit_code'], wall_seconds=job['wall_seconds'], basis=basis, next_owner=owner, receipt=name + '.json', stdout=name + '.stdout.txt'))
+raw = json.loads((SCRATCH / 'production-invocation.raw.json').read_text())
+summary = dict(
+    schema='policyos.e02.frozen_wave_summary.v1',
+    base_sha=FROZEN['base_sha'], base_tree_sha=FROZEN['base_tree_sha'],
+    candidate_sha=FROZEN['candidate_sha'], candidate_tree_sha=FROZEN['candidate_tree_sha'],
+    source_test_framed_sha256=FROZEN['source_test_framed_sha256'], source_test_path_denominator=FROZEN['source_test_path_denominator'],
+    test_manifest='consumer-frozen/wave-groups.json', test_path_denominator=110,
+    inventory=dict(bundles=22, unique_findings=54, finding_bundle_links=55),
+    numerical_wave=dict(runs=1, parallel_processes=6, thread_worker_cpu_caps=None, totals=totals, groups=jobs),
+    global_checks=gates,
+    source_immutable_in_all_checks=True,
+    environment='actual-environment.json',
+    production_invocation=dict(regressions=raw['regressions'], new_unresolved_by_construction=raw['new_unresolved_by_construction'], runtime_invocation_established=raw['runtime_invocation_established'], predicate_provenance=raw['predicate_provenance'], denominator=raw['denominator'], complete_output='production-invocation.raw.json.gz', output_custody='production-invocation-output.json'),
+    integration_acceptance='pending G; current global gates FAIL, no overall integration GO',
+    finding_closure='Separate per-ID overlay preserves ledger; PASS count is not closure.',
+    P41='not_established; no inherited-red waiver',
+    browser_replay='Only workspace/CI preflight repeated after actual missing-browser repair, with same frozen source; numerical wave not repeated.',
+    production_data='none; bounded synthetic mathematical/backend checks do not establish full production history or source law',
+)
+(SCRATCH / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+index = []
+for source in sorted(SCRATCH.iterdir()):
+    if not source.is_file() or source.name == 'production-invocation.raw.json':
+        continue
+    destination = DEST / source.name
+    shutil.copyfile(source, destination)
+    content = source.read_bytes()
+    assert content == destination.read_bytes()
+    index.append(dict(source_absolute_path=str(source), git_path=str(destination.relative_to(ROOT)), bytes=len(content), sha256=hashlib.sha256(content).hexdigest()))
+(DEST / 'copy-index.json').write_text(json.dumps(dict(schema='policyos.e02.evidence_custody.v1', candidate_sha=FROZEN['candidate_sha'], files=index, raw_large_output='Complete 171393890-byte raw JSON is preserved losslessly as gzip, not truncated; original retained outside Git and not deleted.', excluded_test_catalogs=[str(p) for p in sorted(SCRATCH.glob('*-temp')) if p.is_dir()]), indent=2) + '\n')
+print(json.dumps(dict(totals=totals, copied_files=len(index), copied_bytes=sum(p['bytes'] for p in index), frozen_sha=FROZEN['candidate_sha']), indent=2))

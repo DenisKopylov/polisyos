@@ -1,0 +1,583 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "full-E-continuation-20261006",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "integration_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "candidate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "branch": "codex/e02-E-continuation-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "publication_note": "Topic includes receipt-only descendants after source freeze; deciding numerical evidence stays pinned to candidate SHA/tree above. No rebase/reset/force/main/integration write.",
+  "source_freeze": {
+    "src_tree": "b979fbe04a3370f4562c7967048409b34e3d4cb3",
+    "tests_tree": "144b18412f6bb8bec3bc3986ebf3da61313c8b38",
+    "source_test_framed_sha256": "9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc",
+    "source_test_path_denominator": 6198,
+    "post_wave_src_tests_delta": "empty",
+    "full_diff_paths_ref": "common-wave/frozen-candidate.json",
+    "raw_source_identity_before_after": "all common-wave job JSONs"
+  },
+  "accepted_bounded_components": [
+    {
+      "family": "CAL/welfare",
+      "bundle_ids": [
+        "CAL-01",
+        "CAL-02",
+        "CAL-03",
+        "CAL-04",
+        "CAL-06"
+      ],
+      "implementation_sha": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+      "implementation_tree_sha": "2e3a5460ffbee38b86b4a771ff8090b426f0dc07",
+      "published_receipt_head_sha": "5cae768523c1e26278bb03da89cf6ec6cf91dfd0",
+      "published_receipt_head_tree_sha": "ca3971989b648b01b7e968951e2d44a5e3cb0db5",
+      "topic": "codex/e02-E-cal-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/58",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-batch-welfare-handoff.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Configured Calibrator -> scalar batch caller -> typed CalibrationReport v2 -> configured CAS -> welfare full joint-law/draw-outcome consumer; generic curvature is diagnostic, source inference authority remains unestablished."
+    },
+    {
+      "family": "CAL05",
+      "bundle_ids": [
+        "CAL-05"
+      ],
+      "implementation_sha": "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa",
+      "implementation_tree_sha": "27d85f1e2fdb2820871ecaef7e94802ddf918542",
+      "published_receipt_head_sha": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+      "published_receipt_head_tree_sha": "11bea57924adacca4b80358013331c6a072f6967",
+      "topic": "codex/e02-E-cal05-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/49",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Scalar lax.map with per-row state/time/independent keys, JIT gradients/Hessian and actual Calibrator caller; vmap(cond) divergence retained."
+    },
+    {
+      "family": "MC/UQP/UQS",
+      "bundle_ids": [
+        "UQP-01",
+        "UQP-02",
+        "UQP-03",
+        "UQS-01"
+      ],
+      "implementation_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+      "implementation_tree_sha": "c653941cbecc4b06c5ffa62bd5e353ebaa848ef4",
+      "published_receipt_head_sha": "d2a192bb2ea239ea29c12321440100a9efb94af2",
+      "published_receipt_head_tree_sha": "0ff734f75265c1d910912f410e64da41004294de",
+      "topic": "codex/e02-E-mc-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/44",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006-review.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Shared pre-draw law/range admission, singular covariance, complete outcomes, bounded IID independent-pilot fixed-N certificate and complete independent Sobol scrambles -> CAS -> fresh Scientist consumer. General served evaluator remains missing."
+    },
+    {
+      "family": "BKT",
+      "bundle_ids": [
+        "BKT-01",
+        "BKT-02",
+        "BKT-03",
+        "BKT-04"
+      ],
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "implementation_tree_sha": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+      "published_receipt_head_sha": "801045b58cf141e923f129f2eb7649da8edeb4ed",
+      "published_receipt_head_tree_sha": "bd526998434693703246eaa273fb53c0aefc49ad",
+      "topic": "codex/e02-E-backtest-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/51",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Actual K dispatcher attempts and masked-history CAS, requested/eligible/observed counts, distinct micro/macro, native SciPy inference, defined bootstrap statistic, bounded CV preparation. Native successful forecasting blocked on real Trinity/seed/materializer bridge."
+    },
+    {
+      "family": "DDM",
+      "bundle_ids": [
+        "DDM-01",
+        "DDM-02"
+      ],
+      "implementation_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "implementation_tree_sha": "2732a4183cbfd385ccce02f097d6feee08a6b12d",
+      "published_receipt_head_sha": "299d165a6040629711019598f2981f7cc3e9c5f6",
+      "published_receipt_head_tree_sha": "396f508033c7085aa946129f727aa2736f659556",
+      "topic": "codex/e02-E-ddm-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/41",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-source-binding.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Canonical contracts and facade identities; complete report/model/rule/time/calibration/invalidation source projection -> persisted registry -> rebind/readiness/audit/gate. Default production orchestration still requires owning consumer."
+    },
+    {
+      "family": "DOE",
+      "bundle_ids": [
+        "DOE-01",
+        "DOE-02",
+        "DOE-03"
+      ],
+      "implementation_sha": "e092b1d1796265604df1891340f7a56ce633e745",
+      "implementation_tree_sha": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "published_receipt_head_sha": "fd6b8f991a77fbb8e9551bce8761766581da15f3",
+      "published_receipt_head_tree_sha": "cc37eb122adf64f50ca34dc5470b3eb69c7f57d6",
+      "topic": "codex/e02-E-doe-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/39",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Canonical SALib sampler/analyzer with ordered design, complete Morris trajectories, declared law/units/scale/seed -> content-bound receipt -> fresh candidate generator. Default producer orchestration remains separate."
+    },
+    {
+      "family": "FRC",
+      "bundle_ids": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "implementation_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "implementation_tree_sha": "1bd337e3a8dae85a9db6af514fcd15417212527c",
+      "published_receipt_head_sha": "213dfb7c4d9768e90e0b443d093c4b1685e8536a",
+      "published_receipt_head_tree_sha": "e75df0edec99dcdf30d1c1e3f2b77d3ada474082",
+      "topic": "codex/e02-E-frc-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/40",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Strict configured ForecastOwnerRequest -> actual ETS -> separate content-bound candidate and empirical evidence -> same configured CAS -> fresh full replay. A owns default gateway/generation-cycle/S10/served verification; predictive purpose only, causal authority denied."
+    },
+    {
+      "family": "PCL",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "implementation_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "implementation_tree_sha": "75f0e438e3db6722b407ebb5af817a99a1e9cf7b",
+      "published_receipt_head_sha": "d901d6e301c62ba8c13b49e8a1b6739739279da1",
+      "published_receipt_head_tree_sha": "180d88c2e1a6f931a5b3de06d1995fe460ff5c0d",
+      "topic": "codex/e02-E-pcl-20261006",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/52",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006.json",
+      "bounded_review": "independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending",
+      "implemented_chain_and_limit": "Actual optional-store Advanced summary caller -> persisted ordered pairs/report/receipt -> fresh recomputation. Default MethodRunner omits store and is not relabelled as persisted orchestration."
+    }
+  ],
+  "prior_accepted_slice_delta": "accepted-slice-delta.json",
+  "admission": "root-create.json/root-resume.json and admission/ full ten exact branch/path create+resume JSONs; no placeholder checkout, no prune",
+  "independent_review": "reviews/ and independent/ retain full mathematical oracles, property-removal/present-but-fake negatives, proxy divergence, actual backend and dtype. final-closeout-review/ independently verifies actual wave/global failures.",
+  "common_wave": {
+    "schema": "policyos.e02.frozen_wave_summary.v1",
+    "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "candidate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "source_test_framed_sha256": "9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc",
+    "source_test_path_denominator": 6198,
+    "test_manifest": "consumer-frozen/wave-groups.json",
+    "test_path_denominator": 110,
+    "inventory": {
+      "bundles": 22,
+      "unique_findings": 54,
+      "finding_bundle_links": 55
+    },
+    "numerical_wave": {
+      "runs": 1,
+      "parallel_processes": 6,
+      "thread_worker_cpu_caps": null,
+      "totals": {
+        "cases": 1125,
+        "passed": 1123,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "groups": [
+        {
+          "job": "pytest-bkt-frc-s10-and-adjacent-report-consumers",
+          "counts": {
+            "cases": 283,
+            "passed": 281,
+            "failed": 2,
+            "errors": 0,
+            "skipped": 0
+          },
+          "outcome": "FAIL",
+          "wall_seconds": 101.70806574821472,
+          "failures": [
+            {
+              "test": "tests.unit.remediation.test_frc_01::test_calibration_time_roles_are_preserved_from_bound_evidence",
+              "message": "AttributeError: 'NoneType' object has no attribute 'prediction_time'",
+              "body": "def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:\n        \"\"\"Prediction, observation, effective, valid, and window times stay distinct.\"\"\"\n    \n        build_inputs = _generation_cycle(\"_build_s10_forecast_inputs\")\n        prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)\n        observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)\n        policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)\n        data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)\n        window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)\n        window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)\n        world_record = SimpleNamespace(\n            world_model_record_id=\"world_model_record_frc01\",\n            content_hash=\"sha256:\" + \"a\" * 64,\n            valid_time_scope=\"2025-Q2\",\n            region_or_jurisdiction=\"UA\",\n        )\n        problem = SimpleNamespace(\n            design_problem_id=\"frc01-problem\",\n            outcome_of_interest=SimpleNamespace(target_variable=\"firm_survival\"),\n        )\n        candidate = SimpleNamespace(candidate_id=\"frc01-candidate\")\n        method_result = SimpleNamespace(\n            output={\"report\": _finite_estimator_report()}\n        )\n    \n        inputs = build_inputs(\n            candidate=candidate,\n            problem=problem,\n            world_record=world_record,\n            method_result=method_result,\n            selected_method_fqn=\"foundry.methods.example\",\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://world_model_record_frc01\",\n            expected_policy_context_ref=\"policy-context://world_model_record_frc01\",\n            false_clear_counts={},\n            calibration_evidence={\n                \"denominator\": 0,\n                \"numerator\": 0,\n                \"pass_rate\": 0.0,\n                \"floor_passed\": False,\n                \"counterfactual_credibility\": \"insufficient_history\",\n                \"prediction_time\": prediction_time.isoformat(),\n                \"observation_time\": observation_time.isoformat(),\n                \"policy_effective_time\": policy_effective_time.isoformat(),\n                \"data_valid_time\": data_valid_time.isoformat(),\n                \"calibration_window_start\": window_start.isoformat(),\n                \"calibration_window_end\": window_end.isoformat(),\n                \"observed_outcome_ref\": \"outcome://frc01/observed\",\n                \"historical_implementation_ref\": \"implementation://frc01/history\",\n                \"evaluation_design_ref\": \"evaluation://frc01/design\",\n                \"credible_evaluation_evidence_ref\": \"evidence://frc01/credible\",\n                \"source_lineage_refs\": [\"lineage://frc01/source\"],\n                \"method_lineage_refs\": [\"lineage://frc01/method\"],\n            },\n        )\n        record = inputs[\"forecast_calibration_record\"]\n    \n>       assert record.prediction_time == prediction_time\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'prediction_time'\n\ntests/unit/remediation/test_frc_01.py:158: AttributeError"
+            },
+            {
+              "test": "tests.unit.remediation.test_frc_01::test_missing_calibration_evidence_refs_stays_typed_blocked",
+              "message": "AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []\n +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs",
+              "body": "def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:\n        \"\"\"Temporal dates alone cannot mint a calibration record or pass-through tier.\"\"\"\n    \n        build_inputs = _generation_cycle(\"_build_s10_forecast_inputs\")\n        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()\n        world_record = SimpleNamespace(\n            world_model_record_id=\"world_model_record_frc01\",\n            content_hash=\"sha256:\" + \"a\" * 64,\n            valid_time_scope=\"2025-Q2\",\n            region_or_jurisdiction=\"UA\",\n        )\n        problem = SimpleNamespace(\n            design_problem_id=\"frc01-problem\",\n            outcome_of_interest=SimpleNamespace(target_variable=\"firm_survival\"),\n        )\n        candidate = SimpleNamespace(candidate_id=\"frc01-candidate\")\n        method_result = SimpleNamespace(output={\"report\": _finite_estimator_report()})\n    \n        inputs = build_inputs(\n            candidate=candidate,\n            problem=problem,\n            world_record=world_record,\n            method_result=method_result,\n            selected_method_fqn=\"foundry.methods.example\",\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://world_model_record_frc01\",\n            expected_policy_context_ref=\"policy-context://world_model_record_frc01\",\n            false_clear_counts={},\n            calibration_evidence={\n                \"counterfactual_credibility\": \"insufficient_history\",\n                \"prediction_time\": timestamp,\n                \"observation_time\": timestamp,\n                \"policy_effective_time\": timestamp,\n                \"data_valid_time\": timestamp,\n                \"calibration_window_start\": timestamp,\n                \"calibration_window_end\": timestamp,\n            },\n        )\n    \n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.calibration_record_ref is None\n>       assert \"s10://calibration/fail-closed/insufficient-history\" in support.s6_limitation_refs\nE       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []\nE        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs\n\ntests/unit/remediation/test_frc_01.py:224: AssertionError"
+            }
+          ],
+          "receipt": "pytest-bkt-frc-s10-and-adjacent-report-consumers.json",
+          "stdout": "pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+          "junit": "pytest-bkt-frc-s10-and-adjacent-report-consumers.xml"
+        },
+        {
+          "job": "pytest-cal-and-welfare-consumer",
+          "counts": {
+            "cases": 266,
+            "passed": 266,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "outcome": "PASS",
+          "wall_seconds": 172.22362971305847,
+          "failures": [],
+          "receipt": "pytest-cal-and-welfare-consumer.json",
+          "stdout": "pytest-cal-and-welfare-consumer.stdout.txt",
+          "junit": "pytest-cal-and-welfare-consumer.xml"
+        },
+        {
+          "job": "pytest-ddm-runtime-and-facade",
+          "counts": {
+            "cases": 71,
+            "passed": 71,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "outcome": "PASS",
+          "wall_seconds": 5.1058714389801025,
+          "failures": [],
+          "receipt": "pytest-ddm-runtime-and-facade.json",
+          "stdout": "pytest-ddm-runtime-and-facade.stdout.txt",
+          "junit": "pytest-ddm-runtime-and-facade.xml"
+        },
+        {
+          "job": "pytest-doe-salib-and-consumer-factory",
+          "counts": {
+            "cases": 119,
+            "passed": 119,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "outcome": "PASS",
+          "wall_seconds": 37.9625678062439,
+          "failures": [],
+          "receipt": "pytest-doe-salib-and-consumer-factory.json",
+          "stdout": "pytest-doe-salib-and-consumer-factory.stdout.txt",
+          "junit": "pytest-doe-salib-and-consumer-factory.xml"
+        },
+        {
+          "job": "pytest-mc-joint-law-support-and-scientist-consumer",
+          "counts": {
+            "cases": 297,
+            "passed": 297,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "outcome": "PASS",
+          "wall_seconds": 52.02155375480652,
+          "failures": [],
+          "receipt": "pytest-mc-joint-law-support-and-scientist-consumer.json",
+          "stdout": "pytest-mc-joint-law-support-and-scientist-consumer.stdout.txt",
+          "junit": "pytest-mc-joint-law-support-and-scientist-consumer.xml"
+        },
+        {
+          "job": "pytest-pcl-continuous-persistence",
+          "counts": {
+            "cases": 89,
+            "passed": 89,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "outcome": "PASS",
+          "wall_seconds": 32.29573130607605,
+          "failures": [],
+          "receipt": "pytest-pcl-continuous-persistence.json",
+          "stdout": "pytest-pcl-continuous-persistence.stdout.txt",
+          "junit": "pytest-pcl-continuous-persistence.xml"
+        }
+      ]
+    },
+    "global_checks": [
+      {
+        "job": "architecture",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_seconds": 265.21891713142395,
+        "basis": "163 deep-import creep reports; 35 refer to E-changed source paths, including 12 exact imports absent at fresh base and present at frozen E source. Generated runtime OpenAPI/trust-claim register drift also reported. Current gate FAIL; no baseline widening or inherited waiver.",
+        "next_owner": "E architecture follow-up for twelve introduced exact imports; G and architecture/register owners for full gate and consumer admission.",
+        "receipt": "architecture.json",
+        "stdout": "architecture.stdout.txt"
+      },
+      {
+        "job": "runtime-api-contract",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_seconds": 115.78224039077759,
+        "basis": "Generated runtime API contract differs; no silent shared contract regeneration by E.",
+        "next_owner": "A/G runtime contract owner",
+        "receipt": "runtime-api-contract.json",
+        "stdout": "runtime-api-contract.stdout.txt"
+      },
+      {
+        "job": "production-invocation",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_seconds": 303.0472321510315,
+        "basis": "Static direct-call model reports eleven regressions; dynamic callbacks, receiver binding, DI/router and event-bus edges remain unmeasured. This is not proof of runtime non-invocation.",
+        "next_owner": "G and production orchestration owners, with family-specific E adapters",
+        "receipt": "production-invocation.json",
+        "stdout": "production-invocation.stdout.txt"
+      },
+      {
+        "job": "workspace-verify",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_seconds": 1.664919376373291,
+        "basis": "Initial doctor failed on missing Chromium; retain separately from repaired-environment replay.",
+        "next_owner": "Environment repaired; subsequent receipt is deciding for preflight",
+        "receipt": "workspace-verify.json",
+        "stdout": "workspace-verify.stdout.txt"
+      },
+      {
+        "job": "workspace-verify-after-browser",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_seconds": 20.23590850830078,
+        "basis": "Doctor/browser/locks pass; lint_imports reports fifteen architecture violations. Later fail-fast umbrella checks are UNRUN.",
+        "next_owner": "G and owning architecture/import consumers",
+        "receipt": "workspace-verify-after-browser.json",
+        "stdout": "workspace-verify-after-browser.stdout.txt"
+      },
+      {
+        "job": "ci-parity",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_seconds": 99.8750650882721,
+        "basis": "Initial doctor also lacked Chromium; generated schemas/runtime OpenAPI drift present. Retain original failure.",
+        "next_owner": "Environment repaired; subsequent receipt is deciding for preflight",
+        "receipt": "ci-parity.json",
+        "stdout": "ci-parity.stdout.txt"
+      },
+      {
+        "job": "ci-parity-after-browser",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_seconds": 88.50504875183105,
+        "basis": "Chromium and frontend-contracts pass; feedback_solve_result schema/_manifest and runtime OpenAPI are stale. Later umbrella steps are UNRUN.",
+        "next_owner": "G/A schema and runtime contract owners",
+        "receipt": "ci-parity-after-browser.json",
+        "stdout": "ci-parity-after-browser.stdout.txt"
+      },
+      {
+        "job": "ruff",
+        "outcome": "PASS",
+        "exit_code": 0,
+        "wall_seconds": 0.5835635662078857,
+        "basis": "All changed Python paths pass.",
+        "next_owner": "E",
+        "receipt": "ruff.json",
+        "stdout": "ruff.stdout.txt"
+      },
+      {
+        "job": "ruff-format",
+        "outcome": "PASS",
+        "exit_code": 0,
+        "wall_seconds": 0.5355665683746338,
+        "basis": "All changed Python paths pass format check.",
+        "next_owner": "E",
+        "receipt": "ruff-format.json",
+        "stdout": "ruff-format.stdout.txt"
+      }
+    ],
+    "source_immutable_in_all_checks": true,
+    "environment": "actual-environment.json",
+    "production_invocation": {
+      "regressions": [
+        "polisyos.calibration.forecast_bridge.load_forecast_candidate_receipt",
+        "polisyos.ddm.integration.model_registry.build_model_registry_record",
+        "polisyos.ddm.integration.model_registry.evaluate_registry_gate",
+        "polisyos.ddm.integration.model_registry.rebind_calibration_validity",
+        "polisyos.ddm.integration.monitor.DriftAndDegradationMonitor.evaluate_window",
+        "polisyos.foundry.calibration.report.put_calibration_report",
+        "polisyos.scientist.methods.autotune.sensitivity_bridge.SensitivityBridge.analyze_search_space",
+        "polisyos.scientist.methods.backtesting.bootstrap.bootstrap_metric",
+        "polisyos.scientist.methods.backtesting.evaluator.PredictionEvaluator.evaluate",
+        "polisyos.scientist.methods.backtesting.forecast_owner.persist_forecast_owner_request",
+        "polisyos.scientist.methods.backtesting.trust_scorer.TrustScorer.compute"
+      ],
+      "new_unresolved_by_construction": [
+        "polisyos.calibration.continuous.evaluate_continuous",
+        "polisyos.calibration.continuous.load_continuous_evaluation",
+        "polisyos.calibration.continuous.persist_continuous_evaluation",
+        "polisyos.calibration.curve.compute_calibration_curve",
+        "polisyos.calibration.forecast_bridge.load_forecast_calibration_profile",
+        "polisyos.calibration.forecast_bridge.persist_forecast_candidate_receipt",
+        "polisyos.foundry.calibration.calibrator.Calibrator.run",
+        "polisyos.foundry.calibration.calibrator._bind_objective_operand.write",
+        "polisyos.foundry.calibration.hessian.compute_hessian",
+        "polisyos.foundry.calibration.identifiability.diagnose_identifiability",
+        "polisyos.foundry.calibration.pure_executor.run_pure_batch",
+        "polisyos.foundry.calibration.report.load_calibration_report",
+        "polisyos.foundry.uncertainty.analytical.AnalyticalPropagator.propagate_linear_combination",
+        "polisyos.foundry.uncertainty.covariance.build_covariance_matrix",
+        "polisyos.foundry.uncertainty.covariance.has_unknown_dependency",
+        "polisyos.foundry.uncertainty.covariance.preserve_singular_covariance",
+        "polisyos.foundry.uncertainty.delta.DeltaMethodPropagator.propagate",
+        "polisyos.foundry.uncertainty.dispatcher.PropagationDispatcher.propagate",
+        "polisyos.foundry.uncertainty.monte_carlo.MonteCarloPropagator.propagate",
+        "polisyos.foundry.uncertainty.quasi_mc.QuasiMCSampler.sample",
+        "polisyos.foundry.uncertainty.sampling_admission.BoundedIndicatorResponse.recipe",
+        "polisyos.foundry.uncertainty.sampling_admission.admit_bounded_mean_response",
+        "polisyos.foundry.uncertainty.sampling_admission.admit_float32_range",
+        "polisyos.foundry.uncertainty.sampling_admission.admit_sampling_budget",
+        "polisyos.foundry.uncertainty.sampling_admission.admit_sampling_support",
+        "polisyos.foundry.uncertainty.sampling_admission.frozen_bernstein_budget",
+        "polisyos.foundry.uncertainty.sampling_admission.joint_carrier_digest",
+        "polisyos.foundry.uncertainty.sampling_admission.reconcile_draw_outcomes",
+        "polisyos.foundry.uncertainty.sampling_admission.sampling_content_digest",
+        "polisyos.foundry.uncertainty.sampling_admission.verify_mean_certificate",
+        "polisyos.ir.analytics.calibration_diagnostics.CalibrationDiagnosticsReport.model_copy",
+        "polisyos.ir.analytics.calibration_diagnostics.CalibrationDiagnosticsReport.to_truthfulness_receipt",
+        "polisyos.scientist.governance.backtest_matrix.BacktestMatrixRunner.run",
+        "polisyos.scientist.methods.backtesting.forecast_owner.ForecastOwner.run",
+        "polisyos.scientist.methods.backtesting.orchestrator.BacktestOrchestrator.run",
+        "polisyos.scientist.methods.doe.analysis.analyze_sensitivity",
+        "polisyos.scientist.methods.doe.sampling.generate_sensitivity_samples",
+        "polisyos.scientist.methods.doe.stability.RankingStabilityChecker.check",
+        "polisyos.scientist.methods.search.sensitivity_adapter.SensitivityAwareCandidateGenerator.from_artifact",
+        "polisyos.scientist.methods.search.sensitivity_adapter.SensitivityAwareCandidateGenerator.generate",
+        "polisyos.scientist.methods.search.sensitivity_adapter.SensitivityAwareCandidateGenerator.generate_batch",
+        "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagateUncertaintyNode.execute"
+      ],
+      "runtime_invocation_established": false,
+      "predicate_provenance": "recomputed",
+      "denominator": {
+        "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+        "current_files": 5916,
+        "base_files": 5904,
+        "source_files": 2700,
+        "current_sha256": "9dfc6b4fcff1ca2ee6da8f2c28a79aed66424887475a1994bc7c4bfc9388e1f8",
+        "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+      },
+      "complete_output": "production-invocation.raw.json.gz",
+      "output_custody": "production-invocation-output.json"
+    },
+    "integration_acceptance": "pending G; current global gates FAIL, no overall integration GO",
+    "finding_closure": "Separate per-ID overlay preserves ledger; PASS count is not closure.",
+    "P41": "not_established; no inherited-red waiver",
+    "browser_replay": "Only workspace/CI preflight repeated after actual missing-browser repair, with same frozen source; numerical wave not repeated.",
+    "production_data": "none; bounded synthetic mathematical/backend checks do not establish full production history or source law"
+  },
+  "input_identity": "Tracked closure-decisions, full manifest/owner TSVs/original bundle criteria and committed ledger; ignored local outputs are generated evidence, not cloud task input.",
+  "findings": {
+    "ledger_preserved": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "final_verdict_counts": {
+      "limited": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "all_54": "closure-frozen/all-54-closeout.json",
+    "all_54_human_table": "closure-frozen/all-54-closeout.md",
+    "criterion_complete_recommendations": [
+      "B101",
+      "B102",
+      "B103",
+      "B104",
+      "B105",
+      "B167",
+      "B168",
+      "B171",
+      "B174",
+      "B175",
+      "B176",
+      "B177",
+      "B178",
+      "B179",
+      "B180",
+      "B181",
+      "B182",
+      "B183",
+      "B184",
+      "B185",
+      "B186",
+      "B187",
+      "B189",
+      "B191",
+      "B195",
+      "B196",
+      "B198",
+      "B199",
+      "B203",
+      "B97",
+      "B98",
+      "B99",
+      "LA-056"
+    ],
+    "recommendation_authority": "33 bounded properties for accountable owner adjudication only; no historical partial automatically closed",
+    "formal_ledger_write": false
+  },
+  "P37_basis": "Mathematical properties use independent computed oracles; declared/profile/hash/ref predicates establish content integrity at most, never producer/verifier/serving/institutional authority. Frozen basis is not upgraded by PASS counts.",
+  "P40": "Whole-quantity repair for missing-law/failed-support/range/draw-budget/objective-identity/recomputed-report escapes. Legacy IR sample-bundle reader and absent default orchestration are finite residuals with owner/falsifier in consumer-frozen/source-trace.json and all-54 overlay.",
+  "P41": "not_established; no inherited-red claim or waiver; architecture includes newly introduced E imports",
+  "runtime_capability": {
+    "jax_backend": "cpu",
+    "scipy": "1.16.3",
+    "SALib": "1.5.2",
+    "actual_environment": "common-wave/actual-environment.json",
+    "synthetic_evidence_scope": "mathematical backend and configured CAS consumer only; no full production history/source-law evidence",
+    "native_positive_forecast": "UNRUN: missing admitted Trinity/materializer/exec seed input bridge; observed failed attempts retained"
+  },
+  "integration_acceptance": {
+    "verdict": "HOLD",
+    "G_code_acceptance": "pending",
+    "reason": "Two current A FRC01 consumer failures and current architecture/schema/OpenAPI/production-invocation gates FAIL. E introduced architecture edges also require E follow-up. Subsequent fail-fast umbrella steps UNRUN.",
+    "inherited_waiver": false
+  },
+  "boundaries": {
+    "B194": "ledger held, technical limited; narrow bounded IID certificate works, general served evaluator/domain-law bridge missing; Scientist execution owner + G",
+    "B197": "ledger held, technical limited; configured producer/report-v2/CAS/welfare works, source inferential authority and legacy/served strict downstream consumers remain; Foundry/Scientist/IR consumer owners + G",
+    "B198": "closed regression preserved on frozen native consumers; no new falsifier",
+    "B201_B202": "held: appointed IR semantic owner must ratify uncertainty/identification units, independent point and interval functionals, distinct v2 $id preserving v1.1 replay, and CAS-only v2 (recommended) or inline carrier plus persisted ref; E did not silently change wire semantics",
+    "FRC": "Predictive calibration only; causal/treatment/policy authority denied. A alone owns generation_cycle/default gateway/HTTP/run lifecycle/S10 served verification."
+  },
+  "next_owner_actions": [
+    {
+      "owner": "G",
+      "action": "Fetch E topic by exact SHA, review accepted bounded source components separately from closure; integrate only after current gates and owner consumer requirements are resolved. No main publication authorized."
+    },
+    {
+      "owner": "E architecture follow-up and G architecture owner",
+      "action": "Resolve twelve introduced exact deep imports and assess 35 E-changed-path reports plus full architecture denominator; no exception or baseline widening."
+    },
+    {
+      "owner": "A FRC lifecycle/S10/default gateway owner",
+      "action": "Consume strict typed ForecastOwner contract and exact candidate/evidence CAS refs; preserve all time roles and insufficient-history limitation. Resolve same store, independently recompute scope/split/pairs/counts/threshold/time/purpose and repeat on fresh served read; two current FRC01 failures unwaived."
+    },
+    {
+      "owner": "G/A generated schema and runtime contract owners",
+      "action": "Resolve feedback_solve_result schema/_manifest, runtime OpenAPI and trust-claim posture register drift via owned generation; E did not regenerate shared wire contracts."
+    },
+    {
+      "owner": "Scientist/Foundry execution and domain/source-law owners",
+      "action": "Supply admitted existing evaluator, Trinity/base state/input materializer and effective seed path before claiming actual successful K native replay or B194 general served certificate."
+    },
+    {
+      "owner": "IR semantic owner",
+      "action": "Ratify four recorded B201/B202 choices; preserve distinct mean and interval functionals and v1.1 replay until explicit v2 carrier choice."
+    },
+    {
+      "owner": "G local read-only verifier + accountable finding owners",
+      "action": "Run exact58e recipes with real local immutable source/history handles where required; return full bounded deciding outputs and negative controls without transferring production bytes. Adjudicate 33 pure bounded criterion recommendations separately from code."
+    }
+  ],
+  "local_production_recipe": "closure-frozen/local-G-closeout-recipes.json; exact implementation SHA/tree, actual typed API sequences/minimal input identities, native bounded commands/negative controls and accountable owner; no unresolved command placeholders",
+  "cleanup": "cleanup-candidates.json; Trash unavailable, exact candidates only, no permanent cleanup",
+  "helper_execution": {
+    "direct_helpers": 12,
+    "available_concurrency_slots": 7,
+    "children": 0,
+    "authors_and_independent_numerical_runners": "separate",
+    "native_cloud_wave": "six independent processes launched concurrently, no artificial heavy process/CPU/thread caps; only dtype/global fixture collisions isolated"
+  }
+}

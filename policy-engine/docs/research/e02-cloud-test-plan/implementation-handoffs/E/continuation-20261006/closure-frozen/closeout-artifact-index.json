@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.criterion_closeout_artifacts.v1",
+  "source_candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "source_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "source_test_framed_sha256": "9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc",
+  "files": [
+    {
+      "path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/all-54-closeout.json",
+      "bytes": 422505,
+      "sha256": "e7b74e9717b2c9f6e24695b5369ef29263725581bb5f06ec3bd83e72344bc249"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/all-54-closeout.md",
+      "bytes": 19322,
+      "sha256": "964a586a2dcc20d4aedae1303f3e895f8e258977e30fc2c1d3154c5b6a13e808"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/local-G-closeout-recipes.json",
+      "bytes": 31996,
+      "sha256": "6b2adf9797ff649518d589361b72e48b1351b86565081f4d33f97bca659c1095"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/closure-independent/attach_common_wave.py",
+      "bytes": 19201,
+      "sha256": "6fac458c538991be2e307c99c1ac1f51a92214726dd46b8b067209a58fa002c5"
+    },
+    {
+      "path": "/workspace/e02-E-20261006-receipts/closure-independent/bind_final_documentation.py",
+      "bytes": 7318,
+      "sha256": "f65fc7e7685aaccc23e1c4b441e7c17b4808189494f66d793bf9e0f0e3290b13"
+    }
+  ],
+  "reproduce": {
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "argv": [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/closure-independent/attach_common_wave.py",
+      "--overlay",
+      "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/all-54-final-overlay.json",
+      "--wave",
+      "/workspace/e02-E-20261006-receipts/common-wave",
+      "--output",
+      "/workspace/e02-E-20261006-receipts/closure-independent/closeout"
+    ],
+    "environment": {
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "purpose": "Independent XML/count/source/hash reconciliation; actual native numerical environment is recorded in common-wave/actual-environment.json"
+    },
+    "postprocess_argv": [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/closure-independent/bind_final_documentation.py"
+    ]
+  },
+  "ledger_counts_preserved": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "finding_verdicts": {
+    "limited": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "bounded_criterion_complete_recommendations": 33,
+  "numerical_counts": {
+    "paths": 110,
+    "cases": 1125,
+    "PASS": 1123,
+    "FAIL": 2,
+    "SKIP": 0,
+    "ERROR": 0
+  },
+  "global_state": "All attempted checks completed; failures retained; subsequent blocked stages UNRUN. G code acceptance pending; no inherited-red waiver.",
+  "receipt_publication": "Root owns copying exact bytes/committing evidence on E topic; receipt commit SHA not invented. Numerical source SHA remains58e after evidence docs commit.",
+  "root_source_edits": false,
+  "cleanup": "Preserve useful scripts/docs and deciding evidence; repeatable scratch fixtures/environments only Trash after root records outputs. Never permanent delete or clear Trash.",
+  "final_documentation_binding": {
+    "immutable_ref": "801045b58cf141e923f129f2eb7649da8edeb4ed:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json",
+    "sha256": "ef4f112e223935fc64b7c38c848d5deff27054c6518207a9df44bcd9570eba21",
+    "docs_only": true,
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json"
+    ],
+    "source_test_diff_empty": true,
+    "numerical_candidate_unchanged": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "updated_criteria": [
+      "B169",
+      "B170",
+      "B171",
+      "B174"
+    ],
+    "new_numerical_wave_required": false,
+    "previous_docs_only_correction": "9f5a485791b69b0c0a0eb7b3845702bf0c8f8472",
+    "latest_correction": "Final receipt fixes B171 selector and exact original-bundle line locators; all requested selectors verified against frozen XML."
+  },
+  "common_wave_summary_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/summary.json",
+    "sha256": "0ce085869713eb80540d088ece417ef1d116c5daabe28dc95446779d4d2a772b",
+    "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "candidate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "binding": "Exact current-session summary bytes observed; evidence documentation commit is owned by root and does not retag numerical source."
+  }
+}

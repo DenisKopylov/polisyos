@@ -1,0 +1,307 @@
+{
+  "schema": "policyos.e02.frozen_wave_summary.v1",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "candidate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "source_test_framed_sha256": "9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc",
+  "source_test_path_denominator": 6198,
+  "test_manifest": "consumer-frozen/wave-groups.json",
+  "test_path_denominator": 110,
+  "inventory": {
+    "bundles": 22,
+    "unique_findings": 54,
+    "finding_bundle_links": 55
+  },
+  "numerical_wave": {
+    "runs": 1,
+    "parallel_processes": 6,
+    "thread_worker_cpu_caps": null,
+    "totals": {
+      "cases": 1125,
+      "passed": 1123,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "groups": [
+      {
+        "job": "pytest-bkt-frc-s10-and-adjacent-report-consumers",
+        "counts": {
+          "cases": 283,
+          "passed": 281,
+          "failed": 2,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "FAIL",
+        "wall_seconds": 101.70806574821472,
+        "failures": [
+          {
+            "test": "tests.unit.remediation.test_frc_01::test_calibration_time_roles_are_preserved_from_bound_evidence",
+            "message": "AttributeError: 'NoneType' object has no attribute 'prediction_time'",
+            "body": "def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:\n        \"\"\"Prediction, observation, effective, valid, and window times stay distinct.\"\"\"\n    \n        build_inputs = _generation_cycle(\"_build_s10_forecast_inputs\")\n        prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)\n        observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)\n        policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)\n        data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)\n        window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)\n        window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)\n        world_record = SimpleNamespace(\n            world_model_record_id=\"world_model_record_frc01\",\n            content_hash=\"sha256:\" + \"a\" * 64,\n            valid_time_scope=\"2025-Q2\",\n            region_or_jurisdiction=\"UA\",\n        )\n        problem = SimpleNamespace(\n            design_problem_id=\"frc01-problem\",\n            outcome_of_interest=SimpleNamespace(target_variable=\"firm_survival\"),\n        )\n        candidate = SimpleNamespace(candidate_id=\"frc01-candidate\")\n        method_result = SimpleNamespace(\n            output={\"report\": _finite_estimator_report()}\n        )\n    \n        inputs = build_inputs(\n            candidate=candidate,\n            problem=problem,\n            world_record=world_record,\n            method_result=method_result,\n            selected_method_fqn=\"foundry.methods.example\",\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://world_model_record_frc01\",\n            expected_policy_context_ref=\"policy-context://world_model_record_frc01\",\n            false_clear_counts={},\n            calibration_evidence={\n                \"denominator\": 0,\n                \"numerator\": 0,\n                \"pass_rate\": 0.0,\n                \"floor_passed\": False,\n                \"counterfactual_credibility\": \"insufficient_history\",\n                \"prediction_time\": prediction_time.isoformat(),\n                \"observation_time\": observation_time.isoformat(),\n                \"policy_effective_time\": policy_effective_time.isoformat(),\n                \"data_valid_time\": data_valid_time.isoformat(),\n                \"calibration_window_start\": window_start.isoformat(),\n                \"calibration_window_end\": window_end.isoformat(),\n                \"observed_outcome_ref\": \"outcome://frc01/observed\",\n                \"historical_implementation_ref\": \"implementation://frc01/history\",\n                \"evaluation_design_ref\": \"evaluation://frc01/design\",\n                \"credible_evaluation_evidence_ref\": \"evidence://frc01/credible\",\n                \"source_lineage_refs\": [\"lineage://frc01/source\"],\n                \"method_lineage_refs\": [\"lineage://frc01/method\"],\n            },\n        )\n        record = inputs[\"forecast_calibration_record\"]\n    \n>       assert record.prediction_time == prediction_time\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'prediction_time'\n\ntests/unit/remediation/test_frc_01.py:158: AttributeError"
+          },
+          {
+            "test": "tests.unit.remediation.test_frc_01::test_missing_calibration_evidence_refs_stays_typed_blocked",
+            "message": "AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []\n +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs",
+            "body": "def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:\n        \"\"\"Temporal dates alone cannot mint a calibration record or pass-through tier.\"\"\"\n    \n        build_inputs = _generation_cycle(\"_build_s10_forecast_inputs\")\n        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()\n        world_record = SimpleNamespace(\n            world_model_record_id=\"world_model_record_frc01\",\n            content_hash=\"sha256:\" + \"a\" * 64,\n            valid_time_scope=\"2025-Q2\",\n            region_or_jurisdiction=\"UA\",\n        )\n        problem = SimpleNamespace(\n            design_problem_id=\"frc01-problem\",\n            outcome_of_interest=SimpleNamespace(target_variable=\"firm_survival\"),\n        )\n        candidate = SimpleNamespace(candidate_id=\"frc01-candidate\")\n        method_result = SimpleNamespace(output={\"report\": _finite_estimator_report()})\n    \n        inputs = build_inputs(\n            candidate=candidate,\n            problem=problem,\n            world_record=world_record,\n            method_result=method_result,\n            selected_method_fqn=\"foundry.methods.example\",\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://world_model_record_frc01\",\n            expected_policy_context_ref=\"policy-context://world_model_record_frc01\",\n            false_clear_counts={},\n            calibration_evidence={\n                \"counterfactual_credibility\": \"insufficient_history\",\n                \"prediction_time\": timestamp,\n                \"observation_time\": timestamp,\n                \"policy_effective_time\": timestamp,\n                \"data_valid_time\": timestamp,\n                \"calibration_window_start\": timestamp,\n                \"calibration_window_end\": timestamp,\n            },\n        )\n    \n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.calibration_record_ref is None\n>       assert \"s10://calibration/fail-closed/insufficient-history\" in support.s6_limitation_refs\nE       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []\nE        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs\n\ntests/unit/remediation/test_frc_01.py:224: AssertionError"
+          }
+        ],
+        "receipt": "pytest-bkt-frc-s10-and-adjacent-report-consumers.json",
+        "stdout": "pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+        "junit": "pytest-bkt-frc-s10-and-adjacent-report-consumers.xml"
+      },
+      {
+        "job": "pytest-cal-and-welfare-consumer",
+        "counts": {
+          "cases": 266,
+          "passed": 266,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "PASS",
+        "wall_seconds": 172.22362971305847,
+        "failures": [],
+        "receipt": "pytest-cal-and-welfare-consumer.json",
+        "stdout": "pytest-cal-and-welfare-consumer.stdout.txt",
+        "junit": "pytest-cal-and-welfare-consumer.xml"
+      },
+      {
+        "job": "pytest-ddm-runtime-and-facade",
+        "counts": {
+          "cases": 71,
+          "passed": 71,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "PASS",
+        "wall_seconds": 5.1058714389801025,
+        "failures": [],
+        "receipt": "pytest-ddm-runtime-and-facade.json",
+        "stdout": "pytest-ddm-runtime-and-facade.stdout.txt",
+        "junit": "pytest-ddm-runtime-and-facade.xml"
+      },
+      {
+        "job": "pytest-doe-salib-and-consumer-factory",
+        "counts": {
+          "cases": 119,
+          "passed": 119,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "PASS",
+        "wall_seconds": 37.9625678062439,
+        "failures": [],
+        "receipt": "pytest-doe-salib-and-consumer-factory.json",
+        "stdout": "pytest-doe-salib-and-consumer-factory.stdout.txt",
+        "junit": "pytest-doe-salib-and-consumer-factory.xml"
+      },
+      {
+        "job": "pytest-mc-joint-law-support-and-scientist-consumer",
+        "counts": {
+          "cases": 297,
+          "passed": 297,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "PASS",
+        "wall_seconds": 52.02155375480652,
+        "failures": [],
+        "receipt": "pytest-mc-joint-law-support-and-scientist-consumer.json",
+        "stdout": "pytest-mc-joint-law-support-and-scientist-consumer.stdout.txt",
+        "junit": "pytest-mc-joint-law-support-and-scientist-consumer.xml"
+      },
+      {
+        "job": "pytest-pcl-continuous-persistence",
+        "counts": {
+          "cases": 89,
+          "passed": 89,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "PASS",
+        "wall_seconds": 32.29573130607605,
+        "failures": [],
+        "receipt": "pytest-pcl-continuous-persistence.json",
+        "stdout": "pytest-pcl-continuous-persistence.stdout.txt",
+        "junit": "pytest-pcl-continuous-persistence.xml"
+      }
+    ]
+  },
+  "global_checks": [
+    {
+      "job": "architecture",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 265.21891713142395,
+      "basis": "163 deep-import creep reports; 35 refer to E-changed source paths, including 12 exact imports absent at fresh base and present at frozen E source. Generated runtime OpenAPI/trust-claim register drift also reported. Current gate FAIL; no baseline widening or inherited waiver.",
+      "next_owner": "E architecture follow-up for twelve introduced exact imports; G and architecture/register owners for full gate and consumer admission.",
+      "receipt": "architecture.json",
+      "stdout": "architecture.stdout.txt"
+    },
+    {
+      "job": "runtime-api-contract",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 115.78224039077759,
+      "basis": "Generated runtime API contract differs; no silent shared contract regeneration by E.",
+      "next_owner": "A/G runtime contract owner",
+      "receipt": "runtime-api-contract.json",
+      "stdout": "runtime-api-contract.stdout.txt"
+    },
+    {
+      "job": "production-invocation",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 303.0472321510315,
+      "basis": "Static direct-call model reports eleven regressions; dynamic callbacks, receiver binding, DI/router and event-bus edges remain unmeasured. This is not proof of runtime non-invocation.",
+      "next_owner": "G and production orchestration owners, with family-specific E adapters",
+      "receipt": "production-invocation.json",
+      "stdout": "production-invocation.stdout.txt"
+    },
+    {
+      "job": "workspace-verify",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 1.664919376373291,
+      "basis": "Initial doctor failed on missing Chromium; retain separately from repaired-environment replay.",
+      "next_owner": "Environment repaired; subsequent receipt is deciding for preflight",
+      "receipt": "workspace-verify.json",
+      "stdout": "workspace-verify.stdout.txt"
+    },
+    {
+      "job": "workspace-verify-after-browser",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 20.23590850830078,
+      "basis": "Doctor/browser/locks pass; lint_imports reports fifteen architecture violations. Later fail-fast umbrella checks are UNRUN.",
+      "next_owner": "G and owning architecture/import consumers",
+      "receipt": "workspace-verify-after-browser.json",
+      "stdout": "workspace-verify-after-browser.stdout.txt"
+    },
+    {
+      "job": "ci-parity",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 99.8750650882721,
+      "basis": "Initial doctor also lacked Chromium; generated schemas/runtime OpenAPI drift present. Retain original failure.",
+      "next_owner": "Environment repaired; subsequent receipt is deciding for preflight",
+      "receipt": "ci-parity.json",
+      "stdout": "ci-parity.stdout.txt"
+    },
+    {
+      "job": "ci-parity-after-browser",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 88.50504875183105,
+      "basis": "Chromium and frontend-contracts pass; feedback_solve_result schema/_manifest and runtime OpenAPI are stale. Later umbrella steps are UNRUN.",
+      "next_owner": "G/A schema and runtime contract owners",
+      "receipt": "ci-parity-after-browser.json",
+      "stdout": "ci-parity-after-browser.stdout.txt"
+    },
+    {
+      "job": "ruff",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.5835635662078857,
+      "basis": "All changed Python paths pass.",
+      "next_owner": "E",
+      "receipt": "ruff.json",
+      "stdout": "ruff.stdout.txt"
+    },
+    {
+      "job": "ruff-format",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.5355665683746338,
+      "basis": "All changed Python paths pass format check.",
+      "next_owner": "E",
+      "receipt": "ruff-format.json",
+      "stdout": "ruff-format.stdout.txt"
+    }
+  ],
+  "source_immutable_in_all_checks": true,
+  "environment": "actual-environment.json",
+  "production_invocation": {
+    "regressions": [
+      "polisyos.calibration.forecast_bridge.load_forecast_candidate_receipt",
+      "polisyos.ddm.integration.model_registry.build_model_registry_record",
+      "polisyos.ddm.integration.model_registry.evaluate_registry_gate",
+      "polisyos.ddm.integration.model_registry.rebind_calibration_validity",
+      "polisyos.ddm.integration.monitor.DriftAndDegradationMonitor.evaluate_window",
+      "polisyos.foundry.calibration.report.put_calibration_report",
+      "polisyos.scientist.methods.autotune.sensitivity_bridge.SensitivityBridge.analyze_search_space",
+      "polisyos.scientist.methods.backtesting.bootstrap.bootstrap_metric",
+      "polisyos.scientist.methods.backtesting.evaluator.PredictionEvaluator.evaluate",
+      "polisyos.scientist.methods.backtesting.forecast_owner.persist_forecast_owner_request",
+      "polisyos.scientist.methods.backtesting.trust_scorer.TrustScorer.compute"
+    ],
+    "new_unresolved_by_construction": [
+      "polisyos.calibration.continuous.evaluate_continuous",
+      "polisyos.calibration.continuous.load_continuous_evaluation",
+      "polisyos.calibration.continuous.persist_continuous_evaluation",
+      "polisyos.calibration.curve.compute_calibration_curve",
+      "polisyos.calibration.forecast_bridge.load_forecast_calibration_profile",
+      "polisyos.calibration.forecast_bridge.persist_forecast_candidate_receipt",
+      "polisyos.foundry.calibration.calibrator.Calibrator.run",
+      "polisyos.foundry.calibration.calibrator._bind_objective_operand.write",
+      "polisyos.foundry.calibration.hessian.compute_hessian",
+      "polisyos.foundry.calibration.identifiability.diagnose_identifiability",
+      "polisyos.foundry.calibration.pure_executor.run_pure_batch",
+      "polisyos.foundry.calibration.report.load_calibration_report",
+      "polisyos.foundry.uncertainty.analytical.AnalyticalPropagator.propagate_linear_combination",
+      "polisyos.foundry.uncertainty.covariance.build_covariance_matrix",
+      "polisyos.foundry.uncertainty.covariance.has_unknown_dependency",
+      "polisyos.foundry.uncertainty.covariance.preserve_singular_covariance",
+      "polisyos.foundry.uncertainty.delta.DeltaMethodPropagator.propagate",
+      "polisyos.foundry.uncertainty.dispatcher.PropagationDispatcher.propagate",
+      "polisyos.foundry.uncertainty.monte_carlo.MonteCarloPropagator.propagate",
+      "polisyos.foundry.uncertainty.quasi_mc.QuasiMCSampler.sample",
+      "polisyos.foundry.uncertainty.sampling_admission.BoundedIndicatorResponse.recipe",
+      "polisyos.foundry.uncertainty.sampling_admission.admit_bounded_mean_response",
+      "polisyos.foundry.uncertainty.sampling_admission.admit_float32_range",
+      "polisyos.foundry.uncertainty.sampling_admission.admit_sampling_budget",
+      "polisyos.foundry.uncertainty.sampling_admission.admit_sampling_support",
+      "polisyos.foundry.uncertainty.sampling_admission.frozen_bernstein_budget",
+      "polisyos.foundry.uncertainty.sampling_admission.joint_carrier_digest",
+      "polisyos.foundry.uncertainty.sampling_admission.reconcile_draw_outcomes",
+      "polisyos.foundry.uncertainty.sampling_admission.sampling_content_digest",
+      "polisyos.foundry.uncertainty.sampling_admission.verify_mean_certificate",
+      "polisyos.ir.analytics.calibration_diagnostics.CalibrationDiagnosticsReport.model_copy",
+      "polisyos.ir.analytics.calibration_diagnostics.CalibrationDiagnosticsReport.to_truthfulness_receipt",
+      "polisyos.scientist.governance.backtest_matrix.BacktestMatrixRunner.run",
+      "polisyos.scientist.methods.backtesting.forecast_owner.ForecastOwner.run",
+      "polisyos.scientist.methods.backtesting.orchestrator.BacktestOrchestrator.run",
+      "polisyos.scientist.methods.doe.analysis.analyze_sensitivity",
+      "polisyos.scientist.methods.doe.sampling.generate_sensitivity_samples",
+      "polisyos.scientist.methods.doe.stability.RankingStabilityChecker.check",
+      "polisyos.scientist.methods.search.sensitivity_adapter.SensitivityAwareCandidateGenerator.from_artifact",
+      "polisyos.scientist.methods.search.sensitivity_adapter.SensitivityAwareCandidateGenerator.generate",
+      "polisyos.scientist.methods.search.sensitivity_adapter.SensitivityAwareCandidateGenerator.generate_batch",
+      "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagateUncertaintyNode.execute"
+    ],
+    "runtime_invocation_established": false,
+    "predicate_provenance": "recomputed",
+    "denominator": {
+      "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+      "current_files": 5916,
+      "base_files": 5904,
+      "source_files": 2700,
+      "current_sha256": "9dfc6b4fcff1ca2ee6da8f2c28a79aed66424887475a1994bc7c4bfc9388e1f8",
+      "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+    },
+    "complete_output": "production-invocation.raw.json.gz",
+    "output_custody": "production-invocation-output.json"
+  },
+  "integration_acceptance": "pending G; current global gates FAIL, no overall integration GO",
+  "finding_closure": "Separate per-ID overlay preserves ledger; PASS count is not closure.",
+  "P41": "not_established; no inherited-red waiver",
+  "browser_replay": "Only workspace/CI preflight repeated after actual missing-browser repair, with same frozen source; numerical wave not repeated.",
+  "production_data": "none; bounded synthetic mathematical/backend checks do not establish full production history or source law"
+}

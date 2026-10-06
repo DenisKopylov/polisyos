@@ -1,0 +1,194 @@
+browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     npx playwright install                                 ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at [eval]:3:34
+    at [eval]:5:3
+    at [eval]-wrapper:6:24 {
+  name: 'Error'
+}
+Resolved 418 packages in 6ms
+Scope: all 6 workspace projects
+Done in 818ms using pnpm v10.33.2
+ABI schema snapshot check failed:
+- snapshot out of date: /workspace/e02-E-continuation-20261006/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json
+- snapshot out of date: /workspace/e02-E-continuation-20261006/policy-engine/schemas/snapshots/ir/_manifest.json
+2026-10-06 11:05:15.316 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-06 11:05:15.317 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-06 11:05:15.319 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 11:05:15.319 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 11:05:15.319 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 11:05:15.319 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 11:05:15.319 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 11:05:15.358 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.362 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.367 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.371 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.379 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.386 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.392 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.396 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.401 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.408 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.414 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.417 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'worldbank.wdi@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.421 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'wvs.wave7@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.424 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'eurostat.data@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.427 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.431 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.434 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.438 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.442 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.445 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.447 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ukons.datasets@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.451 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sdmx.source@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.454 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.catalog@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.456 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.resource@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.458 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'socrata.soda@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.460 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'opendatasoft.ods@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.462 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sparql.endpoint@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.465 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'rest.json@1.0.0' already registered. Use override=True to replace.
+2026-10-06 11:05:15.468 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.471 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.475 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 11:05:15.475 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry bootstrapped
+2026-10-06 11:05:15.477 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 11:05:15.478 | INFO     | polisyos.common.logger:_call:120 - Default configs bootstrapped from profiles
+2026-10-06 11:05:15.592 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+Measured: generated OpenAPI byte drift, declared OpenAPI hardening invariants, and generated runtime client byte drift when requested.
+Not measured: endpoint execution, authorization behavior, client behavior, production deployment, or hosted CI.
+--- /workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json (committed)
++++ /workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json (generated)
+@@ -58105,18 +58105,18 @@
+                           "semantic_role": "scope_total_spend"
+                         }
+                       },
+-                      "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
++                      "projection_hash": "sha256:9444fb5ffe27c10cae08a125207a48def92edaba838e0a9cb0901e1e65842880",
+                       "projection_id": "confidence-ledger-risk-spend",
+                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
+                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
+-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
++                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A9444fb5ffe27c10cae08a125207a48def92edaba838e0a9cb0901e1e65842880&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A16a35be3a6fa567049b8d738ba50fb5c797ea0f2b1bd6d601e05f9e6736831a1",
+                       "replay_pins": {
+                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+-                        "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
++                        "projection_hash": "sha256:9444fb5ffe27c10cae08a125207a48def92edaba838e0a9cb0901e1e65842880",
+                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
+                         "source_as_of": "2026-02-11T12:00:00Z",
+-                        "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b"
++                        "source_dependency_hash": "sha256:16a35be3a6fa567049b8d738ba50fb5c797ea0f2b1bd6d601e05f9e6736831a1"
+                       },
+                       "source": {
+                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+@@ -58125,8 +58125,8 @@
+                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+                         "validation": {
+                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+-                          "bound_dependency_aggregate_identity": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+-                          "bound_dependency_count": 1489,
++                          "bound_dependency_aggregate_identity": "sha256:16a35be3a6fa567049b8d738ba50fb5c797ea0f2b1bd6d601e05f9e6736831a1",
++                          "bound_dependency_count": 1492,
+                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
+                           "issue_codes": [],
+                           "recomputed_total_spend_denominator": 1,
+@@ -58141,16 +58141,16 @@
+                           "status": "passed",
+                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+-                          "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
++                          "worker_validation_receipt_hash": "sha256:09c6d41df985a8c49abc2ef49403a80a47ef7e4e35521236a67fae8c5462063f"
+                         }
+                       },
+                       "source_blocked_reason": null,
+-                      "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
++                      "source_dependency_hash": "sha256:16a35be3a6fa567049b8d738ba50fb5c797ea0f2b1bd6d601e05f9e6736831a1",
+                       "source_rule_version": null,
+                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+-                      "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+-                      "worker_validation_receipt_ref": "owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
++                      "worker_validation_receipt_hash": "sha256:09c6d41df985a8c49abc2ef49403a80a47ef7e4e35521236a67fae8c5462063f",
++                      "worker_validation_receipt_ref": "owner-validation:sha256:09c6d41df985a8c49abc2ef49403a80a47ef7e4e35521236a67fae8c5462063f"
+                     }
+                   }
+                 },
+Runtime API contract check FAILED:
+- OpenAPI drift detected for /workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json. Regenerate with tools/ops_runners/runtime/export_runtime_openapi.py.
+
+> @polisyos/runtime-dashboard@0.1.0 contracts:verify /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+> node ./scripts/verify-runtime-contracts.mjs
+
+
+ RUN  v4.1.5 /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  11:06:07
+   Duration  1.85s (transform 300ms, setup 784ms, import 8ms, tests 34ms, environment 856ms)
+
+[PASS] python: Python 3.14.7 via /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python
+[PASS] node: Node v22.23.3
+[PASS] uv: uv 0.9.21 at /workspace/.polisyos-environment/uv/bin/uv
+[FAIL] playwright: Chromium launch smoke-check failed in apps/runtime-dashboard (Command '['node', '-e', 'const { chromium } = require("playwright");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});']' returned non-zero exit status 1.)
+[PASS] uv.lock: uv.lock is up to date
+[PASS] pnpm-lock: pnpm-lock.yaml matches package manifests
+[FAIL] schemas: Generated contract check failed (Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', '--extra', 'ml', 'python', 'tools/quality/diagnostics/gen_schema.py', '--check']' returned non-zero exit status 1.)
+[FAIL] runtime-openapi: Generated contract check failed (Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', '--extra', 'runtime', '--extra', 'ml', 'python', 'tools/ops_runners/runtime/check_runtime_api_contract.py']' returned non-zero exit status 1.)
+[PASS] frontend-contracts: fresh
+[PASS] optional-surfaces: No optional surfaces selected
+doctor failed with 3 issue(s).
+[run] doctor
+Traceback (most recent call last):
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py", line 46, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py", line 42, in main
+    return ci_parity.main(gate_args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/ci_parity.py", line 370, in main
+    run_command(command)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py", line 39, in run_without_nested_caps
+    original_run(spec)
+    ~~~~~~~~~~~~^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/_common.py", line 134, in run_command
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        list(spec.argv),
+        ^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        env=env,
+        ^^^^^^^^
+    )
+    ^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python', '-m', 'tools.devx.workspace.doctor']' returned non-zero exit status 1.

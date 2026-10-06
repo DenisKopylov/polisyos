@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.evidence_custody.v1",
+  "files": [
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/audit.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/audit.json",
+      "bytes": 134925,
+      "sha256": "0b8258d4bd483926457cea8b3457c4f52c2cad7e47d48b64e2a9aac944ecfaa2"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/existing-e-tests.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/existing-e-tests.txt",
+      "bytes": 5712,
+      "sha256": "ea7d9b535aabea28ceb7d1d747161ad858bf74582f9847355e66b4fa4acc08c4"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/receipt.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/receipt.json",
+      "bytes": 4528,
+      "sha256": "f5026f9f40a253bce91e9453d562ec0514666339303c5dd3b5c6243827f604f0"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/source-trace.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/source-trace.json",
+      "bytes": 41280,
+      "sha256": "5fc41a4595338f1db9c9ac20f9949d24ddc5f07d1ad9f1b41b4bc350b24b9fb6"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/source-trace.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/source-trace.stdout.txt",
+      "bytes": 552,
+      "sha256": "057e17a4191d3c4fd85354f35417f1a7aac111f665fd1f52e105c62f1813deb5"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/summary.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/summary.json",
+      "bytes": 1192,
+      "sha256": "0ddf9473e94404081c5bf61202ecffe7f42d3fd80867431727134ce053536093"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/wave-groups.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/consumer-trace-r4/frozen/wave-groups.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/consumer-frozen/wave-groups.stdout.txt",
+      "bytes": 366,
+      "sha256": "c63885bba27f4a4b8cc3061fa3163b92900ce70aa4acdb409e211fc41e2ef0ab"
+    }
+  ]
+}

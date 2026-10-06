@@ -1,0 +1,261 @@
+{
+  "schema": "policyos.e02.evidence_custody.v1",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "files": [
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/actual-environment.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/actual-environment.json",
+      "bytes": 2030,
+      "sha256": "0cc0264b39a8893c1c22b50c3e54273207fd68e2ab0550b7079fbd415d8a1f7b"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/architecture.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/architecture.json",
+      "bytes": 1730,
+      "sha256": "411961e65e56c1563be08a34dfdcfc54817ee7ab5442da5cdbaa1231b51575f6"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/architecture.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/architecture.stdout.txt",
+      "bytes": 124529,
+      "sha256": "6bb0ccdca1391f8aac910bfd29959eb2ceaa16971aaf263bf8a6677600b73788"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ci-parity-after-browser.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ci-parity-after-browser.json",
+      "bytes": 1821,
+      "sha256": "594c1bb6ef4fcc880f1f72e028bdf499b19a26aff19cb55e18d48f3ae02ce5d5"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ci-parity-after-browser.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ci-parity-after-browser.stdout.txt",
+      "bytes": 16495,
+      "sha256": "fd909f3dda92ff5ea831eb5b8e666f58036eb0fc4f39ae5d251f30ff6f048942"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ci-parity.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ci-parity.json",
+      "bytes": 1806,
+      "sha256": "17eb8cae28fc05a1c09373e3e7dfef93a4ec8cf6357913024c93480453e4c151"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ci-parity.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ci-parity.stdout.txt",
+      "bytes": 17833,
+      "sha256": "e480591f6aa2268c492aa5b064760f7ee779d946fadf5d86d0d828da40bbc726"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/frozen-candidate.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/frozen-candidate.json",
+      "bytes": 41366,
+      "sha256": "317d18c85012874db76c0366175b58eb23feff9d9a55e8b8c2f0af0ccc01f766"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation-output.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/production-invocation-output.json",
+      "bytes": 617,
+      "sha256": "1849f8fd4b20dd39a369c7b85987d4cdd471928cc4879ae0ebb64adc9c72968d"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/production-invocation.json",
+      "bytes": 1968,
+      "sha256": "f0dbb8341e807227cee85d729aecccaf8ba84963ca852eb202ac319eb1fb1c92"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json.gz",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/production-invocation.raw.json.gz",
+      "bytes": 6004399,
+      "sha256": "eb6dd0f2f832a1e45145c72f5f2241fcefdcdb3e8ce7fb0de009ff8c7330584c"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/production-invocation.stdout.txt",
+      "bytes": 5337,
+      "sha256": "ce3e4020e8a1e4146491f1c9faf0dbcd2b4cd4030e54cde9d61f70e6ab078abc"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 3529,
+      "sha256": "06caf737071f8c2c0277371cf1fca0b3643e14e1e279def999e987dea41a702d"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 7123,
+      "sha256": "633a17dac9cd7f8947de8ea174fc87ea66a8f9330e32c6ad788e26b75702e591"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml",
+      "bytes": 57158,
+      "sha256": "efce10e32dc02c82ad5b381782011c54da6579f79e01400f24fd16acf482edfa"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-cal-and-welfare-consumer.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-cal-and-welfare-consumer.json",
+      "bytes": 3502,
+      "sha256": "4c54933ba9a3fa7fdf30f815a6b097007283529696249107c949706648af918c"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-cal-and-welfare-consumer.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-cal-and-welfare-consumer.stdout.txt",
+      "bytes": 832,
+      "sha256": "4d8aa480b4f52b184c66d19a2e9a01d3701a129b36dd354a559fa483956d9b06"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-cal-and-welfare-consumer.xml",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-cal-and-welfare-consumer.xml",
+      "bytes": 42158,
+      "sha256": "5e64051ced78b5e07d8f5cca58a95088d0c4b7665d51c6c7cfcfc5faff7b2e7c"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-ddm-runtime-and-facade.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-ddm-runtime-and-facade.json",
+      "bytes": 2816,
+      "sha256": "e3e4380d835340f15883bd0ebe42a4182a2e267efc68a93d3f862646d1257778"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-ddm-runtime-and-facade.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-ddm-runtime-and-facade.stdout.txt",
+      "bytes": 579,
+      "sha256": "c3ae052f8ed3d5db3f62915801bc690410226cae788da874d77d4da20d01e127"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-ddm-runtime-and-facade.xml",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-ddm-runtime-and-facade.xml",
+      "bytes": 10911,
+      "sha256": "2c4da07ba16df25e80dc245e0b768c8c74aaa77191f22f705bbd610fe0ddc818"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-doe-salib-and-consumer-factory.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-doe-salib-and-consumer-factory.json",
+      "bytes": 2829,
+      "sha256": "6852fcc72824d18ae54402777319d2f77ab4e77ab59f2b51f2fb760298f04b5b"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-doe-salib-and-consumer-factory.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-doe-salib-and-consumer-factory.stdout.txt",
+      "bytes": 1937,
+      "sha256": "c2059319db80f7dbf2ddc717acf39c81242d64bc9820a20bd0eb93373b513486"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-doe-salib-and-consumer-factory.xml",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-doe-salib-and-consumer-factory.xml",
+      "bytes": 18641,
+      "sha256": "a44f4a2fe5efaf9648038fc4b37303d2eab6eb612b0cc00d3a21a1d87ca16c80"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 3419,
+      "sha256": "a9520d3b6184d63440a1181af050d5ea26a39d31e4275e0d17c3fa4d0447220a"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "bytes": 1400,
+      "sha256": "d1085d08f4925e421ad0ea47e12842893daadbc5b370414796bb865f700fd5e6"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.xml",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.xml",
+      "bytes": 49062,
+      "sha256": "5817233f582bbb9cc6782e7a6001079e4bbb9355012ccb41e5e526dc1866ba5e"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-pcl-continuous-persistence.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-pcl-continuous-persistence.json",
+      "bytes": 2410,
+      "sha256": "33e8d871888b21d7131c1e61ff6daeab95391a46a2ec67a75ddc39d830408aa4"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-pcl-continuous-persistence.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-pcl-continuous-persistence.stdout.txt",
+      "bytes": 660,
+      "sha256": "d7301238921bbbb0e6974692a167329a0ff6ce71c4fbe101eaf431055b7a1625"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-pcl-continuous-persistence.xml",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-pcl-continuous-persistence.xml",
+      "bytes": 13445,
+      "sha256": "6f34b306d2864f99809b05c642cc8dda779ca43a7c1782b20ab6e46dd5006609"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ruff-format.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ruff-format.json",
+      "bytes": 6714,
+      "sha256": "d510159610783f6fdc5ca77544cf42d67708176d30e287e383bc68ca11098f98"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ruff-format.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ruff-format.stdout.txt",
+      "bytes": 27,
+      "sha256": "a70f7dd4dea92217153fb5f41f49b47f586ab31ecae1d696942f53ccf1180f9e"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ruff.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ruff.json",
+      "bytes": 6692,
+      "sha256": "1d7180a77c32ce54aca994354cfa86d8ef1e6e7168682f5d83638926dc592eb5"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/ruff.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/runtime-api-contract.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/runtime-api-contract.json",
+      "bytes": 1735,
+      "sha256": "4f65885e349367dcb87de21793f312c3e7be56aa6facb41674d11bcfbb26f6f2"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/runtime-api-contract.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/runtime-api-contract.stdout.txt",
+      "bytes": 13051,
+      "sha256": "9e85dee4e67ca93de075c29501d95f809f2e6b5ed3b17ef393abca7f1c613c90"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/summary.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/summary.json",
+      "bytes": 20312,
+      "sha256": "0ce085869713eb80540d088ece417ef1d116c5daabe28dc95446779d4d2a772b"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/workspace-verify-after-browser.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/workspace-verify-after-browser.json",
+      "bytes": 1824,
+      "sha256": "285c131ce86ac8005e6844cce9b9fc7ac2429b738c88e56f4d37fc6cb2344dd0"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/workspace-verify-after-browser.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/workspace-verify-after-browser.stdout.txt",
+      "bytes": 8952,
+      "sha256": "ae5476f42180bed143dd7e2d5dc60aeb8dff3af50aac14352d11d1baa8fe3621"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/workspace-verify.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/workspace-verify.json",
+      "bytes": 1810,
+      "sha256": "ecb4076e7f508949edd33c4db1f367438d628e0811c8ad86d6c4c224ad68749a"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/workspace-verify.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/workspace-verify.stdout.txt",
+      "bytes": 3305,
+      "sha256": "08b952e55207ee6b0cf1f109802486e7e24018e600ec3df6d32b543dfe0e587d"
+    }
+  ],
+  "raw_large_output": "Complete 171393890-byte raw JSON is preserved losslessly as gzip, not truncated; original retained outside Git and not deleted.",
+  "excluded_test_catalogs": [
+    "/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers-temp",
+    "/workspace/e02-E-20261006-receipts/common-wave/pytest-cal-and-welfare-consumer-temp",
+    "/workspace/e02-E-20261006-receipts/common-wave/pytest-ddm-runtime-and-facade-temp",
+    "/workspace/e02-E-20261006-receipts/common-wave/pytest-doe-salib-and-consumer-factory-temp",
+    "/workspace/e02-E-20261006-receipts/common-wave/pytest-mc-joint-law-support-and-scientist-consumer-temp",
+    "/workspace/e02-E-20261006-receipts/common-wave/pytest-pcl-continuous-persistence-temp"
+  ]
+}

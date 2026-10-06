@@ -1,0 +1,451 @@
+{
+  "schema": "policyos.e02.cleanup_candidates.v1",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "trash_tools": {
+    "gio": null,
+    "trash_put": null
+  },
+  "disposition": "No permanent removal and no Trash emptying. Exact directories listed for future Trash disposition after deciding outputs are safe.",
+  "candidates": [
+    {
+      "absolute_path": "/home/agent/.cache/ms-playwright/chromium-1217",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/home/agent/.cache/ms-playwright/ffmpeg-1011",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/tmp/e02-bkt-debug-lt8bax81",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/tmp/e02-bkt-debug-rlm2h8lm",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/tmp/e02-frc-inspection-8zlsi3kv",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/tmp/e02-frc-inspection-o28xayyv",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-bootstrap-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-cas-delta-001",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-cas-delta-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-check-001",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-check-002",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-check-003",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-check-004",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-cv-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-bootstrap-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-cas-002",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-cas-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-check-005",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-cv-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-native-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-native-refusal-003",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-native-refusal-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-replay-002",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-replay-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-requested-002",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-requested-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-trust-002",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-final-trust-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-native-refusal-002",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-native-refusal-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-pytest-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-removal-replay-001",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-removal-requested-001",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-removal-trust-001",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-replay-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-requested-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/backtest-trust-cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers-temp",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-cal-and-welfare-consumer-temp",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-ddm-runtime-and-facade-temp",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-doe-salib-and-consumer-factory-temp",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-mc-joint-law-support-and-scientist-consumer-temp",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/common-wave/pytest-pcl-continuous-persistence-temp",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/mc-independent/cas-mean-readback",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-20261006-receipts/mc-independent/cas-scientist-consumer",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-backtest-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-backtest-20261006/policy-engine/apps/runtime-reference-shell/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-backtest-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-backtest-20261006/policy-engine/packages/atlas-ui/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-backtest-20261006/policy-engine/packages/cli/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-backtest-20261006/policy-engine/packages/runtime-api-client/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/.venv/lib/python3.14/site-packages/nodejs_wheel/lib/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/_cache/uv/archive-v0/lSi0opvdtYxHMo1z/nodejs_wheel/lib/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/apps/runtime-reference-shell/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/packages/atlas-ui/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/packages/cli/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-cal-20261006/policy-engine/packages/runtime-api-client/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/_cache",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-reference-shell/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/atlas-ui/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/cli/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-ddm-20261006/policy-engine/.venv",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-ddm-20261006/policy-engine/_cache/pytest",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-ddm-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-ddm-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-doe-20261006-checks/native-pytest",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-doe-20261006-checks/replay-removal-pytest",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-doe-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-doe-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-frc-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-frc-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-mc-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-mc-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-pcl-20261006/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-pcl-20261006/policy-engine/_cache/pytest",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-pcl-20261006/policy-engine/node_modules",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    },
+    {
+      "absolute_path": "/workspace/e02-E-pcl-20261006/policy-engine/policy-engine",
+      "classification": "repeatable bounded fixture/test catalog or installed environment; preserve deciding output first",
+      "action": "candidate only: native cloud Trash unavailable, do not permanently delete"
+    }
+  ],
+  "preserve": [
+    "All ten code worktrees and Git registrations; no automatic prune",
+    "All tracked source/tests/useful documentation/release fragments and deciding receipts",
+    "All production history and source-law data (none moved to cloud)",
+    "All unique synthetic CAS artifacts and scratch logs until deciding evidence custody is independently accepted",
+    "/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json (full raw retained; exact lossless gzip committed)",
+    "/workspace/e02-E-pcl-20261006/package.json and /workspace/e02-E-pcl-20261006/pnpm-lock.yaml incidental files are preserved uncommitted for disposition review",
+    "Shared /workspace/polisyos/policy-engine/.venv and shared runtime installations"
+  ],
+  "directory_listing_is_not_cleanup_permission": "Only Trash movement is authorized, never permanent deletion."
+}

@@ -1,0 +1,187 @@
+"""Read-only independent closeout audit: inspect saved checks; never rerun a gate."""
+import ast
+from collections import Counter
+import gzip
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+WAVE = Path('/workspace/e02-E-20261006-receipts/common-wave')
+OUT = Path('/workspace/e02-E-20261006-receipts/final-closeout-review')
+TARGET = '58e2d97965c0826c44843a78dcb2f8698d9950a3'
+TREE = 'ffd0d56892f8e515838af4c5b160cb9ac6d988ed'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+def digest(path):
+    with path.open('rb') as handle:
+        return hashlib.file_digest(handle, 'sha256').hexdigest()
+
+freeze = json.loads((WAVE/'frozen-candidate.json').read_text())
+assert freeze['candidate_sha'] == TARGET and freeze['candidate_tree_sha'] == TREE
+assert git('rev-parse', TARGET+'^{tree}') == TREE
+assert git('rev-parse', TARGET+':policy-engine/src') == freeze['src_tree']
+assert git('rev-parse', TARGET+':policy-engine/tests') == freeze['tests_tree']
+assert not git('diff', TARGET, '--', 'policy-engine/src', 'policy-engine/tests')
+BASE = freeze['base_sha']
+changed = set(git('diff', '--name-only', BASE, TARGET).splitlines())
+assert changed == set(freeze['diff_paths'])
+
+xml_counts = []
+failed_cases = []
+seen = Counter()
+for file in sorted(WAVE.glob('*.xml')):
+    root = ET.parse(file).getroot()
+    cases = root.findall('.//testcase')
+    counts = Counter()
+    for case in cases:
+        seen[(case.get('classname'), case.get('name'))] += 1
+        kind = next((kind for kind in ('failure','error','skipped') if case.find(kind) is not None), 'pass')
+        counts[kind] += 1
+        if kind != 'pass':
+            node = case.find(kind)
+            failed_cases.append({'xml':file.name, 'classname':case.get('classname'), 'name':case.get('name'),
+                                 'outcome':kind.upper(), 'message':node.get('message')})
+    for suite in root.findall('testsuite'):
+        assert int(suite.get('tests')) == len(cases)
+        assert int(suite.get('failures')) == counts['failure']
+        assert int(suite.get('errors')) == counts['error']
+        assert int(suite.get('skipped')) == counts['skipped']
+    xml_counts.append({'xml':file.name,'test_cases':len(cases), 'PASS':counts['pass'],
+                       'FAIL':counts['failure'],'ERROR':counts['error'],'SKIP':counts['skipped'],
+                       'sha256':digest(file)})
+assert len(xml_counts) == 6
+assert sum(x['test_cases'] for x in xml_counts) == 1125
+assert sum(x['PASS'] for x in xml_counts) == 1123
+assert len(failed_cases) == 2 and len(seen) == 1125 and all(count == 1 for count in seen.values())
+
+checks = []
+file_hashes = {}
+for file in sorted(WAVE.glob('*.json')):
+    if file.name == 'production-invocation.raw.json': continue
+    data = json.loads(file.read_text())
+    file_hashes[file.name] = {'bytes':file.stat().st_size,'sha256':digest(file)}
+    if data.get('schema') != 'policyos.e02.frozen_check.v1': continue
+    assert data['candidate_sha'] == TARGET and data['candidate_tree_sha'] == TREE
+    assert data['head_at_end'] == TARGET
+    assert data['source_immutable'] is True
+    assert data['source_identity_before'] == data['source_identity_after'] == freeze['source_test_framed_sha256']
+    stdout = Path(data['stdout_path'])
+    assert stdout.stat().st_size == data['stdout_bytes'] and digest(stdout) == data['stdout_sha256']
+    file_hashes[stdout.name] = {'bytes':stdout.stat().st_size,'sha256':digest(stdout)}
+    checks.append({'receipt':file.name,'outcome':data['outcome'],'exit_code':data['exit_code'],
+                   'command':data['command'],'cwd':data['cwd'],'wall_seconds':data['wall_seconds'],
+                   'full_stdout':stdout.name,'full_stdout_sha256':data['stdout_sha256'],'P41':data['P41']})
+
+arch_text = (WAVE/'architecture.stdout.txt').read_text()
+reported_edges = []
+new_E_edges = []
+cache = {}
+def imported_modules(sha, path):
+    key = (sha,path)
+    if key in cache: return cache[key]
+    process = subprocess.run(['git','show',sha+':'+path], cwd=ROOT, text=True, capture_output=True)
+    if process.returncode:
+        cache[key]=set()
+        return cache[key]
+    tree=ast.parse(process.stdout)
+    modules=set()
+    for node in ast.walk(tree):
+        if isinstance(node,ast.ImportFrom) and node.module: modules.add(node.module)
+        elif isinstance(node,ast.Import): modules.update(alias.name for alias in node.names)
+    cache[key]=modules
+    return modules
+
+for line in arch_text.splitlines():
+    match=re.match(r'- New deep-import creep detected: (\S+) -> (\S+) \(([^)]+)\)\.',line)
+    if not match: continue
+    source,target,path=match.groups()
+    path='policy-engine/'+path
+    before=imported_modules(BASE,path)
+    after=imported_modules(TARGET,path)
+    row={'source_module':source,'target_module':target,'path':path,'E_changed_path':path in changed,
+         'exact_target_import_present_at_base':target in before,
+         'exact_target_import_present_at_candidate':target in after}
+    reported_edges.append(row)
+    if path in changed and target not in before and target in after: new_E_edges.append(row)
+assert len(reported_edges) == 163
+assert sum(row['E_changed_path'] for row in reported_edges) == 35
+assert len(new_E_edges) == 12
+
+workspace_log=(WAVE/'workspace-verify-after-browser.stdout.txt').read_text()
+violations=re.findall(r'^- (src/[^\n]+?\.py):(\d+) \[(ARCH\d+)\] (.+)$',workspace_log,re.M)
+assert len(violations) == 21
+import_gate_changed_paths=sorted({'policy-engine/'+path for path,_,_,_ in violations}&changed)
+assert import_gate_changed_paths == []
+
+raw_output = json.loads((WAVE/'production-invocation-output.json').read_text())
+raw=Path(raw_output['raw_path']);compressed=Path(raw_output['compressed_path'])
+assert raw.stat().st_size == raw_output['raw_bytes'] and digest(raw) == raw_output['raw_sha256']
+assert compressed.stat().st_size == raw_output['compressed_bytes'] and digest(compressed) == raw_output['compressed_sha256']
+with gzip.open(compressed,'rb') as handle:
+    inflated_digest=hashlib.file_digest(handle,'sha256').hexdigest()
+assert inflated_digest == raw_output['raw_sha256']
+production = json.loads((WAVE/'production-invocation.stdout.txt').read_text())
+assert production['status']=='FAILED' and production['runtime_invocation_established'] is False
+assert len(production['regressions']) == 11
+assert len(production['new_unresolved_by_construction']) == 42
+
+summary={
+ 'schema':'policyos.e02.independent_closeout_review.v1', 'reviewer':'cal_independent_r3',
+ 'scope':'Read-only saved-check/source audit; no test, numerical, scanner, generated-artifact or workspace gate rerun; no source, shared-file, branch or checkout changes.',
+ 'base':{'sha':BASE,'tree':freeze['base_tree_sha']},
+ 'candidate':{'sha':TARGET,'tree':TREE,'branch':freeze['branch'],'src_tree':freeze['src_tree'],'tests_tree':freeze['tests_tree'],
+              'source_test_path_denominator':freeze['source_test_path_denominator'],'source_test_framed_sha256':freeze['source_test_framed_sha256']},
+ 'integration_acceptance':{'verdict':'HOLD','reason':'Two FRC consumer failures and outstanding global gate FAILs, including E-introduced deep-import edges. Scoped mathematical/code GO from independent slices does not make repository integration green.',
+                           'publication_scope':'E topic/PR for G review only; main publication denied without separate user authorization'},
+ 'pytest_denominator':{'xml_files':6,'executions':1125,'unique_classname_name_pairs':1125,'PASS':1123,'FAIL':2,'ERROR':0,'SKIP':0,
+                      'groups':xml_counts,'failed_cases':failed_cases,'no_PASS_count_closure_inference':True},
+ 'all_saved_check_receipts':checks,
+ 'global_failures':[
+  {'gate':'architecture','outcome':'FAIL','blocker':'Deep-import baseline drift with163 current reports;35 E-changed source reports;12 newly present exact E imports, plus runtime-openapi/trust-claim-posture generated output drift.',
+   'next_owner':'E family owners for new imports + G architecture/facade owner; deliberate admission or owner-approved stable facade, not unconditional baseline sync'},
+  {'gate':'runtime-api-contract','outcome':'FAIL','blocker':'Committed runtime_api_v1.openapi.json differs from generated confidence-ledger-risk-spend projection dependency/hash/receipt fields (dependency_count1489 ->1492).',
+   'next_owner':'A/runtime API and confidence-ledger generated projection owner + G; account for E dependency changes before owner regeneration'},
+  {'gate':'production-invocation','outcome':'FAIL','blocker':'Static bounded direct-call reachability check reports11 regressions and42 new unresolved E entries; runtime invocation is explicitly not established.',
+   'next_owner':'E canonical families for real producer/caller tracing, A for generation-cycle FRC bridge, G for integration audit; diagnostic owner for indirect/registered/deferred model limits'},
+  {'gate':'workspace-verify-after-browser','outcome':'FAIL','blocker':'Doctor now passes after browser installation; lint_imports fails with21 unadjudicated imports. Full scan parsed2700 files; listed violating paths do not overlap E-changed paths, but complete gate inputs overlap E source and exact base replay was not performed.',
+   'next_owner':'G plus architecture import-policy and listed runtime/IR/Foundry/Scientist source owners; E owns its separate new architecture edges'},
+  {'gate':'ci-parity-after-browser','outcome':'FAIL','blocker':'Doctor fails schema snapshots feedback_solve_result.schema.json/_manifest.json and runtime OpenAPI freshness; subsequent CI-parity commands did not run.',
+   'next_owner':'IR FeedbackSolveResult schema snapshot owner, A/runtime API generated-contract owner and G integration; E verifies dependency effects'},
+ ],
+ 'architecture_E_delta':{'reported_current_edge_denominator':163,'E_changed_source_reports':35,'exact_new_E_import_reports':12,
+                         'exact_new_edges':new_E_edges,'comparison':'AST Import/ImportFrom module sets from complete logged source paths read via git show at exact BASE and TARGET; not a gate replay.',
+                         'P41_inherited_red_attribution':'not_established;12 newly introduced E exact imports preclude wholesale inherited architecture label'},
+ 'stopped_steps':{
+   'workspace_verify':{'parent_outcome':'FAIL','doctor':'PASS after browser setup','lint_imports':'FAIL',
+    'later_backend_checks_and_pytest':'UNRUN in this workspace parent command; separate six selected pytest groups retain their own outcomes'},
+   'ci_parity':{'parent_outcome':'FAIL','doctor':'FAIL generated schema/OpenAPI freshness after browser setup',
+    'nested_backend_verify_runtime_http_last_mile_docs_frontend':'UNRUN in this CI parent command; doctor frontend-contract fixture PASS is a separate bounded check'},
+   'initial_browser_failure':'Initial workspace/CI FAIL logs remain preserved. Browser installation resolved environment availability and enabled later checks; it does not erase prior recorded outcomes or close current failures.',
+ },
+ 'P41':{'exact_predating_E_base':BASE,'exact_gate_replay_on_base':'UNRUN by this read-only task',
+        'inherited_red':'not_established','path_disjoint_warning':'Zero intersection of listed violation paths is not zero intersection of complete gate input denominator. Source text presence comparison is not exact replay.'},
+ 'source_invocation_limits':{'reported_regressions':production['regressions'],'reported_new_unresolved_count':42,
+                           'measured':production['measured'],'unmeasured':production['unmeasured'],
+                           'runtime_invocation_established':False,'no_static_absence_promoted_to_production_absence':True},
+ 'finding_closure':'No committed finding status altered. B197 remains held/limited; B198 closed regression preserved. Common selected tests and code acceptance are separate from all22 bundles/54 finding verdicts retained by root.',
+ 'full_output_integrity':{'receipt_and_stdout_hashes':file_hashes,'production_invocation':raw_output,'gzip_inflation_sha256':inflated_digest,
+                         'all_complete_deciding_outputs_preserved':True,'no_log_or_fixture_deletions':True},
+ 'remaining_owner_actions':[
+  'E family architecture followup for exact12 new import edges; G architecture owner reviews chosen canonical facades/admission without silently updating global baseline.',
+  'A repairs or reconciles two exact FRC generation-cycle consumer tests on the frozen candidate, including distinct time roles and explicit blocked S6 limitation; E provides typed producer artifacts/refs and does not write A shared generation_cycle.py.',
+  'A/runtime/IR generated owners address schema/OpenAPI/trust-posture freshness after measuring exact dependency closure; no inherited-red waiver without P41 replay.',
+  'G completes parent-gate steps currently UNRUN after blocker repair on one newly admitted candidate; coordinates required local read-only production/source-law checks by per-finding criterion.',
+ ],
+ 'cleanup_policy':'Preserve complete deciding logs, receipts and unique outputs. Root handoff lists reconstructible pytest temp dirs and used environment/browser caches as exact Trash candidates; no permanent deletion or Trash emptying by reviewer.',
+}
+path=OUT/'review-58e2d97965c0.json';path.write_text(json.dumps(summary,indent=2)+'\n')
+print(json.dumps({'review':str(path),'integration':'HOLD','pytest':summary['pytest_denominator']|{'groups':'see receipt','failed_cases':'see receipt'},
+                  'architecture':{'current_reports':163,'E_changed_reports':35,'new_exact_E_imports':12},
+                  'saved_checks':len(checks),'check_outcomes':dict(Counter(c['outcome'] for c in checks)),
+                  'raw_output_integrity':'all preserved SHA256 verified; gzip expands to exact complete raw SHA256'}))

@@ -1,0 +1,166 @@
+"""Attach actual frozen check outcomes without converting them into closures."""
+from __future__ import annotations
+import argparse
+import collections
+import gzip
+import hashlib
+import json
+import re
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/'
+GROUPS={
+    'cal':'pytest-cal-and-welfare-consumer', 'cal05':'pytest-cal-and-welfare-consumer',
+    'mc':'pytest-mc-joint-law-support-and-scientist-consumer',
+    'doe':'pytest-doe-salib-and-consumer-factory', 'pcl':'pytest-pcl-continuous-persistence',
+    'ddm':'pytest-ddm-runtime-and-facade',
+    'backtest':'pytest-bkt-frc-s10-and-adjacent-report-consumers',
+    'frc':'pytest-bkt-frc-s10-and-adjacent-report-consumers',
+}
+FAMILY_BY_ID={
+    **{f'B{i}':'cal' for i in [176,177,178,179,180,181,182,183,184,195,196,197,198,203]},
+    'B185':'cal05', **{f'B{i}':'mc' for i in [186,187,188,189,190,191,192,193,194,199,200,201,202]},
+    **{f'B{i}':'doe' for i in range(97,106)},
+    **{f'B{i}':'backtest' for i in range(166,176)},
+    'B32':'frc','LA-051':'frc','LA-052':'pcl','LA-053':'pcl',
+    'LA-054':'ddm','LA-055':'ddm','LA-056':'ddm',
+}
+GLOBAL_LIMITS={
+    'architecture':('Deep-import baseline drift/new creep, including changed E paths; generated clients freshness alone does not clear global guard. Standalone Atlas gate is explicitly not included.','G architecture/import-policy integration owner plus respective source/facade owners'),
+    'runtime-api-contract':('Generated OpenAPI drift in governed confidence-ledger-risk-spend projection/dependency identities; endpoint execution/authorization/deployment are not measured.','A runtime OpenAPI/generated-contract owner and G integration verifier'),
+    'production-invocation':('Static direct-call model reports11 regressions and declared unresolved-by-construction limits; runtime dispatch, DI, callbacks, persisted business receipts and gate substance unmeasured.','G source-invocation/registration owner plus E/A actual configured/default consumer owners'),
+    'workspace-verify':('Initial Chromium missing; actual stock browser installation repairs environment, not source. Retain this failed attempt.','G workspace/runtime environment owner'),
+    'workspace-verify-after-browser':('Doctor browser/version/lock preflight passes; lint imports fails21 unadjudicated non-E-listed paths and cycles. Later verification steps do not execute. No inherited-red waiver.','G import-policy owner and listed source owners'),
+    'ci-parity':('Initial CI parity attempt failed; retain receipt independently from later browser-complete attempt.','G generated-schema/runtime-contract owners'),
+    'ci-parity-after-browser':('Finished FAIL: feedback_solve_result schema snapshot and IR manifest stale; generated runtime OpenAPI drift. Chromium and frontend-contracts pass; later CI stages not executed.','G ABI/schema snapshot owner and A generated runtime-contract owner'),
+}
+
+def digest(path: Path) -> str:
+    h=hashlib.sha256()
+    with path.open('rb') as f:
+        while block:=f.read(1048576):h.update(block)
+    return h.hexdigest()
+
+def main() -> None:
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--overlay',type=Path,required=True)
+    parser.add_argument('--wave',type=Path,required=True)
+    parser.add_argument('--output',type=Path,required=True)
+    args=parser.parse_args()
+    d=json.loads(args.overlay.read_text());sha=d['review_source_sha'];tree=d['review_source_tree']
+    freeze=json.loads((args.wave/'frozen-candidate.json').read_text())
+    assert freeze['candidate_sha']==sha and freeze['candidate_tree_sha']==tree
+    framed=freeze['source_test_framed_sha256']
+    jobs={};total=collections.Counter();publication='Receipt content observed in current-session scratch; intended tracked paths await parent evidence commit. No receipt commit SHA invented.'
+    names=sorted(set(GROUPS.values()))+['ruff','ruff-format',*GLOBAL_LIMITS]
+    for name in names:
+        path=args.wave/(name+'.json')
+        if not path.exists():
+            jobs[name]={'outcome':'UNRUN','reason':'No completed receipt exists','intended_tracked_ref':PREFIX+name+'.json'};continue
+        r=json.loads(path.read_text())
+        assert r['candidate_sha']==sha and r['candidate_tree_sha']==tree,name
+        assert r['head_at_end']==sha and r['source_immutable'] is True,name
+        assert r['source_identity_before']==r['source_identity_after']==framed,name
+        stdout=Path(r['stdout_path']);assert digest(stdout)==r['stdout_sha256'] and stdout.stat().st_size==r['stdout_bytes'],name
+        entry={'outcome':r['outcome'],'exit_code':r['exit_code'],'candidate_sha':sha,'candidate_tree':tree,'command':r['command'],'cwd':r['cwd'],'wall_seconds':r['wall_seconds'],'max_rss_kib':r['max_rss_kib'],'source_immutable':True,'source_test_framed_sha256':framed,'receipt_sha256':digest(path),'stdout_sha256':r['stdout_sha256'],'receipt_ref':PREFIX+name+'.json','stdout_ref':PREFIX+name+'.stdout.txt','publication_state':publication}
+        if name.startswith('pytest-'):
+            xml=path.with_suffix('.xml');cases=ET.parse(xml).getroot().findall('.//testcase')
+            failures=[];counts=collections.Counter({'cases':len(cases),'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0})
+            for t in cases:
+                state='FAIL' if t.find('failure') is not None else 'ERROR' if t.find('error') is not None else 'SKIP' if t.find('skipped') is not None else 'PASS'
+                counts[state]+=1
+                if state in ('FAIL','ERROR'):failures.append({'class':t.attrib.get('classname'),'test':t.attrib.get('name'),'outcome':state,'output':t.find('failure').text if state=='FAIL' else t.find('error').text,'next_owner':'A generation_cycle _build_s10_forecast_inputs/default bridge owner'})
+            entry.update({'junit_ref':PREFIX+name+'.xml','junit_sha256':digest(xml),'test_counts':dict(counts),'selector_path_count':sum(str(x).startswith('tests/') for x in r['command']),'failures':failures})
+            total.update(counts)
+        if name in GLOBAL_LIMITS:entry.update({'observed_scope_or_limitation':GLOBAL_LIMITS[name][0],'next_owner':GLOBAL_LIMITS[name][1],'P41':'not_established; no inherited-red attribution or waiver'})
+        jobs[name]=entry
+    assert dict(total)=={'cases':1125,'PASS':1123,'FAIL':2,'ERROR':0,'SKIP':0},dict(total)
+    assert sum(j.get('selector_path_count',0) for j in jobs.values())==110
+    failures=[f for j in jobs.values() for f in j.get('failures',[])]
+    assert {f['test'] for f in failures}=={'test_calibration_time_roles_are_preserved_from_bound_evidence','test_missing_calibration_evidence_refs_stays_typed_blocked'}
+    # Preserve complete compressed raw static-model output, not a clipped log.
+    gz=args.wave/'production-invocation.raw.json.gz';h=hashlib.sha256();n=0
+    with gzip.open(gz,'rb') as f:
+        while block:=f.read(1048576):h.update(block);n+=len(block)
+    assert h.hexdigest()==digest(args.wave/'production-invocation.raw.json')
+    invocation=json.loads((args.wave/'production-invocation.stdout.txt').read_text())
+    jobs['production-invocation']['static_model_summary']=invocation
+    jobs['production-invocation']['compressed_complete_raw']={'ref':PREFIX+'production-invocation.raw.json.gz','compressed_bytes':gz.stat().st_size,'compressed_sha256':digest(gz),'full_uncompressed_bytes':n,'full_uncompressed_sha256':h.hexdigest(),'gzip_complete_matches_full_raw':True}
+    # Record all exact newly observed architecture diagnostics without waiving
+    # them or claiming an intentionally accepted baseline.
+    architecture=(args.wave/'architecture.stdout.txt').read_text()
+    jobs['architecture']['diagnostic_lines']=[line for line in architecture.splitlines() if line.startswith('- ')]
+    verify=(args.wave/'workspace-verify-after-browser.stdout.txt').read_text()
+    jobs['workspace-verify-after-browser']['unadjudicated_import_paths']=[line for line in verify.splitlines() if re.match(r'^- src/.* \[ARCH[0-9]+\]',line)]
+    assert len(jobs['workspace-verify-after-browser']['unadjudicated_import_paths'])==21
+    environment=json.loads((args.wave/'actual-environment.json').read_text())
+    for row in d['rows']:
+        fid=row['finding_id'];family=FAMILY_BY_ID[fid];name=GROUPS[family];job=jobs[name]
+        checks=[{'job_ref':job['receipt_ref'],'junit_ref':job['junit_ref'],'stdout_ref':job['stdout_ref'],'outcome':job['outcome'],'test_counts':job['test_counts'],'scope':'Group outcome, not finding verdict or scientific/serving authority'}]
+        if fid in ('B194','B197','B198'):
+            other=jobs[GROUPS['mc'] if family=='cal' else GROUPS['cal']]
+            checks.append({'job_ref':other['receipt_ref'],'junit_ref':other['junit_ref'],'stdout_ref':other['stdout_ref'],'outcome':other['outcome'],'test_counts':other['test_counts'],'scope':'Adjacent strict welfare/MC caller support and typed-scale regression'})
+        row['final_frozen_wave']='completed actual native numerical group receipt; global acceptance remains limited'
+        row['common_wave_check_evidence']=checks
+        row['G_code_acceptance']='pending global guard/schema/invocation registration decisions and required default served producer/consumer checks; independent bounded GO remains separate'
+        row['formal_ledger_change']=False
+        row['criterion_property_assessment']='receipt-supported bounded criterion-complete owner-adjudication proposal; exact frozen numerical replay completed, no formal closure inferred' if row['criterion_complete_owner_adjudication_candidate'] else 'active defining producer/consumer/method/semantic boundary remains'
+        row['post_freeze_owner_adjudication_recommendation']='Keep historical closed regression; actual frozen replay has no new falsifier' if fid=='B198' else 'Owner may adjudicate bounded criterion using exact frozen receipts; historical partial does not close automatically' if row['criterion_complete_owner_adjudication_candidate'] else 'Retain limited/held at specified active boundary; actual PASS or code GO does not resolve it'
+        condition=row['remaining_condition']
+        condition=re.sub(r'Exact frozen(?: candidate)? replay and E owner adjudication', 'Frozen numerical replay completed; accountable finding-owner adjudication remains',condition)
+        condition=re.sub(r'Exact frozen(?: candidate)? replay and owner adjudication', 'Frozen numerical replay completed; accountable finding-owner adjudication remains',condition)
+        condition=condition.replace('Final frozen source replay and accountable finding-owner decision only.','Frozen source identity and native replay completed; accountable finding-owner decision remains.')
+        condition=condition.replace('final frozen replay outcome recorded separately','final frozen replay completed and recorded separately')
+        condition=condition.replace('final frozen regression pending','frozen regression replay completed')
+        row['remaining_condition']=condition
+        post_replay={
+            'B168':'Frozen interval availability/coverage/nominal-level serialization controls completed; accountable owner adjudication remains. Actual production forecast/profile authority is separate and not established by the fixture.',
+            'B183':'Frozen native fresh-OTel and fresh-noop multi-start selectors both PASS. Accountable finding-owner adjudication remains; no production data is needed for context-manager lifetime.',
+            'B184':'Frozen final-forward/report projection and actual CAL05 caller controls completed; accountable owner adjudication remains. No global speedup or production fit-quality claim.',
+            'B185':'Frozen real Calibrator batch/row-context and eager/JIT/gradient/Hessian controls completed; accountable finding-owner adjudication remains. Cross-sectional execution is not population-law or observation-independence evidence; unsupported batch modes remain explicit.',
+            'B187':'Frozen covariance/axes/direct-array/algorithm-flag sibling controls and consumer coupling completed; covariance/producer finding-owner adjudication remains. Conditional mathematical law is separate from source custody.',
+            'B189':'Frozen actual node/JAX delta selector completed; accountable owner adjudication remains. Source-bound general response provenance is a distinct B190/evaluator boundary.',
+            'B191':'Frozen missing-output versus true-zero and configured consumer replay completed; accountable owner adjudication remains. No real-output certificate is inferred from fallback behavior.',
+            'B195':'Frozen raw-curvature/multi-start selectors completed; accountable owner adjudication remains. Generic curvature is not inferential covariance.',
+            'B196':'Frozen final-iterate accounting and new batch caller checks completed; accountable owner adjudication remains. No production fit-quality assumption is inferred.',
+            'B199':'Frozen singleton/duplicate/type/level and CAS consumer controls completed; accountable owner adjudication remains. Mixed interval semantics cannot invent guarantees.',
+            'B203':'Frozen real batch/cache/objective-identity controls completed; accountable owner adjudication remains. Unknown custom callback identity stays not_established and disables Hessian reuse.',
+        }
+        row['remaining_condition']=post_replay.get(fid,row['remaining_condition'])
+        if fid in ('B32','LA-051'):
+            row['deciding_common_failures']=failures
+            row['remaining_condition']='Actual frozen FRC01 remains FAIL at A-owned generation_cycle: bound temporal record is None, and insufficient-history limitation is absent. Configured E ETS/CAS producer is verified; A default trusted bridge/verifier/fresh served read remains required. Predictive calibration only; causal/treatment/policy authority denied.'
+        if fid in ('B166','B169','B170'):
+            row['remaining_unrun_checks']=[{'outcome':'UNRUN','check':'Positive native Foundry workflow/state materialization and actual ExecConfig seed binding','next_owner':'Scientist configured-workflow/input-materializer and RunSimulation owners','reason':'Controlled dispatch and native expected-refusal PASS do not supply missing admitted Trinity/materializer/seed inputs'}]
+        elif fid in ('B194','B197'):
+            row['remaining_unrun_checks']=[{'outcome':'UNRUN','check':'Actual served producer/evaluator with admitted model/source-law/domain/authority refs','next_owner':row['next_owner'],'reason':'Bounded configured fixture chain is measured; served/source-law authority remains not_established'}]
+        elif fid in ('B201','B202'):
+            row['remaining_unrun_checks']=[{'outcome':'UNRUN','check':'Ratified distinct v2 producer/storage/readback','next_owner':'Appointed canonical IR uncertainty semantic owner, then E/C/F producers and consumers','reason':'Four ratifications not supplied; v1.1 replay retained and no silent wire change'}]
+    d['final_frozen_wave']='COMPLETED numerical110paths:1125cases=1123PASS2A-ownedFRC01FAIL0SKIP0ERROR; global gates FAIL/partial, no closure conversion'
+    d['numerical_wave_counts']=dict(total);d['numerical_selector_paths']=110
+    d['common_wave_jobs']=jobs;d['common_wave_environment']=environment
+    d['common_wave_environment_ref']=PREFIX+'actual-environment.json'
+    d['common_wave_source_identity']={'candidate':sha,'tree':tree,'source_test_path_denominator':freeze['source_test_path_denominator'],'before_after_framed_sha256':framed,'unchanged':True}
+    d['code_acceptance_state']='G acceptance pending global guard/schema/source-invocation registration owner decisions and A/default serving. Independent bounded family code GO preserved.'
+    d['global_remaining_unrun_checks']=[
+        {'outcome':'UNRUN','check':'workspace verify steps after failed lint-imports','next_owner':'G workspace/import-policy owner','reason':'Attempt terminated at lint imports; no downstream stage PASS inferred'},
+        {'outcome':'UNRUN','check':'CI parity stages after failed doctor schema/OpenAPI checks','next_owner':'G ABI/schema and A generated-runtime-contract owners','reason':'Doctor blocks later CI stages; hosted CI execution also not measured'},
+        {'outcome':'UNRUN','check':'Standalone Atlas status-retirement gate','next_owner':'G architecture/Atlas surface owner','reason':'Architecture guard explicitly says standalone gate is not included'},
+        {'outcome':'UNRUN','check':'A default served producer/CAS resolver/verifier/fresh GET for predictive sibling','next_owner':'A generation-cycle/default gateway/S10 verifier owner','reason':'Current source consumer tests FAIL and default trusted bridge still missing'},
+    ]
+    assert collections.Counter(row['finding_verdict'] for row in d['rows'])=={'limited':49,'held':4,'closed':1}
+    args.output.mkdir(exist_ok=True,parents=True)
+    (args.output/'all-54-closeout.json').write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+    intro='# E criterion closeout evidence overlay\n\nSource `'+sha+'` / tree `'+tree+'`. Numerical wave: 110 paths, 1125 cases = 1123 PASS + two A-owned FRC01 FAIL, zero SKIP/ERROR. CAL266, MC297, DOE119, PCL89 and DDM71 pass; BKT/FRC281 of283 pass. Ruff/format pass. Architecture, OpenAPI, source-invocation, workspace verification and CI parity fail/stop as recorded. No inherited-red waiver; subsequent blocked global checks remain UNRUN.\n\nLedger:49 partial,4 held,B198 closed. Finding verdict:49 limited,4 held(B194/B197/B201/B202),B198 closed. Thirty-three bounded criteria are owner-adjudication proposals, not automatic closures. G code acceptance remains pending.\n\n'
+    lines=[intro,'| ID | Bundles | Ledger | Finding verdict | Technical slice | Actual numerical group | Remaining condition / next owner |','|---|---|---|---|---|---|---|']
+    for row in d['rows']:
+        c=row['common_wave_check_evidence'][0];text=f"{c['outcome']} group; {c['test_counts']['PASS']} PASS / {c['test_counts']['FAIL']} FAIL"
+        values=[row['finding_id'],', '.join(row['bundle_ids']),row['ledger_status_preserved'],row['finding_verdict'],row['technical_slice_verdict'],text,row['remaining_condition']+' Next: '+row['next_owner']]
+        lines.append('| '+' | '.join(v.replace('|','\\|').replace('\n',' ') for v in values)+' |')
+    (args.output/'all-54-closeout.md').write_text('\n'.join(lines)+'\n')
+    recipes=json.loads((args.overlay.parent/'local-G-frozen-recipes.json').read_text());recipes['final_wave']=d['final_frozen_wave'];recipes['actual_wave_refs']={name:job.get('receipt_ref',job.get('intended_tracked_ref')) for name,job in jobs.items()};recipes['global_acceptance']=d['code_acceptance_state']
+    (args.output/'local-G-closeout-recipes.json').write_text(json.dumps(recipes,ensure_ascii=False,indent=2)+'\n')
+    print(json.dumps({'candidate':sha,'tree':tree,'numerical_counts':dict(total),'paths':110,'finding_verdicts':dict(collections.Counter(row['finding_verdict'] for row in d['rows'])),'global_ci_after_browser':jobs['ci-parity-after-browser']['outcome'],'compressed_raw_bytes':n,'G_acceptance':'pending'},indent=2))
+
+if __name__=='__main__':main()

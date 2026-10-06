@@ -12,6 +12,7 @@ import itertools
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
+from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
@@ -1040,7 +1041,10 @@ def _typed_execution_payload(value: object) -> object:
     """Project every typed execution input, refusing opaque or omitted values."""
 
     if isinstance(value, Enum):
-        return _typed_execution_payload(value.value)
+        return {
+            "type": f"{type(value).__module__}.{type(value).__qualname__}",
+            "value": _typed_execution_payload(value.value),
+        }
     if isinstance(value, BaseModel):
         payload: dict[str, object] = {}
         for name, field in type(value).model_fields.items():
@@ -1053,13 +1057,26 @@ def _typed_execution_payload(value: object) -> object:
         private_values = getattr(value, "__pydantic_private__", None) or {}
         if any(item is not None for item in private_values.values()):
             raise ValueError("private_execution_input_not_bindable")
-        return payload
+        return {
+            "type": f"{type(value).__module__}.{type(value).__qualname__}",
+            "fields": payload,
+        }
     if isinstance(value, Mapping):
         if any(type(key) is not str for key in value):
             raise TypeError("execution_input_mapping_key_not_string")
-        return {key: _typed_execution_payload(item) for key, item in value.items()}
+        return {
+            "type": "mapping",
+            "items": {key: _typed_execution_payload(item) for key, item in value.items()},
+        }
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        return [_typed_execution_payload(item) for item in value]
+        return {
+            "type": "sequence",
+            "items": [_typed_execution_payload(item) for item in value],
+        }
+    if type(value) is Decimal:
+        if not value.is_finite():
+            raise ValueError("execution_input_non_finite")
+        return {"type": "decimal.Decimal", "value": str(value)}
     if value is None or type(value) in {str, bool, int}:
         return value
     if type(value) is float:

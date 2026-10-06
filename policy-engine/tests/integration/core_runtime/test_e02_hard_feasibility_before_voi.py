@@ -7,11 +7,13 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, NoReturn, cast
 
 import pytest
+from pydantic import PrivateAttr
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 from polisyos.core.artifacts import FileSystemCAS
@@ -30,7 +32,10 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     intervention_atom_content_hash,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    EnginePlan,
     JointSimulationHorizonController,
+    JointSimulationRequest,
+    _typed_execution_payload,
 )
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.world_model_record import WorldModelRecord
@@ -625,3 +630,160 @@ def test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route(
             assert not profile_handoff_port.supports_applicability_preflight(problem)
     finally:
         store.close()
+
+
+def test_subclass_atom_identity_is_distinct_but_preflight_refuses_it(
+    tmp_path: Path,
+) -> None:
+    """Same base atom hash cannot collapse distinct typed extension records."""
+
+    class _ExtendedAtom(InterventionAtomBinding):
+        extension_marker: str
+
+    store, problem, context, _high, low = _owner_fixture(tmp_path)
+    repo_root = Path(__file__).resolve().parents[3]
+    base_payload = low.atom.model_dump(mode="python")
+    try:
+        left_atom = _ExtendedAtom.model_validate({**base_payload, "extension_marker": "left"})
+        right_atom = _ExtendedAtom.model_validate({**base_payload, "extension_marker": "right"})
+        assert left_atom.content_hash == right_atom.content_hash == low.atom.content_hash
+
+        candidates = tuple(
+            _FixtureCandidate(
+                candidate_id=low.candidate_id,
+                atom=atom,
+                intervention_atoms=(atom,),
+                content_hash=atom.content_hash,
+            )
+            for atom in (left_atom, right_atom)
+        )
+        identities = tuple(
+            generation_cycle_module._candidate_content_hash(candidate) for candidate in candidates
+        )
+        assert identities[0] != identities[1]
+
+        port = JointSimulationPort(
+            repo_root=repo_root,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            for candidate in candidates:
+                prepared = port.prepare_candidate(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=0,
+                )
+                assert prepared.applicability.status == "not_established"
+                assert prepared.applicability.blockers == (
+                    "n5_preflight_intervention_atom_subclass_not_supported",
+                )
+                assert prepared.request is None
+    finally:
+        store.close()
+
+
+def test_request_digest_refuses_unserialized_live_engine_plan_state(
+    tmp_path: Path,
+) -> None:
+    """Identical wire payloads with a private execution handle are not admissible."""
+
+    class _LiveEnginePlan(EnginePlan):
+        _live_engine_plan: object = PrivateAttr(default_factory=object)
+
+    store, problem, context, _high, low = _owner_fixture(tmp_path)
+    repo_root = Path(__file__).resolve().parents[3]
+    try:
+        port = JointSimulationPort(
+            repo_root=repo_root,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            prepared = port.prepare_candidate(
+                candidate=low,
+                problem=problem,
+                cycle_index=0,
+            )
+            assert prepared.applicability.status == "eligible"
+            assert prepared.request is not None
+            request = prepared.request
+            baseline = port._controller.assess_applicability(request)
+            assert baseline.status == "eligible"
+
+            live_plan = _LiveEnginePlan.model_validate(
+                request.engine_plan[0].model_dump(mode="python")
+            )
+            dirty_request = request.model_copy(update={"engine_plan": (live_plan,)})
+            assert gy_content_hash(request.model_dump(mode="json")) == gy_content_hash(
+                dirty_request.model_dump(mode="json")
+            )
+
+            dirty = port._controller.assess_applicability(dirty_request)
+            assert dirty.status == "not_established"
+            assert dirty.request_digest is None
+            assert dirty.blockers == ("n5_request_digest_not_established",)
+    finally:
+        store.close()
+
+
+class _LegacyRunObservedError(RuntimeError):
+    """Stop after proving the legacy controller signature received its request."""
+
+
+class _OneArgumentLegacyController:
+    """Expose only the pre-preflight public controller call shape."""
+
+    def __init__(self) -> None:
+        self.requests: list[JointSimulationRequest] = []
+
+    def run(self, request: JointSimulationRequest) -> NoReturn:
+        self.requests.append(request)
+        raise _LegacyRunObservedError
+
+
+def test_injected_legacy_controller_keeps_one_argument_run_shape(
+    tmp_path: Path,
+) -> None:
+    """Unprepared custom controllers receive run(request), without new kwargs."""
+
+    store, problem, context, _high, low = _owner_fixture(tmp_path)
+    repo_root = Path(__file__).resolve().parents[3]
+    legacy = _OneArgumentLegacyController()
+    try:
+        port = JointSimulationPort(
+            controller=cast("JointSimulationHorizonController", legacy),
+            repo_root=repo_root,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+        with (
+            tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+            pytest.raises(_LegacyRunObservedError),
+        ):
+            port(candidate=low, problem=problem, cycle_index=0)
+
+        assert len(legacy.requests) == 1
+        request = legacy.requests[0]
+        assert request.intervention_atoms[0].content_hash == low.atom.content_hash
+        assert request.world_model_record.content_hash == (context.world_model_record.content_hash)
+    finally:
+        store.close()
+
+
+@pytest.mark.parametrize("value", ["NaN", "Infinity", "-Infinity"])
+def test_preflight_decimal_codec_rejects_nonfinite_values(value: str) -> None:
+    """A typed money leaf cannot hide a nonfinite execution value."""
+    with pytest.raises(ValueError, match="execution_input_non_finite"):
+        _typed_execution_payload(Decimal(value))
+
+
+def test_preflight_decimal_codec_binds_exact_value_and_separates_fake_mapping() -> None:
+    """Lossless typed numeric identity differs from a caller's lookalike mapping."""
+    actual = _typed_execution_payload(Decimal("0.20"))
+    changed = _typed_execution_payload(Decimal("0.21"))
+    fake = _typed_execution_payload({"type": "decimal.Decimal", "value": "0.20"})
+    assert actual != changed
+    assert actual != fake
+    assert actual == {"type": "decimal.Decimal", "value": "0.20"}
+    assert _typed_execution_payload(Decimal("0")) != _typed_execution_payload(0)

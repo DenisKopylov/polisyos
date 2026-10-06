@@ -1,0 +1,710 @@
+{
+  "schema": "e02.D.independent_funnel_review.v1",
+  "closure_ids": [],
+  "reviewer": {
+    "agent": "transfer_owner",
+    "production_authorship": "TRN/NN only; reviewed FUN/Core response authored by funnel_owner",
+    "writes": "Documentation/receipt only; no reviewed production/test/config changes"
+  },
+  "source": {
+    "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+    "G_audit_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "runtime_candidate_sha": "d796963c24ac84f101cd181da0e4eef85872ad42",
+    "runtime_candidate_tree": "e7dbdcaab672776e9318feb8fd64e83b8c88a9f0",
+    "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+    "before": {
+      "sha": "d796963c24ac84f101cd181da0e4eef85872ad42",
+      "tree": "e7dbdcaab672776e9318feb8fd64e83b8c88a9f0",
+      "status": ""
+    },
+    "after": {
+      "sha": "d796963c24ac84f101cd181da0e4eef85872ad42",
+      "tree": "e7dbdcaab672776e9318feb8fd64e83b8c88a9f0",
+      "status": ""
+    },
+    "production_commits": {
+      "cache_cost_binding": "af493da03a3048149c320c54c27e12c0ceeb73ba",
+      "reported_replay_boundary": "f1372db8e57039ab6e2c4fced11b3954d8848b00",
+      "all_origins_and_terminal_refusal": "1884bbf72750e3823470415e71931058f9def7f2",
+      "unused_variable_only_companion": "d796963c24ac84f101cd181da0e4eef85872ad42"
+    },
+    "composition_limit": "This is the frozen funnel topic candidate requested by root, not a fresh final aggregate proof or ancestry-based authority claim."
+  },
+  "specification_verdict": "BOUNDED_POSITIVE for the declared 21-case real local receipt/cache profile; original canonical criteria remain partial/held where inputs or consumer paths are missing.",
+  "engineering_verdict": "Independent native child PASS, 21 tests, no failures/errors/skips. No new blocker found within this executed profile. The known standalone/default cache resolver integration remains incompatible and unwaived.",
+  "native_runtime": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "pytest",
+      "-c",
+      "/workspace/e02-D-published-funnel/policy-engine/pytest.ini",
+      "-p",
+      "review_observer",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "tests/integration/core/llm/test_cache_response_binding.py",
+      "--basetemp=/workspace/e02-D3-receipts/transfer-funnel-independent/pytest-native-replay-cache-c2899977372444c980eed56200a16a6f",
+      "--junitxml=/workspace/e02-D3-receipts/transfer-funnel-independent/native-replay-cache.xml"
+    ],
+    "exit_code": 0,
+    "child_pid": 278185,
+    "pytest_seconds": 10.3,
+    "wall_seconds": 15.852213144302368,
+    "counts": {
+      "passed": 21,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 0
+    },
+    "partition": {
+      "reported_full_split_replay": 2,
+      "estimated_mixed_full_split_and_positive_terminal_replay": 8,
+      "complete_cache_binding_file": 11
+    },
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-D-published-funnel/policy-engine/src:/workspace/e02-D-published-funnel/policy-engine:/workspace/e02-D3-receipts/transfer-funnel-independent",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "TORCH_NUM_THREADS": null
+    },
+    "versions": {
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "hnswlib": "0.8.0",
+      "httpx": "0.28.1",
+      "pytest": "9.0.2",
+      "torch": "2.10.0"
+    },
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "loaded_product_origins": [
+      {
+        "loaded": true,
+        "module": "polisyos.core.llm.response",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/core/llm/response.py",
+        "sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+        "frozen_git_raw_sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.core.llm.settlement",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/core/llm/settlement.py",
+        "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+        "frozen_git_raw_sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.core.llm.traced_client",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/core/llm/traced_client.py",
+        "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+        "frozen_git_raw_sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c",
+        "frozen_git_raw_sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.scientist.methods.search.funnel.types",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "sha256": "aef417472ef72b9f720c2ffe10d7a68a09cc3bc5a0f05a915ac0a6b4de91db48",
+        "frozen_git_raw_sha256": "aef417472ef72b9f720c2ffe10d7a68a09cc3bc5a0f05a915ac0a6b4de91db48",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "frozen_git_raw_sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "frozen_git_raw_sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+        "frozen_git_raw_sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+        "equal": true
+      },
+      {
+        "loaded": true,
+        "module": "polisyos.scientist.orchestration.llm.prompt_cache",
+        "origin": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+        "frozen_git_raw_sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+        "equal": true
+      }
+    ],
+    "output_sha256": "e645a856e759bfa0928b2d13c19228f9fba027474b9f45956cb112fe00eaec44",
+    "junit_sha256": "c6188bb3c2895082f767519df6d6c0508b8d095025c3fc2030ea03d3850521fe",
+    "full_capture_sha256": "a1ce0996059806464f3d631123a647d1df6f4cd93d63fbd8123dfbf0a57b5d1a",
+    "resources_before": {
+      "memory.current": "16997199872\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 13017666\noom 125\noom_kill 20\noom_group_kill 0\n"
+    },
+    "resources_after": {
+      "memory.current": "16588693504\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 13034101\noom 125\noom_kill 20\noom_group_kill 0\n"
+    },
+    "limits": "One stdlib parent and native child; no thread/worker/process caps, shared-environment install, new archive/worktree, production edits or GP fit. Torch is imported by the actual production facade; this is not a GP numerical acceptance run."
+  },
+  "source_and_oracle_identity": {
+    "source_sha": "d796963c24ac84f101cd181da0e4eef85872ad42",
+    "source_tree": "e7dbdcaab672776e9318feb8fd64e83b8c88a9f0",
+    "B_production_mechanisms": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "owner_source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+        "equal": true,
+        "raw_sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "owner_source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+        "equal": true,
+        "raw_sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+        "equal": true,
+        "raw_sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+        "equal": true,
+        "raw_sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+        "equal": true,
+        "raw_sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+        "equal": true,
+        "raw_sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+        "equal": true,
+        "raw_sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+      }
+    ],
+    "source_and_oracle_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "git_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+        "raw_sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "git_blob": "f5752151ab11d4df0cde974d3454acb126228933",
+        "raw_sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "git_blob": "0820c6f7bfa2cf4653ffc450b66744987c03e9ea",
+        "raw_sha256": "aef417472ef72b9f720c2ffe10d7a68a09cc3bc5a0f05a915ac0a6b4de91db48"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+        "git_blob": "df830d86c2d62dd9ce57c0731a571feddfd37a79",
+        "raw_sha256": "66ca3aa761cc81068febf95944b1ce38ada07da4d5d3f157341fc6d0e2ecb3cb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "git_blob": "4611261fd80b0a9126d2511df006896f33670f7a",
+        "raw_sha256": "0fb75594a07be36d29c3a5fba4057b0136946c806dffbdfe4b11075400616450"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+        "git_blob": "2e6e8eff123715568ac14218751a1c116bb63cd0",
+        "raw_sha256": "6b9c34c51e41cc600cb8ca06fbff7843b4ab37103ce4ebc3ca8331831111f03a"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+        "git_blob": "acffc67d7caa1ab58a875e823bb0e877fdbb1841",
+        "raw_sha256": "8b7a1cf02cb9d61def82bbff4f2186d1d329d1573fd48c14ddb17034cc3b99cb"
+      },
+      {
+        "path": "policy-engine/tests/integration/core/llm/test_cache_response_binding.py",
+        "git_blob": "0fcf699f0f69aea77a145c8f10187e9bb05ccba8",
+        "raw_sha256": "8224e00b240fd86728dce2d00f34c266d25761c9ecda46f1b3ef9e75f4b033c5"
+      },
+      {
+        "path": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "git_blob": "2f287085df20a797fe908186bc93d8ab44867f4b",
+        "raw_sha256": "ebc3b9dcc195f865d1c7c76735ce4b4b3dc1aff3c537afcc214b872e8cbcdcc3"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+        "git_blob": "80e77c84026d5ff7d7c7d701c83c0e57e7e20723",
+        "raw_sha256": "6cde1afbfb5e84dc01cc46523a0fd9cfab57b2ba2aa3bfe1995bcf1e51935a09"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+        "git_blob": "9b5e2babdd364006b4ccf80d1d59679ded8f028a",
+        "raw_sha256": "c430123968bc3a3acc180a470377ae7afbde9dc5e893bc8a61700fc588a33820"
+      }
+    ],
+    "unchanged_original_reported_oracle": true,
+    "unchanged_estimated_mixed_oracle": true,
+    "L5_production_equal_371": true,
+    "prior_probe": {
+      "status": "ERROR_NONDECIDING",
+      "reason": "Reviewer included two src README files in seven-Python-mechanism count; corrected to src .py denominator without changing input source"
+    }
+  },
+  "actual_ledger_observations": {
+    "files": 21,
+    "retained_file_count": 42,
+    "reported_replay": "Each full/split case has one actual HTTP call, one persisted local receipt and spend1.0; outcome provider spend1, subsequent stage0 and typed reject are asserted by the unchanged original test.",
+    "estimated_replay": "Four cases persist one genuine estimated amount0.00004, one receipt; reported provider spend remains unavailable, repeated stage compute is0, full total is the single recorded amount.",
+    "mixed_replay": "Four cases persist reported1 plus estimated0.00004 with two actual calls/receipts; reported subset remains1 and repeated stage contributes0. Positive terminal result cannot override replay rejection.",
+    "cache": "All11 actual cache cases preserve expected original receipt/request/content binding or explicitly refuse. Estimated origin remains estimated with a genuine zero reuse event; consistent changed/missing origin cost cannot borrow the original paid receipt.",
+    "complete_ledgers": "All21 original ledger bytes and lock files, their hashes and decoded receipts are retained in the lossless payload; runtime-reconciliation.json contains full ledger receipt tuples."
+  },
+  "mechanism_review": [
+    {
+      "property": "Only actual configured local receipts admit free cache reuse",
+      "source": "Existing B receipt public type plus resolve_spend_safe exact equality; original event binds request, content digest, provider/model and amount; af493 checks received origin cost against paid event amount.",
+      "oracle": "Native HTTP cache11 includes valid paid reuse, three input corruptions and resolver/type/readback removal with producer markers retained."
+    },
+    {
+      "property": "Each physical event projects once across stages and cost origins",
+      "source": "Existing ticket stage results bind event ID to payload digest; fresh events alone contribute local incremental amount and reported subset. Replay adds typed blocker and terminal_action=reject. No new ledger/index/scope subsystem.",
+      "oracle": "Actual B FileBudgetLedger and traced HTTP full/split replay10; estimated/mixed cases also redeliver twice within the same stage and cover supported public terminal_action=complete."
+    },
+    {
+      "property": "Original owner source is not replaced by a reviewer proxy",
+      "source": "Seven B production mechanisms compare byte-for-byte with their immutable owner SHAs; nine already-loaded product module origins independently match d796 Git blobs.",
+      "oracle": "frozen-identity.json and runtime-reconciliation.json retained; no replacement ledger/model/producer."
+    },
+    {
+      "property": "L5 retains observed finite scenario fraction and uncertainty limits",
+      "source": "Full existing L5 typed denominator/adequacy/completeness consumer reviewed at371; production blob is unchanged through d796. bc30 declares typed1.1 fixture and explicit legacy1.0 metadata fixture without changing unassessed expectations.",
+      "oracle": "Source/author191 evidence only here; no fresh independent L5 runtime claim or population probability/estimand authority."
+    },
+    {
+      "property": "Ordinary node context forwards actual B owner without JSON injection",
+      "source": "PolicyBudgetExecutionContext forwards the caller instance; plain ExecutionContext remains unmanaged. No counterfeit certificate or permission callback.",
+      "oracle": "Four author191 ordinary tests, including actual backend refusal without admission and unchanged ledger, establish refusal/reachability only. Configured native paid workflow18 is a separate author proof; no default paid-factory positive is established."
+    }
+  ],
+  "original_negative_controls": [
+    {
+      "source_sha": "abcf7acd1a378f17a6375e2db0cf3de3fd1cfe52",
+      "source_tree": "6907bc73defe5cb2388d6f9ce7de44d64fb88435",
+      "result": "2FAIL authored actual traced HTTP/B-ledger full/split; one physical call and receipt projected provider spend2",
+      "output_sha256": "84e8ef267de618c63b51c54a85fe9225766303c0b0230cfa2f25dc3195ea8884",
+      "same_test_blob": "Unchanged through final d796, independently checked; final2 are part of independent21."
+    },
+    {
+      "source_sha": "120438ac616f5168e058b25012b656363b95a610",
+      "source_tree": "be5731facd005f9d01104ff1552ff1c6d6b596f1",
+      "result": "3FAIL authored actual cached paid response with all original content/request/receipt markers but absent/zero/different consistent received cost",
+      "output_sha256": "6901da2cb4dfa4075db4f577a1cb8db5e8d7011d701a753eb2f57ab432ce0d32",
+      "final_coverage": "All3 negative cases are part of the independent cache11."
+    },
+    {
+      "source_sha": "f1372db8e57039ab6e2c4fced11b3954d8848b00",
+      "result": "171PASS/11FAIL authored full182 affected input wave. Nine new strict StressTestReport intake failures and two invalid hyphenated problem IDs remained real failures; bc30 corrects fixture shapes, not expectations.",
+      "output_sha256": "8e69dbc7f9150460be5a6586b2da05cd03809d71d02413d004d97fce44314baf",
+      "scope": "Preserved complete output/JUnit; not waived as inherited."
+    }
+  ],
+  "author_vs_independent": {
+    "author_final191": {
+      "source_sha": "d796963c24ac84f101cd181da0e4eef85872ad42",
+      "result": "191PASS/0FAIL/error/skip",
+      "wall_seconds": 181.8616452217102,
+      "output_sha256": "746758c0a09f7ac43751ed0d2966d72df723c67d72ddae182a26ed47d82f12d6",
+      "all17_loaded_product_hashes": "Read and match recorded frozen Git hashes; broader native consumers are author evidence, not independently rerun."
+    },
+    "prior371": "203PASS/14FAIL preserved. All14 standalone/default cache consumers missing configured receipt resolver remain an external integration compatibility packet, not a PASS or P41 waiver.",
+    "independent21": "One completed fresh execution; shared pytest cache serialized after author191 release. No repeated killed gate, no synthesis of closure."
+  },
+  "canonical_criterion_accounting": [
+    {
+      "finding_id": "B118",
+      "criterion_card": "CTL-01",
+      "canonical_content": {
+        "text": "**Приёмка.** Два независимых run на одном владельце эквивалентны двум новым владельцам; первый результат не изменяется после второго; расходы и sentinels учитываются в своей области. Одновременные run на одном изменяемом контроллере либо поддержаны отдельным состоянием, либо прямо запрещены. Нынешний `SearchLoopRunner`, создающий свежий контроллер, может избегать этого сценария.",
+        "byte_offset": 715794,
+        "bytes": 671,
+        "sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3164,
+          3177
+        ],
+        "byte_offset": 712429,
+        "bytes": 4038,
+        "sha256": "c92cdd35554b9006c3632ceb0314c7378ad6ab123b9abf3ce040c25f5ba12b90"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B119",
+      "criterion_card": "CTL-01",
+      "canonical_content": {
+        "text": "**Приёмка.** Постоянная пустота заканчивается точным частичным результатом или exhaustion; временная пустота допускает ограниченный переход к настоящему кандидату; бюджет генерации и оплаченные внешние вызовы не теряются. Генератор с отменой и отказом должен сохранять свою причину остановки.",
+        "byte_offset": 719593,
+        "bytes": 531,
+        "sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3178,
+          3191
+        ],
+        "byte_offset": 716467,
+        "bytes": 3659,
+        "sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B120",
+      "criterion_card": "CTL-03",
+      "canonical_content": {
+        "text": "**Приёмка.** Одна измеряемая трата видна владельцу, остановке и результату; нет двойного списания кэша и обнуления при retry. Внешняя независимая бюджетная защита может уже остановить соответствующий маршрут: опыт не доказывает обход всех ограничений PolicyOS.",
+        "byte_offset": 723119,
+        "bytes": 465,
+        "sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3192,
+          3205
+        ],
+        "byte_offset": 720126,
+        "bytes": 3460,
+        "sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29"
+      },
+      "independent_coverage": "bounded actual resource replay/cache evidence; whole original criterion remains unclosed"
+    },
+    {
+      "finding_id": "B121",
+      "criterion_card": "CTL-03",
+      "canonical_content": {
+        "text": "**Приёмка.** Для явно объявленного бюджета новых оцениваний добавление пригодной истории не уменьшает его; контрольные вычисления расходуют ресурс, не становятся обучающими наблюдениями и не портят best/frontier. Проверяются комбинации с B118–B120.",
+        "byte_offset": 726866,
+        "bytes": 439,
+        "sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3206,
+          3221
+        ],
+        "byte_offset": 723586,
+        "bytes": 3721,
+        "sha256": "b47c247722c53867b98ba5f11bf37fa25f5a904284cf2cabf99661c5347c5203"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B123",
+      "criterion_card": "CTL-03",
+      "canonical_content": {
+        "text": "**Не добавлять лишний всеобщий gate.** Корректный legacy-режим без typed-входа остаётся возможен. Использовать существующее разделение research/decision и типизированную диагностику; приведённые различия — требования к семантике, не новые обязательные статусы репозитория. Приёмка связывает сам resolver, реальный ObjectiveStack, потребителя best/frontier и последующую публикацию.",
+        "byte_offset": 733728,
+        "bytes": 643,
+        "sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3236,
+          3249
+        ],
+        "byte_offset": 730419,
+        "bytes": 3954,
+        "sha256": "a36f027f31c7f0f4b9ff333811b9ecc4bb6a480853a13d7d026d2543593d9a95"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B156",
+      "criterion_card": "FUN-01",
+      "canonical_content": {
+        "text": "**Приёмка:** одинаковый эффективный запрос переиспользует результат; новая версия входа не получает старый score; новый независимый контроль действительно исполняется; история обычной попытки не изменяется. Приоритет высокий на stateful-маршруте, сложность средняя. Связь: B60–B61, B118, B127; здесь другой владелец и непосредственная связь Stage A/B.",
+        "byte_offset": 948475,
+        "bytes": 611,
+        "sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4105,
+          4116
+        ],
+        "byte_offset": 945137,
+        "bytes": 3951,
+        "sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B157",
+      "criterion_card": "FUN-02",
+      "canonical_content": {
+        "text": "**Приёмка:** сравнить прямую L4 с L3→L4 на одном исходном запросе; effective full-конфигурация и допустимые выходы должны совпасть, caller-context неизменен, L3 действительно остаётся более дешёвым. Не выключать L3 и не запускать всё в максимальной точности. Приоритет высокий на соответствующем пути; локальная правка с небольшим объёмом. Связь B59/B96 — общая причина aliasing, но здесь затронута достоверность названия fidelity.",
+        "byte_offset": 951621,
+        "bytes": 734,
+        "sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4117,
+          4128
+        ],
+        "byte_offset": 949088,
+        "bytes": 3269,
+        "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B158",
+      "criterion_card": "FUN-01",
+      "canonical_content": {
+        "text": "**Приёмка:** единый и раздельный вызовы на неизменных входах дают одинаковый набор разрешённых вычислений, расходы и причины остановки. На изменённых входах фиксируется необходимое различие. Опыт использует scheduler-фикстуру, не доказывает обход внешнего бюджета или полномочий. Приоритет высокий, сложность небольшая/средняя; связь B120: допуск расхода не зависит от формы обращения.",
+        "byte_offset": 954860,
+        "bytes": 696,
+        "sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4129,
+          4140
+        ],
+        "byte_offset": 952357,
+        "bytes": 3201,
+        "sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3"
+      },
+      "independent_coverage": "bounded actual resource replay/cache evidence; whole original criterion remains unclosed"
+    },
+    {
+      "finding_id": "B159",
+      "criterion_card": "FUN-01",
+      "canonical_content": {
+        "text": "**Приёмка:** повтор без новых оснований не расходует ресурс; разрешённое изменение создаёт проверяемое продолжение; постоянный blocker не исчезает; lineage и расходы сохраняются. Приоритет высокий для итеративного исследования; сложность средняя. Это расширение способности продолжать работу, не ослабление критерия её допустимости. Связь B09/B12/B118: содержательное продолжение, получение нового основания и отдельный запуск.",
+        "byte_offset": 958121,
+        "bytes": 765,
+        "sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4141,
+          4152
+        ],
+        "byte_offset": 955558,
+        "bytes": 3330,
+        "sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696"
+      },
+      "independent_coverage": "bounded actual resource replay/cache evidence; whole original criterion remains unclosed"
+    },
+    {
+      "finding_id": "B160",
+      "criterion_card": "FUN-02",
+      "canonical_content": {
+        "text": "**Приёмка:** обе пустые конфигурации возвращают неоценённость без положительного score; настоящий ноль от выполненного корректного метода сохраняется; маршруты с разрешённым малым числом стадий работают. Прямой исход в лабораторных адаптерах не доказывает признания публикации настоящим владельцем. Приоритет высокий для первого сквозного теста, локальный ремонт. Связь B108/B123 — другой источник ложного положительного результата.",
+        "byte_offset": 961198,
+        "bytes": 790,
+        "sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4153,
+          4164
+        ],
+        "byte_offset": 958888,
+        "bytes": 3102,
+        "sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B161",
+      "criterion_card": "FUN-03",
+      "canonical_content": {
+        "text": "**Приёмка:** разрешённое уточнение действительно меняет текущий результат; независимый высокий риск не затирается; другая популяция не замещает прежнюю неизвестность. Здесь доказано расхождение агрегата и последней стадии; конкретный downstream-отказ из-за него не воспроизведён. Приоритет по фактическому потребителю, сложность средняя. Связь S03/S08 и B137 — различие изменения знания и простого обращения к истории.",
+        "byte_offset": 964619,
+        "bytes": 752,
+        "sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4165,
+          4176
+        ],
+        "byte_offset": 961990,
+        "bytes": 3383,
+        "sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B162",
+      "criterion_card": "FUN-02",
+      "canonical_content": {
+        "text": "**Приёмка:** ошибочный, отсутствующий и действительный нулевой вход различимы; правильный конечный интервал сохраняет расчёт; остальные доступные результаты не теряются. Переход в настоящую публикацию не проверялся. Приоритет высокий на этом адаптере, локальный ремонт. Связь B105: здесь другой конкретный переход потери смысла uncertainty.",
+        "byte_offset": 967958,
+        "bytes": 612,
+        "sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4177,
+          4188
+        ],
+        "byte_offset": 965373,
+        "bytes": 3199,
+        "sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B163",
+      "criterion_card": "FUN-03",
+      "canonical_content": {
+        "text": "**Приёмка:** оба публичных интерфейса согласованы; пустой и статистически плохой корпуса различимы; ограничения публикации не снимаются ради зелёного статуса; совместимая калибровка переиспользуется. Подключение node статически прочитано, полный runtime не запущен. Приоритет высокий на новом/восстановленном tracker; сложность небольшая/средняя. Связь B114/B137 — нужное прошлое не теряется и не становится новым доказательством без оснований.",
+        "byte_offset": 971083,
+        "bytes": 797,
+        "sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4189,
+          4200
+        ],
+        "byte_offset": 968572,
+        "bytes": 3310,
+        "sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B164",
+      "criterion_card": "FUN-03",
+      "canonical_content": {
+        "text": "**Приёмка:** ограниченный режим не вызывает запрещённый producer; нормальный режим сохраняет работу; готовый результат доступен по своей политике; потеря разрешения перед commit обнаруживается владельцем. Реальная авторизация, запись в реестр и публикация не исполнялись, поэтому обход системных полномочий не заявлен. Приоритет высокий для callback-пути, локальный preflight плюс согласование владельца. Связь B78/B117 — иной участок границы решения и эффекта.",
+        "byte_offset": 974595,
+        "bytes": 813,
+        "sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4201,
+          4212
+        ],
+        "byte_offset": 971882,
+        "bytes": 3528,
+        "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+      },
+      "independent_coverage": "source/read-impact accounting only; not independently replayed here"
+    },
+    {
+      "finding_id": "B165",
+      "criterion_card": "FUN-02",
+      "canonical_content": {
+        "text": "**Приёмка:** наличие или отсутствие промежуточного необязательного verdict не меняет сводное состояние при одном исходе. Реальный score сохранён, полномочия не повышены, consumers не выбирают случайно удобное поле. Интеграция всех потребителей Stage B не запускалась. Приоритет высокий перед внешним представлением результата; сложность небольшая/средняя. Связь B123/B160: здесь потеря именно агрегированного решения после выполненной стадии.",
+        "byte_offset": 977869,
+        "bytes": 783,
+        "sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4213,
+          4224
+        ],
+        "byte_offset": 975410,
+        "bytes": 3244,
+        "sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258"
+      },
+      "independent_coverage": "bounded actual resource replay/cache evidence; whole original criterion remains unclosed"
+    }
+  ],
+  "unreceived_inputs_and_limits": [
+    "B producer settlement remains bounded local accounting and cache lineage, not external billing or institutional source authorization.",
+    "No issuer-backed persisted run/evaluation/stage scope port is added. Previously observed event replay is blocked within existing process-local funnel ticket state; restart or first-observation scope authority is not inferred.",
+    "Ordinary default node paid producer reachability still lacks the appointed evaluation admission/certificate/verifier and a real paid producer factory witness. Four natural safety refusals do not replace that positive.",
+    "Known14 standalone/default cache callers require configured resolver integration; no repository-wide green claim.",
+    "Raw JSON underflow lost in the upstream B Gateway decoder remains an owner input limitation; the D receiver does not invent original lost bytes.",
+    "L5 scientific scenario sampling, estimand and population-probability authority remain outside the observed fraction/adequacy contract.",
+    "Original whole15 criteria retain their canonical owners and are not closed by this independent21-case review."
+  ],
+  "neural_release_governance_companion": {
+    "commit": "0e370297bb89ff0fc6dbf376f4ed2afa0d0195d2",
+    "tree": "b0ba9b2e22877a627426a3645520196240c57160",
+    "files": [
+      "release-fragments/unreleased/2026-10-06-e02-neural-warm-checkpoint.toml",
+      "docs/how-to/neural-warm-checkpoint-migration.md"
+    ],
+    "checks": "Canonical _validate_fragments and render_release_notes for one owned fragment, zero errors/findings. No whole repository release-gate claim.",
+    "independent_review_receipt_sha": "22b5fd724414416e3d617f0546479b122ed6f313",
+    "scope": "Documentation only; cba production/test bytes and original68/47/3-fit evidence unchanged."
+  },
+  "full_output_payload": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-funnel-d796-output.json.gz",
+    "sha256": "391749aea25beac51f9ab5db677c61fd7e261fd9ba80e8f4c5768843f9fec51b",
+    "compressed_bytes": 51539,
+    "members": 65,
+    "encoding": "gzip JSON; each original byte member has absolute original path, length, SHA256 and UTF8 or base64 content"
+  },
+  "preservation": {
+    "manual_deletion": "none",
+    "shared_environment_writes": "none; PYTHONDONTWRITEBYTECODE=1",
+    "retained_cleanup_candidates": [
+      "/workspace/e02-D3-receipts/transfer-funnel-independent/pytest-native-replay-cache-c2899977372444c980eed56200a16a6f"
+    ],
+    "cleanup": "No native Trash is available; candidate remains retained. Existing supplier atomic replacement/default temporary cleanup is not a whole-filesystem immutability claim.",
+    "source_setup_errors": "The nondeciding record-count and rendered-ID reviewer assertions are recorded in frozen-identity.json and neural-release-companion-check.json. Output from the large capture was truncated only in tool rendering; the complete deciding files are retained."
+  }
+}

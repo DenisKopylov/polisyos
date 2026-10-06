@@ -7,5 +7,22 @@ summary = "NeuralSearchStrategy persists its full admitted warm evaluations with
 surface_classification = "internal: internal-only"
 evidence = ["tests/unit/scientist/search/strategies/test_neural_checkpoint.py"]
 compatibility = "Numerical warm reuse now requires a paired NumericTransferBasis and canonical admission reader. Cold current-run search remains available. The existing CPU SingleTaskGP refits each ask, uses the minimized scalar convention and a per-strategy checkpointed RNG seed."
+change_class = "runtime-state-format"
 migration = "Configure numerical_basis and warm_start_admission from the existing WarmStartBridge. Persist complete StrategyState artifacts; older count-only neural warm states must be rebuilt from their actual history refs."
 limitations = "Supported continuation requires the same CPU backend versions, configuration, space, numerical basis and resolvable original refs. No trained NN GP binary is restored, no cross-version equivalence or institutional source authority is inferred, and no empirical optimization-quality benefit is claimed."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/neural-warm-checkpoint-migration.md"]
+runbook_docs = ["docs/how-to/neural-warm-checkpoint-migration.md"]
+
+[[compatibility_change]]
+id = "neural-content-bound-warm-corpus-v1"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "internal: NeuralSearchStrategy StrategyState CAS artifacts"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Count-only checkpoints remain retained historical bytes; the new reader refuses them. No automatic rewrite or retirement is scheduled."
+release_note = "Neural warm checkpoints now require the complete neural_warm_corpus.v1 profile and the configured numerical basis and CAS admission reader; count-only legacy checkpoints require explicit history re-admission before a new checkpoint is written."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/neural-warm-checkpoint-migration.md"]
+runbook_docs = ["docs/how-to/neural-warm-checkpoint-migration.md"]

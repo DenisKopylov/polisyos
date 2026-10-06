@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.execution_deviation.v1",
+  "unit": "D",
+  "deviation": "Permanent deletion of two own scratch source extractions instead of native Trash/cleanup-candidate delivery",
+  "status": "recorded; all further deletion stopped",
+  "time_basis": "bounded, exact deletion UTC time not captured",
+  "time_interval_utc": {
+    "after": "2026-10-06T10:31:53Z",
+    "before": "2026-10-06T10:34:01Z",
+    "lower_basis": "published coordinate receipt2c2bf1f0f commit timestamp precedes deletion call",
+    "upper_basis": "clock.curr_time after deletion and root stop instruction"
+  },
+  "deleted_paths": [
+    "/tmp/search-coordinate-cb47-92fhad6h",
+    "/tmp/search-A-apply-base-198-f6yzdd0i"
+  ],
+  "actual_code": "import pathlib,shutil\nfor name in ('/tmp/search-coordinate-cb47-92fhad6h','/tmp/search-A-apply-base-198-f6yzdd0i'):\n p=pathlib.Path(name)\n if p.is_dir(): shutil.rmtree(p); print('removed own scratch',p)\n",
+  "retained_source_identities": [
+    {
+      "sha": "cb47af447e3d9dd73bdf95bb7a211f2110995248",
+      "tree": "1597ea3091679bdc57fc997861e51252103064e8",
+      "use": "completed coordinate archive"
+    },
+    {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "use": "incomplete A apply-check base extraction failed ENOSPC; no deciding check completed in that removed extraction"
+    }
+  ],
+  "retained_outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-cb47.txt",
+      "sha256": "8566e81e845d9105a991f6c2602f1a976698af7d8af43d7aecc6b3fa3e31ef70",
+      "bytes": 2769
+    }
+  ],
+  "limits": "Scratch source extractions were Git archives; all source commits and tracked complete deciding output remain. This does not undo the cleanup deviation. The later full A archive in /dev/shm was not deleted: the metadata helper aborted before its cleanup call, and no further cleanup is permitted.",
+  "trigger": "/tmp reported100% full, ENOSPC during A archive extraction; this is evidence, not an exception to the cleanup instruction."
+}

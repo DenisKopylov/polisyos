@@ -48,5 +48,18 @@
     "A reviews/applies the metadata export companion against its canonical source and executes the real CAS reader recipe.",
     "A supplies/configures the independent eligibility and unknown-coverage provider, then runs the native denominator falsifier with missing and complete actual producer inputs.",
     "G accepts the source/owner profile and cross-unit integration; D does not treat this proposed artifact or an arbitrary True marker as an executed consumer or closure."
-  ]
+  ],
+  "final_source_evidence": {
+    "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+    "tree": "2229e35bd74f80baffee0a63da4d38a76f062dff",
+    "native_deciding_output": "2 failed, 2 warnings in 9.65s",
+    "outcome": "FAIL_DECLARED_DEPENDENCY",
+    "log": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency-12ee.txt",
+      "sha256": "9b07286b3bee5d65cfe0911e7f8d6ab2691cd10588d9758d4fa98428191ac977",
+      "bytes": 4231
+    },
+    "A_consumer_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+    "scope": "actual unchanged A builder plus CAS reader; neither foreign source was edited nor proposed patch applied"
+  }
 }

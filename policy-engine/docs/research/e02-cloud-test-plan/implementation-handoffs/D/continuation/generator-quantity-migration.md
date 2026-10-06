@@ -46,8 +46,9 @@ must refuse comparison, including after actual CAS readback.
 
 Empty/unassessed input, invalid reference and unsupported/missing backend now
 carry null plus a typed unavailable assessment. Nonempty finite boxes with
-exact zero union remain available zero. Consumers check assessment availability
-before comparing or stopping; replacing null with zero changes the meaning.
+exact zero union remain available zero. Indicator consumers check assessment
+availability before comparison; replacing null with zero changes the meaning.
+There is no hypervolume stopping adapter in the scoped native caller inventory.
 Supported exact dimensions are1–4; the optional3/4D profile is locked CPUfloat64
 BoTorch0.16.1/Torch2.10.0 dominated partitioning. Other profiles are unavailable.
 
@@ -82,9 +83,18 @@ bound coordinate schema refuse at the canonical typed artifact reader. A paired
 coordinate rename/reindex must update omissions along with values and reference
 keys; retaining old omission IDs does not describe the new coordinate basis.
 
+Direct typed `ParetoFront`/`HypervolumeResult` CAS serialization must explicitly
+use `CanonSpec(forbid_floats=False, exclude_none=False)`. The default direct-model
+profile drops required null fields and does not establish safe readback. The
+ordinary registry JSON writer and the reviewed A frontier-report metadata path
+preserve mapping nulls; their actual update, projection, persistence and fresh
+report reader are checked separately. This does not appoint an external
+candidate-universe provider or supply institutional metric-source authority.
+
 ```bash
 python -m pytest -q tests/unit/scientist/methods/autotune/test_hypervolume_profile.py tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py tests/unit/scientist/methods/search/test_frontier_quantity_readback.py
 python -m pytest -q tests/unit/scientist/methods/autotune/test_hypervolume_representability.py tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py
+python -m pytest -q tests/unit/scientist/methods/search/test_registry_quantity_projection.py
 ```
 
 The external A producer/exporter and eligible/feasible/unknown denominator packet

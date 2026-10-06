@@ -90,7 +90,7 @@ def _fit_real(tmp_path: Path, n: int):
         canon_spec=CanonSpec(forbid_floats=False),
     )
     MethodRegistry.get_instance().register(HybridSCMFit, override=True)
-    from polisyos.foundry.methods import causal_worker_execution_context
+    from polisyos.foundry import causal_worker_execution_context
 
     with causal_worker_execution_context(store=store, source_ref=source):
         result = run_job(
@@ -143,7 +143,7 @@ def test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer(tmp_path, 
     assert model.fit_method == "gcm" and model.schema_version == "1.1"
     assert model.fit_provenance.versions["dowhy"] == "0.14"
     assert model.training_rows.source_sha256 == hashlib.sha256(store.get_bytes(source)).hexdigest()
-    from polisyos.foundry import methods
+    from polisyos import foundry as methods
 
     methods.validate_source_bound_gcm_spec(model, store)
     methods.validate_source_bound_causal_worker_response(
@@ -393,6 +393,7 @@ def test_public_source_bound_validation_facade_identity_invocation_and_pickle():
     import pickle
     from importlib import import_module
 
+    from polisyos import foundry
     from polisyos.foundry import methods
     from polisyos.foundry.methods import api
 
@@ -411,6 +412,8 @@ def test_public_source_bound_validation_facade_identity_invocation_and_pickle():
             return getattr(import_module(module), name)
 
     for name, provider in providers.items():
+        assert name in foundry.__all__
+        assert getattr(foundry, name) is provider
         assert name in methods.__all__ and name in api.__all__
         assert getattr(methods, name) is getattr(api, name) is provider
         assert FacadeUnpickler(io.BytesIO(pickle.dumps(provider))).load() is provider

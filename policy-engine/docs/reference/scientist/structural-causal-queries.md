@@ -5,7 +5,7 @@ structural model artifact in the experiment state, validates the requested
 `params.causal_query`, and runs the existing
 `causal.structural.gcm_query@1.0.0` Foundry method job. The job records its original
 SCM reference as an input. Selected source-bound models are reopened and validated
-through the public `polisyos.foundry.methods` facade before numerical consumption.
+through the public `polisyos.foundry` facade before numerical consumption.
 Historical/manual models remain usable for bounded model calculations without
 supplying a new backend or policy-authority witness.
 

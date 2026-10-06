@@ -1,0 +1,100 @@
+{
+  "schema": "polisyos.e02.independent_final_corrective_wave_decision.v1",
+  "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "metadata_only": true,
+  "new_runtime": false,
+  "decision": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+  "runtime": {
+    "child_pid": 450477,
+    "child_exit": -9,
+    "signal": 9,
+    "wall_seconds": 85.5190040430025,
+    "recorded_unique_collected_identities": 1249,
+    "collection_complete_event": false,
+    "case_starts": 0,
+    "case_reports": 0,
+    "case_finishes": 0,
+    "cases_UNRUN": 1249,
+    "observed_module_collection_skips_UNRUN": 15,
+    "observed_assertion_failures": 0,
+    "JUnit_present": false,
+    "observer_summary_present": false,
+    "session_finish_present": false,
+    "termination_cause": "SIGKILL observed; global counters do not establish PID-specific cause"
+  },
+  "integrity": {
+    "verdict": "PASS_WITHIN_EXACT_CAPTURE_SCOPE",
+    "captured_Git_input_blobs": 5568,
+    "tracked_source_Python_inputs": 2701,
+    "tracked_tests_Python_inputs": 2860,
+    "observed_main_process_product_paths": 1366,
+    "discrepancies": 0,
+    "published_carrier_members": 13,
+    "published_carrier_original_bytes": 5395382,
+    "carrier_commit": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+    "carrier_tree": "2118de2cda05638a91c428886621057d32d18fe6",
+    "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+    "carrier_sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/manifest.json"
+  },
+  "evidence_links": {
+    "capture": {
+      "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+      "member_pointers": {
+        "events": "/members/5/data",
+        "result": "/members/9/data",
+        "recorded_ids": "/members/2/data",
+        "before": "/members/1/data",
+        "after": "/members/0/data",
+        "execution_manifest": "/members/6/data"
+      }
+    },
+    "prior_independent_partial_review": {
+      "source_sha": "8c0970e164bc427cc1a223922018dcaa50b5ca6e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent-handoff.json"
+    },
+    "existing_partial_measurement_helper": {
+      "source_sha": "2fa4074df4e2aee923cb3b233dbe8f9963884b84",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/partial-audit.py.txt",
+      "sha256": "91d8f13791eef486362d258f62e8c91f91cde1e47a623797db2cb3015cd4dfe2"
+    }
+  },
+  "historical_targeted_scopes": [
+    {
+      "name": "optional38",
+      "actual_source": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "historical_outcome": "17PASS21SKIP/native_UNRUN"
+    },
+    {
+      "name": "paid_cache13",
+      "actual_source": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "historical_outcome": "13PASS0skip; bounded owner-recorded custody"
+    },
+    {
+      "name": "stress57",
+      "actual_source": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "historical_outcome": "healthy57PASS; two removal runs each53PASS4FAIL required"
+    },
+    {
+      "name": "root44",
+      "actual_source": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+      "historical_outcome": "35node+7ledger+2ordinary44PASS; original individually uncaptured helper caveat retained"
+    }
+  ],
+  "historical_scope_qualification": "All production Python plus explicitly listed selected test/config blobs match the final source. This is static bounded compatibility, not a new execution or an inherited aggregate PASS; neither every historical conftest nor all dynamic subprocess behavior is independently re-executed.",
+  "environment_scope": "Genuine148 locked core/runtime/test minimal profile; Torch/BoTorch/GPyTorch/HNSW/SALib absent. Configure observation and earlier profile are source-bound availability evidence only; no native fitting or numerical predicate acceptance.",
+  "limitations": [
+    "No completed collection/session or case-phase verdict; zero observed assertion failures must never be reported as suite PASS.",
+    "The15 observed skipped modules are separate native UNRUN, not15 cases and not an extra complete denominator.",
+    "No completed main-process final census or subprocess origin enforcement claim.",
+    "Source/integrity PASS does not establish numerical, billing, scientific, population, statistical-history or external authority acceptance.",
+    "Earlierc17 failure classes and original targeted outcomes remain preserved on their actual runtime source pins; this interruption supplies no supersession.",
+    "No source/test/backend writes, children, caps, deletions or runtime retries were performed by this review."
+  ],
+  "P41": "not_established",
+  "formal_closed": 0,
+  "G_accepted": false,
+  "closure_ids": []
+}

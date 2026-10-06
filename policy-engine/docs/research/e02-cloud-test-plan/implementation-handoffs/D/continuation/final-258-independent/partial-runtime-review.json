@@ -1,0 +1,291 @@
+{
+  "schema": "polisyos.e02.independent_corrective_partial_wave_review.v1",
+  "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "new_runtime": false,
+  "metadata_only": true,
+  "whole_suite_verdict": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+  "formal_closed": 0,
+  "G_accepted": false,
+  "snapshots": {
+    "declared_count": 5568,
+    "before_after_files_equal": true,
+    "external_inputs_equal": true,
+    "git_state_equal": true,
+    "before_and_after_clean": true,
+    "frozen_git_discrepancies": [],
+    "all_tracked_tests_python": 2860,
+    "captured_tests_python": 2860,
+    "missing_tracked_tests_python": [],
+    "all_tracked_source_python": 2701,
+    "captured_source_python": 2701,
+    "missing_tracked_source_python": []
+  },
+  "selected_count": 100,
+  "extra_selectors": [],
+  "inherited_numeric_caps_and_addopts": {},
+  "denominator": {
+    "collected_unique": 1249,
+    "collected_raw": 1249,
+    "collected_declared": 1249,
+    "declared_unique": 1249,
+    "deselected": [],
+    "unique_starts": 0,
+    "unique_finishes": 0,
+    "unfinished_started": [],
+    "never_started_count": 1249,
+    "never_started_ids_json_sha256": "ac8347f213021652846f67474fabf7e6e5160586efc259b680a7dae614801c06",
+    "collected_cases_UNRUN_count": 1249,
+    "complete_phase_counts": {},
+    "complete_phase_shape_gaps": [],
+    "started_outside_collection": [],
+    "finished_outside_collection": [],
+    "failure_unique_count": 0,
+    "failure_phase_count": 0,
+    "failure_and_error_phase_overlap": [],
+    "collection_skipped_modules": 15
+  },
+  "failures": [],
+  "failure_classes": {},
+  "completed_skips": [],
+  "collection_reports": [
+    {
+      "nodeid": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "outcome": "skipped",
+      "events_line": 1196,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py', 30, 'Skipped: UNRUN: configured native transfer requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "outcome": "skipped",
+      "events_line": 1197,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 15, 'Skipped: UNRUN: native numerical adapter requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "outcome": "skipped",
+      "events_line": 1204,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py', 9, 'Skipped: UNRUN: optional numerical runtime unavailable')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "outcome": "skipped",
+      "events_line": 1205,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py', 7, 'Skipped: UNRUN: actual DOE backend required')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "outcome": "skipped",
+      "events_line": 1207,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py', 41, 'Skipped: UNRUN: native receiver review requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "outcome": "skipped",
+      "events_line": 1208,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py', 7, 'Skipped: SALib not installed')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "outcome": "skipped",
+      "events_line": 1209,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py', 7, 'Skipped: UNRUN: actual DOE backend required')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "outcome": "skipped",
+      "events_line": 1210,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py', 37, 'Skipped: UNRUN: native transfer workflow requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "outcome": "skipped",
+      "events_line": 1213,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py', 10, \"Skipped: could not import 'SALib': No module named 'SALib'\")"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "outcome": "skipped",
+      "events_line": 1215,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py', 27, 'Skipped: UNRUN: native analytic GP continuation requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "outcome": "skipped",
+      "events_line": 1216,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py', 7, 'Skipped: UNRUN: optional numerical runtime unavailable')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "outcome": "skipped",
+      "events_line": 1217,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py', 7, 'Skipped: UNRUN: actual native MO backend')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "outcome": "skipped",
+      "events_line": 1218,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py', 15, 'Skipped: UNRUN: actual MO reference consumer requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "outcome": "skipped",
+      "events_line": 1220,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py', 11, 'Skipped: UNRUN: transfer selection requires native HNSW')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "outcome": "skipped",
+      "events_line": 1383,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py', 19, 'Skipped: UNRUN: native CAS/ANN producer requires hnswlib')"
+    }
+  ],
+  "loaded_product_origins": {
+    "event_rows": 2732,
+    "unique_paths": 1366,
+    "frozen_git_discrepancies": [],
+    "scope": "Observed main-process partial exec/census only; no final census or subprocess source enforcement claim"
+  },
+  "sampled_actual_backends": [
+    {
+      "events_line": 272,
+      "stage": "configure",
+      "state": {
+        "torch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "botorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "gpytorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "hnswlib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "SALib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "numpy": {
+          "installed_version": "2.3.5",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+          "module_version": "2.3.5",
+          "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+          "module_file_bytes": 25919
+        },
+        "scipy": {
+          "installed_version": "1.16.3",
+          "actually_loaded_in_main_process": false
+        },
+        "pytest": {
+          "installed_version": "9.0.2",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+          "module_version": "9.0.2",
+          "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+          "module_file_bytes": 5582
+        },
+        "numpy._core._multiarray_umath:binary": {
+          "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+          "bytes": 10800697,
+          "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+        }
+      }
+    }
+  ],
+  "artifact_identities": {
+    "before.json": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/before.json",
+      "bytes": 1618218,
+      "sha256": "1e8a02fb06ccb7f1f3866f9afbc778660ed1bbc8a0cdcae6ae8870551cb3dc4c"
+    },
+    "after.json": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/after.json",
+      "bytes": 1618218,
+      "sha256": "073999e770b0e66a2541ae1f989d2bf9b3429e500cfeea85caad1d6a2ecf87df"
+    },
+    "result.json": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/result.json",
+      "bytes": 45623,
+      "sha256": "aaf25a7f8b9bb0f163c1ddd6c98cab138183a0ab6b27ff440d3eb31736aa2359"
+    },
+    "execution-manifest.json": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/execution-manifest.json",
+      "bytes": 34461,
+      "sha256": "fe9956570b8d2981d7a58f0d00b43f763e4000c759770548563addc662567e96"
+    },
+    "events.jsonl": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/events.jsonl",
+      "bytes": 1731587,
+      "sha256": "1a0b74a36c541e74dee8a56259e5c71fc5b5c02d41b7b54d86026cf14ae5bebc"
+    },
+    "collected-nodeids.json": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/collected-nodeids.json",
+      "bytes": 191631,
+      "sha256": "52b0f5385e4e68a9093d1a45624ef6369b3ba991898e34eed2f72a9393084c2a"
+    },
+    "complete.stdout.txt": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/complete.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "complete.stderr.txt": {
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/complete.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "missing_final_artifacts": [
+    "junit.xml",
+    "observer-summary.json"
+  ],
+  "event_kind_counts": {
+    "observer_loaded": 1,
+    "polisyos_module_exec": 1366,
+    "polisyos_module_census": 2,
+    "configure": 1,
+    "collection_report": 15
+  },
+  "termination": {
+    "child_exit": -9,
+    "signal": 9,
+    "wall_seconds": 85.5190040430025,
+    "child_usage": {
+      "user_seconds": 18.420474,
+      "system_seconds": 37.425421,
+      "maxrss_KiB_linux": 540448
+    },
+    "scope": "Observed SIGKILL only; global memory counters do not establish PID-specific cause"
+  },
+  "limitations": [
+    "The child ended with SIGKILL (-9); no PID-specific cause is established from global memory counters.",
+    "No case_start, case_report or case_finish is present: zero testcase assertions ran to an observable verdict.",
+    "The observer wrote collected-nodeids.json before its collection-finish census, but no collection_complete event exists.",
+    "The artifact count describes recorded collected identities, not successful normal completion of collection or the suite.",
+    "All recorded collected testcases remain UNRUN; the 15 collection skips remain UNRUN for their native backend predicates.",
+    "No JUnit, final observer summary or session_finish exists. There is no whole-suite PASS or test-level failure verdict in this capture.",
+    "Observed main-process product paths and captured inputs can establish source integrity only, never native fitting or numerical acceptance.",
+    "The historical c17 failed calls and b9 bounded guard results remain separate evidence and are not superseded by this interruption."
+  ],
+  "measurement_helper": {
+    "existing_commit": "2fa4074df4e2aee923cb3b233dbe8f9963884b84",
+    "existing_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/partial-audit.py.txt",
+    "sha256": "91d8f13791eef486362d258f62e8c91f91cde1e47a623797db2cb3015cd4dfe2",
+    "adaptation": "Only source/capture inputs and generic unknown failure classification; historical fixed prose replaced with facts from this new capture."
+  },
+  "event_trace_classification": {
+    "collection_complete_observed": false,
+    "case_start_observed": 0,
+    "case_report_observed": 0,
+    "case_finish_observed": 0,
+    "session_finish_observed": 0,
+    "assertion_failure_classes": {},
+    "predicate_verdict": "UNRUN"
+  }
+}

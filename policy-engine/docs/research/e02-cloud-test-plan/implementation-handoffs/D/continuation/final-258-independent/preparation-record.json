@@ -1,0 +1,22 @@
+{
+  "schema": "polisyos.e02.independent_metadata_preparation_record.v1",
+  "product_or_runtime_changes": false,
+  "observations": [
+    {
+      "original_input": "targeted-compatibility-original-draft.py.txt",
+      "observed_error": "ValueError: too many values to unpack (expected 4)",
+      "phase": "metadata helper preparation before output",
+      "successor_input": "targeted-compatibility.py.txt",
+      "correction": "Unpack five declared tuple fields; replace guessed root44 selected paths with exact captured original argv. No test/property/runtime expectation was weakened."
+    },
+    {
+      "original_input": "interactive carrier inspection",
+      "observed_error": "KeyError: 'complete_members'",
+      "phase": "metadata schema inspection before carrier verdict",
+      "successor_input": "carrier-audit.py.txt",
+      "correction": "Use this new manifest's actual 'members' schema; no payload/runtime mutation."
+    }
+  ],
+  "old_prepared_outputs_preserved_in_tmp": true,
+  "backend_test_verdict_from_preparation_errors": false
+}

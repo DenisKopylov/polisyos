@@ -69,7 +69,7 @@ breaking/non-breaking API changes.
 
 - Генератор строит ожидаемый stub каждой цели во временном каталоге,
   применяет `ruff check --select I --fix`, затем `ruff format` с repository
-  `pyproject.toml`. Обычный режим атомарно записывает канонические bytes.
+  `ruff.toml`. Обычный режим атомарно записывает канонические bytes.
   `--check` строит те же bytes и сравнивает каждую из четырёх целей без записи
   checked-in файлов; missing/unreadable target, drift или ошибка producer
   возвращают ненулевой exit. Freshness command:

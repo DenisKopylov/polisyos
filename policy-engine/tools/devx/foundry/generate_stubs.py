@@ -109,7 +109,7 @@ def _canonicalize_stub(content: str, candidate: Path) -> str | None:
     """Apply repository import ordering and formatting to a scratch stub."""
     candidate.parent.mkdir(parents=True, exist_ok=True)
     candidate.write_text(content, encoding="utf-8")
-    config = REPO_ROOT / "pyproject.toml"
+    config = REPO_ROOT / "ruff.toml"
     commands = (
         (
             sys.executable,

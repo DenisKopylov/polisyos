@@ -238,7 +238,11 @@ _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
 # Keep this separate from the EvalSafety intake allowlist above: an incomplete
 # interaction horizon cannot become a promotion input.
 _N8_CANDIDATE_SIMULATION_LIMITATIONS = frozenset(
-    {*_SIMULATION_AUTHORITY_LIMITATIONS, "interaction_evidence_incomplete"}
+    {
+        *_SIMULATION_AUTHORITY_LIMITATIONS,
+        "interaction_evidence_incomplete",
+        "candidate_scenario_n5_only",
+    }
 )
 # Exhaustive typed projection partition. A new canonical terminal must be
 # assigned deliberately before N6 may turn a selected stop into a cycle result.
@@ -872,6 +876,7 @@ def _validate_loaded_joint_simulation_result(
     result: JointSimulationResult,
     *,
     expected_world_model_record_content_hash: str | None,
+    expected_world_model_record_ref: str | None,
     expected_atom_ids: Sequence[str] | None,
     expected_selected_outcomes: Sequence[str] | None,
 ) -> None:
@@ -898,7 +903,15 @@ def _validate_loaded_joint_simulation_result(
             "joint_simulation_result_wmr_mismatch",
             "N5 result is bound to another WorldModelRecord",
         )
-    if expected_atom_ids is not None and tuple(result.atom_ids) != tuple(expected_atom_ids):
+    if (
+        expected_world_model_record_ref is not None
+        and result.world_model_record_ref != expected_world_model_record_ref
+    ):
+        raise GenerationCycleError(
+            "joint_simulation_result_wmr_mismatch",
+            "N5 result names another WorldModelRecord occurrence",
+        )
+    if expected_atom_ids is not None and sorted(result.atom_ids) != sorted(expected_atom_ids):
         raise GenerationCycleError(
             "joint_simulation_result_atom_binding_mismatch",
             "N5 result atom identities differ from the requested model",
@@ -916,6 +929,21 @@ def _validate_loaded_joint_simulation_result(
         )
     if result.receipt.trajectory_count != len(result.trajectories):
         _joint_simulation_result_integrity_error("trajectory_count_mismatch")
+    selected_decisions = tuple(
+        decision for decision in result.engine_decisions if decision.decision == "selected"
+    )
+    if len(selected_decisions) != 1:
+        _joint_simulation_result_integrity_error("selected_engine_decision_not_unique")
+    selected = selected_decisions[0]
+    selected_identity = (selected.engine_kind, selected.method_fqn, selected.objective_ref)
+    if result.receipt.engine_kind != selected.engine_kind:
+        _joint_simulation_result_integrity_error("receipt_engine_selection_mismatch")
+    if any(
+        (trajectory.engine_kind, trajectory.method_fqn, trajectory.objective_ref)
+        != selected_identity
+        for trajectory in result.trajectories
+    ):
+        _joint_simulation_result_integrity_error("trajectory_engine_selection_mismatch")
     atom_ids = set(result.atom_ids)
     selected_outcomes = set(result.selected_outcomes)
     for trajectory in result.trajectories:
@@ -929,6 +957,8 @@ def _validate_loaded_joint_simulation_result(
         for point in trajectory.points:
             if not selected_outcomes.issubset(point.effect):
                 _joint_simulation_result_integrity_error("trajectory_effect_missing")
+            if not selected_outcomes.issubset(point.outcomes):
+                _joint_simulation_result_integrity_error("trajectory_outcome_missing")
             for values in (point.outcomes, point.effect):
                 if any(not math.isfinite(float(value)) for value in values.values()):
                     _joint_simulation_result_integrity_error("trajectory_non_finite")
@@ -939,6 +969,8 @@ def load_joint_simulation_result(
     *,
     store: ArtifactStore,
     expected_world_model_record_content_hash: str | None = None,
+    expected_world_model_record_ref: str | None = None,
+    expected_receipt_payload_hash: str | None = None,
     expected_atom_ids: Sequence[str] | None = None,
     expected_selected_outcomes: Sequence[str] | None = None,
 ) -> JointSimulationResult:
@@ -1039,9 +1071,15 @@ def load_joint_simulation_result(
         verify_simulation_receipt(result.receipt, result.content_bound_payload())
     except (ProofReceiptError, TypeError, ValueError) as exc:
         _joint_simulation_result_integrity_error("receipt_or_payload_invalid", exc)
+    if (
+        expected_receipt_payload_hash is not None
+        and result.receipt.payload_hash != expected_receipt_payload_hash
+    ):
+        _joint_simulation_result_integrity_error("receipt_payload_hash_binding_mismatch")
     _validate_loaded_joint_simulation_result(
         result,
         expected_world_model_record_content_hash=expected_world_model_record_content_hash,
+        expected_world_model_record_ref=expected_world_model_record_ref,
         expected_atom_ids=expected_atom_ids,
         expected_selected_outcomes=expected_selected_outcomes,
     )
@@ -4389,9 +4427,7 @@ def simulation_evaluation_input_ref(
     blockers = set(simulation.authority_blockers)
     if not blockers.issubset(_SIMULATION_AUTHORITY_LIMITATIONS):
         return None
-    if not simulation.simulation_ref and simulation.simulation_result_ref is None:
-        return None
-    if simulation.authority_blockers and simulation.simulation_result_ref is None:
+    if simulation.simulation_result_ref is None:
         return None
     result_ref = simulation.simulation_result_ref
     if result_ref is not None:
@@ -4404,12 +4440,15 @@ def simulation_evaluation_input_ref(
                 expected_world_model_record_content_hash=(
                     simulation.world_model_record.content_hash
                 ),
+                expected_world_model_record_ref=(
+                    simulation.world_model_record.world_model_record_id
+                ),
+                expected_receipt_payload_hash=simulation.simulation_ref or "",
             )
         except GenerationCycleError:
             return None
         if (
             result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
-            or result.receipt.payload_hash != simulation.simulation_ref
             or not set(result.promotion_ready_value_packet.get("authority_blockers", ()))
             .issubset(blockers)
         ):
@@ -5054,18 +5093,31 @@ def _conditional_simulation_value_observation(
             world_model_record_content_hash=world_hash,
         )
     outcome = _value_outcome_variable(candidate, problem)
+    raw_atoms = _object_get(candidate, "intervention_atoms")
+    if raw_atoms is None:
+        raw_atoms = (_object_get(candidate, "atom"),)
+    atoms = tuple(atom for atom in raw_atoms if atom is not None)
     atom_ids = tuple(
-        str(atom.intervention_id)
-        for atom in (getattr(candidate, "intervention_atoms", ()) or ())
-        if getattr(atom, "intervention_id", None)
+        str(_object_get(atom, "intervention_id") or "") for atom in atoms
     )
+    if not atom_ids or any(not atom_id for atom_id in atom_ids) or not outcome:
+        return _blocked_value_observation(
+            code="joint_simulation_result_atom_or_outcome_binding_missing",
+            reason="N8 requires the candidate atoms and selected outcome.",
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+            world_model_record_content_hash=world_hash,
+        )
     try:
         result = load_joint_simulation_result(
             simulation.simulation_result_ref,
             store=artifact_store,
             expected_world_model_record_content_hash=world_hash,
-            expected_atom_ids=atom_ids or None,
-            expected_selected_outcomes=(outcome,) if outcome else None,
+            expected_world_model_record_ref=world.world_model_record_id,
+            expected_atom_ids=atom_ids,
+            expected_selected_outcomes=(outcome,),
+            expected_receipt_payload_hash=simulation.simulation_ref or "",
         )
     except GenerationCycleError as exc:
         return _blocked_value_observation(
@@ -8148,11 +8200,12 @@ class GenerationCycleController:
                 cycle_index=cycle_index,
             )
             if simulation.status == "joint_simulated":
-                value = ValuePortObservation(
-                    status="value_pending_n8",
-                    candidate_id=candidate_id,
-                    authority_blockers=("candidate_scenario_n5_only",),
-                    reason="candidate_scenario_n5_only",
+                value_port = state.get("value_port_override") or self._value_port
+                value = value_port(
+                    candidate=candidate,
+                    simulation=simulation,
+                    problem=problem,
+                    cycle_index=cycle_index,
                 )
             else:
                 blockers = simulation.authority_blockers or (

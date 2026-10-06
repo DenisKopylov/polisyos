@@ -2530,6 +2530,10 @@ class GenerationSourceRepository:
                 },
                 store=self.store,
                 expected_world_model_record_content_hash=record.world_model_record_hash,
+                expected_world_model_record_ref=(
+                    context_job.context.world_model_record.world_model_record_id
+                ),
+                expected_receipt_payload_hash=record.n5_result_content_hash,
                 expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
             )
             if result.receipt.payload_hash != record.n5_result_content_hash:
@@ -2756,6 +2760,10 @@ class GenerationSourceRepository:
                 record.n5_result_ref,
                 store=self.store,
                 expected_world_model_record_content_hash=record.world_model_record_hash,
+                expected_world_model_record_ref=(
+                    context_job.context.world_model_record.world_model_record_id
+                ),
+                expected_receipt_payload_hash=record.n5_result_content_hash,
                 expected_atom_ids=(
                     input_record.materialization.derived_n5_atom.intervention_id,
                 ),
@@ -2932,15 +2940,32 @@ class GenerationSourceRepository:
             ):
                 raise ValueError("candidate_simulation_v4_input_context_mismatch")
         else:
+            from polisyos.runtime.quality.cycle_substrate import (
+                CycleSubstrateContextArtifactOwner,
+            )
             from polisyos.runtime.quality.generation_cycle import (
                 JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
                 load_joint_simulation_result,
             )
 
+            context_job = CycleSubstrateContextArtifactOwner(
+                store=self.store
+            ).resolve_historical_job_artifact(
+                record.context_job_ref,
+                problem=source.problem,
+                expected_job_id=record.job_id,
+                expected_run_id=record.run_id,
+                expected_tenant_id=record.tenant_id,
+                expected_cell_id=record.cell_id,
+            )
             result = load_joint_simulation_result(
                 record.n5_result_ref,
                 store=self.store,
                 expected_world_model_record_content_hash=record.world_model_record_hash,
+                expected_world_model_record_ref=(
+                    context_job.context.world_model_record.world_model_record_id
+                ),
+                expected_receipt_payload_hash=record.n5_result_content_hash,
                 expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
             )
             if (
@@ -3136,15 +3161,32 @@ class GenerationSourceRepository:
             ):
                 raise ValueError("candidate_simulation_v5_input_context_mismatch")
         else:
+            from polisyos.runtime.quality.cycle_substrate import (
+                CycleSubstrateContextArtifactOwner,
+            )
             from polisyos.runtime.quality.generation_cycle import (
                 JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
                 load_joint_simulation_result,
             )
 
+            context_job = CycleSubstrateContextArtifactOwner(
+                store=self.store
+            ).resolve_historical_job_artifact(
+                record.context_job_ref,
+                problem=source_v1.problem,
+                expected_job_id=record.job_id,
+                expected_run_id=record.run_id,
+                expected_tenant_id=record.tenant_id,
+                expected_cell_id=record.cell_id,
+            )
             result = load_joint_simulation_result(
                 record.n5_result_ref,
                 store=self.store,
                 expected_world_model_record_content_hash=record.world_model_record_hash,
+                expected_world_model_record_ref=(
+                    context_job.context.world_model_record.world_model_record_id
+                ),
+                expected_receipt_payload_hash=record.n5_result_content_hash,
                 expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
             )
             if (

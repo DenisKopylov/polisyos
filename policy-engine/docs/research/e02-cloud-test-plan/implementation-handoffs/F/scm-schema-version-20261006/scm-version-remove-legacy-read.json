@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/remove-scm-version-property.py",
+    "legacy_read"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+  "source_tree_sha": "9638891de1a7061d05e36949eb367912f08e0d17",
+  "exit_code": 1,
+  "wall_s": 11.221581573001458,
+  "rss_kib": 595032,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-legacy-read.stdout.txt",
+      "bytes": 1575,
+      "sha256": "994f0a414bbef3c0c961b43f8200965a057892d466c8db46bc47765b8c4d3e1c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-legacy-read.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "FAIL"
+}

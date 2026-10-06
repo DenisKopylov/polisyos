@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle-v2.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+  "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+  "utc": "2026-10-06T15:53:25.350724+00:00",
+  "elapsed_s": 6.884740519002662,
+  "exit_code": 0,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stdout",
+    "bytes": 3535,
+    "sha256": "a519a7532af4c709ada65022924c56763ffdafd61cc6b448da32707389994f35"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stderr",
+    "bytes": 1077,
+    "sha256": "2eec546a935f1e7da14874a7d43290b52bff56652d352640747c4699a85a9e8e"
+  }
+}

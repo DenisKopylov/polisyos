@@ -182,7 +182,7 @@ class StructuralCausalModelSpec(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = "1.0"
+    schema_version: str = "1.1"
     graph: CausalGraphModel
     mechanisms: list[NodeMechanism] = Field(default_factory=list)
     fitted: bool = False
@@ -337,7 +337,11 @@ def load_structural_causal_model_spec(
         raise ValueError("SCM artifact requires a supported CAS schema manifest")
     if payload.get("schema_version", "1.0") != schema.version:
         raise ValueError("SCM payload and CAS schema versions differ")
-    return StructuralCausalModelSpec.model_validate(payload)
+    # Historical manifests without an explicit payload version remain 1.0.
+    # The current constructor default must not upgrade their backend profile.
+    return StructuralCausalModelSpec.model_validate(
+        {**payload, "schema_version": payload.get("schema_version", "1.0")}
+    )
 
 
 __all__ = [

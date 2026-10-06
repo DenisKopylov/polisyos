@@ -18,8 +18,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
+    IntervalSemantics,
     PosteriorSamplesCarrier,
+    PropagationMethod,
     UncertaintyEnvelope,
+    UncertaintySource,
 )
 
 
@@ -45,9 +48,19 @@ def joint_carrier_digest(
 
 
 def admit_float32_range(values: object) -> np.ndarray:
-    """Reject narrowing overflow before any sampler or evaluator is invoked."""
+    """Admit zeros and normal finite float32 values before numerical execution.
+
+    The CPU JAX profile flushes subnormal operands in arithmetic, even when
+    storage preserves them. A nonzero covariance must not become a null law.
+    """
     array = np.asarray(values, dtype=np.float64)
-    if not np.all(np.isfinite(array)) or np.any(np.abs(array) > np.finfo(np.float32).max):
+    limits = np.finfo(np.float32)
+    magnitudes = np.abs(array)
+    if (
+        not np.all(np.isfinite(array))
+        or np.any(magnitudes > limits.max)
+        or np.any((magnitudes != 0) & (magnitudes < limits.tiny))
+    ):
         raise ValueError("sampling law exceeds finite float32 backend range")
     return array
 
@@ -242,32 +255,138 @@ def verify_mean_certificate(envelope: UncertaintyEnvelope) -> BoundedIIDMeanCert
     ).astype(np.float64)
     if not np.array_equal(np.asarray(payload.samples), expected_main):
         raise ValueError("mean estimator certificate main draws do not replay")
+    advertised_interval = envelope.metadata.get("mean_error_interval")
+    expected_interval = [
+        max(0.0, certificate.main_mean - plan.absolute_error),
+        min(1.0, certificate.main_mean + plan.absolute_error),
+    ]
+    alpha = plan.delta_pilot + plan.delta_main
+    predictive_lo, predictive_hi = np.percentile(expected_main, [50 * alpha, 100 - 50 * alpha])
+    expected_predictive = [
+        min(float(predictive_lo), certificate.main_mean),
+        max(float(predictive_hi), certificate.main_mean),
+    ]
+    tail = envelope.metadata.get("tail_risk")
+    q05 = float(np.percentile(expected_main, 5))
+    expected_tail = {
+        "cvar_05": float(np.mean(expected_main[expected_main <= q05])),
+        "quantile_01": float(np.percentile(expected_main, 1)),
+        "quantile_99": float(np.percentile(expected_main, 99)),
+    }
+    if (
+        not isinstance(advertised_interval, (list, tuple))
+        or len(advertised_interval) != 2
+        or not np.allclose(advertised_interval, expected_interval, rtol=0, atol=1e-12)
+        or envelope.metadata.get("predictive_interval_semantics")
+        != ("empirical_output_quantiles_v1_compatibility")
+        or envelope.metadata.get("mc_n_samples") != count
+        or envelope.metadata.get("mc_n_valid") != count
+        or envelope.metadata.get("mc_n_failed") != 0
+        or envelope.metadata.get("mc_seed") != certificate.mc_seed
+        or envelope.metadata.get("mc_sampling_method") != "random"
+        or not math.isclose(
+            envelope.metadata.get("mc_std", -1), float(np.std(expected_main)), abs_tol=1e-12
+        )
+        or not np.allclose(envelope.confidence_interval, expected_predictive, rtol=0, atol=1e-12)
+        or envelope.distribution_family is not DistributionFamily.BOOTSTRAP
+        or envelope.source is not UncertaintySource.ENSEMBLE
+        or envelope.propagation_method is not PropagationMethod.MONTE_CARLO
+        or envelope.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
+        or envelope.is_heuristic_ci
+        or payload.sample_axis != "draw"
+        or payload.weights is not None
+        or (
+            count > 100
+            and (
+                not isinstance(tail, dict)
+                or set(tail) != set(expected_tail)
+                or any(
+                    not math.isclose(tail[key], value, abs_tol=1e-7)
+                    for key, value in expected_tail.items()
+                )
+            )
+        )
+        or envelope.sample_size != count
+        or envelope.gate_eligible
+        or not math.isclose(
+            envelope.confidence_level or 0, 1 - plan.delta_pilot - plan.delta_main, abs_tol=1e-12
+        )
+    ):
+        raise ValueError("advertised mean estimator claims do not reconcile")
     return certificate
+
+
+class _TerminalDraw(BaseModel):
+    """Strict persisted terminal record for one attempted draw."""
+
+    model_config = ConfigDict(extra="forbid")
+    draw_index: int = Field(ge=0, strict=True)
+    sampled_input_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", strict=True)
+    successful_outputs: list[str]
+    failed_outputs: list[str]
+
+
+class _TerminalFailureOutput(BaseModel):
+    """Strict supported failure code for one output."""
+
+    model_config = ConfigDict(extra="forbid")
+    output_metric_id: str = Field(min_length=1, strict=True)
+    outcome_code: Literal[
+        "simulation_exception",
+        "invalid_response",
+        "missing_output",
+        "non_numeric_output",
+        "non_finite_output",
+    ]
+    error_type: str | None = None
+
+
+class _TerminalFailure(BaseModel):
+    """Bind failure reasons to the exact attempted draw identity."""
+
+    model_config = ConfigDict(extra="forbid")
+    draw_index: int = Field(ge=0, strict=True)
+    sampled_input_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", strict=True)
+    output_outcomes: list[_TerminalFailureOutput] = Field(min_length=1)
 
 
 def reconcile_draw_outcomes(receipt: Mapping[str, Any], metric_ids: list[str]) -> set[str]:
     """Reconcile every attempted terminal outcome, not a completeness declaration."""
     attempted = receipt["attempted_draw_count"]
     requested = receipt["requested_draw_count"]
-    records = receipt["draw_records"]
+    records = [_TerminalDraw.model_validate(row).model_dump() for row in receipt["draw_records"]]
+    failure_rows = [
+        _TerminalFailure.model_validate(row).model_dump() for row in receipt["failure_records"]
+    ]
     if (
-        not isinstance(attempted, int)
-        or not isinstance(requested, int)
+        type(attempted) is not int
+        or type(requested) is not int
+        or len(set(metric_ids)) != len(metric_ids)
+        or type(receipt["unattempted_draw_count"]) is not int
+        or type(receipt["successful_draw_count"]) is not int
+        or type(receipt["outcome_denominator_complete"]) is not bool
+        or receipt["outcome_denominator_complete"] != (requested == attempted)
         or not 0 <= attempted <= requested
         or receipt["unattempted_draw_count"] != requested - attempted
         or len(records) != attempted
         or {row["draw_index"] for row in records} != set(range(attempted))
     ):
         raise ValueError("draw denominator does not reconcile")
-    failures = {row["draw_index"]: row for row in receipt["failure_records"]}
-    if len(failures) != len(receipt["failure_records"]):
-        raise ValueError("duplicate draw failures")
-    failed_metrics: set[str] = set()
+    failures = {row["draw_index"]: row for row in failure_rows}
+    actual_failure_indices = {row["draw_index"] for row in records if row["failed_outputs"]}
+    if len(failures) != len(failure_rows) or set(failures) != actual_failure_indices:
+        raise ValueError("failure records do not match the attempted draw denominator")
+    failed_metrics: set[str] = set(metric_ids) if requested > attempted or attempted == 0 else set()
     successes = 0
     for row in records:
         success = set(row["successful_outputs"])
         failed = set(row["failed_outputs"])
-        if success & failed or success | failed != set(metric_ids):
+        if (
+            success & failed
+            or success | failed != set(metric_ids)
+            or len(success) != len(row["successful_outputs"])
+            or len(failed) != len(row["failed_outputs"])
+        ):
             raise ValueError("draw output denominator does not reconcile")
         failure = failures.get(row["draw_index"])
         declared_failed = (
@@ -277,6 +396,8 @@ def reconcile_draw_outcomes(receipt: Mapping[str, Any], metric_ids: list[str]) -
         )
         if failed != declared_failed:
             raise ValueError("draw terminal outcomes disagree with failure records")
+        if failure is not None and len(declared_failed) != len(failure["output_outcomes"]):
+            raise ValueError("failure output denominator contains duplicate outcomes")
         if failure is not None and failure["sampled_input_sha256"] != row["sampled_input_sha256"]:
             raise ValueError("draw input identity changed across outcome records")
         failed_metrics.update(failed)

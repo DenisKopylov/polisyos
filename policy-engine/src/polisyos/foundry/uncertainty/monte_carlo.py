@@ -74,6 +74,38 @@ class _EmpiricalJointSpec:
     joint_sample_id: str | None
 
 
+@dataclass(frozen=True)
+class _ReplicaMeanEstimates:
+    """Observed estimator support, distinct from requested scramble markers."""
+
+    means: tuple[float, ...]
+    complete: bool
+    standard_error: float | None
+
+
+def _replica_mean_estimates(
+    values: np.ndarray, sizes: tuple[int, ...], attempted: int
+) -> _ReplicaMeanEstimates:
+    """Admit replicate error only when every requested output row is observed."""
+    means: list[float] = []
+    offset = 0
+    complete = bool(sizes) and sum(sizes) == attempted
+    for size in sizes:
+        replica = values[offset : offset + size]
+        if size > 0 and len(replica) == size and np.all(np.isfinite(replica)):
+            means.append(float(np.mean(replica)))
+        else:
+            complete = False
+        offset += size
+    complete = complete and len(means) == len(sizes)
+    error = (
+        float(np.std(means, ddof=1) / math.sqrt(len(means)))
+        if complete and len(means) >= 2
+        else None
+    )
+    return _ReplicaMeanEstimates(tuple(means), complete, error)
+
+
 class _DrawOutcomeCode(StrEnum):
     """Typed outcome classes for a Monte Carlo draw/output pair."""
 
@@ -555,6 +587,7 @@ class MonteCarloPropagator:
             draw_outcomes=outcomes,
             requested_n_samples=frozen_count,
             qmc_summary=None,
+            minimum_valid_samples=1,
         )[0]
         main_mean = float(np.mean(buffers.values[plan.metric_id]))
         certificate = BoundedIIDMeanCertificate(
@@ -951,10 +984,16 @@ class MonteCarloPropagator:
         sample_axis: str = "draw",
         joint_sample_id: str | None = None,
         parametric_fit_names: tuple[str, ...] = (),
+        minimum_valid_samples: int | None = None,
     ) -> list[PropagationResult]:
         from .sensitivity import compute_first_order_indices
 
         out: list[PropagationResult] = []
+        min_valid = (
+            self._config.mc_min_valid_samples
+            if minimum_valid_samples is None
+            else minimum_valid_samples
+        )
         qmc_method = None if qmc_summary is None else qmc_summary.method
         qmc_scrambled = False if qmc_summary is None else qmc_summary.scrambled
         qmc_replicates = 0 if qmc_summary is None else qmc_summary.replicate_count
@@ -1034,6 +1073,27 @@ class MonteCarloPropagator:
             has_incomplete_draws = (
                 metric_failure_draw_count > 0 or stopped_early or not input_identity_complete
             )
+            replica_estimates = _replica_mean_estimates(
+                values[metric_id],
+                () if qmc_summary is None else qmc_summary.replicate_sizes,
+                actual_n_samples,
+            )
+            # Admission is per estimator/output: requested scrambles cannot
+            # certify an output whose support is missing in any replica.
+            qmc_has_full_certificate = (
+                qmc_method is not None
+                and qmc_scrambled
+                and qmc_replicates >= 2
+                and replica_estimates.complete
+                and replica_estimates.standard_error is not None
+                and not has_incomplete_draws
+            )
+            if qmc_method is not None:
+                certificate_kind = (
+                    CertificateKind.RQMC_REPLICATES
+                    if qmc_has_full_certificate
+                    else CertificateKind.QMC_VARIATION
+                )
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
             # Sampling cannot promote a non-gate-eligible input into a gate.
@@ -1067,7 +1127,7 @@ class MonteCarloPropagator:
                 # independently reconciled row-identity proof.
                 gate_eligible = False
 
-            if n_valid < self._config.mc_min_valid_samples:
+            if n_valid < min_valid:
                 if has_missing_output:
                     point = 0.0
                     point_source = "missing_output_unavailable"
@@ -1200,19 +1260,13 @@ class MonteCarloPropagator:
                         }
                     )
                 if qmc_summary is not None:
-                    means = []
-                    offset = 0
-                    for size in qmc_summary.replicate_sizes:
-                        replica = values[metric_id][offset : offset + size]
-                        if np.all(np.isfinite(replica)):
-                            means.append(float(np.mean(replica)))
-                        offset += size
                     metadata["qmc_replicate_sizes"] = list(qmc_summary.replicate_sizes)
-                    metadata["qmc_replicate_means"] = means
-                    if len(means) == qmc_replicates and len(means) >= 2:
-                        metadata["mean_estimator_standard_error"] = float(
-                            np.std(means, ddof=1) / math.sqrt(len(means))
-                        )
+                    metadata["qmc_replicate_means"] = list(replica_estimates.means)
+                    metadata["qmc_estimator_support"] = (
+                        "complete" if replica_estimates.complete else "incomplete"
+                    )
+                    if qmc_has_full_certificate:
+                        metadata["mean_estimator_standard_error"] = replica_estimates.standard_error
                         metadata["mean_error_method"] = "independent_scramble_replication_v1"
                     metadata["qmc_scrambled"] = qmc_scrambled
                     metadata["qmc_replicates"] = qmc_replicates
@@ -1412,7 +1466,7 @@ class MonteCarloPropagator:
                 std = extract_std(env)
             else:
                 mean, std = fit
-            return mean + max(std, 1e-12) * jrandom.normal(rng, shape=(n,))
+            return mean + std * jrandom.normal(rng, shape=(n,))
 
         if env.distribution_family == DistributionFamily.UNIFORM:
             return jrandom.uniform(rng, shape=(n,), minval=lo, maxval=hi)
@@ -1509,7 +1563,9 @@ class MonteCarloPropagator:
                     std = extract_std(env)
                 else:
                     mean, std = fit
-                result[name] = sp_norm.ppf(u, loc=mean, scale=max(std, 1e-12))
+                result[name] = (
+                    np.full_like(u, mean) if std == 0 else sp_norm.ppf(u, loc=mean, scale=std)
+                )
             elif env.distribution_family == DistributionFamily.UNIFORM:
                 result[name] = lo + u * (hi - lo)
             elif env.distribution_family == DistributionFamily.TRIANGULAR:

@@ -106,9 +106,6 @@ def build_covariance_matrix(
     diagonal_values = admit_float32_range(np.diag(np.square(np.asarray(marginal_stds))))
     diag_cov = jnp.asarray(diagonal_values, dtype=jnp.float32)
 
-    if not use_full_covariance:
-        return diag_cov
-
     rows: list[list[float]] = []
     expected_params: list[str] | None = None
     saw_params_declaration = False
@@ -118,6 +115,11 @@ def build_covariance_matrix(
         or "covariance_params" in input_envelopes[name].metadata
         for name in param_names
     )
+    # A numerical option may choose an algorithm, not replace a declared law.
+    # Full/partial supplied rows always enter the same admission path, even if
+    # an older caller requested the diagonal optimization.
+    if not use_full_covariance and not has_covariance_metadata:
+        return diag_cov
     for name in param_names:
         metadata = input_envelopes[name].metadata
         row = metadata.get("covariance_row")

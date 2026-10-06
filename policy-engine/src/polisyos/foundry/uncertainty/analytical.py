@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from statistics import NormalDist
 
 import jax.numpy as jnp
+import numpy as np
 
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
@@ -55,6 +56,27 @@ class AnalyticalPropagator:
     ) -> PropagationResult:
         param_names = sorted(input_envelopes)
         admit_sampling_support(input_envelopes)
+        declared_covariance = any(
+            "covariance_row" in env.metadata or "covariance_params" in env.metadata
+            for env in input_envelopes.values()
+        )
+        use_full_covariance = use_full_covariance or declared_covariance
+        if declared_covariance:
+            admitted_covariance = build_covariance_matrix(
+                param_names,
+                input_envelopes,
+                use_full_covariance=True,
+                jitter=0.0,
+                preserve_singular=True,
+            )
+            if covariance is not None and not np.allclose(
+                np.asarray(covariance),
+                np.asarray(admitted_covariance),
+                rtol=1e-7,
+                atol=1e-10,
+            ):
+                raise ValueError("supplied covariance differs from the declared joint law")
+            covariance = admitted_covariance
         if covariance is not None:
             admit_float32_range(covariance)
         elif has_unknown_dependency(input_envelopes):

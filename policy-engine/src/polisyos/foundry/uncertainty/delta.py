@@ -58,6 +58,10 @@ class DeltaMethodPropagator:
 
         effective_nominal = dict(nominal_params)
         param_names = sorted(input_envelopes.keys())
+        used_full_covariance = self._config.delta_use_full_covariance or any(
+            "covariance_row" in env.metadata or "covariance_params" in env.metadata
+            for env in input_envelopes.values()
+        )
         try:
             admit_sampling_support(input_envelopes)
             cov = build_covariance_matrix(
@@ -162,7 +166,7 @@ class DeltaMethodPropagator:
                     "n_input_params": n_params,
                     "input_param_names": param_names,
                     "jacobian_row_norm": float(jnp.linalg.norm(jacobian[idx])),
-                    "used_full_covariance": bool(self._config.delta_use_full_covariance),
+                    "used_full_covariance": used_full_covariance,
                     "output_std": std,
                 },
                 composition_provenance=build_composition_provenance(
@@ -179,7 +183,7 @@ class DeltaMethodPropagator:
                     variance_bound=float(output_var[idx]),
                     assumptions=("jax_jacobian_linearization",),
                     notes={
-                        "used_full_covariance": bool(self._config.delta_use_full_covariance),
+                        "used_full_covariance": used_full_covariance,
                     },
                 ),
             )

@@ -16,6 +16,7 @@ from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.foundry.uncertainty.sampling_admission import (
     BoundedIIDMeanPlan,
     BoundedIndicatorResponse,
+    admit_float32_range,
     frozen_bernstein_budget,
     joint_carrier_digest,
     verify_mean_certificate,
@@ -79,6 +80,46 @@ def test_range_escape_is_rejected_before_any_callback(method, entry):
     assert calls == []
     assert result.envelope.distribution_family is DistributionFamily.UNKNOWN
     assert not result.envelope.gate_eligible
+
+
+@pytest.mark.parametrize("variance", [1e-50, 1e-40, 1e-38])
+@pytest.mark.parametrize("method", ["random", "sobol", "halton"])
+@pytest.mark.parametrize("entry", ["mc", "dispatcher", "delta"])
+def test_underflow_law_is_rejected_before_any_callback(variance, method, entry):
+    calls = []
+    env = gaussian(math.sqrt(variance), row=[variance], names=["x"])
+    config = PropagationConfig(mc_sampling_method=method, compute_sensitivity=False)
+    producer = {
+        "mc": MonteCarloPropagator,
+        "dispatcher": PropagationDispatcher,
+        "delta": DeltaMethodPropagator,
+    }[entry](config)
+    result = producer.propagate(
+        lambda **p: calls.append(p) or {"y": p["x"]}, {"x": 0}, {"x": env}, ["y"]
+    )[0]
+    assert calls == []
+    assert result.envelope.distribution_family is DistributionFamily.UNKNOWN
+    assert not result.envelope.gate_eligible
+
+
+def test_float32_normal_minimum_survives_actual_jax_quadratic_form():
+    import jax.numpy as jnp
+
+    value = float(np.finfo(np.float32).tiny)
+    admitted = admit_float32_range([[value]])
+    covariance = jnp.asarray(admitted, dtype=jnp.float32)
+    gradient = jnp.ones(1, dtype=jnp.float32)
+    assert float(gradient @ covariance @ gradient) == value
+    assert np.array_equal(admit_float32_range([[0]]), [[0]])
+
+
+@pytest.mark.parametrize("method", ["random", "sobol", "halton"])
+def test_scalar_gaussian_null_law_has_no_artificial_std_floor(method):
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=256, mc_sampling_method=method, compute_sensitivity=False)
+    ).propagate(lambda **p: {"y": p["x"]}, {"x": 0}, {"x": gaussian(0)}, ["y"])[0]
+    assert set(result.envelope.distribution_payload.samples) == {0}
+    assert result.envelope.metadata["mc_std"] == 0
 
 
 @pytest.mark.parametrize("method", ["random", "sobol", "halton"])
@@ -296,3 +337,230 @@ def test_removal_of_draw_outcome_property_is_detected_with_complete_marker_intac
     assert broken["outcome_denominator_complete"] is True
     with pytest.raises(ValueError, match="denominator"):
         reconcile_draw_outcomes(broken, ["y"])
+
+
+@pytest.mark.parametrize("method", ["random", "sobol", "halton"])
+def test_failed_support_cannot_certify_any_incomplete_replica(method):
+    from polisyos.ir.analytics.uncertainty import CertificateKind
+
+    def response(**params):
+        x = params["x"]
+        return {"good": x, "partial": None if x < 0 else x}
+
+    results = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=256,
+            mc_sampling_method=method,
+            mc_qmc_replicates=4,
+            compute_sensitivity=False,
+        )
+    ).propagate(response, {"x": 0}, {"x": uniform(-1, 1)}, ["good", "partial"])
+    good, partial = results
+    assert good.diagnostics["n_valid"] == 256
+    assert partial.diagnostics["n_valid"] < 256
+    assert partial.envelope.point_estimate == pytest.approx(0.5, abs=0.1)
+    assert not partial.envelope.gate_eligible
+    assert partial.envelope.confidence_level is None
+    assert "mean_estimator_standard_error" not in partial.envelope.metadata
+    assert partial.envelope.metadata["distribution_sample_semantics"] == (
+        "successful_draws_only_conditional_on_execution"
+    )
+    if method != "random":
+        assert (
+            good.envelope.composition_provenance.certificate_kind is CertificateKind.RQMC_REPLICATES
+        )
+        assert good.envelope.metadata["qmc_estimator_support"] == "complete"
+        assert (
+            partial.envelope.composition_provenance.certificate_kind
+            is not CertificateKind.RQMC_REPLICATES
+        )
+        assert partial.envelope.metadata["qmc_estimator_support"] == "incomplete"
+        assert partial.envelope.composition_provenance.certificate_radius is None
+
+
+@pytest.mark.parametrize("method", ["sobol", "halton"])
+def test_rqmc_exceptional_support_preserves_conditional_result(method):
+    def response(**params):
+        if params["x"] < 0:
+            raise ValueError("undefined negative support")
+        return {"y": params["x"]}
+
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=256,
+            mc_sampling_method=method,
+            mc_qmc_replicates=4,
+            compute_sensitivity=False,
+        )
+    ).propagate(response, {"x": 0}, {"x": uniform(-1, 1)}, ["y"])[0]
+    assert result.envelope.point_estimate == pytest.approx(0.5, abs=0.1)
+    assert result.envelope.confidence_level is None
+    assert not result.envelope.gate_eligible
+    assert len(result.diagnostics["draw_outcome_provenance"]["draw_records"]) == 256
+    assert "mean_estimator_standard_error" not in result.envelope.metadata
+
+
+@pytest.mark.parametrize("flag", [False, True])
+@pytest.mark.parametrize("method", ["delta", "analytical", "monte_carlo"])
+def test_covariance_optimization_flag_cannot_replace_declared_tied_law(flag, method):
+    names = ["a", "b"]
+    law = {name: gaussian(0.05, row=[0.0025, 0.0025], names=names) for name in names}
+    result = PropagationDispatcher(
+        PropagationConfig(
+            preferred_method=method,
+            delta_use_full_covariance=flag,
+            delta_covariance_jitter=1e-6,
+            compute_sensitivity=False,
+        )
+    ).propagate(
+        lambda **params: {"y": params["a"] - params["b"]},
+        {"a": 0, "b": 0},
+        law,
+        ["y"],
+        weights={"a": 1, "b": -1},
+    )[0]
+    assert result.envelope.point_estimate == 0
+    assert result.envelope.metadata.get("output_std", result.envelope.metadata.get("mc_std")) < 1e-9
+    assert not result.envelope.gate_eligible
+
+
+def test_direct_analytical_cannot_substitute_diagonal_covariance_for_declared_law():
+    from polisyos.foundry.uncertainty.analytical import AnalyticalPropagator
+
+    names = ["a", "b"]
+    law = {name: gaussian(0.05, row=[0.0025, 0.0025], names=names) for name in names}
+    with pytest.raises(ValueError, match="differs from the declared"):
+        AnalyticalPropagator.propagate_linear_combination(
+            weights={"a": 1, "b": -1},
+            input_envelopes=law,
+            output_metric_id="y",
+            covariance=np.diag([0.0025, 0.0025]),
+            use_full_covariance=False,
+        )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("mean_error_interval", "zero_width"),
+        ("mc_n_samples", 999),
+        ("mc_n_valid", 999),
+        ("mc_n_failed", 1),
+        ("predictive_interval_semantics", "mean_confidence_interval"),
+        ("mc_seed", 999),
+        ("mc_std", 0),
+        ("mc_sampling_method", "sobol"),
+    ],
+)
+def test_mean_certificate_reconciles_all_advertised_estimator_fields(field, value):
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            bounded_iid_mean=BoundedIIDMeanPlan(metric_id="y"), compute_sensitivity=False
+        )
+    ).propagate(BoundedIndicatorResponse("x", "y", 0.5), {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    assert verify_mean_certificate(result.envelope) is not None
+    if value == "zero_width":
+        value = [result.envelope.point_estimate] * 2
+    modified = result.envelope.model_copy(
+        update={"metadata": {**result.envelope.metadata, field: value}}
+    )
+    with pytest.raises(ValueError, match="advertised"):
+        verify_mean_certificate(modified)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("confidence_interval", (0.0, 0.0)),
+        ("distribution_family", DistributionFamily.NORMAL),
+        ("source", UncertaintySource.MANUAL),
+        ("propagation_method", PropagationMethod.NONE),
+        ("interval_semantics", IntervalSemantics.HEURISTIC_RANGE),
+        ("is_heuristic_ci", True),
+        ("sample_size", 999),
+    ],
+)
+def test_mean_certificate_reconciles_its_predictive_compatibility_carrier(field, value):
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            bounded_iid_mean=BoundedIIDMeanPlan(metric_id="y"), compute_sensitivity=False
+        )
+    ).propagate(BoundedIndicatorResponse("x", "y", 0.5), {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    modified = result.envelope.model_copy(update={field: value})
+    with pytest.raises(ValueError, match="advertised"):
+        verify_mean_certificate(modified)
+
+
+def test_bounded_fixed_budget_retains_complete_carrier_below_legacy_minimum(tmp_path):
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            bounded_iid_mean=BoundedIIDMeanPlan(metric_id="y", absolute_error=0.5),
+            compute_sensitivity=False,
+        )
+    ).propagate(BoundedIndicatorResponse("x", "y", 0.5), {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    certificate = verify_mean_certificate(result.envelope)
+    assert certificate.main_samples < 50
+    assert len(result.envelope.distribution_payload.samples) == certificate.frozen_main_samples
+    store = FileSystemCAS(tmp_path)
+    ref = persist_uncertainty_envelope(store, result.envelope)
+    assert verify_mean_certificate(load_uncertainty_envelope(FileSystemCAS(tmp_path), ref))
+
+
+def test_bounded_budget_over_declared_maximum_emits_no_certificate():
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            bounded_iid_mean=BoundedIIDMeanPlan(metric_id="y"),
+            adaptive_stopping=AdaptiveStoppingConfig(max_samples=100),
+            compute_sensitivity=False,
+        )
+    ).propagate(BoundedIndicatorResponse("x", "y", 0.5), {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    assert result.envelope.metadata["failure"] == "frozen_budget_exceeds_declared_maximum"
+    assert verify_mean_certificate(result.envelope) is None
+
+
+def test_draw_reconciliation_rejects_orphan_indices_codes_and_duplicate_outputs():
+    from copy import deepcopy
+
+    from polisyos.foundry.uncertainty.sampling_admission import reconcile_draw_outcomes
+
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=100, compute_sensitivity=False)
+    ).propagate(lambda **p: {"y": p["x"]}, {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    original = result.diagnostics["draw_outcome_provenance"]
+    for index, code in [
+        (999999, "simulation_exception"),
+        (-1, "simulation_exception"),
+        (0, "invented_success"),
+    ]:
+        broken = deepcopy(original)
+        broken["failure_records"].append(
+            {
+                "draw_index": index,
+                "sampled_input_sha256": "0" * 64,
+                "output_outcomes": [
+                    {"output_metric_id": "y", "outcome_code": code, "error_type": None}
+                ],
+            }
+        )
+        with pytest.raises(ValueError):
+            reconcile_draw_outcomes(broken, ["y"])
+    broken = deepcopy(original)
+    broken["draw_records"][0]["successful_outputs"] = ["y", "y"]
+    with pytest.raises(ValueError, match="denominator"):
+        reconcile_draw_outcomes(broken, ["y"])
+
+
+def test_unattempted_support_marks_every_output_incomplete():
+    from polisyos.foundry.uncertainty.sampling_admission import reconcile_draw_outcomes
+
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=100, compute_sensitivity=False)
+    ).propagate(lambda **p: {"y": p["x"]}, {"x": 0.5}, {"x": uniform()}, ["y"])[0]
+    receipt = result.diagnostics["draw_outcome_provenance"]
+    incomplete = {
+        **receipt,
+        "requested_draw_count": 101,
+        "unattempted_draw_count": 1,
+        "outcome_denominator_complete": False,
+    }
+    assert reconcile_draw_outcomes(incomplete, ["y"]) == {"y"}

@@ -235,6 +235,11 @@ def main() -> None:
     changed = git("diff", "--name-only", BASE, TARGET).decode().splitlines()
     _require(changed == [TEST])
     _require(git("diff", "--name-only", BASE, TARGET, "--", "policy-engine/src") == b"")
+    patch = git("diff", BASE, TARGET, "--", TEST)
+    patch_packet = json.loads((Path(__file__).parent / "source-diff.json").read_bytes())
+    _require(patch_packet["raw_utf8_text"].encode() == patch)
+    _require(patch_packet["raw_bytes"] == len(patch))
+    _require(patch_packet["raw_sha256"] == hashlib.sha256(patch).hexdigest())
     paths = [
         PREFIX + "runner/serialization.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
@@ -310,6 +315,8 @@ def main() -> None:
                 "candidate_tree": git("rev-parse", TARGET + "^{tree}").decode().strip(),
                 "changed_tracked_paths": changed,
                 "source_changed_paths": [],
+                "lossless_diff_packet_raw_bytes": len(patch),
+                "lossless_diff_packet_raw_sha256": hashlib.sha256(patch).hexdigest(),
                 "ast": {
                     "all_other_module_statements_identical": True,
                     "original_assertions": len(old_asserts),

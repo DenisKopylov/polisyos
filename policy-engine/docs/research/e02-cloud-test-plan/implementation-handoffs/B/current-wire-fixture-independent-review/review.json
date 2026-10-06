@@ -40,10 +40,16 @@
       "base_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
       "candidate_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
       "companion": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/source-diff.json",
+        "bytes": 6247,
+        "sha256": "4d700092ad2eb5a4a1a68d1a7672e70d03a34f53e940957093b413526679c0f1",
+        "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
+      },
+      "lossless_original": {
+        "source_sha": "d6cb04d0e6d801cf90d54a59557f4e5019062494",
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/source.diff",
         "bytes": 5025,
-        "sha256": "5988f51219d66672d8cce388c2b76f488cea92d0222625f7de87829fe9c94599",
-        "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
+        "sha256": "5988f51219d66672d8cce388c2b76f488cea92d0222625f7de87829fe9c94599"
       }
     },
     "full_canonical_serialization_module_read": {
@@ -1117,8 +1123,8 @@
       "input_closure": {
         "driver": {
           "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
-          "bytes": 14710,
-          "sha256": "61dca10b20d272cb59ae865469e8ac50cb9bb77748747bb5b1098b8ff4cf7231",
+          "bytes": 15191,
+          "sha256": "650a8147a8c9a987a89f1cd13ce708586f944213f8813af7239d5c418de71724",
           "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
         },
         "author_git_objects": [
@@ -1383,14 +1389,20 @@
           "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b",
           "scope": "Captured root execution, not runtime executed by this reviewer"
         },
-        "limit": "Git/AST/hash/XML consistency only; no complete transitive/native module/resource read-set"
+        "limit": "Git/AST/hash/XML consistency only; no complete transitive/native module/resource read-set",
+        "lossless_diff_packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/source-diff.json",
+          "bytes": 6247,
+          "sha256": "4d700092ad2eb5a4a1a68d1a7672e70d03a34f53e940957093b413526679c0f1",
+          "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
+        }
       },
       "returncode": 0,
       "outcome": "PASS_BOUNDED_SOURCE_AND_CAPTURED_OUTPUT_CONSISTENCY",
       "output": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.json",
-        "bytes": 27784,
-        "sha256": "bf0ca6bc6df42ffcf56184ba21c8044d632fdf22a75ae761737cb214cfd9c4e5",
+        "bytes": 27931,
+        "sha256": "767197471130149620c685dc160975f571fb3034e6f02a8c5d28c9c33c100976",
         "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
       }
     }
@@ -1445,14 +1457,14 @@
   "evidence": [
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.json",
-      "bytes": 27784,
-      "sha256": "bf0ca6bc6df42ffcf56184ba21c8044d632fdf22a75ae761737cb214cfd9c4e5",
+      "bytes": 27931,
+      "sha256": "767197471130149620c685dc160975f571fb3034e6f02a8c5d28c9c33c100976",
       "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
-      "bytes": 14710,
-      "sha256": "61dca10b20d272cb59ae865469e8ac50cb9bb77748747bb5b1098b8ff4cf7231",
+      "bytes": 15191,
+      "sha256": "650a8147a8c9a987a89f1cd13ce708586f944213f8813af7239d5c418de71724",
       "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
     },
     {
@@ -1462,9 +1474,9 @@
       "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/source.diff",
-      "bytes": 5025,
-      "sha256": "5988f51219d66672d8cce388c2b76f488cea92d0222625f7de87829fe9c94599",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/source-diff.json",
+      "bytes": 6247,
+      "sha256": "4d700092ad2eb5a4a1a68d1a7672e70d03a34f53e940957093b413526679c0f1",
       "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
     }
   ],
@@ -1533,8 +1545,8 @@
       "cwd": "/workspace/e02-B-current-runtime",
       "input": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
-        "bytes": 14710,
-        "sha256": "61dca10b20d272cb59ae865469e8ac50cb9bb77748747bb5b1098b8ff4cf7231",
+        "bytes": 15191,
+        "sha256": "650a8147a8c9a987a89f1cd13ce708586f944213f8813af7239d5c418de71724",
         "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
       },
       "returncode": 0,
@@ -1553,8 +1565,8 @@
       "cwd": "/workspace/e02-B-current-runtime",
       "input": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
-        "bytes": 14710,
-        "sha256": "61dca10b20d272cb59ae865469e8ac50cb9bb77748747bb5b1098b8ff4cf7231",
+        "bytes": 15191,
+        "sha256": "650a8147a8c9a987a89f1cd13ce708586f944213f8813af7239d5c418de71724",
         "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
       },
       "returncode": 0,
@@ -1562,5 +1574,22 @@
       "grade": "localnew metadata companion staticonly, not candidate runtime"
     }
   ],
-  "reviewer_driver_notes": "All deciding custody predicates use explicit _require checks (preserved conditions), including under Python optimization. The new uncommitted helper was formatted/annotated after initiallocal staticdiagnostics; its finalsource is rerun to produce boundauditJSON. Author/root runtime/source/logbytes untouched."
+  "reviewer_driver_notes": "All deciding custody predicates use explicit _require checks (preserved conditions), including under Python optimization. The new uncommitted helper was formatted/annotated after initiallocal staticdiagnostics; its finalsource is rerun to produce boundauditJSON. Author/root runtime/source/logbytes untouched.",
+  "diff_artifact_packaging_qualification": {
+    "original_docs_checkpoint": "d6cb04d0e6d801cf90d54a59557f4e5019062494",
+    "original_raw_diff_ref": {
+      "source_sha": "d6cb04d0e6d801cf90d54a59557f4e5019062494",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/source.diff",
+      "bytes": 5025,
+      "sha256": "5988f51219d66672d8cce388c2b76f488cea92d0222625f7de87829fe9c94599"
+    },
+    "current_lossless_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/source-diff.json",
+      "bytes": 6247,
+      "sha256": "4d700092ad2eb5a4a1a68d1a7672e70d03a34f53e940957093b413526679c0f1",
+      "custody": "new reviewer companion committed with this receipt, not in author candidate tree"
+    },
+    "same_raw_bytes": true,
+    "reason": "Capturedpatch added asplainfile produced13gitdiffcheck whitespace diagnostics onliteralblankcontextlines. Append-only JSON envelope preserves exactpatch bytes and originalGitref; no historyrewrite or runtime/source alteration."
+  }
 }

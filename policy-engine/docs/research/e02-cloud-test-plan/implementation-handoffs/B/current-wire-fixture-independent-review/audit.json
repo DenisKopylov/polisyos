@@ -8,6 +8,8 @@
     "policy-engine/tests/unit/remediation/test_wire_01.py"
   ],
   "source_changed_paths": [],
+  "lossless_diff_packet_raw_bytes": 5025,
+  "lossless_diff_packet_raw_sha256": "5988f51219d66672d8cce388c2b76f488cea92d0222625f7de87829fe9c94599",
   "ast": {
     "all_other_module_statements_identical": true,
     "original_assertions": 8,

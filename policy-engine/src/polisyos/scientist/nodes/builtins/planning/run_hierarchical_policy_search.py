@@ -11,6 +11,7 @@ persists a frontier report plus the selected champion Trinity bundle.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import nullcontext
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -22,6 +23,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.trinity import TrinityBundleRef
+from polisyos.core.security import tenant_scope
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
@@ -37,6 +39,10 @@ from polisyos.scientist.methods.search.controller import (
     SearchIteration,
     SearchResult,
     SearchStatus,
+)
+from polisyos.scientist.methods.search.transfer_context import (
+    anonymize_tenant_id,
+    resolve_transfer_context,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
@@ -88,6 +94,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
@@ -184,6 +191,14 @@ class HierarchicalPolicySearchAdapter:
     """Bridge Lex policy bundles into Scientist-owned hierarchical search."""
 
     coordinator_fqn = "polisyos.scientist.policy_design.search.HierarchicalSearchCoordinator"
+
+    def __init__(self, *, pareto_registry: ParetoRegistry | None = None) -> None:
+        """Use an explicitly configured registry; never create a default provider or basis."""
+        from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+
+        if pareto_registry is not None and not isinstance(pareto_registry, ParetoRegistry):
+            raise TypeError("pareto_registry must be a canonical ParetoRegistry")
+        self._pareto_registry = pareto_registry
 
     def build_request(
         self,
@@ -320,7 +335,8 @@ class HierarchicalPolicySearchAdapter:
             else HierarchicalPolicySearchPlan.model_validate(plan)
         )
         return HierarchicalSearchCoordinator(
-            config=self.instantiate_search_config(resolved_plan.search_config)
+            config=self.instantiate_search_config(resolved_plan.search_config),
+            pareto_registry=self._pareto_registry,
         )
 
     def validate_policy_design_api(
@@ -340,7 +356,8 @@ class HierarchicalPolicySearchAdapter:
             metadata=metadata,
         )
         coordinator = HierarchicalSearchCoordinator(
-            config=self.instantiate_search_config(search_config)
+            config=self.instantiate_search_config(search_config),
+            pareto_registry=self._pareto_registry,
         )
         try:
             coordinator.build_parameter_search_spec(resolved_candidate)
@@ -423,7 +440,8 @@ class HierarchicalPolicySearchAdapter:
             metadata=metadata,
         )
         coordinator = HierarchicalSearchCoordinator(
-            config=self.instantiate_search_config(search_config)
+            config=self.instantiate_search_config(search_config),
+            pareto_registry=self._pareto_registry,
         )
         runtime_context = self.build_runtime_context(
             resolved_candidate,
@@ -432,29 +450,55 @@ class HierarchicalPolicySearchAdapter:
             metadata=metadata,
         )
         merged_context = {**runtime_context, **dict(initial_context or {})}
-        try:
-            coordinator.build_parameter_search_spec(resolved_candidate)
-        except ValueError as exc:
-            if "No tunable policy parameters" not in str(exc):
-                raise
-            return self._run_parameterless_search(
-                coordinator,
+        tenant_id = merged_context.get("tenant_id")
+        cell_id = merged_context.get("cell_id")
+        if tenant_id is not None:
+            if not isinstance(tenant_id, str) or not tenant_id.strip():
+                raise ValueError("tenant_id must be a nonempty string when present")
+            if cell_id is not None and (not isinstance(cell_id, str) or not cell_id.strip()):
+                raise ValueError("cell_id must be a nonempty string when present")
+            tenant_hash = anonymize_tenant_id(tenant_id)
+            if "tenant_hash" in merged_context and merged_context["tenant_hash"] != tenant_hash:
+                raise ValueError("tenant_hash does not match the configured tenant_id")
+            transfer_context = merged_context.get("transfer_context")
+            prior_hash = (
+                transfer_context.get("tenant_hash")
+                if isinstance(transfer_context, Mapping)
+                else getattr(transfer_context, "tenant_hash", None)
+            )
+            if prior_hash is not None and prior_hash != tenant_hash:
+                raise ValueError("transfer context does not match the configured tenant_id")
+            merged_context["tenant_hash"] = tenant_hash
+        scope = (
+            tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id)
+            if tenant_id is not None
+            else nullcontext()
+        )
+        # This routes identity through the existing context, without granting access authority.
+        with scope:
+            try:
+                coordinator.build_parameter_search_spec(resolved_candidate)
+            except ValueError as exc:
+                if "No tunable policy parameters" not in str(exc):
+                    raise
+                return self._run_parameterless_search(
+                    coordinator,
+                    resolved_candidate,
+                    loop_id=loop_id,
+                    stage_b_evaluator=stage_b_evaluator,
+                    structure_validator=structure_validator,
+                    narrative_input_builder=narrative_input_builder,
+                    initial_context=merged_context,
+                )
+            return coordinator.run(
                 resolved_candidate,
                 loop_id=loop_id,
                 stage_b_evaluator=stage_b_evaluator,
+                stage_a_evaluator=stage_a_evaluator,
                 structure_validator=structure_validator,
                 narrative_input_builder=narrative_input_builder,
                 initial_context=merged_context,
             )
-        return coordinator.run(
-            resolved_candidate,
-            loop_id=loop_id,
-            stage_b_evaluator=stage_b_evaluator,
-            stage_a_evaluator=stage_a_evaluator,
-            structure_validator=structure_validator,
-            narrative_input_builder=narrative_input_builder,
-            initial_context=merged_context,
-        )
 
     def _resolve_candidate_payload(
         self,
@@ -547,6 +591,21 @@ class HierarchicalPolicySearchAdapter:
                     stage_b_evaluations=1,
                     telemetry={"parameterless_candidate": True},
                 )
+                result = state.parameter_search_results[structure.structure_id]
+                evaluation = result.history[0].policy_evaluation
+                if self._pareto_registry is not None and evaluation is not None:
+                    self._pareto_registry.update(
+                        loop_id,
+                        candidate_hash=structure.candidate.candidate_hash(),
+                        evaluation=evaluation,
+                        candidate_id=evaluation.candidate_id,
+                        policy_family=structure.policy_family,
+                        seed_payload=candidate_payload,
+                        transfer_context=resolve_transfer_context(
+                            candidate=structure.candidate, context=context, run_id=loop_id
+                        ),
+                        metadata={"structure_id": structure.structure_id},
+                    )
         if narrative_input_builder is not None:
             state.current_level = PolicySearchLevel.NARRATIVE
             bundles: list[tuple[str, Any]] = []
@@ -558,7 +617,20 @@ class HierarchicalPolicySearchAdapter:
                 bundles.append((structure.candidate_hash, bundle))
             state.narrative_variants = coordinator.run_narrative_search(bundles)
         state_payload = state.model_dump(mode="python") if hasattr(state, "model_dump") else state
-        return HierarchicalSearchResult(state=state_payload, shared_frontier=[])
+        if self._pareto_registry is None:
+            return HierarchicalSearchResult(state=state_payload, shared_frontier=[])
+        from polisyos.scientist.methods.search.pareto_registry import ParetoView
+
+        projection = self._pareto_registry.get_snapshot(loop_id).project_view(
+            ParetoView.GLOBAL_FEASIBLE
+        )
+        frontier = self._pareto_registry.as_legacy_frontier_payload(loop_id)
+        for result in state.parameter_search_results.values():
+            result.pareto_front = frontier
+            result.pareto_projection = projection
+        return HierarchicalSearchResult(
+            state=state, shared_frontier=frontier, pareto_projection=projection
+        )
 
 
 def _coerce_lex_policy_bundle_input(
@@ -669,7 +741,11 @@ class RunHierarchicalPolicySearchNode:
                 candidate,
                 loop_id=loop_id,
                 search_config=search_config,
-                initial_context={"run_id": state.run_id},
+                initial_context={
+                    "run_id": state.run_id,
+                    "tenant_id": ctx.run.tenant_id,
+                    "cell_id": ctx.run.cell_id,
+                },
                 stage_b_evaluator=lambda candidate_payload, context: _evaluate_candidate_payload(
                     ctx,
                     state,

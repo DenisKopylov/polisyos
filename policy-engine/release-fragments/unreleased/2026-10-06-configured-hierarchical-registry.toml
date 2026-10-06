@@ -1,0 +1,22 @@
+type = "changed"
+summary = "The internal hierarchical policy-search adapter forwards an explicitly configured canonical Pareto registry through its existing coordinator ports, publishes typed parameterless observations, and propagates actual run tenant/cell identity through the existing tenant scope."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search adapter"
+compatibility = "The no-registry constructor remains supported. Present noncanonical registries and contradictory tenant bindings refuse before candidate evaluation. Cell routing does not claim a registry partition or access grant."
+migration = "Existing configured callers can pass their appointed ParetoRegistry. Preserve unavailable assessments and candidate-only projections; do not substitute zero or infer a complete objective basis."
+limitations = "The default node producer/basis appointment and A-owned structure task/run context propagation remain explicit dependencies. This internal port does not establish institutional source authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/hierarchical-registry-consumer.md"]
+runbook_docs = ["docs/how-to/hierarchical-registry-consumer.md"]
+
+[[compatibility_change]]
+id = "configured-hierarchical-registry-routing"
+change_class = "internal"
+impact = "additive"
+surface = "internal: configured hierarchical adapter"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable: additive internal port"
+release_note = "Use an explicitly configured canonical registry and matching run identity; parameterless typed observations now reach the same persisted consumer."

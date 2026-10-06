@@ -9,7 +9,7 @@ compatibility = "ExportReport adds an optional previous_generation path. New out
 change_class = "behavior-runtime"
 surface_classification = "public_stable: filesystem CAS transfer reports; internal: local filesystem publication"
 migration = "Retain and reclaim previous_generation paths according to the caller's history needs. Parent-sync failure after selection reports replaced=True and the retained previous path; treat crash durability as uncertain."
-api = "Existing transfer methods retain their arguments. ExportReport.previous_generation identifies the complete prior package; ExportDurabilityError carries publication visibility after sync failure."
+api = "Existing transfer methods retain their public arguments. ExportReport.previous_generation identifies the complete prior package; ExportDurabilityError carries publication visibility after sync failure."
 limitations = "Linux renameat2 is covered by native probes. Darwin renamex_np requires local G verification. No power-loss, hostile filesystem, ACL ownership, or multi-host guarantee."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true

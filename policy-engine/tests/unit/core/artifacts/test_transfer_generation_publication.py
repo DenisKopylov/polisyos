@@ -6,6 +6,7 @@ import hashlib
 import json
 import multiprocessing
 import os
+import runpy
 import socket
 import stat
 import tarfile
@@ -181,7 +182,15 @@ def test_archive_refuses_nonregular_final_path_before_staging(
         context = multiprocessing.get_context("spawn")
         parent, child = context.Pipe()
         process = context.Process(
-            target=_archive_path_probe, args=(str(source.root), str(target), child)
+            target=runpy.run_path,
+            args=(str(Path(__file__).resolve()),),
+            kwargs={
+                "run_name": "__e02_transfer_worker__",
+                "init_globals": {
+                    "e02_worker_name": "_archive_path_probe",
+                    "e02_worker_args": (str(source.root), str(target), child),
+                },
+            },
         )
         process.start()
         try:
@@ -279,8 +288,15 @@ def test_process_interruption_after_each_publication_syscall_leaves_a_complete_g
     context = multiprocessing.get_context("spawn")
     parent, child = context.Pipe()
     process = context.Process(
-        target=_pause_after_publication_syscall,
-        args=(str(store.root), str(target), compress, child),
+        target=runpy.run_path,
+        args=(str(Path(__file__).resolve()),),
+        kwargs={
+            "run_name": "__e02_transfer_worker__",
+            "init_globals": {
+                "e02_worker_name": "_pause_after_publication_syscall",
+                "e02_worker_args": (str(store.root), str(target), compress, child),
+            },
+        },
     )
     process.start()
     try:
@@ -498,8 +514,15 @@ def test_import_archive_binds_the_supplied_regular_path_before_streaming(
     context = multiprocessing.get_context("spawn")
     parent, child = context.Pipe()
     process = context.Process(
-        target=_import_path_probe,
-        args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        target=runpy.run_path,
+        args=(str(Path(__file__).resolve()),),
+        kwargs={
+            "run_name": "__e02_transfer_worker__",
+            "init_globals": {
+                "e02_worker_name": "_import_path_probe",
+                "e02_worker_args": (str(receiver.root), str(alias), kind == "fifo_at_open", child),
+            },
+        },
     )
     process.start()
     try:
@@ -585,3 +608,9 @@ def _import_path_probe(cas_root: str, source_name: str, substitute: bool, connec
                 "substituted": substituted,
             }
         )
+
+
+if __name__ == "__e02_transfer_worker__":
+    # runpy is importable in a fresh spawn child even when pytest importlib
+    # assigns this native file a test-only module name absent from sys.path.
+    globals()[globals()["e02_worker_name"]](*globals()["e02_worker_args"])

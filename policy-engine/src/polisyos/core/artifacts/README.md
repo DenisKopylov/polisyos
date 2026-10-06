@@ -68,3 +68,26 @@ descriptor, with no-follow and nonblocking open flags. Ordinary permission modes
 special set-ID bits and uid/gid ownership remain outside the native permission witness.
 Importers keep one archive inode or one directory descriptor pinned from inventory through
 member reads, so a concurrent generation replacement cannot mix their input bytes.
+
+### Scoped import admission and passive caches
+
+Transfer intake hashes incoming blobs without buffering their payloads and retains bounded
+manifest/signature bytes. The common archive/directory/exact-view admission holds artifact
+and input leases before private staging, and reapplies that invariant before durable intent.
+A scoped importer requires the manifest's declared tenant and cell to equal the explicit
+write owner, including exact `None` cell identity. Already claimed bytes admit only an
+already owned, byte-identical manifest/profile/signature view as a true no-op: no private
+stage, claim or owner-generation update. Mixed packages stage only their unclaimed subset.
+Unbound or foreign imports into a scoped owner refuse. This implements the bounded
+fail-closed recommendation in the E02 B closure decision; it does not ratify a public
+cross-tenant transfer policy. Legacy unbound-to-scoped import consumers need a matching
+bound source manifest. Ordinary producer writes may retain an unspecified context; an
+explicit foreign bound context refuses before put/resume intent.
+
+An unscoped non-authority cache remains a separate consumer and may retain exact bound
+metadata without emitting scoped claims. Write-through caching now publishes at the
+durable remote owner first and uses the existing exact-byte read consumer to populate the
+local cache. It preserves an unrelated first-writer local default and copies the remote
+selected manifest's actual bytes, including its creation time, instead of generating a
+second manifest from write options. Cache degradation follows the configured warn/raise
+policy; the durable-owner reference remains the write-through result.

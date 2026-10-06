@@ -34,7 +34,8 @@ class CachingArtifactStore:
     * **Manifest reads**: resolve selector-free defaults at the durable owner (remote for
       write-through stores, local for local-only stores); exact write-through views are
       admitted by the durable owner before a local cache hit.
-    * **Writes**: write to local, then replicate to remote (if ``write_through``).
+    * **Writes**: publish at the durable owner, then populate the cache through
+      the same exact-byte consumer as reads (if ``write_through``).
     * **Verify**: selector-free defaults use the durable owner; selected write-through views
       use a local hit only after durable-owner admission.
     """
@@ -63,9 +64,7 @@ class CachingArtifactStore:
             return bool(self._default_manifest_owner().has(selected))
         if self._write_through:
             try:
-                _owner_manifest, owner_selected_ref = self._resolve_write_through_view(
-                    selected
-                )
+                _owner_manifest, owner_selected_ref = self._resolve_write_through_view(selected)
             except (FileNotFoundError, KeyError):
                 return False
             if _has_manifest_view(self._local, owner_selected_ref):
@@ -109,6 +108,24 @@ class CachingArtifactStore:
                 exc,
             )
         data = self._remote.get_bytes(selected)
+        return self._cache_remote_view(
+            data,
+            selected,
+            owner_default_ref=owner_default_ref,
+            owner_selected_ref=owner_selected_ref,
+        )
+
+    def _cache_remote_view(
+        self,
+        data: bytes,
+        selected: ArtifactID | ArtifactRef | str,
+        *,
+        owner_default_ref: ArtifactRef | ArtifactID | None = None,
+        owner_selected_ref: ArtifactRef | None = None,
+    ) -> bytes:
+        """Populate through the existing exact-byte consumer of durable-owner reads."""
+        aid, _profile, ref = artifact_reference_parts(selected)
+        artifact_label = _artifact_label(aid)
         # Cache locally for subsequent reads.  We need the original
         # ``PutOptions`` to write to the local store, but since CAS is
         # content-addressed the manifest already exists remotely.
@@ -118,9 +135,7 @@ class CachingArtifactStore:
             raw_manifest_reader = getattr(self._remote, "get_manifest_bytes", None)
             exact_view_importer = getattr(self._local, "import_exact_view", None)
             raw_manifest_bytes = (
-                raw_manifest_reader(selected)
-                if callable(raw_manifest_reader)
-                else None
+                raw_manifest_reader(selected) if callable(raw_manifest_reader) else None
             )
             if isinstance(raw_manifest_bytes, bytes) and callable(exact_view_importer):
                 manifest = ArtifactManifest.model_validate_json(raw_manifest_bytes)
@@ -161,16 +176,12 @@ class CachingArtifactStore:
                             # importer independently checks the signature's
                             # manifest digest before persisting it.
                             try:
-                                current_default_bytes = default_manifest_reader(
-                                    owner_default_ref
-                                )
+                                current_default_bytes = default_manifest_reader(owner_default_ref)
                             except (FileNotFoundError, KeyError):
                                 current_default_bytes = None
                             if current_default_bytes == raw_manifest_bytes:
                                 try:
-                                    candidate_signature_bytes = signature_reader(
-                                        owner_default_ref
-                                    )
+                                    candidate_signature_bytes = signature_reader(owner_default_ref)
                                 except FileNotFoundError:
                                     candidate_signature_bytes = None
                             else:
@@ -295,9 +306,7 @@ class CachingArtifactStore:
             if not _has_manifest_view(self._local, owner_selected_ref):
                 return owner_manifest
             local_manifest = self._local.get_manifest(owner_selected_ref)
-            if _manifest_view_identity(local_manifest) != _manifest_view_identity(
-                owner_manifest
-            ):
+            if _manifest_view_identity(local_manifest) != _manifest_view_identity(owner_manifest):
                 raise ArtifactIntegrityError(
                     "Local cache returned a different manifest view than the durable owner"
                 )
@@ -318,15 +327,14 @@ class CachingArtifactStore:
         return self._remote.get_manifest(selected)
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
-        ref = self._local.put_bytes(data, opts)
-        if self._write_through:
-            remote_ref = self._remote.put_bytes(data, opts)
-            if not self._same_manifest_view(ref, remote_ref):
-                raise ArtifactIntegrityError(
-                    "Local and remote CAS owners returned different manifest views"
-                )
-            return remote_ref
-        return ref
+        if not self._write_through:
+            return self._local.put_bytes(data, opts)
+        remote_ref = self._remote.put_bytes(data, opts)
+        # Local reconstruction would generate independent metadata (created_at
+        # included). The existing read consumer transfers the owner's exact
+        # selected bytes, preserving an unrelated immutable cache default.
+        self._cache_remote_view(self._remote.get_bytes(remote_ref), remote_ref)
+        return remote_ref
 
     def put_json(
         self,
@@ -334,15 +342,11 @@ class CachingArtifactStore:
         opts: PutOptions,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
-        ref = self._local.put_json(obj, opts, canon_spec)
-        if self._write_through:
-            remote_ref = self._remote.put_json(obj, opts, canon_spec)
-            if not self._same_manifest_view(ref, remote_ref):
-                raise ArtifactIntegrityError(
-                    "Local and remote CAS owners returned different manifest views"
-                )
-            return remote_ref
-        return ref
+        if not self._write_through:
+            return self._local.put_json(obj, opts, canon_spec)
+        remote_ref = self._remote.put_json(obj, opts, canon_spec)
+        self._cache_remote_view(self._remote.get_bytes(remote_ref), remote_ref)
+        return remote_ref
 
     def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:
         _aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
@@ -373,8 +377,7 @@ class CachingArtifactStore:
                 or requested_ref.media_type != owner_ref.media_type
                 or (
                     requested_ref.manifest_profile_sha256 is not None
-                    and requested_ref.manifest_profile_sha256
-                    != owner_ref.manifest_profile_sha256
+                    and requested_ref.manifest_profile_sha256 != owner_ref.manifest_profile_sha256
                 )
             )
         ):
@@ -397,9 +400,7 @@ class CachingArtifactStore:
             return False
         local_manifest = self._local.get_manifest(local_ref)
         remote_manifest = self._remote.get_manifest(remote_ref)
-        return _manifest_view_identity(local_manifest) == _manifest_view_identity(
-            remote_manifest
-        )
+        return _manifest_view_identity(local_manifest) == _manifest_view_identity(remote_manifest)
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
         """List IDs whose selector-free views belong to the configured write owner."""

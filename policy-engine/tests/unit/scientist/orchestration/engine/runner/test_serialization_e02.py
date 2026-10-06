@@ -7,6 +7,8 @@ import json
 import multiprocessing
 import os
 from decimal import Decimal
+from itertools import pairwise
+from pathlib import Path
 
 import pytest
 
@@ -126,12 +128,45 @@ def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(
         )
 
         def execute(self, ctx, state):
+            import subprocess
+
             for key, value in original.budgets.items():
                 assert type(state.budgets[key]) is Decimal
                 assert state.budgets[key].as_tuple() == value.as_tuple()
+            # Observe the actual live OS ownership chain before retry owners reap
+            # the attempt. A supervisor may own the attempt on the worker's behalf.
+            ancestry = []
+            cursor = os.getpid()
+            observed = set()
+            while cursor > 0:
+                assert cursor not in observed, "cyclic physical process ancestry"
+                observed.add(cursor)
+                status = Path(f"/proc/{cursor}/status")
+                if status.is_file():
+                    ppid = next(
+                        int(line.split()[1])
+                        for line in status.read_text().splitlines()
+                        if line.startswith("PPid:")
+                    )
+                else:
+                    # macOS has no procfs; ps reports the same live OS relation.
+                    ppid = int(
+                        subprocess.check_output(
+                            ["ps", "-o", "ppid=", "-p", str(cursor)], text=True
+                        ).strip()
+                    )
+                ancestry.append({"pid": cursor, "ppid": ppid})
+                cursor = ppid
             with physical_attempts.open("a") as output:
                 output.write(
-                    json.dumps({"pid": os.getpid(), "ppid": os.getppid(), "run_id": state.run_id})
+                    json.dumps(
+                        {
+                            "pid": os.getpid(),
+                            "ppid": os.getppid(),
+                            "run_id": state.run_id,
+                            "ancestry": ancestry,
+                        }
+                    )
                     + "\n"
                 )
             return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
@@ -173,7 +208,10 @@ def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(
         attempts = [json.loads(line) for line in physical_attempts.read_text().splitlines()]
         assert len(attempts) == 1
         assert attempts[0]["run_id"] == original.run_id
-        assert attempts[0]["ppid"] == process.pid  # The real retry owner forks the node attempt.
+        chain = attempts[0]["ancestry"]
+        assert chain[0] == {"pid": attempts[0]["pid"], "ppid": attempts[0]["ppid"]}
+        assert all(left["ppid"] == right["pid"] for left, right in pairwise(chain))
+        assert process.pid in [ancestor["pid"] for ancestor in chain[1:]]
         assert attempts[0]["pid"] not in {os.getpid(), process.pid}
         assert process.pid != os.getpid()
     finally:

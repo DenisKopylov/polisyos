@@ -12,7 +12,7 @@ import pytest
 import torch
 from botorch.models import SingleTaskGP
 
-from polisyos.core import canon
+from polisyos.core import artifacts, canon
 from polisyos.scientist.methods.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
     SearchSpace,
@@ -30,6 +30,7 @@ from polisyos.scientist.methods.autotune.models import (
 from polisyos.scientist.methods.autotune.registry import ChampionRegistry
 from polisyos.scientist.methods.autotune.runtime import SearchLoopRunner
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+from polisyos.scientist.methods.search.strategies.types import StrategyState
 from tests.unit.scientist.methods.search.strategies.test_transfer import (
     changed_history,
     measured_history,
@@ -138,6 +139,28 @@ def test_actual_public_workflow_fits_only_admitted_original_cas_observations(tmp
         row.provenance_ref for row in expected
     }
     assert registry.get("receiving") is None
+    checkpoint = optimizer.get_state()
+    checkpoint_ref = store.put_bytes(
+        checkpoint.to_artifact(),
+        artifacts.PutOptions(kind="search.strategy_state", media_type="application/json"),
+    )
+    replay = StrategyState.from_artifact(store.get_bytes(checkpoint_ref))
+    resumed, _ = configured_generator(manager, target, basis)
+    resumed._optimizer.set_state(replay)
+    assert isinstance(resumed._optimizer._model, SingleTaskGP)
+    assert torch.equal(resumed._optimizer._fitted_train_X.cpu(), expected_x)
+    assert torch.equal(resumed._optimizer._fitted_train_y_bo.cpu(), expected_y)
+    with torch.no_grad():
+        before = optimizer._model.posterior(expected_x[:2]).mean
+        after = resumed._optimizer._model.posterior(expected_x[:2]).mean
+    assert torch.allclose(before, after, rtol=1e-10, atol=1e-10)
+    original_ref = artifacts.ArtifactRef.model_validate(expected[0].metadata["evaluation_ref"])
+    blob, _ = store._paths(original_ref.artifact_id)
+    blob.write_bytes(b"changed original measurement under the same full reference")
+    with pytest.raises(ValueError):
+        resumed._optimizer.set_state(replay)
+    with pytest.raises(ValueError):
+        optimizer.suggest([])
 
 
 def test_configured_origin_mismatch_remains_discovery_only_and_cannot_fit_gp(tmp_path):

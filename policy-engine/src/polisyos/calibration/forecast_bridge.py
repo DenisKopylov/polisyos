@@ -272,6 +272,107 @@ class ForecastCandidateReceipt(BaseModel):
         return self
 
 
+class ForecastMeasurementBinding(BaseModel):
+    """Resolved source coordinate and units for identity-scale prediction.
+
+    ``source_native`` means that values and interval bounds retain the source
+    unit with no conversion. Decimal storage scale is recorded separately.
+    This content binding is not an institutional admission or verifier receipt.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_ref: ArtifactRefModel
+    schema_id: str = Field(min_length=1)
+    schema_version: str = Field(min_length=1)
+    target_metric: str = Field(min_length=1)
+    field_id: str = Field(min_length=1)
+    unit_id: str = Field(min_length=1)
+    scale: Literal["source_native"]
+    data_type: str = Field(min_length=1)
+    decimal_storage_scale: int | None = Field(default=None, ge=0, le=38)
+
+
+def resolve_forecast_measurement_binding(
+    store: ArtifactStore,
+    *,
+    source_ref: ArtifactRefModel,
+    target_metric: str,
+    target_unit: str,
+    target_scale: str,
+) -> ForecastMeasurementBinding:
+    """Resolve the source schema and bind one supported numeric coordinate.
+
+    The Scientist producer also validates the complete canonical DataSchema.
+    This lower-layer reader validates the exact coordinate used by replay
+    without importing Fabric or inferring a unit from a metric name.
+    """
+
+    if target_scale != "source_native":
+        raise ValueError("forecast measurement scale must be source_native")
+    if not isinstance(target_unit, str) or not target_unit or target_unit != target_unit.strip():
+        raise ValueError("forecast measurement unit must be explicit and clean")
+    _verify_generic_json(store, source_ref, kind="fabric.data_snapshot")
+    snapshot = _as_mapping(get_json_artifact(store, source_ref.artifact_id))
+    raw_schema_ref = snapshot.get("data_schema_ref")
+    if raw_schema_ref is None:
+        raise ValueError("forecast source schema reference is missing")
+    schema_ref = ArtifactRefModel.model_validate(raw_schema_ref)
+    _validate_json_artifact(
+        store,
+        schema_ref,
+        expected_kind="fabric.data_schema",
+        expected_media_type="application/json",
+        expected_schema_name="polisyos.fabric.DataSchema",
+        expected_schema_version="1.0",
+    )
+    schema = _as_mapping(get_json_artifact(store, schema_ref.artifact_id))
+    fields = schema.get("fields")
+    if not isinstance(fields, list):
+        raise ValueError("forecast source schema fields are malformed")
+    matches = [
+        item for item in fields if isinstance(item, Mapping) and item.get("name") == target_metric
+    ]
+    if len(matches) != 1:
+        raise ValueError("forecast target must resolve to exactly one source schema field")
+    field = matches[0]
+    unit = _as_mapping(field.get("unit"))
+    if unit.get("unit_id") != target_unit:
+        raise ValueError("forecast measurement unit disagrees with the source schema")
+    if field.get("data_type") not in {
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+        "float16",
+        "float32",
+        "float64",
+        "decimal",
+    }:
+        raise ValueError("forecast source schema target must be a numeric scalar")
+    version = schema.get("version")
+    if isinstance(version, Mapping):
+        parts = [version.get(name, 0) for name in ("major", "minor", "patch")]
+        if any(not isinstance(part, int) or isinstance(part, bool) or part < 0 for part in parts):
+            raise ValueError("forecast source schema version is malformed")
+        version = ".".join(str(part) for part in parts)
+    return ForecastMeasurementBinding(
+        schema_ref=schema_ref,
+        schema_id=schema.get("schema_id"),
+        schema_version=version,
+        target_metric=target_metric,
+        field_id=field.get("field_id") or target_metric,
+        unit_id=target_unit,
+        scale="source_native",
+        data_type=field["data_type"],
+        decimal_storage_scale=field.get("scale"),
+    )
+
+
 class EmpiricalCalibrationContext(BaseModel):
     """Caller-supplied semantic, provenance, and time binding for evidence.
 
@@ -644,14 +745,24 @@ def load_forecast_calibration_profile(
     profile = ForecastCalibrationProfile.model_validate(
         get_json_artifact(store, profile_ref.artifact_id)
     )
+    request_manifest = _as_mapping(store.get_manifest(profile.request_ref.artifact_id))
+    request_schema = _as_mapping(
+        _field(request_manifest, "schema") or _field(request_manifest, "artifact_schema")
+    )
+    request_version = _field(request_schema, "version")
+    if request_version not in {"1.0", "2.0"}:
+        raise ValueError("forecast profile request schema version is unsupported")
     _validate_json_artifact(
         store,
         profile.request_ref,
         expected_kind="ir.forecast_owner_request",
         expected_media_type="application/json",
         expected_schema_name="polisyos.calibration.forecast_owner_request",
-        expected_schema_version="1.0",
+        expected_schema_version=request_version,
     )
+    request_payload = _as_mapping(get_json_artifact(store, profile.request_ref.artifact_id))
+    if request_payload.get("schema_version", "1.0") != request_version:
+        raise ValueError("forecast profile request payload/manifest version mismatch")
     if _manifest_input_edges(store, profile_ref.artifact_id) != (
         (str(profile.request_ref.artifact_id), "forecast_request"),
     ):
@@ -769,6 +880,15 @@ def _replay_forecast_candidate(store: ArtifactStore, receipt: ForecastCandidateR
     _verify_generic_json(store, data_ref)
     source = _as_mapping(get_json_artifact(store, data_ref.artifact_id))
     target = request.get("target_metric")
+    measurement = None
+    if request.get("schema_version") == "2.0":
+        measurement = resolve_forecast_measurement_binding(
+            store,
+            source_ref=source_ref,
+            target_metric=target,
+            target_unit=request.get("target_unit"),
+            target_scale=request.get("target_scale"),
+        ).model_dump(mode="json")
     values = source.get(str(target))
     split = _as_mapping(request.get("split"))
     params = _as_mapping(request.get("method_params"))
@@ -822,6 +942,18 @@ def _replay_forecast_candidate(store: ArtifactStore, receipt: ForecastCandidateR
             role="method_lineage",
         )
     )
+    if measurement is not None:
+        for role, ref in _context_refs(evidence):
+            payload = _as_mapping(_validate_and_load_reference(store, ref, role=role))
+            if payload.get("measurement_binding") != measurement:
+                raise ValueError("forecast candidate unit/scale/source-schema binding mismatch")
+        if (
+            str(measurement["schema_ref"]["artifact_id"]),
+            "source_schema",
+        ) not in _manifest_input_edges(
+            store, report.cas_artifact_id or evidence.report_ref.artifact_id
+        ):
+            raise ValueError("forecast candidate source schema lineage edge is missing")
     if (
         method_lineage.get("method_fqn") != method_fqn
         or method_lineage.get("method_params") != dict(params)
@@ -858,6 +990,8 @@ def _replay_forecast_candidate(store: ArtifactStore, receipt: ForecastCandidateR
         or training.get("source_ref") != source_ref.model_dump(mode="json")
     ):
         raise ValueError("forecast candidate training/source/request binding mismatch")
+    if measurement is not None and training.get("measurement_binding") != measurement:
+        raise ValueError("forecast candidate training measurement binding mismatch")
     from polisyos.ir.analytics.forecasting_uncertainty import (
         load_forecasting_uncertainty_bundle,
     )
@@ -873,6 +1007,8 @@ def _replay_forecast_candidate(store: ArtifactStore, receipt: ForecastCandidateR
         or bundle.metadata.get("temporal_roles") != request.get("temporal_roles")
     ):
         raise ValueError("forecast candidate prediction method/target/time binding mismatch")
+    if measurement is not None and bundle.metadata.get("measurement_binding") != measurement:
+        raise ValueError("forecast candidate prediction measurement binding mismatch")
     intervals = {item.horizon: item for item in bundle.prediction_interval}
     comparisons = report.scenarios[0].outcome_comparisons
     if set(intervals) != set(range(1, horizon + 1)) or len(comparisons) != horizon:
@@ -1826,6 +1962,7 @@ __all__ = [
     "ForecastCalibrationProfile",
     "ForecastCandidateReceipt",
     "ForecastCandidateReceiptRef",
+    "ForecastMeasurementBinding",
     "ReferenceRole",
     "load_empirical_calibration_evidence",
     "load_forecast_calibration_profile",
@@ -1833,4 +1970,5 @@ __all__ = [
     "persist_empirical_calibration_evidence",
     "persist_forecast_candidate_receipt",
     "produce_empirical_calibration_evidence",
+    "resolve_forecast_measurement_binding",
 ]

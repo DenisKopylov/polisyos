@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="13.915" timestamp="2026-10-06T14:15:45.497217+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="" name="tests.unit.remediation.test_cyc_02" time="0.000"><error message="collection failure">tests/unit/remediation/test_cyc_02.py:18: in &lt;module&gt;
+    import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+src/polisyos/runtime/quality/__init__.py:989: in &lt;module&gt;
+    from .public_export import (
+src/polisyos/runtime/quality/public_export.py:32: in &lt;module&gt;
+    from polisyos.runtime.quality.generation_cycle import (
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1342: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:938: in _load_unlocked
+    ???
+../../../e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/hook-explicit_empty_atoms/sitecustomize.py:207: in exec_module
+    raise AssertionError(
+E   AssertionError: removed_property_keep_markers:unexpected_mutation_hits:explicit_empty_atoms:1</error></testcase></testsuite></testsuites>

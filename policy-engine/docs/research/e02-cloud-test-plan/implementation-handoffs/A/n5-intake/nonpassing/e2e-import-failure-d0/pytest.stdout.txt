@@ -1,0 +1,93 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_n5_fresh_process_readback_binds_default_n8_to_cas_identity ________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-20261006T105033Z-b8e7ca31/basetemp-n5-target/test_n5_fresh_process_readback0')
+
+    def test_n5_fresh_process_readback_binds_default_n8_to_cas_identity(
+        tmp_path: Path,
+    ) -> None:
+        """Only the exact fresh N5 bytes and their sibling identity reach conditional N8."""
+    
+        project_root = Path(__file__).resolve().parents[3]
+        expected_source_path = (
+            project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+        ).resolve()
+        assert Path(generation_cycle_module.__file__).resolve() == expected_source_path
+        store_root = tmp_path / "n5-binding-cas"
+        produced = _run_n5_binding_process(
+            mode="produce",
+            project_root=project_root,
+            store_root=store_root,
+        )
+>       consumed = _run_n5_binding_process(
+            mode="consume",
+            project_root=project_root,
+            store_root=store_root,
+            handoff=produced,
+        )
+
+tests/unit/remediation/test_cyc_02.py:729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _run_n5_binding_process(
+        *,
+        mode: str,
+        project_root: Path,
+        store_root: Path,
+        handoff: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Start one producer or consumer interpreter with explicit source imports."""
+    
+        environment = dict(os.environ)
+        environment["PYTHONPATH"] = os.pathsep.join((str(project_root / "src"), str(project_root)))
+        environment["JAX_PLATFORM_NAME"] = "cpu"
+        environment["XLA_FLAGS"] = "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                _N5_BINDING_PROCESS_DISPATCH,
+                mode,
+                str(project_root),
+                str(store_root),
+            ],
+            cwd=project_root,
+            env=environment,
+            input=json.dumps(handoff) if handoff is not None else None,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+>       assert completed.returncode == 0, (
+            f"N5 {mode} process failed ({completed.returncode}):\n"
+            f"stderr tail:\n{completed.stderr[-4000:]}\n"
+            f"stdout tail:\n{completed.stdout[-2000:]}"
+        )
+E       AssertionError: N5 consume process failed (1):
+E         stderr tail:
+E         Traceback (most recent call last):
+E           File "<string>", line 15, in <module>
+E             result = _n5_binding_consumer_process(json.load(sys.stdin), project_root=project_root)
+E           File "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/tests/unit/remediation/test_cyc_02.py", line 546, in _n5_binding_consumer_process
+E             mismatch: _persist_n5_content_valid_variant(result, store=store, mismatch=mismatch)
+E                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/tests/unit/remediation/test_cyc_02.py", line 295, in _persist_n5_content_valid_variant
+E             from polisyos.runtime.quality.joint_simulation_horizon import (
+E             ...<4 lines>...
+E             )
+E         ImportError: cannot import name 'persist_joint_simulation_result' from 'polisyos.runtime.quality.joint_simulation_horizon' (/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py)
+E         
+E         stdout tail:
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python'.../worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py)\n').returncode
+
+tests/unit/remediation/test_cyc_02.py:703: AssertionError
+============================== slowest durations ===============================
+33.48s call     tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+
+(2 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+1 failed in 48.83s

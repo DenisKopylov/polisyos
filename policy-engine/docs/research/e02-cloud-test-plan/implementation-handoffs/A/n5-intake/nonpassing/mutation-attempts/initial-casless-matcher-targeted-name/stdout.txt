@@ -1,0 +1,24 @@
+
+==================================== ERRORS ====================================
+____________ ERROR collecting tests/unit/remediation/test_cyc_02.py ____________
+tests/unit/remediation/test_cyc_02.py:18: in <module>
+    import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+src/polisyos/runtime/quality/__init__.py:989: in <module>
+    from .public_export import (
+src/polisyos/runtime/quality/public_export.py:32: in <module>
+    from polisyos.runtime.quality.generation_cycle import (
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+../../../e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/hook-casless_digest/sitecustomize.py:235: in exec_module
+    raise AssertionError(
+E   AssertionError: removed_property_keep_markers:unexpected_mutation_hits:casless_digest:0
+=========================== short test summary info ============================
+ERROR tests/unit/remediation/test_cyc_02.py - AssertionError: removed_propert...
+ERROR: found no collectors for /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+
+removed_property_keep_markers:source_mutant_not_applied
+REMOVAL_PROBE=PASS property=casless_digest behavioral_test_red_with_markers_retained

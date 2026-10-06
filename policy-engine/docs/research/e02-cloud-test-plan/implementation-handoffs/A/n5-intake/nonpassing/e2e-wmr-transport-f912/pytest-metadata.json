@@ -1,0 +1,78 @@
+{
+  "branch": "codex/e02-A-n5-verify-current",
+  "checkout_root": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-importfix-20261006T105649Z-0ad3949b/basetemp-n5-target",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-importfix-20261006T105649Z-0ad3949b/junit-n5-target.xml",
+    "--durations=0"
+  ],
+  "created_utc": "2026-10-06T10:57:31.449511+00:00",
+  "data_requirements": {
+    "production_data_required": false
+  },
+  "environment": {
+    "BLIS_NUM_THREADS": "1",
+    "HOME": "/Users/deniskopylov",
+    "JAX_PLATFORM_NAME": "cpu",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:.",
+    "TMPDIR": "/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+  },
+  "fixture_identity": {
+    "fixture_factory": "_cyc01_owner_bound_n5_case",
+    "producer_consumer_mode": "separate Python processes",
+    "tmp_path_basetemp": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-importfix-20261006T105649Z-0ad3949b/basetemp-n5-target"
+  },
+  "head": "f91228be4b71059e3e5c566ea6236a55439675d2",
+  "import_origin": {
+    "jax_default_backend": "cpu",
+    "jax_devices": [
+      "TFRT_CPU_0"
+    ],
+    "jax_version": "0.8.2",
+    "module_origins": {
+      "polisyos.runtime.quality.generation_cycle": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "polisyos.runtime.quality.joint_simulation_horizon": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "tests.unit.remediation.test_cyc_02": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/tests/unit/remediation/test_cyc_02.py"
+    },
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "sys_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python"
+  },
+  "junit_path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-importfix-20261006T105649Z-0ad3949b/junit-n5-target.xml",
+  "pytest_config": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini",
+  "pytest_ini_contents": "[pytest]\nminversion = 6.0\naddopts = -ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks\ncache_dir = _cache/pytest\ntestpaths =\n    tests\nasyncio_mode = auto\nmarkers =\n    unit: fast isolated tests; applied by default when no broader taxonomy class matches\n    contract: compatibility and schema-boundary tests for stable cross-layer surfaces\n    property: hypothesis property-based tests\n    integration: multi-component or runtime-boundary tests that cross subsystem seams\n    performance: runtime, benchmark, and regression-cost tests\n    repo_quality: repository structure, lint, tooling, and test-topology quality gates\n    benchmark: performance regression benchmarks (requires pytest-benchmark)\n    smoke: minimal confidence tests for local and CI fast paths\n    slow: intentionally higher-cost tests excluded from the fastest loops\n    flaky: unstable tests that require explicit owner follow-up\n    quarantine: temporarily de-gated tests tracked in tests/quarantine.toml\n",
+  "pytest_testpaths": [
+    "tests"
+  ],
+  "runner_python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "source_and_test_file_sha256": {
+    "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "src/polisyos/runtime/quality/generation_cycle.py": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py": "f3e4ade69b23885f14cf06735e35ac42fae460a6a02c99163a0bc2909db09a23",
+    "tests/unit/remediation/test_cyc_02.py": "dad61569dc1cc5eeeb1035fb92bd4953699505ce9660f63cfff653f21be236ae"
+  },
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-importfix-20261006T105649Z-0ad3949b/pytest.stderr.txt",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-importfix-20261006T105649Z-0ad3949b/pytest.stdout.txt",
+  "test_node": "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+  "tree": "88bb8c2fd6c64ee18426094540edb32ae545b292",
+  "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "working_tree_status": ""
+}

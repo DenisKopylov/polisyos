@@ -1,0 +1,30 @@
+{
+  "elapsed_seconds": 55.513186374970246,
+  "expected_behavioral_assertion": "removed_property_keep_markers:n8_negative_admitted:missing_selected_point_outcome",
+  "expected_behavioral_assertion_in_junit_failure": true,
+  "finished_utc": "2026-10-06T11:20:56.025373+00:00",
+  "harness_return_code": 0,
+  "junit_available": true,
+  "junit_observation": {
+    "all_error_count": 0,
+    "all_failure_count": 1,
+    "available": true,
+    "expected_behavioral_assertion_present": true,
+    "failure_message": "AssertionError: removed_property_keep_markers:n8_negative_admitted:missing_selected_point_outcome:{'acquisition_requirement': None, 'authority_blockers': ['simulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', 'decision_grade': 'low', 'evaluation_mode': 'simulate_only', 'identification_status': None, 'method_selection_receipt': None, 'reason': 'N8 consumed a content-bound numerical N5 result for simulation-only analysis; K_sim is not world evidence or promotion authority.', 'selected_method_fqn': None, 'status': 'value_conditional', 'transport_receipt': None, 'value_data_profile_content_hash': None, 'value_receipt': None, 'value_ref': 'sha256:2a5eca7c749d7ad65725619d0f28a71d33a8189590534b0423b1ecfaafef712c', 'wall_time_ms': 1.6685000155121088, 'world_model_record_content_hash': 'sha256:1c1984aad56d29bb07c796ab85950eb1e6cd5de4a6f7db0295cf3b9c7ad5a497'}\nassert 'value_conditional' == 'value_blocked'\n  \n  - value_blocked\n  + value_conditional",
+    "target_has_error": false,
+    "target_has_failure": true,
+    "target_testcase": {
+      "classname": "tests.unit.remediation.test_cyc_02",
+      "name": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+      "time": "34.679"
+    },
+    "target_testcase_count": 1,
+    "testcase_count": 1
+  },
+  "junit_sha256": "fd1bab0d1897b6691e4b7086d53c506827924626befe34881e276a861887d9a8",
+  "junit_valid_target_failure_no_collection_error": true,
+  "mutation_applied_marker_present_with_expected_hit_count": true,
+  "pass": true,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "95a493a1acfe0716e9570960354399f8596530d8af2542462a08de0b559bff69"
+}

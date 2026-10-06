@@ -1,0 +1,60 @@
+{
+  "elapsed_seconds": 53.657334041025024,
+  "finished_utc": "2026-10-06T10:58:25.107638+00:00",
+  "fresh_cas_artifacts": [
+    {
+      "artifact_id": "03ca9918e6c51eb0551c2e75df520473ddf527c07afda5fd95056f79e5dde6d6",
+      "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/03/ca/03ca9918e6c51eb0551c2e75df520473ddf527c07afda5fd95056f79e5dde6d6.blob",
+      "sha256": "03ca9918e6c51eb0551c2e75df520473ddf527c07afda5fd95056f79e5dde6d6",
+      "size_bytes": 5543
+    },
+    {
+      "artifact_id": "0907e2f3cc95752eb63807019157ffe4a036c6ea7fa1f672db2ecf2a135a4c07",
+      "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/09/07/0907e2f3cc95752eb63807019157ffe4a036c6ea7fa1f672db2ecf2a135a4c07.blob",
+      "sha256": "0907e2f3cc95752eb63807019157ffe4a036c6ea7fa1f672db2ecf2a135a4c07",
+      "size_bytes": 5505
+    },
+    {
+      "artifact_id": "87a14a5759e9e435c4de17488d1b2af2dddcf8ff1ae98508f53f90c78473cbb7",
+      "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/87/a1/87a14a5759e9e435c4de17488d1b2af2dddcf8ff1ae98508f53f90c78473cbb7.blob",
+      "sha256": "87a14a5759e9e435c4de17488d1b2af2dddcf8ff1ae98508f53f90c78473cbb7",
+      "size_bytes": 5549
+    },
+    {
+      "artifact_id": "ae724b53958cc8d9bfa91dbcb417b73a7d09c115480299df9336f56578bfe871",
+      "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/ae/72/ae724b53958cc8d9bfa91dbcb417b73a7d09c115480299df9336f56578bfe871.blob",
+      "sha256": "ae724b53958cc8d9bfa91dbcb417b73a7d09c115480299df9336f56578bfe871",
+      "size_bytes": 5898
+    },
+    {
+      "artifact_id": "dd6a8cacff5d4796f1e0f916611d3ee15b869b9414cd3beee18276388a757201",
+      "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/dd/6a/dd6a8cacff5d4796f1e0f916611d3ee15b869b9414cd3beee18276388a757201.blob",
+      "sha256": "dd6a8cacff5d4796f1e0f916611d3ee15b869b9414cd3beee18276388a757201",
+      "size_bytes": 5549
+    },
+    {
+      "artifact_id": "ff0f74f0cb2bf800ecbf5f0f9e8e9a302c8afbc5192ecbc9ea4f3c533adbb038",
+      "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/ff/0f/ff0f74f0cb2bf800ecbf5f0f9e8e9a302c8afbc5192ecbc9ea4f3c533adbb038.blob",
+      "sha256": "ff0f74f0cb2bf800ecbf5f0f9e8e9a302c8afbc5192ecbc9ea4f3c533adbb038",
+      "size_bytes": 5557
+    }
+  ],
+  "junit": {
+    "available": true,
+    "cases": [
+      {
+        "classname": "tests.unit.remediation.test_cyc_02",
+        "error": false,
+        "failure": true,
+        "name": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "skipped": false,
+        "time_seconds": 34.493
+      }
+    ],
+    "suite_attributes": {
+      "name": "pytest tests"
+    }
+  },
+  "return_code": 1,
+  "started_utc": "2026-10-06T10:57:31.450190+00:00"
+}

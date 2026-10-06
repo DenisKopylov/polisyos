@@ -1,0 +1,43 @@
+{
+  "basetemp": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/pytest-basetemp",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v3.py",
+    "--project-root",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "--property",
+    "absent_atom_fallback"
+  ],
+  "controlled_environment": {
+    "BLIS_NUM_THREADS": "1",
+    "JAX_PLATFORM_NAME": "cpu",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/junit.xml --durations=0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+  },
+  "expected_behavioral_assertion": "removed_property_keep_markers:absent_atom_fallback_lost:",
+  "expected_mutation_hits": 1,
+  "git_head": "7ffbf5c71d6352f7712673a6591be5e553993745",
+  "git_tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+  "harness": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v3.py",
+  "harness_sha256": "0bcb0269cbbc39da822b852d0911a8275f0c06a9dbca58c09ecad2c6f4ff852f",
+  "junit": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/junit.xml",
+  "mutation": "replace fallback atom tuple with an empty tuple while retaining the raw_atoms-is-None branch and markers",
+  "probe_revision": "v3 exact JUnit/assertion/mutation-hit classifier; absent-atom fallback replaced by empty tuple",
+  "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "property": "absent_atom_fallback",
+  "pytest_addopts": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/junit.xml --durations=0",
+  "pytest_config": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini",
+  "python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+  "started_utc": "2026-10-06T11:21:00.555650+00:00",
+  "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+  "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine"
+}

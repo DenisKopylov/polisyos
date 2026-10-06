@@ -1,0 +1,3 @@
+mutation evidence census: directories=9 (removal-controls/* plus nonpassing/mutation-attempts/*); file-type denominator=metadata.json:9, junit.xml:9; accepted exact target failures=6/6; retained nonpasses=3
+accepted properties=engine_selection,sibling_receipt_hash,explicit_empty_atoms,point_outcome_distribution,absent_atom_fallback,casless_digest
+nonpassing=initial-casless-matcher-targeted-name,initial-engine-selection-overbroad-removal,initial-explicit-empty-matcher-missed-loader

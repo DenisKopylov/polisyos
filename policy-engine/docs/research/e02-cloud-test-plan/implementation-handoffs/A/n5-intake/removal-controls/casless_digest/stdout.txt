@@ -1,0 +1,142 @@
+removed_property_keep_markers:mutation_applied:casless_digest:1
+F
+=================================== FAILURES ===================================
+_______ test_n5_fresh_process_readback_binds_default_n8_to_cas_identity ________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/pytest-basetemp/test_n5_fresh_process_readback0')
+
+    def test_n5_fresh_process_readback_binds_default_n8_to_cas_identity(
+        tmp_path: Path,
+    ) -> None:
+        """Only the exact fresh N5 bytes and their sibling identity reach conditional N8."""
+    
+        project_root = Path(__file__).resolve().parents[3]
+        expected_source_path = (
+            project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+        ).resolve()
+        assert Path(generation_cycle_module.__file__).resolve() == expected_source_path
+        store_root = tmp_path / "n5-binding-cas"
+        produced = _run_n5_binding_process(
+            mode="produce",
+            project_root=project_root,
+            store_root=store_root,
+        )
+        consumed = _run_n5_binding_process(
+            mode="consume",
+            project_root=project_root,
+            store_root=store_root,
+            handoff=produced,
+        )
+    
+        assert produced["producer_pid"] != consumed["consumer_pid"]
+        assert produced["generation_cycle_source"] == str(expected_source_path)
+        assert consumed["generation_cycle_source"] == str(expected_source_path)
+        simulation = produced["simulation"]
+        result = produced["result"]
+        context = produced["context"]
+        candidate_atom = produced["candidate"]["atom"]
+        readback = consumed["readback"]
+        selected = [
+            decision
+            for decision in readback["selected_engine_decisions"]
+            if decision["decision"] == "selected"
+        ]
+        assert len(selected) == 1
+        selected_decision = selected[0]
+        selected_identity = {
+            key: selected_decision[key] for key in ("engine_kind", "method_fqn", "objective_ref")
+        }
+        assert readback["receipt_engine_kind"] == selected_identity["engine_kind"]
+        assert readback["trajectory_identities"]
+        assert all(identity == selected_identity for identity in readback["trajectory_identities"])
+        assert (
+            readback["result"]["world_model_record_ref"]
+            == context["world_model_record"]["world_model_record_id"]
+        )
+        assert (
+            readback["result"]["world_model_record_content_hash"]
+            == context["world_model_record"]["content_hash"]
+        )
+        assert tuple(readback["result"]["atom_ids"]) == (candidate_atom["intervention_id"],)
+        assert readback["result"]["selected_outcomes"] == [
+            produced["problem"]["outcome_of_interest"]["target_variable"]
+        ]
+        assert readback["result"] == result
+        assert math.isfinite(readback["effect"])
+        outcome = result["selected_outcomes"][0]
+        producer_trajectory = next(
+            trajectory
+            for trajectory in result["trajectories"]
+            if trajectory["points"] and outcome in trajectory["points"][0]["effect"]
+        )
+        producer_effect = next(
+            float(point["effect"][outcome])
+            for point in producer_trajectory["points"]
+            if outcome in point["effect"]
+        )
+        assert readback["effect"] == producer_effect
+        assert readback["simulation_ref"] == simulation["simulation_ref"]
+        assert readback["result"]["receipt"]["payload_hash"] == simulation["simulation_ref"]
+        assert result["receipt"]["payload_hash"] == simulation["simulation_ref"]
+    
+        positive = consumed["positive"]
+        assert positive["status"] == "value_conditional", (
+            f"removed_property_keep_markers:absent_atom_fallback_lost:{positive}"
+        )
+        assert positive["value_ref"] == simulation["simulation_result_ref"]["artifact_id"]
+        assert positive["evaluation_mode"] == "simulate_only"
+        assert positive["decision_grade"] == "low"
+        assert "simulation_only_k_sim_not_world_evidence" in positive["authority_blockers"]
+        assert positive.get("value_receipt") is None
+        assert positive.get("method_selection_receipt") is None
+    
+        negatives = consumed["negative_consumers"]
+        assert set(negatives) == {
+            "explicit_empty_candidate_atoms",
+            "absent_candidate_atom_mismatch",
+            "sibling_digest_mismatch",
+            "sibling_digest_missing",
+            "unknown_outcome",
+            "foreign_wmr_id",
+            "foreign_wmr_hash",
+            "missing_cas_ref",
+            "identity_no_selected_decision",
+            "identity_multiple_selected_decisions",
+            "identity_receipt_engine",
+            "identity_trajectory_identity",
+            "missing_selected_point_outcome",
+            "tampered_cas_bytes",
+        }
+        for name, negative in negatives.items():
+            assert negative["status"] == "value_blocked", (
+                f"removed_property_keep_markers:n8_negative_admitted:{name}:{negative}"
+            )
+            assert negative.get("value_receipt") is None, f"unexpected_value_receipt:{name}"
+            assert negative.get("method_selection_receipt") is None, (
+                f"unexpected_method_selection_receipt:{name}"
+            )
+    
+        # The sole mutation is the sibling digest; N5 status, blocker markers and
+        # CAS ref remain. A marker-only or ref-presence gate would still go green.
+        sibling_probe = consumed["sibling_probe"]
+        assert sibling_probe["mismatch_status"] == sibling_probe["original_status"]
+        assert sibling_probe["mismatch_blockers"] == sibling_probe["original_blockers"]
+        assert sibling_probe["mismatch_ref"] == sibling_probe["original_ref"]
+        assert sibling_probe["mismatch_payload_hash"] != sibling_probe["original_payload_hash"]
+        assert negatives["sibling_digest_mismatch"]["status"] == "value_blocked"
+    
+>       assert consumed["casless_input"] is None, (
+            "removed_property_keep_markers:casless_digest_admitted_before_fallback:"
+            f"{consumed['casless_input']}"
+        )
+E       AssertionError: removed_property_keep_markers:casless_digest_admitted_before_fallback:{'artifact_id': 'polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', 'artifact_type': 'joint_simulation_observation', 'content_hash': 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'schema_ref': 'policyos.runtime.n5.joint_simulation_observation.v1', 'uri': 'runtime://n5/simulation/candidate_cyc_n5_builder', 'version': '1.0.0'}
+E       assert {'artifact_id': 'polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', 'artifact_type': 'joint_simulation_observat...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'schema_ref': 'policyos.runtime.n5.joint_simulation_observation.v1', ...} is None
+
+tests/unit/remediation/test_cyc_02.py:837: AssertionError
+============================== slowest durations ===============================
+33.46s call     tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+
+(2 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+REMOVAL_PROBE=PASS property=casless_digest behavioral_test_red_with_markers_retained

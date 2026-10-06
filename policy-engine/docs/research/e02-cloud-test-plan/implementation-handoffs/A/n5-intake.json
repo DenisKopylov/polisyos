@@ -1,0 +1,1174 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "n5-intake",
+  "closure_ids": [],
+  "finding_ids": [
+    "B04",
+    "B05",
+    "B08",
+    "B26"
+  ],
+  "bundle_ids": [
+    "CYC-02",
+    "SIM-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "90bd99dc0f6e4b03fb55591497b6b0caa6aa6758",
+    "e048b7a1dfe1e7163fb220c997fcb0bc8cca4e7a",
+    "d0fab1bb94f0d1492d203fe050e10dea5e1a9e40",
+    "f91228be4b71059e3e5c566ea6236a55439675d2",
+    "7ffbf5c71d6352f7712673a6591be5e553993745"
+  ],
+  "candidate_tree_sha": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+  "branch": "codex/e02-A-n5-verify-current",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+    "policy-engine/tests/unit/remediation/test_cyc_02.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "kind": "fresh-process producer-to-CAS-to-default-N8 integration test",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -B -m pytest -c pytest.ini tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-wmrfix-20261006T110639Z-a850758d/basetemp-n5-target --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5-e2e-wmrfix-20261006T110639Z-a850758d/junit-n5-target.xml --durations=0",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": {
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "jax_version": "0.8.2",
+        "jax_backend": "cpu",
+        "pytest_config": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini",
+        "pytest_testpaths": [
+          "tests"
+        ],
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:.",
+        "environment_record": "n5-intake/positive/pytest-metadata.json",
+        "import_origin_record": "n5-intake/positive/import-origin.json"
+      },
+      "input_closure": {
+        "fixture_factory": "_cyc01_owner_bound_n5_case",
+        "producer_and_consumer": "separate Python processes",
+        "fixture_shape": "synthetic owner-bound N5 fixture; one atom; one-step static horizon; no production_data/profile",
+        "simulation_schema": "policyos.runtime.joint_simulation_horizon.v1",
+        "candidate_id": "candidate_cyc_n5_builder",
+        "atom": "income_subsidy",
+        "selected_outcome": "firm_survival",
+        "selected_identity": {
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival"
+        },
+        "simulation_result_ref": "sha256:f27a7443408ac3faea7117b763640741170524d45ed92fae7195db9b63b9eca4",
+        "receipt_payload_hash": "sha256:a36ebe38286617c67ed828622338ab1a10efafbc1521233e3e1f19f69ce3b095",
+        "world_model_record_ref": "world_model_record_95c5f721bf9715f1",
+        "world_model_record_content_hash": "sha256:95c5f721bf9715f127dbbaf76053be1892aae4e415940602024e0db94baee715",
+        "fresh_cas_artifacts": [
+          {
+            "artifact_id": "6093bf56039447f99ffef5075b16dbbbc8c2d08bccfab80e939bf687483b8885",
+            "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/60/93/6093bf56039447f99ffef5075b16dbbbc8c2d08bccfab80e939bf687483b8885.blob",
+            "sha256": "6093bf56039447f99ffef5075b16dbbbc8c2d08bccfab80e939bf687483b8885",
+            "size_bytes": 5557
+          },
+          {
+            "artifact_id": "86850623057c8bfb489cf3f4e185347a49b23f7bfb6c5dde64ec32ed461f9698",
+            "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/86/85/86850623057c8bfb489cf3f4e185347a49b23f7bfb6c5dde64ec32ed461f9698.blob",
+            "sha256": "86850623057c8bfb489cf3f4e185347a49b23f7bfb6c5dde64ec32ed461f9698",
+            "size_bytes": 5543
+          },
+          {
+            "artifact_id": "89a5759652ae6b71835ddcc7e74910c85b4aecdb547dc255b591b57f55927e8b",
+            "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/89/a5/89a5759652ae6b71835ddcc7e74910c85b4aecdb547dc255b591b57f55927e8b.blob",
+            "sha256": "89a5759652ae6b71835ddcc7e74910c85b4aecdb547dc255b591b57f55927e8b",
+            "size_bytes": 5898
+          },
+          {
+            "artifact_id": "9ec42e349dd97b3bd2798b01fb93f07085fc1975924bceedc80e43e1220568db",
+            "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/9e/c4/9ec42e349dd97b3bd2798b01fb93f07085fc1975924bceedc80e43e1220568db.blob",
+            "sha256": "9ec42e349dd97b3bd2798b01fb93f07085fc1975924bceedc80e43e1220568db",
+            "size_bytes": 5505
+          },
+          {
+            "artifact_id": "da2719b5dcc8fbcf022c1df5c4e579ad210a0552b3e783c8741db2eee7c0758a",
+            "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/da/27/da2719b5dcc8fbcf022c1df5c4e579ad210a0552b3e783c8741db2eee7c0758a.blob",
+            "sha256": "da2719b5dcc8fbcf022c1df5c4e579ad210a0552b3e783c8741db2eee7c0758a",
+            "size_bytes": 5549
+          },
+          {
+            "artifact_id": "f27a7443408ac3faea7117b763640741170524d45ed92fae7195db9b63b9eca4",
+            "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/f2/7a/f27a7443408ac3faea7117b763640741170524d45ed92fae7195db9b63b9eca4.blob",
+            "sha256": "f27a7443408ac3faea7117b763640741170524d45ed92fae7195db9b63b9eca4",
+            "size_bytes": 5549
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "deciding_output": "1 passed; target testcase 36.532s; runner 56.308s. N8 returned value_conditional / simulate_only / low; K_sim blocker retained; no value or method-selection receipt.",
+      "output_files": [
+        {
+          "path": "n5-intake/positive/pytest.stdout.txt",
+          "sha256": "694734f67c2430435aa4ac66ae84ee285e34bc88c928564ab5e499a7be730866",
+          "bytes": 365
+        },
+        {
+          "path": "n5-intake/positive/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/positive/junit-n5-target.xml",
+          "sha256": "654b635d45484d1da0e22b8992ff0581a9eb6cf6d5fad8740152217a00577bc1",
+          "bytes": 404
+        },
+        {
+          "path": "n5-intake/positive/pytest-metadata.json",
+          "sha256": "3ab3028e5e96fd87fcff63bfbe5d61c6a9f0ba72be730e4bea013973c60003dd",
+          "bytes": 6687
+        },
+        {
+          "path": "n5-intake/positive/pytest-timing-and-cas.json",
+          "sha256": "47a95f683b1304a828b9b5c7e4f8f0f7123e033fd76e464366ad828d13b0a0dc",
+          "bytes": 2852
+        },
+        {
+          "path": "n5-intake/positive/import-origin.json",
+          "sha256": "e84ceb71be7f86a354369d6a1aebadaacdd04fe97dbb69b6ef304410c78163ea",
+          "bytes": 927
+        },
+        {
+          "path": "n5-intake/positive/pytest-command.txt",
+          "sha256": "f73c30b6be0c4285ef8b145b2730470ea808d75614f9be527f8e07fba204dd36",
+          "bytes": 637
+        },
+        {
+          "path": "n5-intake/positive/preflight.stdout.txt",
+          "sha256": "49cc5971f008a4ce027c3aa4f0c4c71d755f58b5aefea1884af7aa551ed0d139",
+          "bytes": 887
+        },
+        {
+          "path": "n5-intake/positive/preflight.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "kind": "remove-property-keep-markers behavioral mutation",
+      "property": "engine_selection",
+      "mutation": "replace len(selected_decisions) != 1 with len(selected_decisions) == 0; retain zero-selected fail-closed branch and source error marker, remove only uniqueness rejection",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined.py --project-root /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine --property engine_selection",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": {
+        "runner_python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "controlled_environment": {
+          "BLIS_NUM_THREADS": "1",
+          "JAX_PLATFORM_NAME": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-engine_selection/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-engine_selection/junit.xml --durations=0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONHASHSEED": "0",
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+        },
+        "harness": "n5-intake/harness/n5_property_removal_probe_refined.py",
+        "harness_sha256": "906f4bffd5aaee8ad5446ba3b7a0cefb30f1cad5ea2647d4f787f4bb98354d2c"
+      },
+      "input_closure": {
+        "test_node": "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+        "expected_ast_mutation_hits": 1,
+        "expected_behavioral_assertion": "removed_property_keep_markers:n8_negative_admitted:identity_multiple_selected_decisions"
+      },
+      "outcome": "PASS",
+      "probe_runner_exit_code": 0,
+      "deciding_output": "The removed property causes the exact target testcase to fail on the property-specific semantic assertion; one target testcase, one failure, zero errors/skips. A nonzero pytest result is expected for this mutation.",
+      "classifier": {
+        "target_testcase": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "target_junit_failure": true,
+        "zero_junit_errors": true,
+        "expected_semantic_assertion_in_failure": true,
+        "mutation_hit_guard": "the AST transformer rejects unexpected hit counts before the mutant is accepted",
+        "probe_runner_result_pass": true
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/removal-controls/engine_selection/metadata.json",
+          "sha256": "0bd018b588656a0e713a7f1141e8997b45f52c84546122dd2b45afbe40b77a35",
+          "bytes": 3790
+        },
+        {
+          "path": "n5-intake/removal-controls/engine_selection/stdout.txt",
+          "sha256": "5383f90bee44defbadfff066c64d4ef82de0eac62ca4f7d34c00154960c5f951",
+          "bytes": 6875
+        },
+        {
+          "path": "n5-intake/removal-controls/engine_selection/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/removal-controls/engine_selection/junit.xml",
+          "sha256": "6973b8c0c772b4b5744498d592f783b092f52c36716109b28a4db268ede883fa",
+          "bytes": 7651
+        },
+        {
+          "path": "n5-intake/removal-controls/engine_selection/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/removal-controls/engine_selection/result.json",
+          "sha256": "a468c8441d5b4b5cda19aec7ba89711a35ca6b4d76540bdca15e293eb47ca4bf",
+          "bytes": 478
+        }
+      ],
+      "inner_pytest_junit": {
+        "testcase_count": 1,
+        "target_failures": 1,
+        "target_errors": 0,
+        "target_skips": 0
+      }
+    },
+    {
+      "kind": "remove-property-keep-markers behavioral mutation",
+      "property": "sibling_receipt_hash",
+      "mutation": "bypass sibling receipt-payload-hash comparison in load_joint_simulation_result while retaining branch and error marker",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined.py --project-root /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine --property sibling_receipt_hash",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": {
+        "runner_python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "controlled_environment": {
+          "BLIS_NUM_THREADS": "1",
+          "JAX_PLATFORM_NAME": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-sibling_receipt_hash/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-sibling_receipt_hash/junit.xml --durations=0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONHASHSEED": "0",
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+        },
+        "harness": "n5-intake/harness/n5_property_removal_probe_refined.py",
+        "harness_sha256": "906f4bffd5aaee8ad5446ba3b7a0cefb30f1cad5ea2647d4f787f4bb98354d2c"
+      },
+      "input_closure": {
+        "test_node": "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+        "expected_ast_mutation_hits": 1,
+        "expected_behavioral_assertion": "removed_property_keep_markers:n8_negative_admitted:sibling_digest_mismatch"
+      },
+      "outcome": "PASS",
+      "probe_runner_exit_code": 0,
+      "deciding_output": "The removed property causes the exact target testcase to fail on the property-specific semantic assertion; one target testcase, one failure, zero errors/skips. A nonzero pytest result is expected for this mutation.",
+      "classifier": {
+        "target_testcase": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "target_junit_failure": true,
+        "zero_junit_errors": true,
+        "expected_semantic_assertion_in_failure": true,
+        "mutation_hit_guard": "the AST transformer rejects unexpected hit counts before the mutant is accepted",
+        "probe_runner_result_pass": true
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/removal-controls/sibling_receipt_hash/metadata.json",
+          "sha256": "ce8626604d4f7ce90c883e1de99b2b78e9ca64fc5b757f1e63eb4e627aa0b49e",
+          "bytes": 3771
+        },
+        {
+          "path": "n5-intake/removal-controls/sibling_receipt_hash/stdout.txt",
+          "sha256": "e64cfe6fd0a9d009ae59ea1aefada716918c12b1ec9ec192e534be04c3f57442",
+          "bytes": 6870
+        },
+        {
+          "path": "n5-intake/removal-controls/sibling_receipt_hash/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/removal-controls/sibling_receipt_hash/junit.xml",
+          "sha256": "122606befa1109c261ef4e7f575161999c9880b71f3d3369ae0ef57c5b70ede1",
+          "bytes": 7629
+        },
+        {
+          "path": "n5-intake/removal-controls/sibling_receipt_hash/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/removal-controls/sibling_receipt_hash/result.json",
+          "sha256": "415da27ff698326b3cc545d3fafe5c9224ea6a38b805183d83d55e22e382b2e9",
+          "bytes": 478
+        }
+      ],
+      "inner_pytest_junit": {
+        "testcase_count": 1,
+        "target_failures": 1,
+        "target_errors": 0,
+        "target_skips": 0
+      }
+    },
+    {
+      "kind": "remove-property-keep-markers behavioral mutation",
+      "property": "explicit_empty_atoms",
+      "mutation": "remove explicit-empty atom rejection terms in conditional consumer and loaded-result atom binding while retaining branch/error markers",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v2.py --project-root /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine --property explicit_empty_atoms",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": {
+        "runner_python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "controlled_environment": {
+          "BLIS_NUM_THREADS": "1",
+          "JAX_PLATFORM_NAME": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v2-explicit_empty_atoms/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v2-explicit_empty_atoms/junit.xml --durations=0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONHASHSEED": "0",
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+        },
+        "harness": "n5-intake/harness/n5_property_removal_probe_refined_v2.py",
+        "harness_sha256": "9422fea3e5966b9f7165c81db5395fc04947d45bd0b27b74508e34e96096e954"
+      },
+      "input_closure": {
+        "test_node": "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+        "expected_ast_mutation_hits": 2,
+        "expected_behavioral_assertion": "removed_property_keep_markers:n8_negative_admitted:explicit_empty_candidate_atoms"
+      },
+      "outcome": "PASS",
+      "probe_runner_exit_code": 0,
+      "deciding_output": "The removed property causes the exact target testcase to fail on the property-specific semantic assertion; one target testcase, one failure, zero errors/skips. A nonzero pytest result is expected for this mutation.",
+      "classifier": {
+        "target_testcase": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "target_junit_failure": true,
+        "zero_junit_errors": true,
+        "expected_semantic_assertion_in_failure": true,
+        "mutation_hit_guard": "the AST transformer rejects unexpected hit counts before the mutant is accepted",
+        "probe_runner_result_pass": true
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/removal-controls/explicit_empty_atoms/metadata.json",
+          "sha256": "3d99dc54cbac9c8197b9cbb7a062f40ee734da317d3779f503a9f171ce4c845e",
+          "bytes": 3917
+        },
+        {
+          "path": "n5-intake/removal-controls/explicit_empty_atoms/stdout.txt",
+          "sha256": "cb8f950a50b4d210a83ced16df94c8c080f5eb47668831ebf606a0191a95dc14",
+          "bytes": 6880
+        },
+        {
+          "path": "n5-intake/removal-controls/explicit_empty_atoms/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/removal-controls/explicit_empty_atoms/junit.xml",
+          "sha256": "ed3c3d24d047ea5ef78f80b84ec2cab100c4c4f350a45ee26e03534e386a6071",
+          "bytes": 7646
+        },
+        {
+          "path": "n5-intake/removal-controls/explicit_empty_atoms/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/removal-controls/explicit_empty_atoms/result.json",
+          "sha256": "c86abba6fead948c2ba69f3587d640654b36f8e0312c67086aab11b999462487",
+          "bytes": 478
+        }
+      ],
+      "inner_pytest_junit": {
+        "testcase_count": 1,
+        "target_failures": 1,
+        "target_errors": 0,
+        "target_skips": 0
+      }
+    },
+    {
+      "kind": "remove-property-keep-markers behavioral mutation",
+      "property": "point_outcome_distribution",
+      "mutation": "bypass selected-outcome subset check against point.outcomes while retaining branch and error marker",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v3.py --project-root /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine --property point_outcome_distribution",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": {
+        "runner_python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "controlled_environment": {
+          "BLIS_NUM_THREADS": "1",
+          "JAX_PLATFORM_NAME": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-point_outcome_distribution/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-point_outcome_distribution/junit.xml --durations=0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONHASHSEED": "0",
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+        },
+        "harness": "n5-intake/harness/n5_property_removal_probe_refined_v3.py",
+        "harness_sha256": "0bcb0269cbbc39da822b852d0911a8275f0c06a9dbca58c09ecad2c6f4ff852f"
+      },
+      "input_closure": {
+        "test_node": "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+        "expected_ast_mutation_hits": 1,
+        "expected_behavioral_assertion": "removed_property_keep_markers:n8_negative_admitted:missing_selected_point_outcome"
+      },
+      "outcome": "PASS",
+      "probe_runner_exit_code": 0,
+      "deciding_output": "The removed property causes the exact target testcase to fail on the property-specific semantic assertion; one target testcase, one failure, zero errors/skips. A nonzero pytest result is expected for this mutation.",
+      "classifier": {
+        "target_testcase": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "target_junit_failure": true,
+        "zero_junit_errors": true,
+        "expected_semantic_assertion_in_failure": true,
+        "mutation_hit_guard": "the AST transformer rejects unexpected hit counts before the mutant is accepted",
+        "probe_runner_result_pass": true
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/removal-controls/point_outcome_distribution/metadata.json",
+          "sha256": "77ccec864687d96e720891a77f1a0c475350b410c36efe23f3e74e71d9829e70",
+          "bytes": 4017
+        },
+        {
+          "path": "n5-intake/removal-controls/point_outcome_distribution/stdout.txt",
+          "sha256": "95a493a1acfe0716e9570960354399f8596530d8af2542462a08de0b559bff69",
+          "bytes": 6968
+        },
+        {
+          "path": "n5-intake/removal-controls/point_outcome_distribution/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/removal-controls/point_outcome_distribution/junit.xml",
+          "sha256": "fd1bab0d1897b6691e4b7086d53c506827924626befe34881e276a861887d9a8",
+          "bytes": 7652
+        },
+        {
+          "path": "n5-intake/removal-controls/point_outcome_distribution/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/removal-controls/point_outcome_distribution/result.json",
+          "sha256": "7035f2467a04046aa8f6e198e486294fe30826924483eaea076ae71949433f1a",
+          "bytes": 2248
+        }
+      ],
+      "inner_pytest_junit": {
+        "testcase_count": 1,
+        "target_failures": 1,
+        "target_errors": 0,
+        "target_skips": 0
+      }
+    },
+    {
+      "kind": "remove-property-keep-markers behavioral mutation",
+      "property": "absent_atom_fallback",
+      "mutation": "replace fallback atom tuple with an empty tuple while retaining the raw_atoms-is-None branch and markers",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v3.py --project-root /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine --property absent_atom_fallback",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": {
+        "runner_python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "controlled_environment": {
+          "BLIS_NUM_THREADS": "1",
+          "JAX_PLATFORM_NAME": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-absent_atom_fallback/junit.xml --durations=0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONHASHSEED": "0",
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+        },
+        "harness": "n5-intake/harness/n5_property_removal_probe_refined_v3.py",
+        "harness_sha256": "0bcb0269cbbc39da822b852d0911a8275f0c06a9dbca58c09ecad2c6f4ff852f"
+      },
+      "input_closure": {
+        "test_node": "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+        "expected_ast_mutation_hits": 1,
+        "expected_behavioral_assertion": "removed_property_keep_markers:absent_atom_fallback_lost:"
+      },
+      "outcome": "PASS",
+      "probe_runner_exit_code": 0,
+      "deciding_output": "The removed property causes the exact target testcase to fail on the property-specific semantic assertion; one target testcase, one failure, zero errors/skips. A nonzero pytest result is expected for this mutation.",
+      "classifier": {
+        "target_testcase": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "target_junit_failure": true,
+        "zero_junit_errors": true,
+        "expected_semantic_assertion_in_failure": true,
+        "mutation_hit_guard": "the AST transformer rejects unexpected hit counts before the mutant is accepted",
+        "probe_runner_result_pass": true
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/removal-controls/absent_atom_fallback/metadata.json",
+          "sha256": "529b62fb69e589e969f1ac75b62f9897e0491db600a49f720da3246255dd5208",
+          "bytes": 3949
+        },
+        {
+          "path": "n5-intake/removal-controls/absent_atom_fallback/stdout.txt",
+          "sha256": "adde5dc9df2c5a7d507c2814fb405b7ab236bc2c4ebb53d7c5044e3a32b31b1c",
+          "bytes": 5496
+        },
+        {
+          "path": "n5-intake/removal-controls/absent_atom_fallback/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/removal-controls/absent_atom_fallback/junit.xml",
+          "sha256": "672e84b75a7227557a25f812dd9619c3a64d250004c896af4b45904798b06da4",
+          "bytes": 6036
+        },
+        {
+          "path": "n5-intake/removal-controls/absent_atom_fallback/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/removal-controls/absent_atom_fallback/result.json",
+          "sha256": "27709f0b3cae0d0da8b033b534b597246b31d4be28d0e35a250dae0a671be5ad",
+          "bytes": 2067
+        }
+      ],
+      "inner_pytest_junit": {
+        "testcase_count": 1,
+        "target_failures": 1,
+        "target_errors": 0,
+        "target_skips": 0
+      }
+    },
+    {
+      "kind": "remove-property-keep-markers behavioral mutation",
+      "property": "casless_digest",
+      "mutation": "bypass simulation.simulation_result_ref presence condition in simulation_evaluation_input_ref while retaining branch",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v4.py --project-root /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine --property casless_digest",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": {
+        "runner_python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "controlled_environment": {
+          "BLIS_NUM_THREADS": "1",
+          "JAX_PLATFORM_NAME": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/junit.xml --durations=0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONHASHSEED": "0",
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+        },
+        "harness": "n5-intake/harness/n5_property_removal_probe_refined_v4.py",
+        "harness_sha256": "aba48c519218984609a5faca2e58fd3532986bf02c1e6d1dac0d12f9d7c9ba91"
+      },
+      "input_closure": {
+        "test_node": "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+        "expected_ast_mutation_hits": 1,
+        "expected_behavioral_assertion": "removed_property_keep_markers:casless_digest_admitted_before_fallback:"
+      },
+      "outcome": "PASS",
+      "probe_runner_exit_code": 0,
+      "deciding_output": "The removed property causes the exact target testcase to fail on the property-specific semantic assertion; one target testcase, one failure, zero errors/skips. A nonzero pytest result is expected for this mutation.",
+      "classifier": {
+        "target_testcase": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "target_junit_failure": true,
+        "zero_junit_errors": true,
+        "expected_semantic_assertion_in_failure": true,
+        "mutation_hit_guard": "the AST transformer rejects unexpected hit counts before the mutant is accepted",
+        "probe_runner_result_pass": true
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/removal-controls/casless_digest/metadata.json",
+          "sha256": "4cab37e5a57e657ed289e6b8870413193f934c24f8b16a16e2bfb989fba08387",
+          "bytes": 3953
+        },
+        {
+          "path": "n5-intake/removal-controls/casless_digest/stdout.txt",
+          "sha256": "e5e62171b82f6be1196a2a7d777fac5f68c7f2e4445b614805ff76792d04254c",
+          "bytes": 7659
+        },
+        {
+          "path": "n5-intake/removal-controls/casless_digest/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/removal-controls/casless_digest/junit.xml",
+          "sha256": "89565efc994cc462b213af58d19ed81165c60dad4a0098b7794bd11bf0bc4f68",
+          "bytes": 8044
+        },
+        {
+          "path": "n5-intake/removal-controls/casless_digest/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/removal-controls/casless_digest/result.json",
+          "sha256": "a0bfd85a54eb2ef3c0e419887fc5c3918dec451ff3463a24aa12527883b380af",
+          "bytes": 1921
+        }
+      ],
+      "inner_pytest_junit": {
+        "testcase_count": 1,
+        "target_failures": 1,
+        "target_errors": 0,
+        "target_skips": 0
+      }
+    }
+  ],
+  "property": {
+    "statement": "The default N8 consumer admits a conditional numeric N5 result only after reopening the persisted CAS content and binding the one selected engine/method/objective identity, receipt, trajectory, WMR, candidate atom, selected outcome and sibling payload hash.",
+    "runtime_path": [
+      "canonical JointSimulationPort producer",
+      "FileSystemCAS persisted result and receipt",
+      "fresh-process N8 CAS resolver/identity binding",
+      "actual default _DefaultSimulationBoundFoundryValuePort"
+    ],
+    "proxy_divergence": "A present artifact ref, a caller digest, a matching status/blocker marker, or pytest exit code alone can disagree with content-bound identity. The sibling-hash mutant keeps the N5 status/blockers/CAS ref unchanged but makes actual N8 return value_conditional for foreign bytes; the intact path blocks it.",
+    "negative_controls": [
+      "absent/tampered CAS bytes",
+      "foreign WMR ref or content hash",
+      "foreign candidate atom and explicit empty intervention_atoms",
+      "unknown or missing selected outcome",
+      "missing, zero, duplicate selected EngineDecision",
+      "receipt engine or trajectory identity mismatch",
+      "missing/mismatched sibling receipt hash",
+      "CAS-less arbitrary digest",
+      "remove-the-property-keep-markers mutations for all six named predicates"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "bounded synthetic fresh-process N5\u2192CAS\u2192default-N8 conditional behavior verified on this candidate; A2 closure remains not_adjudicated. B04/B05/B08 remain verification_missing and B26 remains surface_missing.",
+  "limitations_and_next_owner": [
+    "This is a direct unit/remediation integration path, not the served HTTP route or full run/job/profile/tenant resolver.",
+    "No runtime-backed N9 refusal or valid signed currentness-receipt positive control ran; B05 is open.",
+    "No empirical effect route or missing/zero/comparator/replication semantics ran; B08 is open.",
+    "No typed higher-order interaction residual/horizon/observed-steps consumer or three-atom cubic oracle ran; B26 is open.",
+    "Fixture values are synthetic; causal truth, signer authorship, empirical applicability, production profile scope and action authority are not established.",
+    "After SIM producer contract changes, rerun the N5/N8 source and served consumers. Root owns shared generation_cycle.py/run_lifecycle.py source leases; B owns N9 runtime refusal/currentness; SIM-03 owner owns B26 higher-order consumer."
+  ],
+  "code_acceptance": "candidate-local behavioral witness only; source review and finding closure pending",
+  "finding_outcomes": {
+    "B04": {"outcome": "limited", "reason": "fresh-process content-bound readback verified; ordinary served profile/consumer pending"},
+    "B05": {"outcome": "limited", "reason": "K_sim limitation retained; actual N9 and currentness positive pending"},
+    "B08": {"outcome": "limited", "reason": "conditional N8 verified; empirical/comparator/replication route pending"},
+    "B26": {"outcome": "open", "reason": "this candidate does not exercise the higher-order residual consumer and surface"}
+  },
+  "authority_purpose": {
+    "purpose": "simulation_numerical_uncertainty only",
+    "authoritative_for": [
+      "simulation_numerical_uncertainty"
+    ],
+    "may_not_use_for": [
+      "world_credal_state_shrinkage",
+      "promotion"
+    ],
+    "consumer_effect": "value_conditional / simulate_only / low; blocker simulation_only_k_sim_not_world_evidence remains; no value or method-selection receipt"
+  },
+  "provenance": {
+    "candidate_head": "7ffbf5c71d6352f7712673a6591be5e553993745",
+    "candidate_tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+    "working_tree_status": "",
+    "source_test_hashes": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+      "policy-engine/src/polisyos/runtime/quality/generation_source.py": "903a18803b93f1bdb6ea249ea9668167de1df5d022817214d1d5621b47339960",
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py": "f3e4ade69b23885f14cf06735e35ac42fae460a6a02c99163a0bc2909db09a23",
+      "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74",
+      "policy-engine/src/polisyos/runtime/quality/design_problem.py": "9c5ee4e2a31c3311d14aa414ab7322ac53f98bed59f8dd8cbe14d82beae347d9",
+      "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py": "9d239d7e00a8868eea29ee1e966cdfa7b33b9011d4289fb551775bed137d2256",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py": "411e9d796c7e36ac12a3d08115ccfde93b007b92375f8f320604dfab00e85469",
+      "policy-engine/src/polisyos/core/artifacts/store.py": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "policy-engine/src/polisyos/core/artifacts/manifest.py": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+      "policy-engine/tests/unit/remediation/test_cyc_02.py": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "930637f7be4141c6073259b0909a2cc246ba61790280e92f1512f6e3ad0733a0",
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py": "2430509743c6ccba82c69f7ad50f74b14407ff98d7f73927f642aab7dd475c82",
+      "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    "evidence_home_in_verification_worktree": "policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/",
+    "tracked_companion_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-intake/",
+    "admission_receipts": "not used as domain authority input; omitted from N5 artifact/input identity"
+  },
+  "rule_and_schema_identity": {
+    "simulation_result_schema": "policyos.runtime.joint_simulation_horizon.v1",
+    "receipt_schema": "content-bound N5 receipt validated by runtime code at candidate head",
+    "pytest_config_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "criterion_docs": {
+      "A2": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+        "lines": [
+          50,
+          57
+        ],
+        "sha256": "4905f83387849811bcea2410ce98b769aeed141ae9efe453b11aef55f556a1e3"
+      },
+      "coverage": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "failure_register": {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "lines": [
+          46,
+          55,
+          72,
+          84
+        ],
+        "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a"
+      }
+    }
+  },
+  "time_roles": {
+    "candidate_verification_run": "2026-10-06T11:07:10.552766+00:00 to 2026-10-06T11:08:06.861408+00:00 UTC",
+    "evidence_created": "2026-10-06T11:07-11:25 UTC; see retained per-run metadata",
+    "world_model_valid_time": "fixture-bound WMR semantics; no independent currentness assertion",
+    "ingestion_or_publication_time": "not used as evidence of authority"
+  },
+  "environment": {
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "jax_version": "0.8.2",
+    "jax_backend": "cpu",
+    "pytest_config": "policy-engine/pytest.ini",
+    "pytest_testpaths": [
+      "tests"
+    ],
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:.",
+    "full_environment_and_import_origins": "positive/pytest-metadata.json and positive/import-origin.json"
+  },
+  "input_identity": {
+    "fixture_factory": "_cyc01_owner_bound_n5_case",
+    "producer_consumer": "separate Python processes; real canonical producer and default consumer",
+    "candidate_id": "candidate_cyc_n5_builder",
+    "candidate_shape": "atom supplied; intervention_atoms absent",
+    "candidate_atom": "income_subsidy",
+    "selected_outcome": "firm_survival",
+    "objective_ref": "objective://firm-survival",
+    "engine_kind": "ncm_parallel_worlds",
+    "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+    "horizon": {
+      "start": 0,
+      "end": 0,
+      "step": 1,
+      "shape": "one-step static"
+    },
+    "simulation_result_ref": "sha256:f27a7443408ac3faea7117b763640741170524d45ed92fae7195db9b63b9eca4",
+    "simulation_receipt_payload_hash": "sha256:a36ebe38286617c67ed828622338ab1a10efafbc1521233e3e1f19f69ce3b095",
+    "world_model_record_ref": "world_model_record_95c5f721bf9715f1",
+    "world_model_record_content_hash": "sha256:95c5f721bf9715f127dbbaf76053be1892aae4e415940602024e0db94baee715",
+    "cas_artifacts": "Six actual CAS object IDs/sizes are in positive/pytest-timing-and-cas.json; no CAS payload bytes are included.",
+    "profile_run_job_tenant": "not resolved by this direct unit fixture"
+  },
+  "supporting_paths": {
+    "runtime_and_test_inputs": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "policy-engine/src/polisyos/runtime/quality/design_problem.py",
+      "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/src/polisyos/core/artifacts/store.py",
+      "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "policy-engine/tests/unit/remediation/test_cyc_02.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "policy-engine/pytest.ini"
+    ],
+    "transport_exclusion_census": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-intake/transport-exclude-census-7ffbf5c7.json",
+      "sha256": "b681e9217c1ab5c14fadd1898c7f78cb9ddba81d9b4c945d087283217cfea44c",
+      "denominator": "4 direct handoff model roots; 48 recursively visited BaseModel types",
+      "finding": "the sole excluded field is SimulationPortObservation.world_model_record"
+    },
+    "evidence_census": {
+      "script": "n5-intake/evidence_census.py",
+      "script_sha256": "9f1f62b931464635cdd212a31162115ee4e7669e434ff19cd019cc9674cbed48",
+      "captured_output": "n5-intake/evidence-census.txt",
+      "captured_output_sha256": "dff88d06b1b36614ea1ff8e04084f4418323e2ae4430a80831f4dfb9f7a8a279",
+      "scope": "complete retained property-removal directories: removal-controls/* plus nonpassing/mutation-attempts/*"
+    }
+  },
+  "source_criteria": [
+    {
+      "id": "B04",
+      "bundle": "CYC-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-02.md",
+      "section": "B04",
+      "line": 57,
+      "source_sha256": "b6a2fab8ca0061746ee6ce017fc6d341a1a34707b97244bf1307a81e0a703029",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "bounded_result": "fresh-process CAS readback and identity binding demonstrated; production profile/manifest and another authorized consumer absent"
+    },
+    {
+      "id": "B05",
+      "bundle": "CYC-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-02.md",
+      "section": "B05",
+      "line": 76,
+      "source_sha256": "b6a2fab8ca0061746ee6ce017fc6d341a1a34707b97244bf1307a81e0a703029",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "bounded_result": "K_sim blocker preserved at N8; N9 refusal and valid currentness receipt positive control not run"
+    },
+    {
+      "id": "B08",
+      "bundle": "CYC-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-02.md",
+      "section": "B08",
+      "line": 95,
+      "source_sha256": "b6a2fab8ca0061746ee6ce017fc6d341a1a34707b97244bf1307a81e0a703029",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "bounded_result": "default conditional N8 positive and real consumer negatives exercised; empirical route and missing/zero/comparator/replication semantics not closed"
+    },
+    {
+      "id": "B26",
+      "bundle": "SIM-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-03.md",
+      "section": "B26",
+      "line": 135,
+      "source_sha256": "28cbb838c820efe0e08782c965d2a2558db3fbb06996038b1a22b69f0c57a945",
+      "historical_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "surface_missing",
+      "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "bounded_result": "higher-order interaction order/residual/horizon consumer and cubic product oracle not exercised"
+    }
+  ],
+  "nonpassing_attempts": [
+    {
+      "kind": "early fresh-process E2E attempt",
+      "candidate_head": "d0fab1bb94f0d1492d203fe050e10dea5e1a9e40",
+      "candidate_tree": "324fd02154b6eb7d8726465cbf1a040d282848d5",
+      "outcome": "ERROR",
+      "junit_classification": "one target pytest testcase tagged failure; this is a retained nonpass, not inherited red and not a semantic acceptance witness",
+      "reason": "nonsemantic execution error: consumer variant generation imports persist_joint_simulation_result from the wrong module; N5 producer emitted a CAS blob, but N8 property test did not reach acceptance",
+      "source_and_test_file_sha256": {
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "src/polisyos/runtime/quality/generation_cycle.py": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py": "f3e4ade69b23885f14cf06735e35ac42fae460a6a02c99163a0bc2909db09a23",
+        "tests/unit/remediation/test_cyc_02.py": "3a8c06a4b366ba37805a9fa4928545ebf746008888ce1397f86cc5b6d9911f3a"
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/nonpassing/e2e-import-failure-d0/execute_n5_target.py",
+          "sha256": "dd4b5d41557bea4edc5ca37f68eefaefc6aee4775fc0c715491c6c394bea5a46",
+          "bytes": 8864
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-import-failure-d0/junit-n5-target.xml",
+          "sha256": "797317e68ae691af50c2632117a00887a68cb9e70fa1b1266b94e14589d8957c",
+          "bytes": 6199
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-import-failure-d0/pytest.stdout.txt",
+          "sha256": "ff7764da12d4321bf5a95685c8f09a10d48a471281d997a435cac0137441c2de",
+          "bytes": 4891
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-import-failure-d0/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-import-failure-d0/pytest-metadata.json",
+          "sha256": "8a6cd32887032fd55e0f127d658c35cbf42578148fa044ee35440880b1b7f5e9",
+          "bytes": 6645
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-import-failure-d0/pytest-timing-and-cas.json",
+          "sha256": "ce779e02921329edfa2b62fda50ec2182ea24cca17f5b1599e5e22716ac456ba",
+          "bytes": 966
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-import-failure-d0/pytest-command.txt",
+          "sha256": "2e683cd52324dcc604118964531a8f460a013e21140343194fe2b1c16a584946",
+          "bytes": 623
+        }
+      ]
+    },
+    {
+      "kind": "early fresh-process E2E attempt",
+      "candidate_head": "f91228be4b71059e3e5c566ea6236a55439675d2",
+      "candidate_tree": "88bb8c2fd6c64ee18426094540edb32ae545b292",
+      "outcome": "FAIL",
+      "junit_classification": "one target pytest testcase tagged failure; this is a retained nonpass, not inherited red and not a semantic acceptance witness",
+      "reason": "positive N8 observation was correctly blocked because SimulationPortObservation.world_model_record is excluded from serialization and this intermediate test fixture had not rebound the WMR from the validated CycleSubstrateContext",
+      "source_and_test_file_sha256": {
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "src/polisyos/runtime/quality/generation_cycle.py": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py": "f3e4ade69b23885f14cf06735e35ac42fae460a6a02c99163a0bc2909db09a23",
+        "tests/unit/remediation/test_cyc_02.py": "dad61569dc1cc5eeeb1035fb92bd4953699505ce9660f63cfff653f21be236ae"
+      },
+      "output_files": [
+        {
+          "path": "n5-intake/nonpassing/e2e-wmr-transport-f912/execute_n5_target.py",
+          "sha256": "17ad4fb564a89f24f28cf1b92b4b63f0cfde89b41b9d184e5b683925eae901ef",
+          "bytes": 8864
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-wmr-transport-f912/junit-n5-target.xml",
+          "sha256": "624349f0f36a261647461a66eeb20448cfce5523d0c2629b7ad20d9b9688fca7",
+          "bytes": 5888
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-wmr-transport-f912/pytest.stdout.txt",
+          "sha256": "e2fd077b0ae6100f525a52e10b43f56b9391fe66071d07148ca85ec7d7e89485",
+          "bytes": 5361
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-wmr-transport-f912/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-wmr-transport-f912/pytest-metadata.json",
+          "sha256": "2339dc4d44657028c52dce6261c9c474cbb06bc7a0f494e92a616280b38cad72",
+          "bytes": 6705
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-wmr-transport-f912/pytest-timing-and-cas.json",
+          "sha256": "ca48450de421857494f5d04ef2131fddb71f392d80dbf7b55a1bf2cbf76f4ccb",
+          "bytes": 2852
+        },
+        {
+          "path": "n5-intake/nonpassing/e2e-wmr-transport-f912/pytest-command.txt",
+          "sha256": "72a43092941439d7b7230512cf49ca5e4ea4e34fb0505a798205af5498580872",
+          "bytes": 643
+        }
+      ]
+    },
+    {
+      "kind": "invalid property-removal harness attempt",
+      "candidate_head": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "candidate_tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+      "outcome": "NO_GO",
+      "reason": "initial engine removal deleted too much; execution failed on selected_decisions[0] IndexError before the targeted uniqueness assertion",
+      "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+      "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+      "harness_sha256": null,
+      "output_files": [
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-engine-selection-overbroad-removal/metadata.json",
+          "sha256": "c42cf876564326c175fb747f3907f0eaf5cc82dad175f40ac403e8da67f73c98",
+          "bytes": 3345
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-engine-selection-overbroad-removal/stdout.txt",
+          "sha256": "319e1d1e8d68249588dba6af5377442670d740ed2e1c2d3ab68d91baa8eeacf0",
+          "bytes": 6622
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-engine-selection-overbroad-removal/stderr.txt",
+          "sha256": "5663ecaa3b0aac183c6be4902375c24c6aa71a51866c00cdaff2f1f6ad70da04",
+          "bytes": 109
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-engine-selection-overbroad-removal/junit.xml",
+          "sha256": "301392274f57d99e0140668295ff5b8f82d6d3a4361c2eec0ecfd77ecd74ef32",
+          "bytes": 9840
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-engine-selection-overbroad-removal/exit_code.txt",
+          "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-engine-selection-overbroad-removal/result.json",
+          "sha256": "9614e1d5f4363187c01036a8666a0047c48915ba4ffe88a3ccf0fac8847db3e4",
+          "bytes": 479
+        }
+      ]
+    },
+    {
+      "kind": "invalid property-removal harness attempt",
+      "candidate_head": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "candidate_tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+      "outcome": "NO_GO",
+      "reason": "first explicit-empty AST matcher missed the loader attribute guard; unexpected_mutation_hits=1 and collection error",
+      "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+      "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+      "harness_sha256": "906f4bffd5aaee8ad5446ba3b7a0cefb30f1cad5ea2647d4f787f4bb98354d2c",
+      "output_files": [
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-explicit-empty-matcher-missed-loader/metadata.json",
+          "sha256": "3c943d99264c9d7148049905d96a8b3e7bc4157754fb795283af98ca97084f7c",
+          "bytes": 3787
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-explicit-empty-matcher-missed-loader/stdout.txt",
+          "sha256": "b97d4a699f3305952254041c571a3427a07ec2f1b8ddb501c2d61207a50242a5",
+          "bytes": 1520
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-explicit-empty-matcher-missed-loader/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-explicit-empty-matcher-missed-loader/junit.xml",
+          "sha256": "7a8bd6cfe04d2b181c5bb40c9ddefd1d51321aa8721ac727b9ba0e75645ddafb",
+          "bytes": 1257
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-explicit-empty-matcher-missed-loader/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-explicit-empty-matcher-missed-loader/result.json",
+          "sha256": "bd3a7b4b5d1b0e6252010c6167d7562068bc7f53fcb4f8614359e6f10dc6c497",
+          "bytes": 478
+        }
+      ]
+    },
+    {
+      "kind": "invalid property-removal harness attempt",
+      "candidate_head": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "candidate_tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+      "outcome": "NO_GO",
+      "reason": "first CAS-less matcher targeted a Name instead of simulation.simulation_result_ref Attribute; unexpected_mutation_hits=0 and collection error",
+      "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+      "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+      "harness_sha256": "0bcb0269cbbc39da822b852d0911a8275f0c06a9dbca58c09ecad2c6f4ff852f",
+      "output_files": [
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-casless-matcher-targeted-name/metadata.json",
+          "sha256": "91b3f200e075a057126382b32a834d9f5c95b753109975537af759bb7162a6ab",
+          "bytes": 3916
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-casless-matcher-targeted-name/stdout.txt",
+          "sha256": "5f3123752fae8f70ba7fbcb301ff71a8894235d0e9f184f29bdb460633b5a78e",
+          "bytes": 1502
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-casless-matcher-targeted-name/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-casless-matcher-targeted-name/junit.xml",
+          "sha256": "c30ccc34f1595feb082f45c82f9eaff4c9556d2daadc828513f098bc6ba2e7ac",
+          "bytes": 1245
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-casless-matcher-targeted-name/exit_code.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "n5-intake/nonpassing/mutation-attempts/initial-casless-matcher-targeted-name/result.json",
+          "sha256": "6b6a7b0d69375ef6cc71b4036010731e84de580f27c061e18ea13c509a590c4d",
+          "bytes": 1061
+        }
+      ]
+    }
+  ],
+  "pattern_pass": [
+    {
+      "id": "P01/P02",
+      "result": "actual local producer\u2192persisted CAS\u2192bridge\u2192default N8 consumer is exercised; served/API/lifecycle integration remains absent in this candidate"
+    },
+    {
+      "id": "P05",
+      "result": "K_sim restriction remains; downstream effect is low-grade conditional simulation only"
+    },
+    {
+      "id": "P10/P29/P32/P33/P38",
+      "result": "real consumer and CAS resolution run; exact property-removal probes distinguish content binding from markers, ref presence and exit codes"
+    },
+    {
+      "id": "P27",
+      "result": "canonical generation_cycle.py owner and existing test_cyc_02.py surface are extended; no parallel loader or slice-named production module"
+    },
+    {
+      "id": "P35",
+      "result": "evidence_census.py walks the complete retained control directories and file-type denominators: 9 directories, 9 metadata.json, 9 junit.xml; 6 exact target failures accepted and 3 invalid attempts retained separately."
+    },
+    {
+      "id": "P37",
+      "result": "load-bearing predicate labels are enumerated in predicate_annotations; unknown external/empirical authority predicates stay not_established"
+    },
+    {
+      "id": "P40",
+      "result": "engine, trajectory, receipt, WMR, selected atom/outcome and sibling digest treated as one identity-binding class"
+    },
+    {
+      "id": "P34/P41",
+      "result": "early failures are preserved and tied to exact attempt; no inherited-red or exclusion claim is made"
+    }
+  ],
+  "predicate_annotations": [
+    {
+      "predicate": "CAS resolution, raw-byte hash and persisted receipt payload hash",
+      "basis": "recomputed",
+      "scope": "exact local FileSystemCAS artifact in producer/reader test"
+    },
+    {
+      "predicate": "one selected EngineDecision and exact engine/method/objective equality with receipt and every trajectory",
+      "basis": "recomputed",
+      "scope": "persisted N5 content in fresh consumer process"
+    },
+    {
+      "predicate": "expected WMR/atom/outcome identity",
+      "basis": "independently_reconciled",
+      "scope": "consumer compares persisted bytes with the content-validated test fixture context; no external empirical identity source"
+    },
+    {
+      "predicate": "causal correctness, signer authorship, empirical applicability, N9 currentness, production profile/run/job/tenant scope",
+      "basis": "not_established",
+      "scope": "not asserted by this unit witness"
+    }
+  ],
+  "source_review_receipt": {
+    "status": "not included in this intake",
+    "candidate_source_commit": "d0fab1bb94f0d1492d203fe050e10dea5e1a9e40",
+    "candidate_test_followups": [
+      "90bd99dc0f6e4b03fb55591497b6b0caa6aa6758",
+      "e048b7a1dfe1e7163fb220c997fcb0bc8cca4e7a",
+      "f91228be4b71059e3e5c566ea6236a55439675d2",
+      "7ffbf5c71d6352f7712673a6591be5e553993745"
+    ]
+  }
+}

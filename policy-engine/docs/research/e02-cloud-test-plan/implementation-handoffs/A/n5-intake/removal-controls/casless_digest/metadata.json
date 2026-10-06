@@ -1,0 +1,43 @@
+{
+  "basetemp": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/pytest-basetemp",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v4.py",
+    "--project-root",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "--property",
+    "casless_digest"
+  ],
+  "controlled_environment": {
+    "BLIS_NUM_THREADS": "1",
+    "JAX_PLATFORM_NAME": "cpu",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_ADDOPTS": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/junit.xml --durations=0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+  },
+  "expected_behavioral_assertion": "removed_property_keep_markers:casless_digest_admitted_before_fallback:",
+  "expected_mutation_hits": 1,
+  "git_head": "7ffbf5c71d6352f7712673a6591be5e553993745",
+  "git_tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+  "harness": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/n5_property_removal_probe_refined_v4.py",
+  "harness_sha256": "aba48c519218984609a5faca2e58fd3532986bf02c1e6d1dac0d12f9d7c9ba91",
+  "junit": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/junit.xml",
+  "mutation": "bypass simulation.simulation_result_ref presence condition in simulation_evaluation_input_ref while retaining branch",
+  "probe_revision": "v4 casless matcher identifies simulation.simulation_result_ref attribute; strict JUnit/assertion/mutation-hit classifier",
+  "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "property": "casless_digest",
+  "pytest_addopts": "-c /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/pytest-basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v4-casless_digest/junit.xml --durations=0",
+  "pytest_config": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/pytest.ini",
+  "python": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "source_sha256": "99c2d86fb7b0e94ceb8d316b8faa9496e5984698d6c3aa112cfb4565d0331a6b",
+  "started_utc": "2026-10-06T11:22:39.167265+00:00",
+  "test_sha256": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+  "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine"
+}

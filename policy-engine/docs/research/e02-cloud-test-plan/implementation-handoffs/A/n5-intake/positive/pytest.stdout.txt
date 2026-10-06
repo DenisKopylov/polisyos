@@ -1,0 +1,6 @@
+.                                                                        [100%]
+============================== slowest durations ===============================
+36.53s call     tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+
+(2 durations < 0.005s hidden.  Use -vv to show these durations.)
+1 passed in 52.01s

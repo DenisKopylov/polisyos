@@ -1,0 +1,30 @@
+{
+  "elapsed_seconds": 52.68632679100847,
+  "finished_utc": "2026-10-06T10:53:23.167702+00:00",
+  "fresh_cas_artifacts": [
+    {
+      "artifact_id": "9cc6ceba0b0526c0f5d35c670caee5fb01119f2ba8cf4b3e9c8457ee1cfe58af",
+      "relative_path": "test_n5_fresh_process_readback0/n5-binding-cas/artifacts/sha256/9c/c6/9cc6ceba0b0526c0f5d35c670caee5fb01119f2ba8cf4b3e9c8457ee1cfe58af.blob",
+      "sha256": "9cc6ceba0b0526c0f5d35c670caee5fb01119f2ba8cf4b3e9c8457ee1cfe58af",
+      "size_bytes": 5549
+    }
+  ],
+  "junit": {
+    "available": true,
+    "cases": [
+      {
+        "classname": "tests.unit.remediation.test_cyc_02",
+        "error": false,
+        "failure": true,
+        "name": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "skipped": false,
+        "time_seconds": 33.483
+      }
+    ],
+    "suite_attributes": {
+      "name": "pytest tests"
+    }
+  },
+  "return_code": 1,
+  "started_utc": "2026-10-06T10:52:30.481263+00:00"
+}

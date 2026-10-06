@@ -1,0 +1,11 @@
+{
+  "elapsed_seconds": 57.13690637500258,
+  "expected_removal_failure_label_present": true,
+  "finished_utc": "2026-10-06T11:10:08.491880+00:00",
+  "harness_return_code": 2,
+  "junit_available": true,
+  "junit_sha256": "301392274f57d99e0140668295ff5b8f82d6d3a4361c2eec0ecfd77ecd74ef32",
+  "pass": false,
+  "stderr_sha256": "5663ecaa3b0aac183c6be4902375c24c6aa71a51866c00cdaff2f1f6ad70da04",
+  "stdout_sha256": "319e1d1e8d68249588dba6af5377442670d740ed2e1c2d3ab68d91baa8eeacf0"
+}

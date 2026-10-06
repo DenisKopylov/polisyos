@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="51.504" timestamp="2026-10-06T14:20:01.505468+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_fresh_process_readback_binds_default_n8_to_cas_identity" time="34.679"><failure message="AssertionError: removed_property_keep_markers:n8_negative_admitted:missing_selected_point_outcome:{'acquisition_requirement': None, 'authority_blockers': ['simulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', 'decision_grade': 'low', 'evaluation_mode': 'simulate_only', 'identification_status': None, 'method_selection_receipt': None, 'reason': 'N8 consumed a content-bound numerical N5 result for simulation-only analysis; K_sim is not world evidence or promotion authority.', 'selected_method_fqn': None, 'status': 'value_conditional', 'transport_receipt': None, 'value_data_profile_content_hash': None, 'value_receipt': None, 'value_ref': 'sha256:2a5eca7c749d7ad65725619d0f28a71d33a8189590534b0423b1ecfaafef712c', 'wall_time_ms': 1.6685000155121088, 'world_model_record_content_hash': 'sha256:1c1984aad56d29bb07c796ab85950eb1e6cd5de4a6f7db0295cf3b9c7ad5a497'}&#10;assert 'value_conditional' == 'value_blocked'&#10;  &#10;  - value_blocked&#10;  + value_conditional">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-verify-current/removal-refined-v3-point_outcome_distribution/pytest-basetemp/test_n5_fresh_process_readback0')
+
+    def test_n5_fresh_process_readback_binds_default_n8_to_cas_identity(
+        tmp_path: Path,
+    ) -&gt; None:
+        """Only the exact fresh N5 bytes and their sibling identity reach conditional N8."""
+    
+        project_root = Path(__file__).resolve().parents[3]
+        expected_source_path = (
+            project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+        ).resolve()
+        assert Path(generation_cycle_module.__file__).resolve() == expected_source_path
+        store_root = tmp_path / "n5-binding-cas"
+        produced = _run_n5_binding_process(
+            mode="produce",
+            project_root=project_root,
+            store_root=store_root,
+        )
+        consumed = _run_n5_binding_process(
+            mode="consume",
+            project_root=project_root,
+            store_root=store_root,
+            handoff=produced,
+        )
+    
+        assert produced["producer_pid"] != consumed["consumer_pid"]
+        assert produced["generation_cycle_source"] == str(expected_source_path)
+        assert consumed["generation_cycle_source"] == str(expected_source_path)
+        simulation = produced["simulation"]
+        result = produced["result"]
+        context = produced["context"]
+        candidate_atom = produced["candidate"]["atom"]
+        readback = consumed["readback"]
+        selected = [
+            decision
+            for decision in readback["selected_engine_decisions"]
+            if decision["decision"] == "selected"
+        ]
+        assert len(selected) == 1
+        selected_decision = selected[0]
+        selected_identity = {
+            key: selected_decision[key] for key in ("engine_kind", "method_fqn", "objective_ref")
+        }
+        assert readback["receipt_engine_kind"] == selected_identity["engine_kind"]
+        assert readback["trajectory_identities"]
+        assert all(identity == selected_identity for identity in readback["trajectory_identities"])
+        assert (
+            readback["result"]["world_model_record_ref"]
+            == context["world_model_record"]["world_model_record_id"]
+        )
+        assert (
+            readback["result"]["world_model_record_content_hash"]
+            == context["world_model_record"]["content_hash"]
+        )
+        assert tuple(readback["result"]["atom_ids"]) == (candidate_atom["intervention_id"],)
+        assert readback["result"]["selected_outcomes"] == [
+            produced["problem"]["outcome_of_interest"]["target_variable"]
+        ]
+        assert readback["result"] == result
+        assert math.isfinite(readback["effect"])
+        outcome = result["selected_outcomes"][0]
+        producer_trajectory = next(
+            trajectory
+            for trajectory in result["trajectories"]
+            if trajectory["points"] and outcome in trajectory["points"][0]["effect"]
+        )
+        producer_effect = next(
+            float(point["effect"][outcome])
+            for point in producer_trajectory["points"]
+            if outcome in point["effect"]
+        )
+        assert readback["effect"] == producer_effect
+        assert readback["simulation_ref"] == simulation["simulation_ref"]
+        assert readback["result"]["receipt"]["payload_hash"] == simulation["simulation_ref"]
+        assert result["receipt"]["payload_hash"] == simulation["simulation_ref"]
+    
+        positive = consumed["positive"]
+        assert positive["status"] == "value_conditional", (
+            f"removed_property_keep_markers:absent_atom_fallback_lost:{positive}"
+        )
+        assert positive["value_ref"] == simulation["simulation_result_ref"]["artifact_id"]
+        assert positive["evaluation_mode"] == "simulate_only"
+        assert positive["decision_grade"] == "low"
+        assert "simulation_only_k_sim_not_world_evidence" in positive["authority_blockers"]
+        assert positive.get("value_receipt") is None
+        assert positive.get("method_selection_receipt") is None
+    
+        negatives = consumed["negative_consumers"]
+        assert set(negatives) == {
+            "explicit_empty_candidate_atoms",
+            "absent_candidate_atom_mismatch",
+            "sibling_digest_mismatch",
+            "sibling_digest_missing",
+            "unknown_outcome",
+            "foreign_wmr_id",
+            "foreign_wmr_hash",
+            "missing_cas_ref",
+            "identity_no_selected_decision",
+            "identity_multiple_selected_decisions",
+            "identity_receipt_engine",
+            "identity_trajectory_identity",
+            "missing_selected_point_outcome",
+            "tampered_cas_bytes",
+        }
+        for name, negative in negatives.items():
+&gt;           assert negative["status"] == "value_blocked", (
+                f"removed_property_keep_markers:n8_negative_admitted:{name}:{negative}"
+            )
+E           AssertionError: removed_property_keep_markers:n8_negative_admitted:missing_selected_point_outcome:{'acquisition_requirement': None, 'authority_blockers': ['simulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', 'decision_grade': 'low', 'evaluation_mode': 'simulate_only', 'identification_status': None, 'method_selection_receipt': None, 'reason': 'N8 consumed a content-bound numerical N5 result for simulation-only analysis; K_sim is not world evidence or promotion authority.', 'selected_method_fqn': None, 'status': 'value_conditional', 'transport_receipt': None, 'value_data_profile_content_hash': None, 'value_receipt': None, 'value_ref': 'sha256:2a5eca7c749d7ad65725619d0f28a71d33a8189590534b0423b1ecfaafef712c', 'wall_time_ms': 1.6685000155121088, 'world_model_record_content_hash': 'sha256:1c1984aad56d29bb07c796ab85950eb1e6cd5de4a6f7db0295cf3b9c7ad5a497'}
+E           assert 'value_conditional' == 'value_blocked'
+E             
+E             - value_blocked
+E             + value_conditional
+
+tests/unit/remediation/test_cyc_02.py:820: AssertionError</failure></testcase></testsuite></testsuites>

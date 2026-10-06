@@ -1,0 +1,30 @@
+{
+  "elapsed_seconds": 51.532265625020955,
+  "expected_behavioral_assertion": "removed_property_keep_markers:absent_atom_fallback_lost:",
+  "expected_behavioral_assertion_in_junit_failure": true,
+  "finished_utc": "2026-10-06T11:21:52.118281+00:00",
+  "harness_return_code": 0,
+  "junit_available": true,
+  "junit_observation": {
+    "all_error_count": 0,
+    "all_failure_count": 1,
+    "available": true,
+    "expected_behavioral_assertion_present": true,
+    "failure_message": "AssertionError: removed_property_keep_markers:absent_atom_fallback_lost:{'acquisition_requirement': None, 'authority_blockers': ['joint_simulation_result_atom_or_outcome_binding_missing'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', 'decision_grade': 'blocked', 'evaluation_mode': 'simulate_only', 'identification_status': None, 'method_selection_receipt': None, 'reason': 'N8 requires the candidate atoms and selected outcome.', 'selected_method_fqn': None, 'status': 'value_blocked', 'transport_receipt': None, 'value_data_profile_content_hash': None, 'value_receipt': None, 'value_ref': None, 'wall_time_ms': 0.1555840135551989, 'world_model_record_content_hash': 'sha256:660fd9bca2510b6adf090361868edfc8300509777501fd0962823592779c7e20'}\nassert 'value_blocked' == 'value_conditional'\n  \n  - value_conditional\n  + value_blocked",
+    "target_has_error": false,
+    "target_has_failure": true,
+    "target_testcase": {
+      "classname": "tests.unit.remediation.test_cyc_02",
+      "name": "test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+      "time": "32.645"
+    },
+    "target_testcase_count": 1,
+    "testcase_count": 1
+  },
+  "junit_sha256": "672e84b75a7227557a25f812dd9619c3a64d250004c896af4b45904798b06da4",
+  "junit_valid_target_failure_no_collection_error": true,
+  "mutation_applied_marker_present_with_expected_hit_count": true,
+  "pass": true,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "adde5dc9df2c5a7d507c2814fb405b7ab236bc2c4ebb53d7c5044e3a32b31b1c"
+}

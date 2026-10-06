@@ -42,6 +42,7 @@ pre = {
 }
 assert pre["source"]["head"] == SOURCE and not pre["source"]["status"], pre
 assert not pre["own"]["status"], pre
+assert subprocess.run(["git", "symbolic-ref", "--quiet", "HEAD"], cwd=OWN, stdout=subprocess.DEVNULL).returncode == 0, pre
 assert subprocess.run(["git", "merge-base", "--is-ancestor", INPUT, pre["own"]["head"]], cwd=OWN).returncode == 0, pre
 assert (OWN / TEST).read_bytes() == subprocess.check_output(
     ["git", "show", f"{INPUT}:{TEST}"], cwd=OWN

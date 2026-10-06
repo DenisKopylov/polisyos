@@ -187,8 +187,8 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/replay-current-custody.source.txt",
-      "bytes": 6123,
-      "sha256": "5011a2f3e07594a01973d530080ae353ba3517352d5d775e1605c445626fa98d"
+      "bytes": 6246,
+      "sha256": "fce228c0449f52d395e1dfb9d17bbf71f949f7ab3d64178b13fbf6d58c54a62f"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/review-data-only.source.txt",
@@ -212,6 +212,6 @@
     }
   ],
   "complete_regular_file_denominator": 42,
-  "complete_bytes_excluding_index": 165366,
+  "complete_bytes_excluding_index": 165489,
   "scope": "All36 actual regular runtime files + full executed runner and child + data-only audit stdout/driver + full-delta source review + qualified UNRUN replay driver/custody notice. Symlinks excluded as aliases, no actual deciding regular file omitted."
 }

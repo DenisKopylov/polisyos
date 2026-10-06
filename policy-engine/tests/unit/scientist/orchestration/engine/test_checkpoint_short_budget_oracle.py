@@ -10,7 +10,6 @@ import threading
 from pathlib import Path
 
 import pytest
-from test_checkpoint_deadline_budget_oracle import _execution, _source_observation, _wait_event
 
 import polisyos.common.async_tools as async_tools
 import polisyos.scientist.orchestration.engine.checkpoint as checkpoint_module
@@ -28,6 +27,8 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
 )
 from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+from .test_checkpoint_deadline_budget_oracle import _execution, _source_observation, _wait_event
 
 
 @pytest.mark.asyncio

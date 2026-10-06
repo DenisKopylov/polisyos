@@ -153,3 +153,20 @@ def test_older_arrival_cannot_replace_newest_actual_evidence_ref(tmp_path):
         )
     )
     assert len(rows) == 1 and rows[0].candidate_hash == "candidate-one"
+
+
+def test_fresh_producer_observation_survives_older_access_retention_hint(tmp_path):
+    _, registry, source, old = registry_card(tmp_path, days=100)
+    old = old.model_copy(update={"last_accessed_at": old.created_at})
+    registry.record_local(old, context=source)
+    fresh = old.model_copy(
+        update={
+            "lesson_id": "fresh-observation",
+            "created_at": datetime.now(UTC),
+            "candidate_hash": "fresh-candidate",
+        }
+    )
+    fresh_ref = registry.record_local(fresh, context=source)
+    assert registry.garbage_collect(ttl_days=30) == 0
+    entry = registry.index_snapshot(context=source).entries[0]
+    assert entry.artifact_ref == fresh_ref and entry.last_seen == fresh.created_at

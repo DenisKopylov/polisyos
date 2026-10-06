@@ -977,7 +977,7 @@ class LessonRegistry:
     @staticmethod
     def _activity_anchor(entry: LessonIndexEntry) -> datetime:
         """Return the usage clock used only for retention and garbage collection."""
-        return entry.last_accessed_at or entry.last_seen
+        return max(entry.last_seen, entry.last_accessed_at or entry.last_seen)
 
     @staticmethod
     def _evidence_anchor(entry: LessonIndexEntry, card: LessonCard) -> datetime:

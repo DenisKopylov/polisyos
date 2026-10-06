@@ -26,7 +26,7 @@ incomes of `1000` produces revenue `1000`, rather than
 still uses float32 arithmetic. Subsidy sector weights also enter that
 calculation dtype, preventing their default x64 allocation from widening a
 float32 patch. This explicit subsidy patch dtype correction also covers
-integer and lower-float inputs under x64; their computed values are retained.
+integer and lower-float inputs under x64; their per-agent delta values are retained.
 
 The reduction also uses that calculation dtype. In the finite 40-case
 integer/lower-float comparison, 30 complete patch profiles retain dtype and

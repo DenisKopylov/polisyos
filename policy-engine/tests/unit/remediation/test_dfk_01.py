@@ -394,6 +394,125 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     assert read_paths == set(files) | {"generated/descriptor.json"}
 
 
+def test_dfk_01_census_resolves_importfrom_package_children_and_removal(
+    tmp_path: Path,
+) -> None:
+    """Package and module ImportFrom forms expose exact child-module candidates."""
+    package_init = "src/polisyos/data_forge/kernel/schemas/__init__.py"
+    nested_caller = "src/polisyos/data_forge/kernel/schemas/subpackage/caller.py"
+    schema_package_init = "src/polisyos/foundry/domain/__init__.py"
+    files = {
+        package_init: (
+            "from .codegen import GeneratedSchemaModule\n"
+            "from . import codegen as relative_codegen\n"
+            "from polisyos.data_forge.kernel.schemas import codegen as absolute_codegen\n"
+        ),
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": (
+            "class GeneratedSchemaModule: ...\n"
+        ),
+        "src/polisyos/data_forge/kernel/schemas/subpackage/__init__.py": "",
+        nested_caller: (
+            "from .. import codegen as parent_codegen\n"
+            "from ..codegen import GeneratedSchemaModule as parent_symbol\n"
+        ),
+        schema_package_init: "from . import schema as schema_module\n",
+        "src/polisyos/foundry/domain/schema.py": "class RegionProfile: ...\n",
+    }
+    _init_census_repository(tmp_path, files)
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 0
+    imports = [
+        hit
+        for hit in receipt["matches"]
+        if hit["evidence_kind"] in {
+            "absolute_import",
+            "relative_import",
+            "absolute_import_child_candidate",
+            "relative_import_child_candidate",
+        }
+    ]
+    actual = {
+        (
+            hit["target"],
+            hit["path"],
+            hit["line"],
+            hit["evidence_kind"],
+            hit["matched_value"],
+        )
+        for hit in imports
+    }
+    child_candidates = [
+        hit for hit in imports if hit["evidence_kind"].endswith("_child_candidate")
+    ]
+    assert child_candidates
+    assert {
+        hit["resolution"] for hit in child_candidates
+    } == {"child_module_or_package_attribute"}
+    assert actual == {
+        (
+            "polisyos.data_forge.kernel.schemas.codegen",
+            package_init,
+            1,
+            "relative_import",
+            "polisyos.data_forge.kernel.schemas.codegen",
+        ),
+        (
+            "polisyos.data_forge.kernel.schemas.codegen",
+            package_init,
+            2,
+            "relative_import_child_candidate",
+            "polisyos.data_forge.kernel.schemas.codegen",
+        ),
+        (
+            "polisyos.data_forge.kernel.schemas.codegen",
+            package_init,
+            3,
+            "absolute_import_child_candidate",
+            "polisyos.data_forge.kernel.schemas.codegen",
+        ),
+        (
+            "polisyos.data_forge.kernel.schemas.codegen",
+            nested_caller,
+            1,
+            "relative_import_child_candidate",
+            "polisyos.data_forge.kernel.schemas.codegen",
+        ),
+        (
+            "polisyos.data_forge.kernel.schemas.codegen",
+            nested_caller,
+            2,
+            "relative_import",
+            "polisyos.data_forge.kernel.schemas.codegen",
+        ),
+        (
+            "polisyos.foundry.domain.schema",
+            schema_package_init,
+            1,
+            "relative_import_child_candidate",
+            "polisyos.foundry.domain.schema",
+        ),
+    }
+
+    (tmp_path / package_init).write_text("from math import sqrt\n", encoding="utf-8")
+    (tmp_path / nested_caller).write_text("from math import floor\n", encoding="utf-8")
+    (tmp_path / schema_package_init).write_text("from math import ceil\n", encoding="utf-8")
+    corrupted, corrupted_receipt = _run_census(tmp_path)
+
+    assert corrupted.returncode == 0
+    assert not any(
+        hit["evidence_kind"]
+        in {
+            "absolute_import",
+            "relative_import",
+            "absolute_import_child_candidate",
+            "relative_import_child_candidate",
+        }
+        for hit in corrupted_receipt["matches"]
+    )
+
+
 def test_dfk_01_census_selects_repository_text_resource_and_config_types(
     tmp_path: Path,
 ) -> None:

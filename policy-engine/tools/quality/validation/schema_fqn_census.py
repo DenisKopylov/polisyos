@@ -306,20 +306,70 @@ def _module_name_for_path(path: str) -> str | None:
     return ".".join(module_parts)
 
 
-def _resolve_import_from(path: str, node: ast.ImportFrom) -> str | None:
-    if node.level == 0:
-        return node.module
+def _package_name_for_path(path: str) -> str | None:
     module_name = _module_name_for_path(path)
     if module_name is None:
         return None
-    package_parts = module_name.split(".")[:-1]
+    if Path(path).stem == "__init__":
+        return module_name
+    return module_name.rpartition(".")[0]
+
+
+def _resolve_import_from(path: str, node: ast.ImportFrom) -> str | None:
+    if node.level == 0:
+        return node.module
+    package_name = _package_name_for_path(path)
+    if package_name is None:
+        return None
+    package_parts = package_name.split(".") if package_name else []
     keep = len(package_parts) - (node.level - 1)
-    if keep < 0:
+    if keep <= 0:
         return None
     prefix = package_parts[:keep]
     if node.module:
         prefix.extend(node.module.split("."))
     return ".".join(prefix)
+
+
+def _import_from_hits(path: str, node: ast.ImportFrom) -> list[dict[str, Any]]:
+    module_name = _resolve_import_from(path, node)
+    if module_name is None:
+        return []
+    evidence = "absolute_import" if node.level == 0 else "relative_import"
+    target = _target_for_module(module_name)
+    if target:
+        return [
+            {
+                "target": target,
+                "imported_module": module_name,
+                "path": path,
+                "line": node.lineno,
+                "evidence_kind": evidence,
+                "imported_names": [alias.name for alias in node.names],
+            }
+        ]
+
+    child_evidence = f"{evidence}_child_candidate"
+    hits = []
+    for alias in node.names:
+        if alias.name == "*":
+            continue
+        child_module = f"{module_name}.{alias.name}" if module_name else alias.name
+        target = _target_for_module(child_module)
+        if target:
+            hits.append(
+                {
+                    "target": target,
+                    "imported_module": module_name,
+                    "imported_module_candidate": child_module,
+                    "path": path,
+                    "line": node.lineno,
+                    "evidence_kind": child_evidence,
+                    "imported_names": [alias.name],
+                    "resolution": "child_module_or_package_attribute",
+                }
+            )
+    return hits
 
 
 def _call_path(node: ast.expr, module_aliases: dict[str, str], imported_aliases: dict[str, str]) -> str:
@@ -360,20 +410,7 @@ def _scan_python(path: str, text: str) -> tuple[list[dict[str, Any]], list[dict[
                 imported_name = alias.name if alias.asname else alias.name.split(".")[0]
                 module_aliases[local_name] = alias.name if alias.asname else imported_name
         elif isinstance(node, ast.ImportFrom):
-            module_name = _resolve_import_from(path, node)
-            target = _target_for_module(module_name or "")
-            if target:
-                evidence = "absolute_import" if node.level == 0 else "relative_import"
-                imports.append(
-                    {
-                        "target": target,
-                        "imported_module": module_name,
-                        "path": path,
-                        "line": node.lineno,
-                        "evidence_kind": evidence,
-                        "imported_names": [alias.name for alias in node.names],
-                    }
-                )
+            imports.extend(_import_from_hits(path, node))
             if node.module in {
                 "importlib",
                 "importlib.resources",
@@ -584,7 +621,10 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         )
 
     for import_hit in all_imports:
-        all_matches.append({**import_hit, "matched_value": import_hit["imported_module"]})
+        matched_value = import_hit.get(
+            "imported_module_candidate", import_hit["imported_module"]
+        )
+        all_matches.append({**import_hit, "matched_value": matched_value})
     all_matches.sort(key=lambda hit: (hit["target"], hit["path"], hit["line"], hit["evidence_kind"]))
     all_loader_sites.sort(key=lambda site: (site["path"], site["line"], site["loader"]))
 

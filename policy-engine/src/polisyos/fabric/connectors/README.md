@@ -125,3 +125,7 @@ Protected capacity is finite and refuses a new owner before provider work starts
 Same-key concurrent owners share the regulator, and cancellation/error releases
 only that operation's lease. State-based `get_or_create` remains a lookup API;
 operation consumers use `lease` across their awaited work.
+
+Rate, burst, adaptive bounds and token/rate changes require finite positive quantities.
+Provider cooldowns reject nonfinite values before state mutation. Fractional positive
+rates keep their monotonic refill behavior; invalid quantities never admit provider work.

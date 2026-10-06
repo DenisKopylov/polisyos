@@ -121,3 +121,45 @@ def test_same_key_concurrent_owners_share_finite_protected_slot():
                     pytest.fail("unavailable protected owner was admitted")
         assert registry._leases == {"same": 1}
     assert registry._leases == {} and len(registry.snapshot()) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("invalid", [0.0, -0.1, float("nan"), float("inf")])
+@pytest.mark.parametrize("adaptive", [False, True])
+async def test_nonfinite_or_nonpositive_service_rate_refuses_actual_provider(invalid, adaptive):
+    calls = []
+
+    @limiter_module.with_rate_limit(invalid, adaptive=adaptive)
+    async def provider(handle):
+        calls.append(handle.connector_id)
+
+    with pytest.raises(ValueError):
+        await asyncio.wait_for(provider(SimpleNamespace(connector_id="invalid-service")), 0.05)
+    assert calls == []
+
+
+@pytest.mark.parametrize("invalid", [0.0, -0.1, float("nan"), float("inf")])
+@pytest.mark.parametrize("field", ["rate_limit_rps", "burst_size", "min_rate_rps", "max_rate_rps"])
+def test_each_rate_quantity_requires_finite_positive_configuration(field, invalid):
+    with pytest.raises(ValueError):
+        limiter_module.RateLimiterConfig(**{"rate_limit_rps": 1.0, field: invalid})
+
+
+@pytest.mark.asyncio
+async def test_fractional_service_refill_is_preserved_and_invalid_dynamic_quantity_is_atomic(
+    monkeypatch,
+):
+    now = [0.0]
+    monkeypatch.setattr(limiter_module, "_monotonic", lambda: now[0])
+    limiter = limiter_module.AdaptiveRateLimiter(0.1)
+    await limiter.acquire()
+    assert limiter.get_stats()["tokens_available"] == 0.0
+    for quantity in [float("nan"), float("inf"), 0.0, -1.0]:
+        with pytest.raises(ValueError):
+            limiter.adjust_rate(quantity)
+        with pytest.raises(ValueError):
+            await limiter.acquire(quantity)
+    assert limiter.rate_limit_rps == 0.1
+    now[0] = 10.0
+    await limiter.acquire()
+    assert limiter.get_stats()["total_requests"] == 2

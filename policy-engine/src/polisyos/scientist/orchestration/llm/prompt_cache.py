@@ -10,7 +10,7 @@ import threading
 import time
 import uuid
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -218,7 +218,26 @@ class PromptCacheProtocol(Protocol):
     """Protocol for prompt cache implementations."""
 
     def get(self, cache_key: str) -> GatewayLLMResponse | None: ...
-    def put(self, cache_key: str, response: GatewayLLMResponse, ttl_s: float) -> None: ...
+    def put(
+        self,
+        cache_key: str,
+        response: GatewayLLMResponse,
+        ttl_s: float,
+        *,
+        admission_check: Callable[[], None] | None = None,
+    ) -> None:
+        """Check admission at the atomic storage boundary, after serialization/lock waits."""
+        ...
+
+
+class CacheAdmissionUnsupportedError(RuntimeError):
+    """The configured cache cannot accept the required atomic admission contract."""
+
+
+@dataclass(frozen=True, slots=True)
+class _ProducerFlight:
+    task: asyncio.Task[Any]
+    deadline: float | None
 
 
 def compute_cache_key(
@@ -318,12 +337,16 @@ class InMemoryPromptCache:
         cache_key: str,
         response: GatewayLLMResponse,
         ttl_s: float | None = None,
+        *,
+        admission_check: Callable[[], None] | None = None,
     ) -> None:
         """Cache *response* under *cache_key* with optional TTL override."""
         effective_ttl = ttl_s if ttl_s is not None else self._default_ttl_s
         expires_at = time.monotonic() + effective_ttl
         serialized = _freeze_response(response)
         with self._lock:
+            if admission_check is not None:
+                admission_check()
             if cache_key in self._store:
                 self._store.move_to_end(cache_key)
             self._store[cache_key] = (serialized, expires_at)
@@ -382,7 +405,7 @@ class CachingLLMClient:
         if configured_timeout is None:
             configured_timeout = getattr(client, "timeout_s", None)
         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
-        self._inflight: dict[str, asyncio.Task[Any]] = {}
+        self._inflight: dict[str, _ProducerFlight] = {}
         self._reuse_authorizer = reuse_authorizer
 
     def __getattr__(self, name: str) -> Any:
@@ -447,6 +470,8 @@ class CachingLLMClient:
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
         args, kwargs = _normalize_prompt_call(args, kwargs)
+        timeout = _coerce_timeout(kwargs.get("timeout")) or self._inflight_timeout_s
+        deadline = asyncio.get_running_loop().time() + timeout if timeout is not None else None
         reason = _cache_skip_reason(
             model=self._model,
             args=args,
@@ -459,6 +484,17 @@ class CachingLLMClient:
         if reason is not None:
             _record_cache_skip(self._cache, reason)
             return await _maybe_await(self._client.generate(*args, **_provider_kwargs(kwargs)))
+
+        self._require_producer_budget(deadline)
+        if deadline is not None or admission is not None:
+            try:
+                inspect.signature(self._cache.put).bind(
+                    "", None, ttl_s=self._ttl_s, admission_check=lambda: None
+                )
+            except (TypeError, ValueError) as error:
+                raise CacheAdmissionUnsupportedError(
+                    "bounded or permission-scoped reuse requires atomic cache admission"
+                ) from error
 
         completion = _current_producer_completion()
         principal = get_current_access_scope_or_none()
@@ -504,6 +540,7 @@ class CachingLLMClient:
         )
         cached = self._cache.get(cache_key)
         if cached is not None:
+            self._require_emission_admission(deadline, admission)
             logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
             if isinstance(cached, GatewayLLMResponse):
                 _mark_cache_response(cached, status="hit", cache_key=cache_key)
@@ -511,23 +548,26 @@ class CachingLLMClient:
             return cached
 
         provider_kwargs = _provider_kwargs(kwargs)
-        owner_task = self._inflight.get(cache_key)
-        is_owner = owner_task is None
+        flight = self._inflight.get(cache_key)
+        is_owner = flight is None
         if is_owner:
+            self._require_emission_admission(deadline, admission)
             owner_task = asyncio.create_task(
                 self._produce(
                     cache_key,
                     args,
                     provider_kwargs,
                     admission,
+                    deadline,
                 )
             )
-            self._inflight[cache_key] = owner_task
+            flight = _ProducerFlight(owner_task, deadline)
+            self._inflight[cache_key] = flight
             owner_task.add_done_callback(_consume_task_exception)
 
-        response = await asyncio.shield(owner_task)
-        if not is_owner:
-            self._require_current_reuse(admission)
+        assert flight is not None
+        response = await asyncio.shield(flight.task)
+        self._require_producer_budget(flight.deadline)
         if is_owner:
             return response
 
@@ -535,6 +575,7 @@ class CachingLLMClient:
         # marker as an ordinary cache hit.  They must not share the producer's
         # mutable response object or charge LLM-01 accounting as a miss.
         cached = self._cache.get(cache_key)
+        self._require_emission_admission(flight.deadline, admission)
         if cached is not None:
             if isinstance(cached, GatewayLLMResponse):
                 _mark_cache_response(cached, status="hit", cache_key=cache_key)
@@ -551,49 +592,70 @@ class CachingLLMClient:
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
         admission: tuple[CacheReuseRequest, CacheReuseDecision] | None,
+        deadline: float | None,
     ) -> Any:
         """Produce and publish one cache miss, always releasing its flight."""
 
         current_task = asyncio.current_task()
         try:
-            response = await self._call_provider(args, kwargs)
-            completion = _current_producer_completion()
-            if completion is not None:
-                completed = completion.complete(response)
-                raw_response = completed.response
-                if isinstance(raw_response, GatewayLLMResponse):
-                    response = _ProducerGatewayResponse(
-                        raw_response, completed._polisyos_settlement
-                    )
-                else:
-                    response = completed
-            if isinstance(response, GatewayLLMResponse):
-                _mark_cache_response(response, status="miss", cache_key=cache_key)
-            try:
-                self._require_current_reuse(admission)
-            except CacheReuseDeniedError:
-                # The provider completion remains billable, but is not published
-                # as reusable evidence after revocation.
+            async with asyncio.timeout_at(deadline):
+                response = await self._call_provider(args, kwargs)
+                completion = _current_producer_completion()
+                if completion is not None:
+                    completed = completion.complete(response)
+                    raw_response = completed.response
+                    if isinstance(raw_response, GatewayLLMResponse):
+                        response = _ProducerGatewayResponse(
+                            raw_response, completed._polisyos_settlement
+                        )
+                    else:
+                        response = completed
+                if isinstance(response, GatewayLLMResponse):
+                    _mark_cache_response(response, status="miss", cache_key=cache_key)
+
+                def admit() -> None:
+                    self._require_emission_admission(deadline, admission)
+
+                try:
+                    admit()
+                    logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
+                    if deadline is not None or admission is not None:
+                        self._cache.put(
+                            cache_key, response, ttl_s=self._ttl_s, admission_check=admit
+                        )
+                    else:
+                        self._cache.put(cache_key, response, ttl_s=self._ttl_s)
+                except CacheReuseDeniedError:
+                    # A fresh actual provider completion is billable even when
+                    # its permission to publish reusable evidence was revoked.
+                    self._require_producer_budget(deadline)
                 return response
-            self._cache.put(cache_key, response, ttl_s=self._ttl_s)
-            logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
-            return response
         finally:
-            if self._inflight.get(cache_key) is current_task:
+            flight = self._inflight.get(cache_key)
+            if flight is not None and flight.task is current_task:
                 self._inflight.pop(cache_key, None)
+
+    @staticmethod
+    def _require_producer_budget(deadline: float | None) -> None:
+        if deadline is not None and asyncio.get_running_loop().time() >= deadline:
+            raise TimeoutError("LLM producer deadline expired before result admission")
+
+    def _require_emission_admission(
+        self,
+        deadline: float | None,
+        admission: tuple[CacheReuseRequest, CacheReuseDecision] | None,
+    ) -> None:
+        self._require_producer_budget(deadline)
+        self._require_current_reuse(admission)
+        self._require_producer_budget(deadline)
 
     async def _call_provider(
         self,
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
     ) -> Any:
-        """Run one provider call under the configured in-flight deadline."""
-
-        provider_call = _maybe_await(self._client.generate(*args, **kwargs))
-        timeout = _coerce_timeout(kwargs.get("timeout")) or self._inflight_timeout_s
-        if timeout is None:
-            return await provider_call
-        return await asyncio.wait_for(provider_call, timeout=timeout)
+        """Run the actual provider inside the producer's single deadline owner."""
+        return await _maybe_await(self._client.generate(*args, **kwargs))
 
 
 def _normalize_prompt_call(

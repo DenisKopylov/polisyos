@@ -30,6 +30,17 @@ claim. Cancelled consumers do not cancel owned producer settlement. Failed or mi
 ACK blocks reuse and remains unknown until exact event receipts reconcile; process death before
 a provider completion/event is observed requires external provider evidence.
 
+Each eligible cache flight owns one absolute monotonic deadline through provider I/O,
+mandatory completion, serialization and publication. An observed late response is still
+settled; expiry refuses result/cache admission after settlement. Physical completion can
+outlive that deadline when a provider or synchronous accounting/cache lock cannot stop.
+Followers share the producer deadline. Cache reads recheck the supplied owner decision
+before emission; custom caches must implement `put(..., admission_check=...)` at their
+atomic storage boundary. An unsupported signature refuses before provider work starts.
+Atomic publication is verified here for `InMemoryPromptCache`; a foreign implementation
+requires its own conformance evidence. The owner decision itself remains a deployment
+premise, including any required atomic epoch semantics.
+
 ## Public API
 
 - `GatewayLLMClient`, `GatewayLLMResponse`, `GatewayUsage`

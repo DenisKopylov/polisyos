@@ -9,12 +9,12 @@ skipping already-completed work.
 
 How it works
 ------------
-1. Before executing each node, a checkpoint is written to disk if the node
-   index is a multiple of ``checkpoint_every`` or if this is the last node.
-2. On resume, the executor reads the checkpoint, validates the chain digest
-   matches, and fast-forwards past already-completed nodes.
-3. The chain digest (SHA-256 of the ordered FQN list) guards against resuming
-   a checkpoint from a different chain definition.
+1. After a completed node, a checkpoint is written every ``checkpoint_every``
+   nodes and after the last node.
+2. On resume, the executor validates effective execution identity and the
+   completed occurrence prefix, then restores original per-node results.
+3. Node parameters, slot bindings, and input materialization use the same
+   helpers as sequential chain execution; runtime seed is passed separately.
 
 Checkpoint format
 -----------------
@@ -22,17 +22,21 @@ Each checkpoint is a JSON file containing:
 
 - ``chain_digest``: hex SHA-256 of the execution order FQN list.
 - ``completed_fqns``: list of FQNs completed so far.
-- ``node_results``: list of ``{node_uid, method_fqn, wall_time_ms}`` dicts.
+- ``execution_digest``: identity of the plan, effective parameters, inputs, and seed.
+- ``node_results``: original outputs, slot outputs, artifacts, timing, and reproducibility.
 - ``intermediate_state``: JSON-serialisable state dict after last completed node.
-- ``created_at``: ISO-8601 UTC timestamp.
+- ``created_at``: Unix timestamp of checkpoint creation.
 
 Limitations
 -----------
-- State values must be JSON-serialisable (or numpy arrays, which are
-  serialised as base64-encoded bytes).  Arbitrary Python objects in state
+- State values must be JSON-serialisable or NumPy arrays. Arbitrary Python objects in state
   will cause a ``CheckpointSerializationError``.
 - NumPy arrays are serialised with ``np.save`` to a companion ``.npy`` sidecar
   file; the checkpoint JSON contains a ``__npy_ref__`` pointer.
+- A failed directory sync after manifest replacement reports uncertain durability
+  while preserving its referenced sidecars. It does not roll back publication.
+- Currency conversion bindings requiring an external FX provider are not supported
+  by this executor; they fail the canonical binding adapter's provider check.
 
 Usage
 -----
@@ -68,10 +72,13 @@ from uuid import UUID, uuid4
 import numpy as np
 
 from polisyos.core.observability import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
+    _adapt_execution_context,
     _build_chain_reproducibility_contract,
+    _build_node_param_payload,
+    _collect_node_inputs,
+    _merge_execution_context,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
@@ -85,6 +92,7 @@ from polisyos.foundry.methods.backends.validated import (
     ValidatedMethodFamily,
     ValidatedStatus,
 )
+from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 __all__ = [
@@ -187,54 +195,66 @@ class ChainCheckpoint:
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp_paths: list[Path] = []
         published_sidecars: list[Path] = []
+        manifest_published = False
         try:
             with _checkpoint_write_lock(path):
-                generation = _checkpoint_generation(path, self.intermediate_state)
-                stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
-                force_encoded = generation is not None
-                payload, sidecars = _serialise_state(
-                    self.intermediate_state,
-                    stem,
-                    force_encoded=force_encoded,
-                )
-                history_payload: dict[str, Any] | None = None
-                if self.history_complete:
-                    history_payload, history_sidecars = _serialise_state(
-                        {"node_results": self.node_results},
+                try:
+                    generation = _checkpoint_generation(path, self.intermediate_state)
+                    stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
+                    force_encoded = generation is not None
+                    payload, sidecars = _serialise_state(
+                        self.intermediate_state,
                         stem,
-                        force_encoded=True,
+                        force_encoded=force_encoded,
                     )
-                    sidecars.update(history_sidecars)
-                data = {
-                    "chain_digest": self.chain_digest,
-                    "completed_fqns": self.completed_fqns,
-                    "completed_node_ids": self.completed_node_ids,
-                    "intermediate_state": payload,
-                    "node_timing_ms": self.node_timing_ms,
-                    "created_at": self.created_at,
-                    "execution_digest": self.execution_digest,
-                    "history_complete": self.history_complete,
-                }
-                if history_payload is not None:
-                    data["node_results"] = history_payload["node_results"]
+                    history_payload: dict[str, Any] | None = None
+                    if self.history_complete:
+                        history_payload, history_sidecars = _serialise_state(
+                            {"node_results": self.node_results},
+                            stem,
+                            force_encoded=True,
+                        )
+                        sidecars.update(history_sidecars)
+                    data = {
+                        "chain_digest": self.chain_digest,
+                        "completed_fqns": self.completed_fqns,
+                        "completed_node_ids": self.completed_node_ids,
+                        "intermediate_state": payload,
+                        "node_timing_ms": self.node_timing_ms,
+                        "created_at": self.created_at,
+                        "execution_digest": self.execution_digest,
+                        "history_complete": self.history_complete,
+                    }
+                    if history_payload is not None:
+                        data["node_results"] = history_payload["node_results"]
 
-                for sidecar_name, arr in sidecars.items():
-                    sidecar_path = path.parent / sidecar_name
-                    published_sidecars.append(sidecar_path)
-                    tmp_sidecar = _tmp_path_for(sidecar_path)
-                    tmp_paths.append(tmp_sidecar)
-                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
-                    tmp_paths.remove(tmp_sidecar)
+                    for sidecar_name, arr in sidecars.items():
+                        sidecar_path = path.parent / sidecar_name
+                        published_sidecars.append(sidecar_path)
+                        tmp_sidecar = _tmp_path_for(sidecar_path)
+                        tmp_paths.append(tmp_sidecar)
+                        _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                        tmp_paths.remove(tmp_sidecar)
 
-                json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
-                tmp_json = _tmp_path_for(path)
-                tmp_paths.append(tmp_json)
-                _atomic_write_bytes(tmp_json, path, json_bytes)
-                tmp_paths.remove(tmp_json)
-                self.checkpoint_path = path
+                    json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                    tmp_json = _tmp_path_for(path)
+                    tmp_paths.append(tmp_json)
+                    # Track the actual publication boundary before directory sync.
+                    # A sync error can leave the complete new manifest visible;
+                    # deleting its sidecars would turn that uncertainty into loss.
+                    _atomic_write_bytes(tmp_json, path, json_bytes, fsync_directory=False)
+                    manifest_published = True
+                    tmp_paths.remove(tmp_json)
+                    _fsync_dir(path.parent)
+                    self.checkpoint_path = path
+                except (OSError, TypeError, ValueError, CheckpointSerializationError):
+                    # Rollback owns these paths until cleanup finishes. A peer
+                    # must not publish a cold manifest reusing them meanwhile.
+                    _cleanup_paths(tmp_paths)
+                    if not manifest_published:
+                        _cleanup_paths(published_sidecars)
+                    raise
         except (OSError, TypeError, ValueError, CheckpointSerializationError) as exc:
-            _cleanup_paths(tmp_paths)
-            _cleanup_paths(published_sidecars)
             raise CheckpointSaveError(f"Failed to save checkpoint at {path}: {exc}") from exc
 
     @classmethod
@@ -373,7 +393,10 @@ class CheckpointingChainExecutor:
         # Validate checkpoint if provided
         skip_until: int = 0
         state = dict(initial_state)
+        execution_context: Any = dict(initial_state)
+        previous_backend: ComputeBackend | None = None
         all_node_results: list[tuple[UUID, MethodResult]] = []
+        node_slot_outputs: dict[UUID, dict[str, Any]] = {}
 
         if checkpoint is not None:
             if checkpoint.chain_digest != chain_digest:
@@ -413,27 +436,52 @@ class CheckpointingChainExecutor:
                             "Checkpoint per-node history does not match the execution prefix."
                         )
                     all_node_results.append(restored)
+                    node_slot_outputs[restored[0]] = dict(restored[1].slot_outputs)
+                    execution_context = _merge_execution_context(
+                        execution_context, restored[1].output
+                    )
+                    previous_backend = restored[1].reproducibility.backend
+            elif skip_until:
+                # The state remains usable, but no per-node outputs can be
+                # reconstructed or substituted for missing binding sources.
+                execution_context = dict(state)
+                previous_backend = chain.get_signature(execution_order[skip_until - 1]).backend
 
         # Execute remaining nodes
         for idx, node_id in enumerate(execution_order):
             if idx < skip_until:
                 continue
 
-            node = chain.get_node(node_id)
-            node_params = dict(node.params)
-            node_params.update(params_per_node.get(node_id, {}))
-            node_params.setdefault("seed", seed)
-
-            method_class = reg.get(node.method_fqn)
+            signature = chain.get_signature(node_id)
+            if previous_backend is not None and previous_backend is not signature.backend:
+                execution_context = _adapt_execution_context(
+                    execution_context,
+                    source_backend=previous_backend,
+                    target_backend=signature.backend,
+                )
+            method_class, materialized_state, signature, node_params = _collect_node_inputs(
+                chain=chain,
+                node_id=node_id,
+                reg=reg,
+                node_slot_outputs=node_slot_outputs,
+                fx_rate_provider=None,
+                current_state=state,
+                signature=signature,
+                current_context=execution_context,
+                params_per_node=params_per_node,
+            )
             result = disp.dispatch(
                 method_class=method_class,
-                signature=method_class.signature,
-                state=state,
+                signature=signature,
+                state=materialized_state,
                 params=node_params,
                 seed=seed,
             )
             if isinstance(result.output, dict):
                 state.update(result.output)
+            execution_context = _merge_execution_context(execution_context, result.output)
+            previous_backend = signature.backend
+            node_slot_outputs[node_id] = dict(result.slot_outputs)
             all_node_results.append((node_id, result))
 
             # Save checkpoint if needed
@@ -452,13 +500,20 @@ class CheckpointingChainExecutor:
                     execution_digest=execution_digest,
                 )
 
+        reproducibility_contract = _build_chain_reproducibility_contract(
+            all_node_results,
+            composition_kind="serial",
+        )
+        if checkpoint is not None and skip_until and not checkpoint.history_complete:
+            reproducibility_contract.update(
+                checkpoint_history_complete=False,
+                checkpoint_completed_nodes=skip_until,
+                history_limitation="checkpoint_per_node_history_missing",
+            )
         return ChainExecutionResult(
             final_state=state,
             node_results=tuple(all_node_results),
-            reproducibility_contract=_build_chain_reproducibility_contract(
-                all_node_results,
-                composition_kind="serial",
-            ),
+            reproducibility_contract=reproducibility_contract,
         )
 
     def find_latest_checkpoint(self, chain: Any) -> ChainCheckpoint | None:
@@ -593,8 +648,7 @@ def _compute_execution_digest(
             candidate = get_signature(node_id)
             stable_digest = getattr(candidate, "stable_digest", None)
             signature = stable_digest() if stable_digest is not None else None
-        effective_params = dict(getattr(node, "params", {}))
-        effective_params.update(dict(params_per_node.get(node_id, {})))
+        effective_params = _build_node_param_payload(node, params_per_node)
         nodes.append(
             {
                 "node_id": str(node_id),
@@ -854,15 +908,17 @@ def _iter_array_paths(value: Any, path: tuple[str, ...] = ()):
 
 def _legacy_sidecar_names(state: Mapping[str, Any], stem: str) -> dict[tuple[str, ...], str]:
     """Build the historical flat names used by first-generation checkpoints."""
-    return {
-        path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)
-    }
+    return {path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)}
 
 
 def _encoded_sidecar_name(stem: str, path: tuple[str, ...]) -> str:
-    encoded = base64.urlsafe_b64encode(
-        json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
-    ).decode("ascii").rstrip("=")
+    encoded = (
+        base64.urlsafe_b64encode(
+            json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+        )
+        .decode("ascii")
+        .rstrip("=")
+    )
     return f"{stem}__{encoded}.npy"
 
 
@@ -889,11 +945,7 @@ def _serialise_state(
     legacy_values = list(legacy_names.values())
     use_encoded = force_encoded or len(legacy_values) != len(set(legacy_values))
     sidecar_names = {
-        path: (
-            _encoded_sidecar_name(stem, path)
-            if use_encoded
-            else legacy_name
-        )
+        path: (_encoded_sidecar_name(stem, path) if use_encoded else legacy_name)
         for path, legacy_name in legacy_names.items()
     }
     sidecars: dict[str, np.ndarray] = {}
@@ -911,9 +963,7 @@ def _serialise_state(
         if isinstance(value, (bool, int, float, str, type(None))):
             return value
         if isinstance(value, Mapping):
-            return {
-                key: encode(child, path + (str(key),)) for key, child in value.items()
-            }
+            return {key: encode(child, path + (str(key),)) for key, child in value.items()}
         if isinstance(value, (list, tuple)):
             return [encode(child, path + (str(index),)) for index, child in enumerate(value)]
         try:
@@ -941,9 +991,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
         try:
             array = np.load(sidecar_path, allow_pickle=False)
         except (EOFError, OSError, ValueError) as exc:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar is unreadable: {sidecar_path}"
-            ) from exc
+            raise CheckpointLoadError(f"Checkpoint sidecar is unreadable: {sidecar_path}") from exc
         if not isinstance(array, np.ndarray):
             raise CheckpointLoadError(f"Checkpoint sidecar is not a NumPy array: {sidecar_path}")
         expected_shape = payload.get("__npy_shape__")
@@ -958,9 +1006,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
                 f"Checkpoint sidecar content binding is missing: {sidecar_path}"
             )
         if list(array.shape) != expected_shape or array.dtype.str != expected_dtype:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}"
-            )
+            raise CheckpointLoadError(f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}")
         if _array_content_digest(array) != expected_digest:
             raise CheckpointLoadError(f"Checkpoint sidecar content mismatch: {sidecar_path}")
         return array
@@ -1015,14 +1061,17 @@ def _atomic_save_numpy(tmp_path: Path, final_path: Path, arr: np.ndarray) -> Non
     _fsync_dir(final_path.parent)
 
 
-def _atomic_write_bytes(tmp_path: Path, final_path: Path, data: bytes) -> None:
+def _atomic_write_bytes(
+    tmp_path: Path, final_path: Path, data: bytes, *, fsync_directory: bool = True
+) -> None:
     tmp_path.parent.mkdir(parents=True, exist_ok=True)
     with tmp_path.open("wb") as fh:
         fh.write(data)
         fh.flush()
         os.fsync(fh.fileno())
     tmp_path.replace(final_path)
-    _fsync_dir(final_path.parent)
+    if fsync_directory:
+        _fsync_dir(final_path.parent)
 
 
 def _fsync_dir(path: Path) -> None:

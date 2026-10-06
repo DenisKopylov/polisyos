@@ -1,0 +1,26 @@
+{
+  "target_sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+  "target_tree_sha": "81074c43bc1bc23483e5d77671d25c1d898ff96d",
+  "cwd": "/workspace/e02-B-cmp-res/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:product",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "prerequisite": "corepack pnpm install --frozen-lockfile exit0; node24.19.0 observed unsupported engine",
+  "exit_code": 1,
+  "wall_seconds": 197.64921901499974,
+  "max_rss_kib": 1100532,
+  "end_sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+  "raw_path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/architecture-guardrails-final.txt",
+  "raw_sha256": "426f011030222d40e34290f780da7b31a953a0a22ce23bd8f87606ccbb95c41c",
+  "raw_bytes": 115869,
+  "full_output_retained_locally_not_transferred": true
+}

@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends.checkpointing import (
     ChainCheckpoint,
     CheckpointDigestMismatchError,
@@ -21,12 +22,20 @@ class _FakeChain:
     def __init__(self, fqns: list[str]) -> None:
         self.execution_order = [uuid4() for _ in fqns]
         self._nodes = {
-            node_id: SimpleNamespace(method_fqn=fqn, params={})
+            node_id: SimpleNamespace(id=node_id, method_fqn=fqn, params={}, static_params={})
             for node_id, fqn in zip(self.execution_order, fqns, strict=True)
         }
 
     def get_node(self, node_id):
         return self._nodes[node_id]
+
+    def get_signature(self, node_id):
+        from polisyos.foundry.methods.base import ComputeBackend
+
+        return SimpleNamespace(fqn=self.get_node(node_id).method_fqn, backend=ComputeBackend.NUMPY)
+
+    def get_bindings_for_target(self, node_id):
+        return []
 
 
 def test_chain_checkpoint_round_trips_numpy_sidecars_atomically(tmp_path) -> None:

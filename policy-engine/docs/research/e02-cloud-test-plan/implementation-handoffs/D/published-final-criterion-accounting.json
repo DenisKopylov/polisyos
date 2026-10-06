@@ -168,6 +168,12 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent.json",
       "bytes": 12935,
       "sha256": "1cea6585ad6ec2ecf9a0b77392e7060b85fd525598410a0e4eab722e0845e0f8"
+    },
+    "canonical_coverage": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
     }
   },
   "denominator": {
@@ -1662,7 +1668,10 @@
       },
       "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/16/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/16/selected_plan_not_executed"
+      }
     },
     {
       "id": "B107",
@@ -1689,7 +1698,10 @@
       },
       "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/17/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/17/selected_plan_not_executed"
+      }
     },
     {
       "id": "B108",
@@ -1713,14 +1725,17 @@
         "current_142",
         "root_final_two"
       ],
-      "remaining_input_or_consumer": "Signed fiscal units and served owner input remain absent. Current3f38 native-controller10+fiscal30 execution resolves the older425 joined-source gap for exactly those unchanged controls; finalOPT01 independently receives75PASS. Neither appoints units, source-universe law or unreceived empirical input.",
+      "remaining_input_or_consumer": "Owner-declared fiscal units and served owner input remain absent. Current3f38 native-controller10+fiscal30 execution resolves the older425 joined-source gap for exactly those unchanged controls; finalOPT01 independently receives75PASS. Neither appoints units, source-universe law or unreceived empirical input.",
       "unreceived_inputs_or_APIs": {
-        "signed_fiscal_unit_profile_ref": null,
-        "served_fiscal_metric_source_ref": null
+        "served_fiscal_metric_source_ref": null,
+        "owner_declared_fiscal_unit_profile_ref": null
       },
       "next_owner": "Fiscal metric/input owner / search_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/18/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/18/selected_plan_not_executed"
+      }
     },
     {
       "id": "B109",
@@ -1748,7 +1763,10 @@
       },
       "next_owner": "A frontier provider/export owner / search_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/19/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/19/selected_plan_not_executed"
+      }
     },
     {
       "id": "B110",
@@ -1776,7 +1794,10 @@
       },
       "next_owner": "OPT-01 verification owner / coordinate-profile owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/21/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/21/selected_plan_not_executed"
+      }
     },
     {
       "id": "B111",
@@ -1808,7 +1829,10 @@
       },
       "next_owner": "search_owner / gp_witness / A assessment producer / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/22/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/22/selected_plan_not_executed"
+      }
     },
     {
       "id": "B112",
@@ -1837,7 +1861,10 @@
       },
       "next_owner": "OPT-02 verification owner / strategy-profile owners / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/23/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/23/selected_plan_not_executed"
+      }
     },
     {
       "id": "B113",
@@ -1868,7 +1895,10 @@
       },
       "next_owner": "search_owner / transfer_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/24/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/24/selected_plan_not_executed"
+      }
     },
     {
       "id": "B114",
@@ -1900,7 +1930,10 @@
       },
       "next_owner": "search_owner / transfer_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/25/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/25/selected_plan_not_executed"
+      }
     },
     {
       "id": "B115",
@@ -1931,7 +1964,10 @@
       },
       "next_owner": "OPT-03 verification owner / search_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/26/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/26/selected_plan_not_executed"
+      }
     },
     {
       "id": "B116",
@@ -1961,7 +1997,10 @@
       },
       "next_owner": "gp_witness / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/27/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/27/selected_plan_not_executed"
+      }
     },
     {
       "id": "B117",
@@ -1989,7 +2028,10 @@
       },
       "next_owner": "OPT-04 verification owner / registry boundary owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/28/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/28/selected_plan_not_executed"
+      }
     },
     {
       "id": "B118",
@@ -2016,7 +2058,10 @@
       },
       "next_owner": "SRV lifecycle owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/29/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/29/selected_plan_not_executed"
+      }
     },
     {
       "id": "B119",
@@ -2043,7 +2088,10 @@
       },
       "next_owner": "CTL-01 verification owner / native supplier owners / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/30/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/30/selected_plan_not_executed"
+      }
     },
     {
       "id": "B120",
@@ -2077,7 +2125,10 @@
       },
       "next_owner": "funnel_owner / resource cost-intake owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/32/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/32/selected_plan_not_executed"
+      }
     },
     {
       "id": "B121",
@@ -2104,7 +2155,10 @@
       },
       "next_owner": "CTL-03 verification owner / native caller-profile owners / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/33/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/33/selected_plan_not_executed"
+      }
     },
     {
       "id": "B122",
@@ -2131,7 +2185,10 @@
       },
       "next_owner": "STP-01 verification owner / objective-unit/profile supplier / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/34/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/34/selected_plan_not_executed"
+      }
     },
     {
       "id": "B123",
@@ -2158,7 +2215,10 @@
       },
       "next_owner": "CTL-03 verification owner / typed result producer / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/35/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/35/selected_plan_not_executed"
+      }
     },
     {
       "id": "B124",
@@ -2185,7 +2245,10 @@
       },
       "next_owner": "CTL-02 verification owner / candidate-schema owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/36/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/36/selected_plan_not_executed"
+      }
     },
     {
       "id": "B125",
@@ -2213,7 +2276,10 @@
       },
       "next_owner": "CTL-02 verification owner / strategy-profile owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/37/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/37/selected_plan_not_executed"
+      }
     },
     {
       "id": "B126",
@@ -2240,7 +2306,10 @@
       },
       "next_owner": "CTL-02 verification owner / backend-profile owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/38/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/38/selected_plan_not_executed"
+      }
     },
     {
       "id": "B127",
@@ -2268,7 +2337,10 @@
       },
       "next_owner": "OPT-02 verification owner / MO/NN adapter owners / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/39/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/39/selected_plan_not_executed"
+      }
     },
     {
       "id": "B128",
@@ -2297,7 +2369,10 @@
       },
       "next_owner": "transfer_owner / search_owner / live history issuer / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/40/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/40/selected_plan_not_executed"
+      }
     },
     {
       "id": "B129",
@@ -2325,7 +2400,10 @@
       },
       "next_owner": "TRN-02 verification owner / history availability owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/41/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/41/selected_plan_not_executed"
+      }
     },
     {
       "id": "B130",
@@ -2352,7 +2430,10 @@
       },
       "next_owner": "TRN-01 verification owner / numerical-profile owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/43/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/43/selected_plan_not_executed"
+      }
     },
     {
       "id": "B131",
@@ -2382,7 +2463,10 @@
       },
       "next_owner": "Institutional source-access/split owner / transfer_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/44/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/44/selected_plan_not_executed"
+      }
     },
     {
       "id": "B132",
@@ -2410,7 +2494,10 @@
       },
       "next_owner": "Benchmark/input issuer / transfer_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/45/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/45/selected_plan_not_executed"
+      }
     },
     {
       "id": "B133",
@@ -2437,7 +2524,10 @@
       },
       "next_owner": "TRN-02 verification owner / history issuer / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/46/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/46/selected_plan_not_executed"
+      }
     },
     {
       "id": "B134",
@@ -2464,7 +2554,10 @@
       },
       "next_owner": "Index-generation metadata owner / transfer_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/47/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/47/selected_plan_not_executed"
+      }
     },
     {
       "id": "B135",
@@ -2491,7 +2584,10 @@
       },
       "next_owner": "TRN-03 verification owner / context-profile owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/48/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/48/selected_plan_not_executed"
+      }
     },
     {
       "id": "B136",
@@ -2517,7 +2613,10 @@
       },
       "next_owner": "Access/filter-profile owner / transfer_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/49/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/49/selected_plan_not_executed"
+      }
     },
     {
       "id": "B137",
@@ -2544,7 +2643,10 @@
       },
       "next_owner": "Revalidation-event issuer / lesson lifecycle owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/50/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/50/selected_plan_not_executed"
+      }
     },
     {
       "id": "B156",
@@ -2570,7 +2672,10 @@
       },
       "next_owner": "FUN-01 verification owner / caller/context owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/71/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/71/selected_plan_not_executed"
+      }
     },
     {
       "id": "B157",
@@ -2597,7 +2702,10 @@
       },
       "next_owner": "B runtime/factory owner / F or E estimand/input supplier / funnel_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/72/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/72/selected_plan_not_executed"
+      }
     },
     {
       "id": "B158",
@@ -2629,7 +2737,10 @@
       },
       "next_owner": "FUN-01 verification owner / L2 scheduler/factory owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/73/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/73/selected_plan_not_executed"
+      }
     },
     {
       "id": "B159",
@@ -2660,7 +2771,10 @@
       },
       "next_owner": "FUN-01 verification owner / blocker prerequisite owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/74/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/74/selected_plan_not_executed"
+      }
     },
     {
       "id": "B160",
@@ -2686,7 +2800,10 @@
       },
       "next_owner": "FUN-02 verification owner / projection consumer owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/76/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/76/selected_plan_not_executed"
+      }
     },
     {
       "id": "B161",
@@ -2716,7 +2833,10 @@
       },
       "next_owner": "Uncertainty update/supersession rule owner / funnel_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/77/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/77/selected_plan_not_executed"
+      }
     },
     {
       "id": "B162",
@@ -2743,7 +2863,10 @@
       },
       "next_owner": "FUN-02 verification owner / scientific interval supplier / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/78/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/78/selected_plan_not_executed"
+      }
     },
     {
       "id": "B163",
@@ -2772,7 +2895,10 @@
       },
       "next_owner": "Calibration corpus/profile owner / funnel_owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/79/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/79/selected_plan_not_executed"
+      }
     },
     {
       "id": "B164",
@@ -2804,7 +2930,10 @@
       },
       "next_owner": "Typed promotion issuer/verifier/writer boundary owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/80/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/80/selected_plan_not_executed"
+      }
     },
     {
       "id": "B165",
@@ -2831,7 +2960,10 @@
       },
       "next_owner": "FUN-02 verification owner / downstream publisher / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/81/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/81/selected_plan_not_executed"
+      }
     },
     {
       "id": "B41",
@@ -2858,7 +2990,10 @@
       },
       "next_owner": "STP-01 verification owner / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/166/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/166/selected_plan_not_executed"
+      }
     },
     {
       "id": "LA-014",
@@ -2886,7 +3021,10 @@
       },
       "next_owner": "SRV-01 served factory/cutover owner / gp_witness / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/238/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/238/selected_plan_not_executed"
+      }
     },
     {
       "id": "LA-015",
@@ -2917,7 +3055,10 @@
       },
       "next_owner": "SRV-03 persistence/cutover/retirement owner / gp_witness / G",
       "finding_closed": false,
-      "canonical_selected_route_pointer": "/findings/239/selected_plan_not_executed"
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/239/selected_plan_not_executed"
+      }
     }
   ],
   "canonical_command_outcomes": {
@@ -3759,7 +3900,7 @@
   },
   "canonical_content_quantity": "Exact acceptance paragraph from each original canonical block. Complete criterion is the full pinned original fragment, verified verbatim in its canonical card; no criterion rewrite.",
   "history_resolver": "Original8cd mechanism keys resolve /receipts in original_8cd_snapshot. Original243 corrective keys resolve /delta_receipts in original_243_delta. Both receipts and every referenced original payload are byte-verified; old executions remain source-bound history.",
-  "unreceived_input_quantity": "Nulls name precise unreceived owner inputs, APIs or profile extensions in the recorded residual scope. They do not create new mandatory inputs or amend canonical criteria; limited engineering results stay received within their actual inputs.",
+  "unreceived_input_quantity": "Nulls name precise unreceived owner inputs, APIs or optional profile extensions in the recorded residual scope. Optional profile extensions are outside new mandatory criteria. These nulls do not amend canonical criteria or create a new signature requirement; limited engineering results stay received within their actual inputs.",
   "deciding_payload_integrity": {
     "root_final_payload": {
       "files": 23,
@@ -3839,5 +3980,18 @@
     },
     "preparation_error_preserved": true,
     "reference_coverage": "175uniqueGitrefs plus426encoded raw payloads and23rootpayloadfiles verified; source2910/config/selectors and all46fragments/passage locators verified. Other unreceived owner input/API quantities remain explicit null."
+  },
+  "canonical_selected_route_ref_semantics": "Each finding-row canonical_selected_route_ref resolves document_ref_key through this receipt references, then evaluates json_pointer in that pinned canonical coverage JSON. These are not pointers into this receipt findings array.",
+  "metadata_correction": {
+    "reason": "Clarify owner-declared fiscal units without implying a cryptographic signature, and bind selected-route JSON pointers explicitly to canonical coverage. Optional profile/extensions remain outside new mandatory criteria.",
+    "prior_accounting_ref": {
+      "source_sha": "e8c27984472bea72ed1a565ac816aa75db5e3bbe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "bytes": 171442,
+      "sha256": "4af18432fca4a8915df64c7ffb710cdd8f1972d69d918ccce417ba15fef51182"
+    },
+    "historical_243_delta_preserved": true,
+    "source_test_runtime_evidence_changed": false,
+    "new_runtime": false
   }
 }

@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.execution.v1",
+  "source_before": {
+    "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+    "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+    "hashes": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+    },
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+    "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+    "hashes": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+    },
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "input": {
+    "path": "/workspace/e02-F-graph-intake-20261006/policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+    "bytes": 14567,
+    "sha256": "aeab6c271be0b98af7adad5e8942b751cae7250ef906d3d8389e83e8bb848710"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.py",
+    "[\"policy-engine/docs/reference/foundry/causal-graph-reconciliation.md\", \"policy-engine/docs/reference/scientist/causal-graph-intake.md\", \"policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-intake.toml\", \"policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py\", \"policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py\", \"policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py\", \"policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py\", \"policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py\"]"
+  ],
+  "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "exit": 0,
+  "wall_seconds": 0.10206294059753418,
+  "maxrss_kib": 19860,
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.stdout.txt",
+      "bytes": 923,
+      "sha256": "718d7f42aa12e0212ddc89cdb0618a05609ce1ce29a35a26f8fcc4253c7397eb"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

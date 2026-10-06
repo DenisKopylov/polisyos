@@ -1,0 +1,28 @@
+id = "2026-10-06-causal-graph-intake"
+title = "Recompute current causal graph requests and preserve endpoint scope"
+type = "fixed"
+component = "foundry-scientist-causal"
+owner = "team-polisyos"
+summary = "Causal reconciliation verifies actual cached/source artifacts, recomputes current requests, and refuses unresolved or temporal graphs at the static Scientist intake."
+evidence = ["tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py", "docs/reference/scientist/causal-graph-intake.md"]
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry; internal: polisyos.scientist.nodes"
+compatibility = "Intentional breaking correction: cached output alone no longer returns success; unresolved standalone endpoint inputs refuse, and the Scientist node requires a static declared DAG. Existing artifacts remain readable."
+migration = "Retain current graph/prior/fragment sources for every node invocation. Keep partially oriented or lagged candidates with their own supported consumer or typed limitation. Standalone known-directed temporal reconciliation retains static_intake=false by default."
+api = "ReconcileCausalGraph accepts an explicit boolean static_intake parameter and preserves known reverse-direction origin. No IR schema or global authority contract changes."
+limitations = "Candidate reconciliation is not causal identification, real-data grounding or protected policy-gate approval. No PAG extension or temporal unfolding is implemented."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+
+[[compatibility_change]]
+id = "current-static-causal-graph-intake"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.foundry"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable: scientific correctness repair"
+release_note = "Retain current reconciliation inputs and carry typed limitations for unresolved endpoints or static-incompatible lagged graphs."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]

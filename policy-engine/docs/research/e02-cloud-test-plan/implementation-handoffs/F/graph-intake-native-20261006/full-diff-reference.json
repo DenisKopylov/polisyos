@@ -1,0 +1,8 @@
+{
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+  "command": "git diff --full-index 198076863e143dea9f89f02734b13d50dae3eed5 6321dc33476b0fad24d97ebb140c373608d30019",
+  "complete_bytes": 50639,
+  "sha256": "8693898cce41571ba010ffabb3c35ac77178e0a45d6eb4d096aef8a53e300318",
+  "source": "full exact delta available in committed Git ancestry; tracked source not embedded as duplicate derived diff"
+}

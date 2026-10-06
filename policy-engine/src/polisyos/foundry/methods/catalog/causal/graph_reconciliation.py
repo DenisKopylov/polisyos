@@ -351,9 +351,7 @@ def _add_literature_edges(
             "evidence_strength",
             edge.evidence_strength.value if edge.evidence_strength is not None else None,
         )
-        current.metadata.setdefault(
-            "evidence_strength_status", edge.evidence_strength_status.value
-        )
+        current.metadata.setdefault("evidence_strength_status", edge.evidence_strength_status.value)
         current.metadata.setdefault("scope_conditions", list(edge.scope_conditions))
         current.metadata.setdefault("direction", edge.direction.value)
         if edge.meta_effect_size is not None:
@@ -367,20 +365,30 @@ def _add_data_edges(
     warnings: list[str],
 ) -> None:
     for edge in data_graph.edges:
-        key = _edge_key(edge.src, edge.dst, edge.lag)
-        reverse_key = _edge_key(edge.dst, edge.src, edge.lag)
+        src, dst = edge.src, edge.dst
+        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.TAIL:
+            src, dst = dst, src
+        key = _edge_key(src, dst, edge.lag)
+        reverse_key = _edge_key(dst, src, edge.lag)
         reverse = merged.get(reverse_key)
         if reverse is not None and EdgeSource.DATA not in reverse.sources:
             reverse.metadata["direction_conflict"] = True
             warnings.append(
-                f"Direction conflict {edge.dst}->{edge.src} vs {edge.src}->{edge.dst}: data direction kept."
+                f"Direction conflict {dst}->{src} vs {src}->{dst}: data direction kept."
             )
             merged.pop(reverse_key, None)
 
         current = merged.get(key)
         if current is None:
-            current = _MergedEdge(src=edge.src, dst=edge.dst, lag=edge.lag)
+            current = _MergedEdge(src=src, dst=dst, lag=edge.lag)
             merged[key] = current
+        current.metadata["data_endpoint_origin"] = {
+            "src": edge.src,
+            "dst": edge.dst,
+            "mark_src": edge.mark_src.value,
+            "mark_dst": edge.mark_dst.value,
+            "lag": int(edge.lag or 0),
+        }
         current.sources.add(EdgeSource.DATA)
         data_conf = edge.data_confidence
         if data_conf is None:
@@ -917,6 +925,7 @@ class ReconcileCausalGraph:
             ParameterSpec(name="max_lag_depth", default=MAX_LAG_DEPTH),
             ParameterSpec(name="max_lagged_edges", default=MAX_LAGGED_EDGES),
             ParameterSpec(name="max_cycles_to_resolve", default=MAX_CYCLES_TO_RESOLVE),
+            ParameterSpec(name="static_intake", default=False),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -943,6 +952,23 @@ class ReconcileCausalGraph:
     )
 
     @staticmethod
+    def validate_static_intake(graph: CausalGraphModel) -> None:
+        """Reject graphs whose endpoint or temporal semantics lack a static DAG law.
+
+        This validates structural scope only; it does not establish causal
+        identification, empirical grounding, or publication authority.
+        """
+        if graph.graph_type is not GraphType.DAG:
+            raise ValueError("static graph intake requires a declared DAG, not a PAG/CPDAG/ADMG")
+        if any(edge.lag not in (None, 0) for edge in graph.edges):
+            raise ValueError("static graph intake cannot admit temporal lag edges")
+        if any(
+            edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW
+            for edge in graph.edges
+        ):
+            raise ValueError("static graph intake requires resolved directed endpoints")
+
+    @staticmethod
     def pure_step(
         state: GraphReconciliationData | Mapping[str, Any],
         params: Mapping[str, Any],
@@ -952,6 +978,19 @@ class ReconcileCausalGraph:
             if isinstance(state, GraphReconciliationData)
             else GraphReconciliationData.model_validate(state)
         )
+        # The merge law combines directed evidence. Dropping endpoint marks
+        # would silently invent orientations for unresolved or mixed graphs.
+        if any(
+            (edge.mark_src, edge.mark_dst)
+            not in ((EdgeMark.TAIL, EdgeMark.ARROW), (EdgeMark.ARROW, EdgeMark.TAIL))
+            for edge in payload.data_graph.edges
+        ):
+            raise ValueError("reconciliation cannot orient unresolved or mixed endpoints")
+        static_intake = params.get("static_intake", False)
+        if not isinstance(static_intake, bool):
+            raise ValueError("static_intake must be a boolean")
+        if static_intake:
+            ReconcileCausalGraph.validate_static_intake(payload.data_graph)
         min_edge_confidence = float(params.get("min_edge_confidence", payload.min_edge_confidence))
         max_lag_depth = int(params.get("max_lag_depth", payload.max_lag_depth))
         max_lagged_edges = int(params.get("max_lagged_edges", payload.max_lagged_edges))
@@ -971,6 +1010,10 @@ class ReconcileCausalGraph:
         _add_llm_hints(merged=merged, llm_hints=payload.llm_hints, warnings=warnings)
 
         materialized = _materialize_edges(merged=merged, min_edge_confidence=min_edge_confidence)
+        if static_intake and _find_cycle(materialized) is not None:
+            raise ValueError(
+                "static reconciliation cannot repair a cycle by lagging or dropping edges"
+            )
         resolved_edges, cycle_warnings = _break_cycles(
             materialized,
             max_lag_depth=max_lag_depth,
@@ -1011,6 +1054,8 @@ class ReconcileCausalGraph:
             ),
             metadata=metadata,
         )
+        if static_intake:
+            ReconcileCausalGraph.validate_static_intake(graph)
         return {
             "reconciled_graph": graph,
             "diagnostics": diagnostics,

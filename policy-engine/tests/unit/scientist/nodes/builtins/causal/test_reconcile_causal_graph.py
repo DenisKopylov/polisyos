@@ -31,13 +31,16 @@ def test_skip_when_no_data_causal_graph(execution_context, minimal_state):
     assert outcome.skip_blocker.blocker_code == "gy_phase2_blocked_input_producer_missing"
 
 
-def test_already_reconciled_returns_ok(execution_context, minimal_state, artifact_ref_factory):
-    """If reconciled graph already in artifacts_index, short-circuit ok."""
+def test_unresolvable_reconciled_ref_refuses(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    """A shaped reference cannot establish a successful current reconciliation."""
     ref = artifact_ref_factory(kind="ir.causal_graph_model")
     state = minimal_state.model_copy(deep=True)
     state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = ref
     outcome = ReconcileCausalGraphNode().execute(execution_context, state)
-    assert outcome.status == "ok"
+    assert outcome.status == "fail"
+    assert outcome.error is not None
 
 
 def test_fail_when_reconcile_pure_step_returns_incomplete(execution_context, minimal_state):
@@ -147,14 +150,19 @@ def test_reconcile_literature_prior_assertion_is_not_swallowed(
     artifact_ref_factory,
     monkeypatch: pytest.MonkeyPatch,
 ):
+    from polisyos.ir.analytics.literature import (
+        LiteratureCausalPrior,
+        persist_literature_causal_prior,
+    )
+
     state = minimal_state.model_copy(deep=True)
     state.params["data_causal_graph"] = {
         "graph_type": "dag",
         "nodes": ["X", "Y"],
         "edges": [{"src": "X", "dst": "Y"}],
     }
-    state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF] = artifact_ref_factory(
-        kind="ir.literature_causal_prior"
+    state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF] = persist_literature_causal_prior(
+        execution_context.store, LiteratureCausalPrior(edges=[])
     )
 
     def _boom(*args, **kwargs):

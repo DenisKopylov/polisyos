@@ -1,0 +1,47 @@
+{
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5905,
+    "base_files": 5904,
+    "source_files": 2698,
+    "current_sha256": "3324821b1b36b4b118b18ae17030d25af5c63f683f786f0ceb191eb6fdd2d8a1",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+  },
+  "root_count": 401,
+  "predicate_provenance": "recomputed",
+  "runtime_invocation_established": false,
+  "coverage": "partial",
+  "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+  "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "regressions": [],
+  "new_unresolved_by_construction": [
+    "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.pure_step",
+    "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.validate_static_intake",
+    "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.ReconcileCausalGraphNode.execute"
+  ],
+  "raw_artifact": {
+    "path": "/workspace/e02-F-20261006-receipts/graph-intake/raw/invocation-recomputed.json",
+    "original_tool_output_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation-recomputed.json",
+    "bytes": 170891176,
+    "sha256": "f117b799679e86f4e4210a9406dedea4ca8ade2de9460d2e86923d311723cc7b",
+    "git_transfer": "not_established; raw local only, no summary accepted as full rawbytes",
+    "exact_rerun": "PYTHONPATH=src:.:tools /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/quality/validation/check_production_invocation.py --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt <fresh-local-output> at source6321dc33476b0fad24d97ebb140c373608d30019"
+  }
+}

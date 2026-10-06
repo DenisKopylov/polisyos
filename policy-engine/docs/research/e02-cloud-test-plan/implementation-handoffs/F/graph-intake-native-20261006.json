@@ -1,0 +1,2582 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "graph-intake-native-20261006",
+  "slice_role": "bounded companion to existing GRF-03 primary findings and narrow original reconciliation owner",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B214",
+    "B218"
+  ],
+  "bundle_ids": [
+    "GRF-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+    "6321dc33476b0fad24d97ebb140c373608d30019"
+  ],
+  "candidate_source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+  "candidate_tree_sha": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+  "branch": "codex/e02-F-graph-intake-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/causal-graph-reconciliation.md",
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+  ],
+  "workspace_admission": [
+    {
+      "mode": "create",
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-F-graph-intake-20261006",
+        "mode": "create",
+        "path": "/workspace/e02-F-graph-intake-20261006"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/graph-intake-admission-create.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/graph-intake-admission-create.json",
+        "bytes": 141659,
+        "sha256": "a790450a12e0736a2bd0fee51810ad928569e05130039938ab60cacae33dfe86",
+        "encoding": "identity",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake-admission-create.json",
+        "raw_bytes": 141659,
+        "raw_sha256": "a790450a12e0736a2bd0fee51810ad928569e05130039938ab60cacae33dfe86"
+      }
+    },
+    {
+      "mode": "resume",
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-F-graph-intake-20261006",
+        "mode": "resume",
+        "path": "/workspace/e02-F-graph-intake-20261006"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/graph-intake-admission-resume.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/graph-intake-admission-resume.json",
+        "bytes": 147919,
+        "sha256": "2a52dbdd00a73b72ff4fd8dfdc58a82aa617924a8f3cb425fbd863b69a324bb4",
+        "encoding": "identity",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake-admission-resume.json",
+        "raw_bytes": 147919,
+        "raw_sha256": "2a52dbdd00a73b72ff4fd8dfdc58a82aa617924a8f3cb425fbd863b69a324bb4"
+      }
+    }
+  ],
+  "full_diff_reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/full-diff-reference.json",
+  "baseline_cells": [
+    {
+      "id": "F08-P048",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "grade": "source_reported_compact_text_only; source/runtime profiles/input archive not transferred; not futurecandidate PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/baseline-cell-F08-P048.json"
+    }
+  ],
+  "baseline_full_finding_routes": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/baseline-finding-B214.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/baseline-finding-B218.json"
+  ],
+  "checks": [
+    {
+      "name": "red",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/red-pytest"
+      ],
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_binding": {
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2112d657c88350686bd5e8a472925030ccc2d86e4e2ebf71710ecee9260fd6b2",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "9d3bd865aa835c0069be3df9e138d910e5b50956c5f8795f4c9f7e0f67ee0db2"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "11 failed:7 actual behavioral ABI/scope/cached-result refusals;4 current-request identity tests stop at absent hash precondition before their intended current-edge oracle. Test input exact c1f3a3733e528608ac8e36f2f11d960c95d5f109; both owners exactbase198.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 16.333261013031006,
+      "maxrss_kib": 1207792,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.stdout.txt.json",
+        "bytes": 27073,
+        "sha256": "02d9d6feda2be641e06afac41fc0a68efc5aee07485dbfca1a17b6377c70cafa",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/red.stdout.txt",
+        "raw_bytes": 26297,
+        "raw_sha256": "92264e233c4229d7362cc825ae36fe78195e349968ce26bde65c0a1f59fbb097"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/red.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "native-first",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/native-first-pytest"
+      ],
+      "target_sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+      "source_binding": {
+        "sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+        "tree": "34ec9fbc8288a947a415aee7d75998f84261cdbf",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1d849cb78a7774d33e1fe8b23931e11139d4bc11e95aa299634f9817c57e580a",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "31cdaff23fe8194b78081bdd25df69d8a42176a325d60f5d26b730ba7b9d2e3b"
+        },
+        "diff_sha256": "e14d727f30d3f7be36ea6f2ea04e2a2f444db811af2bc9a091eaa47649256c99"
+      },
+      "input_closure": "Interim dirty working tree diagnostic5FAIL6PASS: wrong manifest schema attribute before affected positive consumers; no immutable candidate acceptance.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 21.485893487930298,
+      "maxrss_kib": 1208896,
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.stdout.txt.json",
+        "bytes": 24074,
+        "sha256": "fe323c8bb2efed2ad52036ffefcea0ed641efb3f3488fa6d48208b2aad75fa99",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-first.stdout.txt",
+        "raw_bytes": 23588,
+        "raw_sha256": "b56dea8583e70eadb4ea1fb8db4f87426904893673fab76c418c20c8887db269"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-first.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "hash-only dirty snapshot; transient source delta not committed; no immutable acceptance"
+    },
+    {
+      "name": "native-second",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/native-second-pytest"
+      ],
+      "target_sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+      "source_binding": {
+        "sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+        "tree": "34ec9fbc8288a947a415aee7d75998f84261cdbf",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2ba3a0958cb75c26587531745124a33d01a7d470433a6f081b8c00953e9df1d5",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "31cdaff23fe8194b78081bdd25df69d8a42176a325d60f5d26b730ba7b9d2e3b"
+        },
+        "diff_sha256": "9ffd3bd08f3a24f27c11f7ec2a525e35be2e561b4305012b19574d4bf9ce2afc"
+      },
+      "input_closure": "Interim51PASS1FAIL: old prior-exception fixture used absent fake reference before actual mocked loader. Fixed fixture uses real persisted prior; no suppression of assertion.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 90.6806390285492,
+      "maxrss_kib": 1525532,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.stdout.txt.json",
+        "bytes": 7148,
+        "sha256": "d970e65e83f8b1a374ffa6fdca370c367232a0dc8ce7e0b8628f58c381b7612e",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-second.stdout.txt",
+        "raw_bytes": 6978,
+        "raw_sha256": "ae4f93807fa93aab9fef637e7234dbcb35519121932d6a8543757c503a7e4695"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-second.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "hash-only dirty snapshot; transient source delta not committed; no immutable acceptance"
+    },
+    {
+      "name": "native-third",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/native-third-pytest"
+      ],
+      "target_sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+      "source_binding": {
+        "sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+        "tree": "34ec9fbc8288a947a415aee7d75998f84261cdbf",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "d572e4f9fe7675c85fe8c5be5d468529a759e54836a1d39bf7908180bdfb3cba",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "86594aefb147b58f08308f30dc932da45a3ed249eaa61de1dd95a1a183936c83"
+        },
+        "diff_sha256": "6d2a276e477c2a785052bc3f900c568b0453b3efec14c1f42de07a562f2c1a5f"
+      },
+      "input_closure": "Interim9FAIL53PASS: module/local artifacts name collision plus JSON-fixture and IR→Core ref normalization preconditions; no accepted immutable-source witness.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 37.05489206314087,
+      "maxrss_kib": 1530936,
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.stdout.txt.json",
+        "bytes": 160511,
+        "sha256": "6c1e690205e089888669a0fd59aad0cef2ccf070ee70e061e33c11e818ee2f41",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-third.stdout.txt",
+        "raw_bytes": 155816,
+        "raw_sha256": "3d0800ee4f19634bae28e79e2005ec5965fa07f7db3afa4fdf388c1ad193e8b1"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-third.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "hash-only dirty snapshot; transient source delta not committed; no immutable acceptance"
+    },
+    {
+      "name": "native-fourth",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/native-fourth-pytest"
+      ],
+      "target_sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+      "source_binding": {
+        "sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+        "tree": "34ec9fbc8288a947a415aee7d75998f84261cdbf",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "b76f0e99cb0a857d172207421a5541f13f65dd5d9184e002b020054280a7ffb6",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "86594aefb147b58f08308f30dc932da45a3ed249eaa61de1dd95a1a183936c83"
+        },
+        "diff_sha256": "077626b2dbcba51d6212bf73d29b69e4b7dacbef01064cd29154212351b97cc5"
+      },
+      "input_closure": "Interim60PASS2FAIL: JSON-parameter fixture and actual IR-ref normalization corrected before6321 freeze.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 44.580485105514526,
+      "maxrss_kib": 1531488,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.stdout.txt.json",
+        "bytes": 12819,
+        "sha256": "cf0de2e5fb0fddea0230fd83bed9acdda93c0f72afda33cdcbcdccbd089e14e1",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-fourth.stdout.txt",
+        "raw_bytes": 12510,
+        "raw_sha256": "28a4649c2c200813897b95b227b22dfc232c1ff11c6dffbf12719e1928e54eee"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-fourth.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "hash-only dirty snapshot; transient source delta not committed; no immutable acceptance"
+    },
+    {
+      "name": "native-final",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/native-final-pytest"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Complete four files63PASS0SKIP0ERROR21warnings;22 dedicated intake cases plus41 nearest raw/node/composition/query cases.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 0,
+      "wall_seconds": 47.91107678413391,
+      "maxrss_kib": 1528856,
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.stdout.txt.json",
+        "bytes": 4823,
+        "sha256": "08c4a5c83b80a54f0f3fdb460e79c865395fdc3a571f23f3d524ba389e2890f3",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-final.stdout.txt",
+        "raw_bytes": 4723,
+        "raw_sha256": "ca86a95c0f0d7ab018be874a0c20b58308eda5ba69062d5710ca6c096814967f"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-final.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "removal-current",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph-intake/remove-current-request.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py::test_genuine_changed_source_job_reconciles_and_fresh_consumer_sees_current_edges",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py::test_current_complete_request_not_old_cached_graph_controls_result_identity",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/removal-current-pytest"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Expected5 actual current data/prior/config/hint/seed rejection failures after restoring cached success; genuine old CAS graph/request/hash/profile retained.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 13.716658353805542,
+      "maxrss_kib": 1203600,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.stdout.txt.json",
+        "bytes": 21374,
+        "sha256": "e7f5cefb199a0b935d3f57570fa33022849f290300a37619da551a454d276b70",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-current.stdout.txt",
+        "raw_bytes": 20855,
+        "raw_sha256": "fde2bffed13632c50d1589dc60d77933c45a78d40e347a05912cddd67846c959"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-current.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.json",
+      "expected_rejection": true,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "removal-static",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph-intake/remove-static-scope.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "-k",
+        "unresolved_or_mixed or temporal_serialization or explicit_static_profile or static_profile_refuses_lag",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/removal-static-pytest"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Expected7 behavioral rejects with endpoint/static/union-cycle admission deleted; graph/profile/signature/determinism wrapper/current request/CAS lineage retained.15 deselected not counted.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 13.274221658706665,
+      "maxrss_kib": 1203860,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.stdout.txt.json",
+        "bytes": 11645,
+        "sha256": "1ecf60e27e67c2d35554a0190842bf2397c8dc6375db754639171b1d32626eb7",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-static.stdout.txt",
+        "raw_bytes": 11134,
+        "raw_sha256": "cd19139d0486658453845ac147f58b8bdcff11528938576fec272ff32468068e"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-static.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.json",
+      "expected_rejection": true,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "seed-consumer",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph-intake/seed-current-consumer.py",
+        "/workspace/e02-F-20261006-receipts/graph-intake/seed-positive-cas"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "One genuine registered job feeds two current nodes; complete persisted snapshot seeds exactly23 and24, different actual requestrefs, same STRICT_CPU numerical graph.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 0,
+      "wall_seconds": 10.051183462142944,
+      "maxrss_kib": 1186132,
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.stdout.txt.json",
+        "bytes": 2837,
+        "sha256": "8f351deb72986a3120a8e265d1226da9e30f07877b9ea8f8ed33550fcab3b664",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-consumer.stdout.txt",
+        "raw_bytes": 2579,
+        "raw_sha256": "f76274c5088e6051cb18237390f6cea074eed1f578a176f586f48436f1cc14e9"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.stderr.txt.json",
+        "bytes": 957,
+        "sha256": "406bd182b3fa6164088d6aeccb28f0a5fe74c77de74dbeb318935f103f2d2c48",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-consumer.stderr.txt",
+        "raw_bytes": 893,
+        "raw_sha256": "aa5ee10971266fdacdb16d17ce00242df98e9a6c6ee8baade59724e30d4b75e0"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "seed-removal",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph-intake/seed-current-consumer.py",
+        "/workspace/e02-F-20261006-receipts/graph-intake/seed-removal-cas",
+        "--removal"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Expected assertion on actual resolved snapshot context: current requested24 still carries old23 after only cached-recompute deletion; graph/job/CAS/profile remain genuine.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 10.353002309799194,
+      "maxrss_kib": 1185552,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.stdout.txt.json",
+        "bytes": 2837,
+        "sha256": "13d0fdfe79851923414e7822df474c23503245466ddf6486166eb3f819b931ee",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-removal.stdout.txt",
+        "raw_bytes": 2579,
+        "raw_sha256": "64749f1a7094a35a1b0fde9bfb7edc9310432ceea31170b8a840ee4231b31e37"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.stderr.txt.json",
+        "bytes": 1360,
+        "sha256": "09307946b95c632b14d1d8f850949b0a780c3e6bc83cb920dec0993406b749de",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-removal.stderr.txt",
+        "raw_bytes": 1285,
+        "raw_sha256": "6156842bf648e535d680f558891eb5d7cab0c92b4c813d30930ac7cbe8487f17"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.json",
+      "expected_rejection": true,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "environment",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph-intake/environment.py"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Fresh actual version/module origin collection; no optional backend witness; no shared environment mutation.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 0,
+      "wall_seconds": 10.03726315498352,
+      "maxrss_kib": 1159904,
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.stdout.txt.json",
+        "bytes": 2221,
+        "sha256": "6aab0450d1f244fd3bf021977514365f63fd9ad3388b0a495b862c1a9cfdabda",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/environment.stdout.txt",
+        "raw_bytes": 2030,
+        "raw_sha256": "73e3c5b8962bde0308091414177d2cafa22ea6c0d69060144a6e7e049780fc27"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/environment.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "style",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Scoped5Python Ruff files.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 0,
+      "wall_seconds": 0.09221601486206055,
+      "maxrss_kib": 22796,
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.stdout.txt.json",
+        "bytes": 76,
+        "sha256": "b991aca6da9487412dd47deadaa90e9083d5d3012b1edd67ec501238c9dc585f",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/style.stdout.txt",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/style.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "docs-provider",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.py",
+        "[\"policy-engine/docs/reference/foundry/causal-graph-reconciliation.md\", \"policy-engine/docs/reference/scientist/causal-graph-intake.md\", \"policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-intake.toml\", \"policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py\", \"policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py\", \"policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py\", \"policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py\", \"policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py\"]"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Full8actualchangedpaths have no missing doc provider; removing exact Foundry/Scientist doc independently restores foundry_docs/scientist_docs.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 0,
+      "wall_seconds": 0.10206294059753418,
+      "maxrss_kib": 19860,
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.stdout.txt.json",
+        "bytes": 1038,
+        "sha256": "5ab27db98f86d72ea9a49ace90cd856afb158da89fc4dfb82cdbc8cce509df3c",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.stdout.txt",
+        "raw_bytes": 923,
+        "raw_sha256": "718d7f42aa12e0212ddc89cdb0618a05609ce1ce29a35a26f8fcc4253c7397eb"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "docs",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_docs_gate.py",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--head",
+        "6321dc33476b0fad24d97ebb140c373608d30019"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Full path-aware docs gate freshness expired10/hash459; strict docsbuild UNRUN because first mandatory freshness command fails. uv created only isolation-local ignored .venv; shared app env untouched.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 18.521145820617676,
+      "maxrss_kib": 114700,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.stdout.txt.json",
+        "bytes": 991,
+        "sha256": "5d3435360017d20afc6c5a4d50a9e5177e3fe5922ea8d3445916b5e49e01ab35",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs.stdout.txt",
+        "raw_bytes": 924,
+        "raw_sha256": "d095ee16cfdeedba0364f18ddcde426341988c21eae7cf09f07673288bdf19f4"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.stderr.txt.json",
+        "bytes": 1473,
+        "sha256": "765693bd42a68ce7978f429824d2a71bd4623d00577de6aa91895bd1680a5d2b",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs.stderr.txt",
+        "raw_bytes": 1368,
+        "raw_sha256": "2a376f57f91ef3808b7983f1291325ac1200c4de6aef6d8f73315630e1f5a2d3"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "compatibility",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Report-only process exits0 but actual complete82fragment report contract_errors2. Exitcode not promoted to PASS.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 0,
+      "wall_seconds": 0.18064570426940918,
+      "maxrss_kib": 22736,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.stdout.txt.json",
+        "bytes": 1443,
+        "sha256": "da023ed36a1cb9ff057b9f3e1eb2d61d1380e70ac0d3ff98d8e8fe53d69f357a",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility.stdout.txt",
+        "raw_bytes": 1271,
+        "raw_sha256": "2b29d56ace7ec424c4e7c0855fbcf4cf4dcfe691cb0a973ac557371f4bdceac4"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "compatibility-enforced",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--fail-on-contract-errors"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Same complete82fragment/108structured-change contract errors2, enforcedexit1. Both subjects otherfragments; no exactbase+complete-disjoint denominator P41 proof, inherited attribution not_established.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 0.17690777778625488,
+      "maxrss_kib": 22280,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.stdout.txt.json",
+        "bytes": 1443,
+        "sha256": "da023ed36a1cb9ff057b9f3e1eb2d61d1380e70ac0d3ff98d8e8fe53d69f357a",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility-enforced.stdout.txt",
+        "raw_bytes": 1271,
+        "raw_sha256": "2b29d56ace7ec424c4e7c0855fbcf4cf4dcfe691cb0a973ac557371f4bdceac4"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility-enforced.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "invocation",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-F-20261006-receipts/graph-intake/invocation-recomputed.json"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Actualexit3 partialUNRESOLVED: three new defining symbols unresolved; no regressions in bounded static model, runtime_invocation_established=false. Huge fullraw local only; G exactrerun required, no whitelist/scanner weakening.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 3,
+      "wall_seconds": 245.59120750427246,
+      "maxrss_kib": 8716360,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.stdout.txt.json",
+        "bytes": 1777,
+        "sha256": "96cd59f8ed1548751eef9a58a31e7a5b67d2871c80151c6ed945ac658a57654d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation.stdout.txt",
+        "raw_bytes": 1664,
+        "raw_sha256": "a54694aaeb6a281b2ecb215518db07966903ce5d96ea0b04000abcbb94552bce"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "architecture",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Actualexit2 incomplete architecture verdict: two TS generators unavailable/openapi-typescript absent/Node24 vsrequired22; completed partial baseline/deep-import/generated findings FAIL preserved. No source of inherited red established.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 2,
+      "wall_seconds": 204.07279229164124,
+      "maxrss_kib": 906312,
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.stdout.txt.json",
+        "bytes": 125303,
+        "sha256": "c0e6a27ec6b0754ec6dad29de4c7df80c69b86cbbd33807e630a4a30982a99e7",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/architecture.stdout.txt",
+        "raw_bytes": 118115,
+        "raw_sha256": "473e562d1e1388c22554dd664c7ba7d1c41c7cca23a2efa608d8623ab2a9cf51"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/architecture.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "emp-candidate",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_emp_01.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/emp-candidate-pytest"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "source_binding": {
+        "sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+        "tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Complete A EMP-01 selector10cases5FAIL5PASS; semantic controls/caller failures are not whole CI acceptance or exactbase inherited proof.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+      "process_exit_code": 1,
+      "wall_seconds": 33.25436329841614,
+      "maxrss_kib": 1439372,
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stdout.txt.json",
+        "bytes": 32858,
+        "sha256": "1749f16e810826a4d801ebcc3ebfe479353cc308167b1e845246a087fd393127",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-candidate.stdout.txt",
+        "raw_bytes": 31709,
+        "raw_sha256": "5519101b48147f82da138edc185600c7e7b6a9befe9506117097ab0bc1994232"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-candidate.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "emp-base-fresh",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_emp_01.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/workspace/e02-F-20261006-receipts/graph-intake/emp-base-fresh-pytest"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "source_binding": {
+        "sha": "c40d4acae1ce58b597267255026d9356565828fd",
+        "tree": "897662caf73bd4487f798d66938b74d7abfe753e",
+        "hashes": {
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2112d657c88350686bd5e8a472925030ccc2d86e4e2ebf71710ecee9260fd6b2",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "9d3bd865aa835c0069be3df9e138d910e5b50956c5f8795f4c9f7e0f67ee0db2"
+        },
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_closure": "Extra base replay admitted incorrectly to oldc40 existing read-only base-control; actualHEAD readback caught mismatch, ownpytest terminatedSIGTERM−15. Notbase198 evidence, no Git/source changes, no acceptance assertion.",
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "cwd": "/workspace/e02-F-base-control/policy-engine",
+      "process_exit_code": -15,
+      "wall_seconds": 29.298994779586792,
+      "maxrss_kib": 1343116,
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.stdout.txt.json",
+        "bytes": 135,
+        "sha256": "f3b1d42f9ef671a6ca7b2f18d59f3780df8236db1322e4f4d5be006d1a9915f8",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-base-fresh.stdout.txt",
+        "raw_bytes": 79,
+        "raw_sha256": "ab1b59f353e18064dfc6c048bdf3b375d3fcda2e5f27c12c160d6f1f8ff62338"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-base-fresh.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.json",
+      "expected_rejection": false,
+      "interim_source_provenance": "exact frozen source or explicitly classified base/wrong-source input"
+    },
+    {
+      "name": "independent-independent-native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "-v",
+        "--tb=short"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Complete three files:39cases,0SKIP/ERROR,20 actual runner warnings; real method jobs→CAS→node→fresh graph reader, composition/query existing consumers included.",
+      "outcome": "PASS",
+      "process_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-native.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-native.stdout.txt.json",
+        "bytes": 5673,
+        "sha256": "0dcf9743d0b2fc1e94daa14c54179ffa73ddc1be6a2029b61a843d094b3a9b5c",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stdout.txt",
+        "raw_bytes": 5564,
+        "raw_sha256": "129117b929a9cafaec8f6a09f8b81e3575f31b5d59926d914cf838b78adf7f86"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-native.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-native.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "expected_rejection": false,
+      "original_full_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json"
+    },
+    {
+      "name": "independent-independent-adversarial",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/test_independent_intake.py",
+        "-v",
+        "--tb=short",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Complete26 independently authored finite analytic/CAScontrols; actual manual .98/.92 confidence, coherent selected kind/schema/media/content and blob corruption, true registered job input precedence, lag1/2 fresh serialization/default law vsstatic refusal, reverse orientation and explicitboolean.0SKIP/ERROR.",
+      "outcome": "PASS",
+      "process_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial-final.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial-final.stdout.txt.json",
+        "bytes": 6642,
+        "sha256": "e75f6c80c60c090787b1afad78ad4f34eaa99ea6465c9b1c1fe27ba6622a8940",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stdout.txt",
+        "raw_bytes": 6531,
+        "raw_sha256": "c06402241497f25cca785c488707b55f5d41b0dc1eb01f906bdbdfbb41e676da"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial-final.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial-final.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "expected_rejection": false,
+      "original_full_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json"
+    },
+    {
+      "name": "independent-earlier-probe-base-e6",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/replay_earlier_probe.py",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-cas"
+      ],
+      "target_sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Exact prior committed probe bytes, local CAS destination remapped only; actual cache stale X→Y despite newY→X, nonexistent cached ref success, unresolved circle orientation and temporal static admission reproduce prior red safety properties. Script0 observes defects; not propertyPASS.",
+      "outcome": "FAIL",
+      "process_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6-final.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6-final.stdout.txt.json",
+        "bytes": 7877,
+        "sha256": "a6e24c940fb0119cfb833e9215e842fd847893885bbb4deac47775e7e8e5bcf3",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stdout.txt",
+        "raw_bytes": 7212,
+        "raw_sha256": "50f9b4099602370903dac9ba9349624bb0617a2c8d90a9f9c6f6b46a4c17c8ab"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6-final.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6-final.stderr.txt.json",
+        "bytes": 921,
+        "sha256": "380fe6fbb4f4ac426b0969b48df7a082f521963ba3dfd1b936c1d114fe372a88",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stderr.txt",
+        "raw_bytes": 857,
+        "raw_sha256": "844468547050058ec9a5c7b7a8ede2debcd1d54b50482aa512a764536fb8e52d"
+      },
+      "expected_rejection": false,
+      "original_full_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json"
+    },
+    {
+      "name": "independent-unchanged-earlier-bad-behavior-probe-at-tip",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/replay_earlier_probe.py",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-cas"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Same exact prior probe now rejects old bad-behavior assertion: actual fresh currentY→X and missing-ref fail measured before assertion; expected discriminating rejection, not candidate product defect.",
+      "outcome": "FAIL",
+      "process_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip-final.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip-final.stdout.txt.json",
+        "bytes": 3448,
+        "sha256": "5e4ff812e00263e1da442d875b2128caf3d196acb7a19ec21ade1c972a8a2bd3",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stdout.txt",
+        "raw_bytes": 3213,
+        "raw_sha256": "f07618fef5d26f4a7fa0aa061632dc1b9760c99d2c790295b6b0ffad2cda788b"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip-final.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip-final.stderr.txt.json",
+        "bytes": 1495,
+        "sha256": "b907b1007b287bb51e0a7d4480ccbb2c09a5f12bb7b09f61d52c73c6da4fa36f",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stderr.txt",
+        "raw_bytes": 1421,
+        "raw_sha256": "9505b475bf8b7b877dd82cf7edbaf61b5738d265bb27243b3f9d23e93b0b0321"
+      },
+      "expected_rejection": true,
+      "original_full_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json"
+    },
+    {
+      "name": "independent-remove-canonical-standalone-endpoint-predicate",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/run_removal.py",
+        "endpoint"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Isolated in-memory canonical pure_step guard removal preserves graph/method/profile markers and static validator;4partial/mixed actual standalone inputs now silentlyorient and independent propertytestsFAIL.",
+      "outcome": "FAIL",
+      "process_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-endpoint.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-endpoint.stdout.txt.json",
+        "bytes": 4612,
+        "sha256": "7556023a613d410c66ee3a57acbacbe403d37eb4d39469b4ac43877d1b034d16",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stdout.txt",
+        "raw_bytes": 4508,
+        "raw_sha256": "c4a8e36165f134713e45d9ed97d593a5d839f79ce7371939b7735436d4abdc32"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-endpoint.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-endpoint.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "expected_rejection": true,
+      "original_full_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json"
+    },
+    {
+      "name": "independent-remove-canonical-selected-CAS-verifier",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/run_removal.py",
+        "cas"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Isolated in-memory actual node CAS verifier removal retains real CASloader/context/profile/currentinputs; nonJSONmedia graph bytes formerly refused now admittedok; independent native media gate fails.",
+      "outcome": "FAIL",
+      "process_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-cas.stdout.txt.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-cas.stdout.txt.json",
+        "bytes": 2319,
+        "sha256": "d295272f5eb82a0c457a0fd05145970dac0cd569bdbdcbe8c2aa22c7ef1d79fa",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stdout.txt",
+        "raw_bytes": 2234,
+        "raw_sha256": "a224fdd06aa1d714a0fcecacf50007730c8891ddc551ba0abf934535f525e965"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-cas.stderr.txt.json",
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-cas.stderr.txt.json",
+        "bytes": 56,
+        "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+        "encoding": "utf-8-json-string",
+        "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stderr.txt",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "expected_rejection": true,
+      "original_full_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json"
+    }
+  ],
+  "per_finding": [
+    {
+      "finding_id": "B214",
+      "role": "existing primary GRF-03 companion; no duplicate primary closure decision",
+      "original_criterion_ref": {
+        "criterion_id": "B214",
+        "document": "B_r19",
+        "lines": [
+          5218,
+          5229
+        ],
+        "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+        "card": "GRF-03",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "verified_block_bytes": 3537
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "native_scope": "Actual existing reconciliation intake/current-request/static boundary only, independently verified39+26 and author63; primary whole projection/export criterion remains owned by original GRF primary receipt.",
+      "negative_controls": [
+        "Cached current-request behavioral5FAIL; actual snapshot seed mismatchFAIL",
+        "Endpoint/static7FAIL and independent endpoint4FAIL/CAS1FAIL"
+      ],
+      "limits": [
+        "No new primary finding ID, arbitrary PAG extension, full temporal consumer, all graphwriter census or protected policy gate witness."
+      ]
+    },
+    {
+      "finding_id": "B218",
+      "role": "existing primary GRF-03 companion; no duplicate primary closure decision",
+      "original_criterion_ref": {
+        "criterion_id": "B218",
+        "document": "B_r19",
+        "lines": [
+          5361,
+          5374
+        ],
+        "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+        "card": "GRF-03",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "verified_block_bytes": 3861
+      },
+      "check": "PASS",
+      "outcome": "limited",
+      "native_scope": "Actual existing reconciliation intake/current-request/static boundary only, independently verified39+26 and author63; primary whole projection/export criterion remains owned by original GRF primary receipt.",
+      "negative_controls": [
+        "Cached current-request behavioral5FAIL; actual snapshot seed mismatchFAIL",
+        "Endpoint/static7FAIL and independent endpoint4FAIL/CAS1FAIL"
+      ],
+      "limits": [
+        "No new primary finding ID, arbitrary PAG extension, full temporal consumer, all graphwriter census or protected policy gate witness."
+      ]
+    }
+  ],
+  "property": {
+    "statement": "The existing reconciliation node resolves actual selected CAS bytes and recomputes the complete current request; canonical directed reconciliation preserves known reverse origin and refuses unresolved endpoints before orientation; static intake refuses graph-class/lag/unioncycle incompatibility without lag/drop repair.",
+    "runtime_path": [
+      "Registered causal.prior.reconcile_causal_graph@1.0.0 knownsynthetic GraphReconciliationData job",
+      "actual scientist.method_result.causal.prior selected CAS bytes",
+      "ReconcileCausalGraphNode current data/prior/hints/config/seed resolution",
+      "full scientist.graph_reconciliation_request CAS snapshot with source/prior lineage",
+      "persisted ir.causal_graph_model@1.0",
+      "fresh FileSystemCAS/load_causal_graph_model reader recomputes actual edges/nodes/diagnostics"
+    ],
+    "surface": "Unique Foundry and Scientist reference docs plus breaking Python-public-api compatibility fragment; global policy/API/dashboard out_of_scope.",
+    "proxy_divergence": "Base returnsOK for nonexistent cachedref, oldX→Y whilegenuine newsourceY→X, and circlecircle→tailarrow with no prior. Hash/profile/graphlabel presence does not establish current inputs or endpoint law; property-removal controls keep these markers andfail.",
+    "negative_controls": [
+      "removal-current5FAIL",
+      "removal-static7FAIL",
+      "seed-removal actualrequested24/resolved23FAIL",
+      "independent endpoint4FAIL and selected-CAS1FAIL"
+    ]
+  },
+  "P40_buckets": [
+    {
+      "class": "Current-source/request/CAS lifecycle",
+      "established": "Current genuine source replacement, prior/hint/config/seed and complete CASrequest change observed; old cache cannot attest new input; absent/wrongkind/schema/media/content/corrupt selected CAS refuses. Source graph params precedence is explicit; malformed explicitinput cannot fallback silently. Marker-preserving selected-CAS verifier removal falsified.",
+      "limits": "Full source-fragment/shared-run/cache lifecycle and protected policyconsumer not claimed."
+    },
+    {
+      "class": "Endpoint/static semantics",
+      "established": "Known reverse arrow normalized with originalcoordinatewitness; partial/unresolved/undirected/bidirected refuse atactualstandalone canonicalmerge; staticnode refuses PAG/CPDAG/ADMG and lag; legacyknown-directedlag1/2 still readable atdefaultmethod; staticpriorcycle doesnotgainlawby lag/drop. Marker-preserving endpoint predicate removal falsified.",
+      "limits": "No arbitrary PAG extension, temporal unfolding, new mixedgraph method or authority."
+    }
+  ],
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Implemented verified bounded synthetic intake; original GRF companions limited; protected policyconsumer UNRUN; no whole production/runtime static verdict",
+  "authority_purpose": "candidate structural reconciliation only; no E/global propagation, grounding, identification or publication authority",
+  "protected_policy_gate_consumer": {
+    "check": "UNRUN",
+    "outcome": "limited",
+    "reason": "No admitted protected policy-request/sourceauthority evidence in this lane; node static scope and request lineage are not protected admission."
+  },
+  "F_primary_residual_map": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/scope-and-residuals.json",
+  "independent_review": {
+    "decision": "GO bounded",
+    "source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json",
+    "output_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json",
+      "bytes": 26013,
+      "sha256": "6a80a2f39d25a12f272b68d4e823840f67e58fe7455589d3bfb1646f275cd5b8",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/intake-independent-review.json",
+      "raw_bytes": 26013,
+      "raw_sha256": "6a80a2f39d25a12f272b68d4e823840f67e58fe7455589d3bfb1646f275cd5b8"
+    }
+  },
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.json",
+      "bytes": 2320,
+      "sha256": "b4fa7d7e7cc29a9bc9605bc118509cd3b787a06ccbb608a7e0d552dd45ddc821",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/architecture.json",
+      "raw_bytes": 2320,
+      "raw_sha256": "b4fa7d7e7cc29a9bc9605bc118509cd3b787a06ccbb608a7e0d552dd45ddc821"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/architecture.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/architecture.stdout.txt.json",
+      "bytes": 125303,
+      "sha256": "c0e6a27ec6b0754ec6dad29de4c7df80c69b86cbbd33807e630a4a30982a99e7",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/architecture.stdout.txt",
+      "raw_bytes": 118115,
+      "raw_sha256": "473e562d1e1388c22554dd664c7ba7d1c41c7cca23a2efa608d8623ab2a9cf51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/baseline-cell-F08-P048.json",
+      "bytes": 12687,
+      "sha256": "9745f7642f68d50e1a121e9517b8ef0d14ce0613f991c9570850edf3a513d7e3",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/baseline-cell-F08-P048.json",
+      "raw_bytes": 12687,
+      "raw_sha256": "9745f7642f68d50e1a121e9517b8ef0d14ce0613f991c9570850edf3a513d7e3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/baseline-finding-B214.json",
+      "bytes": 18607,
+      "sha256": "86cecf76538ac661bb57a0bad693ee84d871849b83075718eb35c10e211827e4",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/baseline-finding-B214.json",
+      "raw_bytes": 18607,
+      "raw_sha256": "86cecf76538ac661bb57a0bad693ee84d871849b83075718eb35c10e211827e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/baseline-finding-B218.json",
+      "bytes": 18607,
+      "sha256": "6e9c3b09fc02b84621e6ee39a51bd225070913451e10be7dfb1af1aab5fef7a6",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/baseline-finding-B218.json",
+      "raw_bytes": 18607,
+      "raw_sha256": "6e9c3b09fc02b84621e6ee39a51bd225070913451e10be7dfb1af1aab5fef7a6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.json",
+      "bytes": 2363,
+      "sha256": "27ccf6fadef887dcbea7c03ed4bac01f2edd30340b00be3102e59763da4ebaa3",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility-enforced.json",
+      "raw_bytes": 2363,
+      "raw_sha256": "27ccf6fadef887dcbea7c03ed4bac01f2edd30340b00be3102e59763da4ebaa3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility-enforced.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility-enforced.stdout.txt.json",
+      "bytes": 1443,
+      "sha256": "da023ed36a1cb9ff057b9f3e1eb2d61d1380e70ac0d3ff98d8e8fe53d69f357a",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility-enforced.stdout.txt",
+      "raw_bytes": 1271,
+      "raw_sha256": "2b29d56ace7ec424c4e7c0855fbcf4cf4dcfe691cb0a973ac557371f4bdceac4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.json",
+      "bytes": 2312,
+      "sha256": "4ba39c25d4b2b3a67c470c278430627a1eaf8fd0bfd2128ed54916ef50ea1be2",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility.json",
+      "raw_bytes": 2312,
+      "raw_sha256": "4ba39c25d4b2b3a67c470c278430627a1eaf8fd0bfd2128ed54916ef50ea1be2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/compatibility.stdout.txt.json",
+      "bytes": 1443,
+      "sha256": "da023ed36a1cb9ff057b9f3e1eb2d61d1380e70ac0d3ff98d8e8fe53d69f357a",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/compatibility.stdout.txt",
+      "raw_bytes": 1271,
+      "raw_sha256": "2b29d56ace7ec424c4e7c0855fbcf4cf4dcfe691cb0a973ac557371f4bdceac4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.json",
+      "bytes": 3001,
+      "sha256": "7d7410b150f1c606c5a3fe569ea17d33866aa9e8886e37989be2bbfd22ea5d42",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.json",
+      "raw_bytes": 3001,
+      "raw_sha256": "7d7410b150f1c606c5a3fe569ea17d33866aa9e8886e37989be2bbfd22ea5d42"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.py",
+      "bytes": 711,
+      "sha256": "06f62e6987d21739ac025a9aabf217eff5f57047993d458147d6a682326c1d68",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.py",
+      "raw_bytes": 711,
+      "raw_sha256": "06f62e6987d21739ac025a9aabf217eff5f57047993d458147d6a682326c1d68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs-provider.stdout.txt.json",
+      "bytes": 1038,
+      "sha256": "5ab27db98f86d72ea9a49ace90cd856afb158da89fc4dfb82cdbc8cce509df3c",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs-provider.stdout.txt",
+      "raw_bytes": 923,
+      "raw_sha256": "718d7f42aa12e0212ddc89cdb0618a05609ce1ce29a35a26f8fcc4253c7397eb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.json",
+      "bytes": 2401,
+      "sha256": "d9bb9728dc308910ef8c80a1fee7f5c9ce999cc91bf9f58ca79e531b09cbccba",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs.json",
+      "raw_bytes": 2401,
+      "raw_sha256": "d9bb9728dc308910ef8c80a1fee7f5c9ce999cc91bf9f58ca79e531b09cbccba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.stderr.txt.json",
+      "bytes": 1473,
+      "sha256": "765693bd42a68ce7978f429824d2a71bd4623d00577de6aa91895bd1680a5d2b",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs.stderr.txt",
+      "raw_bytes": 1368,
+      "raw_sha256": "2a376f57f91ef3808b7983f1291325ac1200c4de6aef6d8f73315630e1f5a2d3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/docs.stdout.txt.json",
+      "bytes": 991,
+      "sha256": "5d3435360017d20afc6c5a4d50a9e5177e3fe5922ea8d3445916b5e49e01ab35",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/docs.stdout.txt",
+      "raw_bytes": 924,
+      "raw_sha256": "d095ee16cfdeedba0364f18ddcde426341988c21eae7cf09f07673288bdf19f4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.json",
+      "bytes": 2423,
+      "sha256": "f23f418095792d7125a0bb92ea58d7bac726fccc9a88827014103f802c7621f0",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-base-fresh.json",
+      "raw_bytes": 2423,
+      "raw_sha256": "f23f418095792d7125a0bb92ea58d7bac726fccc9a88827014103f802c7621f0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-base-fresh.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base-fresh.stdout.txt.json",
+      "bytes": 135,
+      "sha256": "f3b1d42f9ef671a6ca7b2f18d59f3780df8236db1322e4f4d5be006d1a9915f8",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-base-fresh.stdout.txt",
+      "raw_bytes": 79,
+      "raw_sha256": "ab1b59f353e18064dfc6c048bdf3b375d3fcda2e5f27c12c160d6f1f8ff62338"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base198.stdout.txt.json",
+      "bytes": 32214,
+      "sha256": "36d98ec2bf1b74422c9ff2a71cae63b9412c60df7eb5aae2bd4e0aafc5e60ec9",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-base198.stdout.txt",
+      "raw_bytes": 31075,
+      "raw_sha256": "a8e88705e8602da2fa3464ce335d9955caa7fb5c1b28747ea0c8348fee149a7d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.json",
+      "bytes": 2476,
+      "sha256": "e56e3fe02207d772dcc5aa56a9baa12f9bb616e107b7f459d28ea814b2be34ba",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-candidate.json",
+      "raw_bytes": 2476,
+      "raw_sha256": "e56e3fe02207d772dcc5aa56a9baa12f9bb616e107b7f459d28ea814b2be34ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-candidate.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-candidate.stdout.txt.json",
+      "bytes": 32858,
+      "sha256": "1749f16e810826a4d801ebcc3ebfe479353cc308167b1e845246a087fd393127",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/emp-candidate.stdout.txt",
+      "raw_bytes": 31709,
+      "raw_sha256": "5519101b48147f82da138edc185600c7e7b6a9befe9506117097ab0bc1994232"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.json",
+      "bytes": 2308,
+      "sha256": "0275da041c1761cab9f11263c8bfd42c6e66cf2725e304f26177e6f141224540",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/environment.json",
+      "raw_bytes": 2308,
+      "raw_sha256": "0275da041c1761cab9f11263c8bfd42c6e66cf2725e304f26177e6f141224540"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.py",
+      "bytes": 915,
+      "sha256": "533587252a6057994e1a0158b37395e6cad975d77289ae8d8f6c521dadd5218f",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/environment.py",
+      "raw_bytes": 915,
+      "raw_sha256": "533587252a6057994e1a0158b37395e6cad975d77289ae8d8f6c521dadd5218f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/environment.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/environment.stdout.txt.json",
+      "bytes": 2221,
+      "sha256": "6aab0450d1f244fd3bf021977514365f63fd9ad3388b0a495b862c1a9cfdabda",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/environment.stdout.txt",
+      "raw_bytes": 2030,
+      "raw_sha256": "73e3c5b8962bde0308091414177d2cafa22ea6c0d69060144a6e7e049780fc27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/full-diff-reference.json",
+      "bytes": 485,
+      "sha256": "0c4bfa08830536bcd195f604f80e6f8564ea7e89ecea16fd06d9b292231d7666",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/full-diff-reference.json",
+      "raw_bytes": 485,
+      "raw_sha256": "0c4bfa08830536bcd195f604f80e6f8564ea7e89ecea16fd06d9b292231d7666"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation-complete-boundaries.json",
+      "bytes": 3070,
+      "sha256": "1b2632f58725de96e97d03c43e78f4885961327c843d1fbed3e5cd87f5f84e01",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation-complete-boundaries.json",
+      "raw_bytes": 3070,
+      "raw_sha256": "1b2632f58725de96e97d03c43e78f4885961327c843d1fbed3e5cd87f5f84e01"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.json",
+      "bytes": 2461,
+      "sha256": "cf3cba2abc4fe0f0076df344026f03540693bf17b2d8e85f1330fc047a2358d8",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation.json",
+      "raw_bytes": 2461,
+      "raw_sha256": "cf3cba2abc4fe0f0076df344026f03540693bf17b2d8e85f1330fc047a2358d8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/invocation.stdout.txt.json",
+      "bytes": 1777,
+      "sha256": "96cd59f8ed1548751eef9a58a31e7a5b67d2871c80151c6ed945ac658a57654d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation.stdout.txt",
+      "raw_bytes": 1664,
+      "raw_sha256": "a54694aaeb6a281b2ecb215518db07966903ce5d96ea0b04000abcbb94552bce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.json",
+      "bytes": 2748,
+      "sha256": "91e0338be76676434d22c12d4e936d16b2e6c54af7aee6096940665fcfb9f546",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-final.json",
+      "raw_bytes": 2748,
+      "raw_sha256": "91e0338be76676434d22c12d4e936d16b2e6c54af7aee6096940665fcfb9f546"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-final.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-final.stdout.txt.json",
+      "bytes": 4823,
+      "sha256": "08c4a5c83b80a54f0f3fdb460e79c865395fdc3a571f23f3d524ba389e2890f3",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-final.stdout.txt",
+      "raw_bytes": 4723,
+      "raw_sha256": "ca86a95c0f0d7ab018be874a0c20b58308eda5ba69062d5710ca6c096814967f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.json",
+      "bytes": 2511,
+      "sha256": "0d28c9d05a662efde998c729a6da54d99bb7a46e2914be8a5393691b727d469a",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-first.json",
+      "raw_bytes": 2511,
+      "raw_sha256": "0d28c9d05a662efde998c729a6da54d99bb7a46e2914be8a5393691b727d469a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-first.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-first.stdout.txt.json",
+      "bytes": 24074,
+      "sha256": "fe323c8bb2efed2ad52036ffefcea0ed641efb3f3488fa6d48208b2aad75fa99",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-first.stdout.txt",
+      "raw_bytes": 23588,
+      "raw_sha256": "b56dea8583e70eadb4ea1fb8db4f87426904893673fab76c418c20c8887db269"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.json",
+      "bytes": 2753,
+      "sha256": "d07ecce713674056ee540e1f7fa80f5827a8363f60f363e7937c3e2c712b4a87",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-fourth.json",
+      "raw_bytes": 2753,
+      "raw_sha256": "d07ecce713674056ee540e1f7fa80f5827a8363f60f363e7937c3e2c712b4a87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-fourth.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-fourth.stdout.txt.json",
+      "bytes": 12819,
+      "sha256": "cf0de2e5fb0fddea0230fd83bed9acdda93c0f72afda33cdcbcdccbd089e14e1",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-fourth.stdout.txt",
+      "raw_bytes": 12510,
+      "raw_sha256": "28a4649c2c200813897b95b227b22dfc232c1ff11c6dffbf12719e1928e54eee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.json",
+      "bytes": 2749,
+      "sha256": "7c7582d4ff9f32fdd24e27306d79d8272eea769f09562c251d6c8997fe018231",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-second.json",
+      "raw_bytes": 2749,
+      "raw_sha256": "7c7582d4ff9f32fdd24e27306d79d8272eea769f09562c251d6c8997fe018231"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-second.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-second.stdout.txt.json",
+      "bytes": 7148,
+      "sha256": "d970e65e83f8b1a374ffa6fdca370c367232a0dc8ce7e0b8628f58c381b7612e",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-second.stdout.txt",
+      "raw_bytes": 6978,
+      "raw_sha256": "ae4f93807fa93aab9fef637e7234dbcb35519121932d6a8543757c503a7e4695"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.json",
+      "bytes": 2750,
+      "sha256": "3cae2c351de5a6f36bca30c60391c17738ce590da0adc8fd3ea834b592f0cfa8",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-third.json",
+      "raw_bytes": 2750,
+      "raw_sha256": "3cae2c351de5a6f36bca30c60391c17738ce590da0adc8fd3ea834b592f0cfa8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-third.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/native-third.stdout.txt.json",
+      "bytes": 160511,
+      "sha256": "6c1e690205e089888669a0fd59aad0cef2ccf070ee70e061e33c11e818ee2f41",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/native-third.stdout.txt",
+      "raw_bytes": 155816,
+      "raw_sha256": "3d0800ee4f19634bae28e79e2005ec5965fa07f7db3afa4fdf388c1ad193e8b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.json",
+      "bytes": 2484,
+      "sha256": "20a75b9d8b909261f82240d7de5c8a5f776bd121aac0d5d56a4f2d0af8737d9e",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/red.json",
+      "raw_bytes": 2484,
+      "raw_sha256": "20a75b9d8b909261f82240d7de5c8a5f776bd121aac0d5d56a4f2d0af8737d9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/red.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/red.stdout.txt.json",
+      "bytes": 27073,
+      "sha256": "02d9d6feda2be641e06afac41fc0a68efc5aee07485dbfca1a17b6377c70cafa",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/red.stdout.txt",
+      "raw_bytes": 26297,
+      "raw_sha256": "92264e233c4229d7362cc825ae36fe78195e349968ce26bde65c0a1f59fbb097"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.json",
+      "bytes": 2820,
+      "sha256": "03858c4a5dcce5b93b2f79a6f26b1000158ebf12eb485f0e3412735d2b27c5f0",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-current.json",
+      "raw_bytes": 2820,
+      "raw_sha256": "03858c4a5dcce5b93b2f79a6f26b1000158ebf12eb485f0e3412735d2b27c5f0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-current.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-current.stdout.txt.json",
+      "bytes": 21374,
+      "sha256": "e7f5cefb199a0b935d3f57570fa33022849f290300a37619da551a454d276b70",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-current.stdout.txt",
+      "raw_bytes": 20855,
+      "raw_sha256": "fde2bffed13632c50d1589dc60d77933c45a78d40e347a05912cddd67846c959"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.json",
+      "bytes": 2692,
+      "sha256": "70ca17978194018a14894525193d1bc82be987c5fde3c5a228ccfbac654ac457",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-static.json",
+      "raw_bytes": 2692,
+      "raw_sha256": "70ca17978194018a14894525193d1bc82be987c5fde3c5a228ccfbac654ac457"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-static.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/removal-static.stdout.txt.json",
+      "bytes": 11645,
+      "sha256": "1ecf60e27e67c2d35554a0190842bf2397c8dc6375db754639171b1d32626eb7",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/removal-static.stdout.txt",
+      "raw_bytes": 11134,
+      "raw_sha256": "cd19139d0486658453845ac147f58b8bdcff11528938576fec272ff32468068e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/remove-current-request.py",
+      "bytes": 762,
+      "sha256": "8117f691630a3432fdf833c9faf278c8748ad019aa1c392160c2be528e5664e8",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/remove-current-request.py",
+      "raw_bytes": 762,
+      "raw_sha256": "8117f691630a3432fdf833c9faf278c8748ad019aa1c392160c2be528e5664e8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/remove-static-scope.py",
+      "bytes": 1315,
+      "sha256": "769818217d66015f7afe68cb0afb63129452ddd461b7dc49192d531d3b476cfb",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/remove-static-scope.py",
+      "raw_bytes": 1315,
+      "raw_sha256": "769818217d66015f7afe68cb0afb63129452ddd461b7dc49192d531d3b476cfb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/run-base-emp.py",
+      "bytes": 1930,
+      "sha256": "3cb7569b735e7b528d344ba2c2763a506c20add044dfa444dedba770f5b99868",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/run-base-emp.py",
+      "raw_bytes": 1930,
+      "raw_sha256": "3cb7569b735e7b528d344ba2c2763a506c20add044dfa444dedba770f5b99868"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/run-check.py",
+      "bytes": 1977,
+      "sha256": "e1f3dbc3d0299b3593e645f4852969f3ea490ec9f9c22820edb36429572c30b7",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/run-check.py",
+      "raw_bytes": 1977,
+      "raw_sha256": "e1f3dbc3d0299b3593e645f4852969f3ea490ec9f9c22820edb36429572c30b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/scope-and-residuals.json",
+      "bytes": 35905,
+      "sha256": "6fccb3e9f749bf64d92ba111481294708af8160393006683f189000072fca02e",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/scope-and-residuals.json",
+      "raw_bytes": 35905,
+      "raw_sha256": "6fccb3e9f749bf64d92ba111481294708af8160393006683f189000072fca02e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.json",
+      "bytes": 2398,
+      "sha256": "fae275e166a54369379605eb839193b16c1c71a5a61f845f08fa377fcf13409b",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-consumer.json",
+      "raw_bytes": 2398,
+      "raw_sha256": "fae275e166a54369379605eb839193b16c1c71a5a61f845f08fa377fcf13409b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.stderr.txt.json",
+      "bytes": 957,
+      "sha256": "406bd182b3fa6164088d6aeccb28f0a5fe74c77de74dbeb318935f103f2d2c48",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-consumer.stderr.txt",
+      "raw_bytes": 893,
+      "raw_sha256": "aa5ee10971266fdacdb16d17ce00242df98e9a6c6ee8baade59724e30d4b75e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-consumer.stdout.txt.json",
+      "bytes": 2837,
+      "sha256": "8f351deb72986a3120a8e265d1226da9e30f07877b9ea8f8ed33550fcab3b664",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-consumer.stdout.txt",
+      "raw_bytes": 2579,
+      "raw_sha256": "f76274c5088e6051cb18237390f6cea074eed1f578a176f586f48436f1cc14e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-current-consumer.py",
+      "bytes": 2625,
+      "sha256": "1ac99e06776db09c0d34842a12e3215fd16afb13599080081488aa48dc8902d5",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-current-consumer.py",
+      "raw_bytes": 2625,
+      "raw_sha256": "1ac99e06776db09c0d34842a12e3215fd16afb13599080081488aa48dc8902d5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.json",
+      "bytes": 2413,
+      "sha256": "8c823d27c4ee81072fb8aeb79e8d1a715f5429c648b0628591b7ec23a8b43443",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-removal.json",
+      "raw_bytes": 2413,
+      "raw_sha256": "8c823d27c4ee81072fb8aeb79e8d1a715f5429c648b0628591b7ec23a8b43443"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.stderr.txt.json",
+      "bytes": 1360,
+      "sha256": "09307946b95c632b14d1d8f850949b0a780c3e6bc83cb920dec0993406b749de",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-removal.stderr.txt",
+      "raw_bytes": 1285,
+      "raw_sha256": "6156842bf648e535d680f558891eb5d7cab0c92b4c813d30930ac7cbe8487f17"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/seed-removal.stdout.txt.json",
+      "bytes": 2837,
+      "sha256": "13d0fdfe79851923414e7822df474c23503245466ddf6486166eb3f819b931ee",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/seed-removal.stdout.txt",
+      "raw_bytes": 2579,
+      "raw_sha256": "64749f1a7094a35a1b0fde9bfb7edc9310432ceea31170b8a840ee4231b31e37"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.json",
+      "bytes": 2655,
+      "sha256": "881fa702946e233963a004091f53773c73c54464212b9f5a8d9059df315e382f",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/style.json",
+      "raw_bytes": 2655,
+      "raw_sha256": "881fa702946e233963a004091f53773c73c54464212b9f5a8d9059df315e382f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/style.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/style.stdout.txt.json",
+      "bytes": 76,
+      "sha256": "b991aca6da9487412dd47deadaa90e9083d5d3012b1edd67ec501238c9dc585f",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake/style.stdout.txt",
+      "raw_bytes": 19,
+      "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial-final.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial-final.stdout.txt.json",
+      "bytes": 6642,
+      "sha256": "e75f6c80c60c090787b1afad78ad4f34eaa99ea6465c9b1c1fe27ba6622a8940",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stdout.txt",
+      "raw_bytes": 6531,
+      "raw_sha256": "c06402241497f25cca785c488707b55f5d41b0dc1eb01f906bdbdfbb41e676da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-adversarial.stdout.txt.json",
+      "bytes": 10923,
+      "sha256": "daa00866ff0e091a8430cfb769fcb2fadda65c9f521a49ca2ba81d1ddbce7029",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial.stdout.txt",
+      "raw_bytes": 10788,
+      "raw_sha256": "1e32a0242e847beb39dd4b9cf9d22506a1fbec305aeccb163617132d251d8810"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6-final.stderr.txt.json",
+      "bytes": 921,
+      "sha256": "380fe6fbb4f4ac426b0969b48df7a082f521963ba3dfd1b936c1d114fe372a88",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stderr.txt",
+      "raw_bytes": 857,
+      "raw_sha256": "844468547050058ec9a5c7b7a8ede2debcd1d54b50482aa512a764536fb8e52d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6-final.stdout.txt.json",
+      "bytes": 7877,
+      "sha256": "a6e24c940fb0119cfb833e9215e842fd847893885bbb4deac47775e7e8e5bcf3",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stdout.txt",
+      "raw_bytes": 7212,
+      "raw_sha256": "50f9b4099602370903dac9ba9349624bb0617a2c8d90a9f9c6f6b46a4c17c8ab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6.stderr.txt.json",
+      "bytes": 2641,
+      "sha256": "74d8df65492623285a3860c8cacae1a91c7e2fe8f9280658fed1996a8598e648",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6.stderr.txt",
+      "raw_bytes": 2507,
+      "raw_sha256": "c89e9fafa8c18173cc555d19549686a7de9ba74f2386d89f0a62f889767abc01"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-base-e6.stdout.txt.json",
+      "bytes": 289,
+      "sha256": "d9bf06caf4191c53f2a47a619fabd5b289c6056f258eb911d296f44bc04e68d3",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6.stdout.txt",
+      "raw_bytes": 232,
+      "raw_sha256": "0d600890d0181a966b6ee2c12149a5f01931d7ad34204512a87895b3963b6592"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip-final.stderr.txt.json",
+      "bytes": 1495,
+      "sha256": "b907b1007b287bb51e0a7d4480ccbb2c09a5f12bb7b09f61d52c73c6da4fa36f",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stderr.txt",
+      "raw_bytes": 1421,
+      "raw_sha256": "9505b475bf8b7b877dd82cf7edbaf61b5738d265bb27243b3f9d23e93b0b0321"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip-final.stdout.txt.json",
+      "bytes": 3448,
+      "sha256": "5e4ff812e00263e1da442d875b2128caf3d196acb7a19ec21ade1c972a8a2bd3",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stdout.txt",
+      "raw_bytes": 3213,
+      "raw_sha256": "f07618fef5d26f4a7fa0aa061632dc1b9760c99d2c790295b6b0ffad2cda788b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip.stderr.txt.json",
+      "bytes": 2668,
+      "sha256": "38bbdf27c51280114ad212233eb563f8d34c7e7c86044a609192d6050c6d668c",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip.stderr.txt",
+      "raw_bytes": 2534,
+      "raw_sha256": "6be47f2c5c1a6556b1d90e27bcca653538274252fdf32131c96c3893d9001c88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-earlier-probe-tip.stdout.txt.json",
+      "bytes": 285,
+      "sha256": "891d9b5c5d3a4b13c50bee22c60f51814c30c221a84bb352943bd74a1459c393",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip.stdout.txt",
+      "raw_bytes": 228,
+      "raw_sha256": "cefd0bf0a9c2b610fe54803d21acdbb752d46a0797c73eea7db18f40678b7b2b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-native.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-native.stdout.txt.json",
+      "bytes": 5673,
+      "sha256": "0dcf9743d0b2fc1e94daa14c54179ffa73ddc1be6a2029b61a843d094b3a9b5c",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stdout.txt",
+      "raw_bytes": 5564,
+      "raw_sha256": "129117b929a9cafaec8f6a09f8b81e3575f31b5d59926d914cf838b78adf7f86"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-cas.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-cas.stdout.txt.json",
+      "bytes": 2319,
+      "sha256": "d295272f5eb82a0c457a0fd05145970dac0cd569bdbdcbe8c2aa22c7ef1d79fa",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stdout.txt",
+      "raw_bytes": 2234,
+      "raw_sha256": "a224fdd06aa1d714a0fcecacf50007730c8891ddc551ba0abf934535f525e965"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-endpoint.stderr.txt.json",
+      "bytes": 56,
+      "sha256": "3cf3261ce86806c10f1aa53c84f9c6ad023383a3d8a4ad211c6b366968d2d39d",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-removal-endpoint.stdout.txt.json",
+      "bytes": 4612,
+      "sha256": "7556023a613d410c66ee3a57acbacbe403d37eb4d39469b4ac43877d1b034d16",
+      "encoding": "utf-8-json-string",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stdout.txt",
+      "raw_bytes": 4508,
+      "raw_sha256": "c4a8e36165f134713e45d9ed97d593a5d839f79ce7371939b7735436d4abdc32"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-replay_earlier_probe.py",
+      "bytes": 1111,
+      "sha256": "5a2eacade4b499d50b07a889005e6f03f5be0e878cb0bc447696d855ada45c15",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/replay_earlier_probe.py",
+      "raw_bytes": 1111,
+      "raw_sha256": "5a2eacade4b499d50b07a889005e6f03f5be0e878cb0bc447696d855ada45c15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-run_removal.py",
+      "bytes": 1537,
+      "sha256": "40e2f33241b339bc3598bd2b220b998a201a1d05850954dff2fb2003349cb390",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/run_removal.py",
+      "raw_bytes": 1537,
+      "raw_sha256": "40e2f33241b339bc3598bd2b220b998a201a1d05850954dff2fb2003349cb390"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-test_independent_intake.initial-harness.py",
+      "bytes": 8570,
+      "sha256": "a9df4fbbde7c9abc13682cebdbfdb420355900ead58ddcf060d5cfd7cc8bbf37",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/test_independent_intake.initial-harness.py",
+      "raw_bytes": 8570,
+      "raw_sha256": "a9df4fbbde7c9abc13682cebdbfdb420355900ead58ddcf060d5cfd7cc8bbf37"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-test_independent_intake.py",
+      "bytes": 8640,
+      "sha256": "c4121fb63eda0a43660794cbde209962a27ae14eb11f7f2fc71cbcd11d80e067",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/test_independent_intake.py",
+      "raw_bytes": 8640,
+      "raw_sha256": "c4121fb63eda0a43660794cbde209962a27ae14eb11f7f2fc71cbcd11d80e067"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/independent-intake-independent-review.json",
+      "bytes": 26013,
+      "sha256": "6a80a2f39d25a12f272b68d4e823840f67e58fe7455589d3bfb1646f275cd5b8",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/intake-review/intake-independent-review.json",
+      "raw_bytes": 26013,
+      "raw_sha256": "6a80a2f39d25a12f272b68d4e823840f67e58fe7455589d3bfb1646f275cd5b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/graph-intake-admission-create.json",
+      "bytes": 141659,
+      "sha256": "a790450a12e0736a2bd0fee51810ad928569e05130039938ab60cacae33dfe86",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake-admission-create.json",
+      "raw_bytes": 141659,
+      "raw_sha256": "a790450a12e0736a2bd0fee51810ad928569e05130039938ab60cacae33dfe86"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/graph-intake-admission-resume.json",
+      "bytes": 147919,
+      "sha256": "2a52dbdd00a73b72ff4fd8dfdc58a82aa617924a8f3cb425fbd863b69a324bb4",
+      "encoding": "identity",
+      "original_path": "/workspace/e02-F-20261006-receipts/graph-intake-admission-resume.json",
+      "raw_bytes": 147919,
+      "raw_sha256": "2a52dbdd00a73b72ff4fd8dfdc58a82aa617924a8f3cb425fbd863b69a324bb4"
+    }
+  ],
+  "raw_local_only": {
+    "path": "/workspace/e02-F-20261006-receipts/graph-intake/raw/invocation-recomputed.json",
+    "original_tool_output_path": "/workspace/e02-F-20261006-receipts/graph-intake/invocation-recomputed.json",
+    "bytes": 170891176,
+    "sha256": "f117b799679e86f4e4210a9406dedea4ca8ade2de9460d2e86923d311723cc7b",
+    "git_transfer": "not_established; raw local only, no summary accepted as full rawbytes",
+    "exact_rerun": "PYTHONPATH=src:.:tools /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/quality/validation/check_production_invocation.py --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt <fresh-local-output> at source6321dc33476b0fad24d97ebb140c373608d30019"
+  },
+  "dependencies_and_next_owner": [
+    {
+      "owner": "A/EMP-01",
+      "check": "FAIL",
+      "boundary": "Complete empirical scope/uncertainty/selection-diagram test10→5FAIL5PASS; original base198 stdout retained separately and source-backed, but no complete disjoint denominator P41 inherited proof.",
+      "base_receipt_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt@9be607d9daf90f8dd14eed15ececaf50539f0ada",
+      "base_stderr": "not captured in original independent base receipt; not reconstructed",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006/emp-base198.stdout.txt.json"
+    },
+    {
+      "owner": "C canonical producer/CAS custody",
+      "check": "UNRUN",
+      "boundary": "Admitted real production graph/prior provenance and lifecycle through canonical artifact/data owners; no ownership of every graph writer and no otherchat assumption."
+    },
+    {
+      "owner": "A/G protected policyconsumer and runtime-quality scanner",
+      "check": "UNRUN",
+      "boundary": "ExactintegrationSHA + local full admitted request/source/prior/config/seed inputs for protected intake/readiness and source-declared authority; scanner new dynamic bodies remain unresolved. Fullraw receipt bytes not transferred, exactrerun required."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Known synthetic structure/confidence is not admittedrealdata law/causalidentification/authority.",
+    "Default standalone known-directed temporal profile and separate fragment-composition mixed law preserved; neither is new static identification.",
+    "Full docsFAIL/strictbuildUNRUN, fullcompatibilityFAIL2, architectureUNRUN plus partialFAIL, invocationpartialUNRESOLVED and EMPFAIL retained; no mainmerge/wholeCI/productapproval claim.",
+    "All interim errors/precondition-negative/harnesswrongsource outcomes remain explicit. Originalred11FAIL contains7behavioral and4preconditionnonmeasurements; noinflatedsemanticfailurecount.",
+    "Actual source/worktree prior-probe base e6 mechanism equivalence to198 does not establish whole repository P41 attribution.",
+    "Receipts are immutable candidate6321 evidence; later receipt-only publication head not relabeled as runtime-test source."
+  ]
+}

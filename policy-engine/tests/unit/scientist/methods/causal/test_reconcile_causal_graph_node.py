@@ -394,7 +394,7 @@ def test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_a
     assert loaded_report.per_variable_certificates[0].alignment_type is AlignmentType.EXACT
 
 
-def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing(
+def test_reconcile_causal_graph_node_recomputes_current_composition_and_queries(
     tmp_path,
 ) -> None:
     ctx = _build_ctx(tmp_path)
@@ -484,8 +484,8 @@ def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_re
     assert initial_outcome.status == "ok"
 
     replay_state = initial_outcome.state.model_copy(deep=True)
-    replay_state.params.pop("scm_fragment_refs", None)
-    replay_state.params.pop("scm_fragments", None)
+    # The current source fragments remain required; an old graph/certificate
+    # cannot stand in for the inputs of a new query request.
     replay_state.params["query_preservation_queries"] = [
         CausalQuery(
             query_type=QueryType.INTERVENTIONAL,
@@ -809,9 +809,7 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
     ]
     failure_card_manifest = ctx.store.get_manifest(failure_card_bundle_ref.artifact_id)
     assert failure_card_manifest.artifact_schema is not None
-    assert failure_card_manifest.artifact_schema.name == (
-        "ir.composition_failure_card_bundle"
-    )
+    assert failure_card_manifest.artifact_schema.name == ("ir.composition_failure_card_bundle")
     assert failure_card_manifest.artifact_schema.version == "1.0"
     certificate = load_composition_certificate(
         ctx.store,

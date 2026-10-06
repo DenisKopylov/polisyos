@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.execution.v1",
+  "source_before": {
+    "sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+    "tree": "34ec9fbc8288a947a415aee7d75998f84261cdbf",
+    "hashes": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2ba3a0958cb75c26587531745124a33d01a7d470433a6f081b8c00953e9df1d5",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "31cdaff23fe8194b78081bdd25df69d8a42176a325d60f5d26b730ba7b9d2e3b"
+    },
+    "diff_sha256": "9ffd3bd08f3a24f27c11f7ec2a525e35be2e561b4305012b19574d4bf9ce2afc"
+  },
+  "source_after": {
+    "sha": "c1f3a3733e528608ac8e36f2f11d960c95d5f109",
+    "tree": "34ec9fbc8288a947a415aee7d75998f84261cdbf",
+    "hashes": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2ba3a0958cb75c26587531745124a33d01a7d470433a6f081b8c00953e9df1d5",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "31cdaff23fe8194b78081bdd25df69d8a42176a325d60f5d26b730ba7b9d2e3b"
+    },
+    "diff_sha256": "9ffd3bd08f3a24f27c11f7ec2a525e35be2e561b4305012b19574d4bf9ce2afc"
+  },
+  "input": {
+    "path": "/workspace/e02-F-graph-intake-20261006/policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+    "bytes": 8854,
+    "sha256": "127bf0ad58eb429c5aee27c50d81a6a7d34755763f6ff9f9d4bf460ef93c2abc"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+    "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/workspace/e02-F-20261006-receipts/graph-intake/native-second-pytest"
+  ],
+  "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "exit": 1,
+  "wall_seconds": 90.6806390285492,
+  "maxrss_kib": 1525532,
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/graph-intake/native-second.stdout.txt",
+      "bytes": 6978,
+      "sha256": "ae4f93807fa93aab9fef637e7234dbcb35519121932d6a8543757c503a7e4695"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/graph-intake/native-second.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

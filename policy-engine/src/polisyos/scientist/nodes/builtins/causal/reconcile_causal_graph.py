@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from hashlib import sha256
 from typing import Any
 
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import InputRef
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
@@ -107,6 +109,7 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_LITERATURE_PRIOR_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
         "params.data_causal_graph",
+        "params.random_seed",
         "params.llm_structural_hints",
         "params.scm_fragment_refs",
         "params.scm_fragments",
@@ -175,34 +178,54 @@ def _load_data_graph(
         graph = _extract_graph(state.params.get("data_causal_graph"))
         if graph is not None:
             return graph, None
+        raise ValueError("provided data_causal_graph is not a valid causal graph")
 
     method_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_METHOD_RESULT_REF)
     if method_ref is not None:
-        try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(method_ref.artifact_id))
-            graph = _extract_graph(payload)
-            if graph is not None:
-                return graph, method_ref
-        except _RECONCILE_LOAD_ERRORS:
-            logger.debug(
-                "Failed to load data causal graph from causal method result %s",
-                method_ref,
-                exc_info=True,
-            )
+        _verify_input_ref(ctx, method_ref)
+        manifest = ctx.store.get_manifest(method_ref)
+        if (
+            not manifest.kind.startswith("scientist.method_result.")
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != "polisyos.scientist.MethodResult"
+            or manifest.artifact_schema.version != "0.1.0"
+        ):
+            raise ValueError("data graph source is not a canonical method-result artifact")
+        payload = from_canonical_bytes(ctx.store.get_bytes(method_ref.artifact_id))
+        graph = _extract_graph(payload)
+        if graph is None:
+            raise ValueError("causal method result does not contain a valid causal graph")
+        return graph, method_ref
 
     return None, None
 
 
 def _parse_llm_hints(raw: Any) -> list[LLMStructuralHint]:
-    if not isinstance(raw, list):
+    if raw is None:
         return []
-    hints: list[LLMStructuralHint] = []
-    for item in raw:
-        try:
-            hints.append(LLMStructuralHint.model_validate(item))
-        except _RECONCILE_VALIDATION_ERRORS:
-            continue
-    return hints
+    if not isinstance(raw, list):
+        raise ValueError("llm_structural_hints must be a complete list")
+    return [LLMStructuralHint.model_validate(item) for item in raw]
+
+
+def _verify_input_ref(ctx: ExecutionContext, ref: Any, *, schema: str | None = None) -> None:
+    """Resolve and verify the selected CAS bytes and their declared identity."""
+    ref = core_artifacts.ArtifactRef.model_validate(ref.model_dump(mode="json"))
+    manifest = ctx.store.get_manifest(ref)
+    if (
+        manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+        or manifest.media_type != "application/json"
+        or not ctx.store.verify(ref).ok
+    ):
+        raise ValueError("graph input reference differs from its verified CAS identity")
+    if schema is not None and (
+        manifest.kind != schema
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name != schema
+        or manifest.artifact_schema.version != "1.0"
+    ):
+        raise ValueError(f"graph input reference does not have canonical {schema}@1.0 schema")
 
 
 def _composition_requested(state: ExperimentState) -> bool:
@@ -562,15 +585,22 @@ class ReconcileCausalGraphNode:
         query_preservation_queries = _parse_query_preservation_queries(
             state.params.get("query_preservation_queries")
         )
-        if (
-            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in state.artifacts_index
-            and query_preservation_queries
-        ):
-            hook_outcome = _apply_query_preservation_hook(ctx, state, query_preservation_queries)
-            if hook_outcome is not None:
-                return hook_outcome
-        if ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in state.artifacts_index:
-            return NodeOutcome(status="ok", state=state)
+        cached_ref = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
+        if cached_ref is not None:
+            try:
+                _verify_input_ref(ctx, cached_ref, schema="ir.causal_graph_model")
+                load_causal_graph_model(ctx.store, cached_ref)
+            except _RECONCILE_LOAD_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message=f"cached reconciled graph could not be verified: {exc}",
+                    ),
+                )
+        # A cached output is not evidence of the current request. Recompute
+        # from current sources, including composition/query inputs, every time.
 
         if _composition_requested(state):
             fragments = _load_scm_fragments(ctx, state)
@@ -802,7 +832,17 @@ class ReconcileCausalGraphNode:
                 events=[NodeEvent(level="info", message=message)],
             )
 
-        data_graph, data_graph_ref = _load_data_graph(ctx, state)
+        try:
+            data_graph, data_graph_ref = _load_data_graph(ctx, state)
+        except _RECONCILE_LOAD_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"current data graph could not be verified: {exc}",
+                ),
+            )
         if data_graph is None:
             return NodeOutcome(
                 status="skip",
@@ -818,39 +858,23 @@ class ReconcileCausalGraphNode:
             )
 
         literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)
-        literature_prior = None
-        if literature_prior_ref is not None:
-            try:
-                literature_prior = load_literature_causal_prior(ctx.store, literature_prior_ref)
-            except _RECONCILE_LOAD_ERRORS:
-                literature_prior = None
-
-        llm_hints = _parse_llm_hints(state.params.get("llm_structural_hints"))
-
         try:
+            literature_prior = None
+            if literature_prior_ref is not None:
+                _verify_input_ref(ctx, literature_prior_ref, schema="ir.literature_causal_prior")
+                literature_prior = load_literature_causal_prior(ctx.store, literature_prior_ref)
+            llm_hints = _parse_llm_hints(state.params.get("llm_structural_hints"))
             request = GraphReconciliationData(
                 data_graph=data_graph,
                 literature_prior=literature_prior,
                 llm_hints=llm_hints,
-                min_edge_confidence=_optional_float(
-                    state.params.get("reconciliation_min_edge_confidence"),
-                    default=0.1,
-                ),
-                max_lag_depth=_optional_int(
-                    state.params.get("reconciliation_max_lag_depth"),
-                    default=2,
-                ),
-                max_lagged_edges=_optional_int(
-                    state.params.get("reconciliation_max_lagged_edges"),
-                    default=10,
-                ),
-                max_cycles_to_resolve=_optional_int(
-                    state.params.get("reconciliation_max_cycles_to_resolve"),
-                    default=8,
-                ),
+                min_edge_confidence=state.params.get("reconciliation_min_edge_confidence", 0.1),
+                max_lag_depth=state.params.get("reconciliation_max_lag_depth", 2),
+                max_lagged_edges=state.params.get("reconciliation_max_lagged_edges", 10),
+                max_cycles_to_resolve=state.params.get("reconciliation_max_cycles_to_resolve", 8),
             )
-            result = ReconcileCausalGraph.pure_step(request, params={})
-        except _RECONCILE_EXECUTION_ERRORS as exc:
+            result = ReconcileCausalGraph.pure_step(request, params={"static_intake": True})
+        except (*_RECONCILE_EXECUTION_ERRORS, OSError) as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -872,16 +896,77 @@ class ReconcileCausalGraphNode:
                 ),
             )
 
+        request_identity = {
+            "profile": "static_directed_candidate_v1",
+            "request": request.model_dump(mode="json"),
+            "data_graph_ref": data_graph_ref.model_dump(mode="json") if data_graph_ref else None,
+            "literature_prior_ref": (
+                literature_prior_ref.model_dump(mode="json") if literature_prior_ref else None
+            ),
+            "random_seed": state.params.get("random_seed"),
+        }
+        try:
+            ReconcileCausalGraph.validate_static_intake(reconciled_graph)
+            request_sha256 = sha256(
+                to_canonical_bytes(request_identity, CanonSpec(forbid_floats=False))
+            ).hexdigest()
+        except _RECONCILE_VALIDATION_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"reconciliation output or complete request is invalid: {exc}",
+                ),
+            )
+
         inputs: list[InputRef] = []
-        if data_graph_ref is not None:
-            inputs.append(InputRef(artifact_id=str(data_graph_ref.artifact_id), role="data_graph"))
+        if data_graph_ref is None:
+            data_graph_ref = persist_causal_graph_model(ctx.store, data_graph)
+        inputs.append(
+            InputRef(
+                artifact_id=data_graph_ref.artifact_id,
+                role="data_graph",
+                manifest_profile_sha256=getattr(data_graph_ref, "manifest_profile_sha256", None),
+            )
+        )
         if literature_prior_ref is not None:
             inputs.append(
                 InputRef(
-                    artifact_id=str(literature_prior_ref.artifact_id),
+                    artifact_id=literature_prior_ref.artifact_id,
                     role="literature_prior",
+                    manifest_profile_sha256=getattr(
+                        literature_prior_ref, "manifest_profile_sha256", None
+                    ),
                 )
             )
+        request_ref = ctx.store.put_json(
+            request_identity,
+            core_artifacts.PutOptions(
+                kind="scientist.graph_reconciliation_request",
+                media_type="application/json",
+                inputs=inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        reconciled_graph = reconciled_graph.model_copy(
+            update={
+                "metadata": {
+                    **reconciled_graph.metadata,
+                    "reconciliation_request_sha256": request_sha256,
+                    "reconciliation_request_ref": request_ref.model_dump(mode="json"),
+                    "reconciliation_intake_profile": "static_directed_candidate_v1",
+                }
+            }
+        )
+
+        inputs.append(
+            InputRef(
+                artifact_id=request_ref.artifact_id,
+                role="reconciliation_request",
+                manifest_profile_sha256=getattr(request_ref, "manifest_profile_sha256", None),
+            )
+        )
         graph_ref = persist_causal_graph_model(ctx.store, reconciled_graph, inputs=inputs)
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state

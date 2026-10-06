@@ -1,0 +1,4 @@
+import importlib, importlib.metadata, importlib.util,json,platform,sys
+names=["numpy","scipy","pydantic","pytest","statsmodels"]
+modules=["polisyos.foundry.methods.catalog.causal.graph_reconciliation","polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph","polisyos.scientist.compute.runner","polisyos.core.artifacts.store"]
+print(json.dumps({"python":sys.version,"executable":sys.executable,"platform":platform.platform(),"dependencies":{n:{"version":importlib.metadata.version(n),"origin":getattr(importlib.import_module(n),"__file__",None)} for n in names},"product_module_origins":{n:importlib.import_module(n).__file__ for n in modules},"optional_app_backends":{n:bool(importlib.util.find_spec(n)) for n in ["dowhy","econml"]},"optional_witness":"Neither presence nor absence is a positive native backend witness; causal optional Python3.14 markers preserved","thread_cpu_quotas":"none"},indent=2))

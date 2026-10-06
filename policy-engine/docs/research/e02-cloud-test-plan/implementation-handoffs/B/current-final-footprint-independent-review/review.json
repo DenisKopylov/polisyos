@@ -1,0 +1,839 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-final-footprint-independent-review",
+  "reviewer": "RUN author acting as full-root immutable footprint/companion custodian; excludes acceptance of own RUN behavior",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RES-04",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
+  "finding_ids": [],
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "slice_base_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+  "slice_base_tree_sha": "6cf8449edc2d9318ced9a47842e330123a896d9c",
+  "implementation_commits": [
+    "16ef49b825b3f3ed099927a199170a0cfb06e9b4"
+  ],
+  "candidate_tree_sha": "bd3b1bd7f4348f44f9cefafc8830dd92b9d8f3ea",
+  "reviewed_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "reviewed_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "original_main_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "original_main_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "identity_roles": "candidate_tree_sha is the own metadata implementation tree. Reviewed root product/cohort source is separately pinned dd958472/tree7bf4; metadata tree is not relabeled as root runtime source.",
+  "implementation_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/capture-wrapper.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/driver.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/head-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/source-check.txt"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/capture-wrapper.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/driver.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/head-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/source-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/review.json"
+  ],
+  "production_changed_paths": [],
+  "tests_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_role": "P35 complete immutable footprint/authority census, not an individual finding predicate or baseline job rerun. No baseline summary promoted to new-code evidence. Exact actual source, declared scope and complete diff denominator are bound below.",
+  "policy_and_allocation_refs": [
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/B.md",
+      "git_blob": "fb88a4877a3112107b4c2e9f6538fcd01c5cd0a5",
+      "bytes": 3269,
+      "sha256": "2e48e8e1693c0d4d2213df0570ed15ddf8a27e3f309ef370ba4c966c57601313"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/README.md",
+      "git_blob": "036ff3998acb4ea915f23b68e53c07f6fe89bbf7",
+      "bytes": 41135,
+      "sha256": "ab45ac1dc98969df9149e56e7afd19843c777854a7bff4bacb4bcc2e37f1933e"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json",
+      "git_blob": "dbf94aec21acbccf5429bb7a1d6cafd6451025c7",
+      "bytes": 6607,
+      "sha256": "a1fe5cad509e32606df9710e5cbf942313a243341f58ccb0708692204d15c253"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "immutable-complete-tracked-denominator-custody",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-run-final-footprint-driver.py",
+        "--repo",
+        "/workspace/e02-B-current-runtime",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--target",
+        "dd9584728bd96f204983615216efdbc58117e713",
+        "--heads-json",
+        "/tmp/e02-run-final-footprint-heads.json",
+        "--output",
+        "/tmp/e02-run-final-footprint-dd.json"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "git_version": "git version 2.52.0",
+        "PYTHONPATH": null,
+        "qualification": "Standard-library Git/AST/TOML metadata only; no product import, tests, selector, collection, generator, wheel or gate execution."
+      },
+      "input_closure": {
+        "reviewed_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "original_main_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "driver_ref": {
+          "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/driver.source.txt",
+          "git_blob": "95cb99529ae9f70e68028fb60eb4302c8a6b32e2",
+          "bytes": 32007,
+          "sha256": "00a57d80252d32889ff0ed3e823430d4e924c17a12a0090ab0521ba31f26263f"
+        },
+        "head_input_ref": {
+          "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/head-inputs.json",
+          "git_blob": "7e29f93a1eac4031a92dc81f5c6da4e5667994a0",
+          "bytes": 890,
+          "sha256": "5683d7f9f907b2c2ad8cb330b108c3a78511b34ffeee87cccfaab3ed4bc26fd2"
+        },
+        "capture_wrapper_ref": {
+          "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/capture-wrapper.source.txt",
+          "git_blob": "aa8289d78082922eff37b39f2b3479282c071e44",
+          "bytes": 2395,
+          "sha256": "78db61b88d6926430a1507db264e49ea3ca50cae2c0a9cca847a7c8a7808a4cf"
+        },
+        "all_source_policy_and_receipt_refs": "Complete explicit refs/source/path tables in committed audit.json; primary27 receipts fully joined to actual60 source commits, not inferred from baseline summaries.",
+        "scope": "Only immutable Git object reads and standard-library AST/TOML/JSON; six incorporated heads explicit SHA input; separately observed successor SHAs captured as immutable input, no mutable branch-resolution dependency in replay."
+      },
+      "outcome": "PASS",
+      "output": {
+        "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/source-check.txt",
+        "git_blob": "d22ff5293813af7a2f7b9ca351b5449fceae175c",
+        "bytes": 658,
+        "sha256": "a628c9e0f5cf5eec0a58dd0d8e322236870b8d88e4d1971b4091ee23d4bded69"
+      },
+      "full_audit": {
+        "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/audit.json",
+        "git_blob": "ec4e6ee7e27c79f054658137696770662d9ee9da",
+        "bytes": 938552,
+        "sha256": "7b1a3245f3a807807242eacf0163a924d334428db8ecfe1347b12532ce3c43ed"
+      },
+      "execution": {
+        "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/execution.json",
+        "git_blob": "f76329cef8c9270ea97bc07c311017926200aa03",
+        "bytes": 2136,
+        "sha256": "0b867afbee1b3feda2b5f0d0fd6e8d9c18420199723d64e50c7e6129eadf9ca8"
+      },
+      "wall_seconds": 3.765123687000596,
+      "maxrss_kib": 78572
+    },
+    {
+      "check_id": "new-metadata-driver-literal-ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "/tmp/e02-run-final-footprint-driver.py",
+        "--config",
+        "/workspace/e02-B-current-runtime/policy-engine/pyproject.toml"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "git_version": "git version 2.52.0",
+        "PYTHONPATH": null,
+        "qualification": "Standard-library Git/AST/TOML metadata only; no product import, tests, selector, collection, generator, wheel or gate execution."
+      },
+      "input_closure": {
+        "driver_ref": {
+          "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/driver.source.txt",
+          "git_blob": "95cb99529ae9f70e68028fb60eb4302c8a6b32e2",
+          "bytes": 32007,
+          "sha256": "00a57d80252d32889ff0ed3e823430d4e924c17a12a0090ab0521ba31f26263f"
+        },
+        "config_ref": {
+          "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+          "path": "policy-engine/pyproject.toml",
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        "qualification": "Actual terminal Ruff pass before format; only format followed; semantic Git/AST driver then actually ran with committed bytes."
+      },
+      "outcome": "PASS",
+      "output": "All checks passed! (actual tool terminal output; no separate Ruff stdout artifact)."
+    },
+    {
+      "check_id": "reviewer-runtime-tests-generators-gates",
+      "command": null,
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "git_version": "git version 2.52.0",
+        "PYTHONPATH": null,
+        "qualification": "Standard-library Git/AST/TOML metadata only; no product import, tests, selector, collection, generator, wheel or gate execution."
+      },
+      "input_closure": "Source-only P35 census. Parent runs final native/gates and installed-wheel profile independently.",
+      "outcome": "UNRUN",
+      "output": "No reviewer pytest, collection, selector derive, wheel/build, generator, native process oracle or gate invocation."
+    }
+  ],
+  "property": {
+    "statement": "The exact frozen root projection has a complete tracked denominator, canonical source-family correspondence, unchanged protected A/C publishers, and content-bound generated companions without silent foreign source edits.",
+    "runtime_path": [
+      "original main198 Git tree",
+      "root frozen dd958472 Git tree and all1794 tracked path joins",
+      "60 actual nonmerge source commits →27 primary writer receipt joins →47 canonical source paths",
+      "registered generated output/producer evidence → complete root companion bytes",
+      "full committed audit → ROOT/G review consumer"
+    ],
+    "proxy_divergence": "Six full branch ancestry footprints overlap widely because of normal dependency merges; overlap alone does not prove multiple authors. All latest local refs are not ancestors: CMP972 and DUR637 have separate 1/31 metadata paths while six incorporated heads are ancestors. A prior preparatory homonym-only generation_cycle check would miss the protected quality publisher; this final packet explicitly checks canonical quality, HTTP lifecycle, Cstream and the additional HTTP homonym. Equal client route/schema counts alone do not prove current examples: root complete recursive evidence finds10example leaves with573schemas/111paths/113operations unchanged.",
+    "negative_controls": [
+      "Complete no-renames diff joins1794 paths; A1716/M78 reconciles13698→15414 without deletion/rename omissions.",
+      "All60 source commits joined explicitly; unassigned or multiple canonical families would be reported, and current complete arrays are empty.",
+      "CMP06231/CAS7207 equal source/export/release packet normalized only after exact whole-byte comparisons; full README bases/whole patch identity deliberately not assumed.",
+      "Canonical protected three + HTTP homonym exact base/target blobs and SHA256 equal.",
+      "Latest metadata successors explicitly outside frozen source; all six incorporated ancestry checks true; no future metadata promoted into DD denominator.",
+      "Root full18 deciding evidence objects byte/size/hash/Gitblob matched and actual complete3client output quantities/source421→DD identities reconciled; no mere file-existence or reported exit substitution."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "full_tracked_diff": "recomputed",
+    "source_family_assignment": "primary owner declarations + independently recomputed actual nonmerge commit/path joins; operational editor concurrency not_established retrospectively",
+    "protected_source_zero": "recomputed",
+    "generated_evidence_custody": "recomputed",
+    "root_generator_command_execution": "consumer_asserted by frozen root handoff + full committed actual outputs, not rerun by reviewer",
+    "foreign_production_behavior": "not_established by this footprint packet",
+    "own_RUN_behavior_acceptance": "not_established by self-review; handled by existing root/foreign reviewers and future actual root cohort",
+    "future_full_cohort_and_gates": "not_established by this packet"
+  },
+  "deciding_denominator": {
+    "base_paths": 13698,
+    "target_paths": 15414,
+    "changed_paths": 1794,
+    "categories": {
+      "research_handoff_or_evidence": 1643,
+      "release_fragment": 27,
+      "other_tracked": 1,
+      "readme": 11,
+      "production_python": 47,
+      "tests": 65
+    },
+    "statuses": {
+      "A": 1716,
+      "M": 78
+    },
+    "commits_reachable_since_base": 454,
+    "base_python_paths": 6439,
+    "target_python_paths": 6616
+  },
+  "source_family_counts": {
+    "codex/e02-B-current-runtime": 2,
+    "codex/e02-B-current-cas-generation": 11,
+    "codex/e02-B-current-execution-state": 8,
+    "codex/e02-B-current-adapters": 11,
+    "codex/e02-B-current-composition": 12,
+    "codex/e02-B-current-durability": 3
+  },
+  "source_commit_count": 60,
+  "primary_owner_receipt_count": 27,
+  "top_level_JSON_receipt_denominator": 111,
+  "incorporated_family_heads": [
+    {
+      "name": "runtime",
+      "sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+      "tree": "6cf8449edc2d9318ced9a47842e330123a896d9c",
+      "ancestor_of_target": true,
+      "full_base_diff_paths": 220,
+      "full_base_diff_production_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py"
+      ],
+      "qualification": "Full ancestry footprint includes normal merged dependencies; not proof of writer authorship."
+    },
+    {
+      "name": "execution-state",
+      "sha": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "tree": "21096a15497b372c1ba68394611f5fead7a48f36",
+      "ancestor_of_target": true,
+      "full_base_diff_paths": 1564,
+      "full_base_diff_production_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+        "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py",
+        "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+        "policy-engine/src/polisyos/core/llm/response.py",
+        "policy-engine/src/polisyos/core/llm/settlement.py",
+        "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py"
+      ],
+      "qualification": "Full ancestry footprint includes normal merged dependencies; not proof of writer authorship."
+    },
+    {
+      "name": "cas-generation",
+      "sha": "1f330782463d6ec69befab02bd98322296a983c7",
+      "tree": "03f488c069dc941335c6519905ff9cd23af9a62a",
+      "ancestor_of_target": true,
+      "full_base_diff_paths": 1519,
+      "full_base_diff_production_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+        "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py",
+        "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+        "policy-engine/src/polisyos/core/llm/response.py",
+        "policy-engine/src/polisyos/core/llm/settlement.py",
+        "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py"
+      ],
+      "qualification": "Full ancestry footprint includes normal merged dependencies; not proof of writer authorship."
+    },
+    {
+      "name": "durability",
+      "sha": "bcd29edac682b9541d84948929d5944775e16f15",
+      "tree": "25d583fda8fcd32ee32f69e006982cb34a69d443",
+      "ancestor_of_target": true,
+      "full_base_diff_paths": 400,
+      "full_base_diff_production_paths": [
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+        "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+      ],
+      "qualification": "Full ancestry footprint includes normal merged dependencies; not proof of writer authorship."
+    },
+    {
+      "name": "composition",
+      "sha": "1ae9ee932fba588dbab0e175012dcfc38d41051f",
+      "tree": "f4bf7cf37a50bf2364d701233790f9c358e710d5",
+      "ancestor_of_target": true,
+      "full_base_diff_paths": 207,
+      "full_base_diff_production_paths": [
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "policy-engine/src/polisyos/foundry/methods/exceptions.py"
+      ],
+      "qualification": "Full ancestry footprint includes normal merged dependencies; not proof of writer authorship."
+    },
+    {
+      "name": "adapters",
+      "sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+      "tree": "d7f0decb6a5377acbac8e7526839e1d8fe543bb5",
+      "ancestor_of_target": true,
+      "full_base_diff_paths": 199,
+      "full_base_diff_production_paths": [
+        "policy-engine/src/polisyos/core/llm/response.py",
+        "policy-engine/src/polisyos/core/llm/settlement.py",
+        "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py"
+      ],
+      "qualification": "Full ancestry footprint includes normal merged dependencies; not proof of writer authorship."
+    }
+  ],
+  "observed_local_metadata_successors": [
+    {
+      "branch": "codex/e02-B-current-adapters",
+      "local_head_at_review": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+      "local_tree_at_review": "d7f0decb6a5377acbac8e7526839e1d8fe543bb5",
+      "incorporated_head": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+      "local_head_ancestor_of_target": true,
+      "complete_pending_paths_from_incorporated": [],
+      "pending_source_or_tests": [],
+      "qualification": "Current local metadata successor availability is separate from the six incorporated source-family heads; no forced merge or claim all latest metadata is already frozen."
+    },
+    {
+      "branch": "codex/e02-B-current-cas-generation",
+      "local_head_at_review": "1f330782463d6ec69befab02bd98322296a983c7",
+      "local_tree_at_review": "03f488c069dc941335c6519905ff9cd23af9a62a",
+      "incorporated_head": "1f330782463d6ec69befab02bd98322296a983c7",
+      "local_head_ancestor_of_target": true,
+      "complete_pending_paths_from_incorporated": [],
+      "pending_source_or_tests": [],
+      "qualification": "Current local metadata successor availability is separate from the six incorporated source-family heads; no forced merge or claim all latest metadata is already frozen."
+    },
+    {
+      "branch": "codex/e02-B-current-composition",
+      "local_head_at_review": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+      "local_tree_at_review": "24c0fe5528b06599743bc6fad16a556665e1d4ba",
+      "incorporated_head": "1ae9ee932fba588dbab0e175012dcfc38d41051f",
+      "local_head_ancestor_of_target": false,
+      "complete_pending_paths_from_incorporated": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-generated-companion-independent-review.json"
+      ],
+      "pending_source_or_tests": [],
+      "qualification": "Current local metadata successor availability is separate from the six incorporated source-family heads; no forced merge or claim all latest metadata is already frozen."
+    },
+    {
+      "branch": "codex/e02-B-current-durability",
+      "local_head_at_review": "63713129022dc6c4b0103c1e77ee533b4d38a3e6",
+      "local_tree_at_review": "a90709101ba6b6b0fa567e48bc2f0452bd51d6e1",
+      "incorporated_head": "bcd29edac682b9541d84948929d5944775e16f15",
+      "local_head_ancestor_of_target": false,
+      "complete_pending_paths_from_incorporated": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/evidence-index.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/execute.source.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child-wrapper.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-wrapper.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/profile.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-METADATA.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-independent.json"
+      ],
+      "pending_source_or_tests": [],
+      "qualification": "Current local metadata successor availability is separate from the six incorporated source-family heads; no forced merge or claim all latest metadata is already frozen."
+    },
+    {
+      "branch": "codex/e02-B-current-execution-state",
+      "local_head_at_review": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "local_tree_at_review": "21096a15497b372c1ba68394611f5fead7a48f36",
+      "incorporated_head": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "local_head_ancestor_of_target": true,
+      "complete_pending_paths_from_incorporated": [],
+      "pending_source_or_tests": [],
+      "qualification": "Current local metadata successor availability is separate from the six incorporated source-family heads; no forced merge or claim all latest metadata is already frozen."
+    },
+    {
+      "branch": "codex/e02-B-current-runtime",
+      "local_head_at_review": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+      "local_tree_at_review": "6cf8449edc2d9318ced9a47842e330123a896d9c",
+      "incorporated_head": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+      "local_head_ancestor_of_target": true,
+      "complete_pending_paths_from_incorporated": [],
+      "pending_source_or_tests": [],
+      "qualification": "Current local metadata successor availability is separate from the six incorporated source-family heads; no forced merge or claim all latest metadata is already frozen."
+    }
+  ],
+  "protected_publishers": [
+    {
+      "owner": "A_generation_cycle",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "base_ref": {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "target_ref": {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      },
+      "both_present": true,
+      "zero_diff": true
+    },
+    {
+      "owner": "A_http_control_homonym_additional_zero_check",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "base_ref": {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 53953,
+        "sha256": "cf6522b5c8b3d02c2b334468cb42edf99c5a3575bcc09c41b985c0ce43bfa9f6"
+      },
+      "target_ref": {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 53953,
+        "sha256": "cf6522b5c8b3d02c2b334468cb42edf99c5a3575bcc09c41b985c0ce43bfa9f6"
+      },
+      "both_present": true,
+      "zero_diff": true
+    },
+    {
+      "owner": "A_run_lifecycle",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "base_ref": {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "target_ref": {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "both_present": true,
+      "zero_diff": true
+    },
+    {
+      "owner": "C_streaming",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "base_ref": {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 108192,
+        "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+      },
+      "target_ref": {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "mode": "100644",
+        "kind": "blob",
+        "bytes": 108192,
+        "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+      },
+      "both_present": true,
+      "zero_diff": true
+    }
+  ],
+  "final_source_only_verdict": {
+    "protected_canonical_and_homonym_zero": true,
+    "all_six_incorporated_heads_ancestors": true,
+    "all_current_source_commits_primary_mapped": true,
+    "canonical_families_unambiguous": true,
+    "no_unexpected_source_scope": true,
+    "all_companion_evidence_bytes_match": true,
+    "closure_ids": [],
+    "reviewer_runtime_or_gate_execution": "UNRUN"
+  },
+  "root_snapshot_observation": {
+    "before": {
+      "head": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "status": ""
+    },
+    "after": {
+      "head": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "status": ""
+    },
+    "stable": true
+  },
+  "capability_state_or_finding_state": "PASS bounded static P35 source/custody; no source blocker found, formal closure_ids[]. All root runtime/final native/gate/production-history claims remain separate.",
+  "limitations_and_next_owner": [
+    {
+      "next_owner": "ROOT/G",
+      "limit": "Footprint and primary receipt correspondence cannot retrospectively prove physical editor identity or operational lease concurrency. Session-ratified extended leases and historical expected map remain explicitly distinguished from newly recomputed source60 joins.",
+      "action": "Use full current source/path/primary receipt table; preserve one canonical owner for future edits."
+    },
+    {
+      "next_owner": "ROOT",
+      "limit": "Reviewer is own RUN source author; this is not independent acceptance of RUN runtime semantics, foreign implementation correctness, or closure of any60finding.",
+      "action": "Use separately assigned foreign reviews + exact actual frozen fullcohort/gate and installed-profile results; do not inherit historical4e/456 red or unresolved premise as newDD result."
+    },
+    {
+      "next_owner": "ROOT/G",
+      "limit": "DD source was locally available in common Git and clean attached during read. Parent reported root native Git transport401 and remote last765 earlier; remote DD publication/readback is not established by this local footprint packet.",
+      "action": "Publish/fetch exact root source when authorized transport works and retain transport availability separate from source proof; own review branch publication/readback handled after this receipt."
+    },
+    {
+      "next_owner": "ROOT",
+      "limit": "CMP972 and DUR637 metadata successors were outside immutable DD despite all six incorporated source-family heads being ancestors.",
+      "action": "Merge metadata only after current wave/source lock ends; do not reinterpret current denominator or rerun property merely for docs metadata."
+    },
+    {
+      "next_owner": "G",
+      "limit": "Full production dataset/history and criterion closure not evaluated here.",
+      "action": "Use actual immutable DD/final integrated source and exact required local input closures for production-dependent criteria."
+    },
+    {
+      "next_owner": "ROOT/G",
+      "limit": "Complete123 nonmerge companion commit footprints and full65 test/helper paths are recorded. This census does not claim retrospective physical author or full test/docs operational lease proof for every historical companion edit; source-family attribution applies to canonical47production paths. The38 facade identities and declared public-surface dependencies are not a full method ABI/runtime proof. Root reported full worker dependency map unavailable inside OpenAPI recursive identity check; byte custody does not remove that limitation.",
+      "action": "Use actual owner companion receipts and root/source/generator reviews at the correct snapshot; keep registration, reported command execution, full data custody and runtime acceptance distinct."
+    }
+  ],
+  "immutable_objects": [
+    {
+      "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/audit.json",
+      "git_blob": "ec4e6ee7e27c79f054658137696770662d9ee9da",
+      "bytes": 938552,
+      "sha256": "7b1a3245f3a807807242eacf0163a924d334428db8ecfe1347b12532ce3c43ed"
+    },
+    {
+      "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/capture-wrapper.source.txt",
+      "git_blob": "aa8289d78082922eff37b39f2b3479282c071e44",
+      "bytes": 2395,
+      "sha256": "78db61b88d6926430a1507db264e49ea3ca50cae2c0a9cca847a7c8a7808a4cf"
+    },
+    {
+      "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/driver.source.txt",
+      "git_blob": "95cb99529ae9f70e68028fb60eb4302c8a6b32e2",
+      "bytes": 32007,
+      "sha256": "00a57d80252d32889ff0ed3e823430d4e924c17a12a0090ab0521ba31f26263f"
+    },
+    {
+      "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/execution.json",
+      "git_blob": "f76329cef8c9270ea97bc07c311017926200aa03",
+      "bytes": 2136,
+      "sha256": "0b867afbee1b3feda2b5f0d0fd6e8d9c18420199723d64e50c7e6129eadf9ca8"
+    },
+    {
+      "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/head-inputs.json",
+      "git_blob": "7e29f93a1eac4031a92dc81f5c6da4e5667994a0",
+      "bytes": 890,
+      "sha256": "5683d7f9f907b2c2ad8cb330b108c3a78511b34ffeee87cccfaab3ed4bc26fd2"
+    },
+    {
+      "commit": "16ef49b825b3f3ed099927a199170a0cfb06e9b4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/source-check.txt",
+      "git_blob": "d22ff5293813af7a2f7b9ca351b5449fceae175c",
+      "bytes": 658,
+      "sha256": "a628c9e0f5cf5eec0a58dd0d8e322236870b8d88e4d1971b4091ee23d4bded69"
+    }
+  ],
+  "source_only_reviewer_footprint": {
+    "source_py": "ZERO_DIFF",
+    "tests": "ZERO_DIFF",
+    "tracked_new_python": "ZERO_DIFF",
+    "root_writes": false,
+    "metadata_implementation_paths": 6
+  },
+  "replay": {
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/driver.source.txt",
+      "--repo",
+      "/workspace/e02-B-current-runtime",
+      "--base",
+      "198076863e143dea9f89f02734b13d50dae3eed5",
+      "--target",
+      "dd9584728bd96f204983615216efdbc58117e713",
+      "--heads-json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/head-inputs.json",
+      "--output",
+      "/tmp/e02-B-P35-independent-replay.json"
+    ],
+    "cwd": "/workspace/e02-B-current-runtime",
+    "qualification": "Committed filename is deliberately .source.txt; directly runnable Python. Standard-library Git/AST/TOML/JSON only. Requires exact rootDD objects and supplied immutable head-input refs in Git; no product tests/gates/selector/build."
+  }
+}

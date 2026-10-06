@@ -226,12 +226,13 @@ def test_complete_legacy_wire_upgrades_but_sparse_legacy_never_defaults(tmp_path
     old = json.loads(path.read_bytes())
     old["schema_version"] = "1.0"
     del old["spend_receipts"]
+    del old["completion_obligations"]
     path.write_text(json.dumps(old))
     before = path.read_bytes()
     assert _child(path, "load")["status"] == "accepted"
     assert path.read_bytes() == before
     assert _child(path, "settle")["receipt"]["revision"] == 1
-    assert json.loads(path.read_bytes())["schema_version"] == "1.1"
+    assert json.loads(path.read_bytes())["schema_version"] == "1.2"
     for missing in ("limits", "spent", "provider_spent", "reserved"):
         damaged = copy.deepcopy(old)
         del damaged["state"][missing]

@@ -10,7 +10,7 @@ from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from polisyos.data_forge.kernel._base import DataForgeModel
 
-from .selection import select_catalog_sources
+from .selection import CatalogSelectionError, select_catalog_sources
 from .source_modules import (
     CatalogExecutionTier,
     CatalogHistoryPolicy,
@@ -90,6 +90,11 @@ class CatalogSourceRegistryEntry(DataForgeModel):
 
     def to_module_spec(self) -> CatalogSourceModuleSpec:
         """Convert a registry entry into a source-module contract."""
+        if not self.connector_id:
+            raise CatalogSelectionError(
+                "connector_identity_missing",
+                f"source={self.source_id}/owner=CatalogSourceRegistryEntry.connector_id",
+            )
         return CatalogSourceModuleSpec(
             source_id=self.source_id,
             family=self.family,
@@ -127,6 +132,18 @@ class CatalogSourceRegistrySpec(DataForgeModel):
 
     version: int = Field(default=1, ge=1)
     sources: tuple[CatalogSourceRegistryEntry, ...] = Field(default_factory=tuple)
+
+    @field_validator("sources")
+    @classmethod
+    def _source_ids_are_unique(
+        cls,
+        sources: tuple[CatalogSourceRegistryEntry, ...],
+    ) -> tuple[CatalogSourceRegistryEntry, ...]:
+        """Reject repeated identities before a registry can be projected."""
+        source_ids = tuple(source.source_id for source in sources)
+        if len(source_ids) != len(set(source_ids)):
+            raise ValueError("source registry contains duplicate source identity")
+        return sources
 
     def source_by_id(self, source_id: str) -> CatalogSourceRegistryEntry | None:
         """Return a source entry by id."""
@@ -170,7 +187,7 @@ def _load_catalog_source_registry(registry_path: Path) -> CatalogSourceRegistryS
     """Parse one YAML registry through strict Pydantic source contracts."""
     import yaml
 
-    payload = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+    payload = _load_registry_yaml(yaml, registry_path)
     if payload is None:
         payload = {}
     if not isinstance(payload, dict):
@@ -195,11 +212,97 @@ def _load_catalog_source_registry(registry_path: Path) -> CatalogSourceRegistryS
 
     normalized_payload = {key: _normalize_yaml_sequences(value) for key, value in payload.items()}
     normalized_payload["sources"] = tuple(normalized_sources)
-    registry = CatalogSourceRegistrySpec.model_validate(normalized_payload, strict=True)
-    source_ids = tuple(entry.source_id for entry in registry.sources)
-    if len(source_ids) != len(set(source_ids)):
-        raise ValueError(f"source registry contains duplicate source names: {registry_path}")
-    return registry
+    return CatalogSourceRegistrySpec.model_validate(normalized_payload, strict=True)
+
+
+def _load_registry_yaml(yaml: object, registry_path: Path) -> object:
+    """Load YAML while rejecting duplicate keys before Python mappings collapse them."""
+    from yaml.constructor import ConstructorError
+    from yaml.nodes import MappingNode, SequenceNode
+
+    class DuplicateRejectingSafeLoader(yaml.SafeLoader):  # type: ignore[attr-defined]
+        """Safe YAML loader that refuses repeated explicit and merged mapping keys."""
+
+        def construct_mapping(self, node: object, deep: bool = False) -> dict[object, object]:
+            if not isinstance(node, MappingNode):
+                raise ConstructorError(
+                    None,
+                    None,
+                    "expected a mapping node",
+                    getattr(node, "start_mark", None),
+                )
+            pairs = self._expanded_pairs(node, active=frozenset())
+            mapping: dict[object, object] = {}
+            for key_node, value_node in pairs:
+                key = self.construct_object(key_node, deep=deep)
+                try:
+                    duplicate = key in mapping
+                except TypeError as exc:
+                    raise ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "found an unhashable mapping key",
+                        key_node.start_mark,
+                    ) from exc
+                if duplicate:
+                    raise ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        f"duplicate YAML mapping key {key!r}",
+                        key_node.start_mark,
+                    )
+                mapping[key] = self.construct_object(value_node, deep=deep)
+            return mapping
+
+        def _expanded_pairs(
+            self,
+            node: object,
+            *,
+            active: frozenset[int],
+        ) -> list[tuple[object, object]]:
+            if not isinstance(node, MappingNode):
+                raise ConstructorError(
+                    "while constructing a mapping",
+                    getattr(node, "start_mark", None),
+                    "YAML merge values must be mappings",
+                    getattr(node, "start_mark", None),
+                )
+            if id(node) in active:
+                raise ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    "cyclic YAML merge alias",
+                    node.start_mark,
+                )
+
+            active = active | {id(node)}
+            merged: list[tuple[object, object]] = []
+            explicit: list[tuple[object, object]] = []
+            for key_node, value_node in node.value:
+                if key_node.tag != "tag:yaml.org,2002:merge":
+                    explicit.append((key_node, value_node))
+                    continue
+                if isinstance(value_node, MappingNode):
+                    merged.extend(self._expanded_pairs(value_node, active=active))
+                elif isinstance(value_node, SequenceNode):
+                    for mapping_node in value_node.value:
+                        merged.extend(self._expanded_pairs(mapping_node, active=active))
+                else:
+                    raise ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "YAML merge value must be a mapping or sequence of mappings",
+                        value_node.start_mark,
+                    )
+            return merged + explicit
+
+    try:
+        return yaml.load(  # type: ignore[attr-defined]
+            registry_path.read_text(encoding="utf-8"),
+            Loader=DuplicateRejectingSafeLoader,
+        )
+    except yaml.YAMLError as exc:  # type: ignore[attr-defined]
+        raise ValueError(f"invalid source registry YAML at {registry_path}: {exc}") from exc
 
 
 def catalog_source_modules_from_registry(

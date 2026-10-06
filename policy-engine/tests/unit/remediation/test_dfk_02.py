@@ -6,6 +6,9 @@ import pytest
 
 from polisyos.data_forge.domains.catalog import sources as source_views
 from polisyos.data_forge.domains.catalog.batch.source_registry import load_source_registry
+from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+    CatalogSelectionError,
+)
 from polisyos.data_forge.domains.catalog.registry import (
     CatalogSourceRegistryEntry,
     CatalogSourceRegistrySpec,
@@ -118,6 +121,13 @@ def test_source_selection_fails_closed_for_cyclic_seeds() -> None:
         lambda: select_catalog_source_modules(modules, run_profile="prod_full"),
         expected_code="dependency_cycle",
     )
+
+
+def test_source_selection_rejects_duplicate_module_identities() -> None:
+    module = _module("source")
+
+    with pytest.raises(CatalogSelectionError, match="duplicate_source_identity"):
+        select_catalog_source_modules((module, module))
 
 
 def test_registry_selection_fails_closed_for_disabled_mandatory_seed() -> None:
@@ -402,6 +412,61 @@ def test_registry_parser_rejects_truthy_text_for_every_boolean_field(tmp_path) -
                 loader(registry_path)
 
 
+@pytest.mark.parametrize(
+    "registry_text",
+    [
+        "version: 1\nversion: 2\nsources: []\n",
+        "version: 1\nsources:\n"
+        "  - name: shadowed_source\n"
+        "    name: admitted_source\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/source\n"
+        "    enabled: false\n"
+        "    enabled: true\n",
+        "version: 1\nsources:\n"
+        "  - <<: &defaults\n"
+        "      name: shadowed_source\n"
+        "      family: fixture\n"
+        "      wave: A\n"
+        "      endpoint: https://example.invalid/source\n"
+        "      enabled: false\n"
+        "    <<: *defaults\n"
+        "    name: admitted_source\n"
+        "    enabled: true\n",
+    ],
+)
+def test_registry_loaders_reject_duplicate_yaml_mapping_keys_before_admission(
+    tmp_path,
+    registry_text: str,
+) -> None:
+    registry_path = tmp_path / "duplicate-source-registry.yaml"
+    registry_path.write_text(registry_text, encoding="utf-8")
+
+    for loader in (load_catalog_source_registry, load_source_registry):
+        with pytest.raises(ValueError, match="duplicate YAML mapping key"):
+            loader(registry_path)
+
+
+def test_registry_model_and_projection_preserve_identity_invariants() -> None:
+    from pydantic import ValidationError
+
+    duplicate = CatalogSourceRegistryEntry(
+        source_id="source",
+        family="fixture",
+        wave="A",
+        endpoint="https://example.invalid/source",
+        connector_id="fixture.source",
+    )
+
+    with pytest.raises(ValidationError, match="duplicate source identity"):
+        CatalogSourceRegistrySpec(sources=(duplicate, duplicate))
+
+    omitted_connector_registry = load_catalog_source_registry()
+    projected = catalog_source_modules_from_registry(omitted_connector_registry)
+    assert len(projected) == len(omitted_connector_registry.sources)
+
+
 def test_registry_parser_preserves_execution_tier_dependent_defaults(tmp_path) -> None:
     registry_path = tmp_path / "defaulted-source-registry.yaml"
     registry_path.write_text(
@@ -435,6 +500,12 @@ def test_registry_parser_preserves_omitted_connector_default(tmp_path) -> None:
     source = load_catalog_source_registry(registry_path).sources[0]
 
     assert source.connector_id == ""
+    with pytest.raises(CatalogSelectionError) as caught:
+        catalog_source_modules_from_registry(CatalogSourceRegistrySpec(sources=(source,)))
+    assert caught.value.code == "connector_identity_missing"
+    assert "source=catalog_only" in caught.value.detail
+    assert "CatalogSourceRegistryEntry.connector_id" in caught.value.detail
+    assert load_source_registry(registry_path).sources[0].connector_id == ""
 
 
 @pytest.mark.parametrize(

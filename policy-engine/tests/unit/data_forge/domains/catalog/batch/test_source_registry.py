@@ -8,7 +8,11 @@ import pytest
 from polisyos.data_forge.domains.catalog.batch import harvester as harvester_module
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.harvester import harvest_sources
-from polisyos.data_forge.domains.catalog.batch.source_registry import load_source_registry
+from polisyos.data_forge.domains.catalog.batch.source_registry import (
+    SourceRegistry,
+    SourceSpec,
+    load_source_registry,
+)
 from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
     CatalogSelectionError,
 )
@@ -86,6 +90,32 @@ def test_batch_default_registry_is_the_canonical_catalog_registry(tmp_path) -> N
 
     assert config.default_registry_path == default_catalog_source_registry_path()
     assert config.load_registry().version == 1
+
+
+def test_batch_selection_rejects_duplicate_source_identities() -> None:
+    source = SourceSpec(
+        name="source",
+        family="fixture",
+        wave="A",
+        endpoint="https://example.invalid/source",
+    )
+    registry = SourceRegistry(version=1, sources=(source, source))
+
+    with pytest.raises(CatalogSelectionError, match="duplicate_source_identity"):
+        registry.enabled_sources()
+
+
+@pytest.mark.parametrize("source_id", ["", "   "])
+def test_batch_selection_rejects_missing_source_identity(source_id: str) -> None:
+    source = SourceSpec(
+        name=source_id,
+        family="fixture",
+        wave="A",
+        endpoint="https://example.invalid/source",
+    )
+
+    with pytest.raises(CatalogSelectionError, match="source_identity_missing"):
+        SourceRegistry(version=1, sources=(source,)).enabled_sources()
 
 
 def test_legacy_batch_registry_path_remains_a_default_alias(tmp_path) -> None:

@@ -95,8 +95,15 @@ def resolve_catalog_source_dependencies(
     resolved raises the catalog's typed selection error instead of silently
     dropping the dependent source.
     """
-    selected_ids = {module.source_id for module in selected}
-    by_id = {module.source_id: module for module in modules}
+    by_id = _unique_source_index(modules, basis="registry")
+    selected_by_id = _unique_source_index(selected, basis="selected sources")
+    missing_selected = tuple(source_id for source_id in selected_by_id if source_id not in by_id)
+    if missing_selected:
+        raise CatalogSelectionError(
+            "selection_source_missing",
+            ",".join(missing_selected),
+        )
+    selected_ids = set(selected_by_id)
 
     def resolve_seed(module: _CatalogSeedSourceT, path: tuple[str, ...]) -> None:
         seed_id = module.seed_from
@@ -119,9 +126,26 @@ def resolve_catalog_source_dependencies(
         selected_ids.add(seed_module.source_id)
         resolve_seed(seed_module, (*path, seed_id))
 
-    for module in selected:
+    for module in selected_by_id.values():
         resolve_seed(module, (module.source_id,))
     return tuple(module for module in modules if module.source_id in selected_ids)
+
+
+def _unique_source_index[T: _CatalogSeedSource](
+    sources: Sequence[T],
+    *,
+    basis: str,
+) -> dict[str, T]:
+    """Index selectable sources only when each has one nonempty identity."""
+    by_id: dict[str, T] = {}
+    for source in sources:
+        source_id = source.source_id
+        if not isinstance(source_id, str) or not source_id.strip():
+            raise CatalogSelectionError("source_identity_missing", basis)
+        if source_id in by_id:
+            raise CatalogSelectionError("duplicate_source_identity", source_id)
+        by_id[source_id] = source
+    return by_id
 
 
 __all__ = [

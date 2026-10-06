@@ -1733,7 +1733,7 @@ def _load_wvs_bulk_rows(
     year_window: tuple[int, int] | None = None,
 ) -> list[dict[str, Any]]:
     indicator = str(raw_variable or "").strip().upper()
-    csv_path = _wvs_bulk_csv_path()
+    csv_path = __resolve_implementation_dependency("_wvs_bulk_csv_path", "loaders")()
     if not indicator:
         return []
     if not csv_path.exists():

@@ -15,7 +15,13 @@ from polisyos.data_forge.domains.academic.batch.embedder import (
 from polisyos.data_forge.domains.catalog.batch.embedder import (
     build_hnsw_index as build_catalog_hnsw_index,
 )
-from polisyos.data_forge.kernel.embeddings import build_embedding_index
+from polisyos.data_forge.kernel.embeddings import (
+    _publish_embedding_generation,
+    build_embedding_generation,
+    build_embedding_index,
+    resolve_embedding_generation,
+)
+from polisyos.data_forge.kernel.io.generation_basis import GenerationIdentity
 
 
 class _FakeSentenceTransformer:
@@ -209,6 +215,18 @@ def test_domain_profiles_use_shared_real_hnsw_path(
         def save_index(self, path: str) -> None:
             self._index.save_index(path)
 
+        def load_index(self, path: str, **kwargs: object) -> None:
+            self._index.load_index(path, **kwargs)
+
+        def get_current_count(self) -> int:
+            return self._index.get_current_count()
+
+        def get_ids_list(self) -> list[int]:
+            return self._index.get_ids_list()
+
+        def get_items(self, labels: np.ndarray) -> np.ndarray:
+            return self._index.get_items(labels)
+
     monkeypatch.setattr(hnswlib, "Index", _RecordingIndex)
 
     from polisyos.data_forge.kernel import embeddings as kernel_embeddings
@@ -298,13 +316,17 @@ def test_domain_profiles_use_shared_real_hnsw_path(
 
     assert (academic_dir / "ac_work_index.hnsw").exists()
     assert (catalog_dir / "ds_dataset_index.hnsw").exists()
-    assert len(index_records) == 2
+    assert len(index_records) == 4
     assert all(record["space"] == "cosine" for record in index_records)
     assert all(
         record["init"] == {"max_elements": 2, "ef_construction": 200, "M": 16}
-        for record in index_records
+        for record in index_records[::2]
     )
-    assert all(np.array_equal(record["labels"], np.arange(2)) for record in index_records)
+    assert all(
+        np.array_equal(record["labels"], np.arange(2))
+        for record in index_records[::2]
+    )
+    assert all(record["init"] is None for record in index_records[1::2])
 
 
 def test_equal_prepared_texts_produce_equal_vectors_and_preserve_ids(
@@ -353,3 +375,56 @@ def test_equal_prepared_texts_produce_equal_vectors_and_preserve_ids(
         "same prepared text",
         "another text",
     )
+
+
+def test_invalid_staged_hnsw_vectors_do_not_replace_selected_generation(
+    tmp_path: Path,
+) -> None:
+    import hnswlib
+
+    index_dir = tmp_path / "index"
+    build_embedding_generation(
+        rows=(),
+        index_dir=index_dir,
+        embedding_model="unused-empty-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+    )
+    selector_path = index_dir / "embedding_generation.json"
+    previous_selector = selector_path.read_bytes()
+    previous_generation = resolve_embedding_generation(index_dir)
+    assert previous_generation is not None
+    assert previous_generation.status == "empty_generation"
+
+    expected_vectors = np.asarray([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32)
+
+    def write_wrong_native_index(staging: Path) -> tuple[int, int]:
+        np.savez(
+            staging / "embeddings.npz",
+            ids=np.asarray(["ds-1", "ds-2"], dtype=object),
+            vectors=expected_vectors,
+        )
+        index = hnswlib.Index(space="cosine", dim=2)
+        index.init_index(max_elements=2, ef_construction=200, M=16)
+        index.add_items(expected_vectors[::-1].copy(), np.arange(2))
+        index.save_index(str(staging / "index.hnsw"))
+        return 2, 2
+
+    with pytest.raises(ValueError, match="HNSW index vectors do not match the matrix"):
+        _publish_embedding_generation(
+            normalized_rows=[("ds-1", "one"), ("ds-2", "two")],
+            index_dir=index_dir,
+            embedding_model="fixture-model",
+            embedding_device="cpu",
+            basis_kind="fixture",
+            projection_rule_version="fixture.v1",
+            encoder_identity=GenerationIdentity("sha256:" + "1" * 64),
+            legacy_embeddings_path=None,
+            legacy_index_path=None,
+            stage_builder=write_wrong_native_index,
+        )
+
+    assert selector_path.read_bytes() == previous_selector
+    current_generation = resolve_embedding_generation(index_dir)
+    assert current_generation is not None
+    assert current_generation.generation_id == previous_generation.generation_id

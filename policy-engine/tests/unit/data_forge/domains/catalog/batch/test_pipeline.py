@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import duckdb
+
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.pipeline import (
     _record_stage_completion,
@@ -43,6 +45,12 @@ def test_embed_resume_does_not_skip_when_selected_member_is_missing(tmp_path) ->
         stages=frozenset({"embed"}),
         resume=True,
     )
+    with duckdb.connect(str(config.db_path)) as con:
+        con.execute(
+            "CREATE TABLE ds_datasets (id VARCHAR, title VARCHAR, description VARCHAR, "
+            "keywords VARCHAR[], variables VARCHAR[])"
+        )
+        con.execute("CHECKPOINT")
     build_embedding_generation(
         rows=[],
         index_dir=config.index_dir,

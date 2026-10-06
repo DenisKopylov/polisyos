@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import platform
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 
 from polisyos.data_forge.domains.catalog.batch.checkpoints import hash_payload
@@ -16,6 +16,7 @@ from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
 )
 from polisyos.data_forge.kernel.io import ensure_dirs, snapshot_component_dir
+from polisyos.data_forge.kernel.io.hashing import sha256_file
 
 ALL_STAGES = frozenset(
     {
@@ -197,21 +198,19 @@ class DatasetBatchConfig:
 
     @property
     def run_signature(self) -> str:
+        registry_path = self.registry_path or self.default_registry_path
+        metrics_path = self.resolved_metrics_map_path
         return hash_payload(
             {
-                "snapshot_root": str(self.snapshot_root),
-                "stages": sorted(self.stages),
-                "wave": self.wave,
-                "run_profile": self.run_profile,
-                "promoted_sources": sorted(self.promoted_sources),
-                "country_scope": self.country_scope,
-                "active_countries": list(self.resolved_active_countries),
-                "active_year_window": list(self.resolved_year_window),
-                "observation_mode": self.observation_mode,
-                "resume_mode": self.resume_mode,
-                "preflight_sources": sorted(self.preflight_sources),
-                "preflight_only": self.preflight_only,
-                "defer_unsupported_observation_plans": self.defer_unsupported_observation_plans,
+                "producer_config": _producer_config_snapshot(self),
+                "source_registry": {
+                    "path": str(registry_path.resolve()),
+                    "sha256": sha256_file(registry_path) if registry_path.is_file() else None,
+                },
+                "metrics_map": {
+                    "path": str(metrics_path.resolve()),
+                    "sha256": sha256_file(metrics_path) if metrics_path.is_file() else None,
+                },
             }
         )
 
@@ -273,3 +272,42 @@ class DatasetBatchConfig:
             self.manifests_dir,
             self.publish_manifest_path.parent,
         )
+
+
+def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
+    """Return all producer-effective settings in a stable JSON-safe form.
+
+    ``resume`` and ``stages`` select orchestration behavior; they do not change
+    what an individual stage produces. All other config fields are included,
+    along with derived values that resolve platform- or policy-dependent
+    defaults before producers read them.
+    """
+    values = {
+        item.name: getattr(config, item.name)
+        for item in fields(config)
+        if item.name not in {"resume", "stages"}
+    }
+    values.update(
+        {
+            "resolved_embedding_device": config.resolved_embedding_device,
+            "resolved_active_countries": config.resolved_active_countries,
+            "resolved_year_window": config.resolved_year_window,
+            "resolved_metrics_map_path": config.resolved_metrics_map_path,
+            "resolved_registry_path": config.registry_path or config.default_registry_path,
+            "uses_custom_registry": config.uses_custom_registry,
+            "is_sampled_run": config.is_sampled_run,
+        }
+    )
+    return {key: _signature_safe(value) for key, value in values.items()}
+
+
+def _signature_safe(value: object) -> object:
+    if isinstance(value, Path):
+        return str(value.resolve())
+    if isinstance(value, dict):
+        return {str(key): _signature_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_signature_safe(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        return sorted(_signature_safe(item) for item in value)
+    return value

@@ -7,15 +7,18 @@ import json
 import os
 import subprocess
 import sys
+from dataclasses import dataclass, replace
 from pathlib import Path
 from types import SimpleNamespace
 
+import jax.numpy as jnp
 import pytest
 
 from polisyos.foundry.agent_sim.training import TrainingConfig
 from polisyos.foundry.plugins.api import PolisySimulator, SimulationResult, TrainingResult
 from polisyos.foundry.plugins.cli import cmd_train
-from polisyos.foundry.plugins.core import DomainConfig, PluginRegistry
+from polisyos.foundry.plugins.composite import CompositeReward
+from polisyos.foundry.plugins.core import DomainConfig, DomainPlugin, PluginMetadata, PluginRegistry
 from polisyos.foundry.plugins.economics import EconomicsPlugin
 
 
@@ -59,6 +62,104 @@ def test_train_with_labor_market_disabled_is_typed_bridge_pending(
     assert getattr(reason, "code", None) == "training_composite_profile_unsupported"
     assert result.trained_policy is None
     assert result.loss_history == []
+
+
+def test_three_step_reward_evaluation_uses_trajectory_and_mean_aggregation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real trajectory/reward consumer preserves [2,2,2] without training it."""
+
+    @dataclass(frozen=True)
+    class RolloutState:
+        step: int
+
+    class IncrementStep:
+        @property
+        def name(self) -> str:
+            return "increment_step"
+
+        def apply(self, state, **kwargs):
+            del kwargs
+            return replace(state, step=state.step + 1)
+
+    class ConstantReward:
+        def compute(self, _state, _next_state, agent_actions=None):
+            del agent_actions
+            return jnp.full(3, 2.0)
+
+    class EvaluationPlugin(DomainPlugin):
+        @property
+        def metadata(self) -> PluginMetadata:
+            return PluginMetadata(
+                name="plg02-evaluation",
+                version="1.0",
+                description="three-step reward fixture",
+            )
+
+        def create_initial_state(self, config, rng_key):
+            del config, rng_key
+            return RolloutState(step=0)
+
+        def get_mechanisms(self):
+            return (IncrementStep(),)
+
+        def get_reward_function(self):
+            return ConstantReward()
+
+        def get_objectives(self):
+            return {}
+
+    registry = PluginRegistry()
+    registry.clear()
+    registry.register(EvaluationPlugin())
+    simulator = PolisySimulator(registry, auto_discover=False).add_domain(
+        "plg02-evaluation",
+        DomainConfig(n_agents=3),
+    )
+    result = simulator.run(n_steps=3, seed=7)
+
+    assert isinstance(result, SimulationResult)
+    assert result.n_steps == 3
+    assert result.objectives == {}
+    assert result.trajectory is not None
+    assert [state.get_domain("plg02-evaluation").step for state in result.trajectory] == [
+        0,
+        1,
+        2,
+        3,
+    ]
+    composite_reward = CompositeReward({"plg02-evaluation": 1.0}, registry)
+    per_step = [
+        composite_reward.compute(before, after)
+        for before, after in zip(result.trajectory, result.trajectory[1:], strict=False)
+    ]
+    assert [rewards["plg02-evaluation"].tolist() for rewards in per_step] == [
+        [2.0, 2.0, 2.0],
+        [2.0, 2.0, 2.0],
+        [2.0, 2.0, 2.0],
+    ]
+    # CompositeReward.total is the per-step mean over agents; the three-step
+    # total remains 6.0 when a caller sums that evaluation trace.
+    assert [float(rewards["total"]) for rewards in per_step] == [2.0, 2.0, 2.0]
+    assert sum(float(rewards["total"]) for rewards in per_step) == 6.0
+    assert not hasattr(result, "reward_history")
+
+    from polisyos.foundry.plugins import training_adapter as training_adapter_module
+
+    monkeypatch.setattr(
+        training_adapter_module,
+        "train_actor_critic_with_artifact",
+        lambda *_args, **_kwargs: pytest.fail(
+            "unsupported evaluation plugin must not enter the optimizer"
+        ),
+    )
+    training = simulator.train(n_episodes=3, seed=7)
+    assert isinstance(training, TrainingResult)
+    assert training.status == "bridge_pending"
+    assert training.trained_policy is None
+    assert training.loss_history == []
+    assert training.artifact is None
+    registry.clear()
 
 
 def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(

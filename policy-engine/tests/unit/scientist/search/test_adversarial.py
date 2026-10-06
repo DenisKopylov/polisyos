@@ -400,6 +400,7 @@ def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
         parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
         strategy=AdversarialStrategy.SEARCH_LOOP,
         max_iterations=33,
+        vulnerability_threshold=2.0,
         stop_on_first_vulnerability=False,
     )
     space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])

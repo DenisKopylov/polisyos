@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "tests/unit/remediation/test_wire_01.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "driver_untracked_execution_bytes": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+  "exit_code": 0,
+  "stdout": {
+    "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/ruff.txt",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "grade": "static only"
+}

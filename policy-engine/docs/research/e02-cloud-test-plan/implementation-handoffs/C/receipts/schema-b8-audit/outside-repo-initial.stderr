@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-probe.py", line 14, in <module>
+    import tools.quality.validation.schema_fqn_census as census
+ModuleNotFoundError: No module named 'tools'

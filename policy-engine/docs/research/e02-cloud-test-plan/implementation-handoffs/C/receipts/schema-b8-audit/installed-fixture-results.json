@@ -1,0 +1,315 @@
+{
+  "candidate": {
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "source_archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102",
+    "wheel_sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "--quiet"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1",
+      "duration_seconds": 0.02453104202868417,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/01-fixture-git-init.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:36:06.162547+00:00",
+      "name": "fixture-git-init",
+      "started_at_utc": "2026-10-06T16:36:06.137865+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/01-fixture-git-init.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/01-fixture-git-init.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "config",
+        "user.email",
+        "schema-b8-fixture@example.invalid"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1",
+      "duration_seconds": 0.0069007089477963746,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/02-fixture-git-email.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:36:06.170834+00:00",
+      "name": "fixture-git-email",
+      "started_at_utc": "2026-10-06T16:36:06.163942+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/02-fixture-git-email.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/02-fixture-git-email.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "config",
+        "user.name",
+        "Schema b8 fixture"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1",
+      "duration_seconds": 0.005958333029411733,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/03-fixture-git-name.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:36:06.177228+00:00",
+      "name": "fixture-git-name",
+      "started_at_utc": "2026-10-06T16:36:06.171293+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/03-fixture-git-name.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/03-fixture-git-name.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "--all"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1",
+      "duration_seconds": 0.01189741602865979,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/04-fixture-git-add.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:36:06.189583+00:00",
+      "name": "fixture-git-add",
+      "started_at_utc": "2026-10-06T16:36:06.177715+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/04-fixture-git-add.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/04-fixture-git-add.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "commit",
+        "--quiet",
+        "-m",
+        "schema census installed fixture"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1",
+      "duration_seconds": 0.019807750009931624,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/05-fixture-git-commit.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:36:06.209832+00:00",
+      "name": "fixture-git-commit",
+      "started_at_utc": "2026-10-06T16:36:06.190055+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/05-fixture-git-commit.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/05-fixture-git-commit.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.quality.validation.schema_fqn_census",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1"
+      ],
+      "cwd": "/private/tmp",
+      "duration_seconds": 0.16215891705360264,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/06-installed-fixture-positive.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:36:06.379123+00:00",
+      "name": "installed-fixture-positive",
+      "started_at_utc": "2026-10-06T16:36:06.216992+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/06-installed-fixture-positive.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 14507,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/06-installed-fixture-positive.stdout",
+        "sha256": "58c5eba3c0761d2d8acbf965c2ec7f3ecaa7e72526e19af1e917df5637fbbfd5"
+      },
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.quality.validation.schema_fqn_census",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1"
+      ],
+      "cwd": "/private/tmp",
+      "duration_seconds": 0.11541916598798707,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/07-installed-fixture-property-removed.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:36:06.495541+00:00",
+      "name": "installed-fixture-property-removed",
+      "started_at_utc": "2026-10-06T16:36:06.380157+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/07-installed-fixture-property-removed.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 9650,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-commands/07-installed-fixture-property-removed.stdout",
+        "sha256": "253886d6069bef1969ce609f46468b8ce56173b958a6bf6051ad02b2b990a0df"
+      },
+      "timeout_seconds": 120
+    }
+  ],
+  "fixture": {
+    "git_head": "38e7ac303aa06beedac6c8938387e2209856b69b",
+    "input_files": {
+      "src/polisyos/data_forge/kernel/schemas/__init__.py": "0ceed0d5b50a0d9e63fd6a4e1e9d299c4dde74423bdebc7f7d0506cb9c78ad31",
+      "src/polisyos/data_forge/kernel/schemas/codegen.py": "208d8eec1b312907eb3cd4df3729081aae8a9881fa1466d085e9460d872bd066",
+      "src/polisyos/data_forge/kernel/schemas/subpackage/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "src/polisyos/data_forge/kernel/schemas/subpackage/caller.py": "fafb99008d4eadae77bd197da7fe14c705c9835cbc687dde36e3b03f440dce20",
+      "src/polisyos/foundry/domain/__init__.py": "70f8b37bf758f11f0e73467e78aca13beaaa5fbb5f33b97030345958e28a1385",
+      "src/polisyos/foundry/domain/schema.py": "af5c26f80bf52faffaf751270703d6fbdf6bf90659f23491165d7e34abddbb5f"
+    },
+    "retained_target_module_files_after_removal": {
+      "src/polisyos/data_forge/kernel/schemas/codegen.py": "208d8eec1b312907eb3cd4df3729081aae8a9881fa1466d085e9460d872bd066",
+      "src/polisyos/foundry/domain/schema.py": "af5c26f80bf52faffaf751270703d6fbdf6bf90659f23491165d7e34abddbb5f"
+    },
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-run1"
+  },
+  "installed_behavior": {
+    "invocation": "python -I -m tools.quality.validation.schema_fqn_census --repo-root <fixture>",
+    "module": "tools.quality.validation.schema_fqn_census",
+    "negative_import_hit_count": 0,
+    "negative_result": "complete_for_selected_local_text_inputs",
+    "positive_child_candidate_hits": 4,
+    "positive_exact_import_hits": 6,
+    "positive_hits": [
+      [
+        "polisyos.data_forge.kernel.schemas.codegen",
+        "src/polisyos/data_forge/kernel/schemas/__init__.py",
+        1,
+        "relative_import",
+        "polisyos.data_forge.kernel.schemas.codegen"
+      ],
+      [
+        "polisyos.data_forge.kernel.schemas.codegen",
+        "src/polisyos/data_forge/kernel/schemas/__init__.py",
+        2,
+        "relative_import_child_candidate",
+        "polisyos.data_forge.kernel.schemas.codegen"
+      ],
+      [
+        "polisyos.data_forge.kernel.schemas.codegen",
+        "src/polisyos/data_forge/kernel/schemas/__init__.py",
+        3,
+        "absolute_import_child_candidate",
+        "polisyos.data_forge.kernel.schemas.codegen"
+      ],
+      [
+        "polisyos.data_forge.kernel.schemas.codegen",
+        "src/polisyos/data_forge/kernel/schemas/subpackage/caller.py",
+        1,
+        "relative_import_child_candidate",
+        "polisyos.data_forge.kernel.schemas.codegen"
+      ],
+      [
+        "polisyos.data_forge.kernel.schemas.codegen",
+        "src/polisyos/data_forge/kernel/schemas/subpackage/caller.py",
+        2,
+        "relative_import",
+        "polisyos.data_forge.kernel.schemas.codegen"
+      ],
+      [
+        "polisyos.foundry.domain.schema",
+        "src/polisyos/foundry/domain/__init__.py",
+        1,
+        "relative_import_child_candidate",
+        "polisyos.foundry.domain.schema"
+      ]
+    ],
+    "positive_result": "complete_for_selected_local_text_inputs",
+    "positive_selected_paths": 6,
+    "removal_falsifier": "all relevant ImportFrom sites removed while both candidate target module files remained present; the installed census emitted no import evidence"
+  }
+}

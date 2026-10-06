@@ -1,0 +1,48 @@
+{
+  "artifacts": {
+    "source_archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+    "wheel_sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+  },
+  "candidate": {
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "command": {
+    "argv": [
+      "/opt/homebrew/bin/python3",
+      "-I",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-fixture-probe.py"
+    ],
+    "cwd": "/private/tmp",
+    "duration_seconds": 0.913242667040322,
+    "env_delta": {
+      "PYTHONHOME": "unset",
+      "PYTHONPATH": "unset"
+    },
+    "exit": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-runner.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "exit_code": 0,
+    "finished_at_utc": "2026-10-06T16:36:07.013939+00:00",
+    "started_at_utc": "2026-10-06T16:36:06.100565+00:00",
+    "stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-runner.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/fixture-runner.stdout",
+      "sha256": "b26b4bc1a0b35f3d0856a0c9468c22e7de90a6dc81479121b7fa9a0edcc93ebc"
+    },
+    "timeout_seconds": 300
+  },
+  "deciding": true,
+  "probe_report": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-fixture-results.json",
+    "sha256": "1c5fa5a212439a33e997d601d1a9cf11465ddfd90ab8d974cc1400e7a8398a55"
+  },
+  "probe_script": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-fixture-probe.py",
+    "sha256": "32456defc4d4be2f8b4390a680c85de25bf62566a1f3b9581b309c85b6cc7232"
+  }
+}

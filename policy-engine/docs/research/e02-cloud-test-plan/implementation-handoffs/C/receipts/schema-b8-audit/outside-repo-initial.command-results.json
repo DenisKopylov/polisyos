@@ -1,0 +1,48 @@
+{
+  "artifacts": {
+    "source_archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+    "wheel_sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+  },
+  "candidate": {
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "command": {
+    "argv": [
+      "/opt/homebrew/bin/python3",
+      "-I",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-probe.py"
+    ],
+    "cwd": "/private/tmp",
+    "duration_seconds": 0.04765537497587502,
+    "env_delta": {
+      "PYTHONHOME": "unset",
+      "PYTHONPATH": "unset"
+    },
+    "exit": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-runner.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "exit_code": 1,
+    "finished_at_utc": "2026-10-06T16:43:28.548454+00:00",
+    "started_at_utc": "2026-10-06T16:43:28.500713+00:00",
+    "stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-runner.stderr",
+      "sha256": "985d70db087fc78b259fb9abe19ba79aeac23455f71b51aaa05e0e1a55dc56b0"
+    },
+    "stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-runner.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "timeout_seconds": 300
+  },
+  "deciding": false,
+  "report": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-results.json",
+    "sha256": null
+  },
+  "script": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-probe.py",
+    "sha256": "b1bfe1284c5bf1db43b4f537cc2a1b7ac2ae43e36449fe4e200244168cf6ea37"
+  }
+}

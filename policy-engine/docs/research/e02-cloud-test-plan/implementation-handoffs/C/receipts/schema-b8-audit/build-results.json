@@ -1,0 +1,68 @@
+{
+  "archive": {
+    "bytes": 460134400,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/candidate.tar",
+    "sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8"
+  },
+  "artifacts": [
+    {
+      "bytes": 15026563,
+      "name": "policy_engine-0.1.0-py3-none-any.whl",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+    },
+    {
+      "bytes": 65212167,
+      "name": "policy_engine-0.1.0.tar.gz",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "30e5c49608d562d67fa9e9270cbb66513f498a85587d2961ef623323510f769d"
+    }
+  ],
+  "candidate": {
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "command": {
+    "argv": [
+      "uv",
+      "build",
+      "--offline",
+      "--no-build-isolation",
+      "--out-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+    "duration_seconds": 17.62044958298793,
+    "env_delta": {
+      "PYTHONHOME": "unset",
+      "PYTHONPATH": [
+        "/Users/deniskopylov/.cache/uv/archive-v0/YUs921CMN7bGtgwyMykk3",
+        "/Users/deniskopylov/.cache/uv/archive-v0/QE6DREbYsK8sTuZOeKsM8",
+        "/Users/deniskopylov/.cache/uv/archive-v0/CYuBuDi6eT8vqgBcw1xmt",
+        "/Users/deniskopylov/.cache/uv/archive-v0/0_OIyaIgWrA6UuESVxSKg",
+        "/Users/deniskopylov/.cache/uv/archive-v0/fi4dB0uLY-31KEGEb5kjs",
+        "/Users/deniskopylov/.cache/uv/archive-v0/tS3T-feL91bRoib57dD1o"
+      ],
+      "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+    },
+    "exit_code": 0,
+    "finished_at_utc": "2026-10-06T16:26:17.172362+00:00",
+    "started_at_utc": "2026-10-06T16:25:59.551785+00:00",
+    "stderr": {
+      "bytes": 407,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/build-no-isolation.stderr",
+      "sha256": "156428312acaac2dbb56354a3b575abc3b63221b4849e049e4ba5cfb8c476d99"
+    },
+    "stdout": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/build-no-isolation.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "timeout_seconds": 600
+  },
+  "prior_nondeciding_failure_receipt": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/build-isolation-failure.command-results.json",
+    "sha256": "3affb8690b537624219da7834ca34ade76e77af3667d246e877826376b7bd92b"
+  }
+}

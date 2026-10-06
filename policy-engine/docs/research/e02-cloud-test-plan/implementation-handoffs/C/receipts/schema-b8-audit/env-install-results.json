@@ -1,0 +1,126 @@
+{
+  "artifacts": {
+    "source_archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+    "wheel_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+  },
+  "candidate": {
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "environment": {
+    "base_configuration_sha256": {
+      "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    "commands": [
+      {
+        "argv": [
+          "uv",
+          "sync",
+          "--offline",
+          "--frozen",
+          "--no-dev",
+          "--no-install-project",
+          "--python",
+          "/opt/homebrew/bin/python3"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+        "duration_seconds": 0.4476257910137065,
+        "env_delta": {
+          "PYTHONHOME": "unset",
+          "PYTHONPATH": "unset",
+          "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv",
+          "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base"
+        },
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-06T16:28:29.031760+00:00",
+        "name": "base-only-frozen-sync",
+        "started_at_utc": "2026-10-06T16:28:28.583976+00:00",
+        "stderr": {
+          "bytes": 2906,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/env-sync.stderr",
+          "sha256": "4e45ac6e52b1f8b02dd22d653a718bad0fcb0fef4548eb270dfa11240245a0e1"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/env-sync.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "timeout_seconds": 600
+      },
+      {
+        "argv": [
+          "uv",
+          "pip",
+          "install",
+          "--offline",
+          "--no-deps",
+          "--reinstall",
+          "--python",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base/bin/python",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0-py3-none-any.whl"
+        ],
+        "cwd": "/tmp",
+        "duration_seconds": 0.2805381660000421,
+        "env_delta": {
+          "PYTHONHOME": "unset",
+          "PYTHONPATH": "unset",
+          "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv",
+          "UV_PROJECT_ENVIRONMENT": null
+        },
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-06T16:28:29.312620+00:00",
+        "name": "exact-wheel-no-deps-install",
+        "started_at_utc": "2026-10-06T16:28:29.032105+00:00",
+        "stderr": {
+          "bytes": 428,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/wheel-install.stderr",
+          "sha256": "623724a8d1871ae929f6b3dd8e119b44e8c46e4440c5ea79f6c801b8d0b8030b"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/wheel-install.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "timeout_seconds": 180
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base/bin/python",
+          "-I",
+          "-c",
+          "import importlib.metadata as m,json,sys; d=m.distribution('policy-engine'); print(json.dumps({'python':sys.version,'distribution_version':d.version,'site_packages':str(d.locate_file('')),'distribution_count':len(list(m.distributions())),'pytest_present':m.distribution('pytest') is not None if any(x.metadata['Name'].lower()=='pytest' for x in m.distributions()) else False,'jsonschema_present':any(x.metadata['Name'].lower()=='jsonschema' for x in m.distributions()),'requires_dist':d.metadata.get_all('Requires-Dist') or []},sort_keys=True))"
+        ],
+        "cwd": "/tmp",
+        "duration_seconds": 0.11914887500461191,
+        "env_delta": {
+          "PYTHONHOME": "unset",
+          "PYTHONPATH": "unset",
+          "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv",
+          "UV_PROJECT_ENVIRONMENT": null
+        },
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-06T16:28:29.432092+00:00",
+        "name": "installed-profile-readback",
+        "started_at_utc": "2026-10-06T16:28:29.312972+00:00",
+        "stderr": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/profile-readback.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 11636,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/profile-readback.stdout",
+          "sha256": "99188103ecf690a6a6b050aba238a5f8ccd9c478b0302117e0bf761d85e7cbb8"
+        },
+        "timeout_seconds": 30
+      }
+    ],
+    "id": "schema-b8-base-only",
+    "matches_base198_dependency_files": true,
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base/bin/python",
+    "sync_profile": "uv sync --offline --frozen --no-dev --no-install-project with no extras; exact candidate wheel added with --no-deps"
+  }
+}

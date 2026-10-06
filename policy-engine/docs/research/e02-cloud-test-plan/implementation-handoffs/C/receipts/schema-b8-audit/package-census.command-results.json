@@ -1,0 +1,55 @@
+{
+  "candidate": {
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "command": {
+    "argv": [
+      "/opt/homebrew/bin/python3",
+      "-I",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/package-census.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8",
+    "duration_seconds": 1.4697066670050845,
+    "env_delta": {
+      "PYTHONHOME": "unset",
+      "PYTHONPATH": "unset"
+    },
+    "exit_code": 0,
+    "finished_at_utc": "2026-10-06T16:27:38.634079+00:00",
+    "started_at_utc": "2026-10-06T16:27:37.164275+00:00",
+    "stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/package-census.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 35069,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/package-census.stdout",
+      "sha256": "7726e6ce00d5da064b88bd81863671dbc0e1c97e02412cf162e4b271cd8d8036"
+    },
+    "timeout_seconds": 300
+  },
+  "inputs": {
+    "sdist": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "30e5c49608d562d67fa9e9270cbb66513f498a85587d2961ef623323510f769d"
+    },
+    "source_archive": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/candidate.tar",
+      "sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8"
+    },
+    "wheel": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+    }
+  },
+  "result": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/package-census.json",
+    "sha256": "7726e6ce00d5da064b88bd81863671dbc0e1c97e02412cf162e4b271cd8d8036"
+  },
+  "script": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/package-census.py",
+    "sha256": "bcfa3845e25e30fd26385ff7d858403c4ce59c6f2931dd3b440623af407b8518"
+  }
+}

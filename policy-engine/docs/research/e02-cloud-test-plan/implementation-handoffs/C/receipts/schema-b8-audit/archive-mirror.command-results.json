@@ -1,0 +1,195 @@
+{
+  "candidate": {
+    "archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "product_subtree_tree": "57074f8cc12eb4785b5d9d538e56c836fe2ea0c9",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "--quiet"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+      "duration_seconds": 0.013376499991863966,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:31:20.687447+00:00",
+      "name": "git-init",
+      "started_at_utc": "2026-10-06T16:31:20.673948+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/01-git-init.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/01-git-init.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 600
+    },
+    {
+      "argv": [
+        "git",
+        "config",
+        "user.email",
+        "schema-b8-audit@example.invalid"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+      "duration_seconds": 0.005844999977853149,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:31:20.693658+00:00",
+      "name": "git-user-email",
+      "started_at_utc": "2026-10-06T16:31:20.687826+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/02-git-user-email.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/02-git-user-email.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 600
+    },
+    {
+      "argv": [
+        "git",
+        "config",
+        "user.name",
+        "Schema b8 audit"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+      "duration_seconds": 0.005462417029775679,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:31:20.699421+00:00",
+      "name": "git-user-name",
+      "started_at_utc": "2026-10-06T16:31:20.693968+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/03-git-user-name.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/03-git-user-name.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 600
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "--force",
+        "--all"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+      "duration_seconds": 12.493344666028861,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:31:33.193015+00:00",
+      "name": "stage-all-archive-files",
+      "started_at_utc": "2026-10-06T16:31:20.699669+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/04-stage-all-archive-files.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/04-stage-all-archive-files.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 600
+    },
+    {
+      "argv": [
+        "git",
+        "ls-files",
+        "--cached",
+        "-z",
+        "--",
+        "."
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+      "duration_seconds": 0.010475667018909007,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:31:33.203841+00:00",
+      "name": "cached-index-path-list",
+      "started_at_utc": "2026-10-06T16:31:33.193381+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/05-cached-index-path-list.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 861910,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/05-cached-index-path-list.stdout",
+        "sha256": "e7cbe47149fe8d0db19c38d01602b886de2fbb16cf4c093fe243a936ae481cea"
+      },
+      "timeout_seconds": 600
+    },
+    {
+      "argv": [
+        "git",
+        "write-tree"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+      "duration_seconds": 0.8107115419697948,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:31:34.218914+00:00",
+      "name": "write-tree",
+      "started_at_utc": "2026-10-06T16:31:33.408208+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/06-write-tree.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 41,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/06-write-tree.stdout",
+        "sha256": "e35406aac0b1ca9d74209522eee358b083df525189757f8dd88528852d527f1c"
+      },
+      "timeout_seconds": 600
+    },
+    {
+      "argv": [
+        "git",
+        "commit",
+        "--quiet",
+        "-m",
+        "synthetic commit of exact frozen archive subtree"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+      "duration_seconds": 0.03199720900738612,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:31:34.266089+00:00",
+      "name": "archive-mirror-commit",
+      "started_at_utc": "2026-10-06T16:31:34.234092+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/07-archive-mirror-commit.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/07-archive-mirror-commit.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 600
+    }
+  ],
+  "mirror": {
+    "archive_regular_file_count": 13682,
+    "exact_product_tree_match": true,
+    "git_index_count": 13682,
+    "path_sets_exact": true,
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+    "synthetic_commit": "d89eb8a9bdeaa7e54ac674a66b9e2d0c2e65c2a9",
+    "synthetic_product_tree": "57074f8cc12eb4785b5d9d538e56c836fe2ea0c9",
+    "untracked_archive_inputs": 0
+  }
+}

@@ -1,0 +1,1374 @@
+{
+  "baseline_query": {
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit C --failures-only --limit 30",
+    "outcome": "PASS",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/baseline-C-failures.json@a88c3dc6b80a1a8d65870040bfef51363f0a3f3cdbcf421c95f9f200a6100512",
+    "scope_limit": "Nine source-reported C failure cells; none route to these four DFK findings. Baseline remains transfer_and_navigation_only; no raw VM archives received.",
+    "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35"
+  },
+  "branch": "codex/e02-C-schema-20261006",
+  "bundle_ids": [
+    "DFK-01"
+  ],
+  "candidate_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+  "candidate_status": "source_frozen_b8_local_static_census_and_installed_package_audit_complete",
+  "candidate_tree_sha": "467cd6f01ec204767dc60bb939955578428bf102",
+  "candidate_worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos",
+  "canonical_consumers": {
+    "agent_sim_world": {
+      "result_property": "incomes [100, 200] at tax rate 0.1 produce [90, 180], tax collected 30, time_step 1.",
+      "runtime_path": "PureExecutor.run with canonical TaxationMechanism(progressive_factor=0.0)"
+    },
+    "data_forge_schema": {
+      "canonical_owner": "polisyos.data_forge.kernel.schemas",
+      "preserved_compatibility_descriptor": "polisyos.data_forge.kernel.schemas.codegen.GeneratedSchemaModule remains a three-string descriptor; no code generator or canonical export was introduced.",
+      "preserved_identity_alias": "polisyos.data_forge.kernel.pipeline.schemas reexports CompatibilityMode, SchemaRegistry, SchemaVersion as identical objects.",
+      "tested_behaviors": [
+        "SchemaRegistry register/get/latest/list_versions",
+        "schema evolution compatibility and rule override",
+        "SchemaMigrationRegistry plan_path/apply"
+      ]
+    },
+    "foundry_registry": {
+      "independent_runtime_id_class_path_fixture": {
+        "adaptive_agent": [
+          "mechanism.runtime.adaptive_agent@1.0.0",
+          "polisyos.foundry.agent_sim.agents:AdaptiveAgentMechanism"
+        ],
+        "income_tax": [
+          "mechanism.runtime.income_tax@1.0.0",
+          "polisyos.foundry.execute.mechanisms:IncomeTax"
+        ],
+        "labor_market": [
+          "mechanism.runtime.labor_market@1.0.0",
+          "polisyos.foundry.execute.mechanisms:LaborMarketMechanism"
+        ],
+        "queue": [
+          "mechanism.runtime.queue@1.0.0",
+          "polisyos.foundry.execute.queue:QueueMechanism"
+        ],
+        "tax_subsidy": [
+          "mechanism.runtime.tax_subsidy@1.0.0",
+          "polisyos.foundry.execute.mechanisms:TaxSubsidy"
+        ]
+      },
+      "result_property": "income patches [-20, -20, 0] for incomes [100, 100, 100], active [true, true, false], rate 0.2; returned mechanism_type is income_tax.",
+      "runtime_path": "MECHANISM_REGISTRY -> get_mechanism_descriptor -> descriptor.mechanism_class and MethodRegistry.get(method_fqn) -> MethodDispatcher dispatch"
+    }
+  },
+  "changed_path_denominator": {
+    "files": 13,
+    "walk": "git diff --name-only 198076863e143dea9f89f02734b13d50dae3eed5..b8d9115cdc6a55920c1e0a3cae2e5f9092010c27"
+  },
+  "checks": [
+    {
+      "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json@6bb0f5e3ebfb29e38a7a3766e07d52de82f933153cbe2683ff11d435f63fc843",
+      "name": "ImportFrom adversarial baseline-positive-removal CLI probe",
+      "outcome": "PASS",
+      "outputs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stdout.json@b7589828a6f26ab78f1515f16559fb34d0ab500a3a8291bcb7a2edc2dd8f0daa",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stdout.json@17cc761ff653764f1b7f07bc1c437748bf99eab4431d297b3a169f0f1d1f1ac2",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stdout.json@39a9badf7f88d4a334309a51586393965e12f04ff43c2626988f0432311b8fd7",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ],
+      "summary": "Three real census CLI invocations exited 0; empty baseline yielded 0 target ImportFrom hits, positive AST fixture yielded 7, and removing imports returned 0.",
+      "target_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27"
+    },
+    {
+      "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-command-results.json@0a9a214d7830b6c7bc7164dba10fe676b92cd93a2a0e6298e2a4c88e9811bb9b",
+      "name": "Focused changed-census tests",
+      "outcome": "PASS",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stdout.txt@99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "summary": "2 passed: new actual-census ImportFrom package/child/removal regression and existing relative import/dynamic loader census.",
+      "target_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27"
+    },
+    {
+      "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-command-results.json@0a9a214d7830b6c7bc7164dba10fe676b92cd93a2a0e6298e2a4c88e9811bb9b",
+      "name": "Ruff changed Python files",
+      "outcome": "PASS",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": "All checks passed.",
+      "target_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27"
+    },
+    {
+      "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json@523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90",
+      "name": "Full current b8 installed source/resource/dynamic census",
+      "outcome": "PASS",
+      "summary": "Exact installed scanner returned complete_for_selected_local_text_inputs on the 13,682-path product archive tree: 13,611 selected UTF-8 inputs, 71 selector-excluded paths, and zero ignored, untracked, unreadable or unsupported/ambiguous selected inputs. The exact FQN and loader counts are recorded under source_census.",
+      "target_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+      "scope_limit": "317 loader sites have nonliteral targets; arbitrary dynamic dispatch and external consumers remain not_established."
+    },
+    {
+      "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.command-results.json@00ac593e26c083114df25061751d61396fd924500fd26cd11b0b94ffd41242e2",
+      "name": "Exact b8 source archive, wheel/sdist member census and installed scanner origin",
+      "outcome": "PASS",
+      "summary": "Offline cached-backend build succeeded from the frozen b8 archive. Independent package census reconciled configured source archive, wheel and sdist members/bytes. The isolated installed scanner module hash matches exact source archive and wheel member bytes, with checkout absent from sys.path.",
+      "target_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+      "outputs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-results.json@d8bec6c9933dc7b6d48f0b18edc3f84a82bfe0b3582fd091a6b42005723b9b24",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stdout.json@7726e6ce00d5da064b88bd81863671dbc0e1c97e02412cf162e4b271cd8d8036",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stdout.json@1bd7e6912fb6884976dd79a4d2c9ed8603f2247da5dbc6aa08ac5a6b0a16c97e"
+      ]
+    },
+    {
+      "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture.command-results.json@5fffd459b00878361ccae3af2da036798613209e2511256b0bf738a54366459d",
+      "name": "Installed b8 ImportFrom package/child-target and removal falsifier",
+      "outcome": "PASS",
+      "summary": "Isolated installed census CLI reports 6 positive ImportFrom hits including 4 named-child candidates; after relevant imports are removed while both target files remain, it reports 0 import hits. Both actual stdout payloads and probe script are retained.",
+      "target_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json@ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f",
+      "name": "Whole Git path reconciliation and outside-product static supplement",
+      "outcome": "PASS",
+      "summary": "Whole frozen repository path count is 13,710: 13,682 product paths plus 28 outside-product paths. All 28 outside paths match the frozen Git/archive path set; 27 were selected by the installed reader and CODEOWNERS was separately read as 4,869 bytes. The enumerated supplement has no target reference or loader.",
+      "target_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+      "scope_limit": "Local enumerated path-set result only; it does not establish absence of arbitrary dynamic, external, ignored or remote consumers."
+    }
+  ],
+  "cleanup": "No cleanup was performed. Moderate deciding outputs are tracked; large raw outputs remain ignored and retained for independent G review or an exact rerun. No archive, fixture or evidence was deleted.",
+  "documentation_commits": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json",
+      "sha": "cf751b1b4bec5f7ef97d965370e8562f3b4c5b49",
+      "tree": "769fb04c22c62a2d05a40d7d9adaf0df4e8132f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json",
+      "sha": "8b92203b52d0363d912635b773e432e795d3512f",
+      "tree": "25db0bb62d31e3188fb9ed67939e12773cbe9163"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-handoff.json",
+      "sha": "dbd6f2cb390934fc32b751cb80ae8391480e4650",
+      "tree": "0b8c951a9dffbef5d7b29699ac995864da580f22"
+    }
+  ],
+  "finalization_requirements": [
+    "Full current b8 installed-tool census completed on the exact frozen product source archive; exact Git/archive tree and path set reconciled and all selected local UTF-8 inputs read.",
+    "Exact b8 offline wheel/sdist build and full source/archive/member byte census completed; installed tool origin/hash, adversarial fixture and outside-product path supplement retained.",
+    "Moderate command manifests, scripts, reports and stdout/stderr are committed under receipts/schema-b8-audit. Large archive/build artifacts and the 6.1 MB full census report remain in ignored local raw storage with path/SHA-256 references.",
+    "Source candidate remains frozen at b8. Earlier handoffs remain unchanged; this is a separate append-only final audit handoff."
+  ],
+  "finalization_status": "B8 source/static/package evidence complete within the declared local scope. DFK-01 owner and unresolved dynamic/external boundaries remain represented by the four finding verdicts; independent G integration review remains.",
+  "findings": [
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "Early schema DTO remains; no API support claim or retirement was made.",
+      "criterion_ref": {
+        "historical_status": "held",
+        "lines": [
+          198,
+          224
+        ],
+        "owner_row": "finding-owners.tsv:231; C/P37/DFK-01; historical held",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "ec6ce93b380334ba9e5d13e13ce8ecf637afd057b99008b3aa1b462d29194266"
+      },
+      "evidence": "Exact b8 source, archive, wheel/sdist and installed scanner audits are complete. The local reference counts include serialized/text and resource-path mentions but cannot decide whether this DTO is in the supported public allowlist or identify every persisted/external consumer.",
+      "finding_verdict": "held",
+      "gate_basis": [
+        "not_established"
+      ],
+      "id": "LA-005",
+      "missing_input": "Public-surface owner ruling on whether polisyos.foundry.domain.schema is in the supported allowlist. If supported, provide shipped-version/import/persisted-identity evidence; if retirement is selected, separately authorize the exact removal.",
+      "next_owner": "Public-surface owner; G for integration disposition.",
+      "remaining_verification": "Keep the DTO. The local b8 source/package audit does not establish supported-public status, external callers or persisted identity."
+    },
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "ImportFrom coverage and the full b8 local static/package audit are verified. Preserve the empty tombstone; no FQN, resource or compatibility surface was deleted.",
+      "criterion_ref": {
+        "historical_status": "partial",
+        "lines": [
+          225,
+          253
+        ],
+        "owner_row": "finding-owners.tsv:232; C/P37/DFK-01; historical partial",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe"
+      },
+      "evidence": "The b8 census covers the exact 13,682-path product tree and 13,611 selected UTF-8 inputs; the separate supplement reconciles all 28 outside-product Git paths. Source archive, wheel/sdist and installed scanner bytes are reconciled. The installed CLI fixture proves package/child ImportFrom hits and removal falsifier. Canonical Foundry/world/simulator consumer evidence is the prior exact 8ac receipt on unchanged runtime source. The current scan still reports 317 nonliteral loader sites and does not observe external clients.",
+      "finding_verdict": "limited",
+      "gate_basis": [
+        "independently_reconciled",
+        "not_established"
+      ],
+      "id": "LA-006",
+      "missing_input": "C integration/package-consumer owner must supply the semantic admission for changing this exact tombstone path and resolve or explicitly bound the 317 nonliteral loader destinations. External installed callers and registries remain unobserved; G owns final integration acceptance.",
+      "next_owner": "C integration/package consumer owner; G for final acceptance.",
+      "remaining_verification": "Keep the tombstone and capability limited. Do not claim arbitrary-dynamic or external absence, and do not delete the exact empty namespace before the canonical runtime-consumer evidence and named owner authorize that path."
+    },
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "Existing three-string GeneratedSchemaModule descriptor and module remain; no generator, canonical export, or retirement was introduced.",
+      "criterion_ref": {
+        "historical_status": "held",
+        "lines": [
+          1372,
+          1417
+        ],
+        "owner_row": "finding-owners.tsv:252; C/P37/DFK-01; historical held",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "48da21eccebfe89cf7cc0ed9dba75b26752d06f78625f92088e3cb9ebc88fa1a"
+      },
+      "evidence": "Exact b8 local source/package census is complete. GeneratedSchemaModule remains the existing three-string descriptor compatibility surface; no generator, codegen contract, canonical export or ABI was invented.",
+      "finding_verdict": "held",
+      "gate_basis": [
+        "not_established"
+      ],
+      "id": "LA-026",
+      "missing_input": "Data Forge schema-owner decision on whether GeneratedSchemaModule has an intended producer/consumer contract or supported external FQN; if so, name producer and consumer and provide persisted-identity evidence.",
+      "next_owner": "Data Forge schema owner; G for integration disposition.",
+      "remaining_verification": "Preserve the descriptor surface until the schema owner decides. The b8 local source/package audit does not establish external support or settle its semantic contract."
+    },
+    {
+      "capability_label": "verification_missing",
+      "code_outcome": "Canonical kernel schemas and identity-preserving pipeline alias remain; no sunset or data-format change was made.",
+      "criterion_ref": {
+        "historical_status": "held",
+        "lines": [
+          1418,
+          1465
+        ],
+        "owner_row": "finding-owners.tsv:253; C/P37/DFK-01; historical held",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce"
+      },
+      "evidence": "Exact b8 local source/package census is complete, and the existing test verifies polisyos.data_forge.kernel.pipeline.schemas reexports CompatibilityMode, SchemaRegistry and SchemaVersion as identical objects. The identity alias remains unchanged.",
+      "finding_verdict": "held",
+      "gate_basis": [
+        "not_established"
+      ],
+      "id": "LA-027",
+      "missing_input": "Data Forge schema-owner ruling on canonical import path and alias support-window end, plus active-plan owner ruling on accepted migration window and external/persisted consumers.",
+      "next_owner": "Data Forge schema and active-plan owners; G for integration disposition.",
+      "remaining_verification": "Keep the identity alias until both named owners decide. Local b8 evidence does not authorize alias retirement or change its support window."
+    }
+  ],
+  "findings_verdict_enum": [
+    "closed",
+    "limited",
+    "held",
+    "open"
+  ],
+  "full_base_to_candidate_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/build.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/install-replay-origin.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/installed-command-results.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/module-origins-replay.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-target-members.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-target-members.result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package_target_members.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-plan.md",
+    "policy-engine/tests/unit/remediation/test_dfk_01.py",
+    "policy-engine/tools/quality/validation/schema_fqn_census.py"
+  ],
+  "handoff_evidence_files": {
+    "b8-command-results.json": {
+      "bytes": 3287,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-command-results.json",
+      "sha256": "0a9a214d7830b6c7bc7164dba10fe676b92cd93a2a0e6298e2a4c88e9811bb9b"
+    },
+    "b8-focused-tests.stderr.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "b8-focused-tests.stdout.txt": {
+      "bytes": 80,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stdout.txt",
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    "b8-ruff.stderr.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "b8-ruff.stdout.txt": {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "baseline-empty.stderr.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-empty.stdout.json": {
+      "bytes": 9550,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stdout.json",
+      "sha256": "b7589828a6f26ab78f1515f16559fb34d0ab500a3a8291bcb7a2edc2dd8f0daa"
+    },
+    "focused-delta-tests.txt": {
+      "bytes": 80,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/focused-delta-tests.txt",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    "independent-import-diff.json": {
+      "bytes": 204,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/independent-import-diff.json",
+      "sha256": "6e18f4cc497ec5c1f843359940b4eb25e6811f6d7d603ae19971f6190918896a"
+    },
+    "probe-metadata.json": {
+      "bytes": 13434,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json",
+      "sha256": "6bb0f5e3ebfb29e38a7a3766e07d52de82f933153cbe2683ff11d435f63fc843"
+    },
+    "relative-init-child-direct-positive.stderr.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "relative-init-child-direct-positive.stdout.json": {
+      "bytes": 15806,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stdout.json",
+      "sha256": "17cc761ff653764f1b7f07bc1c437748bf99eab4431d297b3a169f0f1d1f1ac2"
+    },
+    "removal-control.stderr.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "removal-control.stdout.json": {
+      "bytes": 9650,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stdout.json",
+      "sha256": "39a9badf7f88d4a334309a51586393965e12f04ff43c2626988f0432311b8fd7"
+    },
+    "run_importfrom_falsifier.py": {
+      "bytes": 7343,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/run_importfrom_falsifier.py",
+      "sha256": "1641111e6fc24bd583e2e161874238ee0fcb6a6e62228ff8009f95d56379605b"
+    },
+    "archive-mirror-write-tree.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror-write-tree.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "archive-mirror-write-tree.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror-write-tree.stdout",
+      "bytes": 41,
+      "sha256": "e35406aac0b1ca9d74209522eee358b083df525189757f8dd88528852d527f1c"
+    },
+    "archive-mirror.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror.command-results.json",
+      "bytes": 8673,
+      "sha256": "5cc7be3c9e3f313bd0fbdf74de4a781c6eedbe2a173f8514caf9ad3fe841a6d8"
+    },
+    "build-isolation-failure.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.command-results.json",
+      "bytes": 1428,
+      "sha256": "3affb8690b537624219da7834ca34ade76e77af3667d246e877826376b7bd92b"
+    },
+    "build-isolation-failure.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.stderr",
+      "bytes": 658,
+      "sha256": "bc2feeb5d54662b2aa213c4934cc379d8d0e396a3077f572cb380779f95f4bad"
+    },
+    "build-isolation-failure.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-no-isolation.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stderr",
+      "bytes": 407,
+      "sha256": "156428312acaac2dbb56354a3b575abc3b63221b4849e049e4ba5cfb8c476d99"
+    },
+    "build-no-isolation.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-results.json",
+      "bytes": 3194,
+      "sha256": "d8bec6c9933dc7b6d48f0b18edc3f84a82bfe0b3582fd091a6b42005723b9b24"
+    },
+    "env-install-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-install-results.json",
+      "bytes": 6222,
+      "sha256": "55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45"
+    },
+    "env-sync.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-sync.stderr",
+      "bytes": 2906,
+      "sha256": "4e45ac6e52b1f8b02dd22d653a718bad0fcb0fef4548eb270dfa11240245a0e1"
+    },
+    "env-sync.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-sync.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-positive.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-positive.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-positive.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-positive.stdout.json",
+      "bytes": 14507,
+      "sha256": "58c5eba3c0761d2d8acbf965c2ec7f3ecaa7e72526e19af1e917df5637fbbfd5"
+    },
+    "fixture-removal.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-removal.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-removal.stdout.json",
+      "bytes": 9650,
+      "sha256": "253886d6069bef1969ce609f46468b8ce56173b958a6bf6051ad02b2b990a0df"
+    },
+    "fixture-runner.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-runner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-runner.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-runner.stdout",
+      "bytes": 359,
+      "sha256": "b26b4bc1a0b35f3d0856a0c9468c22e7de90a6dc81479121b7fa9a0edcc93ebc"
+    },
+    "installed-fixture-probe.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture-probe.py",
+      "bytes": 10168,
+      "sha256": "32456defc4d4be2f8b4390a680c85de25bf62566a1f3b9581b309c85b6cc7232"
+    },
+    "installed-fixture-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture-results.json",
+      "bytes": 14701,
+      "sha256": "1c5fa5a212439a33e997d601d1a9cf11465ddfd90ab8d974cc1400e7a8398a55"
+    },
+    "installed-fixture.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture.command-results.json",
+      "bytes": 2195,
+      "sha256": "5fffd459b00878361ccae3af2da036798613209e2511256b0bf738a54366459d"
+    },
+    "installed-source-census.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json",
+      "bytes": 3784,
+      "sha256": "523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90"
+    },
+    "installed-source-census.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "module-origin-initial.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.command-results.json",
+      "bytes": 1994,
+      "sha256": "d2c1832fd8ad61e76d715334cfb726760f393bce3bf6eb85780c1a0b6ba15006"
+    },
+    "module-origin-initial.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.stderr",
+      "bytes": 584,
+      "sha256": "e271c559dd6842a390de487ac72cc526d7253e7a47f76ebe516bac212941626d"
+    },
+    "module-origin-initial.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "module-origin-probe.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-probe.py",
+      "bytes": 3118,
+      "sha256": "21e21db27dab8a05b0af991135bba5f16f2501cd69c068fe4e9c7dacd571a1ba"
+    },
+    "module-origin-verified.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.command-results.json",
+      "bytes": 2398,
+      "sha256": "c4c8fe74b39ef1eb5ff44d52c7b99749451cb77e111298f29e53a8ae8307c89c"
+    },
+    "module-origin-verified.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "module-origin-verified.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stdout.json",
+      "bytes": 1497,
+      "sha256": "1bd7e6912fb6884976dd79a4d2c9ed8603f2247da5dbc6aa08ac5a6b0a16c97e"
+    },
+    "outside-repo-initial.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.command-results.json",
+      "bytes": 2109,
+      "sha256": "edd66c550621045a8a3a30e9f8415e4a3eec4bd4491e12eb1400efe5df7fd359"
+    },
+    "outside-repo-initial.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.stderr",
+      "bytes": 307,
+      "sha256": "985d70db087fc78b259fb9abe19ba79aeac23455f71b51aaa05e0e1a55dc56b0"
+    },
+    "outside-repo-initial.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "outside-repo-probe.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-probe.py",
+      "bytes": 9492,
+      "sha256": "b1bfe1284c5bf1db43b4f537cc2a1b7ac2ae43e36449fe4e200244168cf6ea37"
+    },
+    "outside-repo-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-results.json",
+      "bytes": 11712,
+      "sha256": "6654d786eede3db4066aea760257234c6f4366035009d771c20c6b51285def33"
+    },
+    "outside-repo-verified.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json",
+      "bytes": 2707,
+      "sha256": "ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f"
+    },
+    "outside-runner-verified.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-runner-verified.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "outside-runner-verified.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-runner-verified.stdout.json",
+      "bytes": 577,
+      "sha256": "db6b809d9b9d6589107e4bea8f953b2be9410cf24312d18e7aae64d23004b615"
+    },
+    "package-census.command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.command-results.json",
+      "bytes": 2626,
+      "sha256": "00ac593e26c083114df25061751d61396fd924500fd26cd11b0b94ffd41242e2"
+    },
+    "package-census.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.py",
+      "bytes": 6260,
+      "sha256": "bcfa3845e25e30fd26385ff7d858403c4ce59c6f2931dd3b440623af407b8518"
+    },
+    "package-census.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stdout.json",
+      "bytes": 35069,
+      "sha256": "7726e6ce00d5da064b88bd81863671dbc0e1c97e02412cf162e4b271cd8d8036"
+    },
+    "profile-readback.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/profile-readback.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "profile-readback.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/profile-readback.stdout",
+      "bytes": 11636,
+      "sha256": "99188103ecf690a6a6b050aba238a5f8ccd9c478b0302117e0bf761d85e7cbb8"
+    },
+    "wheel-install.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/wheel-install.stderr",
+      "bytes": 428,
+      "sha256": "623724a8d1871ae929f6b3dd8e119b44e8c46e4440c5ea79f6c801b8d0b8030b"
+    },
+    "wheel-install.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/wheel-install.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "installed-source-census.stdout.raw": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.stdout",
+      "bytes": 6105339,
+      "sha256": "8900d61dc544cf2c60bd53fd7cd798be8303b723c76edb74f3f9fdda1d266f26",
+      "storage": "ignored local raw"
+    },
+    "package-census.stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "handoff_evidence_path_sha_refs": {
+    "b8-command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-command-results.json@0a9a214d7830b6c7bc7164dba10fe676b92cd93a2a0e6298e2a4c88e9811bb9b",
+    "b8-focused-tests.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "b8-focused-tests.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stdout.txt@99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+    "b8-ruff.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "b8-ruff.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "baseline-empty.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline-empty.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stdout.json@b7589828a6f26ab78f1515f16559fb34d0ab500a3a8291bcb7a2edc2dd8f0daa",
+    "focused-delta-tests.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/focused-delta-tests.txt@423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+    "independent-import-diff.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/independent-import-diff.json@6e18f4cc497ec5c1f843359940b4eb25e6811f6d7d603ae19971f6190918896a",
+    "probe-metadata.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json@6bb0f5e3ebfb29e38a7a3766e07d52de82f933153cbe2683ff11d435f63fc843",
+    "relative-init-child-direct-positive.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "relative-init-child-direct-positive.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stdout.json@17cc761ff653764f1b7f07bc1c437748bf99eab4431d297b3a169f0f1d1f1ac2",
+    "removal-control.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "removal-control.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stdout.json@39a9badf7f88d4a334309a51586393965e12f04ff43c2626988f0432311b8fd7",
+    "run_importfrom_falsifier.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/run_importfrom_falsifier.py@1641111e6fc24bd583e2e161874238ee0fcb6a6e62228ff8009f95d56379605b",
+    "archive-mirror-write-tree.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror-write-tree.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archive-mirror-write-tree.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror-write-tree.stdout@e35406aac0b1ca9d74209522eee358b083df525189757f8dd88528852d527f1c",
+    "archive-mirror.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror.command-results.json@5cc7be3c9e3f313bd0fbdf74de4a781c6eedbe2a173f8514caf9ad3fe841a6d8",
+    "build-isolation-failure.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.command-results.json@3affb8690b537624219da7834ca34ade76e77af3667d246e877826376b7bd92b",
+    "build-isolation-failure.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.stderr@bc2feeb5d54662b2aa213c4934cc379d8d0e396a3077f572cb380779f95f4bad",
+    "build-isolation-failure.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.stdout@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build-no-isolation.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stderr@156428312acaac2dbb56354a3b575abc3b63221b4849e049e4ba5cfb8c476d99",
+    "build-no-isolation.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stdout@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-results.json@d8bec6c9933dc7b6d48f0b18edc3f84a82bfe0b3582fd091a6b42005723b9b24",
+    "env-install-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-install-results.json@55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45",
+    "env-sync.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-sync.stderr@4e45ac6e52b1f8b02dd22d653a718bad0fcb0fef4548eb270dfa11240245a0e1",
+    "env-sync.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-sync.stdout@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixture-positive.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-positive.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixture-positive.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-positive.stdout.json@58c5eba3c0761d2d8acbf965c2ec7f3ecaa7e72526e19af1e917df5637fbbfd5",
+    "fixture-removal.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-removal.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixture-removal.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-removal.stdout.json@253886d6069bef1969ce609f46468b8ce56173b958a6bf6051ad02b2b990a0df",
+    "fixture-runner.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-runner.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixture-runner.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/fixture-runner.stdout@b26b4bc1a0b35f3d0856a0c9468c22e7de90a6dc81479121b7fa9a0edcc93ebc",
+    "installed-fixture-probe.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture-probe.py@32456defc4d4be2f8b4390a680c85de25bf62566a1f3b9581b309c85b6cc7232",
+    "installed-fixture-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture-results.json@1c5fa5a212439a33e997d601d1a9cf11465ddfd90ab8d974cc1400e7a8398a55",
+    "installed-fixture.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture.command-results.json@5fffd459b00878361ccae3af2da036798613209e2511256b0bf738a54366459d",
+    "installed-source-census.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json@523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90",
+    "installed-source-census.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module-origin-initial.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.command-results.json@d2c1832fd8ad61e76d715334cfb726760f393bce3bf6eb85780c1a0b6ba15006",
+    "module-origin-initial.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.stderr@e271c559dd6842a390de487ac72cc526d7253e7a47f76ebe516bac212941626d",
+    "module-origin-initial.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-initial.stdout@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module-origin-probe.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-probe.py@21e21db27dab8a05b0af991135bba5f16f2501cd69c068fe4e9c7dacd571a1ba",
+    "module-origin-verified.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.command-results.json@c4c8fe74b39ef1eb5ff44d52c7b99749451cb77e111298f29e53a8ae8307c89c",
+    "module-origin-verified.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module-origin-verified.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stdout.json@1bd7e6912fb6884976dd79a4d2c9ed8603f2247da5dbc6aa08ac5a6b0a16c97e",
+    "outside-repo-initial.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.command-results.json@edd66c550621045a8a3a30e9f8415e4a3eec4bd4491e12eb1400efe5df7fd359",
+    "outside-repo-initial.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.stderr@985d70db087fc78b259fb9abe19ba79aeac23455f71b51aaa05e0e1a55dc56b0",
+    "outside-repo-initial.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.stdout@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "outside-repo-probe.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-probe.py@b1bfe1284c5bf1db43b4f537cc2a1b7ac2ae43e36449fe4e200244168cf6ea37",
+    "outside-repo-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-results.json@6654d786eede3db4066aea760257234c6f4366035009d771c20c6b51285def33",
+    "outside-repo-verified.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json@ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f",
+    "outside-runner-verified.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-runner-verified.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "outside-runner-verified.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-runner-verified.stdout.json@db6b809d9b9d6589107e4bea8f953b2be9410cf24312d18e7aae64d23004b615",
+    "package-census.command-results.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.command-results.json@00ac593e26c083114df25061751d61396fd924500fd26cd11b0b94ffd41242e2",
+    "package-census.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.py@bcfa3845e25e30fd26385ff7d858403c4ce59c6f2931dd3b440623af407b8518",
+    "package-census.stdout.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stdout.json@7726e6ce00d5da064b88bd81863671dbc0e1c97e02412cf162e4b271cd8d8036",
+    "profile-readback.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/profile-readback.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "profile-readback.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/profile-readback.stdout@99188103ecf690a6a6b050aba238a5f8ccd9c478b0302117e0bf761d85e7cbb8",
+    "wheel-install.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/wheel-install.stderr@623724a8d1871ae929f6b3dd8e119b44e8c46e4440c5ea79f6c801b8d0b8030b",
+    "wheel-install.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/wheel-install.stdout@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "installed-source-census.stdout.raw": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.stdout@8900d61dc544cf2c60bd53fd7cd798be8303b723c76edb74f3f9fdda1d266f26",
+    "package-census.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-final-handoff.json",
+  "history": {
+    "append_only": "Separate audit-complete b8 handoff. The previous pre-audit b8 record and historical 8ac handoffs remain unchanged.",
+    "append_only_handoff_commits": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json",
+        "sha": "cf751b1b4bec5f7ef97d965370e8562f3b4c5b49",
+        "tree": "769fb04c22c62a2d05a40d7d9adaf0df4e8132f8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json",
+        "sha": "8b92203b52d0363d912635b773e432e795d3512f",
+        "tree": "25db0bb62d31e3188fb9ed67939e12773cbe9163"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-handoff.json",
+        "sha": "dbd6f2cb390934fc32b751cb80ae8391480e4650",
+        "tree": "0b8c951a9dffbef5d7b29699ac995864da580f22"
+      }
+    ],
+    "previous_full_handoff": {
+      "candidate_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+      "note": "Pre-audit b8 record; it is superseded only for source/package evidence by this append-only final record.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-handoff.json",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-handoff.json@2dd436522b28b94d83f5321a0b48df768c5853512c5e4475ffe4e483eb8e5617",
+      "sha256": "2dd436522b28b94d83f5321a0b48df768c5853512c5e4475ffe4e483eb8e5617"
+    },
+    "source_commits": [
+      {
+        "scope": "Read-only local DFK FQN census and focused fixtures.",
+        "sha": "d432d7d76a0dd7bef6bb9ebbc812cc817ae934ef",
+        "tree": "c614dd36e9277e120658a0852f209c9013634ba4"
+      },
+      {
+        "scope": "Canonical Foundry mechanism registry/dispatcher/simulator controls.",
+        "sha": "248cf935cad4a28a4fdd59fc419223cbd10644c9",
+        "tree": "adc1cc7dfb4c7e68acf023dbab3dff1ab09d1eb3"
+      },
+      {
+        "scope": "Repository text/resource census extension; previous source/package candidate.",
+        "sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+        "tree": "ec6137a453d3aafdfd46e1c6304e4cf3a9de3da5"
+      },
+      {
+        "scope": "Fix ImportFrom package context and named child-module candidates; add actual census CLI positive/removal regression.",
+        "sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+        "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+      }
+    ]
+  },
+  "implementation_commits": [
+    "d432d7d76a0dd7bef6bb9ebbc812cc817ae934ef",
+    "248cf935cad4a28a4fdd59fc419223cbd10644c9",
+    "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+    "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27"
+  ],
+  "main_acceptance_boundary": {
+    "dfk_paths_changed_between_g97_and_base": [],
+    "g97_anchor_is_ancestor_of_base": true,
+    "interpretation": "DFK implementation commits are topic-only relative to pinned main; this record does not assert main acceptance.",
+    "pinned_main_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "no_new_codegen_or_compatibility_retirement": true,
+  "owner_decision_changes": false,
+  "package_archive_census": {
+    "b8_installed_module_hash": "9b7f542591be7260a4ed1dbd8c8d158f73a7d388413b55b6a8a6c3504d7d0546",
+    "candidate_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "previous_8ac_package_profile": {
+      "exact_source_byte_mismatches": 0,
+      "interpretation": "Historical exact 8ac artifacts. source_project_files=13,672 is the product subtree count; whole repository is 13,700 after adding 28 outside-product paths. These bytes do not establish b8.",
+      "package_root_readmes_expected_and_present": 167,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json@a108ff5d5463e42791b5404b00cab98e1ba10257c3f8ff35ec78df4d29d127c3",
+      "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json@a108ff5d5463e42791b5404b00cab98e1ba10257c3f8ff35ec78df4d29d127c3",
+      "sdist_bytes": 65185430,
+      "sdist_members_including_pkg_info": 8465,
+      "sdist_sha256": "7d0f40eb90f23e1a19ed87c7489cf02f3286a50f9765eacff37d4f758a238f95",
+      "source_archive_bytes": 460001280,
+      "source_archive_sha256": "52351c2185833b6ccab8bc3d99a717e9bdedaa210de3e1549a34185315bea971",
+      "source_project_files": 13672,
+      "source_readmes_expected_and_present": 425,
+      "wheel_bytes": 15026317,
+      "wheel_members": 3456,
+      "wheel_payload_files": 3451,
+      "wheel_sha256": "74b74c062c4f57d11e0d83bd1655c4209b3ae3383b9b54753ed7ad1920490c79",
+      "wheel_unmapped_payloads": 0,
+      "whole_repository_files": 13700
+    },
+    "required": "Local source and package gates for this b8 slice are complete. Dynamic target declarations, external consumers and semantic owner decisions remain outside this result.",
+    "status": "PASS for exact b8 source archive, wheel/sdist member/byte census and installed module identity within the declared package profile.",
+    "b8_profile": {
+      "archive": {
+        "sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+        "bytes": 460134400,
+        "product_files": 13682,
+        "python_files": 6439,
+        "pyi_files": 5,
+        "readmes": 425
+      },
+      "wheel": {
+        "sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99",
+        "bytes": 15026563,
+        "members": 3456,
+        "payload_files": 3451,
+        "exact_source_byte_matches": 3450,
+        "forced_include_byte_matches": 1,
+        "mismatches": 0,
+        "unmapped_payloads": 0,
+        "expected_package_readmes": 167,
+        "missing_package_readmes": 0
+      },
+      "sdist": {
+        "sha256": "30e5c49608d562d67fa9e9270cbb66513f498a85587d2961ef623323510f769d",
+        "bytes": 65212167,
+        "members_including_pkg_info": 8475,
+        "frozen_source_files_byte_identical": 8474,
+        "extra_members": 0,
+        "mismatch_paths": 0,
+        "source_files_not_selected": 5208,
+        "source_readmes": 425,
+        "missing_source_readmes": 0
+      }
+    },
+    "b8_build": {
+      "successful_argv": [
+        "uv",
+        "build",
+        "--offline",
+        "--no-build-isolation",
+        "--out-dir",
+        "<ignored-raw>/dist"
+      ],
+      "outcome": "PASS",
+      "duration_seconds": 17.62044958298793,
+      "profile": "Python 3.14 cached native build backend, offline, no build isolation; exact argv and environment delta in build-results.json.",
+      "result_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-results.json",
+        "bytes": 3194,
+        "sha256": "d8bec6c9933dc7b6d48f0b18edc3f84a82bfe0b3582fd091a6b42005723b9b24"
+      },
+      "success_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "success_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-no-isolation.stderr",
+        "bytes": 407,
+        "sha256": "156428312acaac2dbb56354a3b575abc3b63221b4849e049e4ba5cfb8c476d99"
+      },
+      "initial_isolated_attempt": {
+        "outcome": "NONDECIDING_TOOLING_CACHE_FAILURE",
+        "reason": "hatchling>=1.27.0 absent from the isolated offline build cache; no artifact was produced. Successful deciding build used cached backend/dependencies without isolation.",
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.command-results.json",
+          "bytes": 1428,
+          "sha256": "3affb8690b537624219da7834ca34ade76e77af3667d246e877826376b7bd92b"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/build-isolation-failure.stderr",
+          "bytes": 658,
+          "sha256": "bc2feeb5d54662b2aa213c4934cc379d8d0e396a3077f572cb380779f95f4bad"
+        }
+      }
+    },
+    "package_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stdout.json",
+      "bytes": 35069,
+      "sha256": "7726e6ce00d5da064b88bd81863671dbc0e1c97e02412cf162e4b271cd8d8036"
+    },
+    "package_command_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.command-results.json",
+      "bytes": 2626,
+      "sha256": "00ac593e26c083114df25061751d61396fd924500fd26cd11b0b94ffd41242e2"
+    },
+    "installed_module_origin_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.command-results.json",
+      "bytes": 2398,
+      "sha256": "c4c8fe74b39ef1eb5ff44d52c7b99749451cb77e111298f29e53a8ae8307c89c"
+    },
+    "installed_module_origin_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/module-origin-verified.stdout.json",
+      "bytes": 1497,
+      "sha256": "1bd7e6912fb6884976dd79a4d2c9ed8603f2247da5dbc6aa08ac5a6b0a16c97e"
+    },
+    "installed_fixture_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture.command-results.json",
+      "bytes": 2195,
+      "sha256": "5fffd459b00878361ccae3af2da036798613209e2511256b0bf738a54366459d"
+    },
+    "installed_environment_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-install-results.json",
+      "bytes": 6222,
+      "sha256": "55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45"
+    },
+    "installed_environment_profile_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/profile-readback.stdout",
+      "bytes": 11636,
+      "sha256": "99188103ecf690a6a6b050aba238a5f8ccd9c478b0302117e0bf761d85e7cbb8"
+    },
+    "archive_mirror_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/archive-mirror.command-results.json",
+      "bytes": 8673,
+      "sha256": "5cc7be3c9e3f313bd0fbdf74de4a781c6eedbe2a173f8514caf9ad3fe841a6d8"
+    },
+    "mutable_environment_note": "Temporary isolated Python 3.14 environment was created from base198 dependency files and exact b8 wheel; module origin and bytes were captured at invocation. This is not a claim about present-day environment state.",
+    "large_local_artifacts": [
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/candidate.tar",
+        "bytes": 460134400,
+        "sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+        "storage": "ignored local raw"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "bytes": 15026563,
+        "sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99",
+        "storage": "ignored local raw"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0.tar.gz",
+        "bytes": 65212167,
+        "sha256": "30e5c49608d562d67fa9e9270cbb66513f498a85587d2961ef623323510f769d",
+        "storage": "ignored local raw"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/05-cached-index-path-list.stdout",
+        "bytes": 861910,
+        "sha256": "e7cbe47149fe8d0db19c38d01602b886de2fbb16cf4c093fe243a936ae481cea",
+        "storage": "ignored local raw"
+      }
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_finding": {
+    "b8 current source/resource/import census": "independently_reconciled",
+    "b8 package membership and installed tool origin": "independently_reconciled",
+    "controlled ImportFrom child-target positive/removal behavior": "independently_reconciled",
+    "public API support, FQN sunsets, schema-owner and alias support-window decisions": "not_established",
+    "unresolved dynamic loader destinations and external callers": "not_established"
+  },
+  "prior_8ac_verification": {
+    "p41": "Existing companion and architecture failures remain P41 attribution not_established; this handoff does not reclassify them.",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json@a108ff5d5463e42791b5404b00cab98e1ba10257c3f8ff35ec78df4d29d127c3",
+    "scope": "The 31-test DFK/simulator run and separate focused companion failures/architecture result are historical 8ac evidence. No consumer or broader suite was rerun at b8; the product-runtime paths are unchanged since 8ac."
+  },
+  "prior_python_ast_reconciliation": {
+    "candidate_sha": "8b92203b52d0363d912635b773e432e795d3512f",
+    "candidate_tree_sha": "25db0bb62d31e3188fb9ed67939e12773cbe9163",
+    "independent_importfrom_target_references": [],
+    "output": {
+      "bytes": 204,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/independent-import-diff.json",
+      "sha256": "6e18f4cc497ec5c1f843359940b4eb25e6811f6d7d603ae19971f6190918896a"
+    },
+    "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/independent-import-diff.json@6e18f4cc497ec5c1f843359940b4eb25e6811f6d7d603ae19971f6190918896a",
+    "selected_python_files": 6444,
+    "status": "PASS for the pre-b8 8b source snapshot only; this independent reconciliation did not exercise the scanner output and does not replace the required b8 full census."
+  },
+  "product_commits": [
+    {
+      "scope": "Read-only local DFK FQN census and focused fixtures.",
+      "sha": "d432d7d76a0dd7bef6bb9ebbc812cc817ae934ef",
+      "tree": "c614dd36e9277e120658a0852f209c9013634ba4"
+    },
+    {
+      "scope": "Canonical Foundry mechanism registry/dispatcher/simulator controls.",
+      "sha": "248cf935cad4a28a4fdd59fc419223cbd10644c9",
+      "tree": "adc1cc7dfb4c7e68acf023dbab3dff1ab09d1eb3"
+    },
+    {
+      "scope": "Repository text/resource census extension; previous source/package candidate.",
+      "sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "tree": "ec6137a453d3aafdfd46e1c6304e4cf3a9de3da5"
+    },
+    {
+      "scope": "Fix ImportFrom package context and named child-module candidates; add actual census CLI positive/removal regression.",
+      "sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+      "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+    }
+  ],
+  "property": {
+    "b8_instrument_property": "The AST census should recognize ImportFrom module targets, package-initializer relative imports, and named absolute/relative child-module candidates while labeling ambiguous attribute-vs-submodule candidates honestly.",
+    "divergent_case": "An actual schemas/__init__.py containing from .codegen import GeneratedSchemaModule or from . import codegen produced zero target ImportFrom hits before b8; b8 reports the direct and named-child forms in the independent CLI mutant.",
+    "negative_controls": [
+      "Empty package initializer baseline has zero target imports.",
+      "Seven target ImportFrom records appear for the b8 positive package/child/relative-level mutant.",
+      "Removing those imports returns to zero target import records.",
+      "The focused test exercises the census CLI and parses fixture source bytes; it does not inspect marker text as a substitute for behavior."
+    ],
+    "prior_proxy": "The old implementation checked only node.module and derived package context as if every file were a normal module.",
+    "proxy_divergence": "A package initializer child import is recognized as a named child-module candidate, but the candidate remains ambiguous with a package attribute. Star imports and computed loaders cannot be expanded; the exact b8 static census and package audit are complete, while their declared dynamic/external boundaries remain limited.",
+    "runtime_path": [
+      "MECHANISM_REGISTRY resolves the five expected runtime IDs to class paths.",
+      "get_mechanism_descriptor and MethodRegistry resolve canonical implementations.",
+      "MethodDispatcher dispatches income_tax and returns independently expected income deltas.",
+      "PureExecutor.run uses canonical TaxationMechanism and updates simulated world state.",
+      "SchemaRegistry/evolution/migration consumers remain the canonical Data Forge readers."
+    ],
+    "statement": "Measure exact FQN families in selected local source/config/resource inputs; preserve compatibility until owners decide support/sunset; verify the tombstone boundary with real canonical consumers."
+  },
+  "pull_request": null,
+  "required_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "scanner_delta": {
+    "b8_focused_checks": {
+      "manifest": {
+        "bytes": 3287,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-command-results.json",
+        "sha256": "0a9a214d7830b6c7bc7164dba10fe676b92cd93a2a0e6298e2a4c88e9811bb9b"
+      },
+      "pytest": {
+        "result": "PASS",
+        "stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 80,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-focused-tests.stdout.txt",
+          "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+        },
+        "summary": "2 focused census tests passed: package/child ImportFrom/removal control and existing direct relative import/dynamic-loader census."
+      },
+      "ruff": {
+        "result": "PASS",
+        "stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 19,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/b8-ruff.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "summary": "All checks passed on the changed census tool and DFK test."
+      }
+    },
+    "code_outcome": "GO for the generic ImportFrom package/child-candidate correction and actual installed baseline/positive/removal falsifier. The full b8 local static census and exact package gates now pass within their declared scopes; star imports, dynamic targets and external consumers remain bounded.",
+    "correction": "Use the containing package for __init__.py and the parent package for ordinary modules; resolve relative levels from that context; record named child-module candidates for absolute and relative ImportFrom forms. Candidate evidence is labeled child_module_or_package_attribute, not presented as confirmed runtime resolution.",
+    "full_stdout_script_and_argv_git_receipts": {
+      "baseline-empty.stderr.txt": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "baseline-empty.stdout.json": {
+        "bytes": 9550,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/baseline-empty.stdout.json",
+        "sha256": "b7589828a6f26ab78f1515f16559fb34d0ab500a3a8291bcb7a2edc2dd8f0daa"
+      },
+      "focused-delta-tests.txt": {
+        "bytes": 80,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/focused-delta-tests.txt",
+        "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+      },
+      "independent-import-diff.json": {
+        "bytes": 204,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/independent-import-diff.json",
+        "sha256": "6e18f4cc497ec5c1f843359940b4eb25e6811f6d7d603ae19971f6190918896a"
+      },
+      "probe-metadata.json": {
+        "bytes": 13434,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json",
+        "sha256": "6bb0f5e3ebfb29e38a7a3766e07d52de82f933153cbe2683ff11d435f63fc843"
+      },
+      "relative-init-child-direct-positive.stderr.txt": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "relative-init-child-direct-positive.stdout.json": {
+        "bytes": 15806,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/relative-init-child-direct-positive.stdout.json",
+        "sha256": "17cc761ff653764f1b7f07bc1c437748bf99eab4431d297b3a169f0f1d1f1ac2"
+      },
+      "removal-control.stderr.txt": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "removal-control.stdout.json": {
+        "bytes": 9650,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/removal-control.stdout.json",
+        "sha256": "39a9badf7f88d4a334309a51586393965e12f04ff43c2626988f0432311b8fd7"
+      },
+      "run_importfrom_falsifier.py": {
+        "bytes": 7343,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/run_importfrom_falsifier.py",
+        "sha256": "1641111e6fc24bd583e2e161874238ee0fcb6a6e62228ff8009f95d56379605b"
+      }
+    },
+    "new_class": "Static ImportFrom package/child-target omission (P38 proxy gap).",
+    "observed_counterexample": "The real census CLI over a Git-visible fixture returned zero target import hits with an empty package initializer; adding relative direct, relative child, absolute child, and nested level-2 relative imports returned seven target hits; removing those imports returned zero again. All three invocations exited 0.",
+    "probe_metadata": {
+      "bytes": 13434,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json",
+      "sha256": "6bb0f5e3ebfb29e38a7a3766e07d52de82f933153cbe2683ff11d435f63fc843"
+    },
+    "probe_metadata_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-importfrom-review/probe-metadata.json@6bb0f5e3ebfb29e38a7a3766e07d52de82f933153cbe2683ff11d435f63fc843",
+    "remaining_static_limits": [
+      "Star imports are not expanded to child modules; child export destinations are not inferred.",
+      "A named child candidate can be a package attribute instead of a submodule; the receipt preserves this ambiguity explicitly.",
+      "Computed dynamic loader targets, external clients, ignored inputs, and nonlocal package discovery remain unresolved by construction."
+    ],
+    "replay_context": "The preserved probe script was run when the schema worktree HEAD was b8. Its candidate argument is a mutable worktree path, not a detached commit checkout; the probe metadata pins the actual candidate commit/tree/tool blob and each captured raw output. Do not rerun the preserved script after this append-only handoff advances branch HEAD and treat that later run as the b8 run.",
+    "root_cause": "The prior resolver derived relative-import package context by dropping the final component for every .py path, including package __init__.py; the AST branch matched only node.module and did not examine named imported children.",
+    "scope_note": "The current full repository census must be recomputed over the complete b8-selected input denominator. A targeted text search or the pre-fix Python AST scan is not a substitute.",
+    "b8_full_audit": {
+      "source_census_stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.stdout",
+        "bytes": 6105339,
+        "sha256": "8900d61dc544cf2c60bd53fd7cd798be8303b723c76edb74f3f9fdda1d266f26",
+        "storage": "ignored local raw"
+      },
+      "package_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/package-census.stdout.json",
+        "bytes": 35069,
+        "sha256": "7726e6ce00d5da064b88bd81863671dbc0e1c97e02412cf162e4b271cd8d8036"
+      },
+      "installed_fixture_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-fixture-results.json",
+        "bytes": 14701,
+        "sha256": "1c5fa5a212439a33e997d601d1a9cf11465ddfd90ab8d974cc1400e7a8398a55"
+      },
+      "outside_supplement_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-results.json",
+        "bytes": 11712,
+        "sha256": "6654d786eede3db4066aea760257234c6f4366035009d771c20c6b51285def33"
+      },
+      "interpretation": "All receipts are tied to exact b8 tree/archive; raw outputs remain local as explicitly cited."
+    }
+  },
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "schema-fqn-census-b8-final",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_census": {
+    "candidate_sha": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "expected_command": "Executed from /tmp with the isolated installed environment: <venv-base>/bin/python -I -m tools.quality.validation.schema_fqn_census --repo-root <exact-extracted-b8-product-source>. Source archive mirror was reconciled to the candidate product tree and path set.",
+    "expected_input_closure": "Exact 13,682 tracked product paths in the b8 archive mirror; zero untracked-nonignored or ignored paths. Tool selector decoded 13,611 UTF-8 inputs and excluded 71 known binary/unsupported-suffix inputs; no unreadable or unsupported/ambiguous selected inputs.",
+    "full_b8_target_counts": {
+      "result": "complete_for_selected_local_text_inputs",
+      "aggregate_reference_matches": 524,
+      "targets": [
+        {
+          "fqn": "polisyos.foundry.domain.schema",
+          "role": "early compatibility DTO; preserved",
+          "reference_matches": 166,
+          "evidence_kinds": {
+            "serialized_or_text_reference": 40,
+            "resource_path_reference": 126
+          }
+        },
+        {
+          "fqn": "polisyos.foundry.domain.mechanisms",
+          "role": "empty tombstone; preserved pending owner admission",
+          "reference_matches": 26,
+          "evidence_kinds": {
+            "serialized_or_text_reference": 23,
+            "resource_path_reference": 3
+          }
+        },
+        {
+          "fqn": "polisyos.data_forge.kernel.schemas.codegen",
+          "role": "three-string GeneratedSchemaModule descriptor; no generator inferred",
+          "reference_matches": 152,
+          "evidence_kinds": {
+            "serialized_or_text_reference": 35,
+            "resource_path_reference": 117
+          }
+        },
+        {
+          "fqn": "polisyos.data_forge.kernel.pipeline.schemas",
+          "role": "identity-preserving compatibility alias; preserved pending owner/window decision",
+          "reference_matches": 180,
+          "evidence_kinds": {
+            "serialized_or_text_reference": 19,
+            "resource_path_reference": 161
+          }
+        }
+      ],
+      "interpretation": "Counts are local serialized/text and resource-path references, not proof of runtime resolution, public support or external consumer absence."
+    },
+    "previous_exact_source_receipt": {
+      "candidate_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/schema-fqn-census-final.json@1bb60dcf846b8c1fd702ecf3099c7094a8be648c437b9eca6c0b988ade4602c8",
+      "scope": "Historical 8ac census. Its 13,672 count is the product subtree denominator, not the whole repository; whole-repository count was 13,700 including 28 outside-product paths.",
+      "tool_blob": "973c475d8af6ea74f0960a3f37d70af034dec23c"
+    },
+    "prior_dynamic_loader_count": "Current b8 result: 876 total and 317 unresolved nonliteral loader targets.",
+    "status": "PASS for exact declared local static input scope; dynamic dispatch and external/remote consumer scope remain limited/not_established.",
+    "candidate_tree_sha": "467cd6f01ec204767dc60bb939955578428bf102",
+    "source_archive_reconciliation": {
+      "archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+      "bytes": 460134400,
+      "product_path_count": 13682,
+      "archive_regular_files": 13682,
+      "candidate_product_tree": "57074f8cc12eb4785b5d9d538e56c836fe2ea0c9",
+      "archive_mirror_tree": "57074f8cc12eb4785b5d9d538e56c836fe2ea0c9",
+      "path_sets_exact": true,
+      "untracked_archive_inputs": 0
+    },
+    "current_dynamic_loader_count": {
+      "total_sites": 876,
+      "literal_target_sites": 559,
+      "unresolved_nonliteral_target_sites": 317,
+      "unresolved_by_loader_kind": {
+        "dynamic_module_loader": 271,
+        "filename_or_spec_loader": 45,
+        "package_resource_loader": 1
+      },
+      "interpretation": "Computed dispatch destinations remain unresolved by this static scan."
+    },
+    "installed_runner": {
+      "python": "3.14.0",
+      "module": "tools.quality.validation.schema_fqn_census",
+      "module_sha256": "9b7f542591be7260a4ed1dbd8c8d158f73a7d388413b55b6a8a6c3504d7d0546",
+      "wheel_member": "tools/quality/validation/schema_fqn_census.py",
+      "archive_member": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "installed_bytes_match_wheel_and_archive": true,
+      "isolated": true,
+      "checkout_absent_from_sys_path": true,
+      "sys_path_unchanged": true,
+      "pytest_present": false,
+      "jsonschema_present": false
+    },
+    "raw_output": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.stdout",
+      "bytes": 6105339,
+      "sha256": "8900d61dc544cf2c60bd53fd7cd798be8303b723c76edb74f3f9fdda1d266f26",
+      "storage": "ignored local raw"
+    },
+    "command_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json",
+      "bytes": 3784,
+      "sha256": "523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "source_refs": {
+    "bundle_owner_rows": {
+      "blob_oid": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "bundle_owner": "DFK-01 -> C-W05",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "relevant_row": 41
+    },
+    "closure_C": {
+      "blob_oid": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "relevant_lines": [
+        85,
+        87,
+        107,
+        161,
+        162,
+        175,
+        176
+      ]
+    },
+    "dfk_01_card": {
+      "blob_oid": "a8fe5f2061473e70a52f7c6a4233422542af499c",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-01.md"
+    },
+    "finding_owner_rows": {
+      "blob_oid": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "relevant_lines": [
+        231,
+        232,
+        252,
+        253
+      ]
+    },
+    "previous_source_handoff": {
+      "commit": "cf751b1b4bec5f7ef97d965370e8562f3b4c5b49",
+      "note": "Extends the earlier local census and consumer record with exact package/archive evidence and the final four-finding outcomes.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json"
+    },
+    "semantic_decisions": {
+      "blob_oid": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md"
+    },
+    "source_criteria": {
+      "blob_oid": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+    },
+    "verification_and_closeout": {
+      "blob_oid": "63d8874b95576792abf84eeaf3db871139e14490",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md"
+    }
+  },
+  "source_test_delta": {
+    "product_runtime_scope": "No DFK schema, compatibility API, codegen, Foundry mechanism, or registry production implementation changed in b8; only the census tool and its unit test changed since 8ac.",
+    "source_blob": "f1d93ce453b00be37e764c4f09b40f8acc48fcb3",
+    "source_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+    "source_sha256": "9b7f542591be7260a4ed1dbd8c8d158f73a7d388413b55b6a8a6c3504d7d0546",
+    "test_blob": "26a7e6a92b2ee7596920bef9099361f639a209a3",
+    "test_path": "policy-engine/tests/unit/remediation/test_dfk_01.py"
+  },
+  "unit": "C",
+  "finalization_status_detail": "AUTHOR HANDOFF COMPLETE FOR B8 LOCAL STATIC AND PACKAGE SCOPE; no semantic owner decision, public support ruling, compatibility retirement, codegen contract or schema ABI change is claimed.",
+  "outside_repository_supplement": {
+    "whole_git_paths": 13710,
+    "product_paths": 13682,
+    "outside_product_paths": 28,
+    "selected_by_installed_scanner": 27,
+    "additional_explicit_read": {
+      "path": ".github/CODEOWNERS",
+      "bytes": 4869,
+      "sha256": "e491efb90f9f96c2d05d16adbc0225017650aa82781cb34736e7674edfcd0b32",
+      "operation": "read_bytes",
+      "target_references_found": false
+    },
+    "all_28_paths_match_archive_path_set": true,
+    "target_match_counts": {
+      "polisyos.data_forge.kernel.pipeline.schemas": 0,
+      "polisyos.data_forge.kernel.schemas.codegen": 0,
+      "polisyos.foundry.domain.mechanisms": 0,
+      "polisyos.foundry.domain.schema": 0
+    },
+    "dynamic_loader_count": 0,
+    "report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-results.json",
+      "bytes": 11712,
+      "sha256": "6654d786eede3db4066aea760257234c6f4366035009d771c20c6b51285def33"
+    },
+    "command_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json",
+      "bytes": 2707,
+      "sha256": "ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f"
+    },
+    "installed_runner_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-runner-verified.stdout.json",
+      "bytes": 577,
+      "sha256": "db6b809d9b9d6589107e4bea8f953b2be9410cf24312d18e7aae64d23004b615"
+    },
+    "probe_script": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-probe.py",
+      "bytes": 9492,
+      "sha256": "b1bfe1284c5bf1db43b4f537cc2a1b7ac2ae43e36449fe4e200244168cf6ea37"
+    },
+    "prior_nondeciding_attempt": {
+      "reason": "Initial runner used system Python without the candidate package; no corpus was created.",
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.command-results.json",
+        "bytes": 2109,
+        "sha256": "edd66c550621045a8a3a30e9f8415e4a3eec4bd4491e12eb1400efe5df7fd359"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-initial.stderr",
+        "bytes": 307,
+        "sha256": "985d70db087fc78b259fb9abe19ba79aeac23455f71b51aaa05e0e1a55dc56b0"
+      }
+    },
+    "scope_limit": "Enumerated local path set only; no claim about arbitrary dynamic execution, external clients or remote registries."
+  },
+  "runtime_continuity": {
+    "b8_product_runtime_delta": "None. Since 8ac, production schema DTOs, alias, codegen descriptor, Foundry mechanisms, registry and simulator were unchanged; b8 changed only the census tool and its unit test.",
+    "prior_runtime_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-final-handoff.json@a108ff5d5463e42791b5404b00cab98e1ba10257c3f8ff35ec78df4d29d127c3",
+    "foundry_path": "MECHANISM_REGISTRY -> get_mechanism_descriptor -> descriptor.mechanism_class; MethodRegistry.get(method_fqn) -> MethodDispatcher dispatch. Five runtime IDs/class paths and income-tax behavior are recorded in canonical_consumers.foundry_registry.",
+    "world_path": "PureExecutor.run with canonical TaxationMechanism(progressive_factor=0.0); prior observed [100,200] at rate 0.1 -> [90,180], tax collected 30, time_step 1.",
+    "schema_path": "SchemaRegistry register/get/latest/list_versions; SchemaMigrationRegistry plan_path/apply; compatibility and rule override behavior are recorded in canonical_consumers.data_forge_schema.",
+    "boundary": "These are prior exact 8ac runtime tests on unchanged runtime source, not new b8 runtime-test invocations."
+  },
+  "supersedes_pending_record": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-handoff.json",
+    "sha256": "2dd436522b28b94d83f5321a0b48df768c5853512c5e4475ffe4e483eb8e5617",
+    "status": "Pre-audit b8 receipt recorded source and package audits as UNRUN; retained unchanged."
+  },
+  "raw_large_artifacts": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.stdout",
+      "bytes": 6105339,
+      "sha256": "8900d61dc544cf2c60bd53fd7cd798be8303b723c76edb74f3f9fdda1d266f26",
+      "storage": "ignored local raw"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/candidate.tar",
+      "bytes": 460134400,
+      "sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+      "storage": "ignored local raw"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15026563,
+      "sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99",
+      "storage": "ignored local raw"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist/policy_engine-0.1.0.tar.gz",
+      "bytes": 65212167,
+      "sha256": "30e5c49608d562d67fa9e9270cbb66513f498a85587d2961ef623323510f769d",
+      "storage": "ignored local raw"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/mirror-commands/05-cached-index-path-list.stdout",
+      "bytes": 861910,
+      "sha256": "e7cbe47149fe8d0db19c38d01602b886de2fbb16cf4c093fe243a936ae481cea",
+      "storage": "ignored local raw"
+    }
+  ],
+  "raw_artifact_policy": "Large deciding report/archive/build outputs remain under ignored local raw storage with exact path and SHA-256 references. They are outputs, not authority inputs; static source inputs can be recomputed from the frozen candidate SHA, while local installed/archive execution receipts are retained as cited.",
+  "predicate_basis_scope": "This label applies only to exact b8 local static/package evidence: complete Git/archive tree and path-set reconciliation, selected local read receipt, wheel/sdist byte/member census and installed ImportFrom positive/removal control. Dynamic dispatch, external consumers and named semantic owner decisions remain not_established and keep their findings limited/held.",
+  "predicate_basis_notes": {
+    "b8 current source/resource/import census": "Independently reconciled within the exact selected local input set and outside-product path supplement; no claim beyond static selector coverage.",
+    "b8 package membership and installed tool origin": "Exact source archive mirror tree/path set, wheel/sdist member byte census and installed module origin/content hashes agree.",
+    "controlled ImportFrom child-target positive/removal behavior": "Real installed census CLI on baseline/positive/removal fixture; targets remain present when import properties are removed.",
+    "public API support, FQN sunsets, schema-owner and alias support-window decisions": "No owner decision or external persisted-consumer evidence was supplied.",
+    "unresolved dynamic loader destinations and external callers": "Current census reports 317 nonliteral loader sites; external installations are outside the local input set."
+  }
+}

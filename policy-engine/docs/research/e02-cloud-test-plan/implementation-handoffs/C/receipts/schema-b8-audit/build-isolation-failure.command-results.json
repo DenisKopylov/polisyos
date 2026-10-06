@@ -1,0 +1,29 @@
+{
+  "candidate": {
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "command": {
+    "argv": [
+      "uv",
+      "build",
+      "--offline",
+      "--out-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/dist"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine",
+    "duration_seconds": "not_recorded",
+    "exit_code": 1,
+    "started_at_utc": "not_recorded_by_failed_receipt",
+    "stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/build.stderr",
+      "sha256": "bc2feeb5d54662b2aa213c4934cc379d8d0e396a3077f572cb380779f95f4bad"
+    },
+    "stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "timeout_seconds": 600
+  },
+  "finding": "Offline PEP 517 isolated backend resolution failed because hatchling was not available in the isolated build cache; no artifact was produced. Resolved for the deciding build by using the cached hatchling and its already-pinned build dependencies without isolation."
+}

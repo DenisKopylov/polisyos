@@ -1,0 +1,274 @@
+{
+  "candidate": {
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "source_archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102",
+    "wheel_sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "--quiet"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-corpus",
+      "duration_seconds": 0.012317417014855891,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/01-git-init.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:43:50.662362+00:00",
+      "name": "git-init",
+      "started_at_utc": "2026-10-06T16:43:50.649920+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/01-git-init.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/01-git-init.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "config",
+        "user.email",
+        "schema-b8-outside@example.invalid"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-corpus",
+      "duration_seconds": 0.0057033749762922525,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/02-git-user-email.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:43:50.668961+00:00",
+      "name": "git-user-email",
+      "started_at_utc": "2026-10-06T16:43:50.663270+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/02-git-user-email.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/02-git-user-email.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "config",
+        "user.name",
+        "Schema b8 outside corpus"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-corpus",
+      "duration_seconds": 0.0057930420152843,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/03-git-user-name.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:43:50.675258+00:00",
+      "name": "git-user-name",
+      "started_at_utc": "2026-10-06T16:43:50.669489+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/03-git-user-name.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/03-git-user-name.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "--all"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-corpus",
+      "duration_seconds": 0.02155970799503848,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/04-git-add.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:43:50.697219+00:00",
+      "name": "git-add",
+      "started_at_utc": "2026-10-06T16:43:50.675700+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/04-git-add.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/04-git-add.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "git",
+        "commit",
+        "--quiet",
+        "-m",
+        "exact outside-product archive inputs"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-corpus",
+      "duration_seconds": 0.02210620802361518,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/05-git-commit.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:43:50.719802+00:00",
+      "name": "git-commit",
+      "started_at_utc": "2026-10-06T16:43:50.697733+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/05-git-commit.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/05-git-commit.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 30
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.quality.validation.schema_fqn_census",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-corpus"
+      ],
+      "cwd": "/private/tmp",
+      "duration_seconds": 0.1355513340095058,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/06-installed-outside-product-corpus.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:43:50.867916+00:00",
+      "name": "installed-outside-product-corpus",
+      "started_at_utc": "2026-10-06T16:43:50.732392+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/06-installed-outside-product-corpus.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 15540,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-commands/06-installed-outside-product-corpus.stdout",
+        "sha256": "315b8df1337c64f0862be8c891f1c837a846da1c9be10e475fdab2404d0d6b2b"
+      },
+      "timeout_seconds": 120
+    }
+  ],
+  "installed_census_stdout_bytes": 15540,
+  "installed_census_stdout_sha256": "315b8df1337c64f0862be8c891f1c837a846da1c9be10e475fdab2404d0d6b2b",
+  "installed_instrument": {
+    "complete_only_for_selected_local_text_inputs": true,
+    "decoded_utf8_inputs": 27,
+    "dynamic_loader_count": 0,
+    "excluded_paths": [
+      {
+        "path": ".github/CODEOWNERS",
+        "reason": "unsupported_filename_or_suffix"
+      }
+    ],
+    "module": "tools.quality.validation.schema_fqn_census",
+    "result": "complete_for_selected_local_text_inputs",
+    "selected_paths": 27,
+    "target_match_counts": {
+      "polisyos.data_forge.kernel.pipeline.schemas": 0,
+      "polisyos.data_forge.kernel.schemas.codegen": 0,
+      "polisyos.foundry.domain.mechanisms": 0,
+      "polisyos.foundry.domain.schema": 0
+    },
+    "tracked_paths": 28,
+    "unresolved_nonliteral_loader_count": 0
+  },
+  "outside_product_denominator": {
+    "all_28_files_byte_equal_archive": true,
+    "archive_paths": 28,
+    "exact_archive_path_set": true,
+    "file_type_counts": {
+      ".json": 1,
+      ".md": 2,
+      ".py": 2,
+      ".sh": 1,
+      ".toml": 1,
+      ".yml": 17,
+      "<no-extension>": 4
+    },
+    "fixture_git_head": "7526170d72e657c04994c89190d699d92a5bdb7b",
+    "git_index_paths": 28
+  },
+  "selector_exclusion_supplement": {
+    "bytes": 4869,
+    "installed_instrument_fqn_matches": [],
+    "installed_instrument_resource_matches": [],
+    "path": ".github/CODEOWNERS",
+    "python_ast_loader_scan_applicable": false,
+    "read_receipt": {
+      "complete_verdict": true,
+      "finding_coverage": "explicit file-reader operations only",
+      "inputs": [
+        {
+          "bytes": 4869,
+          "operation": "read_bytes",
+          "path": ".github/CODEOWNERS",
+          "sha256": "e491efb90f9f96c2d05d16adbc0225017650aa82781cb34736e7674edfcd0b32",
+          "status": "read"
+        }
+      ],
+      "unresolved_by_construction": [
+        "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+      ]
+    },
+    "sha256": "e491efb90f9f96c2d05d16adbc0225017650aa82781cb34736e7674edfcd0b32",
+    "target_references_found": false
+  }
+}

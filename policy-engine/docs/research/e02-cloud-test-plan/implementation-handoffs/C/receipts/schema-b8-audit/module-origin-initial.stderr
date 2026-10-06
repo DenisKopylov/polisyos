@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/module-origin-probe.py", line 38, in <module>
+    require(Path.cwd() == Path("/tmp"), f"unexpected cwd {Path.cwd()}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/module-origin-probe.py", line 31, in require
+    raise AssertionError(message)
+AssertionError: unexpected cwd /private/tmp

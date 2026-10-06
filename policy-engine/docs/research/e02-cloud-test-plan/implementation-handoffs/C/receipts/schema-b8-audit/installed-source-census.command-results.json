@@ -1,0 +1,85 @@
+{
+  "artifacts": {
+    "archive_mirror_tree_match_manifest_sha256": "5cc7be3c9e3f313bd0fbdf74de4a781c6eedbe2a173f8514caf9ad3fe841a6d8",
+    "installed_module_origin_manifest_sha256": "c4c8fe74b39ef1eb5ff44d52c7b99749451cb77e111298f29e53a8ae8307c89c",
+    "sdist_sha256": "30e5c49608d562d67fa9e9270cbb66513f498a85587d2961ef623323510f769d",
+    "source_archive_sha256": "6497b2b1849a5012ec440129a3cc83cbddb40c782457d4bf2c07af3e7b540dd8",
+    "wheel_sha256": "98f8d5272c4728e28d7fedb7df39d8a8c944f063a5d823985afaab6857b75d99"
+  },
+  "candidate": {
+    "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "tree": "467cd6f01ec204767dc60bb939955578428bf102"
+  },
+  "command": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base/bin/python",
+      "-I",
+      "-m",
+      "tools.quality.validation.schema_fqn_census",
+      "--repo-root",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/source/policy-engine"
+    ],
+    "cwd": "/tmp",
+    "duration_seconds": 101.03580137499375,
+    "env_delta": {
+      "PYTHONHOME": "unset",
+      "PYTHONPATH": "unset"
+    },
+    "exit": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "exit_code": 0,
+    "finished_at_utc": "2026-10-06T16:33:48.355751+00:00",
+    "started_at_utc": "2026-10-06T16:32:07.319641+00:00",
+    "stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 6105339,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.stdout",
+      "sha256": "8900d61dc544cf2c60bd53fd7cd798be8303b723c76edb74f3f9fdda1d266f26"
+    },
+    "timeout_seconds": 900
+  },
+  "runtime_result": {
+    "decoded_utf8_inputs": 13611,
+    "git_tracked_path_count": 13682,
+    "head": "d89eb8a9bdeaa7e54ac674a66b9e2d0c2e65c2a9",
+    "local_static_scope_only": true,
+    "result": "complete_for_selected_local_text_inputs",
+    "selected_path_count": 13611,
+    "successful_byte_reads": 13611,
+    "unreadable_count": 0,
+    "unresolved_by_construction": [
+      {
+        "class": "unresolved_runtime_dispatch",
+        "detail": "Static AST inspection cannot resolve runtime-computed module names, loader arguments, or effects of arbitrary code.",
+        "status": "present"
+      },
+      {
+        "class": "unselected_ignored_inputs",
+        "detail": "Ignored files are enumerated by Git and deliberately not read; ignored candidate path names are listed separately.",
+        "status": "none_enumerated"
+      },
+      {
+        "class": "unsupported_file_types",
+        "detail": "Binary and unsupported suffixes are excluded by the declared selector; see exact excluded paths and denominator.",
+        "status": "present"
+      },
+      {
+        "class": "wheel_sdist_archive_membership",
+        "detail": "The census reads packaging configuration only; it does not build or inspect wheel/sdist archives.",
+        "status": "UNRUN"
+      },
+      {
+        "class": "external_consumers",
+        "detail": "Local Git-visible repository census does not observe installed clients, external checkouts, registries, or network search.",
+        "status": "not_established"
+      }
+    ],
+    "unsupported_or_ambiguous_count": 0
+  }
+}

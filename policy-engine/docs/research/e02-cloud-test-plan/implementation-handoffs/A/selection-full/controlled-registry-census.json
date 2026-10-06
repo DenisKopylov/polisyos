@@ -1,0 +1,3242 @@
+{
+  "catalog_entry_count": 389,
+  "component_discovery_manifest": {
+    "builtin_loaders": [
+      "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
+    ],
+    "components": [
+      {
+        "component_id": "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:129c567b5d73ef80a62118b8c2dabea1ee6ea5c76cb2d489fd172ebe4769d44b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.flow.affine_normalizing_flow@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:759e2dd2964cf1dd54fb0e015845910aa27c6a24b35610ee30ecb9db0c33d1f1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.gp.gp_regression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c23233d2f56479e034e531a0aaafffdf94f06bb3076ecb5bed741e60f302b3c7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.gp.sparse_gp_regression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8beec4fba61fa93b1bb83465068a9bd0f8e6fa191a51942c1e233961d49e7808",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:38d2a4f0a19b8527ef086019ea528535371bcff6e5955e92f5521c8cc1f32315",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.nonparametric.bart_regression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4495926616e532482ee52f201248a70b56cbdced3b2f8d8d1b0933600c902241",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.nonparametric.dirichlet_process_mixture@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e257aa762d020b903121aa9e00bd6c0163c8bea6992fdeb22c5e718fb5f8fe0e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.nonparametric.gaussian_mixture@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b754db54a1a8dcb76d65c46b8d9c6392c894b33a9094e4d6ce18f172b58379db",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.regression.hierarchical@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f1d890f95932e7c813cf9ea9ea9182674ba7ab3933ba9cdd1a905d5f3ef6cabf",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.regression.linear_regression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:eb1bd51dce04e0dc1f4b10425e489130f1a7b8d8cd5baed9485a6cb86c1414a8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.sampling.hmc@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4ff5483f027e7472584aef93358e74ed00a30776365bae8b497df3e80bbaee8e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.sampling.nuts@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:28b531e33a469d9f272cab7d0eac32c2a306911feab22748cb09ac575d8b3577",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.sbi.nle@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a68ac5d102adb5f3fbac6a6da9a534017b6bbc8ed8c606997ae70a6e20f3e055",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.sbi.npe@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:dc027ad2a24c68eac0097ab47a9d8a75c23fded5ddccde7b1aeaa8a0a2153560",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.sbi.nre@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:391d8213b4c760272c45b40b5b20c04907352b8d67666ae4ce4ecf5df83a01b6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.timeseries.autoregression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ae8ad0496a5597f933bc6c9ea97f8fda88bc527cadae999b8fd4923ae131680d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.variational.bbvi@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9f09058bf940a3b69ab372f1b17e77394a19919e701ad4534e0ab867f7e5f40d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.variational.mean_field_vi@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b92afa7133e675722ebdd63e6c438735bdb46bab983c5031726e14acbff8ee16",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "bayesian.variational.svgd_regression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ceaaf015f8a37b2d182c6c4bdd565be10de3d48065c45bd13125803703f5ddef",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.advanced.bunching@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d006556d5498fc85be845787833eed5e1882c8ebd4ba2ff4b7c29333029a2231",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.advanced.marginal_treatment_effect@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:20dbb9d2b34f1b00f470bd07085ccd1113ad1ec545a58d62bc9dde10fc1ac153",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.advanced.regression_kink@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:722e6a2f6f292cc6f84ea2dcedd7bc33f85fa889cbd08407e828f3ff6df7acf4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.advanced.shift_share_iv@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9824fa70802a631421a6244c97676bb9986bdc950942f27c31bb9f56bf05a812",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.balke_pearl@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:222b43c713f222420c642fade8be9a7a2d3450aaa8ea9696509544e812d2162f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.bounds_engine@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0a31a6efc7837d8eea035d041dbe973eac46d66255687f38685b9f93856f4ee9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.copula_bounds@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cd8163c7cc05d511bbfdb5b242095d547001ef62877f4c3a560ddc84a022de90",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.distributional_bounds_engine@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:69a6dc007e3a9317a9ec2a1766a7b1ff2d14701f948d74f048a955268f325c9d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.general_balke_pearl@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2d9461080ff83ad39a77d4f7812028a9b22556f2f942ef8928c25f07ea4df5f8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.imbens_manski@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:19e9ca5ffb985ccf7816fc615b65512d1c1d27b664f035bac664f0f16f950859",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.intersection_bounds@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1aa2032a06c2b563dd800f16726c779f17b7904fb07dc60bb610cc45e0b183ed",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.lee@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cb212e784aa1854662797c49a25def6d0d1566ca1b3ed11a95b012e052db9e76",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.manski@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9c474e73bc9a6b774339d00d6bd2c305471d8afd919dea4c6a7a5cd4c3480ada",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.optimization@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a64e9c9e711251223af18f0779b9fb11cce2b0700efcbfe5194285ac0bba3355",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.rosenbaum_sharp@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2c23fcdae21461a65bf427a452af91cbec74ca37036f100b28cc64c6c2f4ce45",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.bounds.tan_bounds@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:add52a5b4aea75e76023441e4854ef3846f9dda5f965d84753ec55660881a40f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.compiler.fold_aggregator@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:6f30eff3dda68a629a585fdfa214395359abef251f70305416eb4f9ffa00aa93",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.continuous_treatment.entropy_balancing@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:736c98b64566f191b3d778b4320d9c486fb7d230e9584f9955d3581d623ce216",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.continuous_treatment.gps@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ab0293094b4b9742554b900dfa611797dc77fb8b4c3c4878ea0f6616dfc1e0c4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.continuous_treatment.kernel_dr@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:360b8ce336a7f8f9a539c7958c370d3673c83a5407e5aa4e219b60115997e4e6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.continuous_treatment.shift@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4dd9040d9aec957a4d73954c8305d161517271aa945c3954bc0130bc53fa17d2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.counterfactual.actual_causality@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4f8f7e92175044a000791a375de5e2f1f45fa5cb192748ecf44a46dcb9eef77d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.counterfactual.hp_actual_cause@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b3970e01998cbdf4b1927dcf97291073eb6153fa304fe1c8b99f7c4276c5e963",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.counterfactual.ncm_engine@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:eb48cf30a1d9c4d5663b9860e46ea56b63bcf9cee91120e5189ef4dd1ee9f2d7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.counterfactual.path_specific_effects@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bade4981a5b9975f2af694aa177c685aba6153c3dce47fc7abe3d6331aefaca6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.design.causal_experiment_designer@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4a579e9b66d6f7b037ceb27b9a9fe5d95b81f6280a5ec13f8f92d2d9833a5a16",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.independence.categorical_ci@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2ad02fd6bf98ffb801da8c4fd1265a58d0e608ec6d61120ae391af7e6878e9c0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.independence.hsic@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0194bfee21b0cfc87d3dd48e095081f6850678d1a88f0cfb105d82a74098d407",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.independence.kci@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a877b8af9711148c90b92d0c387a12d560ed2b7b716b11868e5832847c4d246d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.independence.partial_correlation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4be8ea33af932aa2c8f895259ad24eb8413b1e9a0af667ec4c7b93d207530a9c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.invariance.icp_invariance@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b60d11076726d6dc14f3fbcea608e919a9252fc43f94c318f1ec751a00933ef8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.invariance.ks_invariance@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d25c46ef582b5ad555cabcd27f16f5a7a130377d407cf1310f263c19b4750d89",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.parallel_trends_check@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:980a27b613aa4b2f39fcc477a55a388eb45494a2ed07f1e8d2e480ddabc1dc2c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.policy_overlap@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:190e1f102d2200d2bbd323d87c77647a4744809f417c8630e8458591d9faad17",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.positivity_check@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:544720816303d215ea9699256d59cdd74c2c9cf56779eb274cb99ba75709b8e7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.diagnostics.support_mismatch@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:04c38cbb246dbe6618262c2e312f00b47fae6c5c7aa7cca7a88d989ac3e1386c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.discovery.dagma_discovery@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:30076d943f18ec85917ea6736b52a39887acbf637e71f941ced3cf829d05be0b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.discovery.fci_discovery@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f541c26b617e424fc43c01ab5ff1164e05cad5579c937aba046253e2aae6f12b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.discovery.ges_discovery@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5659299bad4950d975e2ad15eb849162194c3d8cdab33f95b411d0bfebebe47f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.discovery.invariant_discovery_from_regimes@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0784967338d1ec786374e9efbb9acc0d1663ba1ab848c73adc87f39d9af733d1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.discovery.pc_discovery@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:aeb056c30e34214e2b715b841adff70d5c934840471c67802934c2ecc24828a0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.discovery.pcmci_discovery@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2dc907062697bad6de930b1d638dff72f0ceccbbf8f5f32b414bb51b0a55cc11",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.discovery.unified_causal_discovery@1.1.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5e1de2c259dbdb5a2f75e3a4ebf47ce5322edf8d3dc4698486c2eed465ec832b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.distributional.endogenous_group_decomposition@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9e10fc3059a15f857ae1fb43444ab2fbef9b4d4c14c6b243c5f45ab54428e985",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.distributional.unconditional_qte@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:de0649eba7688b76aeb3835bc7b2037cd0e0f6940d3e9edb9d81096c6822a59f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.a_learning.a_learning@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bde6aefc95cc72e49aa1dd20f722c235ae2851f3936b4937dea0bdd848b7feb1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.causal_bandit.causal_bandit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:59978806ea0d9765d48f71d95c1a9098e34af8642c162e32da59cd5b84db6833",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.dr_dtr.dr_dtr@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f5394b6608efe97b958cad1db1aff81daf21773405fc345ddc8e8c5b754fb90d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.g_computation.parametric_g_formula@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bdc9c98897997166b543c1df6b22697c76379a4d3b1b38ee374d281c36b64dae",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bf8e102af6c822e2b4e300552934f0c56df2763930213a59903ca325db51f07f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.ltmle.ltmle@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:abfff626b2b910977455bb4f271bb7401a96ef435668c8bf6b7c25b8ae6ef992",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.ope.ope@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e1ec669439245fa7e7d0d9c47c17f52285b79319775be04c1ae18c9b84b11d51",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.owl.owl@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a59313a48964821071995d15933afbee8bb1c9723e91a19f0182d10c53f45964",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.q_learning.q_learning@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f4cc8a892f801c83add259acdd9d21cabb44cadb7ecf41d7672731a38211f1f0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic.snmm.snmm_g_estimation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5937f9bb13154efa7809c1ff5a4d426fc609248e6bdbb04323de47cbdf57efbb",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.dynamic_graph.dscm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:de6d32c89d51e7806dc9bd92589124b9ec998a379d3019f1a3003009230150ee",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.fairness.causal_fairness_engine@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5748fc033d9bd9e73ac08295378be65ab5e725e78510bbae0b7cb3294111e61a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.fairness.counterfactual_fairness@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:597e3acaa9a616214c800f09013dc379e5754e398c1c93618b660b3281c28f58",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.fairness.path_specific_fairness@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b203cda01a804097bef974595803b636b470038f07d2fa0fd9a9947a2ace9029",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.fairness.tv_fairness_decomposer@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7295185a3a5c5a5a513317be68ca4569a72dca01bb0a36374615f3f5bfd27c70",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.fusion.data_fusion@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:049d97939ad133a8cb4020962de78ab99e5b97e0e4949dc478cf38518570a691",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.hte.causal_bcf@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:fa540dcf1246022878bfc1230c42bf735ed58c10d8b0cc866d99af1f01ab80f2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.hte.causal_forest@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:96d61ea462835812a2863d4be1c23c0b8c25533a9e33c5c2f42794360c6293b9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.hte.double_ml@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7d4ff641c464c99923c05ffaa9196cc878750f1d0bfdeb9077a3003722095a3b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.hte.dr_learner@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:36f06cf908a346eb5a356a7285917f580f79482af725c2ed1720a3ee69b9272a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.hte.forest_dr@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0e81fe58b8c65a19efdabaa9b8b316c8542486280173720a2da93eb4e2f77e35",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.hte.meta_learner@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0fc0c9c8d660dcd4ef16eafcd83c69c248e37f27548a4d1618fb26a75961e49f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.hte.r_learner@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:26803df3739eac9e6968730be5bf20ceea59349eeba043489fc5667a6afb1ce9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.did.borusyak_jaravel_spiess@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:36688fffb7ba9baf9531e51686bf1a57deef305967d5fd06ef0cb56b68681661",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.did.callaway_santanna@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:867daf34e84d1000f1cfafb73eae58b9fe825ccd09be3703ec77c432c6610f0d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.did.dechaisemartin@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2a73981fb84cdf114895320b23f94a5671959ab3b917b0d5d9c94a8e3e62e003",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.did.staggered@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e52d1cf03a84bec22832ac3a135c4b84296048f01f44b07a5377141872f2a288",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.did.standard@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5afe9b08d12343ee282cc345902a3ad4e1d2ddcbda962f8337014e4c35ea3ff0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.did.sun_abraham@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a6707bc88ba48e411d3761b83bed76e063351adcdfa4b2e1cb94d62915ebd993",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.dowhy_identify_estimate@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3b647d7ed68488402ee6e88edc39e9a0a72ce4a5a1a1ee887ed89dcedaec1627",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.dowhy_identify_estimate@2.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8fa17608410840aecd92ee392c6f1b1b309c93bb652b404658876c0f99d52db8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.regression_discontinuity@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:19ac4fca93b25e7cb9335cb7d2c034e235451b0c73771e6739714f11cf1e704d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.structural_time_series@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:62f6c8bc21d80610b5136856ab4ee7b12cf682f326a6cd104ac3d889e27595fe",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.inference.synthetic_control@2.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b208b343f3573b63db3ca43dbaf3585caa76d1b37eb6cb0707c97b0edae07bf7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.interference.bipartite@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bd72df3201d46e699519d31bac630ec3e3a464885618502357c4b8a6d241b638",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.interference.network_aipw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a10a5b4d8d3001eeacfcd16ad0cea341fb2ff894e8b29c9e326e3b0e4c1d69fb",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.interference.network_cate@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:679247e64ac2dfc5953ae4c9024755ab8da673e9457eb269b8bf23f64b1e9133",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.interference.partial@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:01c848607ab7e9034d13aebb74172a2eb90736cfa9db34b3b1ac1564c0113bd3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.interference.spatial@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ddf4ab2033db2aee0e4c8baa492247e769a0031dbc75648d38e72089431b2fb3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.cme_plugin@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0ccedb1945c62e8b8dc7568f2e26416a77110afc2d670ee5e5c329edbc7d1485",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.dr_cme@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:77eb0b13aecf7af995a215267879879f22598fc6b0931bc4c49e192bb23f116c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.effect_test@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:59dc98fea0be184fd67fbc71b988878b0b07aba3d3e42975adeca5b449cb7579",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.frontdoor_cme@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1e680772b0b2e83924963ae6d78275d52ddfafe94f29ef4858a8ec0673523d0e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.kernel_semantics_diagnostics@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a0bc2bdbb95dd9bb03636626859dc00bb1fc093a25b656ad43358e28dc9a7327",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.kiv@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:667f718e95143e616cce21a7e1cd9bd744ff4db3a12098591a151aa548cddc0c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.fit_cme_m_given_x@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7e1658c8d2f576dc7c0f57225274b81c7312548d1461d7849f6923393f745380",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.fit_cme_y_given_mx@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8e30a589fc88fb81648848f43d12eb9ec91b1cafc465a801fe5266befd889b4b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.fit_cme_y_given_xz@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e3e7150bf485b9abea6d85100ba5df3d7e2be00f8ec41d6b9764993f2ba48884",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.fit_density_ratio@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3a16aa4326b5b4cda7b559f1c1b6d800254a37633e288d61cc350f313b5775f9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.fit_kiv_first_stage@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:57cc10b24386723cfab9882028e4fe5830526d2d0273eddaa818012b9a6ed9c5",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.fit_kiv_second_stage@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:df63789fa78bded543e87ab580f1eb5ef8a822fa1026e3b299332bc613ed65a6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.fit_propensity@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:49e2ca3e943169fbcf15328b26c3ef4176d809c68ed14d3943708a8033dd65d2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.nuisance.solve_proximal_bridge@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:71a71321b7c7dc3e599a314f5dfb2fd3bc2ef307a512c694e497ec2f95c09c85",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.proximal_minimax@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ce146a09bb46b376e4cf09f647f6d314c0b5112ac824adb1900f09f7d731f203",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.refusal@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ed151866d6e97b91ab6967ec7e5882c4150b8da17d81b87ca0140f1ce23e6801",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.regularization_diagnostics@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a021b3c5b4681528b3694b597c5c8ac1ec4b26c89ea2b8ba3d83ffaa7e492ec5",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.kernel.transport_cme@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9b9d6c14de45ab46db4ab9bc27ad1cddb2a5c1acfbd92d2bae79ba65782426a2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.measurement_error.measurement_error_proxy@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d67b4ba3d13a32a0ae6af94c23e4284c2b5a852ca4d70d0a38d20b5c4ca21afc",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.mediation.causal_mediation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ca7515ffc47afe63f0e03de43acae65a68ae57bb84e1f99e9c7ad3203b51979f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.mediation.controlled_direct_effect@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:43bbba97ecf872ee3d3ca88bddf9568f156833cc32dcff35222eb9bb8c118b6c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.mediation.natural_effects@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3a90fa3ede079e0f2453bc775c4509c96b5ecfccdee4d3d1f136cc220f9cfa8c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.missing_data.administrative_missingness_assessment@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:50a0c8e2f6012d04a70157c824ae1a265b8a3d7a0b3f0930d955657a0ee5d398",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.missing_data.full_law_identify@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d37b5b19b3470d171f47252a694667fb3ba84d2d35eb301a0af4fc4833f6d12d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.missing_data.ordered_recovery@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c3729690340489deb0d92017eb7355b048bd76a12f7926862686baa42059a1aa",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.missing_data.recoverability_test@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9db641bc21a0eecee334a480ecf7281c71e6628c174898b7b0e9d0b00f8ded5b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.multi_treatment.aipw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:70499d03d9735234bb3288526036efd0c2e8a8e4ac486f8754f62620e3f81464",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.multi_treatment.ipw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7c3fd5e31a09e94cee519f12fb01c3dd016abcadfd340b30ce37f0518f9cea89",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.nuisance.multinomial_propensity@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9866f66451e1cb24817cdc93c22c1d59a2f219733bcb8e4a547900d9d7913392",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.nuisance.parametric_conditional_density@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0654ea571a495f423ba84e5b7a00a490272092d03e512e748aabdcd9e7e21470",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.nuisance.super_learner@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:22e111d39aae33d93c71321c9961dd39118fdd888de23f38f5b51dbd508ca1cf",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.operator.apply_probe@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:dbc1d8a5ee0f64416e03557062575b809bfe36c7d4e22d396a9193ed18ef7da1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.operator.cme_krr@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8744497ff6b5ef16babbad5c4c500a6c19277e471cfe3249e48d6ff33f64704a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.operator.export_basis@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:432f7fccf41b5ff45e83f5196b52fa792ed809364d8c710856c05acf8491afb7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.operator.kiv@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:da8b97869d7b9e69379423f16a53b845f21a9877ab9264992f3ef0e3c8e9e680",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.operator.operator_r_learner@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b12578be6a3732db2dba60b9eff9bccc25f2cd2c873bda2140332195b69568ca",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.operator.proximal_minimax@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d18a3abb959ab3995fab763f3f94e950102a766583db164c68b0998aceb82f3b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.operator.unsupported_target@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:31f80e56ad4758889a962bf942caedb37ffa095794ee75cd57ae7fc7a94eed38",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.prior.build_literature_prior@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:52f5ea30bd37439456469c1de7106a7b3170c6b221f0177ef6b49bf7964b4915",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.prior.reconcile_causal_graph@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1115df5daa50e1d7955cef5e99ad85594b40852d2d17f155c5a629bf6d7ea9f1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.proximal.proximal_bridge@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8b8010fc6c397bfcc3247d47c7fe39accb79daacd2e79c047432c00fef3e96f1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.proximal.proximal_mediation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2e93ff69f2e5d938f448c115dfa6f9b71b1ffdd85d6ac146d1a0e5690c429e28",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.proximal.spatial_proximal_bridge@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bced29354c61f830bc6c92e2e973088e48dbc8f34f22079ed5feb4dca3825201",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.refutation.dowhy_refute@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e93315071d76f5a23b4abb4c131106711b1439aa8b268c03fc6448ab0716b13a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.semiparametric.efficiency_bound@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4567850a18fca54cc45f7ebf1f5d22f3cfa5057d9be8d36e8771d6eed37d0bf5",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.sensitivity.sensitivity_metrics@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9757d4df15c1aaa365eed439897b869568c6f7b76f6d11b28fd25ab0e95b4565",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.space_time.fem_spde_g_computation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9f16d32d0dfc774f5fa9f80fb5f2f295fd55a50f308eeddb52812c2a97164f35",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.stochastic.policy_aipw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cd79af127ff71c7d95c5e3baf6983c6f05b0e9c9ad582a1359e357f24cbff4f4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.stochastic.policy_plugin@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2e57d7ad2e948dffd788a985e280ff305e10dc3ebda5f3e47b5aa9dc4bd477ed",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.stochastic.policy_tmle@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:317ae0c511e32276f363d050b1c949065425b054ed869b66f1c9bf9a613454ca",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.structural.gcm_fit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:50de679113490267ddec6f4fb8aed07c267bcf3b0342fcd6857c5bfe554cb5f2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.structural.gcm_query@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:54e56839c13afbd0441aea215689bbc1da24749408d1eab6f36c5e2cd325aa9f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.structural.parameter_transfer@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e21745d53f770e006e2cbc4ae221d5aebcc398b01122c798b690fe798083f2b3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.structural.twin_network_query@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f6c2942dc144c008c14d1d32781968a5c0a25b4e428ede30594c5498d24c713c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.targeting.policy_tree@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8cd653eab7c077d6177373954800a881e0eb61011cfdf6e8fcd0d8beaf0c30d0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.transport.check_transportability@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d26f18027715dda727632c92517e2be4926780b84391b5b243fb6889fd68a9a4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.transport.density_ratio@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:096918c748f3ed6bebb65fd6e6765b9eca62f374bb576a0dc261cf99a6974c02",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.transport.symbolic_identify@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0bad04932c99aca7a9393be9a654365a31f7b860b2177478d5ae27eee707cfbb",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.transport.symbolic_identify@2.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2757079f602b63f38826fdf1534271646fead4962fd0c75440b551dffc53eb18",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.aipw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:11f415e841202b02250cc9d38002ff273a5aca27b873cca5e68c6ea5d4fddd64",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.cbps@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:12865d3e3dff271bb37073fb8d4ec51add70b2d305570e29f7d55ecfc32a76d3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.cross_fit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d97e0c705eb4149f0a71488101a993a35594b0a6292601eb7574d0d33640f75f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.cross_fit_continuous@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ccafac560a253d94791e9117abb8788cd71914f782382c3e3c85e2327b38c32f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.entropy_balancing@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f1d589306a5f48666060bb79828a213399491fa4cd6f370d42241b49c703cdb4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.ipw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8e723359b4d23146f6b08dd1ade61248e546aa08f6829fcc95f2744366e5f8ac",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.propensity_matching@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5e063185579d4559ce74f3b385d42be560d1bf52a5b8b65c2b0cb623f1d992e6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "causal.treatment_effects.tmle@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8f5f75af1be9baa1075d8175362f6567415f12bed3062ffe33db996626ee83e6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "dependence.diagnostic.graph_dependence@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3f2bb1fa5d3bc3ac7e21d1b90ed65c8808989f1d2df77d668a9c29877f75431f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.inequality.atkinson@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0c3ff0bd951760fcf57d65ec9155e45108ccd753dc1bf73f6ef1f72af76fee31",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.inequality.generalized_entropy@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:11b7665bbc008e20d370a7408cd8f887809431997f9b51ebbe1304c11e29bbd4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.inequality.generalized_gini@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:6a8735bba1e46f3a79935908cf0da362ae187fec1dd78bfd2de873abdabd6f4c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.inequality.lorenz_curve@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2379e9e84c6d93a3d06619662868dd73ee7e42c7272dfc44db4ea6b55e490374",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.inequality.palma_ratio@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cd7365ecad6a19444665fa5541c60c822e14ea83b4c89e813296ab21b692257a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.inequality.theil@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4618365ef91cef3d23b90168626e1a924ae492d3bb83c59e33d47c568a946eec",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.mobility.intergenerational_elasticity@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2311fd51e05e494f05e7f75613ec87213104ac663398afeee5ec23161c695f76",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.mobility.latent_mobility_report_adapter@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:52bc34a5624a74310f28e1f4febcb38e3dbc14aef3e167d3e7e7c1730158e7be",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.mobility.refreshment_transition_matrix@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:34a9d92485b23d9f3a61f89d008e324b8f13a7a3f197df9a8cee4051c236a05c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.mobility.sequential_lifetime_transition_matrix@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:6a88a0313c1173ed47fa6141c8f41b2f91c25fb75396a5d4b696436f39bcf479",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.mobility.transition_matrix@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f8324733178b9c01823770e6b5e338ec11f00aedbae4682acfd1d7f31bc6b4c7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.mobility.transition_matrix_attrition_adjusted@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0c6afcfbd4ac48763cda7b19d19d6de9100e2394d8c982486d707e643377c5cf",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.polarization.duclos_esteban_ray@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1a11c0dfd5ca144c1e043015e81174f77d25d21a3e69ca14c2787f518fe156d1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.polarization.esteban_ray@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ffc7988e7a9ff9c17f5b71cad7d9fe989996a62e95d61b333bb935d82016ef76",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.poverty.fgt@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ce7f73d06238edbd1765e04051ab30988c1d1ff987f87e840d7181e5ece21080",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.poverty.multidimensional@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:de1aefccfeb1a37d778094c4b7d69dc9d9af68957719395c4e79713a1bc76765",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "distributional.poverty.ordinal_multidimensional@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d2f2deb071d86edd212c4977b02341a5bdd80b0d4c3334782f8928e6bc78e6dd",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.count.negative_binomial@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0881324846223f3039f704afe6b9d62d83f01abb335f9af72393082ac2b4f623",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.count.poisson@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:97ea60adfd270ccf4a05ab7dfbf0071a8d9e28b2d9874e33a395685e139207ae",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.count.zero_inflated_poisson@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c42360237a69bb344ef0b0d1af4a13e3bf4c1a7d9f3d9082c7fa6c1a53783208",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.diagnostics.cointegration_test@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9dd7f30ed6836340722ed282c6a1b41498aa4600cf65a7e7cfebe578f75c4bfd",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.diagnostics.forecast_backtest@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b01ce077272b29bb555266d942a0f600db924f75046eb45b8c35871ddd2ad86b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.diagnostics.hausman_test@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:608ce9dc80d0fcafcdb2ac7787035fbe3e0ce0a8bca47e35d20c2b0a180bc4be",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.diagnostics.sargan_hansen@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:951eefb531e2f7615e27926289434e43249d86ca817837b2285fe538a8592f66",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.diagnostics.weak_iv_test@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:911536a38ba0df2f1f3ab3841c362f9ee0c563a1d1ca0cd5574be107d8bccfa7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.discrete_choice.blp@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c4f9f730f16dd62b3c7af97b58b951bacf1b67d829b54b74cba1a2a400baaa24",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.discrete_choice.logit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:18e1ff1dce6bcf8c2847f9420fd1cf0a76bf2551c1d3b43d919f14f3eabe8f9d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.discrete_choice.mixed_logit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:dae5c52df1291e7e48019ac77afb86facb7f39309eefef4238ad578d9cef6daf",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.discrete_choice.multinomial_logit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:efa0f1c26c128f8f4bc909e19ba69d4bb7335a63b30771e979644de5960549fb",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.discrete_choice.probit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:916761d5ac6d0ac8f562bfa6a884177085d9197191719986a9e97cba59a3260e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.factor.dynamic_factor_model@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3a8a6c30bee618ce3e207cef8064145f560a05ea0ad26dd9e98fc1ec4cd16150",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.factor.principal_components@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cf45ffeccfe3de246639b1612c1660023bcd55e2228ff6893dfd90c1c027f59d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.high_dimensional.post_double_selection@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8029a22e1a6c01366d5da2e1702fde60d12e005ab433ccb33f33fdc30a627035",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.high_dimensional.post_lasso@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:87d8fc097d85c4952b5186b299a1472ec0d4a2a2affc935f4a4a3ace6afbb2bd",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.iv.gmm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:6043fbe9d84139e41185e57fe0410bfa6c518bb9d0149e6e1973736fd3ae8a80",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.iv.high_dimensional_post_selection@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b8c37028868b1450cbf4d374b99ef89bccb351b2aec40a521010b43cdc6ada01",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.iv.two_stage_least_squares@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3a0e201f6900e3c5630dd7409b647a122498837840095b6aadc82f8362576b17",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.difference_gmm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ac9a1e820526a252d2b7f566dd78ab93ae6536b3a43df046e674a49b811dd427",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.event_study@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d79b04b0fb2f1a8ea9bd17dab8e8c85f6667a1dc996f1fb7c3fdb5496a510ed5",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.fixed_effects@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:97daf54513b9a42089ee64e62a22b1958dfb05891d92dec41a24909f394b527d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.latent_mobility@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b4abd977f863d5b871c22904ed421ff8db95beb5f1343cbbfc3a1e32b43df37e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.nonstationary_garch@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:93a615d21834f6cf9eb26d3a1a6eec9dd6eb92328792360aaca3c59675df7ac4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.random_effects@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b19b3be9587695e7f20b16d614622b0f41047b21535a4e962680a81e93fa5e9c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.synthetic_did@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9a57c5df08190a3f4ce24271d4ad2bd82365444b302b1eebd2867bb678c15474",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.panel.system_gmm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:26f98f46f126b51c65dc5269acbff4fccfb25808863270b4ffc4f1e57ba0c8f9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.regression.quantile_regression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3e6d87a551299269a415b38f97ee58330b26955a2815bb4fe7ab8cc8d62d7925",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.selection.heckman@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:93596a8cf7968e27e7e9bf4d49f74690f484ad35e0662f859f826f9e19ce012b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.selection.tobit@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:02490500be75f14f451053702fe01a5f4d4c08a4620a8d55131a8a5f5ebe11be",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.selection.truncated@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3f0a9c7bf1f1e46b54e7fe79876345b5c5ef209d9ba7a5db076a762cd5f77db6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.semiparametric.kernel_regression@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:45edaae69eb579e54a6b8943551e3ad4f10b579d456d88068ef39bd4bdf2af8b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.semiparametric.robinson@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e9c2f559927f8bfcc4719475b430cdbbfc64d7781ad49a27b8bbfd82010660e7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.spatial.spatial_autoregressive@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c0851a21d0cfa2dcf55b457a455e70a8a851d7869fd5c4cd60b45edfa4c12170",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.thresholds.state_dependent_frd@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:65fea01ef59487108ab67d15a3df2fb78471ddd2cbf1c74e25981239cd6d6741",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.thresholds.state_dependent_frkd@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:31cb44b2eb2411d547dbed496c939a665364ba89438acf5cb3baff2fdb7960f0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.thresholds.state_dependent_kink@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:84c4e5d480930d1031f339f35bd628b1de0b10a7bddbe79072d379ce3a3b9446",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.thresholds.state_dependent_threshold@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1079190254fd1e3c724f68aa98a73b17c70b628add94986f34650de325db6a86",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.timeseries.arima@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:16ced766d2ab9a05df79121d77404468462a8104a7d74896618e54cd8770d4e2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.timeseries.bayesian_var@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2b6dacb8ce2570c2e82146f3732f8e12cb48af495156485c347645570588d7bb",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.timeseries.change_point@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:12f565151bef1aee7c9cdc14ffaf655db40012bff1b56c3b95a153b15554e2b3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.timeseries.garch@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:62a3118510a67a0683ce22204e90912cb411fa1ce1d1a8f8fef457fd26c73255",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.timeseries.local_projections@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1eebbb088b700f4132d99b70a800ff2a18b34b09811048daf89d125b8da1bb0e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.timeseries.var@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:6f9d7bf42d21d9ceb4d956c21691448aabeb4c6ad95a0b133f6be6815157c37d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "econometrics.timeseries.vecm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2bd7d6a95992a5b544f840f85ee2a622a9afc28e746c35446d5215270866820b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.advanced.prophet@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b0f4a6ea184f6a80b4364070634ad6cbb9fdaf4d8c78d697ef6f6bd9e232be51",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.decomposition.stl@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:821028ead477e8d3c663f77bd8371352bd02af825a9c6ffcd06c2c59655cbad2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.ensemble.simple_average@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c82234cdf1cbf829ff25198023279dcdab0ed43c86b3fa8208963fc70a995603",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.hybrid.guarded_neural@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b70e725a05c390e2b154f009b2f2674ac0d8e87878d9ad8795fbcd61302f611d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.multivariate.vec_forecast@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a10eca8bf197ae9bdf2fda1942f348e14a4ae33f9568691074bd762b25939463",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.reconciliation.bottom_up@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:64a8d32489772dab829c29820b4582604d0cb7e00e604a069b8e77117a415156",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.reconciliation.general_linear_projection@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:79137fe2972c56c5c91cee6b71470e811a26d8e4531e6ba2069f8f8fa010eed3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.regime_shift.hybrid@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b8661d97a05ddb22bdb79ea8ad528c98ce25da9b6982256f5b94e0480b72f50c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.univariate.exponential_smoothing@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1eb3cae227cc8b4d05c608687fea998eb57fd5af825f3dd99fab31738f276785",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "forecasting.univariate.theta@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:65d166da971ed9a40904d892e4b67b5912d8055ff4cde304db53247701ee91d9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "mechanism.runtime.adaptive_agent@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9a27b4427dd4f0747ec325a7e438aedfe9b148881a41a79b9e0b2fe9970905cf",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "mechanism.runtime.income_tax@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:fad4c1d104ebbf60b456fbf608db018c60a1765b7353710712ba28d179b5e509",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "mechanism.runtime.labor_market@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d0c02e24c48d13d5a4fa2d980282a025d52e74980e3e9dd896b9eb19fa8d83f0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "mechanism.runtime.queue@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e686103f34707624f2c9674a3ffc3a97d494eaf6cf535fd841816139dac50dad",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "mechanism.runtime.tax_subsidy@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:40e7027f168e8f61e92d0c235583ca9703778b520a140417300b58449fc6884f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.behavior.behavioral_response@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c774dd245240948f89492681b4e4076abe9ff4937636372ff51797c0c603b094",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.behavior.behavioral_response@2.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:19203e40ba3b5859761a952ceb46dfdb2d866684269bc5d75cd0076fdb450648",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.calibration.inverse_behavioral_calibration@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b28e2ecb14ef970055c9dcbf6f89b48727e9af233ffade71dcb1e596ebf4a6ce",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.calibration.reweighting_calibration@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ad87e52572aef3c054bdef6898ede202b51e5e86e9687c71260084d76198326e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.dynamic.dynamic_microsim@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d4711f67f3ed337afd0ee6b7910ded189ee399f7e984331ea41eafc7afd1db73",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.imputation.imputation_model@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f600c7214b1c3d6fd327fe495f79b401e513d50ba59df6b79295cea0596f2694",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.imputation.mnar_income_bounds@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0cd896b82f7c9844e894f78f0026a7683c9a96b14b05a5bd0438a697946d0c6c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.policy.tax_benefit_calculator@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7bf68954f96449498f3b8547b0ed466aaeff5bc350b8649244015e5b2147eb7b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "microsim.static.static_microsim@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ce9ae09770140153d419fd7413b178f814fd313da37f40af9326793c22d5fd12",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.clustering.kmeans@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:90edf498057f0715fe97e1bdd835ba145dee7d2a3e0a24031d5dcff233b27c09",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.decomposition.pca@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8711715253b7a61ba0e62c34ddb2b54449b15a55d24e765f47403d3214b40977",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.deep.ft_transformer@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:25aec0614cccf0cf9cb9a98026029cf32478217c6c0d2ddff05cd771edc20c8d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.deep.tabnet@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b2329d9082ee0a88dc1aae4bb8e98158e23288ada5d56ce863ac8889a4f626e4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.deep.tabular_transformer@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a3ca700fac06b6d73857c91d7b59115ab28223a7baf8f8a70d08927ca20d11ec",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.diagnostics.shift_diagnostic@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:828ac35bd846487c49d12aba7db0f8e8967f0db37bd1f245a352db1f6c4ca737",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.dynamics.neural_ode@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3676b94d9eee2c12abba084dee6ac7ff54581e6d7200a12d176f37bd433423f1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.graph.graph_conv@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b7a55431caa1160a629dd60d8c29c8341033f9b5e704522cc3aa1b5d2cf83592",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.regression.elastic_net@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0c02885a504d19f449a850dc6ed9e44a5ba9cac095af79520f0f48ca6d79320e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.regression.gaussian_process@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:54b2fc462202c2dc50efd104da72036a22e914b460e88bac92cb2ce413d2625e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.regression.gradient_boosting@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:55bf379fd212f31dae5ac7422c49bdcb6798917f3b9350a3025d87bd39831563",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.regression.quantile_forest@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0d10a69826f03df61fb3b144094cd4d518cebfc36c4aa6e7a773be8ea6e1f8a8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.regression.random_forest@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7d11a0f64b6621a2cb6ea18501239379bbe61f23b097184000d02a2419cebfb4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.self_supervised.masked_autoencoder@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:380466600d6728aef50ce1e2f89d5da34c1306641ae130adbf475bb66461e388",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.survival.survival_analysis@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0c2b31d3fa9b94040924a03535686cf54fe89ea227c639e5e6e0a18fc1ddd8f6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.uncertainty.conformal_prediction@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b52abcba2e8e54feb9ef9297e3e720ed1d45ac60d9f1ed78cc808945a89401b1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.uncertainty.graph_aware_conformal@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:796200b2bfed9d15a259d2bea801cb30a8b491eca97629c3b8adb3e4a520636f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.uncertainty.mondrian_aps_raps@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:acddc4fb09438ed14c8e5c3a0dc69a2060dea8fce74d5f97d4c30aa60100f6ab",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.uncertainty.mondrian_cqr@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7f72523e8d792af1128a966e8c7a0e2af57d69d9f0bec5d5fae09e4f02ce765f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "ml.uncertainty.normalized_residual_mondrian@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:391680f23ce943d3d098e88cb716a5c40995a079a4c2e0936a9dff35fadca83a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.community.community_detection@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:46d0384ce8f29bd40b9e94e0078d536265201f4de7f61139b29951b81d338769",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.community.sbm_stratification@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:07eacb67cfbae7eb3b29f3afea8240dea7895006cc13d0538228509fcc123e64",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.contagion.contagion_model@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:006ddf0b51e4bfe18aefb81bc446b4cd6b80a366eb4ec381dfc91b30f6ac9d9a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.diffusion.network_diffusion@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:fdbdf9276b1d0d70d786db5570dfd0b90cf638c1148f8953d023792c7aa0e6d9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.formation.strategic_formation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cc5c069c609fc7dc214d1b81d77a712ec48af53c7910a0f697eef4e3c82a4d32",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.generative.diffusion_null_test@0.1.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d92178edc629a775039ebbf41f450a542491104060bfb0f56b6dff83a816101a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.generative.ergm_null@0.1.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:442481e07e3372bc3fe80553560b23fd9b29a98b7f0af253c82dea5a9dd19b99",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.io.input_output_network@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f8239a4720a9879f7b281275c43e95836b13bb62f36274c144faa9604d8ec06c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.missingness.network_missingness_assessment@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d335f69c4d0267042a01a2245a13e8f03d3b3e558c06f28b22f6d08ca9c1cf6a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.multiplex.multiplex_network@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c295b049340bffd7a6cd02c9c4ddd22134314200604927ccd9ff6fd9d7a5a4c2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "network.peer_effects.peer_effect_decomposition@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:10aaed7dff117f6b9e1635b40875f8eaf1a95b2ebc554f1bc8ded316f6b1fcda",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.auction.public_reserve_auction@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d0c833a313a09e120ea4aacc2d33a29315fb32a81e5a7718a29e09e7a8f30d00",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.bilevel.bilevel@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1c2692037bbaf2aa669e49b77476bc57392486c3401545c5935fd0db28a4026b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.bilevel.bilevel@1.1.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d384295358d257f93e0630fa02bf2abdb983072411f463dc366ddb9ac77858aa",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.combinatorial.knapsack@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bbe2e249c259470ac569fe8899434dc02f924069180e25eed1de61fcbf1ac003",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.combinatorial.vehicle_routing@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:fc6805659d7a924e95643b6f8fc17b69d1d074de2824bd23d842e421a1428a25",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.convex.quadratic_program@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:48f356ee70c5ae21d825c8aa1c766580a2c2bad29b6decf664815b7f79ff4c01",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.convex.robust_optimization@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c7f5bd4c4e13f10685c7637b154537efdd9c51476ce86b8e9f7e9abbdffdea36",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.convex.set_based_robust_linear@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a156242aaad93c927e26f0ed617a2d38133cf80dda31c26afde5d964c50b0652",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.convex.socp@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c6c82138cf8cc565c2fc8cf00e9b31ce06a7301cfaef9a79c429402b1bdc66c7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.dro.moment_constrained@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:87335c0af21a7926f49e8cc8307d17975712135ebe35549a3bf383774bbb8a0f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.dynamic.dynamic_programming@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:265666970196e4602202d3895f8e56a5c5311a969d7d6d92ee426b31e2f36602",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.game_theory.nash_equilibrium@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e2942254131844a1b0a74f11f045afc4c927e243f66ea10b1aa78e82a162b2c6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.integer.budget_milp@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1f4f1b08c10454caace1eb578436da5a83555d55e9f52daeb7f00bdf8ec525a2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.io.leontief_io@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bd29956769b9f9074fdcfac76f3bd0ca933ac29dee7bd30d8fed337a5afa3e16",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.linear.resource_lp@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f9f9656a5ac314b9b109dcae118e82e8227652f721230e73c88f5a3f849571a2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.multiobjective.multiobjective_nsga2@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:58d348c28743c52df1884a2b2bbd4e6d5c3c9f19b8fbee659cd6f3582b0a0507",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.stochastic.chance_constrained@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8211b50337f322983450fe0d0df10fb6852bc68eeddff82b341581ce21271588",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "optimization.stochastic.two_stage_stochastic_program@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b7c8e704079e2efa5ae50913ce4a866996fc09094033b57d288837a7a973ccc9",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.agent_sim.mean_field_equilibrium@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8ad081248364c3f3490b2016aa385c4cc360fc76e44d7ade518dbf1c0f841a7f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.evaluation.budget_impact@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:136eec0f2d127c295df23240ab74d1e9a5cc2892fa62addc14327cf567501419",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.evaluation.ex_ante_simulation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:36001bf12e9ac123627deec829c656d977b066ef6c3f82a3e8fc67fdc6ab4d23",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.evaluation.foundation_model_policy_analysis@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0bd661e2e395ed2540d9487afd439a2c1874080f23c45f765aceb2fc5157fa23",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.evaluation.scorecard@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c59780e382f1328f4aa4e24d7288acf1401ecb9ba77bb90eea3eec69d28ffd7f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.macro.fiscal_multiplier@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d20920b7a00631a4b2a5a49e1072a37accbca4f2a268619fdb6f866b096ce6e1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.macro.krusell_smith_lite@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:fd27a80f63f251dadb939e4bc308fa07f3894036f0aaab7094a9a631b85db49e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.mcda.ahp@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:07e406f90c63e2206663163660a956343a8fa1975a8701a9c9cd69b4543bfa88",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.mcda.electre@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ba097a0a2ca2770d6552dbc054aa5f12c134da9b2e4ced4b25463631ec66d013",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.mcda.rank_stability@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cbad89ee8875f2a6afae4a665a08159a763e2c11b5a5213855afec4985762241",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.mcda.robust_ahp@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:722b5c88b5382124e0f3cbc8cc65071e6149abd7d5038a4488fb2f787a73bfae",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.mcda.robust_electre@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8676cc60ebcef57485277a17bce7657bfead584fae8c10476b2975dec005bf5b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.mcda.robust_topsis@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:da626751be4c3a2569e2f64e8064e94993befa0160d50977c2703ed7916c00f1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.mcda.topsis@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b217708d413a8afa4e8885157a60d338e54363b9663021f097ddce33c4a9b01d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.public_finance.optimal_linear_tax@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:0b7843de19ed6cf2b25ec91136a541d0642d25f10ab7968a896594ad132404a2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.atkinson_swf@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b5c27bdd851a31099133de19a23cf7e5c322ef2ebf3c0352a40478199f98493d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.cost_benefit_analysis@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4348055ed0230fe1d2839bcb64d0b8fe7c5661e83a808ff9634a891b2da92efd",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.cost_effectiveness@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c010fb2591b4ad5337a45dda05b9ccea604515fa53495cd646b5f881cdc6e4fb",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.rawlsian_swf@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:6e6ec3f12eda6794f338a7489d5e497e1a3c1f428fd442c74183dfe3c1b7104b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.sen_capability@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3c58b5333b5a732a398a6b95c8e8f277d4fc94c80b5a7f245542aaeb1d826895",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.state_dependent_inverse_social_weights@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:afbb9a269be4b01237c1f240a52651529803400e5446404963fc66d86918804f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.sufficient_statistics_welfare@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5cfdc99b72db1bf773f9c5f8abef865d4422375082d7e508cfeea9a5841c843d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "policy.welfare.utilitarian_swf@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e28ca36bdffbf0369bcb545a1681b895032371eb010d8086628fe8d055949223",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.distributional.distributional_indices@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b9da556ac778b43f72a155e24d3336c3fc871357b7e09a4fe945e10aa57cbca5",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.distributional.qosa_pinball@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ec3f1c68d6fc9396fc48d840f0e3ec4b56a32abb6ec184716eaf320830e658bf",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.global.dependent_copula_sensitivity@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4b60b2f2a744f1f6f06009487b41a061787d5adeb8ed199d04afbd8d0347ef9b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.global.fast@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e46e4f2c00dede2de13008cebd553ced18e65421c89e237ee0ba2bb197541fb1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.global.morris@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:2564396250ca3fba66d7d7a608880f720b20b446d23dacdf244484ab0a8e1d79",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.global.pawn@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8b2832e4a46c0f446be26f3be7857e9cdfb3b377a019150ce31473556f20a958",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.global.sobol_first_order@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ec3e430086104451145c4ef09de8f85744a57d6abbef77fa777ca698b6f77dd6",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "sensitivity.specification.specification_curve@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:81e2ddc06c119785711a15434b680b902ff96514d25d63e6d73e45923b56e23c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.agent_based.population_dynamics@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:6a59f817e85b4cd8b77998def402deeb3a1da03924c409aaae5e66d72e3820e8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.compartmental.seir@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:06ace198d9616afda694b2b2e0a80d4ee8d9a8a6da1ad3d1c9ff43507c09058a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.compartmental.sir@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f39e596b6edbc5d7b4a1beaa77ac988a9c266ae25463c13e24828aba99975e91",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.coupled_policy.des_abm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:cc32965debe5106fe6e6747c812ac0fb6d4097701a749ae3b98fc1ca10c7fe1a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.coupled_policy.paired_mc@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3f435020c9a9b5be6324bdc8b84a4456460ae9a12a232994c85135dc2604333c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.coupled_policy.particle_filter@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:26e5a594e416efd855baf2ae49dc094a40a664a4b26adb80ca777a69d6cd9bd4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.coupled_policy.queue_mle@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ee76a39cc957dbf5c41d51c33c439503311821dfe3e4b9f9ce4cf5aab2ef09bf",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.coupled_policy.smm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:193035e71f1a169bf84b1d09d93d58c85027274e763e84267c1b2458df9e8125",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.demography.static_aging@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:428e6d69d5862547103e562c2351d97e71e5b8b592c0b93a4be3eaca7d550988",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.discrete_event.queue@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:829c28fd110341b75e8aa144243c446947a20dcdc2e3a6b4f894f310df92f426",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.dynamical_systems.canonical@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:65dceb8250c0f29b141f5ec2f7aa71175135d3d8e6bc3b46c7766f9c68020c23",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.inference.bootstrap@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8f4fafb9460c03a98c80b050cc7aff7b6e951b19cba35de9cf33d58cdd08db64",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.inference.monte_carlo@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4405e66b8aa7ca8065dfc09f8dbeb58ec18e49cb62f99d1a28abed51508e5bab",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.inference.permutation_test@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:662684c825dba4fa39a49651a2045cfea27fd6fde1a9d22575408a9a393bc1f0",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "simulation.system_dynamics.stock_flow@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:e7fb29b8f52fe82fbce1c970971a749dd525bf659a5e3299e1934974366846c8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.accessibility.accessibility_index@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:f27d6e8c09e1c4c0dd20107b7e4738fda9e561753fd38dd3e5e211c98006211c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.accessibility.two_step_fca@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3cd9eeae842855633227dd78aa3f66e84ba1bf5ea079d2ea4039374fb1c36f10",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.autocorrelation.moran_i@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:87cdc6caec7feac881895801096d5e71ebdd9950eec2c2ce7eab2fa12280cce8",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.design.maup_profile@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5cf478375440a3ec0786689ecc539c62e528eed146c465a341b91590fffd2c47",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.design.zone_balance@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8f4ecaca3f8cae5f5769c318a4a9e8449739b0b58fac033991b7346ccf610cc3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.flows.gravity_model@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8a3ff3d73c01312c0bae8a128dc610f43983f9184f4ef735e5bc2b961555aff2",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.interpolation.gaussian_process_kriging@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b38c98e66e9ecf2d4af9b19954c01ffce1d69427931b6a1e3715b68cae0a93ed",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.interpolation.idw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:41a9ff333df885770efb6e8842b27dda58758763d7de98cba9a77468130c3430",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.microsim.smsm@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3c8cbf3680c367c886ea24da5c7ab89cd52cf4dc7989f208a5b7741821d53a1d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.panel.sarar@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:65ca6e9f35ce6404356486d6af4f7a2e34308397bb6871f53f21ccf83a499d0a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.panel.slx@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:aa23b9a058462b91262a1589b56f0ef0932ef56ccab3ae9e826c522c9f498476",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.regression.gwr@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:18478218bae2ee7d9b2bbd0d7ec3c68fe7fdf74b9a269d4ab96bf486618f32a3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "spatial.regression.spatial_durbin@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b9586bb8217d78999746a57cd63e54bac60e2fd4b74899d7c1ff59297f616b5e",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.adaptive.adaptive_augmented@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:8aa1d7d33db98181e04c423e00c7012b6220df21be39b7fc5a04d8b5f953c5e3",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.adaptive.adaptive_calibrated_ipw@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:49445788ae6b25f103d4e701b44bd231b4ecc7943036061c1351c8b03fc8f26c",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.demography.cceb@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:bc9e587bebfb0900226a13db0436fd1ff5d05a027b5bda130c6893a63e83b85b",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.demography.demographic_consistency@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:59c237d55242a9628f0ec361829b89c2e42636516708d6db259545610c806297",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.design.complex_survey@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:175f0ca0e22e76de9842344ef289bbf1404ce03e88532a28d17ca484f397526f",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.dr.design_missingness@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:970eaa21cdc672f0bc6db2bb2d5a6c225301c7a4b0fbe7926b1014f0dd3f1f53",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.estimation.calibration_greg@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:c06da0e8c8c0e77305a080b2f06a48676a048b5c49438cdbf71a97e7fd80af86",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.estimation.causal_frontier_fay_herriot@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a53017d2edfd0a79207dcba18a29e0cb927e869e3d0c1b6323506a8dc2b9f45a",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.estimation.fay_herriot@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:3e63f742151211289cf756f7063391679c83999b748d208fd785729b87c1bfcd",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.estimation.fay_herriot_dependence_aware@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:4fa11f0a29776ba2f391d49f3702ab481e1b388154c511fb59a9ce61308fb1e5",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.imputation.mice@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:53ce154fac6bf22da45d2b3bab03e465ba27466234680ebca39c02fff954e535",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.imputation.nonresponse_adjustment@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:36209b398110e0938be52d2187af31bfd341fb22f063916a43fa2fcee30ad3d7",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.semiparametric.ate@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:d88db18d9ae62b93f1a2784e904553c1c25227d6a689ca26a572181227f05bd4",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.semiparametric.att@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:574e44cfd9378b868bdc2c3cb0243e60793003cd2c6cb785c9ee04304af8d010",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.semiparametric.subgroup_mean@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:a786b9090139430dba0506423731b0d9479355231ea3b593ab25dd7ebdc644c1",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.weighting.horvitz_thompson@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:5b7c27087f2c93cedcf928e171115d9bffd62f69fefd523874ebc7dd6d8a7675",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.weighting.propensity@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:1f5b248ef133eb878238e1393ba6a75912601d64f829e9c6b31c7d6cae958d95",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.weighting.rake_ipf@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:b8a4ca9fa025b7d74a74fa5142334994b97a43baffaa319d7ecba39ef52dad02",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "survey.weighting.raking@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:fec606406830fb8c61a03896b636000ecf803650823019efd7d6209b37318547",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "validation.calibration.calibration_diagnostic@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ae0f22459453dc429f78fe5f0ae3d889ffbfc7fa19f7b9e86f90e9d4c939ebff",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "validation.model.cross_validation@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:ebac185e6cf94ea5c8f786d8cf2d9e0bd86b7453358ae452452a9d83d0a6c768",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "validation.model.walk_forward@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:7c233ce5c2f557670e7ab09328e3c4edea38044a5325d50488c389b2890c9a5d",
+        "source_type": "builtin_loader"
+      },
+      {
+        "component_id": "validation.probabilistic.normal_scores@1.0.0",
+        "entry_point": null,
+        "group": null,
+        "location": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+        "metadata_sha256": "sha256:9e80fe19a094a4a382d276e4bc7dff926dcd70b9473ff83c559ee874eacae89d",
+        "source_type": "builtin_loader"
+      }
+    ],
+    "dev_scan_enabled": false,
+    "dev_scan_files": [],
+    "dev_scan_roots": [],
+    "dev_scan_wins_over_entry_points": true,
+    "duplicate_policy": "warn",
+    "entry_point_groups": [],
+    "entry_points": [],
+    "manifest_id": "component_discovery_manifest_7dfd366b6220336a6df81fdadf61537a6593632e5437ca7c5a527f26d98f2823",
+    "predicate_provenance": [
+      {
+        "classification": "recomputed",
+        "predicate": "source_policy"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "entry_point_group_enumeration"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "entry_point_distribution_identity"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "entry_point_source_byte_closure"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "development_scan_root_membership"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "development_scan_contributed_bytes"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "development_scan_import_closure"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "duplicate_precedence"
+      },
+      {
+        "classification": "recomputed",
+        "predicate": "discovered_component_membership"
+      }
+    ],
+    "schema_version": "policyos.component_discovery_manifest.v1",
+    "unbound_inputs": []
+  },
+  "estimator_execution": false,
+  "manifest_component_count": 389,
+  "manifest_equals_registry": true,
+  "registry_binding_sha256": "sha256:959548d0e5126ac890ac4e97d954d87e02abc2a59c8e0b92dd4a8eb94a0a891f",
+  "registry_fqn_count": 389,
+  "scope": "controlled_builtin_only",
+  "singleton_eligible_witness": {
+    "eligible_count": 1,
+    "method_fqn": "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+    "required_modalities": [
+      "network"
+    ]
+  },
+  "value_denominator_count": 55,
+  "value_denominator_fqns": [
+    "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
+    "bayesian.flow.affine_normalizing_flow@1.0.0",
+    "bayesian.gp.gp_regression@1.0.0",
+    "bayesian.gp.sparse_gp_regression@1.0.0",
+    "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+    "bayesian.nonparametric.bart_regression@1.0.0",
+    "bayesian.nonparametric.dirichlet_process_mixture@1.0.0",
+    "bayesian.nonparametric.gaussian_mixture@1.0.0",
+    "bayesian.regression.hierarchical@1.0.0",
+    "bayesian.regression.linear_regression@1.0.0",
+    "bayesian.sampling.hmc@1.0.0",
+    "bayesian.sampling.nuts@1.0.0",
+    "bayesian.sbi.nle@1.0.0",
+    "bayesian.sbi.npe@1.0.0",
+    "bayesian.sbi.nre@1.0.0",
+    "bayesian.timeseries.autoregression@1.0.0",
+    "bayesian.variational.bbvi@1.0.0",
+    "bayesian.variational.mean_field_vi@1.0.0",
+    "bayesian.variational.svgd_regression@1.0.0",
+    "econometrics.factor.dynamic_factor_model@1.0.0",
+    "econometrics.factor.principal_components@1.0.0",
+    "econometrics.iv.gmm@1.0.0",
+    "econometrics.iv.high_dimensional_post_selection@1.0.0",
+    "econometrics.iv.two_stage_least_squares@1.0.0",
+    "econometrics.panel.difference_gmm@1.0.0",
+    "econometrics.panel.event_study@1.0.0",
+    "econometrics.panel.fixed_effects@1.0.0",
+    "econometrics.panel.latent_mobility@1.0.0",
+    "econometrics.panel.nonstationary_garch@1.0.0",
+    "econometrics.panel.random_effects@1.0.0",
+    "econometrics.panel.synthetic_did@1.0.0",
+    "econometrics.panel.system_gmm@1.0.0",
+    "econometrics.regression.quantile_regression@1.0.0",
+    "econometrics.spatial.spatial_autoregressive@1.0.0",
+    "econometrics.thresholds.state_dependent_frd@1.0.0",
+    "econometrics.thresholds.state_dependent_frkd@1.0.0",
+    "econometrics.thresholds.state_dependent_kink@1.0.0",
+    "econometrics.thresholds.state_dependent_threshold@1.0.0",
+    "econometrics.timeseries.arima@1.0.0",
+    "econometrics.timeseries.bayesian_var@1.0.0",
+    "econometrics.timeseries.change_point@1.0.0",
+    "econometrics.timeseries.garch@1.0.0",
+    "econometrics.timeseries.local_projections@1.0.0",
+    "econometrics.timeseries.var@1.0.0",
+    "econometrics.timeseries.vecm@1.0.0",
+    "forecasting.advanced.prophet@1.0.0",
+    "forecasting.decomposition.stl@1.0.0",
+    "forecasting.ensemble.simple_average@1.0.0",
+    "forecasting.hybrid.guarded_neural@1.0.0",
+    "forecasting.multivariate.vec_forecast@1.0.0",
+    "forecasting.reconciliation.bottom_up@1.0.0",
+    "forecasting.reconciliation.general_linear_projection@1.0.0",
+    "forecasting.regime_shift.hybrid@1.0.0",
+    "forecasting.univariate.exponential_smoothing@1.0.0",
+    "forecasting.univariate.theta@1.0.0"
+  ],
+  "value_denominator_sorted_fqn_json_sha256": "269896d1f8e1c3153e16d92d9dd97f98d1d0ffe84eaded88ee7495f098514f2d"
+}

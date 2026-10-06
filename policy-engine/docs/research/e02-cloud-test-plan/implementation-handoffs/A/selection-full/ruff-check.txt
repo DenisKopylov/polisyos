@@ -1,0 +1,5 @@
+Command: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/selection/advisor.py tests/unit/foundry/methods/test_selection_advisor.py && git diff --check
+Working directory: /Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine
+Exit code: 0
+Output:
+All checks passed!

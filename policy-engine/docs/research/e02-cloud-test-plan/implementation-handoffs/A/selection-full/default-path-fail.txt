@@ -1,0 +1,39 @@
+command: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -q --show-capture=no tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_trace_is_filtered_to_the_value_denominator
+working_directory: /Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine
+exit_code: 1
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_value_advisor_trace_is_filtered_to_the_value_denominator _________
+
+    def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
+        result = select_value_method_for_problem(
+            candidate={
+                "candidate_id": "candidate_value_denominator",
+                "diversity_key": ("posterior", "tabular", "effect"),
+            },
+            problem={
+                "design_problem_id": "problem_value_denominator",
+                "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+                "domain": "generic_policy",
+                "runtime_hints": {
+                    "value_data_characteristics": {
+                        "n_obs": 64,
+                        "n_units": 16,
+                        "n_periods": 4,
+                        "is_panel": False,
+                        "treatment_is_binary": True,
+                        "outcome_is_continuous": True,
+                    }
+                },
+            },
+        )
+    
+>       assert result["status"] == "selected"
+E       AssertionError: assert 'blocked' == 'selected'
+E         
+E         - selected
+E         + blocked
+
+tests/unit/foundry/methods/test_selection_advisor.py:332: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_trace_is_filtered_to_the_value_denominator

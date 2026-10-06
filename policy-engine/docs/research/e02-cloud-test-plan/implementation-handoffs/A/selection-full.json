@@ -1,0 +1,139 @@
+{
+  "adjudication": "pending root review; not a GREEN/accepted closure claim",
+  "branch": "codex/e02-A-selection-full",
+  "bundle_ids": [
+    "SEL-01"
+  ],
+  "candidate_tree_sha": "b3bdbafd5957d91e54f0561c213fdda565ad4444",
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+    "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py"
+  ],
+  "closure_ids": [
+    "B34",
+    "B35",
+    "B36"
+  ],
+  "controlled_scope_census": {
+    "catalog_entry_count": 389,
+    "discovery_manifest_id": "component_discovery_manifest_7dfd366b6220336a6df81fdadf61537a6593632e5437ca7c5a527f26d98f2823",
+    "estimator_execution": false,
+    "full_manifest_and_sorted_value_fqns_ref": "selection-full/controlled-registry-census.json",
+    "manifest_component_count": 389,
+    "manifest_membership_matches_registry": true,
+    "registry_binding_sha256": "sha256:959548d0e5126ac890ac4e97d954d87e02abc2a59c8e0b92dd4a8eb94a0a891f",
+    "registry_fqn_count": 389,
+    "scope": "controlled builtins only; not the normal default extension universe",
+    "singleton_eligible_witness": {
+      "eligible_count": 1,
+      "method_fqn": "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+      "required_modalities": [
+        "network"
+      ]
+    },
+    "value_denominator_count": 55,
+    "value_denominator_fqn_digest": "sha256:269896d1f8e1c3153e16d92d9dd97f98d1d0ffe84eaded88ee7495f098514f2d"
+  },
+  "finding_assessment": {
+    "B34": {
+      "evidence": "Complete 389-component, 55-value-method controlled built-in source census admits one eligible method, and hidden-member mutation is rejected. The actual default extension registry cannot be admitted because its entry-point source-byte closure is not established.",
+      "historical_criterion": "A genuinely discovered singleton is accepted only when it comes from the complete actual value-method denominator; a fictional/out-of-catalog request and hidden set member remain rejected.",
+      "residual": "No verified complete default-source basis; no truthful singleton-complete-default positive. Keep B34/B35 partial; smallest missing capability is a canonical source-scope owner that content-binds the default entry-point/dev-scan universe.",
+      "status": "partial"
+    },
+    "B35": {
+      "evidence": "Code limits advisor input to runnable value entries satisfying required modalities before calling advise_methods; controlled bound full-registry selection plus explicit negative checks pass. Default registry intake is blocked before this consumer path; no default full-universe positive was established.",
+      "historical_criterion": "Filter full value-method eligibility before top-k; adding non-value entries must not crowd out eligible value methods, while true absence remains a blocker and denominator remains complete.",
+      "residual": "Real default-path top-k integration remains unverified/unavailable until canonical complete source provenance exists.",
+      "status": "partial"
+    },
+    "B36": {
+      "evidence": "Bounded controlled-scope panel-compatible selection passes and explicit time-series mismatch is blocked with the required modality retained.",
+      "historical_criterion": "Preserve required modalities when unsupported and reject incompatible explicit methods; an allowed modality adapter needs a real typed producer with input/output/provenance and consumer integration.",
+      "residual": "No typed transform producer or surface/consumer integration was implemented or verified; do not claim adapter capability.",
+      "status": "partial",
+      "typed_transform_producer": "producer_missing/not_established in the inspected selector path; suggest_adapter_methods returns ranked MethodCatalogEntry candidates and does not emit an input/output/provenance-bound transform artifact."
+    }
+  },
+  "implementation_commits": [
+    "b07287c6d159bf812051b50111b15b870b823797"
+  ],
+  "implementation_source_identity": {
+    "advisor.py": "sha256:810a5e2811f0eaa80c075f73ee43916480cdcd933094dd265343d563948d2777",
+    "test_selection_advisor.py": "sha256:8fe746aaefbb569822706b999c3d696ff8c5345343452913e8eb791860e07bb3"
+  },
+  "implementation_summary": {
+    "api_contract_changed": false,
+    "complete_registry_admission": "Selector now requires a successful typed extension-registry report, bound discovery manifest, exact manifest-to-registry membership, and registry snapshot digest before building the value catalog; intake/bridge/catalog failures return blocked receipts.",
+    "eligibility_order": "Required modalities and runnable eligibility are applied before advisor top-k; requested-method selection cannot bypass required modalities.",
+    "negative_controls": [
+      "hidden manifest member after intake",
+      "failed bridge report",
+      "registered non-value request",
+      "explicit requested method missing a required modality"
+    ]
+  },
+  "known_limitations": [
+    "The default path deliberately remains fail-closed. Do not weaken is_bound, omit own entry points/dev scan, or treat bounded builtins as the complete default universe.",
+    "B34, B35, and B36 remain partial; root adjudication is separate from this implementation receipt.",
+    "No estimate, simulation, numerical method execution, broad suite, consumer surface, or transformation producer was verified.",
+    "The implementation code commit is recorded above; receipt files are separate artifacts and do not publish or certify mainline acceptance."
+  ],
+  "pattern_pass": {
+    "acceptance_signal": "Root separately adjudicates against original B34-B36 cards; no criterion is declared closed by this receipt.",
+    "capability_labels_remaining": [
+      "producer_missing",
+      "verification_missing",
+      "surface_missing",
+      "semantic_test_missing"
+    ],
+    "relevant": [
+      "P04",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38"
+    ],
+    "target": "content-bound full registry intake; semantic refusal for unbound or altered set; eligibility before rank truncation; preserve required modality and report absence."
+  },
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "selection-full",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "unit": "A",
+  "verification": {
+    "controlled_four_node_wave": {
+      "exit_code": 0,
+      "interpretation": "bounded builtins-only controls; not default-path positive",
+      "output_ref": "selection-full/controlled-controls.txt",
+      "result": "PASS",
+      "source_identities_match_implementation_commit": true,
+      "wall_time_s_approx": 133
+    },
+    "python_environment": "Python 3.14.3 at /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv; source and explicit PYTHONPATH from the selection leaf worktree; this environment is not owned by the leaf.",
+    "real_default_existing_test": {
+      "block_reason": "value_method_registry_discovery_unbound:entry_point_source_byte_closure_not_established:polisyos.foundry_methods:polisyos.foundry.builtin_catalog:polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
+      "classification": "default-path compatibility failure / known fail-closed residual; do not claim a production-positive",
+      "exit_code": 1,
+      "expected_by_existing_test": "selected",
+      "nodeid": "tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_trace_is_filtered_to_the_value_denominator",
+      "observed": "blocked with empty denominator",
+      "output_ref": "selection-full/default-path-fail.txt",
+      "prechange_exact_base_replay": "not_run; the post-implementation result is an observed regression against the test expectation, but the pre-change node receipt was not captured.",
+      "result": "FAIL",
+      "selector_result_ref": "selection-full/default-selector-result.json",
+      "wall_time_s": 12.62
+    },
+    "ruff_and_diff_check": {
+      "exit_code": 0,
+      "output_ref": "selection-full/ruff-check.txt",
+      "result": "PASS"
+    },
+    "source_owner_audit_ref": "selection-full/source-owner-audit.txt"
+  },
+  "write_lease": "Root-authorized implementation receipt and companions at this path; implementation source lease remained advisor.py plus its unit test only."
+}

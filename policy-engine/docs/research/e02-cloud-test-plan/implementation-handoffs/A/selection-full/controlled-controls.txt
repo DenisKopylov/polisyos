@@ -1,0 +1,14 @@
+SEL-01 controlled bounded-scope GREEN wave
+
+Source identity at execution (same bytes as implementation commit b07287c6d159bf812051b50111b15b870b823797):
+  advisor.py sha256 810a5e2811f0eaa80c075f73ee43916480cdcd933094dd265343d563948d2777
+  test_selection_advisor.py sha256 8fe746aaefbb569822706b999c3d696ff8c5345343452913e8eb791860e07bb3
+
+Command (root worktree Python, explicit leaf source path; environment is not the leaf's own venv):
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -q tests/unit/foundry/methods/test_selection_advisor.py::test_bound_full_registry_keeps_one_eligible_value_method_and_rejects_registered_nonvalue tests/unit/foundry/methods/test_selection_advisor.py::test_value_selection_refuses_a_registry_member_hidden_after_bound_intake tests/unit/foundry/methods/test_selection_advisor.py::test_value_selection_refuses_failed_registry_bridge_report tests/unit/foundry/methods/test_selection_advisor.py::test_requested_value_method_cannot_bypass_required_data_modalities
+
+Exit code: 0; measured wall time approximately 133 seconds; no estimator was executed.
+Complete pytest output:
+....                                                                     [100%]
+
+Scope limit: all four pass only under controlled_builtin_foundry_method_registry_scope, which excludes entry points and dev scan and has its own bound complete built-in manifest. This is not a positive result for ensure_all_methods_registered's default complete extension universe.

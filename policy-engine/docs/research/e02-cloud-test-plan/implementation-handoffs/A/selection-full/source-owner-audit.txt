@@ -1,0 +1,9 @@
+Default registry source facts at implementation commit b07287c6d159bf812051b50111b15b870b823797:
+- src/polisyos/foundry/methods/catalog/__init__.py:118-130 ensure_all_methods_registered enables builtins, entry points, and dev scan; it does not require a bound discovery manifest.
+- src/polisyos/core/components/discovery.py:877-880 explicitly classifies Python entry-point source_byte_closure as not_established because arbitrary editable source, transitive imports, and process state are not content-bound.
+- src/polisyos/core/components/discovery.py:943-957 adds an unbound-input reason for every entry point whose source-byte closure is not recomputed or independently reconciled.
+- src/polisyos/foundry/extensions/registry.py:132-152 offers an existing bound controlled source scope only for builtins, with both entry points and dev scan disabled. That bounded owner does not admit the default global extension universe.
+- No existing tracked source-byte-closure owner/policy was found that content-binds the default entry-point and dev-scan universe. No discovery-owner source change was made.
+- src/polisyos/foundry/methods/selection/advisor.py:3219-3266 suggest_adapter_methods ranks/returns MethodCatalogEntry candidates. It does not itself emit a typed modality-transform artifact with bound input, output, and producer provenance.
+
+This audit justifies preserving fail-closed admission; it does not make the real default path usable or satisfy B34/B35/B36 end-to-end acceptance.

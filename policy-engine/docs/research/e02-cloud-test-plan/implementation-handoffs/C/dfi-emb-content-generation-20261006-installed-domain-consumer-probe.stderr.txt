@@ -1,0 +1,9 @@
+2026-10-06 17:51:41.737 | INFO     | polisyos.common.logger:_call:120 - Academic embeddings complete: 1 vectors
+2026-10-06 17:51:41.760 | WARNING  | polisyos.common.logger:_call:120 - Selected work index is unreadable: selected work basis differs from current works
+2026-10-06 17:51:41.857 | WARNING  | polisyos.common.logger:_call:120 - Selected dataset index is unreadable: selected dataset basis differs from current datasets
+2026-10-06 17:51:41.876 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: entities=1 (skipped=0)
+2026-10-06 17:51:41.886 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: facts=1 (skipped=0)
+2026-10-06 17:51:41.896 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: provisions=1 (skipped=0)
+2026-10-06 17:51:41.933 | WARNING  | polisyos.common.logger:_call:120 - Selected legal lex_entities index is unreadable: selected lex_entities basis differs from current projected records
+2026-10-06 17:51:41.935 | WARNING  | polisyos.common.logger:_call:120 - Selected legal lex_facts index is unreadable: selected lex_facts basis differs from current projected records
+2026-10-06 17:51:41.937 | WARNING  | polisyos.common.logger:_call:120 - Selected legal lex_provisions index is unreadable: selected lex_provisions basis differs from current projected records

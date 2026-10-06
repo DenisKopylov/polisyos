@@ -44,12 +44,15 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
 )
+from polisyos.data_forge.domains.catalog.batch.checkpoints import (
+    fingerprint_paths,
+    load_json,
+)
 from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
     _ConnectorSessionCache,
     _ObservationCapabilityCache,
     _ObservationFetchDeduper,
 )
-from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
     iso2_to_iso3,
@@ -243,6 +246,7 @@ for __dependency_name, __dependency_owner in (
     ("_apply_dimension_order_to_snapshot", "transformers"),
     ("_build_catalog_alignments", "registry"),
     ("_build_catalog_observation_plans", "registry"),
+    ("_build_core_output_receipt", "validators"),
     ("_build_observation_shards", "validators"),
     ("_build_observation_shards_from_sketches", "registry"),
     ("_build_support_sketches", "registry"),
@@ -279,6 +283,7 @@ for __dependency_name, __dependency_owner in (
     ("_planner_split_shard_from_capability", "validators"),
     ("_prune_expired_capability_failures", "validators"),
     ("_prune_expired_support_cache", "validators"),
+    ("_prepare_core_output_resume", "validators"),
     ("_record_shard_result", "validators"),
     ("_records_from_payload", "loaders"),
     ("_rewrite_sdmx_requests_with_dimension_key", "transformers"),
@@ -329,13 +334,91 @@ def run_core_sources_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStat
 async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
     """Async entrypoint for ingesting registry/observation data used by DatasetRegistry."""
     started_at = datetime.now(UTC).isoformat()
-    stats = await __resolve_implementation_dependency(
-        "_run_core_sources_ingest_async", "api"
+    __resolve_implementation_dependency("_prepare_core_output_resume", "validators")(config)
+    __resolve_implementation_dependency("_write_core_ingest_stage_progress", "validators")(
+        config,
+        metadata={},
+        status="running",
+        input_fingerprint=fingerprint_paths([config.db_path]) + ":" + config.run_signature,
+    )
+    stats = await __resolve_implementation_dependency("_run_core_sources_ingest_async", "api")(
+        config
+    )
+    checkpoint_state = __resolve_implementation_dependency(
+        "_load_observation_checkpoint_state", "validators"
     )(config)
+    try:
+        with duckdb.connect(str(config.db_path), read_only=True) as con:
+            core_output_receipt = __resolve_implementation_dependency(
+                "_build_core_output_receipt", "validators"
+            )(
+                config,
+                con=con,
+                checkpoint_state=checkpoint_state,
+            )
+    except (duckdb.Error, OSError):
+        core_output_receipt = None
+    __resolve_implementation_dependency("_write_observation_checkpoint_state", "validators")(
+        config,
+        completed=checkpoint_state["completed"],
+        failed=checkpoint_state["failed"],
+        deferred=checkpoint_state["deferred"],
+        unsupported_signatures=checkpoint_state["unsupported_signatures"],
+        empty_signatures=checkpoint_state["empty_signatures"],
+        inflight_leases=checkpoint_state["inflight_leases"],
+        async_fetch_leases=checkpoint_state["async_fetch_leases"],
+        capability_snapshots=checkpoint_state["capability_snapshots"],
+        capability_failures=checkpoint_state["capability_failures"],
+        source_budgets=checkpoint_state["source_budgets"],
+        writer_state=checkpoint_state["writer_state"],
+        support_sketches=checkpoint_state["support_sketches"],
+        work_packages=checkpoint_state["work_packages"],
+        planner_phase=checkpoint_state["planner_phase"],
+        publishable_core_complete=bool(
+            core_output_receipt and core_output_receipt["publishable_core_complete"]
+        ),
+        negative_cache_version=checkpoint_state["negative_cache_version"],
+        planner_signature=checkpoint_state["planner_signature"],
+        core_output_receipt=core_output_receipt,
+    )
+    progress_metadata = dict(stats._progress_metadata or {})
+    progress_metadata.update(
+        {
+            "failures": int(stats.failures),
+            "observations": int(stats.observations),
+            "completed_shards": int(stats.completed_shards),
+            "deferred_shards": int(stats.deferred_shards),
+            "failed_shards": int(stats.failed_shards),
+            "core_output_receipt": core_output_receipt,
+        }
+    )
+    if core_output_receipt is not None:
+        progress_metadata.update(
+            {
+                "publishable_core_complete": core_output_receipt[
+                    "publishable_core_complete"
+                ],
+                "publishable_core_pending": core_output_receipt[
+                    "publishable_core_pending"
+                ],
+                "backfill_pending": core_output_receipt["backfill_pending"],
+                "selected_work_pending": core_output_receipt["selected_pending"],
+            }
+        )
+    else:
+        progress_metadata.update(
+            {"publishable_core_complete": False, "publishable_core_pending": 1}
+        )
+    core_incomplete = (
+        core_output_receipt is None
+        or not bool(core_output_receipt["publishable_core_complete"])
+        or int(core_output_receipt["selected_pending"]) > 0
+    )
+    stage_status = "warning" if stats.failures or core_incomplete else "complete"
     write_stage_manifest(
         manifest_path=config.manifests_dir / "core_sources_ingest.json",
         stage="core_sources_ingest",
-        status="ok" if stats.failures == 0 else "warning",
+        status="ok" if stage_status == "complete" else "warning",
         metrics={
             "registry_datasets": stats.registry_datasets,
             "variable_alignments": stats.variable_alignments,
@@ -349,9 +432,21 @@ async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourc
             "failed_shards": stats.failed_shards,
             "empty_shards": stats.empty_shards,
             "observations_by_source": stats.observations_by_source or {},
+            "publishable_core_complete": progress_metadata["publishable_core_complete"],
+            "publishable_core_pending": progress_metadata["publishable_core_pending"],
+            "backfill_pending": progress_metadata.get("backfill_pending", 0),
+            "core_output_receipt_digest": (
+                core_output_receipt.get("basis_digest") if core_output_receipt else None
+            ),
         },
         artifacts=[config.db_path],
         started_at=started_at,
+    )
+    __resolve_implementation_dependency("_write_core_ingest_stage_progress", "validators")(
+        config,
+        metadata=progress_metadata,
+        status=stage_status,
+        input_fingerprint=fingerprint_paths([config.db_path]) + ":" + config.run_signature,
     )
     return stats
 
@@ -392,6 +487,7 @@ async def _run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSour
         stats.completed_shards += ingest_stats.completed_shards
         stats.deferred_shards += ingest_stats.deferred_shards
         stats.failed_shards += ingest_stats.failed_shards
+        stats._progress_metadata = ingest_stats._progress_metadata
     else:
         legacy_stats = await _legacy_ingest_observations(config.db_path)
         stats.observations += legacy_stats.observations
@@ -498,6 +594,35 @@ def _policy_bool_attr(policy: SourceExecutionPolicy, name: str, default: bool = 
     if isinstance(value, str):
         return value.strip().lower() in {"1", "true", "yes", "on"}
     return bool(value)
+
+
+def _publishable_core_ledger_completion(
+    work_packages: dict[str, ObservationShard],
+    completed: dict[str, Any],
+    *,
+    selected_phases: set[str],
+) -> tuple[bool, int]:
+    """Recompute core completion from the selected shard plan and terminal ledger rows.
+
+    A pending counter reaches zero for both successful and failed/deferred shards. Only
+    producer-ledger terminal success states satisfy a selected publishable-core shard.
+    """
+    if "publishable_core" not in selected_phases:
+        return True, 0
+
+    required_shard_ids = {
+        shard_id for shard_id, shard in work_packages.items() if shard.phase == "publishable_core"
+    }
+    complete_shard_ids = {
+        shard_id
+        for shard_id in required_shard_ids
+        if isinstance(completed.get(shard_id), dict)
+        and str(completed[shard_id].get("status") or "") in {"complete_with_rows", "complete_empty"}
+    }
+    incomplete_shards = len(required_shard_ids - complete_shard_ids)
+    return incomplete_shards == 0, incomplete_shards
+
+
 async def _ingest_catalog_observations(
     db_path: Path,
     plans: list[ObservationPlan],
@@ -685,6 +810,7 @@ async def _ingest_catalog_observations_parallel(
             )
 
     async def _persist_runtime_state() -> None:
+        nonlocal publishable_core_complete
         capability_state = _serialize_capability_snapshot_state(await capability_cache.snapshot())
         async with runtime_lock:
             budget_state = _serialize_source_budget_windows(budget_windows)
@@ -701,6 +827,14 @@ async def _ingest_catalog_observations_parallel(
                     completed=completed,
                     selected_phases=selected_phases,
                 )
+            )
+            (
+                publishable_core_complete,
+                publishable_core_pending,
+            ) = _publishable_core_ledger_completion(
+                work_packages,
+                completed,
+                selected_phases=selected_phases,
             )
             total_inflight = sum(
                 int(value) for value in runtime_metrics.inflight_by_source.values()
@@ -773,7 +907,7 @@ async def _ingest_catalog_observations_parallel(
                 "planned_work_packages": int(runtime_metrics.planned_work_packages),
                 "support_sketch_count": int(runtime_metrics.support_sketch_count),
                 "publishable_core_complete": bool(publishable_core_complete),
-                "publishable_core_pending": int(core_pending["count"]),
+                "publishable_core_pending": int(publishable_core_pending),
                 "backfill_pending": int(max(pending["count"] - core_pending["count"], 0)),
                 "source_core_completion_pct": source_core_completion_pct,
                 "source_full_completion_pct": source_full_completion_pct,
@@ -799,7 +933,7 @@ async def _ingest_catalog_observations_parallel(
                         "status": "complete"
                         if publishable_core_complete
                         else ("running" if "publishable_core" in selected_phases else "skipped"),
-                        "remaining": int(core_pending["count"]),
+                        "remaining": int(publishable_core_pending),
                     },
                     "long_tail_backfill": {
                         "status": (
@@ -813,7 +947,10 @@ async def _ingest_catalog_observations_parallel(
                     },
                 },
             }
-        _write_core_ingest_stage_progress(config, metadata=metadata)
+            stats._progress_metadata = dict(metadata)
+        __resolve_implementation_dependency("_write_core_ingest_stage_progress", "validators")(
+            config, metadata=metadata
+        )
         _write_observation_checkpoint_state(
             config,
             completed=completed,
@@ -902,14 +1039,19 @@ async def _ingest_catalog_observations_parallel(
             )
             if phase == "publishable_core":
                 core_pending["count"] = max(core_pending["count"] - 1, 0)
-                if core_pending["count"] <= 0 and not publishable_core_complete:
+                was_core_complete = publishable_core_complete
+                publishable_core_complete, _ = _publishable_core_ledger_completion(
+                    work_packages,
+                    completed,
+                    selected_phases=selected_phases,
+                )
+                if publishable_core_complete and not was_core_complete:
                     phase_timings["publishable_core_completed_at"] = time.monotonic()
                     if "long_tail_backfill" in selected_phases and pending["count"] > 0:
                         phase_state["value"] = "long_tail_backfill"
                         phase_timings["long_tail_backfill_started_at"] = (
                             phase_timings["long_tail_backfill_started_at"] or time.monotonic()
                         )
-                    publishable_core_complete = True
             elif phase == "long_tail_backfill" and pending["count"] <= 0:
                 phase_timings["long_tail_backfill_completed_at"] = time.monotonic()
             if pending["count"] <= 0:

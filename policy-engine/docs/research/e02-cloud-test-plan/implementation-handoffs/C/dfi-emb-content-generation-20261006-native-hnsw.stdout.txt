@@ -1,0 +1,2 @@
+NATIVE_HNSW_RECEIPT spec_origin=/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so module_file=/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so distribution_version=0.8.0 module_sha256=1995d684a31ecce3f0b2f817e283c7ba0d3bd77c961c0f47f2adb552f8cddf4a
+.

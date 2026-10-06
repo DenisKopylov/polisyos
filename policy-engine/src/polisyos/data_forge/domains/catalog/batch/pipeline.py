@@ -166,6 +166,7 @@ def _stage_input_basis(
     stage: str,
     *,
     encoder_identity_override: str | None = None,
+    core_receipt_basis_member: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Build the selected, content-bound input basis for a resumable stage."""
     producer_config = _producer_config_snapshot(config)
@@ -332,6 +333,15 @@ def _stage_input_basis(
                 else None
             )
             settings["core_sources_ingest_stage_state"] = core_state
+            if core_receipt_basis_member is None:
+                from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
+                    _current_core_output_receipt_state,
+                )
+
+                core_receipt_basis_member = _current_core_output_receipt_state(
+                    config
+                ).basis_member()
+            settings["core_output_receipt_state"] = dict(core_receipt_basis_member)
         if stage == "qc":
             previous_root, previous_context = _qc_previous_snapshot_context(config)
             settings["qc_previous_snapshot_selection"] = previous_context
@@ -539,7 +549,21 @@ def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
         # Recompute these producers instead of reusing a stored declaration.
         return False
     if stage in _CONTENT_BOUND_STAGES:
-        input_basis = _stage_input_basis(config, stage)
+        core_receipt_basis_member = None
+        if stage == "benchmark":
+            from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
+                _current_core_output_receipt_state,
+            )
+
+            core_receipt_state = _current_core_output_receipt_state(config)
+            if core_receipt_state.expected and core_receipt_state.reconciled_receipt is None:
+                return False
+            core_receipt_basis_member = core_receipt_state.basis_member()
+        input_basis = _stage_input_basis(
+            config,
+            stage,
+            core_receipt_basis_member=core_receipt_basis_member,
+        )
         output_inventory = _stage_output_inventory(config, stage)
         if stage == "harvest":
             receipt = _harvest_stage_receipt(config)
@@ -838,11 +862,6 @@ async def run_dataset_pipeline(
                 stats.metrics["core_observations_inserted"] = cstats.observations_inserted
                 stats.metrics["core_observations_replaced"] = cstats.observations_replaced
                 stats.metrics["core_failures"] = cstats.failures
-                _record_stage_completion(
-                    config,
-                    "core_sources_ingest",
-                    metadata={"failures": cstats.failures, "observations": cstats.observations},
-                )
 
         # These stages share a DuckDB artifact, and core-source ingestion may
         # update it after graph/index construction. Record both receipts after

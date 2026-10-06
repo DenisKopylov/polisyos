@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import types
+from dataclasses import replace
 from pathlib import Path
 
 import duckdb
@@ -328,6 +329,378 @@ def test_graph_receipts_bind_database_after_selected_downstream_writers(
     assert not _should_skip_stage(config, "graph_index")
 
 
+def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from datetime import UTC, datetime
+
+    import pandas as pd
+
+    from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetRecord,
+        DistributionRecord,
+    )
+    from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "sources:",
+                "  - name: worldbank",
+                "    family: worldbank",
+                "    wave: A",
+                "    endpoint: https://example.test/worldbank",
+                "    connector_id: worldbank.wdi",
+                "    profile_id: worldbank_wdi",
+                "    enabled: true",
+                "    execution_tier: transport_ready",
+                "    run_lane: empirical",
+                "    publish_blocking: true",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        registry_path=registry_path,
+        stages=frozenset({"core_sources_ingest", "benchmark"}),
+        run_profile="preflight_core",
+        promoted_sources=("worldbank",),
+        preflight_sources=("worldbank",),
+        active_countries=("UA",),
+        active_year_window=(2020, 2020),
+        observation_mode="core",
+        max_datasets_per_source=1,
+    )
+    record = DatasetRecord(
+        id="wb-gdp",
+        title="GDP per capita",
+        description="GDP per capita",
+        source="worldbank",
+        source_portal="worldbank",
+        dataset_id="NY.GDP.PCAP.PP.CD",
+        source_dataset_id="NY.GDP.PCAP.PP.CD",
+        execution_tier="transport_ready",
+        update_frequency="annual",
+        polisyos_metrics=["gdp_per_capita"],
+        variables=["NY.GDP.PCAP.PP.CD"],
+        preferred_distribution_id="dist-wb",
+        distributions=[
+            DistributionRecord(
+                id="dist-wb",
+                connector_type="worldbank.wdi",
+                profile_id="worldbank_wdi",
+                source_locator="NY.GDP.PCAP.PP.CD",
+                parser_supported=True,
+                machine_readable=True,
+            )
+        ],
+    )
+    build_graph(records=[record], db_path=config.db_path)
+
+    async def _describe_dataset(
+        _connector: WorldBankConnector, _handle: object, dataset_id: str
+    ) -> DatasetCapabilitySnapshot:
+        return DatasetCapabilitySnapshot(
+            source="worldbank",
+            dataset_id=dataset_id,
+            resolved_dataset_id=dataset_id,
+            last_checked_at=datetime.now(UTC),
+        )
+
+    fetch_state = {"fail": False, "calls": 0}
+
+    async def _fetch_dataset(
+        _connector: WorldBankConnector, _handle: object, _request: object
+    ) -> object:
+        fetch_state["calls"] += 1
+        if fetch_state["fail"]:
+            raise RuntimeError("fixture World Bank fetch failure")
+        return type(
+            "WorldBankFixtureResult",
+            (),
+            {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])},
+        )()
+
+    monkeypatch.setattr(WorldBankConnector, "describe_dataset", _describe_dataset)
+    monkeypatch.setattr(WorldBankConnector, "fetch", _fetch_dataset)
+
+    stats = run_dataset_pipeline_sync(config)
+
+    assert stats.metrics["core_observations"] == 1
+    state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))["core_sources_ingest"]
+    producer_manifest = json.loads(
+        (config.manifests_dir / "core_sources_ingest.json").read_text(encoding="utf-8")
+    )
+    benchmark = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+
+    assert producer_manifest["status"] == "ok"
+    assert producer_manifest["metrics"]["completed_shards"] == 1
+    assert state["metadata"]["publishable_core_complete"] is True
+    assert state["metadata"]["publishable_core_pending"] == 0
+    assert state["metadata"]["source_core_completion_pct"] == {"worldbank": 100.0}
+    assert state["status"] == "complete"
+    assert state.get("input_basis") is None
+    assert state.get("output_inventory") is None
+    assert benchmark["evaluation_mode"] == "full-ready"
+
+    retry_config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "retry-snapshot",
+        registry_path=registry_path,
+        stages=frozenset({"core_sources_ingest", "benchmark"}),
+        run_profile="preflight_core",
+        promoted_sources=("worldbank",),
+        preflight_sources=("worldbank",),
+        active_countries=("UA",),
+        active_year_window=(2020, 2020),
+        observation_mode="core",
+        max_datasets_per_source=1,
+        resume=True,
+        resume_mode="force",
+    )
+    build_graph(records=[record], db_path=retry_config.db_path)
+    retry_config.stage_state_path.parent.mkdir(parents=True, exist_ok=True)
+    retry_config.stage_state_path.write_text(
+        json.dumps({"core_sources_ingest": state}), encoding="utf-8"
+    )
+
+    fetch_state["fail"] = True
+    failed_stats = run_dataset_pipeline_sync(retry_config)
+    failed_state = json.loads(retry_config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]
+    failed_manifest = json.loads(
+        (retry_config.manifests_dir / "core_sources_ingest.json").read_text(encoding="utf-8")
+    )
+    deferred_shards = json.loads(
+        (retry_config.manifests_dir / "deferred_observation_plans.json").read_text(encoding="utf-8")
+    )
+    failed_benchmark = json.loads(retry_config.benchmark_report_path.read_text(encoding="utf-8"))
+    failed_checkpoint = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        failed_observation_count = con.execute(
+            "SELECT count(*) FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchone()[0]
+
+    successful_shards = json.loads(
+        (config.manifests_dir / "completed_observation_shards.json").read_text(encoding="utf-8")
+    )
+    assert failed_stats.metrics["core_failures"] == 1
+    assert failed_manifest["status"] == "warning"
+    assert failed_state["status"] == "warning"
+    assert failed_state["metadata"]["publishable_core_complete"] is False
+    assert failed_state["metadata"]["publishable_core_pending"] == 1
+    assert failed_state["metadata"]["source_core_completion_pct"] == {"worldbank": 0.0}
+    assert failed_state["metadata"]["subphases"]["publishable_core"] == {
+        "status": "running",
+        "remaining": 1,
+    }
+    assert deferred_shards[0]["shard_id"] == successful_shards[0]["shard_id"]
+    assert failed_checkpoint["deferred"][deferred_shards[0]["shard_id"]]["status"] == "deferred"
+    assert deferred_shards[0]["shard_id"] not in failed_checkpoint["completed"]
+    assert failed_observation_count == 0
+    assert failed_benchmark["evaluation_mode"] == "partial-eval"
+
+    fetch_state["fail"] = False
+    retried_stats = run_dataset_pipeline_sync(retry_config)
+    retried_state = json.loads(retry_config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]
+    retried_shards = json.loads(
+        (retry_config.manifests_dir / "completed_observation_shards.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    retried_benchmark = json.loads(retry_config.benchmark_report_path.read_text(encoding="utf-8"))
+    retried_checkpoint = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        persisted_observations = con.execute(
+            "SELECT dataset_id, raw_variable, country_code, year, value "
+            "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchall()
+
+    assert retried_stats.metrics["core_failures"] == 0
+    assert retried_state["status"] == "complete"
+    assert retried_state["metadata"]["publishable_core_complete"] is True
+    assert retried_state["metadata"]["publishable_core_pending"] == 0
+    assert retried_shards[0]["shard_id"] == deferred_shards[0]["shard_id"]
+    assert (
+        retried_checkpoint["completed"][retried_shards[0]["shard_id"]]["status"]
+        == "complete_with_rows"
+    )
+    assert retried_shards[0]["shard_id"] not in retried_checkpoint["deferred"]
+    assert persisted_observations == [("wb-gdp", "NY.GDP.PCAP.PP.CD", "UA", 2020, 1.1)]
+    assert retried_benchmark["evaluation_mode"] == "full-ready"
+
+    calls_before_valid_resume = fetch_state["calls"]
+    valid_resume_stats = run_dataset_pipeline_sync(retry_config)
+    valid_resume_benchmark = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert fetch_state["calls"] == calls_before_valid_resume
+    assert valid_resume_stats.metrics["core_failures"] == 0
+    assert valid_resume_benchmark["evaluation_mode"] == "full-ready"
+
+    completed_checkpoint = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    completed_shard_id = retried_shards[0]["shard_id"]
+    stale_checkpoint = json.loads(json.dumps(completed_checkpoint))
+    stale_result = stale_checkpoint["completed"].pop(completed_shard_id)
+    stale_checkpoint["deferred"][completed_shard_id] = {
+        **stale_result,
+        "status": "deferred",
+    }
+    retry_config.observation_ingest_checkpoint_path.write_text(
+        json.dumps(stale_checkpoint), encoding="utf-8"
+    )
+
+    from polisyos.data_forge.domains.catalog.batch.benchmark import run_benchmark
+
+    run_benchmark(retry_config)
+    marker_only_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert marker_only_report["evaluation_mode"] == "partial-eval"
+    assert marker_only_report["metrics"]["benchmark_partial_eval"] == 1
+
+    retry_config.observation_ingest_checkpoint_path.write_text(
+        json.dumps(completed_checkpoint), encoding="utf-8"
+    )
+    with duckdb.connect(str(retry_config.db_path)) as con:
+        con.execute("DELETE FROM ds_observations WHERE dataset_id = 'wb-gdp'")
+        con.execute("CHECKPOINT")
+
+    prior_green_stage = json.loads(retry_config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]
+    assert prior_green_stage["status"] == "complete"
+    assert prior_green_stage["metadata"]["core_output_receipt"] is not None
+    removed_output_benchmark = run_benchmark(retry_config)
+    removed_output_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert removed_output_benchmark.metrics["benchmark_partial_eval"] == 1
+    assert removed_output_report["evaluation_mode"] == "partial-eval"
+
+    before_missing_output_retry = fetch_state["calls"]
+    fetch_state["fail"] = True
+    missing_output_stats = run_dataset_pipeline_sync(retry_config)
+    missing_output_state = json.loads(
+        retry_config.stage_state_path.read_text(encoding="utf-8")
+    )["core_sources_ingest"]
+    missing_output_benchmark = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        missing_output_rows = con.execute(
+            "SELECT count(*) FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchone()[0]
+
+    assert fetch_state["calls"] == before_missing_output_retry + 1
+    assert missing_output_stats.metrics["core_failures"] == 1
+    assert missing_output_state["status"] == "warning"
+    assert missing_output_state["metadata"]["publishable_core_complete"] is False
+    assert missing_output_rows == 0
+    assert missing_output_benchmark["evaluation_mode"] == "partial-eval"
+
+    fetch_state["fail"] = False
+    repaired_stats = run_dataset_pipeline_sync(retry_config)
+    repaired_benchmark = json.loads(retry_config.benchmark_report_path.read_text(encoding="utf-8"))
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        repaired_rows = con.execute(
+            "SELECT dataset_id, raw_variable, country_code, year, value "
+            "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchall()
+
+    assert repaired_stats.metrics["core_failures"] == 0
+    assert fetch_state["calls"] == before_missing_output_retry + 2
+    assert repaired_rows == [("wb-gdp", "NY.GDP.PCAP.PP.CD", "UA", 2020, 1.1)]
+    assert repaired_benchmark["evaluation_mode"] == "full-ready"
+
+    with duckdb.connect(str(retry_config.db_path)) as con:
+        con.execute(
+            "UPDATE ds_variable_alignments SET confidence = confidence + 0.01 "
+            "WHERE dataset_id = 'wb-gdp'"
+        )
+        con.execute("CHECKPOINT")
+
+    altered_alignment_benchmark = run_benchmark(retry_config)
+    altered_alignment_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert altered_alignment_benchmark.metrics["benchmark_partial_eval"] == 1
+    assert altered_alignment_report["evaluation_mode"] == "partial-eval"
+
+    before_alignment_retry = fetch_state["calls"]
+    fetch_state["fail"] = True
+    altered_alignment_retry = run_dataset_pipeline_sync(retry_config)
+    assert fetch_state["calls"] == before_alignment_retry + 1
+    assert altered_alignment_retry.metrics["core_failures"] == 1
+
+    calls_before_changed_plan = fetch_state["calls"]
+    fetch_state["fail"] = False
+    with duckdb.connect(str(retry_config.db_path)) as con:
+        con.execute("UPDATE ds_datasets SET title = 'Changed plan input' WHERE id = 'wb-gdp'")
+        con.execute("CHECKPOINT")
+    changed_plan_stats = run_dataset_pipeline_sync(retry_config)
+    changed_plan_benchmark = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert fetch_state["calls"] == calls_before_changed_plan + 1
+    assert changed_plan_stats.metrics["core_failures"] == 0
+    assert changed_plan_benchmark["evaluation_mode"] == "full-ready"
+
+    checkpoint_for_cache = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    complete_for_cache = next(iter(checkpoint_for_cache["completed"]))
+    deferred_for_cache = json.loads(json.dumps(checkpoint_for_cache))
+    deferred_result = deferred_for_cache["completed"].pop(complete_for_cache)
+    deferred_for_cache["deferred"][complete_for_cache] = {
+        **deferred_result,
+        "status": "deferred",
+    }
+    stage_state_before_cache_probe = retry_config.stage_state_path.read_bytes()
+    benchmark_before_cache_probe = retry_config.benchmark_report_path.read_bytes()
+    calls_before_cache_probe = fetch_state["calls"]
+    retry_config.observation_ingest_checkpoint_path.write_text(
+        json.dumps(deferred_for_cache), encoding="utf-8"
+    )
+    assert retry_config.stage_state_path.read_bytes() == stage_state_before_cache_probe
+    assert retry_config.benchmark_report_path.read_bytes() == benchmark_before_cache_probe
+
+    benchmark_only = replace(retry_config, stages=frozenset({"benchmark"}))
+    cached_benchmark_stats = run_dataset_pipeline_sync(benchmark_only)
+    cached_benchmark_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert "benchmark" not in cached_benchmark_stats.skipped_stages
+    assert cached_benchmark_stats.metrics["benchmark_partial_eval"] == 1
+    assert cached_benchmark_report["evaluation_mode"] == "partial-eval"
+    assert fetch_state["calls"] == calls_before_cache_probe
+    partial_benchmark_receipt = current_content_stage_receipt(benchmark_only, "benchmark")
+    assert partial_benchmark_receipt is not None
+    benchmark_basis_config = partial_benchmark_receipt["input_basis"]["config"]
+    core_receipt_basis_state = benchmark_basis_config["core_output_receipt_state"]
+    assert core_receipt_basis_state["expected"] is True
+    assert core_receipt_basis_state["matches_checkpoint_and_stage"] is False
+    assert isinstance(core_receipt_basis_state["recomputed_receipt_digest"], str)
+
+    repeated_benchmark_stats = run_dataset_pipeline_sync(benchmark_only)
+    assert "benchmark" not in repeated_benchmark_stats.skipped_stages
+    assert repeated_benchmark_stats.metrics["benchmark_partial_eval"] == 1
+
+
 def test_core_sources_ingest_is_not_resumed_without_bound_fetch_receipt(tmp_path) -> None:
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
@@ -369,7 +742,7 @@ def test_core_sources_run_signature_changes_with_registry_content(tmp_path) -> N
     assert config.run_signature != original_signature
 
 
-def test_benchmark_resume_rejects_core_ingest_state_change(monkeypatch, tmp_path) -> None:
+def test_benchmark_resume_requires_current_core_ingest_receipt(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         DatasetBatchConfig,
         "load_registry",
@@ -392,7 +765,7 @@ def test_benchmark_resume_rejects_core_ingest_state_change(monkeypatch, tmp_path
         },
     )
     _record_stage_completion(config, "benchmark")
-    assert _should_skip_stage(config, "benchmark")
+    assert not _should_skip_stage(config, "benchmark")
 
     catalog_pipeline.write_json(
         config.stage_state_path,
@@ -406,6 +779,7 @@ def test_benchmark_resume_rejects_core_ingest_state_change(monkeypatch, tmp_path
             ],
         },
     )
+    _record_stage_completion(config, "benchmark")
 
     assert not _should_skip_stage(config, "benchmark")
 

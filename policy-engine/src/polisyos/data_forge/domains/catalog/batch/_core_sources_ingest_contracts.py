@@ -84,6 +84,7 @@ class CoreSourcesIngestStats:
     failed_shards: int = 0
     empty_shards: int = 0
     observations_by_source: dict[str, int] | None = None
+    _progress_metadata: dict[str, Any] | None = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if self.observations_by_source is None:

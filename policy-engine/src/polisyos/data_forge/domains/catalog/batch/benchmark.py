@@ -594,20 +594,17 @@ def _load_core_ingest_context(
     config: DatasetBatchConfig,
     con: duckdb.DuckDBPyConnection,
 ) -> dict[str, object]:
-    stage_state: dict[str, object] = {}
-    if config.stage_state_path.exists():
-        with open(config.stage_state_path, encoding="utf-8") as fh:
-            loaded = json.load(fh)
-        if isinstance(loaded, dict):
-            stage_state = (
-                loaded.get("core_sources_ingest", {})
-                if isinstance(loaded.get("core_sources_ingest"), dict)
-                else {}
-            )
-    metadata = stage_state.get("metadata", {}) if isinstance(stage_state, dict) else {}
-    if not isinstance(metadata, dict):
-        metadata = {}
+    from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
+        _current_core_output_receipt_state,
+    )
+
+    receipt_state = _current_core_output_receipt_state(config, con=con)
+    stage_state = receipt_state.core_stage_state
+    metadata = receipt_state.stage_metadata
     stage_status = str(stage_state.get("status") or "").strip()
+    current_core_receipt = receipt_state.current_receipt
+    core_receipt_current = receipt_state.is_current
+    core_evidence_expected = receipt_state.expected
     observation_count = 0
     if _table_exists(con, "ds_observations"):
         observation_count = int(
@@ -634,9 +631,21 @@ def _load_core_ingest_context(
         if isinstance(value, (int, float)) and int(value) > 0
     }
     current_phase = str(metadata.get("current_phase") or "").strip()
-    publishable_core_complete = bool(metadata.get("publishable_core_complete"))
-    publishable_core_pending = max(0, int(metadata.get("publishable_core_pending", 0) or 0))
-    backfill_pending = max(0, int(metadata.get("backfill_pending", 0) or 0))
+    if core_receipt_current and current_core_receipt is not None:
+        publishable_core_complete = bool(
+            current_core_receipt["publishable_core_complete"]
+        )
+        publishable_core_pending = max(
+            0, int(current_core_receipt["publishable_core_pending"])
+        )
+        backfill_pending = max(0, int(current_core_receipt["backfill_pending"]))
+    else:
+        publishable_core_complete = False
+        publishable_core_pending = max(
+            1,
+            int(metadata.get("publishable_core_pending", 0) or 0),
+        )
+        backfill_pending = max(0, int(metadata.get("backfill_pending", 0) or 0))
     source_core_completion_pct = {
         str(key): float(value)
         for key, value in (metadata.get("source_core_completion_pct", {}) or {}).items()
@@ -649,7 +658,7 @@ def _load_core_ingest_context(
     }
     blocked = bool(
         observation_count <= 0
-        and stage_status == "running"
+        and stage_status in {"running", "warning"}
         and (
             current_phase in {"planning", "blocked_sources"}
             or blocked_by_source
@@ -658,6 +667,10 @@ def _load_core_ingest_context(
             or completed_shards == 0
         )
     )
+    if core_evidence_expected and (
+        not core_receipt_current or not publishable_core_complete
+    ):
+        blocked = True
     if blocked:
         evaluation_mode = "partial-eval"
     elif publishable_core_complete and backfill_pending > 0:
@@ -677,6 +690,10 @@ def _load_core_ingest_context(
         "publishable_core_complete": publishable_core_complete,
         "publishable_core_pending": publishable_core_pending,
         "backfill_pending": backfill_pending,
+        "core_output_receipt_current": core_receipt_current,
+        "core_output_receipt_digest": (
+            current_core_receipt.get("basis_digest") if current_core_receipt else None
+        ),
         "source_core_completion_pct": source_core_completion_pct,
         "source_full_completion_pct": source_full_completion_pct,
         "blocked": blocked,

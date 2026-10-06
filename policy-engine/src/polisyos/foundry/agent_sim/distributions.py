@@ -434,10 +434,16 @@ def compute_gini(
 
 
 def compute_gini_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
-    """Compute the exact Gini coefficient over active agents."""
+    """Compute the relative Gini coefficient over active, nonnegative values.
+
+    Empty and all-zero populations have coefficient zero. A nonconstant signed
+    population with zero total has no relative coefficient and returns NaN; it
+    is outside the nonnegative economic profile. No epsilon with resource units
+    is added to the denominator, so changing the resource unit preserves Gini.
+    """
     n_agents = values.shape[0]
     n_active = jnp.sum(active).astype(jnp.int32)
-    # Match infinity masking followed by multiplication with float32 ranks.
+    # Preserve the public result promotion from infinity masking and float32 ranks.
     output_dtype = jnp.result_type(jnp.result_type(values, jnp.inf), jnp.float32)
 
     def _no_active():
@@ -447,13 +453,19 @@ def compute_gini_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         masked = jnp.where(active, values, jnp.inf)
         sorted_values = jnp.sort(masked)
         active_mask = jnp.arange(n_agents) < n_active
-        sorted_values = jnp.where(active_mask, sorted_values, 0.0)
-        indices = jnp.arange(n_agents, dtype=jnp.float32) + 1.0
-        indices = jnp.where(active_mask, indices, 0.0)
-        total = jnp.sum(sorted_values)
-        weighted_sum = jnp.sum(indices * sorted_values)
-        n_act = n_active.astype(jnp.float32)
-        return (2.0 * weighted_sum) / (n_act * total + 1e-8) - (n_act + 1.0) / (n_act + 1e-8)
+        sorted_values = jnp.where(active_mask, sorted_values, 0.0).astype(output_dtype)
+        # Positive rescaling cancels in the defining pairwise ratio. Normalize
+        # first to avoid overflowing large units or erasing tiny finite units.
+        scale = jnp.max(jnp.abs(sorted_values), initial=0.0)
+        normalized = sorted_values / jnp.where(scale == 0, 1.0, scale)
+        n_act = n_active.astype(output_dtype)
+        indices = jnp.arange(n_agents, dtype=output_dtype) + 1.0
+        centered_ranks = 2.0 * indices - n_act - 1.0
+        numerator = jnp.sum(centered_ranks * normalized)
+        total = jnp.sum(normalized)
+        coefficient = numerator / (n_act * jnp.where(total == 0, 1.0, total))
+        zero_total = jnp.where(scale == 0, 0.0, jnp.nan).astype(output_dtype)
+        return jnp.where(total == 0, zero_total, coefficient)
 
     return jax.lax.cond(n_active > 0, _with_active, _no_active)
 

@@ -1,0 +1,12 @@
+id = "2026-10-06-economic-gini-science"
+title = "Preserve exact Gini under changes in resource units"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Remove the dimensionful epsilon from exact active-agent Gini and normalize finite resource values before the sorted pairwise-equivalent calculation. Route native aggregate/executor Gini to the same owner, excluding inactive padding. Tiny positive distributions now produce the same coefficient as ordinary and large units. Document bounded native fiscal/labor and economics-plugin equation profiles."
+compatibility = "Public names and result dtype promotion remain unchanged. Empty and all-zero nonnegative populations return typed zero; nonconstant signed zero-total populations return NaN. The named historical normalized income/budget score is unchanged."
+surface_classification = "public_experimental"
+change_class = "behavioral"
+migration = "Consumers must treat signed zero-total relative Gini as undefined. No economic model or normative welfare objective is replaced."
+limitations = "Synthetic pairwise and finite accounting profiles do not establish real-data calibration, full economic-model equivalence, production optimizer callers or authority-grade economic admission. Approximate statistics retain their existing contracts."
+evidence = ["tests/unit/foundry/agent_sim/test_gini_science.py", "tests/unit/foundry/plugins/test_economic_profiles.py"]

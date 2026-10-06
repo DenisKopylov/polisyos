@@ -20,7 +20,7 @@ def _error(message: str) -> None:
     sys.stderr.write(message + "\n")
 
 
-def main() -> None:
+def main() -> int:
     """Main helper."""
     parser = argparse.ArgumentParser(
         description="PolisyOS Policy Simulation Framework",
@@ -54,14 +54,18 @@ def main() -> None:
 
     if args.command == "list":
         cmd_list_plugins(args)
+        return 0
     elif args.command == "run":
         cmd_run_simulation(args)
+        return 0
     elif args.command == "train":
-        cmd_train(args)
+        return cmd_train(args)
     elif args.command == "analyze":
         cmd_analyze(args)
+        return 0
     else:
         parser.print_help()
+        return 0
 
 
 def cmd_list_plugins(args) -> None:
@@ -112,7 +116,7 @@ def cmd_run_simulation(args) -> None:
     _write(f"\nResults saved to {args.output}")
 
 
-def cmd_train(args) -> None:
+def cmd_train(args: argparse.Namespace) -> int:
     """Cmd train helper."""
     sim = PolisySimulator()
 
@@ -137,7 +141,7 @@ def cmd_train(args) -> None:
         _write(f"  Reason: {reason_code}")
         if reason is not None:
             _write(f"  Detail: {reason.message}")
-        return
+        return 1
 
     _write("\nTraining complete!")
     if result.loss_history:
@@ -148,6 +152,7 @@ def cmd_train(args) -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     if result.loss_history:
         result.plot_losses(str(args.output / "training_loss.png"))
+    return 0
 
 
 def cmd_analyze(args) -> None:
@@ -191,4 +196,4 @@ def save_results(result, path: Path) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -1,0 +1,23 @@
+id = "2026-10-06-e02-domain-plugin-training-cli"
+title = "Report plugin discovery and training boundaries honestly"
+type = "changed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Domain-plugin discovery now resolves sources deterministically, and `polisy train` returns a failing exit status when its requested training bridge is pending."
+evidence = [
+  "src/polisyos/foundry/plugins/README.md",
+  "tests/unit/foundry/plugins/test_discovery.py",
+  "tests/unit/remediation/test_plg_01.py",
+  "tests/unit/remediation/test_plg_02.py",
+  "tests/unit/remediation/test_plg_03.py",
+]
+compatibility = "The legacy DomainPlugin ABI and `polisyos.plugins` entry-point group remain supported. A pending `polisy train` request now exits with status 1; successful training continues to print PPO loss and the saved policy artifact."
+change_class = "tooling"
+surface_classification = "public_stable: polisy train command behavior"
+migration = "Automation invoking `polisy train` must treat bridge_pending as a failed request and inspect its status/reason output."
+api = "PolisySimulator.train keeps its bounded Economics one-call adapter and returns bridge_pending for unsupported profiles."
+limitations = "Discovery does not issue verification or owner-admission evidence. Cross-call training resume remains unavailable until a typed training-profile contract exists."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

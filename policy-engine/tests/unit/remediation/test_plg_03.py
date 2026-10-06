@@ -18,12 +18,13 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.agent_sim import ActorCritic, TrainingConfig, build_temporal_observations
+from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact, load_policy_artifact
 from polisyos.foundry.plugins.api import PolisySimulator, TrainingResult
 from polisyos.foundry.plugins.cli import cmd_train
 from polisyos.foundry.plugins.core import DomainConfig, PluginRegistry
 from polisyos.foundry.plugins.economics import EconomicsPlugin
 from polisyos.foundry.plugins.training_adapter import EconomicsTrainingAdapter
-from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint
+from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
 
 
 @pytest.fixture
@@ -58,6 +59,16 @@ def _tree_delta(before: object, after: object) -> float:
         )
     )
     return float(jnp.sum(jnp.stack(leaves)))
+
+
+def _assert_saved_action_changed(policy, observation, initial_action) -> jnp.ndarray:
+    """Check the persisted policy's actual deterministic action independently."""
+
+    saved_action, _ = policy(observation, deterministic=True)
+    assert not jnp.allclose(initial_action, saved_action), (
+        "the persisted actor produced the same action as its pre-training skeleton"
+    )
+    return saved_action
 
 
 def test_native_projection_preserves_economics_wage_and_hours(
@@ -99,12 +110,17 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
         hidden_dims=(64, 64),
         action_dim=1,
     )
+    initial_action, _ = initial_policy(obs, deterministic=True)
+    tenant_store = FileSystemCAS(tmp_path / "training-cas").for_tenant(
+        "tenant-a",
+        cell_id="cell-a",
+    )
 
     result = simulator.train(
         n_episodes=1,
         training_config=_small_config(),
         seed=7,
-        output_dir=tmp_path / "training-output",
+        artifact_store=tenant_store,
     )
 
     assert isinstance(result, TrainingResult)
@@ -116,21 +132,146 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert all(jnp.isfinite(jnp.asarray(result.loss_history)))
     assert _tree_delta(initial_policy, result.trained_policy) > 0.0
 
-    manifest_payload = from_canonical_bytes(
-        FileSystemCAS(tmp_path / "training-output" / "artifacts").get_bytes(
-            result.artifact_refs[1].artifact_id
-        )
-    )
+    weights_ref, manifest_ref = result.artifact_refs
+    manifest_payload = from_canonical_bytes(tenant_store.get_bytes(manifest_ref))
     assert isinstance(manifest_payload, dict)
     assert isinstance(manifest_payload["metrics"]["final_loss"], Decimal)
     assert isinstance(manifest_payload["metrics"]["learning_rate"], Decimal)
+    assert manifest_payload["fingerprint"]["random_seed"] == 7
+    assert manifest_payload["metrics"]["training_run_id"] == "plugins-economics-7"
+    assert tenant_store.has(weights_ref)
+    assert tenant_store.has(manifest_ref)
 
-    before_action, _ = result.trained_policy(obs, deterministic=True)
-    assert jnp.all(jnp.isfinite(before_action))
-    assert result.artifact.load_weights(result.trained_policy) is not None
+    # Re-open the saved bytes through the caller's tenant-bound owner, load into
+    # an independently constructed actor skeleton, and recompute its action.
+    saved_policy, warnings = load_policy_artifact(
+        tenant_store,
+        manifest_ref,
+        initial_policy,
+        DeterminismTier.STRICT_CPU,
+        7,
+        strict=True,
+    )
+    assert warnings == []
+    saved_action = _assert_saved_action_changed(saved_policy, obs, initial_action)
+    assert jnp.isfinite(saved_action).all()
+
+    # The public runtime consumer must use the same read-back actor that the
+    # independent observation/action oracle inspected.
+    consumer_start = simulator.get_state()
+    expected_state, _ = adapter.run(
+        saved_policy,
+        _small_config(),
+        seed=7,
+        state=consumer_start,
+        n_steps=1,
+    )
+    consumed = simulator.run(n_steps=1, seed=7, collect_trajectory=False)
+    actual_economics = consumed.final_state.get_domain("economics")
+    expected_economics = expected_state.get_domain("economics")
+    assert jnp.allclose(actual_economics.agents.wealth, expected_economics.agents.wealth)
+    assert jnp.allclose(
+        actual_economics.agents.consumption,
+        expected_economics.agents.consumption,
+    )
 
     final_state = simulator.get_state()
     assert int(final_state.time_step) > 0
+
+
+def test_optimizer_removal_keeps_markers_but_fails_saved_action_oracle(
+    simulator: PolisySimulator,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Status and artifact markers cannot replace an observed optimizer effect."""
+
+    from polisyos.foundry.plugins import training_adapter as training_adapter_module
+
+    simulator.initialize(seed=7)
+    config = _small_config()
+    adapter = EconomicsTrainingAdapter.from_composite(
+        simulator.get_state(),
+        simulator._executor,
+    )
+    assert adapter is not None
+    initial_state = adapter.to_native_state(seed=7)
+    observation = build_temporal_observations(
+        initial_state,
+        horizon=config.horizon,
+        include_expectations=config.include_expectations,
+    )
+    initial_policy = ActorCritic(
+        jax.random.PRNGKey(7),
+        obs_dim=observation.shape[-1],
+        hidden_dims=(64, 64),
+        action_dim=1,
+    )
+    initial_action, _ = initial_policy(observation, deterministic=True)
+    fake_artifact = AgentPolicyArtifact.from_trained_policy(
+        initial_policy,
+        run_id="plugins-economics-7",
+        steps=config.n_episodes * config.steps_per_episode,
+        loss=0.25,
+        fingerprint=EnvironmentFingerprint.capture(DeterminismTier.STRICT_CPU, 7),
+        extended_metrics={"learning_rate": config.learning_rate},
+    )
+
+    # Model removal of the optimizer while retaining success-shaped metrics,
+    # artifact bytes, guards, and tenant persistence/readback.
+    monkeypatch.setattr(
+        training_adapter_module,
+        "train_actor_critic_with_artifact",
+        lambda policy, *_args, **_kwargs: (
+            policy,
+            {"loss_history": [0.25]},
+            fake_artifact,
+        ),
+    )
+    monkeypatch.setattr(
+        training_adapter_module,
+        "_parameter_delta",
+        lambda *_args: jnp.array(1.0),
+    )
+    monkeypatch.setattr(
+        training_adapter_module,
+        "_action_delta",
+        lambda *_args: jnp.array(1.0),
+    )
+    tenant_store = FileSystemCAS(tmp_path / "optimizer-removal-cas").for_tenant(
+        "tenant-a",
+        cell_id="cell-a",
+    )
+
+    result = simulator.train(
+        n_episodes=config.n_episodes,
+        training_config=config,
+        seed=7,
+        artifact_store=tenant_store,
+    )
+
+    assert result.status == "trained"
+    assert result.loss_history == [0.25]
+    assert result.artifact is not None
+    assert result.artifact_refs is not None
+    _, manifest_ref = result.artifact_refs
+    assert tenant_store.has(manifest_ref)
+    saved_policy, warnings = load_policy_artifact(
+        tenant_store,
+        manifest_ref,
+        initial_policy,
+        DeterminismTier.STRICT_CPU,
+        7,
+        strict=True,
+    )
+    assert warnings == []
+
+    # The positive contract fails on the independently loaded actor despite all
+    # trained-status, loss, artifact, CAS, and readback markers being present.
+    with pytest.raises(AssertionError, match="same action"):
+        _assert_saved_action_changed(saved_policy, observation, initial_action)
+    actual_action, _ = saved_policy(observation, deterministic=True)
+    assert jnp.allclose(actual_action, initial_action)
 
 
 def test_training_uses_supplied_tenant_store_for_persist_and_readback(
@@ -161,12 +302,8 @@ def test_training_uses_supplied_tenant_store_for_persist_and_readback(
         "train_actor_critic_with_artifact",
         stub_native_training,
     )
-    monkeypatch.setattr(
-        training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0)
-    )
-    monkeypatch.setattr(
-        training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0)
-    )
+    monkeypatch.setattr(training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0))
+    monkeypatch.setattr(training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0))
     monkeypatch.setattr(
         EconomicsTrainingAdapter,
         "run",

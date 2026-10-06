@@ -194,7 +194,13 @@ class PluginRegistry:
         return cls._instance
 
     def register(self, plugin: DomainPlugin) -> None:
+        if not isinstance(plugin, DomainPlugin):
+            raise TypeError("Only DomainPlugin instances can be registered")
+
         meta = plugin.metadata
+        if not isinstance(meta, PluginMetadata):
+            raise TypeError("DomainPlugin.metadata must return PluginMetadata")
+
         if meta.name in self._plugins:
             raise ValueError(f"Plugin '{meta.name}' already registered")
 

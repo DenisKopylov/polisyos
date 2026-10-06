@@ -4,7 +4,7 @@
 `polisyos.foundry.agent_sim`: it packages mechanisms, rewards, objectives,
 observations, and composite orchestration into reusable simulation domains.
 
-- Last updated: 2026-05-06
+- Last updated: 2026-10-06
 - Sunset status: compatibility surface. New Foundry method extensions must use
   `polisyos.foundry.extensions` and the `polisyos.foundry_methods` entry-point
   group; `polisyos.plugins` remains only for existing domain-simulation plugins.
@@ -34,6 +34,23 @@ under `examples/extensions/foundry_method/`.
 - [composite.py](composite.py) for cross-domain state and executor wiring.
 - [economics/plugin.py](economics/plugin.py) for the built-in reference plugin.
 - [cli.py](cli.py) for local list/run/train/analyze command entrypoints.
+
+## Discovery and Training Boundaries
+
+Discovery keeps the legacy `DomainPlugin` ABI and resolves duplicate names in a
+stable source order: built-ins, the `polisyos.plugins` entry-point group,
+explicit development roots in caller order, then the legacy distribution-name
+prefix scan. Entries within a source are sorted before registration. A malformed
+candidate is skipped with a warning; duplicate registration keeps the earlier
+source and reports the rejected duplicate. Discovery and registration do not
+issue verification or owner-admission evidence.
+
+`PolisySimulator.train()` currently admits a single built-in Economics domain
+through the existing agent-sim optimizer and persisted policy artifact path.
+Other composite profiles return `bridge_pending`; the CLI reports that status
+and exits nonzero. This is a one-call training bridge. Cross-call checkpoint
+resume remains unavailable until RNG, optimizer state, domain schema, and
+artifact identity have a typed training-profile contract.
 
 ## Public Entrypoints
 

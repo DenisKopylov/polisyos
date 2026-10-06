@@ -24,6 +24,7 @@ from typing import Any
 type Record = dict[str, Any]
 
 _STATES = ("PASS", "FAIL", "ERROR", "XFAIL", "SKIP", "UNRUN")
+_NATIVE_JUNIT_SOURCE_SHA256 = "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a"
 
 
 def _object(value: object) -> Record:
@@ -122,8 +123,8 @@ def _case(item: Record, indexes: list[int], reports: list[Record], duplicate: bo
 
 
 def _xml_name(value: str) -> str:
-    # Exact inspected pytest9 bin_xml_escape character ranges, not reason parsing.
-    pattern = "[^\u0009\u000a\u000d\u0020-\u007e\u0080-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]"
+    # Exact native9.0.2 AST literal, including its Unicode-escape lexer semantics.
+    pattern = "[^\u0009\u000a\u000d\u0020-\u007e\u0080-\ud7ff\ue000-\ufffd\u10000-\u10ffff]"
     return re.sub(
         pattern, lambda m: f"#x{ord(m[0]):02X}" if ord(m[0]) <= 255 else f"#x{ord(m[0]):04X}", value
     )
@@ -269,7 +270,19 @@ def _origins(inventory: Record) -> Record:
         _objects(origins["observed_modules"]),
         _objects(origins["observed_file_backends"]),
     )
+    native_origins = {
+        row.get("file_identity") for row in modules if row["module"] == "_pytest.junitxml"
+    }
+    native_indexes = [i for i, row in enumerate(files) if row["path"] in native_origins]
+    native_source_matches = bool(native_indexes) and all(
+        files[i]["actual_read"].get("sha256") == _NATIVE_JUNIT_SOURCE_SHA256
+        and files[i]["actual_read"].get("stable_during_read") is True
+        for i in native_indexes
+    )
     return {
+        "native_junit_file_backend_indexes": native_indexes,
+        "native_junit_source_expected_sha256": _NATIVE_JUNIT_SOURCE_SHA256,
+        "native_junit_source_matches_expected": native_source_matches,
         "module_entry_denominator": len(modules),
         "distinct_file_backend_denominator": len(files),
         "recorded_denominator_match": len(modules) == origins["module_entry_denominator"]
@@ -400,6 +413,7 @@ def _partition(args: argparse.Namespace) -> Record:
     xml_agreement = _xml_agreement(xml, cases, reports, collectors)
     checks.update(
         native_xml_case_projection=xml_agreement["all_native_case_projections_match"],
+        native_junit_source_profile=origins["native_junit_source_matches_expected"],
         native_xml_collector_projection=xml_agreement["all_native_collector_projections_match"],
         origins_recorded_denominators=origins["recorded_denominator_match"],
         instrument_byte_match=origins["loaded_instrument_source_git_byte_match"] is True,

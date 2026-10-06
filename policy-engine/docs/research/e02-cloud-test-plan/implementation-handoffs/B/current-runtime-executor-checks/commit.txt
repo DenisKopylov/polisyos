@@ -1,0 +1,13 @@
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  prettier (skip) no files for inspection
+│  check-contrast (skip) no matching staged files
+│  check-reduced-motion (skip) no matching staged files
+│  eslint (skip) no files for inspection
+                                      
+  ────────────────────────────────────
+summary: (done in 0.12 seconds)       
+[codex/e02-B-current-runtime fd0a8b004] fix(common): retain executor capacity through Future callbacks
+ 4 files changed, 518 insertions(+), 7 deletions(-)
+ create mode 100644 policy-engine/release-fragments/unreleased/e02-current-runtime.toml

@@ -381,10 +381,9 @@ def _checked_interaction_orders(
     if complete_individuals:
         checked.append(1)
     complete_pairs = all(
-        ("pairwise", tuple(pair)) in complete_scopes
-        for pair in itertools.combinations(atom_ids, 2)
+        ("pairwise", tuple(pair)) in complete_scopes for pair in itertools.combinations(atom_ids, 2)
     )
-    if complete_individuals and complete_pairs:
+    if len(atom_ids) >= 2 and complete_individuals and complete_pairs:
         checked.append(2)
     if (
         len(atom_ids) == 3

@@ -629,6 +629,29 @@ def test_static_ncm_multistep_request_is_typed_no_run_before_runner(
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
 
 
+def test_registered_ncm_single_atom_checks_only_first_order() -> None:
+    request = _request()
+    request = request.model_copy(
+        update={
+            "intervention_atoms": request.intervention_atoms[:1],
+            "horizon": HorizonSpec(start=0, end=0),
+        }
+    )
+
+    result = JointSimulationHorizonController().run(request)
+
+    assert result.engine_decisions[0].decision == "selected"
+    assert result.engine_decisions[0].method_fqn.endswith("ncm_engine@1.0.0")
+    assert {(trajectory.run_level, trajectory.atom_ids) for trajectory in result.trajectories} == {
+        ("individual", (request.intervention_atoms[0].intervention_id,)),
+        ("joint", (request.intervention_atoms[0].intervention_id,)),
+    }
+    assert result.feedback_classification.checked_interaction_orders == (1,)
+    assert result.diagnostics["checked_interaction_orders"] == [1]
+    assert result.higher_order_residuals == {}
+    verify_simulation_receipt(result.receipt, result.content_bound_payload())
+
+
 def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
     tmp_path: Path,
 ) -> None:

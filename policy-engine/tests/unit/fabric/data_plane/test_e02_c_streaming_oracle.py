@@ -617,7 +617,9 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
     # Force every strategy to retain the first two rows at the crash frontier.
     policy = WindowPolicy(
         strategy=policy.strategy,
-        size=4,
+        # The TUMBLING fixture's first two timestamps are five seconds apart;
+        # use one 60-second bucket so this really restores two retained rows.
+        size=60 if strategy == "tumbling" else 4,
         slide=1 if strategy == "sliding" else policy.slide,
         session_gap_seconds=policy.session_gap_seconds,
         timestamp_field=policy.timestamp_field,
@@ -663,6 +665,18 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
     prior_cursor = before.find_latest_cursor("stream.jsonl", f"restore-{strategy}")
     assert prior_checkpoint is not None
     assert prior_checkpoint.metadata["frontier_intent"]["state"] == "committed"
+    accumulator_state = prior_checkpoint.metadata["operator_state"]["accumulator"]
+    retained_row_count = sum(
+        len(accumulator_state.get(key, ()))
+        for key in (
+            "count_buffer",
+            "sliding_rows",
+            "bucket_rows",
+            "session_rows",
+            "sliding_time_rows",
+        )
+    )
+    assert retained_row_count == 2, "the lower-cap restore must contain two actual retained rows"
     prior_ids = set(map(str, FileSystemCAS(cas_root).iter_artifact_ids()))
 
     effects = {"rewind": 0, "poll": 0, "commit": 0}

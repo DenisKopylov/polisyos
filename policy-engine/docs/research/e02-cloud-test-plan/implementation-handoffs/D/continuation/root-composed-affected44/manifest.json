@@ -2693,12 +2693,24 @@
   ],
   "existing_original_input_references": {
     "observer": {
-      "implementation_sha": "e038bca",
+      "implementation_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
       "raw_sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81"
     },
     "broad_helper": {
       "raw_sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
-      "previous_git_carrier": "D/continuation/root-wave-8c-interruption"
+      "previous_git_carrier": "D/continuation/root-wave-8c-interruption",
+      "reference_documents": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-configured-GP-update.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/binding.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-independent-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/manifest.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/prewave-8c17a44-disposition.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/interruption6333-binding.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/transport.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-original-criterion-review/final-source-5050a940-review.json"
+      ]
     },
     "profile": {
       "sha": "8391c8db699564a6af39cf66477e141cc6d30030",

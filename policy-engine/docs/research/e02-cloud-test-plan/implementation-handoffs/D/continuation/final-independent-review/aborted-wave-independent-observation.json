@@ -1,0 +1,150 @@
+{
+  "schema": "policyos.e02.independent_aborted_wave_observation.v1",
+  "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "source_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "observed_raw_root": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4",
+  "events": {
+    "observer_loaded": 1,
+    "polisyos_module_exec": 1052,
+    "polisyos_module_census": 1,
+    "configure": 1
+  },
+  "product_exec_events": 1052,
+  "distinct_product_origin_paths": 1052,
+  "independently_reconciled_Git_byte_errors": [],
+  "product_byte_predicate_basis": "independently_reconciled",
+  "test_verdict": "UNRUN",
+  "wave_verdict": "ERROR_INCOMPLETE",
+  "cause": "not_established",
+  "process_returncodes": {
+    "child": -9,
+    "harness": -15,
+    "predicate_basis": "consumer_asserted_parent_notification; no completed result carrier in raw directory"
+  },
+  "collected_event_count": 0,
+  "test_or_fit_claim": false,
+  "JUnit_present": false,
+  "complete_stdout_bytes": 0,
+  "complete_stderr_bytes": 0,
+  "selected_options": {
+    "maxfail": 0,
+    "markexpr": "",
+    "keyword": "",
+    "numprocesses": null,
+    "timeout": null,
+    "run_quarantine": true,
+    "collectonly": false,
+    "ignore": null
+  },
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "PYTHONHASHSEED": null,
+    "PYTEST_ADDOPTS": null,
+    "OMP_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null
+  },
+  "backend_state": {
+    "torch": {
+      "installed_version": "2.10.0",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+      "module_version": "2.10.0+cu128",
+      "module_file_sha256": "d6388b1e3b16c1f9a22a87898e5f205fa13a97bd65c163f4829a157e0d9d602f",
+      "module_file_bytes": 107268,
+      "get_num_threads": 5,
+      "get_num_interop_threads": 5
+    },
+    "botorch": {
+      "installed_version": "0.16.1",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+      "module_version": "0.16.1",
+      "module_file_sha256": "448b14d019f28371eb2f116b1a035118203b8e3b325c1bba34681ad41f8e2b41",
+      "module_file_bytes": 2134
+    },
+    "gpytorch": {
+      "installed_version": "1.15.1",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+      "module_version": "1.15.1",
+      "module_file_sha256": "0ee8ea29d595cd3ec26b37abc93bbe98f8e293802ef85341b8f7faedf80572ee",
+      "module_file_bytes": 12395
+    },
+    "hnswlib": {
+      "installed_version": "0.8.0",
+      "actually_loaded_in_main_process": false
+    },
+    "SALib": {
+      "installed_version": "1.5.2",
+      "actually_loaded_in_main_process": false
+    },
+    "numpy": {
+      "installed_version": "2.3.5",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+      "module_version": "2.3.5",
+      "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+      "module_file_bytes": 25919
+    },
+    "scipy": {
+      "installed_version": "1.16.3",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+      "module_version": "1.16.3",
+      "module_file_sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+      "module_file_bytes": 4063
+    },
+    "pytest": {
+      "installed_version": "9.0.2",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pytest/__init__.py",
+      "module_version": "9.0.2",
+      "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+      "module_file_bytes": 5582
+    },
+    "torch._C:binary": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/_C.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 25521,
+      "sha256": "b09a64dfcc32be571fa632c225943804b82e3527d18a3ed94a918998eea8bc9f"
+    },
+    "numpy._core._multiarray_umath:binary": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 10800697,
+      "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+    }
+  },
+  "rng_state": {
+    "seed_assignment": "observer never seeds or draws random values",
+    "random": {
+      "state_sha256": "cbf7f2111c302ba21045d6d2a17e140fba50c8b4107e334d789b5f551c926988",
+      "state_encoding": "repr",
+      "consumes_draws": false
+    },
+    "numpy.random": {
+      "state_sha256": "f7d19a2a6e17bb9841d23820e0d222bc985aebcc9b75a658441e054ff098c558",
+      "state_encoding": "numpy_binary_state",
+      "consumes_draws": false
+    },
+    "torch.random": {
+      "state_sha256": "997534265ceb4ae86f00219f3ed48a69937f43145bb7c2e48fa5b1e493f1cc65",
+      "state_encoding": "bytes",
+      "consumes_draws": false
+    }
+  },
+  "expected_selection_counts": {
+    "canonical_commands": 17,
+    "canonical_raw_selectors": 53,
+    "canonical_unique_paths": 38,
+    "changed_test_inputs": 74,
+    "changed_pytest_files": 68,
+    "unique_union_selectors": 99,
+    "non_pytest_probes": 4,
+    "worker_helpers": 2
+  },
+  "manifest_still_RUNNING_is_incomplete_not_completion": true,
+  "retention": "All existing raw files retained, no cleanup or backend execution by this reviewer"
+}

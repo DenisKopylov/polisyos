@@ -1,0 +1,397 @@
+{
+  "schema": "polisyos.e02.independent-service-cleanup-review.v1",
+  "reviewer": "numerical_oracle",
+  "production_author": false,
+  "production_changes_by_reviewer": [],
+  "verdict": "PASS within the supported public empty-batch control/cleanup and local paid-custody scope; baseline mechanism failures and fixture mismatch preserved below",
+  "closure_ids": [],
+  "original_criterion": {
+    "occurrence": "B119@CTL-01",
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+    "card_bytes": 17621,
+    "card_sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+    "card_e73_bytes_unchanged": true,
+    "scope": "run/_generate_candidates batch [] only; explicitly excludes normal nonempty generation.",
+    "acceptance": "Persistent emptiness ends with an exact partial result or exhaustion; bounded transient can reach a real candidate; generation budget and paid external calls survive; cancellation/refusal retains its stopping cause.",
+    "original_fragment_sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0",
+    "original_acceptance_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+    "review_input": {
+      "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/review.json",
+      "sha256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f"
+    },
+    "superseding_scope_clarification": {
+      "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/B119-scope-clarification.json",
+      "sha256": "eed290376aa6e6ad997e7e70e106f89070159811d02951219c55ba33542e7267"
+    },
+    "historical_readonly_verdict": "No original B119 product defect is established by read-only broad-catch inspection."
+  },
+  "scope_classification": {
+    "original": "B119@CTL-01 batch [] bounded exhaustion/transient progression, stop-cause/partial-state/paid-call preservation. Original five-case batch behavior passed even before cleanup correction.",
+    "companion": "Actual asynchronous public ask rollback and failed-run cleanup exposed state/cause/metadata gaps; the source correction is limited to these existing boundaries.",
+    "excluded": "No new prohibition on ordinary nonempty Bayesian/native numerical fallback; no new cancellation API, authority subsystem, checkpoint schema or scientific policy."
+  },
+  "implementation": {
+    "sha": "dc583fc449234f746983a9855a2738148dd2f20d",
+    "tree": "6f59a75aa2ef4f75fa9be9328b4906e2e939b313",
+    "source_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "service_byte_identity_at_current_root": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9",
+    "delta_vs_d72": {
+      "insertions": 11,
+      "deletions": 4,
+      "changed_methods": [
+        "NativeSearchService.ask",
+        "NativeSearchService._run_locked"
+      ],
+      "additional_import": "asyncio",
+      "all_other_existing_service_method_ASTs_unchanged": true
+    },
+    "review": "Exception plus explicit asyncio.CancelledError reaches ask rollback and generator-restoration cleanup; failed restoration fences publication. Failed-run handling records FAILED/type/message, catches a secondary failure-checkpoint error, fences publication and bare-rethrows the exact original object. Checkpoint ref changes only after actual verified-readback equality. Existing numerical fallback is untouched.",
+    "compatibility": "Author structured python-public-api compatible record, public_stable NativeSearchService and last-acknowledged-reference reconstruction runbook were read; SearchServiceCheckpoint schema2 is unchanged."
+  },
+  "source_cells": [
+    {
+      "sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "bytes": 45505,
+      "sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06"
+    },
+    {
+      "sha": "dc583fc449234f746983a9855a2738148dd2f20d",
+      "tree": "6f59a75aa2ef4f75fa9be9328b4906e2e939b313",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "tree": "aad7d3d9b7cc3068d2f825b94d91997ded562d43",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+    },
+    {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "bytes": 55051,
+      "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+    },
+    {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "bytes": 17782,
+      "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+    },
+    {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "bytes": 185595,
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+    },
+    {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 26353,
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+    },
+    {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+    },
+    {
+      "sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "bytes": 28432,
+      "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e"
+    }
+  ],
+  "current_independent": {
+    "root_sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+    "root_tree": "aad7d3d9b7cc3068d2f825b94d91997ded562d43",
+    "test_sha": "272e558312a368c4d4d260112afd52c40f0722f7",
+    "test_path": "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+    "cases": [
+      "async rollback setter refuses; exact original cancellation survives, live cursor remains unrestored and further ask/checkpoint fenced, old ack restores cursor1",
+      "failure-checkpoint CAS put refuses; exact primary ValueError survives, one write attempt, old ack/partial history/fresh paid ledger survive",
+      "CAS put succeeds then verified readback refuses; physical unacknowledged FAILED bytes exist, old acknowledged ref stays active, original cause and fencing survive"
+    ],
+    "result": "3PASS/0FAIL/0ERROR/0SKIP, pytest9.53s/wall13.299450010003056s",
+    "native_source_bindings": "837 captured Python product modules including top-level polisyos and six loaded test/helper files match exact root Git; no origin errors; root HEAD/tree/status unchanged before/after",
+    "publication_truth": "Fresh old-ack observer correctly has no new failure metadata. Readback-refused failed checkpoint bytes are written but not acknowledged; no claim of durable failure publication in the last ack.",
+    "backend": "Locked CPython3.14.7, pytest9.0.2, Pydantic2.12.5. Torch/BoTorch/GPyTorch not reported loaded; no GP fit or optional numerical claim."
+  },
+  "paid_custody": {
+    "path": "Actual LLMBudgetEnforcer.invoke -> BudgetMiddleware -> FileBudgetLedger settlement and new FileBudgetLedger reader",
+    "amount": "2.375 USD under native cost_usd fixture profile, one local producer response, one spend receipt, reserved zero; fresh ledger snapshot unchanged after every control",
+    "controller_attribution": "configured_owner_recorded_state consumes owner BudgetState and overrides caller-declared7.5; exact receipt custody is verified separately. Runtime receipt_revision_available=False, provider_cost_origin_available=False, budget_ledger_revision=None are asserted, never promoted to a stronger basis.",
+    "timing": "The actual local paid call precedes this batch run. This is prior paid-cost preservation, not a measurement of an external provider or a call racing inside a failing generator."
+  },
+  "runs": [
+    {
+      "name": "original6-baseline",
+      "source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "source_after": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "status_before": "",
+      "status_after": "",
+      "exit_code": 1,
+      "wall_seconds": 13.363983532995917,
+      "junit_counts": {
+        "total": 6,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0,
+        "passes": 5
+      },
+      "complete_output_sha256": "f23850fd79dbac75f5b1496f52cdf5c95c61309ead79596c7f328dbacae91093",
+      "product_origin_count": 829,
+      "reported_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      },
+      "source_binding_errors": [],
+      "full_output": "original6-baseline/outputs/complete.txt",
+      "run_metadata": "original6-baseline/outputs/result.json",
+      "origin_metadata": "original6-baseline/outputs/origins.json"
+    },
+    {
+      "name": "paid4-baseline",
+      "source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "source_after": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "status_before": "",
+      "status_after": "",
+      "exit_code": 1,
+      "wall_seconds": 12.854450497994549,
+      "junit_counts": {
+        "total": 4,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0,
+        "passes": 3
+      },
+      "complete_output_sha256": "de19c19be2725564deb5920fc536a1bbe38619f0687b2ddf3cfead0b0f878b1e",
+      "product_origin_count": 836,
+      "reported_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      },
+      "source_binding_errors": [],
+      "full_output": "paid4-baseline/outputs/complete.txt",
+      "run_metadata": "paid4-baseline/outputs/result.json",
+      "origin_metadata": "paid4-baseline/outputs/origins.json"
+    },
+    {
+      "name": "cleanup2-baseline",
+      "source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+      "source_after": "d72c92c7f48189574c740f2ee42e4f9430895896",
+      "status_before": "",
+      "status_after": "",
+      "exit_code": 1,
+      "wall_seconds": 12.39792649699666,
+      "junit_counts": {
+        "total": 2,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0,
+        "passes": 0
+      },
+      "complete_output_sha256": "1bb47b6b9dd3f9a2f5ab15c625d27e9f7de7eed5e9901bb343dc16e406b4ba40",
+      "product_origin_count": 801,
+      "reported_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      },
+      "source_binding_errors": [],
+      "full_output": "cleanup2-baseline/outputs/complete.txt",
+      "run_metadata": "cleanup2-baseline/outputs/result.json",
+      "origin_metadata": "cleanup2-baseline/outputs/origins.json"
+    },
+    {
+      "name": "independent3-stale-profile",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "source_after": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "status_before": "",
+      "status_after": "",
+      "exit_code": 1,
+      "wall_seconds": 12.720425619001617,
+      "junit_counts": {
+        "total": 3,
+        "failures": 3,
+        "errors": 0,
+        "skips": 0,
+        "passes": 0
+      },
+      "complete_output_sha256": "f75d57746f54b416ea0bb6ff964b2a0fa09d48de6402a7ca250900adca29d230",
+      "product_origin_count": 809,
+      "reported_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5"
+      },
+      "source_binding_errors": [],
+      "full_output": "independent3-stale-profile/outputs/complete.txt",
+      "run_metadata": "independent3-stale-profile/outputs/result.json",
+      "origin_metadata": "independent3-stale-profile/outputs/origins.json",
+      "native_fixture_files_preserved_at_package_time": 48,
+      "native_fixture_bytes": 64525
+    },
+    {
+      "name": "independent3-corrected",
+      "source_sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "source_tree": "aad7d3d9b7cc3068d2f825b94d91997ded562d43",
+      "source_after": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "status_before": "",
+      "status_after": "",
+      "exit_code": 0,
+      "wall_seconds": 13.299450010003056,
+      "junit_counts": {
+        "total": 3,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "passes": 3
+      },
+      "complete_output_sha256": "3355ab92599f6b03498a1d00ff671b73132ef90800a0070fa735d9df19737c5e",
+      "product_origin_count": 837,
+      "reported_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5"
+      },
+      "source_binding_errors": [],
+      "full_output": "independent3-corrected/outputs/complete.txt",
+      "run_metadata": "independent3-corrected/outputs/result.json",
+      "origin_metadata": "independent3-corrected/outputs/origins.json",
+      "native_fixture_files_preserved_at_package_time": 48,
+      "native_fixture_bytes": 64570
+    },
+    {
+      "name": "author12-corrective",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "source_after": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "status_before": "",
+      "status_after": "",
+      "exit_code": 0,
+      "wall_seconds": 13.212587836998864,
+      "junit_counts": {
+        "total": 12,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "passes": 12
+      },
+      "complete_output_sha256": "0045f3664a9892f5d277f3a71448cf7e8d22be23616772d1f58f26b9e701c102",
+      "product_origin_count": 836,
+      "reported_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      },
+      "source_binding_errors": [],
+      "full_output": "author12-corrective/outputs/complete.txt",
+      "run_metadata": "author12-corrective/outputs/result.json",
+      "origin_metadata": "author12-corrective/outputs/origins.json"
+    },
+    {
+      "name": "author4-property-removal",
+      "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+      "source_after": "5050a940d990198f17de2b5dd9a3be691e153c05",
+      "status_before": "",
+      "status_after": "",
+      "exit_code": 1,
+      "wall_seconds": 13.10149022200494,
+      "junit_counts": {
+        "total": 4,
+        "failures": 4,
+        "errors": 0,
+        "skips": 0,
+        "passes": 0
+      },
+      "complete_output_sha256": "15fa87e7ea246c606431ba3f61d272ba18450399ef0c7b4e0aba856ea6fb9145",
+      "product_origin_count": 808,
+      "reported_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      },
+      "source_binding_errors": [],
+      "full_output": "author4-property-removal/outputs/complete.txt",
+      "run_metadata": "author4-property-removal/outputs/result.json",
+      "origin_metadata": "author4-property-removal/outputs/origins.json"
+    }
+  ],
+  "fixture_correction": {
+    "original_test_sha": "12b56d9236a4c7558ad5a92ab77de98247557bc4",
+    "corrected_test_sha": "272e558312a368c4d4d260112afd52c40f0722f7",
+    "original_actual_result": "3FAIL at obsolete persisted_owner label; earlier mechanism/physical publication assertions passed. Later fresh observer assertions did not execute in that failed run.",
+    "why": "The newer composed controller deliberately exposes recorded-owner state with unavailable receipt revision. The original fixture read an older leaf source profile. Only provenance expectations/partial evidence equality changed; exact cause, old ack, physical write/readback, paid receipt and publication fencing assertions were preserved.",
+    "new_assertions": "Explicit False receipt/provider origin flags, None ledger revision, recorded provider amount and detached budget_evidence readback equality."
+  },
+  "negative_controls": {
+    "baseline": "Exact original6=5PASS1FAIL (cursor3 vs ack2), paid4=3PASS1FAIL (async failure metadata None), cleanup2=2FAIL (unfenced rollback and original ValueError masked by checkpoint OSError), retained as actual source-d72 FAILs.",
+    "author_property_removal": "Four independently read controls removed one protected boundary in memory each; actual4FAIL. Original before-method AST digests independently recomputed under locked CPython3.14 and match exact source5050. Source files, fixture, CAS/profile/ref, prior history, paid receipt and other boundaries retained.",
+    "false_positive_defence": "Asserts original object identity; no generic empty/fallback candidate can pass. Old immutable bytes and a fresh configured public restore are required; successful post-put materialization is distinguished from acknowledgement.",
+    "preparation_note": "A first host-Python3.11 AST digest comparison failed because FunctionDef schema differs from locked3.14; repeated metadata-only calculation under locked3.14 verified all four original AST digests. No native verdict was changed."
+  },
+  "quality": "Owned corrected test Ruff check and format pass; normal commit/push hooks executed. No whole repository quality gate or inherited quality PASS is claimed.",
+  "limitations": [
+    "Cancellation is supplied through the existing synchronous batch port as asyncio.CancelledError; no asynchronous scheduler/process signal behavior is certified.",
+    "The cleanup profile covers Exception and asyncio.CancelledError, not arbitrary BaseException classes such as SystemExit or KeyboardInterrupt.",
+    "Fixture transport cost proves actual local native settlement/custody, not external billing authority or independent monetary truth.",
+    "No runtime source completeness or universal imports guarantee beyond captured Python modules/files; compiled extensions and modules without files are outside that origin denominator.",
+    "No broad numerical/GP/history-equivalence or full repository runtime/quality claim; prior independent GP witnesses remain separate.",
+    "Root/G formal row closure and accounting admission are separate; closure_ids remain empty."
+  ],
+  "transport": {
+    "path": "service-control-cleanup-independent/deciding-outputs.json.gz",
+    "header": "service-control-cleanup-independent/deciding-outputs.header.json",
+    "compressed_sha256": "c8698f65fbd9a4bc89bb4c13f7e9eb9a0b3f999916fde81b6f92b751e54268d7",
+    "member_count": 159,
+    "raw_bytes": 2351443,
+    "verified": "Decompressed every member, recomputed byte length/SHA256; original bytes lossless; no source/test archive."
+  },
+  "cleanup_candidates_no_deletion": [
+    "/tmp/e02-D-b119-batch-root-ef234cc2a9ee4cfeb0c9e84ab42383b3",
+    "/tmp/e02-D-b119-cleanup-root-d45523854e204d84b85cc402921acc59",
+    "/tmp/e02-D-b119-current-root-639a59602cd04ae8b983a9e3950e6c2f",
+    "/tmp/e02-D-b119-paid-root-346977b4fdd846a0abac47dedb87657e",
+    "/tmp/e02-D-b119-removal-root-31f79c57ae514962accec4cf93758c2f",
+    "/tmp/e02-D-original-criterion-audit-o08lza3h",
+    "/tmp/e02-oracle-b119-author-green-binding-58b5a4c09bf74cc6adcb171264455693",
+    "/tmp/e02-oracle-b119-baseline-review-e47ae930609441f3b55a1f413d83f918",
+    "/tmp/e02-oracle-b119-candidate-35238b7aeed34739924f6fb97d3dc5b1",
+    "/tmp/e02-oracle-b119-fixtures-01aae555f2b84c2cb0f35f61b84347fb",
+    "/tmp/e02-oracle-b119-fixtures-b2604d7744da44adaa46d89f937fdbc8",
+    "/tmp/e02-oracle-b119-input-review-c9056da4f0b64bed8e3ecee1ed14847c",
+    "/tmp/e02-oracle-b119-readonly-design-e06be7b5617d4028a2f6d65601479e56",
+    "/tmp/e02-oracle-b119-recorded-owner-e4181784399d4afc8d0e4aa2576f78ba"
+  ],
+  "temporary_state": "Both independent basetemps were fresh/nonexisting at start and observed at end; all currently present native fixture files are included. No explicit deletion or CPU/process/test-worker limit was added by this reviewer. No universal former-transient preservation claim."
+}

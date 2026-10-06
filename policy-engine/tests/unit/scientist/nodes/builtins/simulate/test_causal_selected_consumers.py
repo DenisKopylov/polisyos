@@ -23,7 +23,9 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
 from polisyos.foundry.methods.components.io import dematerialize_method_output
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.compute.job_spec import JobSpec
+from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
     _run_primary_causal_job,
@@ -223,3 +225,144 @@ def test_source_collision_refused_and_node_still_requires_admission(
     assert outcome.error.details["blocker_codes"] == [
         "polisyos.eval_safety.execution_context_missing@1.0.0"
     ]
+
+
+@pytest.mark.parametrize("point_only", [False, True])
+def test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections(
+    execution_context, minimal_state, monkeypatch, point_only
+):
+    """Preserve real backend/source markers while falsifying consumed quantities."""
+    worker = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+    assert worker and Path(worker).is_file()
+    monkeypatch.setenv("POLISYOS_DOWHY_WORKER_PYTHON", worker)
+    if point_only:
+        from polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge
+
+        original_popen = subprocess.Popen
+        script = str(bridge._worker_directory() / "worker.py")
+        program = """
+import runpy,sys
+from dowhy import CausalModel
+original=CausalModel.estimate_effect
+def controlled(self,*args,**kwargs):
+    actual=original(self,*args,**kwargs)
+    actual.get_confidence_intervals=lambda **kwargs:None
+    actual.get_standard_error=lambda:None
+    return actual
+CausalModel.estimate_effect=controlled
+runpy.run_path(sys.argv[1],run_name='__main__')
+"""
+
+        def launch(args, **kwargs):
+            if args == [worker, "-I", script]:
+                args = [worker, "-I", "-c", program, script]
+            return original_popen(args, **kwargs)
+
+        monkeypatch.setattr(subprocess, "Popen", launch)
+    data = _graph_data()
+    state, _ = _admit_source(execution_context, minimal_state, data, DoWhyIdentifyEstimate)
+    spec = JobSpec(job_kind="method", method_fqn=state.causal_method_fqn, seed=13)
+    genuine = _run_primary_causal_job(
+        ctx=execution_context, state=state, spec=spec, observational_data=data
+    )
+    original = from_canonical_bytes(execution_context.store.get_bytes(genuine.method_result_ref))
+    report = CausalEffectReport.model_validate(original["report"])
+    assert report.status is (
+        EstimationStatus.NUMERICAL_FAILURE if point_only else EstimationStatus.SUCCESS
+    )
+    if point_only:
+        assert report.confidence_interval is None
+        assert not report.to_uncertainty_envelope().gate_eligible
+    mutations = {
+        "point_estimate": report.point_estimate + 0.05,
+        "standard_error": 0.25,
+        "identified_estimand": "different identified quantity",
+        "estimand": "different target",
+        "estimand_type": "different target type",
+        "inference_method": "different inference law",
+        "sample_size": report.sample_size + 1,
+        "n_treated": report.n_treated + 1,
+        "n_control": report.n_control + 1,
+        "pre_periods": 1,
+        "post_periods": 1,
+        "graph_ref": "different graph",
+    }
+    if not point_only:
+        mutations["confidence_interval"] = tuple(x + 0.01 for x in report.confidence_interval)
+        mutations["confidence_level"] = 0.9
+    for field, value in mutations.items():
+        payload = copy.deepcopy(original)
+        changed = report.model_copy(update={field: value})
+        payload["report"] = changed.model_dump(mode="json")
+        payload["envelope"] = changed.to_uncertainty_envelope().model_dump(mode="json")
+        _offer_corrupted_job(monkeypatch, execution_context, genuine, payload)
+        with pytest.raises(ValueError, match="does not project"):
+            _run_primary_causal_job(
+                ctx=execution_context, state=state, spec=spec, observational_data=data
+            )
+    for field in ["authority", "inference_status", "execution_profile"]:
+        payload = copy.deepcopy(original)
+        payload["report"]["metadata"][field] = "different declaration"
+        _offer_corrupted_job(monkeypatch, execution_context, genuine, payload)
+        with pytest.raises(ValueError, match="does not project"):
+            _run_primary_causal_job(
+                ctx=execution_context, state=state, spec=spec, observational_data=data
+            )
+    payload = copy.deepcopy(original)
+    payload["envelope"]["point_estimate"] += 0.01
+    payload["envelope"]["confidence_interval"] = [
+        x + 0.01 for x in payload["envelope"]["confidence_interval"]
+    ]
+    _offer_corrupted_job(monkeypatch, execution_context, genuine, payload)
+    with pytest.raises(ValueError, match="uncertainty projection"):
+        _run_primary_causal_job(
+            ctx=execution_context, state=state, spec=spec, observational_data=data
+        )
+
+
+def _offer_corrupted_job(monkeypatch, ctx, genuine, payload):
+    manifest = ctx.store.get_manifest(genuine.method_result_ref)
+    ref = ctx.store.put_json(
+        payload,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    offered = genuine.model_copy(deep=True)
+    offered.method_result_ref = ref
+    offered.final_state["report"] = CausalEffectReport.model_validate(payload["report"])
+    offered.final_state["envelope"] = UncertaintyEnvelope.model_validate(payload["envelope"])
+    monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: offered)
+
+
+def test_selected_did_peer_and_actual_source_must_match(
+    execution_context, minimal_state, monkeypatch
+):
+    data = _panel()
+    state, _ = _admit_source(
+        execution_context, minimal_state, data, StaggeredDifferenceInDifferences
+    )
+    spec = JobSpec(
+        job_kind="method", method_fqn=state.causal_method_fqn, method_params={"n_bootstrap": 399}
+    )
+    genuine = _run_primary_causal_job(
+        ctx=execution_context, state=state, spec=spec, observational_data=data
+    )
+    offered = genuine.model_copy(deep=True)
+    offered.final_state["report"].point_estimate += 0.01
+    monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: offered)
+    with pytest.raises(ValueError, match="persisted/offered report"):
+        _run_primary_causal_job(
+            ctx=execution_context, state=state, spec=spec, observational_data=data
+        )
+    monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: genuine)
+    changed = data.model_copy(deep=True)
+    changed.outcome[0, -1] += 0.25
+    with pytest.raises(ValueError, match="target does not bind"):
+        _run_primary_causal_job(
+            ctx=execution_context, state=state, spec=spec, observational_data=changed
+        )

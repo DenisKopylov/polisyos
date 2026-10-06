@@ -441,6 +441,7 @@ def _run_primary_causal_job(
 
             if result.method_result_ref is None:
                 raise ValueError("selected DoWhy job has no persisted result")
+            _reconcile_selected_causal_output(ctx=ctx, result=result)
             saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
             report = CausalEffectReport.model_validate(saved["report"])
             offered = CausalEffectReport.model_validate(result.final_state["report"])
@@ -454,6 +455,9 @@ def _run_primary_causal_job(
                     store=ctx.store,
                     source_ref=source,
                 )
+                _verify_dowhy_worker_projection(
+                    report, response=response, observational_data=observational_data
+                )
             elif report.status is EstimationStatus.SUCCESS:
                 raise ValueError("selected DoWhy success lacks actual worker provenance")
     else:
@@ -461,10 +465,69 @@ def _run_primary_causal_job(
     if not result.issues and (spec.method_fqn or "").split("@", 1)[0] == (
         "causal.inference.did.staggered"
     ):
+        _reconcile_selected_causal_output(ctx=ctx, result=result)
+        bound_data = _load_observational_data(ctx, state, spec.method_fqn)
         _verify_selected_did_target(
             result.final_state, observational_data=observational_data, params=spec.method_params
         )
+        _verify_selected_did_target(
+            result.final_state, observational_data=bound_data, params=spec.method_params
+        )
     return result
+
+
+def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResult) -> None:
+    """Read the canonical method artifact before consuming its peer projection."""
+    if result.method_result_ref is None:
+        raise ValueError("selected causal job has no persisted result")
+    saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
+    report = CausalEffectReport.model_validate(saved["report"])
+    offered = CausalEffectReport.model_validate(result.final_state["report"])
+    if report != offered:
+        raise ValueError("selected causal persisted/offered report mismatch")
+    derived = report.to_uncertainty_envelope()
+    if (
+        UncertaintyEnvelope.model_validate(saved["envelope"]) != derived
+        or UncertaintyEnvelope.model_validate(result.final_state["envelope"]) != derived
+    ):
+        raise ValueError("selected causal uncertainty projection mismatch")
+
+
+def _verify_dowhy_worker_projection(
+    report: CausalEffectReport, *, response: dict[str, Any], observational_data: GraphCausalData
+) -> None:
+    """Bind every consumed estimate field to the validated primitive response."""
+    result = response["result"]
+    interval = result["interval"]
+    treatment = observational_data.data[
+        :, observational_data.column_names.index(observational_data.treatment)
+    ]
+    expected = {
+        "method": CausalMethod.DOWHY_BACKDOOR,
+        "status": EstimationStatus.SUCCESS
+        if interval is not None
+        else EstimationStatus.NUMERICAL_FAILURE,
+        "point_estimate": result["point"],
+        "standard_error": result["standard_error"],
+        "confidence_interval": tuple(interval) if interval is not None else None,
+        "confidence_level": result["effective_confidence_level"],
+        "identified_estimand": result["identified_estimand"],
+        "estimand_type": result["estimand_type"],
+        "estimand": result["estimand_type"],
+        "inference_method": result["method_name"] if interval is not None else "none",
+        "sample_size": observational_data.sample_size,
+        "n_treated": int(np.count_nonzero(treatment == 1)),
+        "n_control": int(np.count_nonzero(treatment == 0)),
+        "pre_periods": 0,
+        "post_periods": 0,
+        "graph_ref": observational_data.graph_ref,
+    }
+    if any(getattr(report, field) != value for field, value in expected.items()) or (
+        report.metadata.get("execution_profile") != response["profile"]
+        or report.metadata.get("inference_status") != result["inference_status"]
+        or report.metadata.get("authority") != response["authority"]
+    ):
+        raise ValueError("selected DoWhy report does not project its validated worker result")
 
 
 def _verify_selected_did_target(

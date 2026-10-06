@@ -1272,8 +1272,38 @@
       "bytes": 12191,
       "sha256": "90c6cc8f0d58fa143666c064a86bceb80a12276d4bce77856816e17dce696672"
     },
-    "reported_outcome": "Corrected3 PASS/0skip on root1ff,13.29945wall,837product+6test/helper GitMATCH; exact primary cause, blocked further ask/checkpoint, physical successful put/unacknowledged readback refusal and actual2.375 settlement custody.",
-    "basis": "Source-reported pending separate immutable reviewer receipt; no author duplicate3 replay or inherited broad verdict."
+    "basis": "Published independent immutable review and complete lossless159-member outputs/fixture transport, read and recomputed locally; no author duplicate3 replay or inherited broad verdict.",
+    "receipt": {
+      "source_sha": "c879ce8de2701513347ab811b60f63aebb61b351",
+      "tree_sha": "ce13780865f72242713ab83e9503fcbe45eb9704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/service-control-cleanup-independent-review.json",
+      "bytes": 21111,
+      "sha256": "d75d77a34f1e91b5183a763b14f170e14e5936b0595437cec429cbfe7814e6c4",
+      "payload": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/service-control-cleanup-independent/deciding-outputs.json.gz",
+        "bytes": 854168,
+        "sha256": "c8698f65fbd9a4bc89bb4c13f7e9eb9a0b3f999916fde81b6f92b751e54268d7",
+        "members": 159,
+        "all_raw_member_size_hashes_recomputed": true
+      }
+    },
+    "current_independent": {
+      "root_sha": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "root_tree": "aad7d3d9b7cc3068d2f825b94d91997ded562d43",
+      "test_sha": "272e558312a368c4d4d260112afd52c40f0722f7",
+      "test_path": "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "cases": [
+        "async rollback setter refuses; exact original cancellation survives, live cursor remains unrestored and further ask/checkpoint fenced, old ack restores cursor1",
+        "failure-checkpoint CAS put refuses; exact primary ValueError survives, one write attempt, old ack/partial history/fresh paid ledger survive",
+        "CAS put succeeds then verified readback refuses; physical unacknowledged FAILED bytes exist, old acknowledged ref stays active, original cause and fencing survive"
+      ],
+      "result": "3PASS/0FAIL/0ERROR/0SKIP, pytest9.53s/wall13.299450010003056s",
+      "native_source_bindings": "837 captured Python product modules including top-level polisyos and six loaded test/helper files match exact root Git; no origin errors; root HEAD/tree/status unchanged before/after",
+      "publication_truth": "Fresh old-ack observer correctly has no new failure metadata. Readback-refused failed checkpoint bytes are written but not acknowledged; no claim of durable failure publication in the last ack.",
+      "backend": "Locked CPython3.14.7, pytest9.0.2, Pydantic2.12.5. Torch/BoTorch/GPyTorch not reported loaded; no GP fit or optional numerical claim."
+    },
+    "reported_outcome": "Independently executed corrected3 PASS/0skip on root1ff,13.29945wall,837product+6test/helper GitMATCH; exact primary cause, blocked further ask/checkpoint, physical successful put/unacknowledged readback refusal and actual2.375 settlement custody.",
+    "current_independent_test_source_sha": "272e558312a368c4d4d260112afd52c40f0722f7"
   },
   "limitations_and_next_owner": [
     "Original standard refusal/futures cancellation and transient/persistent empty controls already passed at d72; the production correction addresses measured async cleanup and secondary-error reason masking, not a demonstrated generic nonempty Bayesian fallback defect.",

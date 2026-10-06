@@ -1,0 +1,1310 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-final-postgres-fencing-independent",
+  "bundle_ids": [
+    "DUR-02"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+  "implementation_commits": [
+    "a557eb0a5d60b480c5d8506f648c20263e8eb898",
+    "455aa88d2ec4a5e782805f54957db7408ddf96df"
+  ],
+  "candidate_sha": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+  "candidate_tree_sha": "5f3e0c8396b893f043ddb36298bf7ba9f2e8fc35",
+  "candidate_kind": "metadata-only transport; native executes separate exact root frozen source tuple",
+  "runtime_target_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "runtime_target_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/capture_pg.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/criterion-DUR-02.source.md.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/derive_pg.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native-observer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/origin-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/readback_pg.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/retained-schema-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-before.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-lineage.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/tool-executables.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/wrapper.json"
+  ],
+  "source_changed_paths": [],
+  "test_changed_paths": [],
+  "evidence_commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+  "evidence_index": {
+    "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/index.json",
+    "sha256": "d088f231fb96847a2b303258fcc60697717a2905751534ced37572bb11010e58",
+    "bytes": 6371,
+    "payload_files": 17,
+    "payload_bytes": 402744
+  },
+  "baseline_cells": [
+    {
+      "id": "F01-P057",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "state": "PASS",
+      "collected": "20",
+      "calls": "20",
+      "call_pass": "20",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "22.82",
+      "rss_kib": "1260408",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "174",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F01-P057",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F02-P012",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "state": "PASS",
+      "collected": "59",
+      "calls": "59",
+      "call_pass": "59",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "37.98",
+      "rss_kib": "1539692",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "140",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F02-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F03-P109",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "25.59",
+      "rss_kib": "1448276.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "239",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F03-P109",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F03-P111",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.5",
+      "rss_kib": "1537168.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "241",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F03-P111",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F05-P070",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "71.16",
+      "rss_kib": "1642084",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "480",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F05-P070",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F05-P081",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "31.26",
+      "rss_kib": "1358064",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "491",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F05-P081",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F06-P025",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "state": "PASS",
+      "collected": "28",
+      "calls": "28",
+      "call_pass": "28",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "51.976603507995605",
+      "rss_kib": "1643052",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "209",
+      "extra_json": "{\"reason\":\"null\"}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F06-P025",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F07-P011",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "state": "PASS",
+      "collected": "28",
+      "calls": "28",
+      "call_pass": "28",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "47.73674488067627",
+      "rss_kib": "1626844.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "17",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F07-P011",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F08-P028",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "103.2330572605133",
+      "rss_kib": "1655692",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "151",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F08-P028",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F08-P062",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "state": "PASS",
+      "collected": "20",
+      "calls": "20",
+      "call_pass": "20",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "42.100706577301025",
+      "rss_kib": "1383520",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "185",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F08-P062",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F08-P078",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "58.13056921958923",
+      "rss_kib": "1576740",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "201",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F08-P078",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F11-P018",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "state": "PASS",
+      "collected": "29",
+      "calls": "29",
+      "call_pass": "29",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "58.014",
+      "rss_kib": "1664812",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "147",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F11-P018",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F11-P069",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "75.014",
+      "rss_kib": "1678444",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "198",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F11-P069",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F12-P064",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "64.01246003699998",
+      "rss_kib": "1288956.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "649",
+      "extra_json": "{\"reason\":\"native\"}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F12-P064",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F14-P130",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "64.76356931100054",
+      "rss_kib": "1748232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "480",
+      "extra_json": "{}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F14-P130",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F15-P014",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "state": "PASS",
+      "collected": "59",
+      "calls": "59",
+      "call_pass": "59",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "31.9",
+      "rss_kib": "1667584",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "169",
+      "extra_json": "{\"reason\":\"null\"}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F15-P014",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F15-P070",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "state": "PASS",
+      "collected": "20",
+      "calls": "20",
+      "call_pass": "20",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "14.27",
+      "rss_kib": "1400172",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "225",
+      "extra_json": "{\"reason\":\"null\"}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F15-P070",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    },
+    {
+      "id": "F15-P128",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "26.94",
+      "rss_kib": "1603576",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "283",
+      "extra_json": "{\"reason\":\"null\"}",
+      "route_rows": [
+        {
+          "finding_id": "B38",
+          "unit": "B",
+          "cell_id": "F15-P128",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B38"
+        }
+      ],
+      "grade": "source_reported_navigation_only",
+      "environment_and_input_closure": {
+        "source_message": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@143b68a1596841fa444aace15120e2a46a746cb8",
+        "original_VM_raw_transfer": "absent",
+        "actual_historic_runtime_input_custody": "not_established; no baseline PASS promoted to new PG evidence"
+      }
+    }
+  ],
+  "baseline_context": {
+    "criterion_source": {
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+      "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+      "bound_source": "B_r19 B38 lines718–735, B78 lines1999–2014"
+    },
+    "historical_packet": {
+      "commit": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+      "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+    },
+    "qualification": "Historic summary cells/context are navigation only, original VM raw custody not established; neither historic PASS nor the old 85/414 native proves final1862. New final input/outputs are distinct pins.",
+    "complete_navigation_pointer": {
+      "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/baseline-navigation.json",
+      "qualification": "Complete same eighteen cell objects appear once in handoff baseline_cells and in immutable companion; no historic raw transfer or new proof inferred."
+    }
+  },
+  "checks": [
+    {
+      "id": "final1862-real-postgres-native-wholefile",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/dev/shm/e02-B-final-pg1862-20261006/capture_pg.source.txt",
+        "--child"
+      ],
+      "native_pytest_argv": [
+        "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        "-vv",
+        "-s",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-final-pg1862-20261006/fixtures",
+        "--junitxml",
+        "/dev/shm/e02-B-final-pg1862-20261006/native.xml"
+      ],
+      "target_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "target_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "pytest_version": "9.0.2",
+        "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "psycopg_version": "3.3.2",
+        "psycopg_binary_version": "3.3.2",
+        "pq_implementation": "binary",
+        "libpq_version": 180000,
+        "postgres_identity": [
+          "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+          "postgres",
+          "127.0.0.1/32",
+          45483
+        ],
+        "private_DSN": {
+          "path": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+          "mode": "0o600",
+          "bytes": 107,
+          "value": "omitted; authorized private runtime input"
+        },
+        "native_cap_env": {
+          "XLA_FLAGS": null,
+          "JAX_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+        },
+        "origin_evidence": [
+          {
+            "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-before.json",
+            "sha256": "1f8756d630d46119d0b45f7f7827cf322d684528e88a08dc6e24e991490f58b0",
+            "bytes": 4656
+          },
+          {
+            "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-after.json",
+            "sha256": "fff311dd19686f619e04d917c35d009e033d66b553423bfa923fc318e16fdb19",
+            "bytes": 4727
+          },
+          {
+            "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/origin-summary.json",
+            "sha256": "9105d50bf4df1c2b789b5659724b3611171eee28ef311c953363a4c37fee872c",
+            "bytes": 5236
+          },
+          {
+            "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/tool-executables.json",
+            "sha256": "94949eeb52a14978946679c38764cd0bb187ea1f09b636bedfe34a618192785c",
+            "bytes": 1094
+          }
+        ],
+        "worker_or_process_caps_added": false
+      },
+      "input_closure": {
+        "native_test": {
+          "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+          "sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80"
+        },
+        "declared_input_pins": {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/source-before.json",
+          "sha256": "1f8756d630d46119d0b45f7f7827cf322d684528e88a08dc6e24e991490f58b0",
+          "bytes": 4656
+        },
+        "capture_driver": {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/capture_pg.source.txt",
+          "sha256": "6e551e8ed672105dad8344ccd2e740898f55aa3b468fbd6a85846182b63b35dd",
+          "bytes": 11893
+        },
+        "normal_pytest_conftests": true,
+        "fixture_ISOLATION": "Original fixture creates unique e02_b38_uuid schemas and test-owned tmp_path; all schemas/rows retained. No live production database/dataset used.",
+        "external_tool_archive_navigation": {
+          "commit": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+          "evidence_commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+          "qualification": "Existing pinned OCI tool provisioning lineage; current PG17.11 identity and actual mapped executable/psycopg3.3.2 separately measured. Prior 85/414 outcomes are not new proof."
+        },
+        "child_scope": "Original worker child uses actual sys.executable/PYTHONPATH and asserts control_store/worker origins under expected root; parent declared frozen-source hashes are stable. Universal child resource readset not established."
+      },
+      "outcome": {
+        "harness_state": "EXECUTED",
+        "setup_failure": null,
+        "actual_exit": 0,
+        "actual_unique_case_count": 8,
+        "unique_case_status_counts": {
+          "PASS": 8,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0,
+          "XFAIL": 0,
+          "UNRUN": 0
+        },
+        "phase_outcomes": {
+          "setup": {
+            "passed": 8
+          },
+          "call": {
+            "passed": 8
+          },
+          "teardown": {
+            "passed": 8
+          }
+        },
+        "collection_errors": [],
+        "collection_skips": [],
+        "wall_s": 172.18007543199928,
+        "max_rss_kib": 905064,
+        "pytest_summary_seconds": 141.06,
+        "warnings": 11,
+        "source_before_after_clean_same": true,
+        "source_declared_bytes_stable": true,
+        "selected_module_bytes_matched": true
+      },
+      "output": [
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt.json",
+          "sha256": "e71793dff18a7dd7d4bf015f2b8e808fa95067d6376713857c78a6288a5d0c78",
+          "bytes": 6115,
+          "encoding": "lossless_utf8_json_string",
+          "decoded_sha256": "490ccf2d188492b8d921151a06d25cc999408fa6d25f6bd5a98d7a865ef18535",
+          "decoded_bytes": 5586
+        },
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.xml",
+          "sha256": "1c008e9c19f492160eea4b279818b1893e002bb7ffce74cc11264cff3aa7e925",
+          "bytes": 10099
+        },
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native-observer.json",
+          "sha256": "271ce009864c9d779abf71992af01744270befb0e9e57d3dd358f4687db617a8",
+          "bytes": 35503
+        },
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/wrapper.json",
+          "sha256": "4ed21ab4a45008d978fd02161e81ab3ccd03be8cbbfeb148aa1cfd87bba37518",
+          "bytes": 1674
+        },
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
+          "sha256": "1af8bd6fe9341a11fff9a1ac318b62b82708113c366dd71c2686a3ec2844e82b",
+          "bytes": 25746
+        }
+      ]
+    },
+    {
+      "id": "retained-eight-schema-read-only-readback",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/dev/shm/e02-B-final-pg1862-20261006/readback_pg.source.txt"
+      ],
+      "target_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "psycopg_version": "3.3.2",
+        "DSN_private_input_path": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+        "DSN_value": "omitted"
+      },
+      "input_closure": {
+        "reader_driver": {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/readback_pg.source.txt",
+          "sha256": "d69d5e041fb6fb3b44b4226b9eea7fa0de69bb1d42a14973c459e05dd75a0a99",
+          "bytes": 2911
+        },
+        "native_xml": {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.xml",
+          "sha256": "1c008e9c19f492160eea4b279818b1893e002bb7ffce74cc11264cff3aa7e925",
+          "bytes": 10099
+        },
+        "scope": "Only schemas named in this completed native XML; server same private DSN, read-only PostgreSQL connections."
+      },
+      "outcome": {
+        "schema_count": 8,
+        "tables_per_schema": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "no_schema_or_row_cleanup": true,
+        "meaning": "Final full schema snapshots; intermediate stale/fault table equality was exercised in actual native case bodies.",
+        "actual_exit": 0
+      },
+      "output": [
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/retained-schema-readback.json",
+          "sha256": "ac5e5eecaece03f738f6f0a1bc4f1ff41b789f9e19622f449ca7c57a6078c99c",
+          "bytes": 218684
+        }
+      ]
+    },
+    {
+      "id": "actual-eight-case-phase-junit-reconciliation",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/dev/shm/e02-B-final-pg1862-20261006/derive_pg.source.txt"
+      ],
+      "target_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "kind": "data-only; no pytest collection/native execution"
+      },
+      "input_closure": {
+        "driver": {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/derive_pg.source.txt",
+          "sha256": "a60d584e0434d6b9d9d35685cee019f34cb65c2655a63bbe877879b8408cf577",
+          "bytes": 6346
+        },
+        "actual_input_hashes": {
+          "native.txt": {
+            "sha256": "490ccf2d188492b8d921151a06d25cc999408fa6d25f6bd5a98d7a865ef18535",
+            "bytes": 5586
+          },
+          "native.xml": {
+            "sha256": "1c008e9c19f492160eea4b279818b1893e002bb7ffce74cc11264cff3aa7e925",
+            "bytes": 10099
+          },
+          "native-observer.json": {
+            "sha256": "271ce009864c9d779abf71992af01744270befb0e9e57d3dd358f4687db617a8",
+            "bytes": 35503
+          },
+          "wrapper.json": {
+            "sha256": "4ed21ab4a45008d978fd02161e81ab3ccd03be8cbbfeb148aa1cfd87bba37518",
+            "bytes": 1674
+          },
+          "source-before.json": {
+            "sha256": "1f8756d630d46119d0b45f7f7827cf322d684528e88a08dc6e24e991490f58b0",
+            "bytes": 4656
+          },
+          "source-after.json": {
+            "sha256": "fff311dd19686f619e04d917c35d009e033d66b553423bfa923fc318e16fdb19",
+            "bytes": 4727
+          },
+          "environment.json": {
+            "sha256": "83327eccc13478de5852580b210c3432df667285d1f6a26a96e720d6d871fcf3",
+            "bytes": 2093
+          },
+          "retained-schema-readback.json": {
+            "sha256": "ac5e5eecaece03f738f6f0a1bc4f1ff41b789f9e19622f449ca7c57a6078c99c",
+            "bytes": 218684
+          },
+          "origin-summary.json": {
+            "sha256": "9105d50bf4df1c2b789b5659724b3611171eee28ef311c953363a4c37fee872c",
+            "bytes": 5236
+          },
+          "tool-executables.json": {
+            "sha256": "94949eeb52a14978946679c38764cd0bb187ea1f09b636bedfe34a618192785c",
+            "bytes": 1094
+          },
+          "capture_pg.source.txt": {
+            "sha256": "6e551e8ed672105dad8344ccd2e740898f55aa3b468fbd6a85846182b63b35dd",
+            "bytes": 11893
+          },
+          "readback_pg.source.txt": {
+            "sha256": "d69d5e041fb6fb3b44b4226b9eea7fa0de69bb1d42a14973c459e05dd75a0a99",
+            "bytes": 2911
+          },
+          "derive_pg.source.txt": {
+            "sha256": "a60d584e0434d6b9d9d35685cee019f34cb65c2655a63bbe877879b8408cf577",
+            "bytes": 6346
+          }
+        },
+        "completed_native_source": "1862c021df74a5c5815bc5cd21a20e61b30132b6"
+      },
+      "outcome": {
+        "actual_unique_cases": 8,
+        "phase_count": 24,
+        "status_counts": {
+          "PASS": 8,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0,
+          "XFAIL": 0,
+          "UNRUN": 0
+        },
+        "junit_join_complete": true,
+        "stale_inlets_per_case": {
+          "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]": 18,
+          "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]": 18
+        },
+        "no_duplicate_case_or_xml_record": true,
+        "actual_exit": 0
+      },
+      "output": [
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
+          "sha256": "1af8bd6fe9341a11fff9a1ac318b62b82708113c366dd71c2686a3ec2844e82b",
+          "bytes": 25746
+        }
+      ]
+    }
+  ],
+  "property": "Actual PostgreSQL database mutations remain fenced by current owner/attempt/lease generation; current B publishes coherent status/event/outbox, and real statement faults roll back every native table.",
+  "predicate_basis": {
+    "deciding_native_consumer": "Unchanged original ControlWorker/ControlPlaneStore PostgreSQL wholefile; real A->persisted expiry->fresh-process B; all eighteen stale mutators refuse with every table unchanged.",
+    "paired_controls": "Running/completed B generation negatives, current completed/failed positives, real event/outbox trigger refusal with successful rollback. No helper presence/connection/marker treated as property proof.",
+    "no_own_mechanism_review_claim": "Independent runtime executor; original canonical/test authors EXE/DUR, no production or test edits in this slice. Root owns final criterion and all60 acceptance."
+  },
+  "per_premise_basis": {
+    "operational_environment": "User/root-supplied task-owned initialized PostgreSQL17.11 server and private DSN; current version and tool origins measured. No institutional/external-effect permission inferred.",
+    "semantic_criterion": {
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+      "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+      "bound_source": "B_r19 B38 lines718–735, B78 lines1999–2014"
+    },
+    "input_adequacy": "Eight actual native case bodies and complete24phase records; local synthetic job identities with original real SQL effects. External workload/prod dataset and universal resource closure unestablished.",
+    "historic_source": "All18 baseline navigation cells remain historic; original VM raw custody not established, no old summary promoted to final repair evidence."
+  },
+  "capability_state_or_finding_state": "Final-root finite PostgreSQL B38 native verification PASS; manual/root finding acceptance pending, no automatic closure.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B38",
+      "status": "verified_finite_actual_postgres_profile; root_manual_acceptance_pending",
+      "criterion_ref": {
+        "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+        "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+        "bound_source": "B_r19 B38 lines718–735, B78 lines1999–2014"
+      },
+      "deciding_check_ids": [
+        "final1862-real-postgres-native-wholefile",
+        "retained-eight-schema-read-only-readback",
+        "actual-eight-case-phase-junit-reconciliation"
+      ],
+      "cases": [
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[completed]",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[failed]",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]"
+      ],
+      "evidence_refs": [
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.txt.json",
+          "sha256": "e71793dff18a7dd7d4bf015f2b8e808fa95067d6376713857c78a6288a5d0c78",
+          "bytes": 6115,
+          "encoding": "lossless_utf8_json_string",
+          "decoded_sha256": "490ccf2d188492b8d921151a06d25cc999408fa6d25f6bd5a98d7a865ef18535",
+          "decoded_bytes": 5586
+        },
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/native.xml",
+          "sha256": "1c008e9c19f492160eea4b279818b1893e002bb7ffce74cc11264cff3aa7e925",
+          "bytes": 10099
+        },
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
+          "sha256": "1af8bd6fe9341a11fff9a1ac318b62b82708113c366dd71c2686a3ec2844e82b",
+          "bytes": 25746
+        },
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/retained-schema-readback.json",
+          "sha256": "ac5e5eecaece03f738f6f0a1bc4f1ff41b789f9e19622f449ca7c57a6078c99c",
+          "bytes": 218684
+        }
+      ],
+      "limitations": [
+        "No external exactly-once or database/process-crash law proved.",
+        "Universal worker-child import/resource readset not established.",
+        "Root full cohort stopped by SIGKILL is a separate execution; these eight later cases do not alter its grades."
+      ],
+      "next_owner": "Root B final criterion adjudication; local G can rerun exact original wholefile on fetched final source with actual PostgreSQL dependencies."
+    },
+    {
+      "finding_id": "B78",
+      "status": "unrun_by_this_postgres_slice; no disposition_upgrade",
+      "criterion_ref": {
+        "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+        "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+        "bound_source": "B_r19 B38 lines718–735, B78 lines1999–2014"
+      },
+      "deciding_check_ids": [],
+      "limitations": [
+        "SQL generation fencing/transaction rollback does not decide pre-dispatch vs unknown post-dispatch handover or eliminate external duplicates."
+      ],
+      "next_owner": "Root/RUN backend owner and G for actual handover/effect reconciliation."
+    }
+  ],
+  "workspace_custody": {
+    "metadata_writer_existing_admitted_path": "/workspace/e02-B-current-adapters",
+    "metadata_branch": "codex/e02-B-current-adapters",
+    "metadata_before_sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+    "metadata_before_clean_attached": true,
+    "runtime_existing_admitted_root": "/workspace/e02-B-current-coordination",
+    "runtime_exact_source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "new_checkout_or_worktree_created": false,
+    "retroactive_creation_admission_claim": false
+  },
+  "public_surface_reviewed": {
+    "assessment": "Metadata-only slice: no source, test, public facade, type/API, dependency/lock/config change.",
+    "source_owner_files": [
+      "control_plane_store.py",
+      "control_worker.py"
+    ],
+    "original_fixture_owner": "EXE/DUR; unchanged byte pins in source-lineage.json"
+  },
+  "limitations_and_next_owner": [
+    "Actual inherited quota variables removed before child; no process/worker/CPU quotas added. Original intrinsic fixture timers retained.",
+    "11 literal pytest warnings preserved (preimport rewrite/cache config and xunit2 record_property); allproperties/cases/phase records present.",
+    "Full selected-family module census 920156B stays exact SHM raw path@sha; G raw availability not established. Selected deciding origins and actual declared source hashes are Git-bound.",
+    "Private DSN never printed or committed; replay needs owner-supplied authorized DSN/PG17.11 and psycopg3.3.2. No environment/database/schema cleanup.",
+    "Original unwrapped literal stdout/canonical source remain a557 immutable Git objects plus unchanged SHM originals. Current JSON wrappers decode losslessly with exact raw hashes; final net metadata diff is whitespace clean.",
+    "Current branch native source is NOT claimed as execution target: all actualchecks target root1862/f765 explicitly.",
+    "This new eight-case execution does not substitute for root all25/60 or global production gates."
+  ],
+  "exact_rerun_candidate": {
+    "target_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "native_command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "-vv",
+      "-s",
+      "--tb=short",
+      "--import-mode=importlib",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp",
+      "/dev/shm/e02-B-final-pg1862-20261006/fixtures",
+      "--junitxml",
+      "/dev/shm/e02-B-final-pg1862-20261006/native.xml"
+    ],
+    "input_adjustment": "Allocate a fresh absolute basetemp/JUnit/output namespace before replay; preserve original wholefile/config/conftest/source tuple, PYTHONPATH and owner-provided private DSN. The committed capture driver binds this historical cloud path and refuses existing outputs; any portable driver adjustment is a new explicitly hashed replay input, not a claim of replay already performed."
+  },
+  "created_at_utc": "2026-10-06T23:15:49.466165+00:00"
+}

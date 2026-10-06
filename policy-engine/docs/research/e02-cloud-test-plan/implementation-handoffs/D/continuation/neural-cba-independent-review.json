@@ -1,0 +1,803 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+  "source_tree": "bd080793d0a544b251112a41572c4673015a3172",
+  "transport_commit": "82c3194d3ac106d225ad5b7a88fdfc85ae7f7d1f",
+  "author_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-neural-state.json",
+  "author_receipt_sha256": "d48599ca4c304f014af87230f14c367a99a00b139c181904d731c22cd442a292",
+  "verdict": "PASS bounded independent source/evidence review; author runtime evidence validated without another backend execution",
+  "source_review": [
+    "Full neural continuation delta and actual fitted-target tests read. Configured target/reader, same backend/space/policy, warm row content and full refs reconcile before base RNG/live warm assignment. Unsupported count-only state refuses.",
+    "Native CPU model refits each ask; checkpoint restores rows/RNG, not a trained model. Actual test observes three real MLL fits, restore zero fits, exact raw X and inverse-Standardize -scalar cost targets, and uninterrupted/fresh-resumed next EI proposal equality.",
+    "Two-path cba corrective catches finite conversion OverflowError in Transfer._number with typed ValueError and catches current-row OverflowError in NN compatibility. Source-coordinate/score authority remains the configured real CAS reader, not recomputed local markers.",
+    "Duplicate serialized warm6 remains effective3; malformed Base RNG controls compare exact artifact before/after; existing config/backend/basis and same-ref changed source controls retain atomicity."
+  ],
+  "runtime_evidence": {
+    "new24_plus_existing5_plus_transfer39": {
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "whole68_output": {
+      "member": "neural-transfer-corrected.txt",
+      "sha256": "453148eea1fdcd6a2dd758cc99eea82e3b0a2b54d88f083f212c07748e90556c",
+      "deciding_text": "68 passed, 5 warnings in 18.46s"
+    },
+    "historical_real47": {
+      "tests": 47,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "historical_additional9": {
+      "tests": 9,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0
+    },
+    "removal": {
+      "junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "output_sha256": "74081d9e5cbc4ca0ca2ba51c1cf533d8c80a589dcfe14defb9588ee702c77c15",
+      "exact_only_final_warm_assignment_removed": true,
+      "deciding_output": "fresh warm rows [] versus actual3; unchanged CAS/Sobol positive assertion fails"
+    },
+    "backend_profile": {
+      "state": "neural_warm_corpus.v1",
+      "policy": "single_task_gp.cpu.refit_each_ask.v1",
+      "backend": "Python3.14.7 / Torch2.10.0 / BoTorch0.16.1 / GPyTorch1.15.1 CPU torch.float64",
+      "configuration": "n_initial8, seed19, existing12 acquisition restarts/256 raw samples; current configuration/backend/space/basis must match",
+      "state_quantity": "Full warm Evaluation codec+refs+declared basis/config/backend/digest+Base RNG/Sobol state. No trained model binary; each ask naturally refits."
+    },
+    "source_origin_bindings": [
+      {
+        "output": "neural-transfer-corrected.txt",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65",
+        "matches_git": true
+      },
+      {
+        "output": "neural-transfer-corrected.txt",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+        "matches_git": true
+      },
+      {
+        "output": "neural-transfer-corrected.txt",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "sha256": "c61d73d7582f04a3c91333d2dcf43d1a14d9d2224c0f3270d97e2b2f69e2ac2d",
+        "matches_git": true
+      },
+      {
+        "output": "neural-transfer-corrected.txt",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "sha256": "b8e5a6f11aab9185413da92f067de260ea088184de393f9bcb65f922c6dcb4ba",
+        "matches_git": true
+      },
+      {
+        "output": "neural-transfer-corrected.txt",
+        "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "matches_git": true
+      },
+      {
+        "output": "neural-lessons-frozen.txt",
+        "source": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65",
+        "matches_git": true
+      },
+      {
+        "output": "neural-lessons-frozen.txt",
+        "source": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "sha256": "b5f2c0a32ca54f94a7979fd768678441ac555da4018c2ed702a925048ae8b1c1",
+        "matches_git": true
+      },
+      {
+        "output": "neural-lessons-frozen.txt",
+        "source": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "sha256": "2ced5702d8a1ecec7a5804a036f590bf097284abadc135b79241ddc6deb4db81",
+        "matches_git": true
+      },
+      {
+        "output": "neural-lessons-frozen.txt",
+        "source": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+        "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "sha256": "b8e5a6f11aab9185413da92f067de260ea088184de393f9bcb65f922c6dcb4ba",
+        "matches_git": true
+      },
+      {
+        "output": "neural-lessons-frozen.txt",
+        "source": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "matches_git": true
+      }
+    ],
+    "execution_here": "No additional numerical child: source/complete author outputs/input/bindings independently reviewed."
+  },
+  "payload_integrity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-continuation-output.json.gz",
+    "compressed_sha256": "8049ec22e3634cc7d565124c78e2649a9a4aef85438a04046451b1161f59bf8b",
+    "compressed_bytes": 59559,
+    "uncompressed_sha256": "5d8babf52a3aec8475e6a843ead91328ccead3524307a68c4dfb133259b3220a",
+    "uncompressed_bytes": 516461,
+    "members": 84,
+    "declared_hashes": 82,
+    "computed_only_missing_declared_hash": [
+      "nn-native-input-inventory.json",
+      "resource-observation.json"
+    ],
+    "actual_cas_inputs": 24,
+    "errors": [],
+    "all_source_inputs_match": true,
+    "manifest": [
+      {
+        "name": "B-minimum-source-identity.json",
+        "bytes": 7315,
+        "sha256": "c31028216d55506a8c5ce9b6f03215e79ebf7b8e649a8f1956947e336aa1ff4a",
+        "declared_hash": "c31028216d55506a8c5ce9b6f03215e79ebf7b8e649a8f1956947e336aa1ff4a",
+        "matches_declared": true
+      },
+      {
+        "name": "cas-transfer-native-frozen.json",
+        "bytes": 1506,
+        "sha256": "8b3f3a9fd9f26cad638b30ba961510b5ee61c2df15cbc94610b4beecb7f43b88",
+        "declared_hash": "8b3f3a9fd9f26cad638b30ba961510b5ee61c2df15cbc94610b4beecb7f43b88",
+        "matches_declared": true
+      },
+      {
+        "name": "cas-transfer-native-frozen.txt",
+        "bytes": 2953,
+        "sha256": "bdb455c030ee54af841011a02ff4b231a29404ee32f4ebaa16def6f0a75b7d40",
+        "declared_hash": "bdb455c030ee54af841011a02ff4b231a29404ee32f4ebaa16def6f0a75b7d40",
+        "matches_declared": true
+      },
+      {
+        "name": "cas-transfer-native-frozen.xml",
+        "bytes": 10590,
+        "sha256": "9578877950e5b12f36572a93e5ea69474cd34658a8a658b8ab3cbe773e12085e",
+        "declared_hash": "9578877950e5b12f36572a93e5ea69474cd34658a8a658b8ab3cbe773e12085e",
+        "matches_declared": true
+      },
+      {
+        "name": "e02_remove_neural_restore.py",
+        "bytes": 372,
+        "sha256": "fe99413782166a88173afc93b1370a5402ceb24aa396d0ec4f13c60c1b019c3b",
+        "declared_hash": "fe99413782166a88173afc93b1370a5402ceb24aa396d0ec4f13c60c1b019c3b",
+        "matches_declared": true
+      },
+      {
+        "name": "e02_transfer_observer.py",
+        "bytes": 997,
+        "sha256": "27e86430bd594d7d9a61cb0afacb53e103f36eb3d93ec17f99ad22c232cb72e3",
+        "declared_hash": "27e86430bd594d7d9a61cb0afacb53e103f36eb3d93ec17f99ad22c232cb72e3",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-additional-negative-base.json",
+        "bytes": 1611,
+        "sha256": "9efcccac96a7ec3b4e1a88678aee5d5e75a890da55b9aa39a22bcae919b47a46",
+        "declared_hash": "9efcccac96a7ec3b4e1a88678aee5d5e75a890da55b9aa39a22bcae919b47a46",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-additional-negative-base.txt",
+        "bytes": 12547,
+        "sha256": "ea4225cf75f75058cc9dbf2d45dcc03bf11e4e7229b328f29a9fcabb8916b578",
+        "declared_hash": "ea4225cf75f75058cc9dbf2d45dcc03bf11e4e7229b328f29a9fcabb8916b578",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-additional-negative-base.xml",
+        "bytes": 10649,
+        "sha256": "97292bb756069e67e2272247c5648ad6812d4ac11f01dc1a91c12b3884dcd3cf",
+        "declared_hash": "97292bb756069e67e2272247c5648ad6812d4ac11f01dc1a91c12b3884dcd3cf",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-lessons-frozen.json",
+        "bytes": 1602,
+        "sha256": "de52e9432dffab83d7206a896031b9b64a8fcbbfbf004a3de1aac85f859339d2",
+        "declared_hash": "de52e9432dffab83d7206a896031b9b64a8fcbbfbf004a3de1aac85f859339d2",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-lessons-frozen.txt",
+        "bytes": 4117,
+        "sha256": "b5b8b1f95b2669c649df8fe294a6eabe73bc22833f3e1f7eb004997cdb59cbad",
+        "declared_hash": "b5b8b1f95b2669c649df8fe294a6eabe73bc22833f3e1f7eb004997cdb59cbad",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-lessons-frozen.xml",
+        "bytes": 7631,
+        "sha256": "e90c6dc9904a25fdb0de50e5a2f14c85416e5e98451d1d11c94b34a6e9a3c92b",
+        "declared_hash": "e90c6dc9904a25fdb0de50e5a2f14c85416e5e98451d1d11c94b34a6e9a3c92b",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-restore-removal-input.json",
+        "bytes": 825,
+        "sha256": "decbd2ff45249d289bdf2effe371843713587f12d5e1adc45d466ead9716e432",
+        "declared_hash": "decbd2ff45249d289bdf2effe371843713587f12d5e1adc45d466ead9716e432",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-restore-removal.json",
+        "bytes": 1490,
+        "sha256": "0e89d97571bb950a70d5e29a29259cc851f00a337127ae379be6904be0c5fc8f",
+        "declared_hash": "0e89d97571bb950a70d5e29a29259cc851f00a337127ae379be6904be0c5fc8f",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-restore-removal.txt",
+        "bytes": 3964,
+        "sha256": "74081d9e5cbc4ca0ca2ba51c1cf533d8c80a589dcfe14defb9588ee702c77c15",
+        "declared_hash": "74081d9e5cbc4ca0ca2ba51c1cf533d8c80a589dcfe14defb9588ee702c77c15",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-restore-removal.xml",
+        "bytes": 1968,
+        "sha256": "107441810d6b5ae4afae895cd1dc66311df69f038d4c6b4840c2c35d464e070b",
+        "declared_hash": "107441810d6b5ae4afae895cd1dc66311df69f038d4c6b4840c2c35d464e070b",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-transfer-corrected.json",
+        "bytes": 1517,
+        "sha256": "26fde01a15cec391e689d506a5f0d9f01378f6084ac87ceee7db8dd96ab98eca",
+        "declared_hash": "26fde01a15cec391e689d506a5f0d9f01378f6084ac87ceee7db8dd96ab98eca",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-transfer-corrected.txt",
+        "bytes": 4139,
+        "sha256": "453148eea1fdcd6a2dd758cc99eea82e3b0a2b54d88f083f212c07748e90556c",
+        "declared_hash": "453148eea1fdcd6a2dd758cc99eea82e3b0a2b54d88f083f212c07748e90556c",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-transfer-corrected.xml",
+        "bytes": 12133,
+        "sha256": "9a2a8d6f29e06e08d2e658ac9139e1cd314b4d97e1ef3ebcf0739b6b923979e0",
+        "declared_hash": "9a2a8d6f29e06e08d2e658ac9139e1cd314b4d97e1ef3ebcf0739b6b923979e0",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-warm-base-corrected.json",
+        "bytes": 1397,
+        "sha256": "23f2a094f28e41900c2faf743199460e90a2af926eb2e2995821ff3451d57a09",
+        "declared_hash": "23f2a094f28e41900c2faf743199460e90a2af926eb2e2995821ff3451d57a09",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-warm-base-corrected.txt",
+        "bytes": 4854,
+        "sha256": "de0e8e2cc4c50a9e1b982d07585dd5b62108037ead6764e6a34e067bdad4e65e",
+        "declared_hash": "de0e8e2cc4c50a9e1b982d07585dd5b62108037ead6764e6a34e067bdad4e65e",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-warm-base-corrected.xml",
+        "bytes": 2233,
+        "sha256": "6227afc1c58a583378a000b214c176c35e9163d56fa1ab64c400aaec9c364fe7",
+        "declared_hash": "6227afc1c58a583378a000b214c176c35e9163d56fa1ab64c400aaec9c364fe7",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-warm-base.json",
+        "bytes": 1260,
+        "sha256": "ccc53027b136119a9652062cca80aae81acd77f20c2bb97c6dd695444a975b69",
+        "declared_hash": "ccc53027b136119a9652062cca80aae81acd77f20c2bb97c6dd695444a975b69",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-warm-base.txt",
+        "bytes": 2621,
+        "sha256": "e3b9d2ddf1bf364cd526a39aa80d223f42003935e889974ea42d648118ce18bf",
+        "declared_hash": "e3b9d2ddf1bf364cd526a39aa80d223f42003935e889974ea42d648118ce18bf",
+        "matches_declared": true
+      },
+      {
+        "name": "neural-warm-base.xml",
+        "bytes": 1375,
+        "sha256": "502ef7c3685536c96eeff534b05279176c489ecc7ee94a56f72a31e182aff137",
+        "declared_hash": "502ef7c3685536c96eeff534b05279176c489ecc7ee94a56f72a31e182aff137",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input-inventory.json",
+        "bytes": 19723,
+        "sha256": "51ea1074756aa2fd77c5019147981b40674d93eae41b07d606b9ac3133fdee8a",
+        "declared_hash": null,
+        "matches_declared": null
+      },
+      {
+        "name": "nn-native-input/098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706.blob",
+        "bytes": 51,
+        "sha256": "098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706",
+        "declared_hash": "098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706.manifest.json",
+        "bytes": 543,
+        "sha256": "17ce1b596bc653e0fd35b664f1f23d2b48ffdbbd1ac08f7f68f46be30f5d61cb",
+        "declared_hash": "17ce1b596bc653e0fd35b664f1f23d2b48ffdbbd1ac08f7f68f46be30f5d61cb",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268.blob",
+        "bytes": 52,
+        "sha256": "0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268",
+        "declared_hash": "0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268.manifest.json",
+        "bytes": 543,
+        "sha256": "12d06f8e89385c7c9af194425df74ca64258acc1386b376518a29aff012e673f",
+        "declared_hash": "12d06f8e89385c7c9af194425df74ca64258acc1386b376518a29aff012e673f",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a.blob",
+        "bytes": 52,
+        "sha256": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+        "declared_hash": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a.manifest.json",
+        "bytes": 543,
+        "sha256": "c81e06549bc9f1bf95d3b462b9a5248f0cbd87ac8aea0661eec2e615311c8f4e",
+        "declared_hash": "c81e06549bc9f1bf95d3b462b9a5248f0cbd87ac8aea0661eec2e615311c8f4e",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b.blob",
+        "bytes": 62,
+        "sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+        "declared_hash": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b.manifest.json",
+        "bytes": 552,
+        "sha256": "7522c0f0066a13efb0398a1c755bb5c6c71cfc24a6938ca56cb7523af42e8fb1",
+        "declared_hash": "7522c0f0066a13efb0398a1c755bb5c6c71cfc24a6938ca56cb7523af42e8fb1",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85.blob",
+        "bytes": 56,
+        "sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+        "declared_hash": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85.manifest.json",
+        "bytes": 546,
+        "sha256": "a0b72d714e01243baaa26d667160ffdcdb94975cad4b40b67946598f8855277e",
+        "declared_hash": "a0b72d714e01243baaa26d667160ffdcdb94975cad4b40b67946598f8855277e",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f.blob",
+        "bytes": 2230,
+        "sha256": "4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f",
+        "declared_hash": "4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f.manifest.json",
+        "bytes": 866,
+        "sha256": "28b9a0d21790e43a684f72264d342788db517590406a326646831b99aa2aa2f3",
+        "declared_hash": "28b9a0d21790e43a684f72264d342788db517590406a326646831b99aa2aa2f3",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02.blob",
+        "bytes": 52,
+        "sha256": "4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02",
+        "declared_hash": "4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02.manifest.json",
+        "bytes": 543,
+        "sha256": "4a900593bab68529589c1ead98b0ed569babceb72eb992fb6f67b8093e4341f7",
+        "declared_hash": "4a900593bab68529589c1ead98b0ed569babceb72eb992fb6f67b8093e4341f7",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903.blob",
+        "bytes": 52,
+        "sha256": "520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903",
+        "declared_hash": "520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903.manifest.json",
+        "bytes": 543,
+        "sha256": "4cd3bf1d3fb8409d16a37fd33516796dbf63140caa2e3ad2de489bb0f582b38d",
+        "declared_hash": "4cd3bf1d3fb8409d16a37fd33516796dbf63140caa2e3ad2de489bb0f582b38d",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b.blob",
+        "bytes": 24733,
+        "sha256": "5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+        "declared_hash": "5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b.manifest.json",
+        "bytes": 553,
+        "sha256": "bdecc99e2f74459365806b0a1eefca841d2cd1148da610d854c011a286bc9097",
+        "declared_hash": "bdecc99e2f74459365806b0a1eefca841d2cd1148da610d854c011a286bc9097",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650.blob",
+        "bytes": 2231,
+        "sha256": "60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+        "declared_hash": "60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650.manifest.json",
+        "bytes": 866,
+        "sha256": "dc73cd89204d855eedbe6b6d2cac036468b9afc9eb66ccf56e555ce275610c3d",
+        "declared_hash": "dc73cd89204d855eedbe6b6d2cac036468b9afc9eb66ccf56e555ce275610c3d",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789.blob",
+        "bytes": 57,
+        "sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+        "declared_hash": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789.manifest.json",
+        "bytes": 547,
+        "sha256": "be9c0c906dc481f834bfc2c375d783033c4f32d720181298df2d2cfd774bd573",
+        "declared_hash": "be9c0c906dc481f834bfc2c375d783033c4f32d720181298df2d2cfd774bd573",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f.blob",
+        "bytes": 2231,
+        "sha256": "64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+        "declared_hash": "64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f.manifest.json",
+        "bytes": 866,
+        "sha256": "86542c533d3e47694edda61a2356291ccc05c9000c10e681a120552613bb04a3",
+        "declared_hash": "86542c533d3e47694edda61a2356291ccc05c9000c10e681a120552613bb04a3",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a.blob",
+        "bytes": 2231,
+        "sha256": "6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+        "declared_hash": "6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a.manifest.json",
+        "bytes": 866,
+        "sha256": "b15f705993d3f30897b5f4a6b885b1c77c513269c8ac1913b4e10b44bfbeefca",
+        "declared_hash": "b15f705993d3f30897b5f4a6b885b1c77c513269c8ac1913b4e10b44bfbeefca",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad.blob",
+        "bytes": 52,
+        "sha256": "918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad",
+        "declared_hash": "918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad.manifest.json",
+        "bytes": 543,
+        "sha256": "721ac2421dbdc20716f47d4224c0f1346e4832a00abf46531e59a4bc32815a42",
+        "declared_hash": "721ac2421dbdc20716f47d4224c0f1346e4832a00abf46531e59a4bc32815a42",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c.blob",
+        "bytes": 61,
+        "sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+        "declared_hash": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c.manifest.json",
+        "bytes": 551,
+        "sha256": "11bd49f01b0626aefdfcf5990cbeb8c1e9c4f26efa2bc6445684d792d017a9a1",
+        "declared_hash": "11bd49f01b0626aefdfcf5990cbeb8c1e9c4f26efa2bc6445684d792d017a9a1",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0.blob",
+        "bytes": 52,
+        "sha256": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+        "declared_hash": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0.manifest.json",
+        "bytes": 543,
+        "sha256": "5c492ad0ae8bd6750a8b17ae707bc4fc44b59c5dc5c6a243bdd93cb8cef4e770",
+        "declared_hash": "5c492ad0ae8bd6750a8b17ae707bc4fc44b59c5dc5c6a243bdd93cb8cef4e770",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc.blob",
+        "bytes": 2230,
+        "sha256": "b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+        "declared_hash": "b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc.manifest.json",
+        "bytes": 866,
+        "sha256": "9021d9a988d4aa6934bcb37c43764ed203e0dc2cee03bc57c9f5e732a9b57cd7",
+        "declared_hash": "9021d9a988d4aa6934bcb37c43764ed203e0dc2cee03bc57c9f5e732a9b57cd7",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4.blob",
+        "bytes": 57,
+        "sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+        "declared_hash": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4.manifest.json",
+        "bytes": 547,
+        "sha256": "966cb96ee93e4cb58c33299f19ac7507b5bdbc0e2ea78370e38656c38e49b4ed",
+        "declared_hash": "966cb96ee93e4cb58c33299f19ac7507b5bdbc0e2ea78370e38656c38e49b4ed",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2.blob",
+        "bytes": 2230,
+        "sha256": "b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+        "declared_hash": "b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2.manifest.json",
+        "bytes": 866,
+        "sha256": "b6e2c826a048a21d6353ae3772ff8ab51967115828a72fb904ae00b09f0f0d3c",
+        "declared_hash": "b6e2c826a048a21d6353ae3772ff8ab51967115828a72fb904ae00b09f0f0d3c",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1.blob",
+        "bytes": 57,
+        "sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+        "declared_hash": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1.manifest.json",
+        "bytes": 547,
+        "sha256": "1450855733a4e78929c4ee90b1dcf37bd5a7405847efea65eea27223a17c1e8f",
+        "declared_hash": "1450855733a4e78929c4ee90b1dcf37bd5a7405847efea65eea27223a17c1e8f",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951.blob",
+        "bytes": 2231,
+        "sha256": "d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+        "declared_hash": "d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951.manifest.json",
+        "bytes": 866,
+        "sha256": "12c2ac3d3684abe25d7f7870d4c28cad46d10795fb314893b994b0238654b1be",
+        "declared_hash": "12c2ac3d3684abe25d7f7870d4c28cad46d10795fb314893b994b0238654b1be",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5.blob",
+        "bytes": 2231,
+        "sha256": "dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+        "declared_hash": "dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5.manifest.json",
+        "bytes": 866,
+        "sha256": "71e4cfebc3dca4402a99d064785ede27cb42ec5dec8b118dc816e28a0f22d67c",
+        "declared_hash": "71e4cfebc3dca4402a99d064785ede27cb42ec5dec8b118dc816e28a0f22d67c",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/f65d847cb10285d0d7fba4b0eced251202a11801a76723c9f94971d313acf723.blob",
+        "bytes": 37022,
+        "sha256": "f65d847cb10285d0d7fba4b0eced251202a11801a76723c9f94971d313acf723",
+        "declared_hash": "f65d847cb10285d0d7fba4b0eced251202a11801a76723c9f94971d313acf723",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/f65d847cb10285d0d7fba4b0eced251202a11801a76723c9f94971d313acf723.manifest.json",
+        "bytes": 361,
+        "sha256": "78a45dede8318386d4dc302fcaf53668aa95e126c69c1c57c4bd328daac2c17c",
+        "declared_hash": "78a45dede8318386d4dc302fcaf53668aa95e126c69c1c57c4bd328daac2c17c",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e.blob",
+        "bytes": 52,
+        "sha256": "fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e",
+        "declared_hash": "fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e",
+        "matches_declared": true
+      },
+      {
+        "name": "nn-native-input/fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e.manifest.json",
+        "bytes": 543,
+        "sha256": "29bb4147b31e3351ee59c0e13904480fe9404e4cc13f2342909e5e102f03be31",
+        "declared_hash": "29bb4147b31e3351ee59c0e13904480fe9404e4cc13f2342909e5e102f03be31",
+        "matches_declared": true
+      },
+      {
+        "name": "removed_neural_warm_restore.py",
+        "bytes": 16520,
+        "sha256": "4cb8be557a09c2f2f59ad19b9fd2e2893acfcc1d3f494e2eb599f94fef29b7e2",
+        "declared_hash": "4cb8be557a09c2f2f59ad19b9fd2e2893acfcc1d3f494e2eb599f94fef29b7e2",
+        "matches_declared": true
+      },
+      {
+        "name": "resource-observation.json",
+        "bytes": 318,
+        "sha256": "50d14e75777c5bac100a482849dc5007520df557c0060df7d0437503c65dac33",
+        "declared_hash": null,
+        "matches_declared": null
+      },
+      {
+        "name": "run_gate.py",
+        "bytes": 1419,
+        "sha256": "5af4f258a1096a323a4a10eceee4a1b917e381dc3c4900e4f06eba78181c65a6",
+        "declared_hash": "5af4f258a1096a323a4a10eceee4a1b917e381dc3c4900e4f06eba78181c65a6",
+        "matches_declared": true
+      },
+      {
+        "name": "run_gate_initial.py",
+        "bytes": 1391,
+        "sha256": "4f3d222f4dc4171c700dee22e1bca57b9ed4d448631d061b63c0cb7262f13cfe",
+        "declared_hash": "4f3d222f4dc4171c700dee22e1bca57b9ed4d448631d061b63c0cb7262f13cfe",
+        "matches_declared": true
+      },
+      {
+        "name": "test_neural_base_probe.py",
+        "bytes": 1099,
+        "sha256": "60666a1807bcb8c3fd7d68374aef10586994cecae165f8810a8f1da44f73244b",
+        "declared_hash": "60666a1807bcb8c3fd7d68374aef10586994cecae165f8810a8f1da44f73244b",
+        "matches_declared": true
+      },
+      {
+        "name": "vector-process-input/test_second_process_consumes_e0/input.json",
+        "bytes": 4967,
+        "sha256": "eb13d6b291cd8e22245896dababf41187a1eb3fa1a6d7278022eb4c41b46ac00",
+        "declared_hash": "eb13d6b291cd8e22245896dababf41187a1eb3fa1a6d7278022eb4c41b46ac00",
+        "matches_declared": true
+      },
+      {
+        "name": "vector-process-input/test_second_process_consumes_e0/native-before-tamper.bin",
+        "bytes": 152400,
+        "sha256": "975c38db4f801df284002bc84d361181a79837684b9eb2a3184ce5bc2965b164",
+        "declared_hash": "975c38db4f801df284002bc84d361181a79837684b9eb2a3184ce5bc2965b164",
+        "matches_declared": true
+      },
+      {
+        "name": "vector-transfer-process-frozen.json",
+        "bytes": 1387,
+        "sha256": "293475d1f2a5f468e87754d42405557de8c2edd9e0718b8495001ddba96f9612",
+        "declared_hash": "293475d1f2a5f468e87754d42405557de8c2edd9e0718b8495001ddba96f9612",
+        "matches_declared": true
+      },
+      {
+        "name": "vector-transfer-process-frozen.txt",
+        "bytes": 14622,
+        "sha256": "c51d81af13819f63c6c0728b909d88f8b95efeb588674ebbcb64130fa3b6cf9c",
+        "declared_hash": "c51d81af13819f63c6c0728b909d88f8b95efeb588674ebbcb64130fa3b6cf9c",
+        "matches_declared": true
+      },
+      {
+        "name": "vector-transfer-process-frozen.xml",
+        "bytes": 591,
+        "sha256": "66519d01616aa6e5e3bd2ebbd7dff925794b381870ea678ffbe88248f5e2ee46",
+        "declared_hash": "66519d01616aa6e5e3bd2ebbd7dff925794b381870ea678ffbe88248f5e2ee46",
+        "matches_declared": true
+      }
+    ],
+    "source_inputs": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+        "bytes": 16561,
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "sha256": "c61d73d7582f04a3c91333d2dcf43d1a14d9d2224c0f3270d97e2b2f69e2ac2d",
+        "bytes": 33255,
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+        "sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5",
+        "bytes": 12045,
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "bytes": 1021,
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "bytes": 11007,
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "bytes": 779204,
+        "matches_declared": true
+      }
+    ]
+  },
+  "companion_disposition": {
+    "classification": "Internal child module; __all__ visibility alone does not make a supported public API.",
+    "owner_request_resolved": {
+      "commit": "0e370297bb89ff0fc6dbf376f4ed2afa0d0195d2",
+      "source_and_tests_unchanged_from_transport": true,
+      "fragment": {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-neural-warm-checkpoint.toml",
+        "sha256": "2a796a3b380734eb0599fc1a4aad56c6ff788020683343496d40f1c1c3381120"
+      },
+      "operator_recipe": {
+        "path": "policy-engine/docs/how-to/neural-warm-checkpoint-migration.md",
+        "sha256": "55883013c2f00ea6ff11e4755d5206387a93e962a8d8aa711270c93b3562678e"
+      },
+      "review": "Full append-only fragment and73-line recipe read: canonical runtime-state-format/impact breaking/internal classification, existing owner/version/deprecation fields, linked migration/runbook, retain old bytes and original history, fresh reconstruction is not old RNG resume, unsupported ensemble/GPU/cross-version/authority claims excluded.",
+      "author_scoped_gate": "Author reports exact fragment validation/render zero findings; independent review checks actual fields/docs/source identity, not a whole canonical quality gate rerun."
+    },
+    "B04_B19_B23": "See committed canonical-companions-independent-read-review.json@18699ce536fca6ce174ff1caf1435a79912f0920. B19 historical77 =53 budget+9 extraction dates+15 fail-closed dates, not77 missing budgets; all canonical quality failures remain held without waiver."
+  },
+  "limitations": [
+    "Author actual runtime evidence is separate from independent fresh execution; no inherited PASS for other later source files.",
+    "Only five product module origins were captured per native NN output, not every loaded module.",
+    "No full scientific source-universe, tenant/split authority, appointed empirical source, optimization benefit, GPU/cross-version equivalence or complete original finding closure.",
+    "Source-input bytes prove transport integrity; local digest recomputation alone is not provenance or source authority."
+  ],
+  "preservation": "Read-only Git objects and lossless encoded outputs; no new snapshot, backend child, CPU/thread cap or deletion. Original author scratch paths remain author cleanup candidates."
+}

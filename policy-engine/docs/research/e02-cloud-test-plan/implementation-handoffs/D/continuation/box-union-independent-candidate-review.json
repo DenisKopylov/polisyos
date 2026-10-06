@@ -1,0 +1,250 @@
+{
+  "schema_version": "independent-numerical-review.v1",
+  "reviewer": "/root/numerical_oracle",
+  "scope": "B110/B111 original finite coordinate and small exact geometry properties; bounded mechanism review, no finding closure",
+  "criterion_source": {
+    "integration_pin": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "B110": {
+      "lines": [
+        2925,
+        2938
+      ],
+      "block_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d"
+    },
+    "B111": {
+      "lines": [
+        2939,
+        2954
+      ],
+      "block_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+    }
+  },
+  "production_base": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "test_commit": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+  "test_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+  "baseline_evidence_commit": "d7a1712f356b5dc5024fe3a492b6f52bc411afa6",
+  "baseline_result": "unchanged21:10FAIL/11PASS on96eb; historical deciding output retained",
+  "independent_expected": "Pure stdlib Fraction inclusion-exclusion over at most3 lower-reference boxes in1..3 dimensions; no production indicator/BoTorch/kernel/model posterior as expected calculation. Exact axis0, overlap16, flat0, mixed9, direction/affine product1600.",
+  "runs": {
+    "a82_historical": {
+      "command_metadata": {
+        "source": "a82a02b816b619d706b398100024a9bb5b0daf21",
+        "tree": "5135c198a39906961a6496fabe0072c70cb2e31b",
+        "test_commit": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+        "test_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+          "-p",
+          "source_binding_probe",
+          "-ra",
+          "--basetemp=/dev/shm/pareto-box-union-candidate-5432d399d4ee4181acee4045fa866145",
+          "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/box-union-independent/candidate-junit.xml"
+        ],
+        "cwd": "/tmp/pareto-box-union-source-6a0ff2143b6244c99e555ec71d5af362/policy-engine",
+        "returncode": 0,
+        "wall_seconds": 18.432320514999446,
+        "scratch": "/tmp/pareto-box-union-source-6a0ff2143b6244c99e555ec71d5af362",
+        "fresh_basetemp": "/dev/shm/pareto-box-union-candidate-5432d399d4ee4181acee4045fa866145",
+        "caps_added": false,
+        "input_scope": [
+          "policy-engine/src",
+          "policy-engine/tools",
+          "policy-engine/architecture",
+          "policy-engine/pyproject.toml",
+          "policy-engine/tests/conftest.py",
+          "policy-engine/tests/_helpers",
+          "policy-engine/tests/quarantine.toml",
+          "policy-engine/tests/unit/scientist/conftest.py"
+        ],
+        "omitted_inputs": "Other tests/docs/fixtures/data are omitted, not claimed tested; an actual missing-input failure would remain ERROR/UNRUN.",
+        "harness_profile_limitation": "pytest.ini was omitted: strict/import/cache configuration not applied; unknownunit warning retained. Source/numerical21 positive is bounded, not full repository-profile acceptance."
+      },
+      "counts": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "status": "PASS",
+      "actual_origin_bindings": {
+        "source": "a82a02b816b619d706b398100024a9bb5b0daf21",
+        "errors": [],
+        "loaded_backend_versions": {
+          "torch": "2.10.0+cu128",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1"
+        },
+        "loaded_polisyos_count": 835
+      }
+    },
+    "e2_deciding": {
+      "command_metadata": {
+        "source": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+        "tree": "1b6e573e04df38c53b15944f314d3aad7309144c",
+        "test_commit": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+        "test_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+          "-p",
+          "source_binding_probe",
+          "-ra",
+          "--basetemp=/dev/shm/pareto-box-union-e2-7733050f598d4893b9769ec62adb5bab",
+          "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/box-union-independent/e2-candidate-junit.xml"
+        ],
+        "cwd": "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc/policy-engine",
+        "returncode": 0,
+        "wall_seconds": 21.242098230999545,
+        "scratch": "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc",
+        "fresh_basetemp": "/dev/shm/pareto-box-union-e2-7733050f598d4893b9769ec62adb5bab",
+        "caps_added": false,
+        "input_scope": [
+          "policy-engine/src",
+          "policy-engine/tools",
+          "policy-engine/architecture",
+          "policy-engine/pyproject.toml",
+          "policy-engine/tests/conftest.py",
+          "policy-engine/tests/_helpers",
+          "policy-engine/tests/quarantine.toml",
+          "policy-engine/tests/unit/scientist/conftest.py",
+          "policy-engine/pytest.ini"
+        ],
+        "read_only_hardlink_inputs": "Existing a82 archive unchanged files retained as read-only hardlinks; source delta files are fresh exact e2 Git blobs. No previous path deleted/overwritten. All imported polisyos bytes rechecked against e2 Git.",
+        "omitted_inputs": "Other tests/docs/fixtures/data are omitted, not claimed tested; an actual missing-input failure would remain ERROR/UNRUN."
+      },
+      "counts": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "status": "PASS",
+      "actual_origin_bindings": {
+        "source": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+        "errors": [],
+        "loaded_backend_versions": {
+          "torch": "2.10.0+cu128",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1"
+        },
+        "loaded_polisyos_count": 835
+      }
+    }
+  },
+  "a82_harness_limit": "Actual21PASS and835 exact loaded origins, but original snapshot omitted pytest.ini and emitted unknown-unit-marker warning. Not complete canonical repository profile acceptance; corrected e2 replay includes exact pytest.ini. Original helper/output retained.",
+  "source_review": {
+    "full_geometry_source_and_test_delta": "96eb to a82 plus a82 to e2 read independently; four affected source paths listed below; new owner unit tests not numerical expectations for the independent oracle",
+    "supported_profile": "dominated_box_union.float64.maximize.v1, dimensions1..4; exact1D2D and actual locked DominatedPartitioning3D4D; >4 typed unavailable unsupported_dimension_profile; no inputs typed no_usable distinct actual0",
+    "finite_intake": "single finite_real_scalar refuses bool/nonreal/overflow before vectors; shared legacy frontier gate preserves complete-vector omission; indicator failure preserves front membership and input assessment",
+    "coordinate_identity": "metric/split/unit/direction markers and original split tradeoff plus display rename survive native FileSystemCAS fresh readback; same IDs with changed split/unit/direction/schema version refuse. New definition_versions v2 API is source-reviewed and owner tested; independent21 does not provide independent positive definition-version2 witness.",
+    "e2_to_163_source_binding": {
+      "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": {
+        "e2_sha256": "ad369ca3657d5a797c385ec1b7a70440cea78f9daf3b0b3c85404e08107c99e6",
+        "163_sha256": "ad369ca3657d5a797c385ec1b7a70440cea78f9daf3b0b3c85404e08107c99e6",
+        "identical": true
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/frontier.py": {
+        "e2_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+        "163_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+        "identical": true
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": {
+        "e2_sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "163_sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "identical": true
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py": {
+        "e2_sha256": "ecca7c958ca3b050c679a60edcd1483cad1618cd3ad57d51d73af4789c5904d0",
+        "163_sha256": "63fb9950862812e30e64fde899f8e2d08ea9e4c5cc65d70bde02b861ab295467",
+        "identical": false
+      }
+    }
+  },
+  "negative_control": "Actual compute_front output replaced by27 retaining all front/member/schema/assessment markers; independent16 gate rejects. Output-semantic replacement, not production source adapter removal.",
+  "api_change": "MO compute_hypervolume now float|None; unavailable assessment accompanies null. Known supported versioned Pareto readers preserve assessments; historical finite v1 reads supported. Internal child classification and structured migration companion are separate owned checkpoint.",
+  "P37": {
+    "expected_geometry": "recomputed",
+    "actual_runtime": "recomputed",
+    "scientific_source_authority": "not_established"
+  },
+  "P40": "3D bounding-box replacement, malformed numeric scalar and empty-vs-zero are same wider B111 quantity/intake class; coordinate identity remains separate B110.",
+  "P41": "No inherited waiver; original96eb10FAIL retained.",
+  "current_verdict": "PASS within deciding e2 21-case geometry profile; not finding-level closure or full163 end-to-end acceptance",
+  "limitations": [
+    "Independent geometry is1..3D, not independent4D or arbitrary dimensional science.",
+    "Marker-preserving reference-preparation red discovered in e2 is separately retained and rerun on163 by14-case oracle.",
+    "163 also adds BGC checkpoint/transfer; this21 geometry proof does not execute that new workflow or rerun old GP26.",
+    "Actual loaded backend positive, no cross-backend replay or scientific optimization-quality claim.",
+    "Missing-backend numerical positives remain UNRUN; actual minimal environment has no pytest/pydantic so minimal execution remains UNRUN.",
+    "No new test/orchestrator caps. Existing MO application Torch policy previously observed threads4/interop1; do not claim absence of all application thread settings.",
+    "No source writes in author lane or prior snapshots; no permanent deletion; retained paths are cleanup candidates, no global preservation claim."
+  ],
+  "proof_files": {
+    "box-union-independent/baseline-command.json": {
+      "bytes": 1321,
+      "sha256": "e2a72be10cf620819179fef6f26f0cfa84b526e88c3757af3fa9635b8be09a9e"
+    },
+    "box-union-independent/baseline-complete.txt": {
+      "bytes": 20978,
+      "sha256": "71bc36babef80a037909f2f503eced6981974b0bee407b90125d14d5f3ad389f"
+    },
+    "box-union-independent/baseline-junit.xml": {
+      "bytes": 23346,
+      "sha256": "22017ce0290ba997bbd8ef06d4bd827faa02fc3d7948192f67aed090a19c3860"
+    },
+    "box-union-independent/baseline-result.json": {
+      "bytes": 206,
+      "sha256": "b41731260e5c225d143650dc0f5520dab6dc824cbfa5fabc854e9b59a4e8a8c4"
+    },
+    "box-union-independent/candidate-command.json": {
+      "bytes": 1777,
+      "sha256": "52fa1f1b4d5870bc96222ac0f489f553c8f93f226ecfacd30ed2f771eccb0b44"
+    },
+    "box-union-independent/candidate-complete.txt": {
+      "bytes": 1066,
+      "sha256": "ce9133e78e688ed5222a30c42ff49739bcaf920e8515674c07ae047aba47a6ee"
+    },
+    "box-union-independent/candidate-junit.xml": {
+      "bytes": 4767,
+      "sha256": "79dc4ac66741ed78240be5a2b1ecd78286d2753b64e0b4a0bf99e07458f6b912"
+    },
+    "box-union-independent/candidate-origins.json": {
+      "bytes": 338326,
+      "sha256": "ab53f822ce0c1350a71ba3a494c138fd5e2184ad5760c13e5efffafbe3be8e73"
+    },
+    "box-union-independent/e2-candidate-command.json": {
+      "bytes": 1819,
+      "sha256": "e47d6d7c820e4d61632361f99f325a3b7d0bd0da4754f152b25b96f9a2c49cb5"
+    },
+    "box-union-independent/e2-candidate-complete.txt": {
+      "bytes": 660,
+      "sha256": "ee21d36b0ae764de6ed6be4d4959eaff709af29ca5ec2094947cb565fd91e785"
+    },
+    "box-union-independent/e2-candidate-junit.xml": {
+      "bytes": 4767,
+      "sha256": "8ec4a008554a4c15f9428ccd0aba85a8e44830fdeb27fc8d14c5b885924fa788"
+    },
+    "box-union-independent/e2-candidate-origins.json": {
+      "bytes": 334986,
+      "sha256": "ef934ab5b4e869e1ec0dec13a23180653956b8621dbe1b6f8ae56e9927976bbe"
+    },
+    "box-union-independent/run_source_bound.py.txt": {
+      "bytes": 4469,
+      "sha256": "09698d5ee07987d1b8fc1cf4b979d701b2302f1261e2f3bcae6b39a722dd0fa1"
+    }
+  },
+  "cleanup_candidates": [
+    "/tmp/pareto-box-union-source-6a0ff2143b6244c99e555ec71d5af362",
+    "/dev/shm/pareto-box-union-candidate-5432d399d4ee4181acee4045fa866145",
+    "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc",
+    "/dev/shm/pareto-box-union-e2-7733050f598d4893b9769ec62adb5bab"
+  ]
+}

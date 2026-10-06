@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_default_public_suggestion_consumes_real_seeded_torch_design",
+    "-ra",
+    "--basetemp=/dev/shm/autotune-lazy-green-c283ea68dcbd4411be0ae2e78efbb57a",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lazy-boundary-independent/candidate-junit.xml"
+  ],
+  "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+  "source_head": "c1343a44101eab350c886319bcf511e78aafc37b",
+  "source_tree": "4088ad852918be917bfc6220d0fc150100a072f7",
+  "source_sha256": "37ca650f0938493fac1e61c57a62c4324c7a2ae1f8d6e77c9d92be7cb971b42f",
+  "returncode": 0,
+  "wall_seconds": 12.246926913998323,
+  "fresh_basetemp": "/dev/shm/autotune-lazy-green-c283ea68dcbd4411be0ae2e78efbb57a",
+  "source_unchanged": true,
+  "caps_added": false
+}

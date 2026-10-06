@@ -1,0 +1,113 @@
+{
+  "schema": "policyos.e02.D.owner-dependency-adoption.v1",
+  "unit": "D",
+  "slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "D_before_adoption": "4aaebda7178db19723411ebdaad7af06cfac1851",
+  "owner": "E Scientist DOE",
+  "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "owner_implementation": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+  "owner_implementation_tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+  "owner_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/D-consumer-packet.md",
+  "adopted_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+      "bytes": 14391,
+      "raw_file_sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8",
+      "previous_D_raw_sha256": "f4392a54cf0898e213fa59fb084f55f596462e78842b71fa9bccb67ae20205f5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "bytes": 3949,
+      "raw_file_sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "previous_D_raw_sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+      "bytes": 19279,
+      "raw_file_sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+      "previous_D_raw_sha256": "51c12e1e665184113ae1eafc5ec44e08e306c6265e7fb7f7c939692a47e03171"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "a24805e9abefb4b3826f424c0c6dfd529c2ea338",
+      "bytes": 6384,
+      "raw_file_sha256": "5ceaaa52de62ed0723a522a3b500100c8571409a55d961bad3f3eb0756fba24e",
+      "previous_D_raw_sha256": "90919724445055814ffd862d3f4e2673627cbeaf3adf5771cc9e827ef80f278d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+      "bytes": 3768,
+      "raw_file_sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b",
+      "previous_D_raw_sha256": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "2e36f3eed57f5f20e6221d685b168e0819f148a5",
+      "bytes": 7496,
+      "raw_file_sha256": "def483b2be73f87f912c8d75fb2805ce9d6d0dc5c6447753ba1160775bff3b00",
+      "previous_D_raw_sha256": "ff801a0527c294c140118af549ca5e1d8e539add6057279e68be4b9517911922"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "6ec3567995fac9550343013279d4bf12a269817a",
+      "bytes": 4628,
+      "raw_file_sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631",
+      "previous_D_raw_sha256": "09023227c07f9da03ffb1abc0afe6eba5cc8971f4564a72c5a3957fafdc14a45"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+      "bytes": 3769,
+      "raw_file_sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc",
+      "previous_D_raw_sha256": "72d6bee16e249c4d1c0fdf9661ba42c783da3587005380417f0629a5d67562dd"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+      "bytes": 6731,
+      "raw_file_sha256": "eb2ab3f3a1b72402685bb5d386be57b4f42de5e64a3eeb679d320fc9cc277a28",
+      "previous_D_raw_sha256": "451b18624814af0e459f9940fd7f4ff3fdcfe66d019c68c173773cbbaca1b33b"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "bytes": 12547,
+      "raw_file_sha256": "66a3482c1f54f768287a907f0809e5e061d204de2db80cd4467be840908fdf98",
+      "previous_D_raw_sha256": null
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+      "owner_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+      "bytes": 1211,
+      "raw_file_sha256": "e197a9245b43a638c8350d40ff06ce49fdd5b976f1525588085fcc6d19bb464c",
+      "previous_D_raw_sha256": null
+    }
+  ],
+  "source_review": "Complete eight runtime/documentation diffs read independently by root; E exact source remains canonical producer. No D change to scientific sampling/analyzer formulas.",
+  "actual_D_consumer_check": "UNRUN pending own native ranking/order port and default-runner wiring; dependency adoption is not runtime PASS.",
+  "capability": "Existing SALib producer/receipt/from_artifact reader; no new library/optimizer/GP.",
+  "known_owner_residual": "G53b records mutable SensitivityPlan cap escape at direct E materialization; no claim of blanket DOE budget closure. D consumes immutable readback experiments; producer repair remains E owner action.",
+  "preservation": "Original E commits/branch remain available via Git, no rebase/rewrite. Dependency source lives in product paths, not duplicated into evidence dumps. G remains sole integration publisher.",
+  "D_leases_after_adoption": {
+    "sensitivity_bridge.py": "search_owner, ordinary consumer bridge",
+    "sensitivity_adapter.py": "search_owner, actual exploratory order consumer",
+    "runtime.py": "gp_witness",
+    "doe/designs.py": "baseline_census adversarial threshold only; E sensitivity fields preserved"
+  },
+  "closure_ids": []
+}

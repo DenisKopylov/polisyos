@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-native-response-text-cost-red",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120",
+    "B158",
+    "B159"
+  ],
+  "bundle_ids": [
+    "CTL-03",
+    "FUN-01"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "implementation_commits": [
+    "bd63d1ef98c558774c5849da9a43fc84b45d4db7"
+  ],
+  "candidate_tree_sha": "ae39dd7850e5833004b848225f0e6c4cbb4c7392",
+  "branch": "codex/e02-D-published-funnel",
+  "checks": [
+    {
+      "outcome": "FAIL",
+      "execution_counts": {
+        "tests": 24,
+        "failures": 21,
+        "errors": 0,
+        "skipped": 0
+      },
+      "details": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-text-probe/red-result.json",
+        "sha256": "50a9bda63b88d91ad8057d2175ea0d6cad6426ec50707ed5bdd4ace942c77d92",
+        "bytes": 906
+      },
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-text-probe/red.txt",
+        "sha256": "6a9b73b4166a214cf2f9dbf1ebeed1f6712baff2f68f5360fb2e358f77872926",
+        "bytes": 28308
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-text-probe/red.xml",
+        "sha256": "fa7c0a4c55bf5f30704ac0ecbb4e33ff7b1b57b5ddda72f274a3bdbc46571b07",
+        "bytes": 32426
+      }
+    },
+    {
+      "outcome": "FAIL_property_witness",
+      "details": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-text-probe/zero-settlement-witness.json",
+        "sha256": "6f15430d3857b823fb4f22c0de06940a8535da1c0a1c7d613381cf01167202b0",
+        "bytes": 4578
+      },
+      "deciding": "Actual raw response text cost1e-1000 decoder0.0 -> D enforcer success -> new FileBudgetLedger instance spent.run0.0 and persisted resource event amount0.0. Five actual source origins asserted in this lane."
+    }
+  ],
+  "runtime_path": [
+    "fixture HTTP response.text bytes",
+    "native GatewayLLMClient._post_json",
+    "native _parse_completion_payload",
+    "core extract_llm_response_data",
+    "LLMBudgetEnforcer.generate",
+    "configured BudgetMiddleware",
+    "fresh FileBudgetLedger.snapshot"
+  ],
+  "proxy_divergence": "Dict-only frozen102 tests do not exercise response-text float conversion. A signed nonzero JSON number becomes zero before guards. Genuine JSON0/0.0/1 controls PASS. This is P40 same reported-cost class deeper; B lossless canonical intake is requested, not another dict-only instance guard.",
+  "predicate_basis": "recomputed bounded real decoder/consumer/fresh-reopen witness; external billing authority not_established",
+  "capability_state_or_finding_state": "mechanism_gap; B decoder+cost composition pending; no formal closure",
+  "cleanup_candidates": [
+    "/dev/shm/e02-D-funnel-text-9c492a3a009843d39abcd65ec89e970d",
+    "/dev/shm/e02-D-funnel-text-deciding-cfed76f9e4a643b2b905229f22bab73e"
+  ],
+  "cleanup_policy": "retained; Trash-only; no new permanent deletion",
+  "limitations_and_next_owner": [
+    "Own runtime proof is author evidence, not independent review.",
+    "Proof consumer is historical D1.0 ledger for this exact red; after B schema1.1 composition a companion migrates only ledger projection assertions and preserves original immutable proof/output. B decoder owner can run lossless intake selector independently without D imports.",
+    "B owns Gateway decoder/core cost/cache/budget ledger/middleware/enforcer. D supplies consumer/request/proof only.",
+    "B old cost clamps must not overwrite D979 guards; dependency proposal requests explicit owner merge of cache capability helpers."
+  ]
+}

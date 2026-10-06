@@ -1,0 +1,16 @@
+{
+  "attempts": [
+    "torch",
+    "torch",
+    "hnswlib",
+    "torch",
+    "torch",
+    "torch",
+    "hnswlib",
+    "torch",
+    "torch"
+  ],
+  "loaded_optional_modules": [],
+  "exitstatus": 5,
+  "scope": "controlled installed-runtime denial, not numerical execution or actual uninstalled environment"
+}

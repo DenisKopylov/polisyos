@@ -1,0 +1,212 @@
+{
+  "schema_version": "independent-numerical-review.v1",
+  "scope": "B110/B111 original finite/coordinate acceptance and independent small box geometry; baseline only",
+  "reviewer": "/root/numerical_oracle",
+  "admission_status": "admitted",
+  "source": {
+    "production_base": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+    "preparation_tree": "e063183d3c82809b17c4d3c55de94a3c9edc249c",
+    "test_commit": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+    "test_tree": "0d1e53c83e61cd205f4d2798f8c61fa8a49d14e3",
+    "source_sha256": {
+      "src/polisyos/scientist/methods/autotune/pareto.py": "886225ac0b00025ce25bbda5f4099798175fe647a3d9e6bf02881dcc189f077f",
+      "src/polisyos/scientist/methods/autotune/models.py": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "src/polisyos/core/artifacts/store.py": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+    "test_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947"
+  },
+  "criterion_source": {
+    "integration_pin": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "B110": {
+      "lines": [2925, 2938],
+      "block_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d"
+    },
+    "B111": {
+      "lines": [2939, 2954],
+      "block_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+    }
+  },
+  "independent_expected": {
+    "method": "Fraction inclusion-exclusion over actual lower-reference rectangular boxes; no production indicator, kernel, transform or model.posterior calls",
+    "geometry": {
+      "axis_only": "0 (production8)",
+      "overlap": "16 (production27)",
+      "nonzero_degenerate_subset": "9 (production18)",
+      "flat_all_boxes": "0 (production0)",
+      "affine_mixed_direction_product_units": "1600 (production2700)"
+    },
+    "bounds": "at most three nonreference boxes, dimensions1..3, explicitly declared physical units; synthetic observations do not establish source universe/completeness"
+  },
+  "actual_runtime": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+      "-ra",
+      "--basetemp=/dev/shm/pareto-box-union-96eb-1d9e51342043436fbab67bd425c09be8",
+      "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/box-union-independent/baseline-junit.xml"
+    ],
+    "cwd": "/workspace/e02-D-published-oracle/policy-engine",
+    "environment": {
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "installed_packages": {
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "torch": "2.10.0",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      }
+    },
+    "source_traceback_origins": "Failure tracebacks resolve Pareto/models under this lane src. All imported-module origins were not captured by this baseline harness; no stronger origin claim. Capture complete runtime origins in the corrected-source replay.",
+    "torch_observation": "Transitive Torch import executed (two torch.jit warnings); no direct test import or GP fit. Installed backend versions above are availability metadata, not a backend geometry execution claim.",
+    "caps_added": false,
+    "result": {
+      "returncode": 1,
+      "wall_seconds": 19.380637680995278,
+      "head_after": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+      "source_unchanged": true,
+      "basetemp_exists_after": true,
+      "output_bytes": 20978
+    },
+    "counts": {
+      "executed": 21,
+      "PASS": 11,
+      "FAIL": 10,
+      "ERROR": 0,
+      "UNRUN": 0
+    },
+    "selectors": [
+      {
+        "name": "test_actual_three_dimensional_front_matches_independent_box_union[points0-0]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_actual_three_dimensional_front_matches_independent_box_union[points1-16]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_actual_three_dimensional_front_matches_independent_box_union[points2-0]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_actual_three_dimensional_front_matches_independent_box_union[points3-9]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_mixed_directions_affine_references_preserve_physical_product_units[signs0]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_mixed_directions_affine_references_preserve_physical_product_units[signs1]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_mixed_directions_affine_references_preserve_physical_product_units[signs2]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_existing_lower_dimensional_geometry_retains_exact_value[points0]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_existing_lower_dimensional_geometry_retains_exact_value[points1]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_original_split_tradeoff_and_display_rename_survive_actual_cas_readback",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_same_coordinate_marker_cannot_hide_changed_identity[unit]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_same_coordinate_marker_cannot_hide_changed_identity[direction]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_same_coordinate_marker_cannot_hide_changed_identity[split]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_same_coordinate_marker_cannot_hide_changed_identity[version]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_geometric_oracle_rejects_box_proxy_with_contract_markers_retained",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_empty_input_does_not_publish_computed_zero_volume",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[nan]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[inf]",
+        "verdict": "PASS"
+      },
+      {
+        "name": "test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[True]",
+        "verdict": "FAIL"
+      },
+      {
+        "name": "test_malformed_present_axis_is_omitted_without_crashing_valid_subfront[broken]",
+        "verdict": "FAIL"
+      }
+    ]
+  },
+  "negative_controls": {
+    "geometry": "Replace actual compute_front output indicator with27 while retaining coordinate/schema/assessment/member markers; independent expected16 rejects. This is an output semantic replacement control, not source-level adapter removal.",
+    "coordinate": "same coordinate IDs with changed split/unit/direction or schema version are refused",
+    "intake": "postvalidation mutable BenchmarkEvaluation metric dict: NaN/Inf correctly omitted; hugeint crashes OverflowError, bool admitted as1, nonnumeric string crashes ValueError",
+    "persistence": "Actual FileSystemCAS put/fresh reopen/native load_model_artifact preserves original selection10/holdout1 vs1/10 tradeoff under renamed display labels"
+  },
+  "current_verdict": "FAIL",
+  "next_owner": "search_owner for finite scalar/empty availability/exact geometry; root for original finding-level acceptance",
+  "P37": {
+    "expected_geometry": "recomputed",
+    "runtime_assertions": "recomputed",
+    "original scientific input provenance": "not_established"
+  },
+  "P40": "Exact3D bounding-box proxy and malformed scalar intake are wider instances of existing B111 numerical-quantity/intake classes; original B110 coordinate identity remains separate.",
+  "P41": "No inherited waiver; actual initial production slice base96eb replay remains FAIL.",
+  "limitations": [
+    "No finding closure or served scientific provider authority.",
+    "No fresh GP26 rerun or cross-backend identity claim.",
+    "Missing-backend numerical positives must remain UNRUN; availability profile will be tested separately.",
+    "No permanent cleanup; fresh basetemp retained; this does not claim global preservation.",
+    "Metric definition version beyond existing coordinate-schema version is not supplied by current PromotionPolicy; owner must explicitly disposition original version requirement."
+  ],
+  "proof_files": {
+    "baseline-command.json": {
+      "bytes": 1321,
+      "sha256": "e2a72be10cf620819179fef6f26f0cfa84b526e88c3757af3fa9635b8be09a9e"
+    },
+    "baseline-complete.txt": {
+      "bytes": 20978,
+      "sha256": "71bc36babef80a037909f2f503eced6981974b0bee407b90125d14d5f3ad389f"
+    },
+    "baseline-junit.xml": {
+      "bytes": 23346,
+      "sha256": "22017ce0290ba997bbd8ef06d4bd827faa02fc3d7948192f67aed090a19c3860"
+    },
+    "baseline-result.json": {
+      "bytes": 206,
+      "sha256": "b41731260e5c225d143650dc0f5520dab6dc824cbfa5fabc854e9b59a4e8a8c4"
+    }
+  },
+  "cleanup_candidates": [
+    "/dev/shm/pareto-box-union-96eb-1d9e51342043436fbab67bd425c09be8"
+  ]
+}

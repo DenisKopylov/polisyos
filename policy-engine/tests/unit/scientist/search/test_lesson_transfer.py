@@ -86,18 +86,21 @@ def test_query_with_transfer_reapplies_source_trust_and_confidence_filters(tmp_p
     registry.record_local(weak, context=source)
     registry.record_local(strong, context=source)
 
-    assert registry.query(
-        LessonQuery(
-            task_family="policy",
-            domain="fiscal",
-            tenant_hash="tenant-a",
-            source_run_id="run-source",
-            tags=["weak"],
-            trust_levels=[LessonTrustLevel.LOCAL],
-            min_confidence=0.8,
-            limit=3,
+    assert (
+        registry.query(
+            LessonQuery(
+                task_family="policy",
+                domain="fiscal",
+                tenant_hash="tenant-a",
+                source_run_id="run-source",
+                tags=["weak"],
+                trust_levels=[LessonTrustLevel.LOCAL],
+                min_confidence=0.8,
+                limit=3,
+            )
         )
-    ) == []
+        == []
+    )
     local_strong = registry.query(
         LessonQuery(
             task_family="policy",
@@ -111,17 +114,20 @@ def test_query_with_transfer_reapplies_source_trust_and_confidence_filters(tmp_p
         )
     )
     assert len(local_strong) == 1
-    assert registry.query(
-        LessonQuery(
-            task_family="policy",
-            domain="fiscal",
-            tenant_hash="tenant-a",
-            source_run_id="run-other",
-            tags=["strong"],
-            min_confidence=0.8,
-            limit=3,
+    assert (
+        registry.query(
+            LessonQuery(
+                task_family="policy",
+                domain="fiscal",
+                tenant_hash="tenant-a",
+                source_run_id="run-other",
+                tags=["strong"],
+                min_confidence=0.8,
+                limit=3,
+            )
         )
-    ) == []
+        == []
+    )
 
     transfer_cases = (
         (
@@ -159,15 +165,18 @@ def test_query_with_transfer_reapplies_source_trust_and_confidence_filters(tmp_p
     )
 
     for query, domain in transfer_cases:
-        assert registry.query_with_transfer(
-            query,
-            target_context=TransferContext(
-                task_family="policy",
-                domain=domain,
-                run_id="loop-target",
-                tenant_hash="tenant-a",
-            ),
-        ) == []
+        assert (
+            registry.query_with_transfer(
+                query,
+                target_context=TransferContext(
+                    task_family="policy",
+                    domain=domain,
+                    run_id="loop-target",
+                    tenant_hash="tenant-a",
+                ),
+            )
+            == []
+        )
 
 
 def test_query_with_transfer_materializes_cross_domain_same_tenant(tmp_path) -> None:
@@ -178,14 +187,13 @@ def test_query_with_transfer_materializes_cross_domain_same_tenant(tmp_path) -> 
         run_id="loop-source",
         tenant_hash="tenant-a",
     )
+    registry.record_local(_card(), context=source)
     target = TransferContext(
         task_family="policy",
         domain="labor",
         run_id="loop-target",
         tenant_hash="tenant-a",
     )
-    registry.record_local(_card(), context=source)
-
     results = registry.query_with_transfer(
         LessonQuery(
             stage_name="funnel_L1_heuristic",

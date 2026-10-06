@@ -1,0 +1,34 @@
+{
+  "schema": "policyos.e02.named-owner-input-request.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+  "requests": [
+    {
+      "id": "D-TRN02-B-CAS-minimum-dependency",
+      "status": "received exact source and native consumer executed",
+      "owner": "B CAS source owner / root integrator",
+      "source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "receipt_sha": "01129503d3cbfd6d77ef5dab85ac08e5c2e4a644",
+      "consumer_proof": "transfer-vector-second-process.json",
+      "authority": "Technical immutable CAS bytes/manifest only; no tenant/split or scientific truth appointment."
+    },
+    {
+      "id": "D-TRN-B131-scientific-origin",
+      "status": "absent/unallocated institutional input",
+      "owner": "Scientific history/split/benchmark/evaluator/data owner appointed by G",
+      "existing_input": "Existing NumericTransferBasis numeric_transfer_basis.v1 with exact CAS refs for data/model/evaluator/split/scalarizer/owner, metric identity/unit/direction/raw physical bounds and actual original candidate/BenchmarkEvaluation artifacts; authenticated decision that caller may reuse the measured source in the target context.",
+      "required_consumer": "Ordinary configured existing manager/bridge -> original refs/content validation -> actual target GP training. New data vintage requires actual owner re-evaluation or supported adapter, never invented historical scores.",
+      "do_not_infer": "Fixture owner_ref and normalized/scalar fields establish declared technical identity only, not authority or empirical history equivalence."
+    },
+    {
+      "id": "D-TRN-B137-evidence-freshness",
+      "status": "absent/unallocated authorized event input",
+      "owner": "Lesson lifecycle / authorized revalidation-event issuer, appointment by G",
+      "existing_input": "New actual LessonCard occurrence/version with exact failure_card_refs/trace_refs, authenticated producer time, new grounds and authorization; explicit caller as-of from execution owner.",
+      "required_consumer": "Persist actual supplied evidence -> restart -> shared local/transfer admission, genuine later revalidation creates new version; ordinary retention access never changes evidence.",
+      "do_not_infer": "This slice does not mint freshness, backdate evidence or appoint a clock/issuer."
+    }
+  ],
+  "ordinary_activation": "SearchConfig transfer_manager+explicit transfer_fingerprint/controller owner gp_witness5bd73d8d61f652e8628528bb9b49ef49c8e03a2a, receiving BGC source search_owner; root selects combined candidate, this topic does not claim fresh composed default workflow yet."
+}

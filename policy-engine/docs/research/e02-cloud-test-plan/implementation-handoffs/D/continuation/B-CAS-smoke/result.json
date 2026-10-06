@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/workspace/e02-D-continuation-receipts/B-CAS-fixtures-1c4cb59be6dd4508b99e52579877299d",
+    "--junitxml",
+    "/workspace/e02-D-continuation-receipts/raw/B-CAS-smoke-1c4cb59be6dd4508b99e52579877299d/junit.xml"
+  ],
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "source_sha": "72235911a7a48cd0c0cf401c2b055a8d31907c2f",
+  "source_tree": "6dd300a6b33b31a4b24ba231af4e0fb60065b81e",
+  "backend": "real FileSystemCAS / POSIX / separate native snapshot worker processes",
+  "python": "locked3.14.7",
+  "exit_code": 0,
+  "wall_s": 3.541614383007982,
+  "rss_kib": 106844,
+  "stdout": "/workspace/e02-D-continuation-receipts/raw/B-CAS-smoke-1c4cb59be6dd4508b99e52579877299d/stdout.txt",
+  "junit": "/workspace/e02-D-continuation-receipts/raw/B-CAS-smoke-1c4cb59be6dd4508b99e52579877299d/junit.xml",
+  "basetemp": "/workspace/e02-D-continuation-receipts/B-CAS-fixtures-1c4cb59be6dd4508b99e52579877299d"
+}

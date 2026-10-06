@@ -1,0 +1,11 @@
+id = "2026-10-06-doe-block-replay"
+title = "Reconcile complete Saltelli blocks and verify native interaction indices"
+type = "fixed"
+component = "scientist-doe"
+owner = "team-polisyos"
+summary = "Admit complete paired Saltelli block permutations while binding their actual ordered content; verify native Sobol interaction against independent ANOVA truth."
+evidence = ["tests/unit/scientist/methods/doe/test_analysis_enhanced.py", "tests/unit/scientist/methods/doe/test_analysis_receipt.py"]
+compatibility = "Canonical seeded receipts retain their existing schema and numerical replay. Complete paired block permutations are newly admitted; changed interior roles or block membership still refuse."
+surface_classification = "internal: polisyos.scientist.methods.doe and sensitivity-aware search"
+migration = "Permute whole Saltelli blocks together with paired outputs and recompute the receipt; order changes create new design and analysis identities. Scientist DoE owner E maintains this boundary; default Search wiring belongs to D."
+limitations = "Native numerical replay authenticates the experiment and computed indices, not evaluator/population provenance, default Search invocation, or causal authority."

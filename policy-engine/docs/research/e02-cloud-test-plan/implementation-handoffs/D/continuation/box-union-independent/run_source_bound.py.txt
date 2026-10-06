@@ -1,0 +1,73 @@
+"""Run the unchanged geometric oracle on an exact Git source archive."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+import uuid
+
+
+def main() -> None:
+    lane = Path("/workspace/e02-D-published-oracle")
+    source = sys.argv[1]
+    out = lane / "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/box-union-independent"
+    scratch = Path("/tmp") / ("pareto-box-union-source-" + uuid.uuid4().hex)
+    scratch.mkdir()
+    paths = ["policy-engine/src", "policy-engine/tools", "policy-engine/architecture", "policy-engine/pyproject.toml", "policy-engine/tests/conftest.py", "policy-engine/tests/_helpers", "policy-engine/tests/quarantine.toml", "policy-engine/tests/unit/scientist/conftest.py"]
+    archive = subprocess.Popen(["git", "archive", source, *paths], cwd=lane, stdout=subprocess.PIPE)
+    assert archive.stdout is not None
+    unpack = subprocess.run(["tar", "-x", "-C", str(scratch)], stdin=archive.stdout, check=False)
+    archive.stdout.close()
+    if archive.wait() or unpack.returncode:
+        raise RuntimeError("exact Git archive preparation failed")
+    product = scratch / "policy-engine"
+    test_path = "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py"
+    test = subprocess.check_output(["git", "show", "a1a833f2fbae50338c3ffd988d6af766451d43a8:" + test_path], cwd=lane)
+    destination = scratch / test_path
+    destination.parent.mkdir(parents=True)
+    destination.write_bytes(test)
+    plugin = product / "source_binding_probe.py"
+    plugin.write_text('''import hashlib,json,pathlib,subprocess,sys
+def pytest_sessionfinish(session,exitstatus):
+    product=pathlib.Path.cwd()
+    rows=[]
+    errors=[]
+    for name,module in sorted(sys.modules.copy().items()):
+        path=getattr(module,"__file__",None)
+        if not name.startswith("polisyos") or path is None:
+            continue
+        path=pathlib.Path(path)
+        try:
+            relative=path.relative_to(product).as_posix()
+            expected=subprocess.check_output(["git","show",SOURCE+":policy-engine/"+relative],cwd=LANE)
+            actual=path.read_bytes()
+            row={"module":name,"origin":str(path),"path":relative,"sha256":hashlib.sha256(actual).hexdigest(),"matches_exact_source":actual==expected}
+            rows.append(row)
+            if actual!=expected: errors.append(name)
+        except Exception as exc:
+            errors.append(name+":"+str(exc))
+    backend={name:getattr(sys.modules.get(name),"__version__",None) for name in ("torch","botorch","gpytorch")}
+    pathlib.Path(OUT).write_text(json.dumps({"source":SOURCE,"loaded_origins":rows,"errors":errors,"loaded_backend_versions":backend},indent=2)+"\\n")
+    if errors: session.exitstatus=1
+'''.replace("SOURCE", repr(source)).replace("LANE", repr(str(lane))).replace("OUT", repr(str(out / "candidate-origins.json"))))
+    temporary = "/dev/shm/pareto-box-union-candidate-" + uuid.uuid4().hex
+    assert not Path(temporary).exists()
+    command = ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "-q", test_path.removeprefix("policy-engine/"), "-p", "source_binding_probe", "-ra", "--basetemp=" + temporary, "--junitxml=" + str(out / "candidate-junit.xml")]
+    environment = os.environ.copy()
+    environment.update({"PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1"})
+    started = time.monotonic()
+    with (out / "candidate-complete.txt").open("w") as log:
+        child = subprocess.run(command, cwd=product, env=environment, stdout=log, stderr=subprocess.STDOUT, check=False)
+    result = {"source": source, "tree": subprocess.check_output(["git", "rev-parse", source + "^{tree}"], cwd=lane, text=True).strip(), "test_commit": "a1a833f2fbae50338c3ffd988d6af766451d43a8", "test_sha256": hashlib.sha256(test).hexdigest(), "argv": command, "cwd": str(product), "returncode": child.returncode, "wall_seconds": time.monotonic() - started, "scratch": str(scratch), "fresh_basetemp": temporary, "caps_added": False, "input_scope": paths, "omitted_inputs": "Other tests/docs/fixtures/data are omitted, not claimed tested; an actual missing-input failure would remain ERROR/UNRUN."}
+    (out / "candidate-command.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps(result))
+    print((out / "candidate-complete.txt").read_text()[-4000:])
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,12 @@
+{
+  "scope": "exact one new structured fragment and its referenced documentation; not full repository compatibility gate",
+  "source": "a70fa4d866ced24c2fac546bd684af9c5cfd61a1",
+  "source_tree": "cc6a0517bcd02dbbd3332757be84786fdedee969",
+  "invocation": "canonical _validate_fragments(repo_root, tracked policy, [exact own fragment], breaking_classes=(runtime-state-format,persisted-artifact-format))",
+  "fragment_sha256": "b7ca575f7dcb5474657721d13a7044ec99734558a31300401569d1bed3af7bb7",
+  "policy_sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3",
+  "errors": [],
+  "findings": [],
+  "status": "PASS",
+  "actual_backend_replay": false
+}

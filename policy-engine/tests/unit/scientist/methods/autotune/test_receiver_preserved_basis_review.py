@@ -11,7 +11,6 @@ from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
-from botorch.models import SingleTaskGP
 
 from polisyos.core import artifacts, canon
 from polisyos.scientist.methods.autotune.bayesian_generator import (
@@ -38,6 +37,14 @@ from polisyos.scientist.methods.autotune.models import (
 from polisyos.scientist.methods.autotune.registry import ChampionRegistry
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
 from tests.unit.scientist.methods.search.strategies.test_transfer import measured_history
+
+pytest.importorskip("torch", reason="UNRUN: native receiver review requires Torch")
+pytest.importorskip("gpytorch", reason="UNRUN: native receiver review requires GPyTorch")
+SingleTaskGP = pytest.importorskip(
+    "botorch.models", reason="UNRUN: native receiver review requires BoTorch"
+).SingleTaskGP
+pytest.importorskip("hnswlib", reason="UNRUN: native receiver review requires HNSW")
+pytestmark = pytest.mark.integration
 
 
 class ReviewMutation(MutationArtifact):

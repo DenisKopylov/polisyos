@@ -9,8 +9,6 @@ from __future__ import annotations
 from dataclasses import replace
 
 import pytest
-import torch
-from botorch.models import SingleTaskGP
 
 from polisyos.core import artifacts, canon
 from polisyos.scientist.methods.autotune.bayesian_generator import (
@@ -35,6 +33,14 @@ from tests.unit.scientist.methods.search.strategies.test_transfer import (
     changed_history,
     measured_history,
 )
+
+torch = pytest.importorskip("torch", reason="UNRUN: native transfer workflow requires Torch")
+pytest.importorskip("gpytorch", reason="UNRUN: native transfer workflow requires GPyTorch")
+SingleTaskGP = pytest.importorskip(
+    "botorch.models", reason="UNRUN: native transfer workflow requires BoTorch"
+).SingleTaskGP
+pytest.importorskip("hnswlib", reason="UNRUN: native transfer workflow requires HNSW")
+pytestmark = pytest.mark.integration
 
 
 class AnalyticMutation(MutationArtifact):

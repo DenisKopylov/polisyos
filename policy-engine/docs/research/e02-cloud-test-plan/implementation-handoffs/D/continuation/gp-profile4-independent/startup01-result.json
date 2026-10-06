@@ -1,0 +1,13 @@
+{
+  "status": "UNRUN startup",
+  "source": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+  "exit_code": 1,
+  "pytest_started": false,
+  "backend_result": null,
+  "error": "FileNotFoundError prior /tmp/gp-profile4-d38-dbf251fa9a6b4eaa897ba6afa15fa510/policy-engine/reference_source_binding_probe.py; preparation script replacement altered the referenced immutable prior path.",
+  "failed_helper": "run_gp_successor-startup01.py.txt",
+  "cleanup_candidates": [
+    "/tmp/gp-profile4-d38-85b0bef50b0b44ebbb121540c2c45b2a"
+  ],
+  "data_deleted": false
+}

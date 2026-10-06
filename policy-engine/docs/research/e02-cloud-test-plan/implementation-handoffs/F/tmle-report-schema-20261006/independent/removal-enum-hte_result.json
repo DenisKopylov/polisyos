@@ -1,0 +1,32 @@
+{
+  "name": "removal-enum-hte_result",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+    "enum",
+    "hte_result"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+  "base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "resource_quota_added": false
+  },
+  "exit_code": 1,
+  "wall_seconds": 10.7925206660002,
+  "outputs": {
+    "stdout": {
+      "path": "removal-enum-hte_result.stdout.txt",
+      "bytes": 6347,
+      "sha256": "75f621b9c58deaff06a13c4f57976d3bd2cf0c79ca1d229b1e18e9a5d542e3df"
+    },
+    "stderr": {
+      "path": "removal-enum-hte_result.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

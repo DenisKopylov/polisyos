@@ -2101,6 +2101,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `forest_dr` |
 | `causal_bcf` |
 | `double_ml` |
+| `tmle` |
 | `s_learner` |
 | `t_learner` |
 | `x_learner` |

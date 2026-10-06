@@ -1,0 +1,208 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "canon-writer-strangle-c2",
+  "closure_ids": [],
+  "bundle_ids": ["CAN-01"],
+  "criterion_ids": ["LA-021"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": ["3b2ce9d6b8e37941a1061fa40fdc054cd3acb344"],
+  "candidate_tree_sha": "37e4c01a4f3e6a44f6fde82baaab175130ff10ae",
+  "branch": "codex/e02-C-canon-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+    "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+    "policy-engine/src/polisyos/ir/analytics/ncm.py",
+    "policy-engine/src/polisyos/ir/artifacts/README.md",
+    "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+  ],
+  "pattern_pass": {
+    "ids": ["P27", "P28", "P31", "P35", "P38", "P40"],
+    "observed_class": "Same existing Core/IR canonical-profile split at the raw-byte writer seam; this candidate centralizes IR-profile serialization and records the remaining direct Core writer divergence.",
+    "target_pattern": "One IR canonical byte writer for all IR JSON helper, adapter, selected-view, and identified paired entity-resolution write paths; enumerate the complete tracked Python source denominator and retain a live direct-Core negative control.",
+    "remaining_state": [
+      "The Core-owned public put_json writer still persists Core-profile float_hex bytes that the IR reader rejects; full raw-Core-to-IR strangle is not established.",
+      "Core put_bytes formally accepts ArtifactWriteOptions; the C writer passes structurally compatible IR StorePutOptions to raw Core backends, and the Core owner contract has not ratified that cross-seam type/profile contract.",
+      "Global runtime caller resolution, non-FileSystemCAS backends, and SAE persist_artifacts=true execution remain outside this candidate evidence."
+    ],
+    "capability_labels": ["verification_missing", "surface_out_of_scope"],
+    "acceptance_signal": "Exact IR bytes are persisted and read by the production IR consumer; IR-incompatible tags fail before persistence through the IR writer; the direct Core writer divergence and owner contract remain explicit."
+  },
+  "property": {
+    "statement": "Every IR-profile JSON writer path in this candidate serializes once with the IR profile and sends those exact bytes to the CAS byte-write boundary; unsupported typed tags reject before a profile-bound IR artifact is persisted.",
+    "actual_code": "put_json_artifact -> _put_json_artifact_ref -> _put_canonical_json_bytes; CoreToIRArtifactStoreAdapter.put_json and NCM selected-view writes call the same byte writer; entity-resolution candidate and override writes now use the same helper while preserving their exact ArtifactRef and explicit float-enabled profile.",
+    "property_code_divergence_p38": {
+      "property": "An IR-consumed artifact is written with IR's accepted typed-tag profile, and a rejected payload cannot become an IR artifact.",
+      "implementation_tests": "The centralized writer enforces that property for the listed C-owned IR paths and rejects a JSON-only legacy store without falling back to put_json.",
+      "divergent_case": "A caller can still invoke Core FileSystemCAS.put_json directly with a Core-only float_hex tag; the Core method persists one object, and get_json_artifact raises CanonViolation Unknown canonical _type: 'float_hex'.",
+      "bounded_verdict": "The profile-bound IR path is structurally centralized, but direct Core-to-IR writer use remains a live escape. Do not claim full strangle or LA-021 closure; the escape needs B-owned contract/admission work or a proved complete producer migration."
+    },
+    "predicate_basis": "recomputed",
+    "runtime_path": [
+      "polisyos.ir.artifacts.io.put_json_artifact",
+      "polisyos.ir.artifacts.io._put_canonical_json_bytes",
+      "Core ArtifactStore.put_bytes (raw bytes persisted as CAS content)",
+      "polisyos.ir.artifacts.io.get_json_artifact"
+    ],
+    "profile_and_identity": {
+      "canon_info": "polisyos.canon.json@0.2.0",
+      "default_forbid_floats": true,
+      "explicit_float_enabled_bytes": "{\"score\":{\"_type\":\"float\",\"repr\":\"0.25\"}}",
+      "schema_migration": false,
+      "historical_id_rewrite_or_backfill": false,
+      "default_profile_widening": false
+    }
+  },
+  "writer_and_caller_census": {
+    "source_tree_sha": "37e4c01a4f3e6a44f6fde82baaab175130ff10ae",
+    "path_denominator": "All tracked policy-engine/src/polisyos/**/*.py files in the implementation source tree.",
+    "file_type_denominator": "2,698 tracked product-source Python files; 0 AST parse errors.",
+    "inventory_method": "Walk git ls-files for the complete source root; parse each tracked .py with ast.parse; inventory Call nodes by exact IR helper callee and direct Attribute method syntax. The full callsite/file arrays are preserved in the ignored raw census receipt.",
+    "raw_census": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-census.json",
+      "sha256": "60246c070e3b4a968dbf16d87f8fbfe0940dc5c3a1f42fc6c4860f079d6f9e1a",
+      "bytes": 62425
+    },
+    "ir_api_calls": {
+      "put_json_artifact": {"calls": 131, "modules": 77},
+      "get_json_artifact": {"calls": 133, "modules": 72},
+      "ensure_ir_artifact_store": {"calls": 4, "modules": 3},
+      "_put_json_artifact_ref": {"calls": 3, "modules": 2},
+      "_put_canonical_json_bytes": {"calls": 3, "modules": 3}
+    },
+    "tracked_product_source_direct_attribute_syntax": {
+      "put_json": {"calls": 356, "modules": 179},
+      "put_bytes": {"calls": 99, "modules": 55},
+      "warning": "These are lexical callsite totals across all product source, not owner-resolved Core calls. They include implementation/protocol callers and do not by themselves classify a payload as IR-profile data."
+    },
+    "ir_subtree_writer_shape": {
+      "direct_attribute_put_json_calls": 0,
+      "direct_attribute_put_bytes_calls": 0,
+      "dynamically_bound_put_bytes_calls": ["policy-engine/src/polisyos/ir/artifacts/io.py:86"]
+    },
+    "paired_or_production_paths": [
+      {
+        "writer": "policy-engine/src/polisyos/ir/analytics/ncm.py:persist_ncm_spec_selected_view",
+        "reader": "policy-engine/src/polisyos/ir/analytics/ncm.py:load_ncm_spec_selected_view",
+        "preserved_contract": "selected InputRef values, selected manifest view/ref, explicit forbid_floats=False profile"
+      },
+      {
+        "writer": "policy-engine/src/polisyos/fabric/entity_resolution/store.py:EntityMatchStore.persist_candidates",
+        "reader": "policy-engine/src/polisyos/fabric/entity_resolution/store.py:EntityMatchStore.load_candidates",
+        "preserved_contract": "candidate schema/kind, exact backend ArtifactRef, explicit forbid_floats=False profile"
+      },
+      {
+        "writer": "policy-engine/src/polisyos/fabric/entity_resolution/store.py:EntityMatchStore.persist_override",
+        "reader": "policy-engine/src/polisyos/fabric/entity_resolution/store.py:EntityMatchStore.load_override_history",
+        "preserved_contract": "override schema/kind, exact backend ArtifactRef, explicit forbid_floats=False profile"
+      },
+      {
+        "writer": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:703,737",
+        "reader": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:214,217 and forecast_owner.py",
+        "preserved_contract": "existing Core-to-IR adapter route; selected backtest consumer tests pass"
+      },
+      {
+        "writer": "policy-engine/src/polisyos/scientist/validation/metrics.py:120",
+        "reader": "policy-engine/src/polisyos/scientist/validation/metrics.py:138",
+        "preserved_contract": "metric report producer/readback consumer test passes"
+      },
+      {
+        "writer": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:2085,2107,2132",
+        "reader": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:2097,2122,2147",
+        "preserved_contract": "IC report/certificate producer/readback consumer tests pass"
+      }
+    ],
+    "scope_limit": "Static lexical census is not a resolved dynamic call graph. All syntactic helper callsites and direct .put_json/.put_bytes attribute calls are enumerated in the raw file, but raw Core ownership and cross-module artifact-kind dataflow are not inferred from imports or symbol names."
+  },
+  "checks": [
+    {
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -o 'addopts=--import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks' -q -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_ir_adapter.py policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py policy-engine/tests/unit/fabric/test_entity_resolution.py policy-engine/tests/unit/remediation/test_can_01.py policy-engine/tests/unit/ir/test_canon_hardening.py policy-engine/tests/unit/ir/test_canon_hash_parity.py policy-engine/tests/unit/ir/analytics/test_ncm.py policy-engine/tests/unit/ir/analytics/test_metric_validation_report.py policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py::test_backtesting_orchestrator_naive_mode policy-engine/tests/unit/scientist/governance/test_ic_verification.py policy-engine/tests/unit/scientist/validation/test_metric_validation_metrics.py policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_metric_validation.py policy-engine/tests/unit/scientist/nodes/builtins/decide/test_build_decision_packet_metric_validation.py",
+      "target_sha": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+      "environment": "macOS; original policy-engine .venv Python 3.14; worktree source via PYTHONPATH",
+      "input_closure": "Temporary FileSystemCAS fixtures; IR helper writes/readers, adapter, entity resolution, NCM selected-view, CAN-01 canon, backtest, metric and IC consumers; no production dataset or shared DB.",
+      "outcome": "PASS",
+      "output": "96 passed, 1 warning in 44.47s; pytest warning: Unknown config option: cache_dir. Exit 0."
+    },
+    {
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/src/polisyos/fabric/entity_resolution/store.py policy-engine/src/polisyos/ir/analytics/ncm.py policy-engine/src/polisyos/ir/artifacts/contracts.py policy-engine/src/polisyos/ir/artifacts/io.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py && /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/src/polisyos/fabric/entity_resolution/store.py policy-engine/src/polisyos/ir/analytics/ncm.py policy-engine/src/polisyos/ir/artifacts/contracts.py policy-engine/src/polisyos/ir/artifacts/io.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "target_sha": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+      "outcome": "PASS",
+      "output": "All checks passed! 6 files already formatted."
+    },
+    {
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "command": "git diff --cached --check (before implementation commit)",
+      "target_sha": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+      "outcome": "PASS",
+      "output": "No whitespace errors."
+    },
+    {
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-runtime-controls.py",
+      "target_sha": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+      "environment": "macOS; original policy-engine .venv Python 3.14; isolated TemporaryDirectory CAS roots",
+      "outcome": "PASS_WITH_BYPASS_REPRODUCED",
+      "raw_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-runtime-controls.json",
+        "sha256": "85e2e6edb9032564c5c6d372dcfefc95c341e4bb0211f9505377542180dfc6b7",
+        "bytes": 1206
+      },
+      "replay_script": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-runtime-controls.py",
+        "sha256": "fd89022b2a5d853b748f1f51fe31fdfb7751d38852231f4acc8ff85a8ae20b28"
+      }
+    },
+    {
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/policy-engine",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-production-invocation.json",
+      "target_sha": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+      "environment": "macOS; original policy-engine .venv Python 3.14; full tracked-source static invocation audit",
+      "coverage": "static_only",
+      "runtime_invocation_established": false,
+      "outcome": "UNRESOLVED",
+      "exit": 3,
+      "summary": "coverage=partial; regressions=[]; new_unresolved_by_construction=[polisyos.core.artifacts.ir_adapter.CoreToIRArtifactStoreAdapter.put_bytes, polisyos.core.artifacts.ir_adapter.CoreToIRArtifactStoreAdapter.put_json, polisyos.ir.analytics.ncm.persist_ncm_spec_selected_view]; unresolved_by_construction_count=9192; unresolved_receiver_call_count=139722; runtime_invocation_established=false.",
+      "denominator": "5,904 tracked src/tools/tests Python files in both base and current trees; 2,698 tracked product source files; baseline source-set SHA-256 a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5; current source-set SHA-256 9f10a023ac5d8d810a60adbeedd94f4b17e2cd88d8e297e872ea35eba7adcac1.",
+      "full_output": {
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-production-invocation.json",
+        "receipt_sha256": "13700347fc7d666680582429ea57d18af5a7193a3a8719b85eecb12291511deb",
+        "receipt_bytes": 170884482,
+        "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-production-invocation.stdout",
+        "stdout_sha256": "2c99b57c58a1382bc64a6919546b68ac70912988efcdc58e8f01e310fe4899d0",
+        "stderr_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/canon-writer-production-invocation.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "Static-only diagnostic; tests and the real temporary-CAS probe are separate runtime evidence. Static direct-call analysis does not resolve HTTP dispatch, DI, callback execution, or runtime/persisted business receipts; the three newly changed public methods are reported as unresolved_by_construction rather than deferred or considered inherited."
+    },
+    {
+      "command": "git commit -m 'Route IR JSON writes through canonical byte seam' (ordinary shared hook dispatcher)",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "UNRUN_TOOLING_NONRECEIPT",
+      "exit": 1,
+      "stderr": "PolicyOS hook: missing binary: /Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.\n",
+      "classification": "No Node install/build was authorized. The actual hook suite did not execute. Implementation commit followed the explicit local no-hook commit authorization after Python, Ruff, and diff checks; shared hook configuration was not changed."
+    }
+  ],
+  "owner_contract_proposal": {
+    "owner": "B / Core artifact-store owner",
+    "status": "owner_contract_not_ratified",
+    "current_formal_contract": "policy-engine/src/polisyos/core/artifacts/protocol.py::ArtifactStore.put_bytes(data: bytes, opts: ArtifactWriteOptions)",
+    "current_candidate_call": "C serializes under IR CanonSpec then passes IR StorePutOptions to raw Core put_bytes; StorePutOptions now supplies Core lifecycle companion fields, and FileSystemCAS runtime manifest/readback tests pass, but this structural cross-type use is not a Core-approved public typing contract.",
+    "requested_supplier_contract": "Core must ratify one typed CAS byte-write seam for caller-owned canonical bytes: specify the accepted options type and all manifest lifecycle fields (kind/media_type/schema/producer/env/inputs/canon/governance/tenant_context/same_input_closure/authority/warnings), guarantee the exact supplied bytes are the hashed and stored content without a second serializer pass, preserve existing ArtifactRef/CAS identity and lifecycle semantics, and define the profile admission/read policy for IR-consumed objects. The owner must decide whether the existing same-name/version CanonInfo is sufficient for profile distinction or what explicit discriminator is required; C does not assume a new schema/version or broaden the IR decoder.",
+    "raw_core_escape": "Current direct Core put_json accepts Core-only float_hex and shares CanonInfo name/version with IR's profile, so bytes alone are rejected only when an IR reader later decodes them. A complete class-level strangle needs the Core owner to define/enforce the direct Core-to-IR write/admission boundary or establish a complete producer migration; the present C-owned central writer cannot intercept arbitrary direct calls to Core put_json."
+  },
+  "limitations_and_next_owner": [
+    "No finding IDs closed. CAN-01 LA-021 remains not adjudicated at this current slice; the historical bounded corpus row and G97 bounded adapter acceptance are preserved as separate evidence, not extended to complete writer scope.",
+    "This candidate centralizes all 131 syntactic put_json_artifact calls by their shared helper, routes both identified same-module raw Core entity-resolution writers and the NCM selected-view byte writer through one canonical byte writer, and adds rejection controls. It does not prove that every cross-module direct Core put_json producer is non-IR or unreachable by IR readers.",
+    "The direct Core writer adversarial control is deliberately red at the class boundary: one incompatible artifact persists; paired IR read rejects it. This is a residual bypass, not a successful full strangle.",
+    "The Core byte-write type/profile supplier contract above is needed from B before presenting raw Core store acceptance as a ratified cross-package contract. Do not edit B-owned core/artifacts/store.py or Core lifecycle/protocol without a new owner lease.",
+    "The SAE bundle route did not execute the inline persist_artifacts=true branch in the prior G97 receipt because bootstrap catalog input was absent; persist_artifacts=false does not enter the adapter branch. This remains UNRUN.",
+    "No external/API/dashboard surface or schema identity changed; external surface is surface_out_of_scope. A custom IR ArtifactStore without put_bytes now fails closed with TypeError and receives no JSON fallback."
+  ]
+}

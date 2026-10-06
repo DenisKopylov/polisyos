@@ -85,8 +85,8 @@ def test_real_worker_job_cas_fresh_python314_reader(tmp_path, selected_worker):
     assert payload["envelope"]["confidence_level"] == 0.95
     evidence = from_canonical_bytes(store.get_bytes(result.method_evidence_ref))
     assert evidence["may_not_use_for"] == ["governance_admissibility", "method_validity"]
-    assert source.artifact_id in {
-        ref.artifact_id for ref in store.get_manifest(result.method_result_ref).inputs
+    assert str(source.artifact_id) in {
+        str(ref.artifact_id) for ref in store.get_manifest(result.method_result_ref).inputs
     }
     reader = """
 import hashlib,json,sys

@@ -2232,5 +2232,115 @@
       "outcome": "Excluded source-harness drafts; deciding immutable53matched driver uses same frozen accepted inputs and all full outputs."
     }
   ],
-  "LA_denominator_qualification": "Authoritative complete root Git treea625=6444Python parsed6444. Preliminary6442 came product-cwd git ls-tree without --full-tree and excluded2repo-root Python files; not an alternative historical census. Final source common identicala625; no claim of complete post-receipt tree census."
+  "LA_denominator_qualification": "Authoritative complete root Git treea625=6444Python parsed6444. Preliminary6442 came product-cwd git ls-tree without --full-tree and excluded2repo-root Python files; not an alternative historical census. Final source common identicala625; no claim of complete post-receipt tree census.",
+  "environment_qualification": {
+    "scope": "final_snapshot_custody",
+    "environment_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/environment.json",
+      "sha256": "e26ea933480c298fcbe03933cb830c93a3a4ace904af3e3f2d4592205768f314",
+      "bytes": 17541
+    },
+    "snapshot_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+    "statement": "environment.json tracked_input_refs and source_tree_scope attest the final e187 tracked-source/test/config custody census. They are not the executed historical source/test inputs of every check and do not retrospectively attest historical installed-distribution provenance. Each check target_sha, input_closure, execution_identity/overlay receipt, and original full stdout/XML defines its own executed source/input origin. The system/distribution census was observed at the final snapshot; historical versions are established only where the corresponding captured command output records them.",
+    "historical_check_origin_pointers": [
+      {
+        "check_pointer": "/checks/0",
+        "target_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+        "input_origin_pointer": "/checks/0/input_closure",
+        "execution_identity_pointer": "/checks/0/execution_identity",
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/1",
+        "target_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+        "input_origin_pointer": "/checks/1/input_closure",
+        "execution_identity_pointer": "/checks/1/execution_identity",
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/2",
+        "target_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+        "input_origin_pointer": "/checks/2/input_closure",
+        "execution_identity_pointer": "/checks/2/execution_identity",
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/3",
+        "target_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+        "input_origin_pointer": "/checks/3/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/4",
+        "target_sha": "80c9e28badea71d4bdfc74d3aa0f0cbff6c69d9c",
+        "input_origin_pointer": "/checks/4/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/5",
+        "target_sha": "46a0bcd1ac035503ae8dec8b6df5dd4fcf794849",
+        "input_origin_pointer": "/checks/5/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/6",
+        "target_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "input_origin_pointer": "/checks/6/input_closure",
+        "execution_identity_pointer": "/checks/6/execution_identity",
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/7",
+        "target_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "input_origin_pointer": "/checks/7/input_closure",
+        "execution_identity_pointer": "/checks/7/execution_identity",
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/8",
+        "target_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "input_origin_pointer": "/checks/8/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/9",
+        "target_sha": "a6259c232f7d2c61553f02485b988086cf00337a",
+        "input_origin_pointer": "/checks/9/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/10",
+        "target_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "input_origin_pointer": "/checks/10/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/11",
+        "target_sha": "a6259c232f7d2c61553f02485b988086cf00337a",
+        "input_origin_pointer": "/checks/11/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/12",
+        "target_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "input_origin_pointer": "/checks/12/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      },
+      {
+        "check_pointer": "/checks/13",
+        "target_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "input_origin_pointer": "/checks/13/input_closure",
+        "execution_identity_pointer": null,
+        "qualification": "target_sha pins declared source/input target; if an overlay or content-before-commit run is specified, its own execution_identity/input_closure controls actual origin. No final e187 test/source identity is substituted for this historical input."
+      }
+    ]
+  }
 }

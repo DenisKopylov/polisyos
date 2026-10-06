@@ -7,6 +7,7 @@ This is an in-process contract, not distributed publication.
 
 from __future__ import annotations
 
+import hashlib
 import math
 import struct
 import tempfile
@@ -251,7 +252,7 @@ class VectorMemoryStore:
         """Load privately; any failure leaves the published generation unchanged."""
         if ref.kind != "vector_memory.bundle" or ref.media_type != "application/json":
             raise ValueError("Vector bundle reference has the wrong type")
-        bundle = canon.from_canonical_bytes(store.get_bytes(ref))
+        bundle = canon.from_canonical_bytes(self._artifact_bytes(store, ref))
         if not isinstance(bundle, dict):
             raise ValueError("Vector bundle must be an object")
         if "schema_version" in bundle:
@@ -289,7 +290,7 @@ class VectorMemoryStore:
             or index_ref.media_type != "application/octet-stream"
         ):
             raise ValueError("Vector native reference has the wrong type")
-        native_bytes = store.get_bytes(index_ref)
+        native_bytes = self._artifact_bytes(store, index_ref)
         self._admit_native_header(native_bytes, dim, capacity, len(keys))
         candidate = self._load_index(native_bytes, dim, capacity)
         if candidate.get_current_count() != len(keys) or set(candidate.get_ids_list()) != set(
@@ -312,3 +313,25 @@ class VectorMemoryStore:
                 artifacts.artifact_ref_identity_key(ref),
                 self._generation.version + 1,
             )
+
+    @staticmethod
+    def _artifact_bytes(store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef) -> bytes:
+        """Consume the existing owned snapshot port when the backend supplies it."""
+        reader = getattr(store, "get_verified_snapshot", None)
+        if callable(reader):
+            snapshot = reader(ref)
+            manifest = snapshot.manifest
+            if (
+                manifest.artifact_id != ref.artifact_id
+                or manifest.kind != ref.kind
+                or manifest.media_type != ref.media_type
+            ):
+                raise ValueError("Vector artifact snapshot does not match its typed reference")
+            data = snapshot.data
+        else:
+            # Exact bytes remain checked for legacy providers. This fallback
+            # does not establish an owned immutable byte/manifest snapshot.
+            data = store.get_bytes(ref)
+        if not isinstance(data, bytes) or hashlib.sha256(data).hexdigest() != ref.artifact_id.hex:
+            raise ValueError("Vector artifact bytes do not match the exact content reference")
+        return data

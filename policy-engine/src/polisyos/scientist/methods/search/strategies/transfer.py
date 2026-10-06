@@ -201,14 +201,28 @@ class TransferLearningManager:
         return discoveries
 
     def _resolved(self, ref: ArtifactRef) -> bytes:
+        return self._resolved_artifact(ref)[0]
+
+    def _resolved_artifact(self, ref: ArtifactRef) -> tuple[bytes, artifacts.ArtifactManifest]:
         # Preserve the selected manifest profile through the existing guarded CAS reader.
-        raw = self._store.get_bytes(ref)
+        snapshot_reader = getattr(self._store, "get_verified_snapshot", None)
+        if callable(snapshot_reader):
+            snapshot = snapshot_reader(ref)
+            raw, manifest = snapshot.data, snapshot.manifest
+        else:
+            # Legacy ArtifactStore providers retain their exact-ref checks, but
+            # this two-read route does not claim the owned single-snapshot port.
+            raw = self._store.get_bytes(ref)
+            manifest = self._store.get_manifest(ref)
         if not isinstance(raw, bytes) or hashlib.sha256(raw).hexdigest() != ref.artifact_id.hex:
             raise ValueError("Artifact bytes do not match the exact content reference")
-        manifest = self._store.get_manifest(ref)
-        if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
+        if (
+            manifest.artifact_id != ref.artifact_id
+            or manifest.kind != ref.kind
+            or manifest.media_type != ref.media_type
+        ):
             raise ValueError("Artifact manifest does not match the complete typed reference")
-        return raw
+        return raw, manifest
 
     def _history(self, ref: ArtifactRef) -> dict[str, Any]:
         if ref.kind != "search.transfer.history" or ref.media_type != "application/json":
@@ -447,7 +461,8 @@ class TransferLearningManager:
             for a, b in zip(normalized, evaluation.params_normalized)
         ):
             raise ValueError("Physical parameters and declared normalized coordinates disagree")
-        payload = canon.from_canonical_bytes(self._resolved(evaluation_ref))
+        measurement_bytes, manifest = self._resolved_artifact(evaluation_ref)
+        payload = canon.from_canonical_bytes(measurement_bytes)
         if not isinstance(payload, dict) or evaluation_ref.media_type != "application/json":
             raise ValueError("Unsupported original measurement profile")
         self._boolean(payload.get("promotable"), "original promotable flag")
@@ -470,7 +485,6 @@ class TransferLearningManager:
         if not all(guardrails.values()):
             raise ValueError("Original guardrail outcome failed")
         bench = BenchmarkEvaluation.model_validate(payload)
-        manifest = self._store.get_manifest(evaluation_ref)
         if (
             evaluation_ref.kind != f"scientist.autotune.{bench.loop_id}.evaluation"
             or manifest.artifact_schema is None

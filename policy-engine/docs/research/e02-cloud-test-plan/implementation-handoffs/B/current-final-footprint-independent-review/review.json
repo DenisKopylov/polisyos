@@ -60,8 +60,7 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/driver.source.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/execution.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/head-inputs.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/source-check.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/review.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/source-check.txt"
   ],
   "production_changed_paths": [],
   "tests_changed_paths": [],
@@ -835,5 +834,13 @@
     ],
     "cwd": "/workspace/e02-B-current-runtime",
     "qualification": "Committed filename is deliberately .source.txt; directly runnable Python. Standard-library Git/AST/TOML/JSON only. Requires exact rootDD objects and supplied immutable head-input refs in Git; no product tests/gates/selector/build."
+  },
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-footprint-independent-review/review.json",
+  "receipt_commit": "ede04bc948001dc6e1d0f9958c8f3db3c3460405",
+  "footprint_qualification": "changed_paths binds the exact implementation-only Git diff; the separate original receipt commit is explicitly named. Historical overcount remains available in Git; runtime/source and captured output bytes are unchanged.",
+  "root_transport_qualification": {
+    "historical_snapshot": "Original receipt retains the earlier parent-reported 401 transport and last remote765. This was not an immutable source blocker and is not a current remote-absence claim.",
+    "current_parent_observation": "Parent independently confirmed ordinary DD push/readback and PR55 head dd9584728bd96f204983615216efdbc58117e713.",
+    "reviewer_new_remote_probe": "gh api repos/DenisKopylov/polisyos/pulls/55 --jq .head.sha is recorded separately; no source mutation or rerun."
   }
 }

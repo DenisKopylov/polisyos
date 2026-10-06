@@ -26,8 +26,7 @@
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-actual-independent-review/audit.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-actual-independent-review/driver.source.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-actual-independent-review/source-check.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-actual-independent-review/review.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-actual-independent-review/source-check.txt"
   ],
   "production_changed_paths": [],
   "test_changed_paths": [],
@@ -1179,5 +1178,8 @@
       "/tmp/e02-B-la057-foreign-custody-replay.json"
     ],
     "runtime_scope": "UNRUN; stdlibmetadata only; exact local wheel/site inputs required, unavailable inputs must error instead of fallback"
-  }
+  },
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-actual-independent-review/review.json",
+  "receipt_commit": "b0a19b8be23bf74ed505a5bc7bae9f036c0d018b",
+  "footprint_qualification": "changed_paths binds the exact implementation-only Git diff; the separate original receipt commit is explicitly named. Historical overcount remains available in Git; runtime/source and captured output bytes are unchanged."
 }

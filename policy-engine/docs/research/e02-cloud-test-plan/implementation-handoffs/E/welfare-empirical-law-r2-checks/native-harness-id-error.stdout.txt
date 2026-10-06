@@ -1,0 +1,20 @@
+command=["/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python", "-m", "pytest", "-q", "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py", "--junitxml=/workspace/e02-E-pr38-r2-receipts/welfare-native-ae927.xml"]
+PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src
+.........F                                                               [100%]
+=================================== FAILURES ===================================
+_________ test_native_ge_receipt_binds_exact_carrier_rows_and_weights __________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-210/test_native_ge_receipt_binds_e0')
+
+    def test_native_ge_receipt_binds_exact_carrier_rows_and_weights(tmp_path):
+        fresh, bundle, receipt, _, env_ref = _run_native(tmp_path)
+        original_manifest = fresh.get_manifest(bundle.diagnostics["draw_outcomes_ref"]["artifact_id"])
+        law = receipt["empirical_input_laws"]["A"]
+>       assert law["envelope_ref"]["artifact_id"] == env_ref.artifact_id
+E       AssertionError: assert 'sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056' == ArtifactID(root='sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056')
+E        +  where ArtifactID(root='sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056') = UncertaintyEnvelopeRef(artifact_id=ArtifactID(root='sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056'), kind='ir.uncertainty_envelope', media_type='application/json').artifact_id
+
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:234: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_receipt_binds_exact_carrier_rows_and_weights
+measured={"exit_code": 1, "wall_seconds": 20.00085872800264, "user_seconds": 19.116241, "system_seconds": 1.194421, "max_rss_kib": 645032}

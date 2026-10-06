@@ -1,0 +1,17 @@
+from __future__ import annotations
+import hashlib,json,resource,runpy,subprocess,time
+from pathlib import Path
+from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as module
+BASE='5d4e01011a0b7e0a3954decdb622a9e9cf1fb787'
+PATH='policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py'
+source=subprocess.check_output(['git','show',BASE+':'+PATH])
+fixture=runpy.run_path('tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py')
+exec(compile(source,'git:'+BASE+':'+PATH,'exec'), module.__dict__)
+assert module._sample_from_envelope.__code__.co_filename=='git:'+BASE+':'+PATH
+start=time.monotonic()
+store,bundle,receipt,samples,env_ref=fixture['_run_native'](Path('/workspace/e02-E-pr38-r2-receipts/welfare-old5d-cas'))
+values=[row['sampled_input']['A'] for row in receipt['sampled_inputs']]
+assert len(values)==128 and all(value not in (0.,1.) for value in values)
+assert receipt['failed_draw_count']==0 and receipt['support_complete'] is True
+output={'source_sha':BASE,'source_blob_sha256':hashlib.sha256(source).hexdigest(),'loaded_code_filename':module._sample_from_envelope.__code__.co_filename,'input_identity':{'atoms':[0,1],'weights':[3,1],'seed':31415,'requested':128,'response':2,'nominal_A':.25,'GE':'numpy.linalg.inv(I-A)'},'outcome':'FAIL_expected_counterexample','out_of_atom_count':128,'failed_count':0,'support_complete':True,'unconditional_credible_interval_falsely_present':bundle.credible_interval,'nominal_robust_interval_falsely_present':bundle.robust_interval,'complete_draw_outcomes':receipt,'measurement':{'wall_seconds':time.monotonic()-start,'max_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss}}
+path=Path('/workspace/e02-E-pr38-r2-receipts/welfare-old5d-deciding.json');path.write_text(json.dumps(output,indent=2)+'\n');print(json.dumps({k:v for k,v in output.items() if k!='complete_draw_outcomes'},indent=2))

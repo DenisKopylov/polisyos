@@ -1,0 +1,36 @@
+{
+  "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "source_blob_sha256": "f9421a672185153e7a55e1f0944f25a30e1a7950b3c978ac332fae12091625e8",
+  "loaded_code_filename": "git:5d4e01011a0b7e0a3954decdb622a9e9cf1fb787:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+  "input_identity": {
+    "atoms": [
+      0,
+      1
+    ],
+    "weights": [
+      3,
+      1
+    ],
+    "seed": 31415,
+    "requested": 128,
+    "response": 2,
+    "nominal_A": 0.25,
+    "GE": "numpy.linalg.inv(I-A)"
+  },
+  "outcome": "FAIL_expected_counterexample",
+  "out_of_atom_count": 128,
+  "failed_count": 0,
+  "support_complete": true,
+  "unconditional_credible_interval_falsely_present": [
+    1.633592975478295,
+    6.75557213759838
+  ],
+  "nominal_robust_interval_falsely_present": [
+    2.6666666666666665,
+    2.6666666666666665
+  ],
+  "measurement": {
+    "wall_seconds": 0.40649643400684,
+    "max_rss_kib": 633804
+  }
+}

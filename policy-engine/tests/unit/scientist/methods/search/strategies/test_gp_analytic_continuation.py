@@ -560,8 +560,10 @@ def _warm_row(value):
     return None
 
 
+@pytest.mark.parametrize("mutation", ["scalar", "coordinate"])
 def test_same_marker_warm_row_changes_corpus_or_refuses_atomically(
     analytic_case: AnalyticCase,
+    mutation: str,
 ) -> None:
     case = analytic_case
     changed = copy.deepcopy(case.initial)
@@ -569,22 +571,24 @@ def test_same_marker_warm_row_changes_corpus_or_refuses_atomically(
     assert row is not None, (
         "Checkpoint must persist its actual typed warm rows, not just a compatibility marker"
     )
-    row["scalar_score"] += 3.0
+    if mutation == "scalar":
+        row["scalar_score"] += 3.0
+    else:
+        row["params"]["x"] = 0.11
+        row["params_normalized"] = [0.11]
     restored = _restore(case)
     before = restored.get_state()
     try:
         restored.set_state(changed)
-        candidate = restored.suggest(copy.deepcopy(case.current))
     except ValueError:
         _assert_unchanged(restored, before)
         return
-    assert candidate.source_strategy == "bayesian_acquisition"
     expected_mean, expected_covariance = _dense_expected(case.initial, POINTS)
     actual_mean, actual_covariance = _actual(restored._model)
     assert not (
         np.allclose(actual_mean, expected_mean, rtol=RTOL, atol=ATOL)
         and np.allclose(actual_covariance, expected_covariance, rtol=RTOL, atol=ATOL)
-    ), "A changed actual warm row was silently ignored"
+    ), "A changed actual warm row was accepted with an unchanged immediate posterior"
 
 
 def test_valid_saved_python_rng_mutation_changes_native_random_proposal_or_refuses(

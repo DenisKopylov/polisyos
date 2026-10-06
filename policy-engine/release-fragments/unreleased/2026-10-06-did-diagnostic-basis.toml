@@ -1,0 +1,30 @@
+id = "2026-10-06-did-diagnostic-basis"
+title = "Bind DiD diagnostic reports to their current panel inputs"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-polisyos"
+summary = "Dedicated DiD reports bind every actual pretrend diagnostic input and the complete typed diagnostic result separately from the staggered scalar target."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py", "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py"]
+compatibility = "Diagnostic numbers, dispositions, registered method signatures and historical output aliases remain unchanged. Computed reports add diagnostic metadata; historical reports remain readable."
+change_class = "python-public-api"
+surface_classification = "public_stable: existing registered DiD reports; internal Scientist recomputation seam"
+migration = "Consumers validating a report against current input must recompute the full diagnostic contract and compare actual typed diagnostics, including when only time_treatment changes. Historical reports without the contract require recomputation or refusal at that boundary."
+api = "No new exported facade symbol or slot. An internal typed class method on the existing dedicated methods recomputes diagnostic_contract and diagnostic_binding."
+limitations = "Descriptive HC1/normal pretrend evidence only. Non-rejection cannot establish untreated potential-outcome parallel trends. Scalar inference and prior numerical coverage receipts retain their separate source bindings. Whole Runtime-admitted consumer acceptance belongs to its canonical owner."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "did-diagnostic-metadata"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: dedicated DiD causal report method_params"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Historical reports and legacy replay remain readable; current-input diagnostic validation requires recomputation."
+release_note = "Computed diagnostics now bind outcome, treatment and time_treatment plus the complete typed result; staggered theta_sel target and numerical inference are unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = []

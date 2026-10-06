@@ -8,6 +8,7 @@ Every committed generated artifact family must have a source of truth, a regener
 
 | Family | Lifecycle | Commit policy | Drift gate | Owner | Outputs |
 | --- | --- | --- | --- | --- | --- |
+| `Foundry method type stubs` | `generated_committed` | `committed` | `automated` | `team-policyos-foundry` | `src/polisyos/foundry/methods/base.pyi`<br/>`src/polisyos/foundry/methods/registry.pyi`<br/>`src/polisyos/foundry/methods/composer.pyi`<br/>`src/polisyos/foundry/methods/components/composer.pyi` |
 | `Policy Design Case Layer 3 G1 substrate grounding artifacts` | `generated_committed` | `committed_after_task5_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g1_adapter_admission_registry.json`<br/>`architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json`<br/>`architecture/policy_design_case/layer3_g1_l1_l5_l6_index_coverage.json`<br/>`architecture/policy_design_case/layer3_g1_search_recall_freshness.json`<br/>`architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json`<br/>`architecture/policy_design_case/layer3_g1_free_growth_report.json`<br/>`architecture/policy_design_case/layer3_g1_search_engineering_quality_report.json`<br/>`architecture/policy_design_case/layer3_g1_grounded_source_contracts.json`<br/>`architecture/policy_design_case/layer3_g1_lineage_contamination_ledger.json`<br/>`architecture/policy_design_case/layer3_g1_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g1_coverage_lineage_abstention_surface.json`<br/>`architecture/policy_design_case/layer3_g1_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g1_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g1_readiness_manifest.json` |
 | `Policy Design Case Layer 3 G2 causal forecast artifacts` | `generated_committed` | `committed_after_task7_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g2_adapter_admission_registry.json`<br/>`architecture/policy_design_case/layer3_g2_l2_skg_search_ledgers.json`<br/>`architecture/policy_design_case/layer3_g2_l2_skg_query_traces.json`<br/>`architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json`<br/>`architecture/policy_design_case/layer3_g2_search_recall_freshness.json`<br/>`architecture/policy_design_case/layer3_g2_foundry_method_registry_coverage.json`<br/>`architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json`<br/>`architecture/policy_design_case/layer3_g2_method_requirement_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_method_validity_transport.json`<br/>`architecture/policy_design_case/layer3_g2_semantic_spine_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_concept_alignment_records.json`<br/>`architecture/policy_design_case/layer3_g2_s10_prerequisite_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_forecast_support_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_grounded_forecast_handoffs.json`<br/>`architecture/policy_design_case/layer3_g2_observable_calibration_report.json`<br/>`architecture/policy_design_case/layer3_g2_transport_limit_declarations.json`<br/>`architecture/policy_design_case/layer3_g2_authority_envelopes.json`<br/>`architecture/policy_design_case/layer3_g2_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g2_w12d_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g2_causal_forecast_audit_surface.json`<br/>`architecture/policy_design_case/layer3_g2_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g2_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g2_readiness_manifest.json` |
 | `Policy Design Case Layer 3 G3 analytics search artifacts` | `generated_committed` | `committed_after_task6_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g3_adapter_admission_registry.json`<br/>`architecture/policy_design_case/layer3_g3_l2_skg_proof_candidate_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_ir_analytics_search_ledgers.json`<br/>`architecture/policy_design_case/layer3_g3_ir_analytics_query_traces.json`<br/>`architecture/policy_design_case/layer3_g3_ir_catalog_coverage.json`<br/>`architecture/policy_design_case/layer3_g3_ir_artifact_store_index.json`<br/>`architecture/policy_design_case/layer3_g3_certificate_resolution_report.json`<br/>`architecture/policy_design_case/layer3_g3_search_recall_freshness.json`<br/>`architecture/policy_design_case/layer3_g3_method_requirement_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_semantic_spine_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_proof_carrying_analytics_records.json`<br/>`architecture/policy_design_case/layer3_g3_ir_analytics_claim_bridge.json`<br/>`architecture/policy_design_case/layer3_g3_s11_prerequisite_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_s11_calibration_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_s11_predictive_posture_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_claim_registry_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g3_baseline_comparison_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g3_w12d_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g3_public_export_projection_refs.json`<br/>`architecture/policy_design_case/layer3_g3_proof_carrying_audit_surface.json`<br/>`architecture/policy_design_case/layer3_g3_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g3_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g3_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g3_readiness_manifest.json` |
@@ -118,6 +119,33 @@ Every committed generated artifact family must have a source of truth, a regener
 | `CG3 admission with preserved synthetic input limitations` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/grounding_admission_contract.json` |
 | `N6 generation cycle and immutable source preservation` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_contract.json` |
 | `Pre-declared constructed-mismatch refusal sensitivity` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/corr/grounding_refusal_sensitivity.json` |
+
+## `Foundry method type stubs`
+
+- Family id: `foundry-method-type-stubs`
+- Lifecycle: `generated_committed`
+- Source of truth: tools/devx/foundry/generate_stubs.py TARGETS and OUTPUT_MAP; src/polisyos/foundry/methods/base.py; canonical components/composer.py; compatibility re-export policy
+- Generator: Canonical Foundry stub generator with shared Ruff import sorting and formatting
+- Verifier: Canonical readonly --check compares all four generated outputs with their committed bytes
+- Promotion target: The four internal method typing outputs listed in outputs
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit when any declared source, private typing dependency, generator target, canonical formatting policy or re-export policy changes. Run the readonly comparator after regeneration.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-policyos-foundry`
+- Approval owner: `team-policyos-foundry`
+- Related workflow/config: `tools/devx/foundry/generate_stubs.py`
+- Outputs:
+  - `src/polisyos/foundry/methods/base.pyi`
+  - `src/polisyos/foundry/methods/registry.pyi`
+  - `src/polisyos/foundry/methods/composer.pyi`
+  - `src/polisyos/foundry/methods/components/composer.pyi`
+
+Canonical regeneration commands:
+
+```bash
+uv run polisyos-tools foundry generate-stubs
+```
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
 

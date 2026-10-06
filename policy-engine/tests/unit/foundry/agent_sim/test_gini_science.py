@@ -106,17 +106,19 @@ def test_no_active_population_has_typed_zero(x64: bool, compiled: bool, empty_sh
 
 
 @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
-def test_undefined_signed_zero_mean_is_not_a_finite_inequality_score(compiled: bool) -> None:
+def test_signed_zero_mean_is_refused_by_the_classical_metric_domain(compiled: bool) -> None:
     function = jax.jit(compute_gini_hard) if compiled else compute_gini_hard
-    assert bool(jnp.isnan(function(jnp.asarray([-1.0, 1.0]), jnp.asarray([True, True]))))
-    # The plugin does not admit negative wealth. Its objective preserves the undefined
-    # numeric result rather than turning this unsupported profile into a finite score.
+    with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+        jax.block_until_ready(function(jnp.asarray([-1.0, 1.0]), jnp.asarray([True, True])))
+    # Refuse during the real refresh before the registered objective receives a scalar.
     plugin = EconomicsPlugin()
     state = EconomicState.empty(n_agents=2, seed=7)
     state = state.replace(agents=state.agents.replace(wealth=jnp.asarray([-1.0, 1.0])))
-    refreshed = jax.jit(EconomicState.update_aggregates)(state)
-    assert not refreshed.validate()
-    assert bool(jnp.isnan(plugin.get_objectives()["gini"].evaluate(refreshed)))
+    evaluate = lambda: plugin.get_objectives()["gini"].evaluate(
+        jax.jit(EconomicState.update_aggregates)(state)
+    )
+    with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+        jax.block_until_ready(evaluate())
 
 
 @pytest.mark.parametrize("x64", [False, True], ids=["float32", "float64"])

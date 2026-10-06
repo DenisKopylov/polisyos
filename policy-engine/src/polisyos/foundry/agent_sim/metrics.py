@@ -164,6 +164,7 @@ class MetricsCollector:
 
 def standard_training_metrics() -> list[MetricDefinition]:
     """Declare the default state metrics tracked during agent training."""
+    from polisyos.foundry.agent_sim.distributions import compute_gini_hard
 
     def _active_mean(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         active_f = active.astype(jnp.float32)
@@ -179,7 +180,7 @@ def standard_training_metrics() -> list[MetricDefinition]:
         MetricDefinition(
             name="gini_wealth",
             metric_type=MetricType.SCALAR,
-            compute_fn=lambda s: s.distributions.gini_wealth,
+            compute_fn=lambda s: compute_gini_hard(s.agents.wealth, s.agents.active),
         ),
         MetricDefinition(
             name="gdp",

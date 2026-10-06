@@ -106,7 +106,11 @@ def social_welfare_objective(
         total = total + weights["gdp"] * state.aggregates.total_wealth
 
     if "neg_gini" in weights:
-        total = total - weights["neg_gini"] * state.distributions.gini_wealth
+        from polisyos.foundry.agent_sim.distributions import compute_gini_hard
+
+        total = total - weights["neg_gini"] * compute_gini_hard(
+            state.agents.wealth, state.agents.active
+        )
 
     if "mean_consumption" in weights:
         total = total + weights["mean_consumption"] * state.aggregates.mean_consumption

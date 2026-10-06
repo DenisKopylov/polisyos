@@ -7,6 +7,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 import chex
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float, Int
@@ -433,14 +434,32 @@ def compute_gini(
     return compute_gini_hard(values, active)
 
 
+def _admit_gini_population(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
+    """Refuse an unsupported classical-Gini population before publishing a scalar.
+
+    The Foundry numeric domain excludes negative and nonfinite active resources.
+    Inactive padding is not part of the population. Equinox binds the runtime
+    refusal to the returned array under eager execution, JIT, and scans.
+    """
+    invalid = jnp.any(active & ((values < 0) | ~jnp.isfinite(values)))
+    participating = jnp.where(active, values, 0.0)
+    return eqx.error_if(
+        participating,
+        invalid,
+        "classical Gini requires finite nonnegative active values",
+        on_error="raise",
+    )
+
+
 def compute_gini_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
     """Compute the relative Gini coefficient over active, nonnegative values.
 
-    Empty and all-zero populations have coefficient zero. A nonconstant signed
-    population with zero total has no relative coefficient and returns NaN; it
-    is outside the nonnegative economic profile. No epsilon with resource units
-    is added to the denominator, so changing the resource unit preserves Gini.
+    Empty and all-zero populations have coefficient zero. Negative or nonfinite
+    active resources raise a runtime error, including under JIT. No epsilon with
+    resource units is added to the denominator, so changing the resource unit
+    preserves Gini. Signed resources can still be simulated without this metric.
     """
+    values = _admit_gini_population(values, active)
     n_agents = values.shape[0]
     n_active = jnp.sum(active).astype(jnp.int32)
     # Preserve the public result promotion from infinity masking and float32 ranks.
@@ -464,8 +483,7 @@ def compute_gini_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         numerator = jnp.sum(centered_ranks * normalized)
         total = jnp.sum(normalized)
         coefficient = numerator / (n_act * jnp.where(total == 0, 1.0, total))
-        zero_total = jnp.where(scale == 0, 0.0, jnp.nan).astype(output_dtype)
-        return jnp.where(total == 0, zero_total, coefficient)
+        return jnp.where(total == 0, jnp.asarray(0.0, dtype=output_dtype), coefficient)
 
     return jax.lax.cond(n_active > 0, _with_active, _no_active)
 
@@ -477,6 +495,7 @@ def compute_gini_soft(
     temperature: float = 1.0,
 ) -> jnp.ndarray:
     """Approximate the Gini coefficient from differentiable rank estimates."""
+    values = _admit_gini_population(values, active)
     n_active = jnp.sum(active).astype(jnp.float32)
     ranks = compute_ranks_soft(values, active, temperature=temperature)
     masked_values = jnp.where(active, values, 0.0)
@@ -488,6 +507,7 @@ def compute_gini_soft(
 
 def compute_gini_proxy(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
     """Estimate inequality from mean absolute deviation when a cheap proxy is sufficient."""
+    values = _admit_gini_population(values, active)
     n_active = jnp.sum(active).astype(jnp.float32)
     masked = jnp.where(active, values, 0.0)
     mean_value = jnp.sum(masked) / jnp.maximum(n_active, 1.0)
@@ -755,7 +775,7 @@ def compute_distribution_aware_reward(
         base_reward = base_reward + config.mobility_weight * rank_change
 
     if config.penalize_inequality:
-        gini = next_state.distributions.gini_wealth
+        gini = compute_gini_hard(agents.wealth, agents.active)
         base_reward = base_reward - config.inequality_weight * gini
 
     return jnp.where(agents.active, base_reward, 0.0)

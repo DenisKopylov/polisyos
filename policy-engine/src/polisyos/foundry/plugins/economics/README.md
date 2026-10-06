@@ -25,6 +25,26 @@ the plugin's missing government counteraccount or proves whole-state/model
 equivalence. Targeting the plugin fixture requires explicitly restricting its
 active mask; its mechanism API has no native target-mask argument.
 
+The observable mapping is explicit:
+
+| Profile axis | Native baseline kernel | Economics plugin |
+| --- | --- | --- |
+| State and return ABI | `GlobalState`, PatchMap plus progressed key | `EconomicState`, replacement state |
+| Tax base and debit | `reported_income`, debit `income` | marginal brackets over `income`, debit `wealth` |
+| Budget | equal and opposite `government.balance` patch | no government counteraccount |
+| Target/population | active mask intersected with target mask | active mask; no native target-mask argument |
+| Labor | per-call threshold resampling, uniform firm, employer IDs/counts | finding/separation transitions, wage shock, hours; no firms/employer IDs |
+| Clock/units | supplied wage/income amounts for each kernel call | supplied income amount for each call; wage floor is `minimum_wage * 2000`; interest separately uses `/ 12` |
+| Seed progression | fiscal key unchanged; labor returns third split key | supplied key drives three labor draws; omitted key uses domain clock |
+| Execution clock | executor advances its global step | composite advances its global step; this profile retains the domain step |
+
+This records actual supplied units and per-call laws. It does not admit an
+unprovided calendar conversion or calibration. Matched flat-tax, uniform-transfer
+and zero-job fixtures compare the declared overlapping observables; their full
+states and distinct accounting/seed fields are still checked separately.
+Progressive tax, means testing and positive-threshold versus zero-finding labor
+provide deliberate unequal regimes. No model is retired or substituted.
+
 `baselines.normalized_income_budget_loss` preserves the historical
 `GlobalState` normalized income/budget formula; the two `policy_loss_fn`
 compatibility paths resolve to this same function. Nonnegative income whose
@@ -40,12 +60,31 @@ GlobalState distribution wiring. Native agent-sim `compute_aggregates` and
 `PureExecutor` delegate to the same owner and exclude inactive padding from the
 population. Its defining pairwise ratio is invariant to
 positive changes in resource units. Empty and all-zero nonnegative populations
-use coefficient 0. Nonconstant signed zero-total populations return NaN and are
-outside this economic profile; negative wealth fails `EconomicState.validate`,
-and the Gini objective preserves NaN. This is a numeric limitation, not an
-authority-grade admission gate for arbitrary signed income. Approximate soft
-and proxy statistics, top/bottom shares and other aggregate equations retain
-their separate contracts.
+use coefficient 0. The existing [numeric domain](../../../../../docs/reference/foundry/numeric-guardrails.md)
+excludes negative values from classical Gini. Its single active-population
+admission refuses negative or nonfinite resources before hard, soft or proxy
+Gini is published, including JIT and executor scans. Inactive invalid padding
+is excluded. Signed resource simulation laws are unchanged; callers must omit
+Gini or use the distributional report API's existing unavailable (`None`)
+metric. This numeric refusal does not admit economic evidence or policy authority.
+Top/bottom shares and other aggregate equations retain their separate contracts.
+
+Current-population Gini readers (objectives, critic observations, rewards,
+training metrics, counterfactual analysis and the population simulation method)
+measure current resources through the same exact owner. They do not treat a
+valid old scalar as admission of a changed population. The plugin wealth plot
+also admits current wealth before publishing a Gini title.
+
+`DistributionAwareExecutor` intentionally exports its scheduled distribution
+snapshot: `last_update_step` records the pre-transition refresh and
+`update_frequency` controls later refreshes. These metrics, compact snapshots
+and plotted history describe their captured population; they are not claims
+about the current population after an intervening transition. The current
+readers above recompute instead of modifying this dated snapshot contract.
+
+The fiscal/labor distinction is the LA-004 model-profile criterion. Its finite
+state/units/clock/base/seed/accounting witnesses do not depend on an unspecified
+welfare preference. They preserve both executors and their state contracts.
 
 Finite fixture checks:
 

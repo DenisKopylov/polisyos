@@ -33,7 +33,11 @@ class GiniObjective:
         return False
 
     def evaluate(self, state: EconomicState) -> jnp.ndarray:
-        return state.distributions.gini_wealth
+        from polisyos.foundry.agent_sim.distributions import compute_gini_hard
+
+        # Cross-domain interactions may change wealth after the cached refresh.
+        # Admit and measure the population that this objective actually ranks.
+        return compute_gini_hard(state.agents.wealth, state.agents.active)
 
 
 class UnemploymentObjective:
@@ -86,7 +90,7 @@ class SocialWelfareObjective:
             welfare = welfare + self.weights["gdp"] * state.aggregates.gdp / 1e9
 
         if "neg_gini" in self.weights:
-            welfare = welfare - self.weights["neg_gini"] * state.distributions.gini_wealth
+            welfare = welfare - self.weights["neg_gini"] * GiniObjective().evaluate(state)
 
         if "neg_unemployment" in self.weights:
             welfare = welfare - (

@@ -1,0 +1,48 @@
+FF..FFF
+=================================== FAILURES ===================================
+_______ test_current_scm_default_and_real_catalog_advertise_same_version _______
+tests/unit/ir/test_structural_causal_model_versions.py:35: in test_current_scm_default_and_real_catalog_advertise_same_version
+    assert model.schema_version == entry.schema_version == "1.1"
+E   AssertionError: assert '1.0' == '1.1'
+E     
+E     - 1.1
+E     + 1.0
+________ test_current_scm_generated_snapshot_and_manifest_match_catalog ________
+tests/unit/ir/test_structural_causal_model_versions.py:49: in test_current_scm_generated_snapshot_and_manifest_match_catalog
+    assert snapshot["properties"]["schema_version"]["default"] == "1.1"
+E   AssertionError: assert '1.0' == '1.1'
+E     
+E     - 1.1
+E     + 1.0
+_____ test_current_default_gcm_cannot_inherit_legacy_missing_worker_marker _____
+tests/unit/ir/test_structural_causal_model_versions.py:86: in test_current_default_gcm_cannot_inherit_legacy_missing_worker_marker
+    with pytest.raises(
+E   Failed: DID NOT RAISE <class 'ValueError'>
+___________ test_new_manual_model_cas_envelope_uses_current_version ____________
+tests/unit/ir/test_structural_causal_model_versions.py:96: in test_new_manual_model_cas_envelope_uses_current_version
+    assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.1"
+E   AssertionError: assert '1.0' == '1.1'
+E     
+E     - 1.1
+E     + 1.0
+_________ test_actual_selected_gcm_producer_manifest_and_fresh_reader __________
+tests/unit/ir/test_structural_causal_model_versions.py:134: in test_actual_selected_gcm_producer_manifest_and_fresh_reader
+    assert (
+E   AssertionError: assert '1.1' == '1.0'
+E     
+E     - 1.0
+E     + 1.1
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_current_scm_default_and_real_catalog_advertise_same_version
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_current_scm_generated_snapshot_and_manifest_match_catalog
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_current_default_gcm_cannot_inherit_legacy_missing_worker_marker
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_new_manual_model_cas_envelope_uses_current_version
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_actual_selected_gcm_producer_manifest_and_fresh_reader
+5 failed, 2 passed, 1 warning in 8.73s

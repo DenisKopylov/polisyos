@@ -1739,6 +1739,15 @@
     "status": "admitted",
     "complete_json_retained": true
   },
-  "transport_status": "awaiting_normal_publication_readback",
-  "publication_qualification": "No new remote head claim until exact normal push/readback succeeds; expired-token failure must retain local commits/patch and transport_blocked."
+  "transport_status": "published_remote_verified",
+  "publication_qualification": "Normal topic push and fresh ls-remote/FETCH_HEAD/tree reconciled exact immutable checkpoint6ff; no token retry loop, main or rewritten history.",
+  "publication_observed_checkpoint": {
+    "branch": "refs/heads/codex/e02-B-current-execution-state",
+    "remote_head": "6ff07b30498079a92c3cb0320bcde3503b25eede",
+    "fetched_head": "6ff07b30498079a92c3cb0320bcde3503b25eede",
+    "fetched_tree": "6fbb749497793388a23c848518e322311164a33a",
+    "normal_push_exit": 0,
+    "push_precondition": "Attached own topic branch; normal push only. Required pre-push typecheck skipped by existing hook because no matching files.",
+    "qualification": "Actual prior published checkpoint, not a predicted SHA of this metadata successor."
+  }
 }

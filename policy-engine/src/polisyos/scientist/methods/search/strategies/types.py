@@ -70,9 +70,9 @@ class ParameterBounds:
 
         if lower is None or upper is None:
             raise ValueError(f"Explicit bounds required for '{name}'")
-        lower_float = float(lower)
-        upper_float = float(upper)
-        if not math.isfinite(lower_float) or not math.isfinite(upper_float):
+        lower_float = finite_real_scalar(lower)
+        upper_float = finite_real_scalar(upper)
+        if lower_float is None or upper_float is None:
             raise ValueError(f"Finite explicit bounds required for '{name}'")
         return cls(
             name=name,
@@ -90,11 +90,12 @@ class ParameterBounds:
                     f"Categorical parameter '{self.name}' requires at least two categories"
                 )
             return
-        if any(
-            isinstance(value, bool) or not math.isfinite(value)
-            for value in (self.lower, self.upper)
-        ):
+        lower = finite_real_scalar(self.lower)
+        upper = finite_real_scalar(self.upper)
+        if lower is None or upper is None:
             raise ValueError(f"Finite numeric bounds required for '{self.name}'")
+        object.__setattr__(self, "lower", lower)
+        object.__setattr__(self, "upper", upper)
         if self.lower >= self.upper:
             raise ValueError(f"Invalid bounds for '{self.name}': lower >= upper")
         if not math.isfinite(self.upper - self.lower):

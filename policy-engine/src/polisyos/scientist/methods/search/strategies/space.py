@@ -9,6 +9,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.strategies._deps import require_torch, torch
 from polisyos.scientist.methods.search.strategies.types import (
     NormalizedVector,
@@ -89,13 +90,9 @@ class SearchSpace:
                 values.extend(1.0 if match else 0.0 for match in matches)
                 continue
             value = params.get(bound.name)
-            if (
-                isinstance(value, bool)
-                or not isinstance(value, (int, float))
-                or not math.isfinite(value)
-            ):
+            raw = finite_real_scalar(value) if isinstance(value, (int, float)) else None
+            if raw is None:
                 raise ValueError(f"Finite physical parameter required for '{bound.name}'")
-            raw = float(value)
             if not bound.lower <= raw <= bound.upper:
                 raise ValueError(f"Physical parameter '{bound.name}' is outside bounds")
             if bound.dtype == ParameterType.INTEGER and raw != int(raw):
@@ -114,13 +111,13 @@ class SearchSpace:
     def denormalize(self, vector: NormalizedVector) -> dict[str, Any]:
         if len(vector) != self.dim:
             raise ValueError(f"Expected vector length {self.dim}, got {len(vector)}")
-        if any(
-            isinstance(value, bool)
-            or not isinstance(value, (int, float))
-            or not math.isfinite(value)
+        converted = tuple(
+            finite_real_scalar(value) if isinstance(value, (int, float)) else None
             for value in vector
-        ):
+        )
+        if any(value is None for value in converted):
             raise ValueError("Normalized coordinates must be finite numbers")
+        vector = tuple(float(value) for value in converted if value is not None)
 
         params: dict[str, Any] = {}
         cursor = 0

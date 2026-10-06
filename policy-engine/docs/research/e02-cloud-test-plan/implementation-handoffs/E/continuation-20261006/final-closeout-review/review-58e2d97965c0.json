@@ -973,8 +973,8 @@
         "sha256": "9e85dee4e67ca93de075c29501d95f809f2e6b5ed3b17ef393abca7f1c613c90"
       },
       "summary.json": {
-        "bytes": 20087,
-        "sha256": "9681007edae61e571930f83f5d27085d2ddd693291b843ac5bbd289843dc848a"
+        "bytes": 20327,
+        "sha256": "361fbbe62b9fb0f0132bda6e47960af044f81fe34a3407e7ae9c4b6ccc97081a"
       },
       "workspace-verify-after-browser.json": {
         "bytes": 1824,

@@ -18,8 +18,7 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from polisyos.calibration import evaluate_continuous
-from polisyos.calibration.forecast_bridge import (
+from polisyos.calibration import (
     PREDICTIVE_AUTHORITY_DENIALS,
     REFERENCE_PROFILES,
     EmpiricalCalibrationContext,
@@ -28,6 +27,7 @@ from polisyos.calibration.forecast_bridge import (
     ForecastCalibrationProfile,
     ForecastCandidateReceipt,
     ForecastCandidateReceiptRef,
+    evaluate_continuous,
     load_empirical_calibration_evidence,
     load_forecast_calibration_profile,
     persist_empirical_calibration_evidence,

@@ -340,7 +340,7 @@
         "outcome": "FAIL",
         "exit_code": 1,
         "wall_seconds": 20.23590850830078,
-        "basis": "Doctor/browser/locks pass; lint_imports reports fifteen architecture violations. Later fail-fast umbrella checks are UNRUN.",
+        "basis": "Doctor/browser/locks pass; lint_imports reports 21 architecture violation rows across 17 paths. Later fail-fast umbrella checks are UNRUN.",
         "next_owner": "G and owning architecture/import consumers",
         "receipt": "workspace-verify-after-browser.json",
         "stdout": "workspace-verify-after-browser.stdout.txt"

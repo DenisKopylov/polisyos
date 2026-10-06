@@ -1,6 +1,6 @@
 # polisyos.calibration
 
-- Last updated: 2026-05-03
+- Last updated: 2026-10-06
 
 Calibration diagnostics package for binary, multiclass, and continuous
 calibration checks plus fit/apply helpers for recalibration workflows.
@@ -40,3 +40,18 @@ counts. It always retains `verifier_provenance="not_established"` and predictive
 purpose denials. A owns trusted profile admission, independent verification,
 default orchestration, and fresh served readback. The internal receipt is not
 an S10 verification result.
+
+## Internal continuous-pair persistence
+
+`continuous.persist_continuous_evaluation` stores the ordered outcome/interval
+pairs and their diagnostic report through the configured artifact store.
+`continuous.load_continuous_evaluation` resolves both artifacts, checks their
+kind and schema, and recomputes the report and receipt from those pairs. A bare
+report JSON cannot establish that pair-aware readback. Requested, eligible and
+observed counts retain their respective denominators when a level is missing.
+
+The econometrics summary helper uses this route when given an artifact store.
+The current method-runner path does not supply that store, so persisted
+diagnostics are implemented but not orchestrated there. Ordered positions and
+caller-declared source, split, horizon and time metadata do not establish
+production source authority or a gating verdict.

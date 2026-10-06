@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.owner_integration_request.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120",
+    "B158",
+    "B159",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "sources": {
+    "G_audit": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md@363e7ae",
+    "B_ledger": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py@1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+    "B_middleware": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py@1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+    "B_adapter": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py@562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+    "B_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json@1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+    "criteria": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203"
+  },
+  "requests": [
+    {
+      "to": "B DUR-01/D-W09 resource owner",
+      "state": "bridge_missing",
+      "existing_api": "BudgetMiddleware.settle_spend_safe(event_id,key,amount,*,payload_digest,provider); resolve_spend_safe(event_id); settlement_owner_identity. Snapshot1.1 spend_receipts is the sole durable index.",
+      "smallest_extension": "Owner chooses additive schema/API for one immutable measured resource event carrying physical provider/request identity, run/candidate/evaluation/attempt attribution, unique budget-key scope, finite nonnegative USD amount, source/cache-reuse relation and payload digest. Atomic owned reservation creation and settlement/release/reconciliation must use this existing store, not D resource_events overlay.",
+      "durability_requirement": "Reserve scope atomically before producer call; settle full measured amount to each declared distinct budget key exactly once and release only that owned reservation in the same durable transition. Provider attribution is physical spend once, not duplicated by multi-key accounting. Reused ID with differing scope/amount/content refuses unchanged snapshot. Unknown ACK retains same event ID/digest and pending reservation across reopen; resolve/retry never emits a second ID or declares zero.",
+      "consumer": "scientist/orchestration/llm/budget_enforcer.py -> translator/adversary -> funnel/orchestrator.py; CostBudgetStopping supplier coordinated with its sole writer.",
+      "tests_required": [
+        "actual response-text producer -> native Gateway parse -> core intake -> D enforcer -> B middleware -> fresh FileBudgetLedger reopen",
+        "full/split stage events and remaining/cost attribution equality; replay and changed-content refusal",
+        "publication/readback unknown ACK before/after publication; resolve/retry same event once; no synthetic billing authority",
+        "preserve trace cost1 and remove settlement: persisted-spend oracle must fail"
+      ]
+    },
+    {
+      "to": "B W09 Gateway decoder owner",
+      "state": "mechanism_gap",
+      "same_class": "P40 reported-cost invalid-present/nonzero-underflow one boundary deeper",
+      "existing_falsifier": "gateway_client.py:_post_json json.loads(raw_text) turns JSON usage.cost_usd number 1e-1000 into float0.0 before core validation; previous98 tests replaced _post_json with a dict and did not exercise this decoder.",
+      "smallest_extension": "Preserve numeric cost lexeme/Decimal through the actual response-text JSON intake (json.loads parse_float=Decimal or equivalent lossless boundary), then validate every present cost field including alternates/components. Real zero is admitted; signed negative/nonfinite/bool/malformed/overflow/nonzero-underflow cannot become a zero receipt. D will supply a native session response-text fixture without overriding _post_json."
+    },
+    {
+      "to": "A stage/caller owner and B resource owner",
+      "state": "bridge_missing",
+      "smallest_extension": "Ordinary configured native factory forwards the same existing BudgetMiddleware/run/candidate/attempt scope into D FunnelOrchestrator and translator/adversary. D does not appoint billing or permission authority. Native RunPolicyBlueprint factory is sole-written by stress owner; D requests the constructor seam through that owner.",
+      "tests_required": [
+        "ordinary factory -> native configured full/split calls -> reopened B receipt index",
+        "release real reservation then recheck guard; unrelated spend does not grant continuation"
+      ]
+    },
+    {
+      "to": "B native evaluator + A caller + E uncertainty/calibration owner",
+      "state": "held",
+      "finding_ids": [
+        "B157",
+        "B161"
+      ],
+      "smallest_extension": "Supply typed raw sample/draw/estimand effective-config producer, exact persisted artifact refs/content and allowed same-subject/value/input/rule/time refinement relation, then actual native bridge. Local recipe must name input refs, source law/profile, candidate SHA, backend, positive and removal discriminator. No fabricated reduced scientific effect/global minimum/last-value authority."
+    },
+    {
+      "to": "A/B existing permission issuer/verifier/write owner",
+      "state": "held/bridge_missing",
+      "finding_ids": [
+        "B164"
+      ],
+      "smallest_extension": "Identify existing owner-issued typed promotion-purpose permit and independent current verifier; candidate/run/ticket generation/policy/schema/time/provenance/revocation binding and write owner serialized with revoke. Until the actual API is appointed, effectful callbacks remain denied. Valid typed positive UNRUN; bool-true zero-effect/removal controls are not typed permission evidence."
+    }
+  ],
+  "predicate_basis": "recomputed for source API inspection; not_established for external billing, native sample law or promotion authority",
+  "status": "request_only; no B source changes, no formal finding closure",
+  "limitations": [
+    "D old schema1.0 settle_resource consumers require forward port; do not overlay B-owned ledger/middleware.",
+    "Current B1015 ledger has no owned resource reservation record or atomic multi-key settlement API. Separate reserve_safe/release_safe operations cannot establish that durable transition."
+  ],
+  "dependency_proposal": {
+    "published_owner_ref": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+    "ledger_owner_ref": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+    "composition_owner": "root/B preserve published B authorship; D does not write B mechanism paths",
+    "required_B_paths": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/core/llm/settlement.py",
+      "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py"
+    ],
+    "mandatory_companions_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json@562ca2c25ca68fd90c4d5225b1b33fdd5b161940#/changed_paths; use actual LLM/budget tests, two LLM READMEs and current-llm-settlement release fragment; unrelated fabric/pool/serialization mechanism outside minimum consumer dependency",
+    "response_composition": "Keep D979 whole finite/raw/all-alternate/nonzero-underflow cost guards and paid receipt independent from token parsing. Add only B published capability-based _extract_cache_provenance and _extract_physical_provider_response_data helper required by B traced producer (dataclasses.replace import). Do not overlay B562 _as_float negative clamp or broad cost loss over D guards. B canonical owner applies/reviews this merge.",
+    "available_single_key": "B562 enforcer already uses settle_spend_safe/resolve_spend_safe and producer context with retained event/reconcile_settlement; reuse it for native adversary [policy_adversary] now. Durable ack local accounting only, not external billing.",
+    "actual_multi_key_profile": "PolicyTranslatorConfig.budget_keys defaults [policy_translator,policy_briefing]; ScenarioAdversaryConfig defaults [policy_adversary]. Atomic multi-key/owned-reservation extension is conditional on translator profile, not required to run the ordinary adversary single-key path.",
+    "remaining_projection_seam": "Existing B event has amount/cost_origin/kind/content digest, ACK exact receipts, but persisted receipt carries no run/candidate/attempt/evaluation/source scope. D needs actual producer-to-consumer attribution (typed returned settlement or direct callback) and exact readback; snapshot differencing is not stage attribution under concurrency.",
+    "D_test_proof": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py@bd63d1ef98c558774c5849da9a43fc84b45d4db7"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.D.owner-request.cache-binding.v1",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120",
+    "B158"
+  ],
+  "source_sha": "4847abdfd66676165148f99bf7bcad8605dc89e3",
+  "source_tree": "acad46f56f5a486cfa408c84ca94525cca62b747",
+  "producer_dependency": "D/continuation/B-dependency.json@c9406ad21d4638a3abecac860802436fd3863406",
+  "proof": "policy-engine/tests/integration/core/llm/test_cache_response_binding.py@4847abdfd66676165148f99bf7bcad8605dc89e3",
+  "checks": {
+    "cache": {
+      "PASS": 1,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "ordinary_state": {
+      "PASS": 2,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    }
+  },
+  "actual_input": "Native Gateway HTTP response.text cost1 -> actual B TracedLLMClient/LLMBudgetEnforcer -> FileBudgetLedger; public cache.get returns cached paid envelope; caller alters output/retains original receipt, removes receipt, or substitutes another actual request receipt; public cache.put serializes normally. Actual generated owner HMAC/key/request markers stay present.",
+  "deciding_divergence": [
+    "Altered content is returned at reuse cost0 despite original paid response digest",
+    "Missing typed receipt gets committed reuse event with no origin event",
+    "Foreign request actual receipt gets committed reuse origin for original request"
+  ],
+  "limitations": "Operational local accounting/context property, not external billing or fixture-issued permission. Test author is not independent reviewer. Source485 current B contract remains open, no closure.",
+  "next_owner": {
+    "D": "Correct cost/reuse receiver when existing actual original settlement/request/readback inputs are available; retain typed unavailable when resolver missing",
+    "B W09/DUR01": "Expose existing exact receipt resolver in actual producer/receiver context; bound cache payload serialization to actual original event and caller context, not only provenance marker HMAC. No new issuer or store.",
+    "A/B runtime": "Ordinary serialized ExperimentState params cannot carry BudgetMiddleware; existingExecutionContext lacks port. Root-approved D blueprint context subtype pending appointed deployment wiring."
+  },
+  "owner_packet": "D/continuation-funnel-owner-requests.json@54443ba6c",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cache-proof/red.txt",
+      "sha256": "087f7c8d7db8b10d2808d867098b673485f2f8dfb960589531751295d6e96725",
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cache-proof/red.json"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "schema": "policyos.e02.D.minimum-owner-input-requests.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "D_checkpoint_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "G_checkpoint_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "delivery": "Committed Git checkpoint on D topic branch; no other-chat dispatch",
+  "requests": [
+    {
+      "finding_ids": [
+        "B108"
+      ],
+      "criterion_owner": "OPT-01 / D-W01",
+      "input_owner": "Existing fiscal metric/evaluator owner; A-W01 SIM-01 supplies actual simulation caller and binds its appointed metric source",
+      "state": "input_missing",
+      "minimum_input": "One existing typed fiscal result with exact data/evaluator/split/metric reference and the actual declared balance/deficit direction and physical unit. Both equivalent balance/deficit forms and a genuine zero on the same basis; missing/conflict/nonfinite incompatible-unit negatives.",
+      "consumer_entrypoint": "PolicySearchCoordinator.run_parameter_search -> existing policy metric resolver -> ObjectiveStack -> best/frontier. D finite/fiscal decoder is already bounded; no source-unit law inferred.",
+      "local_recipe": {
+        "execution_location": "local read-only",
+        "input_file_or_refs": null,
+        "exact_candidate_sha": "assigned after D continuation freeze",
+        "output": "Actual producer/evaluator receipt plus resulting score/best/frontier. Compare balance/deficit on equal units; retain unknown/conflict refusal.",
+        "status": "UNRUN until appointed minimum input is supplied"
+      },
+      "not_requested": "Full production corpus, cloud transfer or new signature/permission rule"
+    },
+    {
+      "finding_ids": [
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "criterion_owner": "OPT-01 / D-W01",
+      "input_owner": "A-W04 SEL-01 selection/frontier producer; A-W01 actual PolicySearchCoordinator caller; D consumes in existing ParetoRegistry",
+      "state": "ordinary_provider_contract_requested",
+      "minimum_input": "One existing current PolicyEvaluationVector/frontier assessment export on declared coordinate metric+split+direction+unit+definition-version basis, with complete eligible/feasible/unknown denominator for its actual finite source universe. Identify ordinary provider and exact export/readback entrypoint.",
+      "known_existing_consumer": "scientist/policy_design/search.py run_parameter_search updates ParetoRegistry and project_view; no alternate registry/provider invented.",
+      "required_combined_receipt": "Exact A source/minref + exact frozen D source, actual caller -> persisted registry -> fresh projection/export; reference/point admission and invalid/unavailable reason survive. Removal of the producer/assessment keeps declared markers and must fail downstream.",
+      "local_recipe": {
+        "execution_location": "local read-only only when original criterion needs production input",
+        "minimum_ref": null,
+        "input_scope": "smallest actual frontier on same basis; no cheaper history surrogate",
+        "status": "owner bridge/source receipt pending"
+      }
+    },
+    {
+      "finding_ids": [
+        "B113",
+        "B114",
+        "B115",
+        "B128",
+        "B130",
+        "B131",
+        "B132",
+        "B137"
+      ],
+      "criterion_owner": "OPT/TRN canonical rows in criterion-ledger.json",
+      "input_owner": "Existing Evaluation/history/data/split/source-access and evidence-revalidation owners; G performs data-dependent local adjudication",
+      "state": "input_missing_for_scientific_or_authority_claim_only",
+      "minimum_input": "Only exact existing Evaluation/Candidate/Suite/Data/Model/Evaluator/Split ArtifactRefs required by one genuine configured transfer-to-GP run and any permitted revalidation event. Appointed owner bindings and time/basis remain required by their original criteria.",
+      "available_engineering": "D is completing configured ordinary bridge, persisted NN warm corpus and past-as-of admission. Existing GP26 real SingleTaskGP and independent analytic oracle remain source-bound; no repeat unless dependency changed.",
+      "required_receipt": "Exact candidate and minimum refs, admitted/rejected/unavailable row denominator, fit/train corpus/basis/learned transforms/refit clock, actual downstream caller; accuracy or transfer benefit needs real history rather than synthetic rows.",
+      "local_recipe": {
+        "execution_location": "local read-only",
+        "minimum_ref": null,
+        "status": "UNRUN for production-history claim; engineering continuation runs separately"
+      }
+    }
+  ],
+  "companion_requests": [
+    {
+      "gate": "B04",
+      "input": "Complete deciding output: 9 undeclared state reads in run_causal_evaluation.py; existing immutable backend-parity receipt",
+      "canonical_owner": "State-read declaration owner and run_causal_evaluation.py owner; numerical_oracle resolves exact tracked declarations",
+      "request": "Accept proper declarations/fix actual reads or issue evidence-based disposition; no inherited waiver without exact slice-base zero-overlap"
+    },
+    {
+      "gate": "B19",
+      "input": "Complete deciding output: 77 missing module budgets and 6 report-only rows",
+      "canonical_owner": "Existing module-budget registry owner; numerical_oracle resolves tracked governance source",
+      "request": "Appoint or reconcile module budgets; preserve full denominator, no exception based on a sampled row"
+    },
+    {
+      "gate": "B23",
+      "input": "Complete deciding output: 10 publication-link violations",
+      "canonical_owner": "Published-link validator/document owners; numerical_oracle resolves actual paths",
+      "request": "Correct exact links or receive owner disposition; incomplete global outputs remain incomplete"
+    }
+  ],
+  "predicate_basis": {
+    "source_inspection": "recomputed",
+    "production_input": "not_established",
+    "source_authority": "not_established"
+  },
+  "limits": [
+    "Request packet does not close findings or appoint authority",
+    "No full production transfer required",
+    "B canonical ledger/parser/factory requirements are published separately in continuation-funnel-owner-requests.json; current B producer receipt is being reused rather than designing a parallel index"
+  ]
+}

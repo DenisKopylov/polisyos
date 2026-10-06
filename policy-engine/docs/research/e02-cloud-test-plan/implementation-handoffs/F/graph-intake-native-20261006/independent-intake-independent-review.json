@@ -1,0 +1,536 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "F",
+  "reviewer": "F/economics direct independent reader",
+  "slice": "existing-reconcile-causal-graph-intake",
+  "generated_utc": "2026-10-06T11:44:12.375256+00:00",
+  "check": "PASS",
+  "outcome": "limited",
+  "review_decision": "GO for exact bounded two-mechanism intake correction; no broader GRF/production authority closure",
+  "source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+  "candidate_tree_sha": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "head_after": "6321dc33476b0fad24d97ebb140c373608d30019",
+  "status_after": "",
+  "source_change": false,
+  "writer_lease": "none; source/worktree read-only; only reviewer-owned scratch scripts and syntheticCAS",
+  "full_source_review": {
+    "eight_exact_paths_read": [
+      {
+        "path": "policy-engine/docs/reference/foundry/causal-graph-reconciliation.md",
+        "bytes": 3293,
+        "sha256": "f75a0aa3a0370dbc2f5fa87bbf4282c5ea8a0ba5913a8b9e24678d476bc740d6",
+        "git_blob": "77cb4202ab3ee4715323ee1639e28760bf716162",
+        "workspace_equals_frozen_git": true
+      },
+      {
+        "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+        "bytes": 4744,
+        "sha256": "833f1a6147650c82559f4916a878e8649175503d07c76180c9d2d461e48bf688",
+        "git_blob": "41802e5ce333557a714cbcfdf4c0a602e2f5bde3",
+        "workspace_equals_frozen_git": true
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-intake.toml",
+        "bytes": 2229,
+        "sha256": "ff9fbde4ec7373b6426f0bde956d50aa1420d1ad648b25c001e77e4a30627d4b",
+        "git_blob": "ff1037682bf3e4e84c09712acabb95a8689f6f48",
+        "workspace_equals_frozen_git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "bytes": 62458,
+        "sha256": "ab71e03c5594ad5eb6705c86d227884d38b57691f4a7df0db2e7abc6a016ca6f",
+        "git_blob": "dd8a896bd96bfcf3e81b47ae82385a2d2c8a83fc",
+        "workspace_equals_frozen_git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "bytes": 42195,
+        "sha256": "1b9d1d678f4719acb5fe3b2f62605a1e382a693191f659f5d5455e3c82858a2d",
+        "git_blob": "93bcd9191ec7e6707a2290409fa8c5332f59e43e",
+        "workspace_equals_frozen_git": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "bytes": 33928,
+        "sha256": "0291a69f50787c4c3c6af0e30300a76a673e41986e2be76ddfe237151804ae9f",
+        "git_blob": "de34bd48a2ae8813c4dc18ac3c71695e2b370be3",
+        "workspace_equals_frozen_git": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "bytes": 14567,
+        "sha256": "aeab6c271be0b98af7adad5e8942b751cae7250ef906d3d8389e83e8bb848710",
+        "git_blob": "c2e93664ef5e928d77f5a3d5c0fba9261da1393f",
+        "workspace_equals_frozen_git": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "bytes": 8893,
+        "sha256": "aa2d47ce203cf7bef2eb7007d56c58336ba42bbb1dce0dec7498582ddd39a57a",
+        "git_blob": "c401c45e5e4bfeb9c6689fc09bfc9130b9d689c2",
+        "workspace_equals_frozen_git": true
+      }
+    ],
+    "owner_boundary": "Only existing Foundry graph_reconciliation and Scientist reconciliation node; separate fragmentcomposition law bodies unchanged; docs explicitlydeclare breaking current-source requirement and default directed-temporal preserved. No graph writer/schema/global policy changes."
+  },
+  "producer_artifact_bridge_consumer": {
+    "producer": "Actual registered causal.prior.reconcile_causal_graph@1.0.0 run_job, known synthetic GraphReconciliationData",
+    "artifact": "Genuine scientist.method_result.causal.prior verified CAS selected view",
+    "bridge": "Current _load_data_graph resolves actual source artifact or explicit selected params; complete request persisted as scientist.graph_reconciliation_request",
+    "consumer": "Actual ReconcileCausalGraphNode→persisted ir.causal_graph_model→new FileSystemCAS/load_causal_graph_model; complete request/hash/lineage and actual expectededges/confidence checked"
+  },
+  "P40_buckets": [
+    {
+      "class": "Current-source/request/CAS lifecycle",
+      "established": "Current genuine source replacement, prior/hint/config/seed and complete CASrequest change observed; old cache cannot attest new input; absent/wrongkind/schema/media/content/corrupt selected CAS refuses. Source graph params precedence is explicit; malformed explicitinput cannot fallback silently. Marker-preserving selected-CAS verifier removal falsified.",
+      "limits": "Full source-fragment/shared-run/cache lifecycle and protected policyconsumer not claimed."
+    },
+    {
+      "class": "Endpoint/static semantics",
+      "established": "Known reverse arrow normalized with originalcoordinatewitness; partial/unresolved/undirected/bidirected refuse atactualstandalone canonicalmerge; staticnode refuses PAG/CPDAG/ADMG and lag; legacyknown-directedlag1/2 still readable atdefaultmethod; staticpriorcycle doesnotgainlawby lag/drop. Marker-preserving endpoint predicate removal falsified.",
+      "limits": "No arbitrary PAG extension, temporal unfolding, new mixedgraph method or authority."
+    }
+  ],
+  "checks": [
+    {
+      "name": "independent-native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "-v",
+        "--tb=short"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Complete three files:39cases,0SKIP/ERROR,20 actual runner warnings; real method jobs→CAS→node→fresh graph reader, composition/query existing consumers included.",
+      "process_exit_code": 0,
+      "outcome": "PASS",
+      "output": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stdout.txt",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stdout.txt",
+        "bytes": 5564,
+        "sha256": "129117b929a9cafaec8f6a09f8b81e3575f31b5d59926d914cf838b78adf7f86"
+      },
+      "stderr_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "passed": 39,
+      "skipped": 0,
+      "errors": 0,
+      "warnings": 20,
+      "pytest_seconds": 11.98
+    },
+    {
+      "name": "independent-adversarial",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/test_independent_intake.py",
+        "-v",
+        "--tb=short",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Complete26 independently authored finite analytic/CAScontrols; actual manual .98/.92 confidence, coherent selected kind/schema/media/content and blob corruption, true registered job input precedence, lag1/2 fresh serialization/default law vsstatic refusal, reverse orientation and explicitboolean.0SKIP/ERROR.",
+      "process_exit_code": 0,
+      "outcome": "PASS",
+      "output": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stdout.txt",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stdout.txt",
+        "bytes": 6531,
+        "sha256": "c06402241497f25cca785c488707b55f5d41b0dc1eb01f906bdbdfbb41e676da"
+      },
+      "stderr_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "passed": 26,
+      "skipped": 0,
+      "errors": 0,
+      "warnings": 4,
+      "pytest_seconds": 8.42
+    },
+    {
+      "name": "earlier-probe-base-e6",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/replay_earlier_probe.py",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-cas"
+      ],
+      "target_sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Exact prior committed probe bytes, local CAS destination remapped only; actual cache stale X→Y despite newY→X, nonexistent cached ref success, unresolved circle orientation and temporal static admission reproduce prior red safety properties. Script0 observes defects; not propertyPASS.",
+      "process_exit_code": 0,
+      "outcome": "FAIL",
+      "output": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stdout.txt",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stdout.txt",
+        "bytes": 7212,
+        "sha256": "50f9b4099602370903dac9ba9349624bb0617a2c8d90a9f9c6f6b46a4c17c8ab"
+      },
+      "stderr_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stderr.txt",
+        "bytes": 857,
+        "sha256": "844468547050058ec9a5c7b7a8ede2debcd1d54b50482aa512a764536fb8e52d"
+      },
+      "measurement_script_outcome": "PASS",
+      "safety_predicates": "FAIL",
+      "source_equivalence_to198": "Both mechanism/node blobs at e6 match198; not whole repository P41 attribution."
+    },
+    {
+      "name": "unchanged-earlier-bad-behavior-probe-at-tip",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/replay_earlier_probe.py",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-cas"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Same exact prior probe now rejects old bad-behavior assertion: actual fresh currentY→X and missing-ref fail measured before assertion; expected discriminating rejection, not candidate product defect.",
+      "process_exit_code": 1,
+      "outcome": "FAIL",
+      "output": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stdout.txt",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stdout.txt",
+        "bytes": 3213,
+        "sha256": "f07618fef5d26f4a7fa0aa061632dc1b9760c99d2c790295b6b0ffad2cda788b"
+      },
+      "stderr_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stderr.txt",
+        "bytes": 1421,
+        "sha256": "9505b475bf8b7b877dd82cf7edbaf61b5738d265bb27243b3f9d23e93b0b0321"
+      },
+      "expected_rejection": true
+    },
+    {
+      "name": "remove-canonical-standalone-endpoint-predicate",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/run_removal.py",
+        "endpoint"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Isolated in-memory canonical pure_step guard removal preserves graph/method/profile markers and static validator;4partial/mixed actual standalone inputs now silentlyorient and independent propertytestsFAIL.",
+      "process_exit_code": 1,
+      "outcome": "FAIL",
+      "output": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stdout.txt",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stdout.txt",
+        "bytes": 4508,
+        "sha256": "c4a8e36165f134713e45d9ed97d593a5d839f79ce7371939b7735436d4abdc32"
+      },
+      "stderr_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "expected_rejection": true,
+      "failed": 4,
+      "pytest_seconds": 2.23
+    },
+    {
+      "name": "remove-canonical-selected-CAS-verifier",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/economics/intake-review/run_removal.py",
+        "cas"
+      ],
+      "target_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools:.",
+        "versions": {
+          "numpy": "2.3.5",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "networkx": "3.6.1"
+        },
+        "environment_mutations": "none; root interpreter reused read-only",
+        "no_cloud_compute_quota": true
+      },
+      "input_closure": "Isolated in-memory actual node CAS verifier removal retains real CASloader/context/profile/currentinputs; nonJSONmedia graph bytes formerly refused now admittedok; independent native media gate fails.",
+      "process_exit_code": 1,
+      "outcome": "FAIL",
+      "output": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stdout.txt",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stdout.txt",
+        "bytes": 2234,
+        "sha256": "a224fdd06aa1d714a0fcecacf50007730c8891ddc551ba0abf934535f525e965"
+      },
+      "stderr_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "expected_rejection": true,
+      "failed": 1,
+      "pytest_seconds": 0.22
+    }
+  ],
+  "harness_history": [
+    {
+      "outcome": "ERROR",
+      "scope": "First prior-probe wrapper globally patched pathlib.Path, causing import TypeError before product evidence; corrected wrapper gives only immutable probe a local import proxy. Initial complete logs retained.",
+      "outputs": [
+        {
+          "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6.stdout.txt",
+          "bytes": 232,
+          "sha256": "0d600890d0181a966b6ee2c12149a5f01931d7ad34204512a87895b3963b6592"
+        },
+        {
+          "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6.stderr.txt",
+          "bytes": 2507,
+          "sha256": "c89e9fafa8c18173cc555d19549686a7de9ba74f2386d89f0a62f889767abc01"
+        },
+        {
+          "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip.stdout.txt",
+          "bytes": 228,
+          "sha256": "cefd0bf0a9c2b610fe54803d21acdbb752d46a0797c73eea7db18f40678b7b2b"
+        },
+        {
+          "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip.stderr.txt",
+          "bytes": 2534,
+          "sha256": "6be47f2c5c1a6556b1d90e27bcca653538274252fdf32131c96c3893d9001c88"
+        }
+      ]
+    },
+    {
+      "outcome": "FAIL",
+      "scope": "First independent harness20PASS/6FAIL:5cases missing required PutOptions.media_type beforetarget;1media fault used put_json which canonicalized validJSON and didnotcreate intended malformed input. Corrected explicitrequiredfields/put_bytes without product source edits; final26PASS. Initial fulltestdefinition/output retained.",
+      "outputs": [
+        {
+          "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/test_independent_intake.initial-harness.py",
+          "bytes": 8570,
+          "sha256": "a9df4fbbde7c9abc13682cebdbfdb420355900ead58ddcf060d5cfd7cc8bbf37"
+        },
+        {
+          "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial.stdout.txt",
+          "bytes": 10788,
+          "sha256": "1e32a0242e847beb39dd4b9cf9d22506a1fbec305aeccb163617132d251d8810"
+        },
+        {
+          "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "property": "Actual graph content and complete current selected request determine admission/consumed result; reference presence, graph/profile labels and unresolved endpoint loss cannot stand in for evidence.",
+  "predicate_basis": "independently_reconciled",
+  "limitations_and_next_owner": [
+    {
+      "finding_ids": [
+        "B214",
+        "B218"
+      ],
+      "finding_state": "limited",
+      "next_owner": "Froot/G canonical protected-readiness/composed-source replay; existingtemporalmethodowner for any explicit temporalconversion",
+      "limitation": "New intake632 bounded companionPASS does not close original whole GRFcriteria or graph-intake→protected-readiness/temporalbroader route."
+    },
+    "Native synthetic structure/confidence is not current real-world graph evidence, law, causal identification, calibration, lawfulproductioninput or publication authority.",
+    "20native+4independent real runner undeclaredoutput/emptywarning messages preserved; no zero-warning/perfectpipeline claim.",
+    "Root chooses integration/publishedreceipt and G acceptance; this review doesnotassume otherchats or publishedremotes."
+  ],
+  "full_moderate_artifacts": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial-final.stdout.txt",
+      "bytes": 6531,
+      "sha256": "c06402241497f25cca785c488707b55f5d41b0dc1eb01f906bdbdfbb41e676da"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/adversarial.stdout.txt",
+      "bytes": 10788,
+      "sha256": "1e32a0242e847beb39dd4b9cf9d22506a1fbec305aeccb163617132d251d8810"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stderr.txt",
+      "bytes": 857,
+      "sha256": "844468547050058ec9a5c7b7a8ede2debcd1d54b50482aa512a764536fb8e52d"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6-final.stdout.txt",
+      "bytes": 7212,
+      "sha256": "50f9b4099602370903dac9ba9349624bb0617a2c8d90a9f9c6f6b46a4c17c8ab"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6.stderr.txt",
+      "bytes": 2507,
+      "sha256": "c89e9fafa8c18173cc555d19549686a7de9ba74f2386d89f0a62f889767abc01"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-base-e6.stdout.txt",
+      "bytes": 232,
+      "sha256": "0d600890d0181a966b6ee2c12149a5f01931d7ad34204512a87895b3963b6592"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stderr.txt",
+      "bytes": 1421,
+      "sha256": "9505b475bf8b7b877dd82cf7edbaf61b5738d265bb27243b3f9d23e93b0b0321"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip-final.stdout.txt",
+      "bytes": 3213,
+      "sha256": "f07618fef5d26f4a7fa0aa061632dc1b9760c99d2c790295b6b0ffad2cda788b"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip.stderr.txt",
+      "bytes": 2534,
+      "sha256": "6be47f2c5c1a6556b1d90e27bcca653538274252fdf32131c96c3893d9001c88"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/earlier-probe-tip.stdout.txt",
+      "bytes": 228,
+      "sha256": "cefd0bf0a9c2b610fe54803d21acdbb752d46a0797c73eea7db18f40678b7b2b"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/native.stdout.txt",
+      "bytes": 5564,
+      "sha256": "129117b929a9cafaec8f6a09f8b81e3575f31b5d59926d914cf838b78adf7f86"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-cas.stdout.txt",
+      "bytes": 2234,
+      "sha256": "a224fdd06aa1d714a0fcecacf50007730c8891ddc551ba0abf934535f525e965"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/removal-endpoint.stdout.txt",
+      "bytes": 4508,
+      "sha256": "c4a8e36165f134713e45d9ed97d593a5d839f79ce7371939b7735436d4abdc32"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/replay_earlier_probe.py",
+      "bytes": 1111,
+      "sha256": "5a2eacade4b499d50b07a889005e6f03f5be0e878cb0bc447696d855ada45c15"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/run_removal.py",
+      "bytes": 1537,
+      "sha256": "40e2f33241b339bc3598bd2b220b998a201a1d05850954dff2fb2003349cb390"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/test_independent_intake.initial-harness.py",
+      "bytes": 8570,
+      "sha256": "a9df4fbbde7c9abc13682cebdbfdb420355900ead58ddcf060d5cfd7cc8bbf37"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/intake-review/test_independent_intake.py",
+      "bytes": 8640,
+      "sha256": "c4121fb63eda0a43660794cbde209962a27ae14eb11f7f2fc71cbcd11d80e067"
+    }
+  ]
+}

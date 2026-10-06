@@ -1,0 +1,60 @@
+{
+  "schema": "policyos.e02.execution.v1",
+  "source_before": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "hashes": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2112d657c88350686bd5e8a472925030ccc2d86e4e2ebf71710ecee9260fd6b2",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "9d3bd865aa835c0069be3df9e138d910e5b50956c5f8795f4c9f7e0f67ee0db2"
+    },
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "hashes": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2112d657c88350686bd5e8a472925030ccc2d86e4e2ebf71710ecee9260fd6b2",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "9d3bd865aa835c0069be3df9e138d910e5b50956c5f8795f4c9f7e0f67ee0db2"
+    },
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "input": {
+    "path": "/workspace/e02-F-graph-intake-20261006/policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+    "bytes": 8803,
+    "sha256": "91ffe5db670c3dbebe9865def3b0f4f7e47aada93f17c92dac636f9b0de5abb9"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/workspace/e02-F-20261006-receipts/graph-intake/red-pytest"
+  ],
+  "cwd": "/workspace/e02-F-graph-intake-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "exit": 1,
+  "wall_seconds": 16.333261013031006,
+  "maxrss_kib": 1207792,
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/graph-intake/red.stdout.txt",
+      "bytes": 26297,
+      "sha256": "92264e233c4229d7362cc825ae36fe78195e349968ce26bde65c0a1f59fbb097"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/graph-intake/red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,644 @@
+{
+  "schema": "policyos.e02.topic_publication.v1",
+  "unit": "C",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "main_publication": false,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007118250010535121,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "wall_seconds": 0.00548554101260379,
+      "exit_code": 0,
+      "stdout": "codex/e02-C-berl-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "wall_seconds": 0.0754713750211522,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "wall_seconds": 0.005746332986745983,
+      "exit_code": 0,
+      "stdout": "8aecb0b6e08f8d37f09c70927761576583a89828\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "8aecb0b6e08f8d37f09c70927761576583a89828"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007425083022098988,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+        "8aecb0b6e08f8d37f09c70927761576583a89828"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006806082965340465,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "87999f69c5f99d69ee2622ef00cd7f4e04d7d572^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006593832978978753,
+      "exit_code": 0,
+      "stdout": "0280403e6837c5b220ac748a7674f4e5830ba0ab\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "8aecb0b6e08f8d37f09c70927761576583a89828:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-consumer-census-c2-addendum.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007288667024113238,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "8aecb0b6e08f8d37f09c70927761576583a89828:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-consumer-census-c2-addendum.json",
+        "bytes": 19477,
+        "sha256": "3b27c81184622186a7042aa3f4441b6a4f9b70e7dbef2e223d2c286119cac1c3"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "8aecb0b6e08f8d37f09c70927761576583a89828"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.012392250006087124,
+      "exit_code": 0,
+      "stdout": "M\tpolicy-engine/architecture/public_surface/inventory.json\nM\tpolicy-engine/docs/reference/public-surface.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2-review-response.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-consumer-census-c2-addendum.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-final-combined-c2-adjudication.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-runtime-record-readback-review-response.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/census.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/commands.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/consumer-census-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/installed-command-results.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/installed-runtime.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/installed_berl_probe_87999.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/live-reader-profile-probe.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/live-reader-profile-probe.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/package-inventory.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/package_inventory_87999.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/pinned-tree-census.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/pinned-tree-census.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/ber-01-consumer-census/source-test-output-captures.json\nM\tpolicy-engine/pyproject.toml\nA\tpolicy-engine/release-fragments/unreleased/2026-10-06-c2-runtime-jsonschema.toml\nA\tpolicy-engine/release-fragments/unreleased/2026-10-06-e02-berl-conditional-profile.toml\nM\tpolicy-engine/src/polisyos/berl/README.md\nM\tpolicy-engine/src/polisyos/berl/__init__.py\nM\tpolicy-engine/src/polisyos/berl/adapters/__init__.py\nA\tpolicy-engine/src/polisyos/berl/adapters/_coalition.py\nA\tpolicy-engine/src/polisyos/berl/adapters/conditional_shapley.py\nM\tpolicy-engine/src/polisyos/berl/adapters/protocol.py\nM\tpolicy-engine/src/polisyos/berl/adapters/shap_kernel.py\nM\tpolicy-engine/src/polisyos/berl/contracts/__init__.py\nM\tpolicy-engine/src/polisyos/berl/contracts/explanation_bundle.py\nM\tpolicy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json\nM\tpolicy-engine/src/polisyos/berl/contracts/schema.py\nM\tpolicy-engine/src/polisyos/berl/contracts/validation_rules.py\nM\tpolicy-engine/src/polisyos/berl/service.py\nM\tpolicy-engine/src/polisyos/runtime/quality/explanation_reliability.py\nM\tpolicy-engine/src/polisyos/scientist/validation/phase5_preflight.py\nM\tpolicy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py\nA\tpolicy-engine/tests/unit/berl/test_conditional_shapley.py\nM\tpolicy-engine/tests/unit/berl/test_contracts.py\nM\tpolicy-engine/tests/unit/remediation/test_ber_01.py\nM\tpolicy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py\nM\tpolicy-engine/uv.lock\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "8aecb0b6e08f8d37f09c70927761576583a89828^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.00666591600747779,
+      "exit_code": 0,
+      "stdout": "e31935df4f03f4c8c8bc028ca169261a26ffed76\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos",
+      "wall_seconds": 0.0057547499891370535,
+      "exit_code": 0,
+      "stdout": "codex/e02-C-scholar-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos",
+      "wall_seconds": 0.07584441697690636,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos",
+      "wall_seconds": 0.005599915981292725,
+      "exit_code": 0,
+      "stdout": "f7af77f3373e4d22f703efa7208c19c6ffed1746\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "f7af77f3373e4d22f703efa7208c19c6ffed1746"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007458959007635713,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "01c303c2a94a1ff281e4fcc9804db60183e65d68",
+        "f7af77f3373e4d22f703efa7208c19c6ffed1746"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007431457983329892,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "01c303c2a94a1ff281e4fcc9804db60183e65d68^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006818082998506725,
+      "exit_code": 0,
+      "stdout": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f7af77f3373e4d22f703efa7208c19c6ffed1746:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007105541008058935,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "f7af77f3373e4d22f703efa7208c19c6ffed1746:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json",
+        "bytes": 46377,
+        "sha256": "05296140c07a43bdd99c22ef8275d839cfd6b63edb37a9a423c869c459fbc1d0"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "f7af77f3373e4d22f703efa7208c19c6ffed1746"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.0118322090129368,
+      "exit_code": 0,
+      "stdout": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-command-results.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-provision.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/build.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/build.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/changed-source-map.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/changed-source-map.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/command-results.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/dependency-closure-probe.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/dependency-closure.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/dependency-closure.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/authorized-handoff-source-readback.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/candidate-pin-and-delta.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/diff-check.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/focused-provider-cache-packet.verbose.txt.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/ruff-check.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/schema-1.1-1.2-packet-reader.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/install.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/install.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/installed_scl_probe.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/package-census.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/package-census.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-install.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-install.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-probe-v3.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-v3.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/packet-consumer-v3.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/payload-scope.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/payload-scope.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/runtime.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/runtime.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json\nM\tpolicy-engine/src/polisyos/scholar/README.md\nM\tpolicy-engine/src/polisyos/scholar/api.py\nM\tpolicy-engine/src/polisyos/scholar/discover/README.md\nM\tpolicy-engine/src/polisyos/scholar/discover/http_fetch.py\nM\tpolicy-engine/src/polisyos/scholar/discover/transport.py\nA\tpolicy-engine/src/polisyos/scholar/fetch_contracts.py\nM\tpolicy-engine/src/polisyos/scholar/orchestrator/bundle.py\nM\tpolicy-engine/src/polisyos/scholar/orchestrator/enrich.py\nM\tpolicy-engine/src/polisyos/scholar/search/cache.py\nM\tpolicy-engine/src/polisyos/scholar/search/fetcher.py\nM\tpolicy-engine/src/polisyos/scholar/search/jobs.py\nM\tpolicy-engine/src/polisyos/scholar/search/models.py\nM\tpolicy-engine/src/polisyos/scholar/search/providers.py\nM\tpolicy-engine/src/polisyos/scholar/search/scoring.py\nM\tpolicy-engine/src/polisyos/scholar/search/service.py\nM\tpolicy-engine/src/polisyos/scholar/types.py\nM\tpolicy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py\nA\tpolicy-engine/tests/unit/remediation/test_scl_01.py\nM\tpolicy-engine/tests/unit/remediation/test_scl_03.py\nM\tpolicy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py\nM\tpolicy-engine/tests/unit/scholar/search/test_service_jobs_tools.py\nM\tpolicy-engine/tests/unit/scholar/test_api_web_bootstrap.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "f7af77f3373e4d22f703efa7208c19c6ffed1746^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006654333032201976,
+      "exit_code": 0,
+      "stdout": "9d6c122811db158a7a84a43f534a1d1c1209b3a6\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
+      "wall_seconds": 0.005683791998308152,
+      "exit_code": 0,
+      "stdout": "codex/e02-C-obs-udf-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
+      "wall_seconds": 0.07453099999111146,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
+      "wall_seconds": 0.00542379094986245,
+      "exit_code": 0,
+      "stdout": "705575be73510d40d726c82c5a0af4bf8635a2a8\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "705575be73510d40d726c82c5a0af4bf8635a2a8"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007103290990926325,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+        "705575be73510d40d726c82c5a0af4bf8635a2a8"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006832458020653576,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "5a75b004e0d17c80f1d156df84db7a12a9274c9e^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006786124955397099,
+      "exit_code": 0,
+      "stdout": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "705575be73510d40d726c82c5a0af4bf8635a2a8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.0071201250539161265,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "705575be73510d40d726c82c5a0af4bf8635a2a8:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+        "bytes": 49032,
+        "sha256": "6dff493387ddf638f68989a9143ce16e9218329d4104c9cd657b915e61595fb2"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "705575be73510d40d726c82c5a0af4bf8635a2a8"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.011122999945655465,
+      "exit_code": 0,
+      "stdout": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/census.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/tracked-tree.stdout.nul\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/base-sync.exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/base-sync.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/base-sync.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/build.exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/build.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/build.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/install.exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/install.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/install.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v2.exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v2.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v2.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/ukraine-cli-help.exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/ukraine-cli-help.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/ukraine-cli-help.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/base-d3-run.stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/base-run7.stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/candidate-d3-run.stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/candidate-run7.stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/comparison-summary.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/d3-comparison.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/d3-remove-control.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/direct-importer-census.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/remove-output-control.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/remove-output-control.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/run_d3_witness.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/run_witness.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/absent-root-config.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/absent-root.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/absent-root.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/census.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/census.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/census_ops_runners.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/cli-help.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/cli-help.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/commands.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/darwin-marker-negative.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/darwin-marker-negative.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/environment.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/environment.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observe_cli_process.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observed-cli-process.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observed-cli.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observed-cli.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observer.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observer.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/ops-runners-census.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/receipt.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/sha256sums.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/receipt-index.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json\nM\tpolicy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py\nM\tpolicy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py\nM\tpolicy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py\nM\tpolicy-engine/tests/unit/remediation/test_obs_02.py\nM\tpolicy-engine/tests/unit/remediation/test_udf_01.py\nM\tpolicy-engine/tests/unit/remediation/test_udf_02.py\nM\tpolicy-engine/tests/unit/remediation/test_udf_04.py\nM\tpolicy-engine/tests/unit/remediation/test_udf_05.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "705575be73510d40d726c82c5a0af4bf8635a2a8^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007051749969832599,
+      "exit_code": 0,
+      "stdout": "623a5ddd9e9512262f7944885a811930574733f0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "codex/e02-C-berl-20261006:refs/heads/codex/e02-C-berl-20261006",
+        "codex/e02-C-scholar-20261006:refs/heads/codex/e02-C-scholar-20261006",
+        "codex/e02-C-obs-udf-20261006:refs/heads/codex/e02-C-obs-udf-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 2.924139250011649,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n * [new branch]          codex/e02-C-berl-20261006 -> codex/e02-C-berl-20261006\n * [new branch]          codex/e02-C-scholar-20261006 -> codex/e02-C-scholar-20261006\n * [new branch]          codex/e02-C-obs-udf-20261006 -> codex/e02-C-obs-udf-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-C-berl-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.4905212500016205,
+      "exit_code": 0,
+      "stdout": "8aecb0b6e08f8d37f09c70927761576583a89828\trefs/heads/codex/e02-C-berl-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-C-berl-20261006:refs/remotes/origin/codex/e02-C-berl-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.5434763749944977,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-berl-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.0062028749962337315,
+      "exit_code": 0,
+      "stdout": "8aecb0b6e08f8d37f09c70927761576583a89828\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-berl-20261006^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007543290965259075,
+      "exit_code": 0,
+      "stdout": "e31935df4f03f4c8c8bc028ca169261a26ffed76\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "refs/remotes/origin/codex/e02-C-berl-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-consumer-census-c2-addendum.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.008070957963354886,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "refs/remotes/origin/codex/e02-C-berl-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-consumer-census-c2-addendum.json",
+        "bytes": 19477,
+        "sha256": "3b27c81184622186a7042aa3f4441b6a4f9b70e7dbef2e223d2c286119cac1c3"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-C-scholar-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.5673852500040084,
+      "exit_code": 0,
+      "stdout": "f7af77f3373e4d22f703efa7208c19c6ffed1746\trefs/heads/codex/e02-C-scholar-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-C-scholar-20261006:refs/remotes/origin/codex/e02-C-scholar-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.7367676669964567,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-scholar-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.005393792001996189,
+      "exit_code": 0,
+      "stdout": "f7af77f3373e4d22f703efa7208c19c6ffed1746\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-scholar-20261006^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006978792021982372,
+      "exit_code": 0,
+      "stdout": "9d6c122811db158a7a84a43f534a1d1c1209b3a6\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "refs/remotes/origin/codex/e02-C-scholar-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007297665986698121,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "refs/remotes/origin/codex/e02-C-scholar-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json",
+        "bytes": 46377,
+        "sha256": "05296140c07a43bdd99c22ef8275d839cfd6b63edb37a9a423c869c459fbc1d0"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-C-obs-udf-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.4874768750160001,
+      "exit_code": 0,
+      "stdout": "705575be73510d40d726c82c5a0af4bf8635a2a8\trefs/heads/codex/e02-C-obs-udf-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-C-obs-udf-20261006:refs/remotes/origin/codex/e02-C-obs-udf-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.5192512500216253,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-obs-udf-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.008107208006549627,
+      "exit_code": 0,
+      "stdout": "705575be73510d40d726c82c5a0af4bf8635a2a8\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-obs-udf-20261006^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.011540583975147456,
+      "exit_code": 0,
+      "stdout": "623a5ddd9e9512262f7944885a811930574733f0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "refs/remotes/origin/codex/e02-C-obs-udf-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.009657874994445592,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "refs/remotes/origin/codex/e02-C-obs-udf-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+        "bytes": 49032,
+        "sha256": "6dff493387ddf638f68989a9143ce16e9218329d4104c9cd657b915e61595fb2"
+      },
+      "stderr": ""
+    }
+  ],
+  "topics": [
+    {
+      "branch": "codex/e02-C-berl-20261006",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "expected_head": "8aecb0b6e08f8d37f09c70927761576583a89828",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-consumer-census-c2-addendum.json",
+      "implementation_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+      "implementation_tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+      "tree": "e31935df4f03f4c8c8bc028ca169261a26ffed76",
+      "handoff_sha256": "3b27c81184622186a7042aa3f4441b6a4f9b70e7dbef2e223d2c286119cac1c3",
+      "handoff_bytes": 19477,
+      "branch_readback_validated": true,
+      "remote_readback_validated": true
+    },
+    {
+      "branch": "codex/e02-C-scholar-20261006",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos",
+      "expected_head": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json",
+      "implementation_sha": "01c303c2a94a1ff281e4fcc9804db60183e65d68",
+      "implementation_tree": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f",
+      "tree": "9d6c122811db158a7a84a43f534a1d1c1209b3a6",
+      "handoff_sha256": "05296140c07a43bdd99c22ef8275d839cfd6b63edb37a9a423c869c459fbc1d0",
+      "handoff_bytes": 46377,
+      "branch_readback_validated": true,
+      "remote_readback_validated": true
+    },
+    {
+      "branch": "codex/e02-C-obs-udf-20261006",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
+      "expected_head": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+      "implementation_sha": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+      "implementation_tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
+      "tree": "623a5ddd9e9512262f7944885a811930574733f0",
+      "handoff_sha256": "6dff493387ddf638f68989a9143ce16e9218329d4104c9cd657b915e61595fb2",
+      "handoff_bytes": 49032,
+      "branch_readback_validated": true,
+      "remote_readback_validated": true
+    }
+  ],
+  "complete": true,
+  "next_owner": "G; ordinary Git topics and committed handoffs, no other user chat message"
+}

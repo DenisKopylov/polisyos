@@ -1432,6 +1432,15 @@ class HumanDecisionRecoveryFence:
         return result
 
 
+@dataclass(frozen=True)
+class _ControlJobTransactionAdmission:
+    """Actual bound job evidence held only by the admitting SQL transaction."""
+
+    resource: Any
+    identity: tuple[str, str, int]
+    lease_expires_at: datetime | None
+
+
 class ControlPlaneStore:
     """Store control jobs and leases with a backend-specific SQL schema.
 
@@ -1812,11 +1821,10 @@ class ControlPlaneStore:
 
         if self.backend == "sqlite":
             with self._lock:
-                with self._sqlite_connection() as conn:
+                with self._sqlite_mutation_connection() as conn:
                     cursor = conn.execute(sql, params)
-                    conn.commit()
                     return cursor.rowcount == 1
-        with self._postgres_cursor() as cur:
+        with self._postgres_mutation_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
             return cur.rowcount == 1
 
@@ -1844,16 +1852,14 @@ class ControlPlaneStore:
         params = (assertion_digest, expires_at, now)
         if self.backend == "sqlite":
             with self._lock:
-                with self._sqlite_connection() as conn:
-                    conn.execute("BEGIN IMMEDIATE")
+                with self._sqlite_mutation_connection() as conn:
                     conn.execute(
                         "DELETE FROM runtime_step_up_replays WHERE expires_at <= ?",
                         (now,),
                     )
                     cursor = conn.execute(insert_sql, params)
-                    conn.commit()
                     return cursor.rowcount == 1
-        with self._postgres_cursor() as cur:
+        with self._postgres_mutation_cursor() as cur:
             cur.execute(
                 "DELETE FROM runtime_step_up_replays WHERE expires_at <= %s",
                 (now,),
@@ -1988,8 +1994,7 @@ class ControlPlaneStore:
 
         params = (tenant_id, governed_action_key, reservation_version)
         if self.backend == "sqlite":
-            with self._lock, self._sqlite_connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
+            with self._lock, self._sqlite_mutation_connection() as conn:
                 try:
                     reservation = _validate(
                         conn.execute(
@@ -1998,7 +2003,6 @@ class ControlPlaneStore:
                         ).fetchone()
                     )
                     self._human_decision_transaction.active = True
-                    self._human_decision_transaction.sqlite_connection = conn
                     fence = HumanDecisionWriteFence(
                         reservation=reservation,
                         _execute=conn.execute,
@@ -2010,16 +2014,13 @@ class ControlPlaneStore:
                     yield fence
                     if not fence._finalized:
                         raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-                    conn.commit()
                 except Exception:
-                    conn.rollback()
                     raise
                 finally:
                     self._human_decision_transaction.active = False
-                    self._human_decision_transaction.sqlite_connection = None
             return
 
-        with self._postgres_cursor() as cur:
+        with self._postgres_mutation_cursor() as cur:
             reservation = _validate(
                 self._postgres_reservation_row(
                     cur,
@@ -2030,7 +2031,6 @@ class ControlPlaneStore:
                 )
             )
             self._human_decision_transaction.active = True
-            self._human_decision_transaction.postgres_cursor = cur
             try:
                 fence = HumanDecisionWriteFence(
                     reservation=reservation,
@@ -2048,7 +2048,6 @@ class ControlPlaneStore:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
             finally:
                 self._human_decision_transaction.active = False
-                self._human_decision_transaction.postgres_cursor = None
 
     @contextmanager
     def hold_human_decision_recovery_fence(
@@ -2085,8 +2084,7 @@ class ControlPlaneStore:
 
         params = (tenant_id, governed_action_key, reservation_version)
         if self.backend == "sqlite":
-            with self._lock, self._sqlite_connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
+            with self._lock, self._sqlite_mutation_connection() as conn:
                 try:
                     reservation = _validate(
                         conn.execute(
@@ -2095,7 +2093,6 @@ class ControlPlaneStore:
                         ).fetchone()
                     )
                     self._human_decision_transaction.active = True
-                    self._human_decision_transaction.sqlite_connection = conn
                     fence = HumanDecisionRecoveryFence(
                         reservation=reservation,
                         _execute=conn.execute,
@@ -2107,16 +2104,13 @@ class ControlPlaneStore:
                     yield fence
                     if not fence._finalized:
                         raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-                    conn.commit()
                 except BaseException:
-                    conn.rollback()
                     raise
                 finally:
                     self._human_decision_transaction.active = False
-                    self._human_decision_transaction.sqlite_connection = None
             return
 
-        with self._postgres_cursor() as cur:
+        with self._postgres_mutation_cursor() as cur:
             reservation = _validate(
                 self._postgres_reservation_row(
                     cur,
@@ -2127,7 +2121,6 @@ class ControlPlaneStore:
                 )
             )
             self._human_decision_transaction.active = True
-            self._human_decision_transaction.postgres_cursor = cur
             try:
                 fence = HumanDecisionRecoveryFence(
                     reservation=reservation,
@@ -2145,7 +2138,6 @@ class ControlPlaneStore:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
             finally:
                 self._human_decision_transaction.active = False
-                self._human_decision_transaction.postgres_cursor = None
 
     def mark_human_decision_recovery_required(
         self,
@@ -2188,19 +2180,16 @@ class ControlPlaneStore:
             reservation_version,
         )
         if self.backend == "sqlite":
-            with self._lock, self._sqlite_connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
+            with self._lock, self._sqlite_mutation_connection() as conn:
                 cursor = conn.execute(sql, params)
                 if cursor.rowcount != 1:
-                    conn.rollback()
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
                 row = conn.execute(
                     self._human_decision_reservation_generation_select_sql(),
                     (tenant_id, governed_action_key, reservation_version),
                 ).fetchone()
-                conn.commit()
         else:
-            with self._postgres_cursor() as cur:
+            with self._postgres_mutation_cursor() as cur:
                 cur.execute(self._translate_sql(sql), params)
                 if cur.rowcount != 1:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
@@ -2300,19 +2289,16 @@ class ControlPlaneStore:
             reservation_version,
         )
         if self.backend == "sqlite":
-            with self._lock, self._sqlite_connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
+            with self._lock, self._sqlite_mutation_connection() as conn:
                 cursor = conn.execute(sql, params)
                 if cursor.rowcount != 1:
-                    conn.execute("ROLLBACK")
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
                 row = conn.execute(
                     self._human_decision_reservation_generation_select_sql(),
                     (tenant_id, governed_action_key, reservation_version),
                 ).fetchone()
-                conn.commit()
         else:
-            with self._postgres_cursor() as cur:
+            with self._postgres_mutation_cursor() as cur:
                 cur.execute(self._translate_sql(sql), params)
                 if cur.rowcount != 1:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
@@ -2338,8 +2324,7 @@ class ControlPlaneStore:
         lease_expires_at: datetime,
         record_valid_until: datetime,
     ) -> HumanDecisionReservationResult:
-        with self._lock, self._sqlite_connection() as conn:
-            conn.execute("BEGIN IMMEDIATE")
+        with self._lock, self._sqlite_mutation_connection() as conn:
             row = conn.execute(
                 self._human_decision_reservation_select_sql(),
                 (tenant_id, governed_action_key),
@@ -2361,7 +2346,6 @@ class ControlPlaneStore:
                     self._human_decision_reservation_select_sql(),
                     (tenant_id, governed_action_key),
                 ).fetchone()
-                conn.commit()
                 return HumanDecisionReservationResult(
                     acquired=True,
                     issue_code=None,
@@ -2382,7 +2366,6 @@ class ControlPlaneStore:
                 record_valid_until=record_valid_until,
                 postgres=False,
             )
-            conn.commit()
             return result
 
     def _reserve_human_decision_postgres(
@@ -2396,7 +2379,7 @@ class ControlPlaneStore:
         lease_expires_at: datetime,
         record_valid_until: datetime,
     ) -> HumanDecisionReservationResult:
-        with self._postgres_cursor() as cur:
+        with self._postgres_mutation_cursor() as cur:
             insert_sql = self._human_decision_reservation_insert_sql(
                 on_conflict=True,
             )
@@ -3222,16 +3205,13 @@ class ControlPlaneStore:
             return True
 
         if self.backend == "sqlite":
-            with self._lock, self._sqlite_connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
+            with self._lock, self._sqlite_mutation_connection() as conn:
                 try:
                     admitted = append(conn.cursor(), postgres=False)
-                    conn.commit()
                     return admitted
                 except Exception:
-                    conn.rollback()
                     raise
-        with self._postgres_cursor() as cur:
+        with self._postgres_mutation_cursor() as cur:
             return append(cur, postgres=True)
 
     def append_event(self, *, job_id: str, event_type: str, payload: dict[str, Any]) -> None:
@@ -3347,7 +3327,7 @@ class ControlPlaneStore:
 
     def current_execution_completed_job_record(self) -> ControlJobRecord:
         """Resolve this handler's exact completed attempt without granting a new lease."""
-        with self._job_transaction():
+        with self._job_transaction(purpose="completed_proof"):
             return self._require_current_job_completion_record()
 
     def _require_current_job_completion_record(self) -> ControlJobRecord:
@@ -3415,7 +3395,7 @@ class ControlPlaneStore:
         """
         if not _is_sha256_ref(proof_ref):
             raise ValueError("control job final proof reference is invalid")
-        with self._job_transaction():
+        with self._job_transaction(purpose="completed_proof"):
             record = self._require_current_job_completion_record()
             if record.job_id != job_id:
                 raise ControlJobLeaseLostError("control job final proof progress changed")
@@ -3515,68 +3495,59 @@ class ControlPlaneStore:
         lease_seconds: int = 60,
     ) -> ControlJobRecord | None:
         """Lease the next pending/expired job for one worker and emit a running event."""
-        if self.backend == "sqlite":
-            record = self._lease_next_sqlite(worker_id=worker_id, lease_seconds=lease_seconds)
-        else:
-            record = self._lease_next_postgres(worker_id=worker_id, lease_seconds=lease_seconds)
-        if record is not None:
-            progress = append_evidence_spine_handoff(
-                record.progress,
-                control_plane_handoff(
-                    handoff_kind="control_plane_job_lease",
-                    job_id=record.job_id,
-                    producer_ref="runtime.control_plane_store",
-                    consumer_ref=f"runtime.control_worker:{worker_id}",
-                    input_refs=(f"control-job:{record.job_id}",),
-                    output_refs=(f"control-job:{record.job_id}:lease:{record.attempt}",),
-                    carrier_ref=_progress_carrier_ref(
-                        progress=record.progress,
+        with self._job_transaction():
+            if self.backend == "sqlite":
+                record = self._lease_next_sqlite(worker_id=worker_id, lease_seconds=lease_seconds)
+            else:
+                record = self._lease_next_postgres(worker_id=worker_id, lease_seconds=lease_seconds)
+            if record is not None:
+                progress = append_evidence_spine_handoff(
+                    record.progress,
+                    control_plane_handoff(
+                        handoff_kind="control_plane_job_lease",
                         job_id=record.job_id,
-                        payload_ref=record.payload_ref,
+                        producer_ref="runtime.control_plane_store",
+                        consumer_ref=f"runtime.control_worker:{worker_id}",
+                        input_refs=(f"control-job:{record.job_id}",),
+                        output_refs=(f"control-job:{record.job_id}:lease:{record.attempt}",),
+                        carrier_ref=_progress_carrier_ref(
+                            progress=record.progress,
+                            job_id=record.job_id,
+                            payload_ref=record.payload_ref,
+                        ),
                     ),
-                ),
-            )
-            self.upsert_progress(job_id=record.job_id, progress=progress)
-            record = self.get_job(record.job_id) or record
-            payload = {
-                "state": "running",
-                "lease_owner": worker_id,
-                "lease_expires_at": _iso(record.lease_expires_at),
-            }
-            self.append_event(job_id=record.job_id, event_type="job_running", payload=payload)
-            self._emit_job_outbox_event(
-                record=record,
-                event_type="job_running",
-                payload=payload,
-            )
-        return record
+                )
+                self.upsert_progress(job_id=record.job_id, progress=progress)
+                record = self.get_job(record.job_id) or record
+                payload = {
+                    "state": "running",
+                    "lease_owner": worker_id,
+                    "lease_expires_at": _iso(record.lease_expires_at),
+                }
+                self.append_event(job_id=record.job_id, event_type="job_running", payload=payload)
+                self._emit_job_outbox_event(
+                    record=record,
+                    event_type="job_running",
+                    payload=payload,
+                )
+            return record
 
     def mark_running(self, *, job_id: str, worker_id: str, lease_seconds: int = 60) -> None:
         """Force a specific job into `running` state and assign a lease owner."""
-        now = _utc_now()
-        lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
-        self._execute(
-            """
-            UPDATE control_jobs
-            SET state = ?, started_at = COALESCE(started_at, ?),
-                lease_owner = ?, lease_expires_at = ?, attempt = attempt + 1
-            WHERE job_id = ?
-            """,
-            ("running", _iso(now), worker_id, _iso(lease_expires_at), job_id),
-        )
-        self.append_event(
-            job_id=job_id,
-            event_type="job_running",
-            payload={
-                "state": "running",
-                "lease_owner": worker_id,
-                "lease_expires_at": _iso(lease_expires_at),
-            },
-        )
-        record = self.get_job(job_id)
-        if record is not None:
-            self._emit_job_outbox_event(
-                record=record,
+        with self._job_transaction():
+            now = _utc_now()
+            lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
+            self._execute(
+                """
+                UPDATE control_jobs
+                SET state = ?, started_at = COALESCE(started_at, ?),
+                    lease_owner = ?, lease_expires_at = ?, attempt = attempt + 1
+                WHERE job_id = ?
+                """,
+                ("running", _iso(now), worker_id, _iso(lease_expires_at), job_id),
+            )
+            self.append_event(
+                job_id=job_id,
                 event_type="job_running",
                 payload={
                     "state": "running",
@@ -3584,6 +3555,17 @@ class ControlPlaneStore:
                     "lease_expires_at": _iso(lease_expires_at),
                 },
             )
+            record = self.get_job(job_id)
+            if record is not None:
+                self._emit_job_outbox_event(
+                    record=record,
+                    event_type="job_running",
+                    payload={
+                        "state": "running",
+                        "lease_owner": worker_id,
+                        "lease_expires_at": _iso(lease_expires_at),
+                    },
+                )
 
     def complete_job(
         self,
@@ -3896,15 +3878,18 @@ class ControlPlaneStore:
                 raise ValueError("control job attempt must be a positive integer")
             attempt_clause = " AND attempt = ?"
             attempt_params = (expected_attempt,)
-        affected_rows = self._execute(
-            f"""
-            UPDATE control_jobs
-            SET lease_expires_at = ?
-            WHERE job_id = ? AND state = 'running' AND lease_owner = ?
-              AND lease_expires_at IS NOT NULL AND lease_expires_at > ?{attempt_clause}
-            """,
-            (_iso(lease_expires_at), job_id, worker_id, _iso(now), *attempt_params),
-        )
+        try:
+            affected_rows = self._execute(
+                f"""
+                UPDATE control_jobs
+                SET lease_expires_at = ?
+                WHERE job_id = ? AND state = 'running' AND lease_owner = ?
+                  AND lease_expires_at IS NOT NULL AND lease_expires_at > ?{attempt_clause}
+                """,
+                (_iso(lease_expires_at), job_id, worker_id, _iso(now), *attempt_params),
+            )
+        except ControlJobLeaseLostError:
+            return False
         return affected_rows == 1
 
     def heartbeat_worker(
@@ -4481,8 +4466,7 @@ class ControlPlaneStore:
         now = _utc_now()
         lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
         with self._lock:
-            with self._sqlite_connection() as conn:
-                conn.execute("BEGIN IMMEDIATE")
+            with self._sqlite_mutation_connection() as conn:
                 try:
                     row = conn.execute(
                         """
@@ -4500,7 +4484,6 @@ class ControlPlaneStore:
                         (_iso(now),),
                     ).fetchone()
                     if row is None:
-                        conn.execute("COMMIT")
                         return None
                     job_id = str(row["job_id"])
                     conn.execute(
@@ -4515,9 +4498,7 @@ class ControlPlaneStore:
                         """,
                         (_iso(now), worker_id, _iso(lease_expires_at), job_id),
                     )
-                    conn.execute("COMMIT")
                 except Exception:
-                    conn.execute("ROLLBACK")
                     raise
         return self.get_job(job_id)
 
@@ -4526,7 +4507,7 @@ class ControlPlaneStore:
     ) -> ControlJobRecord | None:
         now = _utc_now()
         lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
-        with self._postgres_cursor() as cur:
+        with self._postgres_mutation_cursor() as cur:
             cur.execute(
                 """
                 WITH candidate AS (
@@ -4998,19 +4979,76 @@ class ControlPlaneStore:
             )
 
     @contextmanager
-    def _job_transaction(self) -> Iterator[None]:
-        """Run lifecycle state, progress, event, and outbox writes atomically."""
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            if prior.lease_expires_at is not None and prior.lease_expires_at <= _utc_now():
+                raise ControlJobLeaseLostError("control job lease expired during publication")
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+                raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+            expires_at = self._require_current_job_execution_record(
+                job_id=job_id, worker_id=worker_id, attempt=attempt
+            ).lease_expires_at
+        admission = _ControlJobTransactionAdmission(resource, bound, expires_at)
+        self._human_decision_transaction.job_admission = admission
+        try:
+            yield
+            if expires_at is not None and expires_at <= _utc_now():
+                raise ControlJobLeaseLostError("control job lease expired before publication")
+        finally:
+            self._human_decision_transaction.job_admission = prior
+
+    @contextmanager
+    def _job_transaction(
+        self, *, purpose: Literal["execution", "completed_proof"] = "execution"
+    ) -> Iterator[None]:
+        """Admit bound-source effects and publish all SQL rows atomically."""
         existing_sqlite = getattr(self._human_decision_transaction, "sqlite_connection", None)
         existing_postgres = getattr(self._human_decision_transaction, "postgres_cursor", None)
-        if existing_sqlite is not None or existing_postgres is not None:
-            yield
+        resource = existing_sqlite if existing_sqlite is not None else existing_postgres
+        if resource is not None:
+            with self._bound_transaction_admission(resource, purpose=purpose):
+                yield
             return
         if self.backend == "sqlite":
             with self._lock, self._sqlite_connection() as conn:
                 conn.execute("BEGIN IMMEDIATE")
                 self._human_decision_transaction.sqlite_connection = conn
                 try:
-                    yield
+                    with self._bound_transaction_admission(conn, purpose=purpose):
+                        yield
                     conn.commit()
                 except BaseException:
                     conn.rollback()
@@ -5021,29 +5059,30 @@ class ControlPlaneStore:
         with self._postgres_cursor() as cur:
             self._human_decision_transaction.postgres_cursor = cur
             try:
-                yield
+                with self._bound_transaction_admission(cur, purpose=purpose):
+                    yield
             finally:
                 self._human_decision_transaction.postgres_cursor = None
 
+    @contextmanager
+    def _sqlite_mutation_connection(self) -> Iterator[sqlite3.Connection]:
+        """Join the canonical admitted transaction for direct SQLite mutations."""
+        with self._job_transaction():
+            yield self._human_decision_transaction.sqlite_connection
+
+    @contextmanager
+    def _postgres_mutation_cursor(self) -> Iterator[Any]:
+        """Join the canonical admitted transaction for direct PostgreSQL mutations."""
+        with self._job_transaction():
+            yield self._human_decision_transaction.postgres_cursor
+
     def _execute(self, sql: str, params: tuple[Any, ...]) -> int:
-        if self.backend == "sqlite":
-            lane = getattr(
-                self._human_decision_transaction,
-                "sqlite_connection",
-                None,
-            )
-            if lane is not None:
-                return int(lane.execute(sql, params).rowcount)
-            with self._lock:
-                with self._sqlite_connection() as conn:
-                    cursor = conn.execute(sql, params)
-                    conn.commit()
-                    return int(cursor.rowcount)
-        lane = getattr(self._human_decision_transaction, "postgres_cursor", None)
-        if lane is not None:
-            lane.execute(self._translate_sql(sql), params)
-            return int(lane.rowcount)
-        with self._postgres_cursor() as cur:
+        """Write only through the actual transaction-bound publication admission."""
+        with self._job_transaction():
+            if self.backend == "sqlite":
+                conn = self._human_decision_transaction.sqlite_connection
+                return int(conn.execute(sql, params).rowcount)
+            cur = self._human_decision_transaction.postgres_cursor
             cur.execute(self._translate_sql(sql), params)
             return int(cur.rowcount)
 

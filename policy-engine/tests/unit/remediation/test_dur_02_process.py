@@ -14,6 +14,7 @@ import os
 import sqlite3
 import subprocess
 import sys
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -337,6 +338,79 @@ def test_current_bound_terminal_publication_preserves_internal_and_admin_paths(
     assert record.lease_owner is None and record.lease_expires_at is None
     store.upsert_progress(job_id=record.job_id, progress={"admin_projection": True})
     assert store.get_job(record.job_id).progress == {"admin_projection": True}
+
+
+@pytest.mark.parametrize("terminal", ["complete", "fail"])
+def test_bound_terminal_event_fault_rolls_back_state_progress_history_and_outbox(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, terminal: str
+) -> None:
+    database = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+    _create_control_job(store, "dur02-current-job")
+    job = store.lease_next_job(worker_id="worker-A", lease_seconds=300)
+    assert job is not None
+    original_append = store.append_event
+
+    def fail_terminal_event(**kwargs: Any) -> None:
+        if kwargs["event_type"] in {"job_completed", "job_failed"}:
+            raise OSError("actual publication boundary fault")
+        original_append(**kwargs)
+
+    monkeypatch.setattr(store, "append_event", fail_terminal_event)
+    before = _database_rows(database)
+    def operation() -> None:
+        if terminal == "complete":
+            store.complete_job(job_id=job.job_id, progress={"terminal": terminal})
+        else:
+            store.fail_job(
+                job_id=job.job_id, error_message="fixture", progress={"terminal": terminal}
+            )
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt),
+        pytest.raises(OSError, match="publication boundary"),
+    ):
+        operation()
+    assert _database_rows(database) == before
+
+
+def test_actual_lease_expiry_during_publication_rolls_back_all_rows(tmp_path: Path) -> None:
+    database = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+    _create_control_job(store, "dur02-current-job")
+    job = store.lease_next_job(worker_id="worker-A", lease_seconds=1)
+    assert job is not None and job.lease_expires_at is not None
+    before = _database_rows(database)
+
+    def delayed_publication() -> None:
+        with store._job_transaction():
+            store.upsert_progress(job_id=job.job_id, progress={"too_late": True})
+            store.append_event(job_id=job.job_id, event_type="too_late", payload={})
+            store.enqueue_outbox_event(topic="too_late", payload={}, job_id=job.job_id)
+            time.sleep(max(0, (job.lease_expires_at - datetime.now(UTC)).total_seconds()) + 0.1)
+
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt),
+        pytest.raises(ControlJobLeaseLostError, match="expired"),
+    ):
+        delayed_publication()
+    assert _database_rows(database) == before
+
+
+def test_current_source_lease_can_publish_existing_child_job_api(tmp_path: Path) -> None:
+    database = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+    _create_control_job(store, "dur02-current-job")
+    job = store.lease_next_job(worker_id="worker-A", lease_seconds=300)
+    assert job is not None
+    with store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt):
+        _create_control_job(store, "child")
+        store.upsert_progress(job_id="child", progress={"source_job": job.job_id})
+        store.append_event(job_id="child", event_type="fixture_child", payload={})
+        store.enqueue_outbox_event(topic="fixture_child", payload={}, job_id="child")
+        assert store.current_execution_job_record().job_id == job.job_id
+    child = store.get_job("child")
+    assert child is not None and child.state == "pending"
+    assert child.progress == {"source_job": job.job_id}
 
 
 class _PersistedEffectNode:

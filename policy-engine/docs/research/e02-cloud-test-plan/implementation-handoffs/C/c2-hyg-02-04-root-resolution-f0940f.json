@@ -1,0 +1,552 @@
+{
+  "schema": "policyos.e02.c2_hyg_02_04_followup_handoff.v1",
+  "record_kind": "append_only_candidate_handoff",
+  "handoff_created_on": "2026-10-06",
+  "append_only": true,
+  "unit": "C",
+  "slice": "HYG-02 / HYG-04",
+  "finding_ids": ["LA-008", "LA-009", "LA-011", "LA-012", "LA-013", "LA-018"],
+  "branch": "codex/e02-C-hygiene-20261006",
+  "source_freeze": {
+    "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "implementation_commits": [
+      {
+        "commit": "317c96342f2c681f121d5b8f067339a25d399b2f",
+        "tree": "76e0ed4fab9224e6ab46cf7a41b3050ed187a5ff",
+        "purpose": "HYG-02/04 canonical-owner migration and compatibility-surface retirement"
+      },
+      {
+        "commit": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+        "tree": "fe4ed5b6e2369a73376f9e66c99f0b99d5013ce9",
+        "purpose": "native packaging harness correction; independent frozen comparison source for the root-resolution fix"
+      },
+      {
+        "commit": "f0940f021f76264c288789e472a9d4681d7f6680",
+        "tree": "a436620d590564c2c8b81761ff4a179e6d68caab",
+        "parent": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+        "purpose": "bounded installed-module workspace-root fallback"
+      }
+    ],
+    "f0940f_source_delta": [
+      {
+        "path": "policy-engine/tools/lib/imports.py",
+        "sha256": "ff44a9a804fedc91e3619ea7ec55c8cf701e21f21504577fd3990184a796fd7f"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/_common.py",
+        "sha256": "b51b147e1a42e5ed62b2778ecdef2f8d92d2b1124d7c2185cf34ca282c925bce"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+        "sha256": "69447d8aa2cd768a7493302180916e648e58c4764ed517fd3c47f9b3c1cd386e"
+      }
+    ],
+    "post_freeze_source_edits": false,
+    "source_effect": "No other source, schema, lockfile, frontend, benchmark, or generated-file path changed in f0940f. The new file is evidence-only and is intentionally outside the f0940f artifact freeze."
+  },
+  "previous_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04.json",
+    "commit": "9846dbad5aba245e7c342f2dcbc57737f053aa7e",
+    "git_blob_sha": "b6d012bab5c77b8ba6b051acc27ea5754024058b",
+    "role": "full original HYG-02/04 census, source changes, accepted workflows, receipts, historic C status and unreceipted runs; this append records the later exact f0940f artifact/runtime delta"
+  },
+  "criteria_and_scope": {
+    "source_cards": [
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-02.md",
+        "source_revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob_sha": "49eda6637ce236501d3dc1d5648a25ac236be1bb",
+        "criteria": ["LA-008", "LA-009", "LA-018"]
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md",
+        "source_revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob_sha": "93c0ca6a3baebc0df20545be0a3e3ede08d145bf",
+        "criteria": ["LA-011", "LA-012", "LA-013"]
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_blob_sha": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "criteria": {
+          "LA-008": {"lines": [281, 307], "sha256": "e7780bb070e76c47270d653720b0f71cede3c1e801828130600199e95897e169"},
+          "LA-009": {"lines": [308, 338], "sha256": "b220c209a0b5cae46995a618d971c06ad3193f2943eb0880ea1373f52da29d09"},
+          "LA-011": {"lines": [368, 396], "sha256": "d7234745291e8e2306c2496505f7123214aa6b9cdb9bc4d7dbb7ad5190dd2de2"},
+          "LA-012": {"lines": [397, 427], "sha256": "02813c8895cfae05a30d3702cf9a7f45c4ddfff867ae16694af853ec0f51b94d"},
+          "LA-013": {"lines": [428, 454], "sha256": "0c3e505a88abc7cc6883ee7fe2e4056e8bd5aa2ddaeae38ce8cfde9ea710ad8f"},
+          "LA-018": {"lines": [571, 597], "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421"}
+        }
+      }
+    ],
+    "coverage_rows": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "source_blob_sha": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "scope": "planned criterion-to-task traceability, not behavioral proof or closure",
+      "positive_oracle_negative_controls_read_for_each_finding": true
+    },
+    "checkout_boundary": {
+      "contributor_docs": "policy-engine/CONTRIBUTING.md describes workspace bootstrap and profiles as contributor setup. The checkout root is the documented execution context.",
+      "benchmark_docs": "policy-engine/tools/research/benchmarks/README.md states the canonical run-all workflow runs inside a checkout and that the Python wheel does not promise this repository-tree workflow.",
+      "scope_decision": "LA-011 installed bootstrap is tested from the actual candidate checkout. The benchmark suite remains a checkout workflow under LA-012; this handoff does not convert its repository-tree dependency into a wheel promise."
+    }
+  },
+  "implementation_property": {
+    "property": "Retire only duplicate compatibility addresses while preserving canonical import identity, configured workflow behavior, the actual deterministic benchmark workload, persisted Fabric-to-Lex field flow, and the declared native archive boundary.",
+    "root_resolution_mechanism": "repo_root_from keeps source-file ancestry first; an explicit workspace_root must be an existing canonical workspace; the installed-workspace consumer opts into CWD fallback only when the full existing pyproject.toml/tools/src sentinel layout resolves. Invalid or absent roots raise RepositoryRootUnavailableError. Existing anchored source callers retain their default behavior.",
+    "semantic_negative_case": "An installed module invoked from /private/tmp must not infer or invent a workspace. The actual -I wheel probe exits nonzero with a root-resolution message and no traceback; a direct call raises RepositoryRootUnavailableError. The changed behavior therefore measures an existing workspace property, not mere presence of a resolver flag.",
+    "archive_property": "The native Hatchling build is inspected member-by-member against the complete candidate source archive and declared force-includes. Zero apps/packages wheel payload and exactly the 24 README-only sdist exceptions are established from actual archive members and source-byte matches, not a name or count marker.",
+    "predicate_basis": {
+      "candidate source and archive membership": "recomputed from the exact f0940f git archive and actual built wheel/sdist",
+      "installed module origin and root": "independently reconciled from -I import origins and the validated checkout layout",
+      "external consumer contracts and source legal authority": "not_established; no claim is made"
+    },
+    "pattern_pass": {
+      "P06": "Canonical Core/Scientist/Fabric/benchmark owners retain implementation and identity; only the addressed shims were retired.",
+      "P29": "Runtime root selection and exact archive membership were exercised through the installed package/build outputs; strings or markers alone are not treated as closure.",
+      "P35": "Set-level statements cite full path and suffix denominators below, the full source walk scripts, and raw receipt hashes.",
+      "P37": "Recomputed archive facts and installed origins are distinguished from non-established external/API/authority premises.",
+      "P38": "A real checkout succeeds for the opt-in installed workspace root path; a non-checkout is the explicit divergent case and fails closed. Archive membership is not used as a proxy for frontend runtime/build behavior.",
+      "P41": "The changed dynamic-import manifest is not claimed inherited; its current owner/expiry gap is carried separately below."
+    }
+  },
+  "retired_surface_and_consumer_census": {
+    "full_tracked_tree_scan": {
+      "baseline_revision": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "method": "Read every git ls-files path as bytes and scan the complete exact-token query groups; tracked scratch excluded.",
+      "tracked_path_denominator": 13688,
+      "tracked_bytes_read": 448658436,
+      "file_type_denominator": {
+        ".blob": 11,
+        ".cfg": 1,
+        ".cjs": 9,
+        ".css": 17,
+        ".csv": 15,
+        ".cypher": 2,
+        ".docx": 1,
+        ".duckdb": 4,
+        ".example": 3,
+        ".fixture": 2,
+        ".html": 3,
+        ".ini": 11,
+        ".js": 4,
+        ".json": 2954,
+        ".jsonc": 1,
+        ".jsonl": 14,
+        ".lock": 1,
+        ".log": 20,
+        ".md": 2146,
+        ".mdc": 1,
+        ".mjs": 40,
+        ".patch": 2,
+        ".pkl": 2,
+        ".png": 42,
+        ".py": 6430,
+        ".pyi": 5,
+        ".rego": 23,
+        ".reproducible": 1,
+        ".retired": 1,
+        ".sh": 45,
+        ".sha256": 1,
+        ".sql": 6,
+        ".sqlite": 2,
+        ".sqlite-wal": 2,
+        ".svg": 18,
+        ".tf": 1,
+        ".tmpl": 7,
+        ".toml": 264,
+        ".tpl": 1,
+        ".ts": 519,
+        ".tsv": 6,
+        ".tsx": 720,
+        ".txt": 108,
+        ".typed": 2,
+        ".webm": 6,
+        ".whl": 1,
+        ".xml": 20,
+        ".yaml": 85,
+        ".yml": 71,
+        ".zip": 8,
+        "[no-extension]": 29
+      },
+      "query_group_files_with_hits": {
+        "shim helper APIs install_module_shim/shim_getattr/shim_dir": 5,
+        "retired import path tokens": 17,
+        "setup addresses install.sh/jax_bootstrap.py": 19,
+        "frontend/README.md": 23
+      },
+      "delta_reconciliation_to_f0940f": {
+        "changed_paths": [
+          "policy-engine/tools/lib/imports.py",
+          "policy-engine/tools/devx/workspace/_common.py",
+          "policy-engine/tests/unit/remediation/test_hyg_04.py"
+        ],
+        "added_or_deleted_paths": [],
+        "new_targeted_token_hits_in_changed_hunks": [],
+        "method": "Full source census above is reconciled against the only three-file f0940f content delta; the added hunks were searched for every full-census query group. Existing test/plan mentions remain historical evidence, not runtime import clients."
+      },
+      "canonical_consumer_results": {
+        "LA-008": "Only the exact addressed shim helper is retired; live evidence/claims owners remain. The exact retired import negatives and source/tool/config census are in the previous HYG handoff.",
+        "LA-009": "Workflow-configured lazy Scientist facade resolves the canonical Core pass class objects and actual Legal/Safety validations emit real issue output; discovery-only imports remain lazy.",
+        "LA-012": "Canonical public checkout CLI resolves reproducibility_deterministic and preserves its real five-case workload; wrappers were removed without deleting neighboring JAX/Lex/data-preparation tools.",
+        "LA-018": "Fabric world producer writes typed fixture facts to a temporary CAS; the actual Lex selector reads the persisted record and preserves provenance/legal fields. It does not validate source authority; the required refusal negative remains open."
+      }
+    },
+    "installed_entry_point_denominator": {
+      "source": "Exact f0940f wheel metadata inventory, not a sampled command list.",
+      "console_script_count": 6,
+      "console_scripts": [
+        ["polisy", "polisyos.foundry.plugins.cli:main"],
+        ["polisyos", "tools.ops_runners.runtime_cli:main"],
+        ["polisyos-causal-capabilities", "polisyos.foundry.methods.catalog.causal.capabilities:main"],
+        ["polisyos-foundry", "tools.ops_runners.runtime_cli:foundry_main"],
+        ["polisyos-tools", "tools.cli:main"],
+        ["ukraine-data", "polisyos.data_forge.domains.ukraine.cli:main"]
+      ],
+      "executed_process_scope": "The HYG root-resolution fix was exercised through installed polisyos-tools workspace bootstrap/doctor. This handoff does not claim that all six scripts were separately smoke-tested on f0940f."
+    }
+  },
+  "native_package_audit": {
+    "candidate": "f0940f021f76264c288789e472a9d4681d7f6680",
+    "raw_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f",
+    "source_archive": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/candidate.tar",
+      "bytes": 459980800,
+      "sha256": "1949af71e1b11fda60ea9c94b53f06c13cff49e8f988f63ab2c4114b54454de2"
+    },
+    "builder": {
+      "command": "uv build --offline --no-build-isolation --out-dir <ignored-audit-root>/dist",
+      "native_backend": "Hatchling 1.32.0 from the local uv cache",
+      "backend_stdout_sha256": "4792a13f6648efe36f824de5a1f7a5d52e8a1e95e5f950e09b5c486d959cf7b8",
+      "build_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "build_stderr_sha256": "389f323e47c6eb672ea8fb8765c87d670a7e629355ddeb3286765fcd659166f5",
+      "result": "Built sdist, then built the wheel from that sdist. This is an exact f0940f source build; it is not the earlier Hatchling 1.32.4 author receipt."
+    },
+    "source_denominator": {
+      "candidate_archive_files": 13668,
+      "apps_and_packages_files": 1454,
+      "apps_file_count": 1345,
+      "packages_file_count": 109,
+      "apps_and_packages_pathset_sha256": "b3f9db583558d56d52df9268e3fdfafbafa45705f4342cb5727ffa6325fe7744",
+      "apps_suffix_counts": {
+        ".cjs": 9,
+        ".css": 14,
+        ".d.ts": 1,
+        ".example": 1,
+        ".html": 2,
+        ".js": 3,
+        ".json": 44,
+        ".md": 26,
+        ".mjs": 24,
+        ".png": 33,
+        ".py": 4,
+        ".sh": 1,
+        ".svg": 18,
+        ".ts": 483,
+        ".tsx": 676,
+        ".yml": 1,
+        "[no-extension]": 5
+      },
+      "packages_suffix_counts": {
+        ".css": 1,
+        ".js": 1,
+        ".json": 20,
+        ".md": 7,
+        ".mjs": 11,
+        ".sh": 1,
+        ".ts": 23,
+        ".tsx": 44,
+        "[no-extension]": 1
+      }
+    },
+    "wheel": {
+      "filename": "policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15015408,
+      "members": 3447,
+      "payload_files": 3442,
+      "sha256": "3e5200607529fcd8fd2d8d01c27e6dd2fac3f29553cf8215bc6067b489496c82",
+      "pathset_sha256": "448f3c8606759b1a2584a7fb3a1ad23a2ccb6c1faeedd75d93761f6ee7bc3fa4",
+      "payload_source_or_declared_force_include_exact": 3442,
+      "apps_or_packages_payload_files": 0,
+      "source_mismatches": 0,
+      "unmatched_payloads": 0,
+      "missing_source_package_members": 0,
+      "source_package_readmes": 167,
+      "wheel_source_package_readmes": 167,
+      "source_package_readme_omissions": 0
+    },
+    "sdist": {
+      "filename": "policy_engine-0.1.0.tar.gz",
+      "bytes": 65186634,
+      "members": 8463,
+      "sha256": "228cacce3002596715ee3fdae8ad5ff62dacedd30359711a5fcc2cdb74b5aeae",
+      "pathset_sha256": "b128a195cc0decb23bfa0debb5d7499152bce0ed131e5c69489d492945eb80ec",
+      "source_byte_exact_members": 8462,
+      "generated_non_source_members": ["PKG-INFO"],
+      "apps_or_packages_members": 24,
+      "apps_or_packages_non_readme_members": 0,
+      "apps_or_packages_readme_exception": "Exactly the 24 README paths; all 1430 non-README apps/packages paths are absent."
+    },
+    "receipt_paths": {
+      "inventory": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/package-inventory.json",
+      "inventory_sha256": "fe44fa5d60d880db2b394009a316020b9d202db6a2fda1b093274d07ad0c58c9",
+      "inventory_stdout": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/package-inventory.stdout",
+      "inventory_stdout_sha256": "dd98a531d00ff3a2394ce5b694baf774815fe57ac3fbcccba6894daa5621040a",
+      "walk_script": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/package_inventory_f0940f.py",
+      "walk_script_sha256": "46cd1f93b56ed1a9f2ef8111526307e5c0ba9366573624a605d3f2507c8f5607",
+      "changed_path_byte_map": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/artifact-delta.json",
+      "changed_path_byte_map_sha256": "458831ad4f7a700310f15594f6c0518404aef9a46228130d364ce8773e398ab1",
+      "cf8_to_f0940f_pathset_reconciliation": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/artifact-pathset-delta.json",
+      "cf8_to_f0940f_pathset_reconciliation_sha256": "ac8199cf2cdc6789825f346f72d383aa1223e55ebe9239ab04f5fdc8089e2b33"
+    },
+    "artifact_differences_and_limits": {
+      "cf8_wheel_sha256": "176cd7825485685bd8d674ec7f9286f0bd55ae27feee313668f4a783ab7a75d7",
+      "cf8_sdist_sha256": "24a9a5efddc71e2e0f8b6743fc2516d711c38893539afc5caad3366b34b2f8fe",
+      "path_reconciliation": "The wheel path set stayed at 3447 members. The f0940f sdist added eight already committed HYG handoff paths versus cf8 and removed none; source/content hashes differ where the root fix differs.",
+      "not_claimed": "The new evidence file is outside this f0940f freeze. Because it is under docs/, a later sdist census may gain this documentation member; these artifact counts are pinned to f0940f, not the receipt commit."
+    }
+  },
+  "installed_runtime_probe": {
+    "runtime_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f",
+    "python": "3.14.3",
+    "isolation": "Every probe uses the installed venv Python with -I; PYTHONPATH and PYTHONHOME are unset; the candidate source checkout is absent from sys.path. The imported first-party tools modules resolve from the exact wheel venv site-packages.",
+    "dependency_boundary": "The exact wheel was installed into a fresh private venv without resolving/installing project dependencies. A base-deps.pth references the prior admitted HYG dependency venv. Runtime origins for product modules are the new wheel; dependency resolution is not independently re-proven by this follow-up.",
+    "install_receipt": {
+      "operation": "uv pip installed exactly policy-engine==0.1.0 from the f0940f wheel into the fresh private venv; no other distribution was installed by this command.",
+      "install_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "install_stderr_sha256": "6494adc7cf29e7dc69774a8d6944a9622ee96ce9c2660d892dd0eb6bfa963041",
+      "venv_creation_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "venv_creation_stderr_sha256": "3a408a94d23a201dc187df3838d8c9a9f219318c3b7c3835f4d4259b3c893c6d"
+    },
+    "positive_processes": [
+      {
+        "command": "<wheel-venv>/bin/python -I -m tools.cli workspace bootstrap --help",
+        "cwd": "the exact f0940f policy-engine checkout",
+        "exit_code": 0,
+        "stdout_sha256": "a45e9a213767987fcdfc72e99989969494ceab9fd01fec0fba7f413bbcd7e7e1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "<wheel-venv>/bin/python -I -m tools.cli workspace doctor --help",
+        "cwd": "the exact f0940f policy-engine checkout",
+        "exit_code": 0,
+        "stdout_sha256": "ad89c34c85815aa7da1b67619f83c5b9e156139c5786930aa213b9d138ea855f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "<wheel-venv>/bin/python -I -m tools.cli workspace bootstrap --profile docs --skip-frontend --skip-hooks --skip-doctor --no-install-uv",
+        "cwd": "the exact f0940f policy-engine checkout",
+        "exit_code": 0,
+        "result": "Canonical dispatch reaches uv sync; a private fake uv captures the expected sync argv and does not install anything.",
+        "captured_uv_argv": ["sync", "--frozen", "--extra", "lint", "--extra", "docs"],
+        "captured_uv_cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine",
+        "stdout_sha256": "e0776cc147d22f84f8db63db40558e15ed4833e9ab943de447859f220da17e49",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fake_uv_calls_sha256": "7a97632824c1afa36ff979ef9e2f960da5410dce6698460f31dcecc40b278d20"
+      }
+    ],
+    "origin_probe": {
+      "modules": ["tools.cli", "tools.lib.imports", "tools.devx.workspace._common"],
+      "all_from_wheel_site_packages": true,
+      "product_root": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine",
+      "stdout_sha256": "4d8d5037fe8292e6189bbad1e2e66672cfee6e74aedb3a758c842d41f1f39f27",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "negative_processes": [
+      {
+        "command": "<wheel-venv>/bin/python -I -m tools.cli workspace bootstrap --help",
+        "cwd": "/private/tmp",
+        "exit_code": 1,
+        "result": "Fails closed with workspace-root message and no traceback.",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "0702b9f2821c7a3fff0d52c7a079b35a0c61893e1b293ce8b6840b304642cb65"
+      },
+      {
+        "command": "installed repo_root_from(..., allow_cwd_fallback=True)",
+        "cwd": "/private/tmp",
+        "result": "RepositoryRootUnavailableError; no nonexistent checkout is invented.",
+        "stdout_sha256": "ee6a1e36a040032e98184f2988912aaf0a8db5e5394d8ee62e5cb7dce1d513a3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "installed repo_root_from(..., workspace_root=<checkout>) and an invalid explicit workspace_root",
+        "result": "Existing checkout accepted; invalid/nonexistent root rejected with RepositoryRootUnavailableError.",
+        "stdout_sha256": "11420988b6bc65f74a7ef6226306d5b861126488b8e2391fbe954b3701d99962",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "validation_receipt": {
+      "path": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/runtime/runtime-validation.json",
+      "sha256": "67136449622987be9276f7394930329bc8f80a07a4a577ede3e6b8c97a031907",
+      "result": "passed"
+    },
+    "raw_probe_receipts": {
+      "driver_script": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/runtime_probe.py",
+      "driver_script_sha256": "aabd7319239352388c34ef1d8e6ac0e4123c5ac22ce04972af650f7db8af72a9",
+      "validator_script": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/validate_runtime.py",
+      "validator_script_sha256": "bcca6b7c7c416c28df55555a77f6386d87e71de346e248e088deab247a5e17ff",
+      "runtime_summary_sha256": "62ba18b958a0f95862833d8d766d8e289217edefac7894503b75c051fbd31a0f",
+      "runtime_validation_stdout_sha256": "67136449622987be9276f7394930329bc8f80a07a4a577ede3e6b8c97a031907"
+    },
+    "harness_assertion_correction": "The first runtime driver additionally required the CLI stderr to contain the Python exception class name. The CLI intentionally renders the typed exception message without the class token, so that driver assertion failed; runtime-summary.stdout (sha256 d846bc3f3c685600477f56c255dd1f3cf8ae26f8e26ad19ddd1925b73197c2cd) is preserved. The independent validator then checked CLI exit/message/no-traceback and the direct helper exception type; its validation receipt above passed. This was a harness assertion mismatch, not a product failure."
+  },
+  "focused_verification": [
+    {
+      "command": "Original HYG project venv with source checkout imports: pytest -c pytest.ini tests/unit/remediation/test_hyg_04.py tests/repo_quality/tools/test_phase2_hygiene.py -k 'not canonical_benchmark_command_runs_a_real_registered_workload' -q",
+      "working_directory": "policy-engine",
+      "result": "21 passed",
+      "stdout_path": ".tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/focused-tests-cache-enabled.stdout",
+      "stdout_sha256": "32faef56d0289369b1ac111e68ee0bb7b2ed1bcf92d3f33b75313bd0556c3e6f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "note": "The excluded canonical benchmark test is separately covered by the earlier direct five-case public CLI receipt; no broad or numeric benchmark wave was run."
+    },
+    {
+      "command": "python -m ruff check tools/lib/imports.py tools/devx/workspace/_common.py tests/unit/remediation/test_hyg_04.py",
+      "result": "passed",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git diff --check cf8cb9d74973a63b98cc202425686894a8d1e92e f0940f021f76264c288789e472a9d4681d7f6680",
+      "result": "passed"
+    }
+  ],
+  "candidate_verdicts": [
+    {
+      "id": "LA-008",
+      "label": "closed",
+      "scope": "Exact evidence shim-helper retirement and tracked in-repository import/config/runtime-address census.",
+      "basis": "The full 13,688-path tracked scan found no runtime retired-import tokens under src/ or tools/; the retired helper is removed, and the exact old import fails while live canonical evidence owners remain. f0940f changes no paths and its changed hunks introduce no target-token hits.",
+      "primary_positive": "Public canonical Scientist/evidence consumers and actual workflow/config consumers are covered in the previous HYG handoff.",
+      "primary_negative": "Exact retired import fails; no retired root is restored. The repository byte census and delta reconciliation are recorded above.",
+      "residual": "Unpublished external dynamic consumers are unknown; this is not a compatibility promise beyond the tracked candidate tree."
+    },
+    {
+      "id": "LA-009",
+      "label": "closed",
+      "scope": "Configured in-repository lazy Scientist facade resolving the canonical Core Legal/Safety pass owners.",
+      "basis": "The configured workflow resolves the Core class objects through the lazy facade and executes representative passes that emit actual Legal/Safety issue outputs. Discovery-only import behavior remains lazy; neighboring Scientist passes are preserved.",
+      "primary_negative": "Retired aliases fail their import controls; a duplicate facade is not accepted as the canonical class identity.",
+      "residual": "External unpublished plugin/configuration consumers are unknown. This is not a new policy-authority capability claim."
+    },
+    {
+      "id": "LA-011",
+      "label": "closed",
+      "scope": "Canonical workspace bootstrap entrypoint and early JAX setup from a supported checkout, including installed-wheel module execution from that checkout.",
+      "basis": "The exact f0940f wheel's tools.cli/imports/workspace-common modules run under -I from site-packages. Installed bootstrap and doctor help succeed from the exact checkout; safe bootstrap dispatch records the docs/lint uv sync argv and checkout cwd. Existing subprocess tests preserve profile visibility, environment overrides, and defaults-before-JAX import order.",
+      "primary_negative": "The same installed entrypoint from /private/tmp fails closed; an explicit existing checkout path succeeds and a nonexistent path raises RepositoryRootUnavailableError.",
+      "residual": "Fake uv proves the canonical command dispatch/argv/cwd, not a real dependency sync or completed machine installation. HYG-04 does not claim an out-of-checkout bootstrap surface. The benchmark CLI is adjudicated under LA-012 and its own checkout-only documentation."
+    },
+    {
+      "id": "LA-012",
+      "label": "closed",
+      "scope": "Canonical in-checkout benchmark launch and preserved deterministic workload; the wheel is not a promise to carry checkout benchmark trees.",
+      "basis": "The public canonical tools CLI resolves reproducibility_deterministic and runs all five deterministic smoke cases successfully. The registered workload, suite IDs, reporting path, and neighboring standalone tools are preserved. The benchmark README explicitly scopes run-all to a checkout and states that the Python wheel does not promise this repository-tree workflow.",
+      "primary_negative": "The full source census and targeted retired import checks detect stale wrapper references; no adjacent benchmark workload was deleted.",
+      "residual": "No installed-wheel benchmark execution is claimed. The exact cf8 installed failure logs are historical investigation evidence only; they are not represented as a post-f0940f benchmark replay. External wrapper consumers remain unknown."
+    },
+    {
+      "id": "LA-013",
+      "label": "limited",
+      "scope": "Retire the exact redirect-only frontend address, preserve current apps/packages, and verify real native wheel/sdist membership and README exceptions.",
+      "basis": "The f0940f archive census contains 1,454 apps/packages paths (1,345 apps and 109 packages). The wheel has zero apps/packages paths, all 3,442 payload files match source/declared force-includes, all 167 source package README files appear, and the sdist contains exactly the 24 apps/packages README paths while excluding all 1,430 non-README paths. The obsolete frontend/README.md redirect is not an application payload.",
+      "primary_negative": "Actual native archive members and source-byte hashes disprove a marker-only package check; non-README workspace payload is absent while real apps/packages are preserved in the source tree.",
+      "residual": "This is not an audit or runtime build of every frontend app. The broader C-row workspace-command/build witness is not claimed by this archive-only proof; that distinction remains explicit rather than being converted into closure."
+    },
+    {
+      "id": "LA-018",
+      "label": "open",
+      "scope": "Fabric-owned fact reader replacing the duplicate Lex alias; positive read-path and typed-field preservation only.",
+      "basis": "A Fabric producer writes a typed synthetic fact to temporary CAS and the actual Lex selector reads it, retaining source_id/license/raw_hash/ingestion_run_id and legal access_tier/basis. The legacy Lex factlog implementation/import does not load.",
+      "primary_negative_not_established": "The exact coverage row requires an untrusted-source or missing-authorization case to be refused after cutover. The synthetic fixture demonstrates field transport but does not test that refusal. This is an actionable HYG verification gap, not a claim that fixture metadata establishes source authority.",
+      "next_owner": "HYG-02 owner/reviewer to add or admit the missing negative consumer test before changing this candidate status.",
+      "residual": "External Lex facade/API support is not established. No legal/source authority is inferred from the typed fixture fields."
+    }
+  ],
+  "canonical_closure_state": {
+    "C_md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "source_blob_sha": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "all_six_historical_rows": "partial; closure C did not adjudicate them"
+    },
+    "coverage_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "source_blob_sha": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "all_six_closure_statuses": "not_adjudicated",
+      "scope": "planned traceability only; not behavioral proof or closure"
+    },
+    "LA_013_appendix_C": "The historical closed_bounded field is distinct from both the all-six partial C ledger and this candidate verdict; it is preserved without reinterpretation.",
+    "canonical_files_mutated": false,
+    "candidate_verdicts_amend_canonical_closure": false
+  },
+  "separate_owner_gaps_and_residuals": [
+    {
+      "state": "held",
+      "owner": "team-architecture",
+      "path": "policy-engine/architecture/imports/dynamic.toml",
+      "candidate_blob_sha": "41b50d99a7a2944377b822d22b756e58e4a778b1",
+      "predicate": "currency and sufficiency of the complete dynamic-import registry review",
+      "basis": "204 source rows resolve to existing source files, but target resolution is not established. The source list contains a review expiry of 2026-08-04, which is elapsed, and no current named typed-held supplier/reviewer. This manifest is in the candidate's changed set, so P41 prevents treating the red as inherited.",
+      "next_owner_action": "Team-architecture appoints a current named reviewer/typed-held supplier and reviews the complete rows. Do not change the expiry header to imply review."
+    },
+    {
+      "state": "limited_documentation_residual",
+      "owner": "documentation owner",
+      "path": "policy-engine/docs/explanation/architecture.md",
+      "observed_addresses": ["line 292: frontend/ placeholder", "line 302: retired install.sh and jax_bootstrap.py root entries"],
+      "impact": "The live architecture tree illustration is stale. This is diagram/reference freshness debt; it does not by itself refute the witnessed canonical consumers or exact archive membership and is not elevated to a capability-closure blocker without a criterion that depends on it."
+    },
+    {
+      "state": "partial_static_diagnostic_only",
+      "path": "policy-engine/tools/quality/production_invocation.py",
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "result_from_previous_handoff": "coverage=partial; unresolved_by_construction=9191; unresolved_receiver_calls=139722; runtime_invocation_established=false",
+      "raw_local_only": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/.tmp/e02-C2/raw/hyg/production-invocation.json",
+        "bytes": 170869234,
+        "sha256": "1a62e98b2cbacf9870ec7597356218308817cea1b5402da955da8a417a0fc790"
+      },
+      "scope": "No claim of runtime-invocation closure; the full ignored raw remains local-only and is not embedded."
+    }
+  ],
+  "unreceipted_prior_runs": [
+    {
+      "command": "previous reported 36-test HYG/import suite",
+      "reported_result": "36 passed",
+      "state": "not admitted; original terminal bytes unavailable and not reconstructed"
+    },
+    {
+      "command": "canonical tool-config generator check, corruption negative, and restore",
+      "reported_result": "green / expected negative / restored",
+      "state": "not admitted; original terminal bytes unavailable and not reconstructed"
+    }
+  ],
+  "evidence_artifacts_from_prior_handoff": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging.txt",
+      "sha256": "29c7f85561824c61db78fce1ca2b400afe928f108eba9393ac110c5435e57e36",
+      "role": "native packaging property test output; includes actual archive enumeration and non-README workspace-payload negative control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/benchmark.txt.gz",
+      "sha256": "55e70ad24a452d53ad70e0fa829f9717de516c1e13436af995a04008d75d5efd",
+      "uncompressed_sha256": "64cf1882c105bef4273359eba0ba1410c483f4bca8f33c8dace7ebe6144af5c2",
+      "role": "canonical checkout public CLI deterministic benchmark output; 5/5 cases"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.argv",
+      "sha256": "1054fab394ccb7335b87a4e71cf3b0363277b22ee84911cc7688bb6c80c8e382",
+      "role": "prior source-checkout fake-uv observed argv/cwd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/lex-consumer.txt",
+      "sha256": "fe7cd75d8a8dcf396dd0810f76055839cab0fe22cca61b0726ffc92f75fb558e",
+      "role": "direct persisted Fabric-to-Lex consumer output; typed fixture field preservation only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/production-invocation.stdout",
+      "sha256": "51a0e89c434d30e6a2ceb4223f9ac8e22f7120cb827766bfa6f7c4935241f154",
+      "role": "compact output of the partial static diagnostic above"
+    }
+  ],
+  "raw_evidence_policy": "All f0940f native build, inventory, installed-runtime, test, and Ruff outputs remain in the ignored raw root cited above with hashes. No oversized raw or derived field inventory is copied into this tracked handoff. The source archive and wheel/sdist audit are pinned to f0940f and do not include this evidence-only handoff file.",
+  "handoff_state": "Candidate evidence only. Review is still required; canonical C closure remains unchanged."
+}

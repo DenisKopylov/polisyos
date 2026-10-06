@@ -1,0 +1,24 @@
+{"property_removed": "real rewriting/proof transfer", "callable_name_preserved": true, "module_preserved": true, "docstring_preserved": true, "provider_origin": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py", "provider_sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e", "scope": "memory_only_no_source_or_IR_edits"}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ TestDoCalculusPrePass.test_with_graph_does_not_raise _____________
+tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py:78: in test_with_graph_does_not_raise
+    assert rewritten.root.operand.factors[0].conditioning == ("T",)
+E   AssertionError: assert ('T', 'Z') == ('T',)
+E     
+E     Left contains one more item: 'Z'
+E     Use -v to get more diff
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py::TestDoCalculusPrePass::test_with_graph_does_not_raise
+1 failed, 2 warnings in 0.15s

@@ -1,0 +1,37 @@
+..........................................F............................. [ 52%]
+.......................................F....F................s.s..       [100%]
+=================================== FAILURES ===================================
+_______________________ test_amn_cross_world_separation ________________________
+tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py:75: in test_amn_cross_world_separation
+    assert amn_d_separation(
+E   AssertionError: assert False
+E    +  where False = amn_d_separation(CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['U_XY', 'X__w0', 'Y__w0', 'X__w1', ...Y__w1']}, 'counterfactual_interventions': {'w0': {'X': 0.0}, 'w1': {'X': 1.0}}, 'bridge_edges': [['X__w0', 'X__w1']]}}), AMNMetadata(worlds=['w0', 'w1'], world_partition={'w0': ['X__w0', 'Y__w0'], 'w1': ['X__w1', 'Y__w1']}, counterfactual_interventions={'w0': {'X': 0.0}, 'w1': {'X': 1.0}}, bridge_edges=[('X__w0', 'X__w1')]), x_set=frozenset({'X__w0'}), y_set=frozenset({'X__w1'}), z_set=frozenset({'X__w1'}))
+E    +    where frozenset({'X__w0'}) = frozenset({'X__w0'})
+E    +    and   frozenset({'X__w1'}) = frozenset({'X__w1'})
+E    +    and   frozenset({'X__w1'}) = frozenset({'X__w1'})
+______ TestSIDAlgorithm.test_sid_non_identified_when_base_non_identified _______
+tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py:1093: in test_sid_non_identified_when_base_non_identified
+    assert result.status != IdentificationStatus.IDENTIFIED
+E   AssertionError: assert <IdentificationStatus.IDENTIFIED: 'identified'> != <IdentificationStatus.IDENTIFIED: 'identified'>
+E    +  where <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationResult(status=<IdentificationStatus.IDENTIFIED: 'identified'>, estimand_ast=EstimandAST(schema_version='...ery_str='', metadata={'policy_type': 'soft', 'policy_conditioning_vars': [], 'policy_expr': None, 'shift_delta': None}).status
+E    +  and   <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationStatus.IDENTIFIED
+_________ TestSIDAlgorithm.test_conditional_intervention_non_id_graph __________
+tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py:1166: in test_conditional_intervention_non_id_graph
+    assert result.status != IdentificationStatus.IDENTIFIED
+E   assert <IdentificationStatus.IDENTIFIED: 'identified'> != <IdentificationStatus.IDENTIFIED: 'identified'>
+E    +  where <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationResult(status=<IdentificationStatus.IDENTIFIED: 'identified'>, estimand_ast=EstimandAST(schema_version='...pplied_to_graph_state="Y in c-component Si=['Y'] of G\\X", depth=2, graph_state_before='')], query_str='', metadata={}).status
+E    +  and   <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationStatus.IDENTIFIED
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py:76: CausalGraphModel not available
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py:101: CausalGraphModel not available
+FAILED tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py::test_amn_cross_world_separation
+FAILED tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_non_identified_when_base_non_identified
+FAILED tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_non_id_graph
+3 failed, 133 passed, 2 skipped, 1 warning in 12.37s

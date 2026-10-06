@@ -1,0 +1,4 @@
+[codex/e02-F-graph-20261006 9824e04d6] Correct finite graph consumer fixtures and execute compiler prepass
+ 5 files changed, 324 insertions(+), 52 deletions(-)
+ create mode 100644 policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml

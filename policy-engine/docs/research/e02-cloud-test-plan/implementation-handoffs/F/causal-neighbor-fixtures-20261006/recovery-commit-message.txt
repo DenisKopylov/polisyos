@@ -1,0 +1,3 @@
+Preserve exact partial root718 checkout after ENOSPC
+
+Append-only recovery of 947 files already written by the authorized interrupted ordinary merge. All bytes, hashes and sizes were verified against immutable root718; no reset, deletion or history rewrite. The preserved full original deciding outputs and lossless carriers are existing root718 evidence, including oversized deciding-output exceptions; this recovery introduces no new measured claim or duplicate source authority.

@@ -1,0 +1,36 @@
+{
+  "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "source_tree": "e49bf230bbf7b6a52da0243693ef700620a82e03",
+  "after_sha_tree": [
+    "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+    "e49bf230bbf7b6a52da0243693ef700620a82e03"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/foundry/confidence-review/remove_retention.py"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "exit_code": 1,
+  "wall_seconds": 2.598898273994564,
+  "child_peak_rss_kib": 143540,
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/tmp",
+    "shared_venv_read_only": true,
+    "resource_caps_added": false
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stdout.txt",
+      "sha256": "125e4047bea89130599632bdd5fe8b2ea6616bf41e983e127cb064520b9fbd6b",
+      "size_bytes": 1774
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stderr.txt",
+      "sha256": "ea3f816ae4377b95d27e900f6ed5f51a8def547ace624c77055350f6fbbba61b",
+      "size_bytes": 786
+    }
+  }
+}

@@ -1,0 +1,540 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-native-incomplete-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RES-04",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
+  "slice_base_sha": "1988a904481006812d4e852230560e391600df4d",
+  "implementation_commits": [
+    "afe74448796d5d82cd70cf2a37e861f5424b0fc9"
+  ],
+  "candidate_sha": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+  "candidate_tree_sha": "f2d3a4f7fe61f74ea50fb38d3e2f2af3e8e9e2c6",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/review.json"
+  ],
+  "baseline_cells": [],
+  "baseline_cells_qualification": "No historical cells/outcomes serve as deciding evidence for these1862 executions. Previous independent selector review at1988 binds B25/60 input navigation only, not native grades.",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.source.txt"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-execution-state"
+      },
+      "input_closure": {
+        "original_objects": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+            "bytes": 2858,
+            "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+            "bytes": 21086,
+            "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+            "bytes": 4445184,
+            "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+            "bytes": 172778,
+            "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.json",
+            "bytes": 2929,
+            "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-profile.json",
+            "bytes": 16353,
+            "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+            "bytes": 9437835,
+            "sha256": "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.txt",
+            "bytes": 1673745,
+            "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49",
+            "stable_during_read": true
+          },
+          {
+            "path": "/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+            "bytes": 14447,
+            "sha256": "e3658cfd86315cd27e62ab180a5a88604a6637754e559c78fbb1c4304274db8a",
+            "stable_during_read": true
+          },
+          {
+            "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/whole-files.args",
+            "bytes": 2917,
+            "sha256": "458d1f6100b18f667989312d72fc9f019a7e9b2d3a9cca2baff03202de01c973",
+            "stable_during_read": true
+          },
+          {
+            "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml",
+            "bytes": 151979,
+            "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872",
+            "stable_during_read": true
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+            "bytes": 1450744,
+            "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+            "stable_during_read": true
+          }
+        ],
+        "exact_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "source_metadata": "Specific JSON/XML/stdout and Git stdlib operations only;268 selected union module source identities in complete audit.stdout.json. All original profiles retain their actual top-level field schema.",
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.source.txt",
+          "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+          "bytes": 14539,
+          "sha256": "562945c09372ceeb81aa27e52f309236339a11b3ce1069480134ec3691468ca2"
+        }
+      },
+      "outcome": "PASS",
+      "outcome_scope": "Independent finite byte/data reconciliation only. Underlying root cohort remains interrupted and affected native remains FAIL.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stdout.json",
+        "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+        "bytes": 99557,
+        "sha256": "2c27df3b1ed6af97bfd6d2bd02bae9a84b39a7ebf5817237804a4f20566d2a83"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stderr.txt",
+        "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "tool_reported_wall_s": 0.307415615,
+      "measurement_boundary": "Tool returned exit/wall; no independent reviewer wait4/RSS measured."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/dev/shm/e02-B-completed-final-1862c021df74/pytest",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-completed-final-1862c021df74/cache",
+        "--junitxml=/dev/shm/e02-B-completed-final-1862c021df74/native.xml"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json"
+      },
+      "input_closure": {
+        "root_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "wrapper": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+          "bytes": 2858,
+          "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+          "stable_during_read": true,
+          "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+        },
+        "actual_profile": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+          "bytes": 21086,
+          "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+          "stable_during_read": true,
+          "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+        },
+        "actual_inventory": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+          "bytes": 4445184,
+          "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+          "stable_during_read": true,
+          "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+        },
+        "whole_file_count": 250,
+        "profile_schema": "Top-level test_paths; actual fields not restamped/aliased into generic parser inputs.",
+        "verification_inputs": {
+          "installed_wheel_profile": "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json",
+          "installed_wheel_profile_sha256": "009c6b38467f697b7c4c3972ee3a81fb374c066c2ae29b7bde6807711f0f74f3",
+          "installed_wheel_inputs": {
+            "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+            "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+            "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+            "E02_LA057_SOURCE_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+            "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+            "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+          },
+          "wheel_sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449",
+          "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+          "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+          "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+          "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+          "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+        },
+        "native_junit": {
+          "path": "/dev/shm/e02-B-completed-final-1862c021df74/native.xml",
+          "state": "absent; independently checked",
+          "predicate_basis": "recomputed"
+        }
+      },
+      "outcome": "ERROR",
+      "outcome_scope": "EXECUTED/setup null thenSIGKILL exit-9; runtime incomplete. stdout labels are observations only, no terminal3882 partition or27-check verdict.",
+      "output": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+        "bytes": 172778,
+        "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+        "stable_during_read": true,
+        "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+      },
+      "actual_exit": -9,
+      "exec_setup_error": null,
+      "harness_state": "EXECUTED",
+      "wait4_wall_s": 486.20474443299463,
+      "wait4_process_maxrss_kib": 1289484,
+      "reviewer_execution": "Original root execution evidence independently read; reviewer did not repeat command."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "-p",
+        "current_cohort_inventory",
+        "@/dev/shm/e02-B-completed-affected-1862c021df74-bound/whole-files.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-completed-affected-1862c021df74-bound/cache",
+        "--junitxml",
+        "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "PATH": "/tmp/e02-B-opa-latest-preparation-1db95544/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json"
+      },
+      "input_closure": {
+        "root_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "wrapper": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.json",
+          "bytes": 2929,
+          "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43",
+          "stable_during_read": true,
+          "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+        },
+        "actual_profile": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-profile.json",
+          "bytes": 16353,
+          "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1",
+          "stable_during_read": true,
+          "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+        },
+        "actual_inventory": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+          "bytes": 9437835,
+          "sha256": "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+          "stable_during_read": true,
+          "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+        },
+        "whole_file_count": 47,
+        "profile_schema": "Top-level test_paths; actual fields not restamped/aliased into generic parser inputs.",
+        "verification_inputs": {
+          "installed_wheel_profile": "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json",
+          "installed_wheel_profile_sha256": "009c6b38467f697b7c4c3972ee3a81fb374c066c2ae29b7bde6807711f0f74f3",
+          "installed_wheel_inputs": {
+            "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+            "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+            "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+            "E02_LA057_SOURCE_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+            "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+            "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+            "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+          },
+          "wheel_sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449",
+          "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+          "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+          "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+          "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+          "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+        },
+        "junit": {
+          "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml",
+          "bytes": 151979,
+          "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872",
+          "stable_during_read": true,
+          "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+        }
+      },
+      "outcome": "FAIL",
+      "outcome_scope": "EXECUTED terminal exit1:807completecases806PASS1scientificFAIL,0ERROR/SKIP/xfail; targeted47scope does not replace full250cohort.",
+      "output": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.txt",
+        "bytes": 1673745,
+        "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49",
+        "stable_during_read": true,
+        "repository_delivery": "pending root original-output custody; no future commit or repository path claimed"
+      },
+      "actual_exit": 1,
+      "exec_setup_error": null,
+      "harness_state": "EXECUTED",
+      "wait4_wall_s": 186.9752695250063,
+      "wait4_process_maxrss_kib": 1189464,
+      "reviewer_execution": "Original root execution evidence independently read; reviewer did not repeat command."
+    },
+    {
+      "command": "UNRUN by reviewer: generic27-check terminal parser, pytest/gate/collection/project imports or new native replay",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-execution-state"
+      },
+      "input_closure": "Both actual profiles have top-level test_paths without nestedinputs; no source-hash-bound alias supplied or invented. Fullcohort lacks final XML/phases/finish. No final partition or DD grade can be reconstructed.",
+      "outcome": "UNRUN",
+      "output": "Specific read-only audit only; no generic parser invocation/alias/restamp/replay."
+    }
+  ],
+  "property": {
+    "statement": "Execution audit retains the genuine incomplete root native attempt and genuine completed affected native result separately, reconciling actual source/input/byte/XML/phase identities without reconstructing a final partition or importing old grades.",
+    "runtime_path": [
+      "root frozen1862 + exact selector250/affected47 whole-file inputs and wheel/PG profiles",
+      "stock launcher/capture actual original child execution",
+      "surviving collection checkpoint/stdout for interrupted fullcohort; complete XML/phases/stdout for affectedwave",
+      "independent specific stdlib/Git data reconciliation; root/G final adjudication"
+    ],
+    "proxy_divergence": "A wrapper exit-9, collectioncount3882 or1322 visible labels cannot establish final3882 case outcomes. The absent XML/no sessionfinish/pendinginventory defeats terminalgrade inference despite actual runtime progress. The targeted807 complete XML/2421phases proves its own806PASS1FAIL result but does not complete the250-file cohort.",
+    "negative_controls": [
+      "Actual interrupted countercase preserved:3882collected/0persistedphases coexist with1322visible labels and missing XML/finish; zero persisted phases never becomes a claim runtimeUNRUN.",
+      "Actual affected scientific assertionFAIL retained at test_phase_b_policy_workers.py:286, result.vulnerabilities=[]; no fixture weakening, source remedy or inherited P41 attribution.",
+      "NOTEXECUTED by reviewer: generic27parser and allruntime/gate/replay. Specific data assertions reject changedsource/hash/argfile/schema or duplicate/incomplete affected phases; these metadata assertions are not new runtime property-removal tests.",
+      "Shared cgroup aftersample is retained; aggregate OOM/kill counters do not assign this individual victim cause or establish an exact temporal relation."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_qualifications": {
+    "finite_bytes_XML_phase_source_identity": "independently_reconciled",
+    "visible_partial_stdout_labels": "recomputed",
+    "full3882_terminal_partition": "not_established",
+    "generic27_parser": "not_established",
+    "individual_SIGKILL_cause": "not_established",
+    "formal_finding_closure": "not_established"
+  },
+  "capability_state_or_finding_state": "Independent execution evidence audit complete; fullcohort ERROR/interrupted, final native outcomes not_established; affected actualFAIL806PASS1scientificFAIL; closure_ids[]; no source acceptance verdict.",
+  "limitations_and_next_owner": [
+    {
+      "owner": "root",
+      "action": "Publish complete original custody selector/inventory/stdout/XML/profile/wrappers and affected literaldriver once. Exact current absolute paths@SHA are recorded; placeholderROOT_OUTPUT_CUSTODY_PATH_NOT_YET_SUPPLIED has no assumed commit/path. Forward qualify delivery with actual immutable Git refs after publication."
+    },
+    {
+      "owner": "root/G",
+      "action": "Use interrupted execution state honestly for all60 final adjudication. Do not reconstruct final3882grades/27checks or reuse DD native grades. Any remaining runtime result requires a separately authorized exactsource/input attempt."
+    },
+    {
+      "owner": "root/scientific owner",
+      "action": "Retain actual affected scientificFAIL as independent observed assertion; investigate its criterion separately if required. This reader neither changes scientific law nor claims a new product defect/inherited failure."
+    },
+    {
+      "owner": "root/G",
+      "action": "Hook-time affected4891moduleentries/4688backends/1705canonicalGitmatches are bounded observed-source identities, not complete transient/child imports or backend/resource/authority readsets."
+    },
+    {
+      "owner": "root/G",
+      "action": "If original deciding bytes are unavailable after transfer until root custody lands, corresponding raw native premises are not_established; this independent summary cannot replace absent full deciding output."
+    }
+  ],
+  "review_target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "review_target_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "production_test_config_delta": "ZERO_DIFF;5 independent review evidence objects only",
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/review.json",
+    "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+    "bytes": 10573,
+    "sha256": "6df115c5a2951e8130c30e0adf16edcc72c2da0eb606b68d287574c9128775ec"
+  },
+  "evidence_objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.source.txt",
+      "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+      "bytes": 14539,
+      "sha256": "562945c09372ceeb81aa27e52f309236339a11b3ce1069480134ec3691468ca2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stderr.txt",
+      "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stdout.json",
+      "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+      "bytes": 99557,
+      "sha256": "2c27df3b1ed6af97bfd6d2bd02bae9a84b39a7ebf5817237804a4f20566d2a83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/evidence-index.json",
+      "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+      "bytes": 4751,
+      "sha256": "a615a4c795fe68cf6280424e9d8dde4fcf27111cea2e103937587698c819e3bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/review.json",
+      "commit": "afe74448796d5d82cd70cf2a37e861f5424b0fc9",
+      "bytes": 10573,
+      "sha256": "6df115c5a2951e8130c30e0adf16edcc72c2da0eb606b68d287574c9128775ec"
+    }
+  ],
+  "original_output_objects": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+      "bytes": 4445184,
+      "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.json",
+      "bytes": 2929,
+      "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-profile.json",
+      "bytes": 16353,
+      "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+      "bytes": 9437835,
+      "sha256": "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.txt",
+      "bytes": 1673745,
+      "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+      "bytes": 14447,
+      "sha256": "e3658cfd86315cd27e62ab180a5a88604a6637754e559c78fbb1c4304274db8a",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/whole-files.args",
+      "bytes": 2917,
+      "sha256": "458d1f6100b18f667989312d72fc9f019a7e9b2d3a9cca2baff03202de01c973",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml",
+      "bytes": 151979,
+      "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+      "bytes": 1450744,
+      "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+      "stable_during_read": true
+    }
+  ],
+  "root_output_delivery": {
+    "state": "pending original custody publication",
+    "committed_path_placeholder": "ROOT_OUTPUT_CUSTODY_PATH_NOT_YET_SUPPLIED",
+    "commit_sha": null
+  },
+  "publication_status": "Local implementation+separate canonical receipt; normal topic push/fresh readback follows."
+}

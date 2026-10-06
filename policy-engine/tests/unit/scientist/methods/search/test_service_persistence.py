@@ -31,12 +31,17 @@ from polisyos.scientist.methods.search.controller import (
     SearchStatus,
 )
 from polisyos.scientist.methods.search.objective import (
+    BudgetDeficitObjective,
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
 )
 from polisyos.scientist.methods.search.service import NativeSearchService
-from polisyos.scientist.methods.search.stopping import MaxIterations, MaxWallTime
+from polisyos.scientist.methods.search.stopping import (
+    CostBudgetStopping,
+    MaxIterations,
+    MaxWallTime,
+)
 
 
 class _Mutation(MutationArtifact):
@@ -184,24 +189,24 @@ def test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_
     assert target.controller._history == []
 
 
-class _Cost:
-    name = "cost"
-    direction = OptimizationDirection.MINIMIZE
-
-    def evaluate(self, results):
-        return ObjectiveValue(name="cost", raw_value=results["cost"], direction=self.direction)
+def _checkpoint_stage_b(candidate, context):
+    if context.get("interrupt_all"):
+        raise RuntimeError("initial sentinel interrupted")
+    if candidate.get("position") == context.get("interrupt_position", -1):
+        raise RuntimeError("batch interrupted")
+    return {"simulation_results": {"budget_deficit": candidate["cost"]}}
 
 
 def _direct(store, *, stopping=None, generator=None):
     controller = SearchController(
         SearchConfig(
             stopping=stopping or MaxIterations(2),
-            objective=CompositeObjective([_Cost()]),
+            objective=CompositeObjective([BudgetDeficitObjective()]),
             enable_stage_a=False,
         ),
         generator or SequenceCandidateGenerator([{"cost": 2}, {"cost": 1}]),
         lambda candidate, context: (0.0, True),
-        lambda candidate, context: {"simulation_results": {"cost": candidate["cost"]}},
+        _checkpoint_stage_b,
     )
     return NativeSearchService(controller, store=store)
 
@@ -247,7 +252,16 @@ def test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal(tmp_p
 
 
 @pytest.mark.parametrize(
-    "mutation", ["version", "counter_bool", "history_count", "generator_cursor", "pending_order"]
+    "mutation",
+    [
+        "version",
+        "counter_bool",
+        "history_count",
+        "generator_cursor",
+        "pending_order",
+        "cost_huge",
+        "cost_origin_claim",
+    ],
 )
 def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect(
     tmp_path, mutation
@@ -261,13 +275,23 @@ def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_
     source.ask(None, None, {})
     payload = from_canonical_bytes(store.get_bytes(source.checkpoint_ref))
     if mutation == "version":
-        payload["schema_version"] = "search-service.v2"
+        payload["schema_version"] = "search-service.v99"
     elif mutation == "counter_bool":
         payload["run_state"]["evaluation_iterations"] = True
     elif mutation == "history_count":
         payload["run_state"]["evaluation_iterations"] = 1
     elif mutation == "generator_cursor":
         payload["generator_state"]["index"] = 20
+    elif mutation == "cost_huge":
+        payload["run_state"]["budget_snapshot"] = {"cumulative_cost_usd": 10**400}
+    elif mutation == "cost_origin_claim":
+        payload["run_state"]["budget_evidence"] = {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": False,
+            "provider_cost_origin_available": True,
+            "recorded_by_provider": {},
+            "unavailable_reason": None,
+        }
     else:
         payload["pending_candidate_ids"] = []
     bad = store.put_json(
@@ -276,10 +300,19 @@ def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_
             kind="scientist.search.service_checkpoint",
             media_type="application/json",
             schema=SchemaInfo(
-                name="polisyos.scientist.search.SearchServiceCheckpoint", version="1.0"
+                name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0"
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+    )
+    from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+
+    bad = bad.model_copy(
+        update={
+            "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                store.get_verified_snapshot(bad).manifest
+            )
+        }
     )
     target = _direct(FileSystemCAS(tmp_path / "cas"))
     before = target.controller._generator.get_state()
@@ -316,14 +349,8 @@ def test_actual_pending_batch_order_survives_canonical_json_key_sorting(tmp_path
     source = _direct(store, stopping=MaxIterations(13), generator=_CheckpointBatch(candidates))
     source.controller._config.batch_size = 13
 
-    def interrupted(candidate, context):
-        if candidate["position"] == 1:
-            raise RuntimeError("batch interrupted")
-        return {"simulation_results": {"cost": candidate["cost"]}}
-
-    source.controller._stage_b = interrupted
     with pytest.raises(RuntimeError, match="batch interrupted"):
-        source.run_search(initial_context={})
+        source.run_search(initial_context={"interrupt_position": 1})
     assert [row.candidate["position"] for row in source.controller._history] == [0]
     target = _direct(
         FileSystemCAS(tmp_path / "cas"),
@@ -343,13 +370,9 @@ def test_initial_sentinel_failure_resume_preserves_initial_termination(tmp_path)
     store = FileSystemCAS(tmp_path / "cas")
     source = _direct(store)
 
-    def interrupted(candidate, context):
-        raise RuntimeError("initial sentinel interrupted")
-
-    source.controller._stage_b = interrupted
     seed = {"cost": 0, "__sentinel__": {"sentinel_id": "resume-initial"}}
     with pytest.raises(RuntimeError, match="initial sentinel interrupted"):
-        source.run_search(initial_context={}, initial_candidate=seed)
+        source.run_search(initial_context={"interrupt_all": True}, initial_candidate=seed)
     target = _direct(FileSystemCAS(tmp_path / "cas"))
     target.restore(source.checkpoint_ref)
     result = target.resume_search()
@@ -388,3 +411,263 @@ print("normal contract import retained canonical DTO identities without runtime 
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "canonical DTO identities" in result.stdout
+
+
+class _FailingCAS(FileSystemCAS):
+    fail_write = False
+    fail_readback = False
+
+    def put_json(self, *args, **kwargs):
+        if self.fail_write:
+            raise OSError("actual checkpoint publication failed")
+        return super().put_json(*args, **kwargs)
+
+    def get_verified_snapshot(self, ref):
+        if self.fail_readback:
+            raise OSError("actual checkpoint readback failed")
+        return super().get_verified_snapshot(ref)
+
+
+@pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+def test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view(
+    tmp_path, failure
+):
+    store = _FailingCAS(tmp_path / "cas")
+    service = _direct(store)
+    proposal = service.ask(None, None, {})[0]
+    pending_ref = service.checkpoint_ref
+    evaluation = service.controller._evaluate_for_tell(proposal.payload, iteration=0, context={})
+    setattr(store, failure, True)
+    with pytest.raises(OSError, match="actual checkpoint"):
+        service.tell(proposal.candidate_id, evaluation)
+    assert service.checkpoint_ref == pending_ref
+    assert service.controller._history == []
+    assert service.controller._run_state.evaluation_iterations == 0
+    assert service.controller._run_state.stage_b_evaluations == 0
+    assert service._completed_candidate_ids == set()
+    assert service._pending_candidates == {proposal.candidate_id: proposal.payload}
+    observer = _direct(FileSystemCAS(tmp_path / "cas"))
+    observer.restore(pending_ref)
+    assert observer._pending_candidates == service._pending_candidates
+    assert observer.controller._history == []
+    setattr(store, failure, False)
+    assert service.tell(proposal.candidate_id, evaluation).history_length == 1
+    fresh = _direct(FileSystemCAS(tmp_path / "cas"))
+    fresh.restore(service.checkpoint_ref)
+    assert fresh.controller._run_state.evaluation_iterations == 1
+    assert fresh.controller._run_state.stage_b_evaluations == 1
+    assert fresh._completed_candidate_ids == {proposal.candidate_id}
+    assert fresh._pending_candidates == {}
+    with pytest.raises(ValueError, match="duplicate"):
+        fresh.tell(proposal.candidate_id, evaluation)
+
+
+def test_custom_parameterized_objective_checkpoint_refuses_resume_instead_of_build_identity(
+    tmp_path,
+):
+    class Parameterized(BudgetDeficitObjective):
+        def __init__(self, factor):
+            super().__init__()
+            self.factor = factor
+
+        def evaluate(self, results):
+            return ObjectiveValue(
+                name=self.name,
+                raw_value=results["budget_deficit"] * self.factor,
+                direction=OptimizationDirection.MINIMIZE,
+            )
+
+    source = _direct(FileSystemCAS(tmp_path / "cas"))
+    source.controller._config.objective = CompositeObjective([Parameterized(1)])
+    source.ask(None, None, {})
+    target = _direct(FileSystemCAS(tmp_path / "cas"))
+    target.controller._config.objective = CompositeObjective([Parameterized(2)])
+    with pytest.raises(ValueError, match="unsupported_objective_or_evaluator_profile"):
+        target.restore(source.checkpoint_ref)
+    assert target.controller._run_state.search_id == ""
+    assert target.controller._generator.get_state()["index"] == 0
+
+
+def _default_stage_b(candidate, context, coefficient=1):
+    return {"simulation_results": {"budget_deficit": candidate["cost"] * coefficient}}
+
+
+def test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resume(tmp_path):
+    source = _direct(FileSystemCAS(tmp_path / "cas"))
+    source.controller._stage_b = _default_stage_b
+    source.ask(None, None, {})
+    original = _default_stage_b.__defaults__
+    try:
+        _default_stage_b.__defaults__ = (2,)
+        target = _direct(FileSystemCAS(tmp_path / "cas"))
+        target.controller._stage_b = _default_stage_b
+        with pytest.raises(ValueError, match="configuration_mismatch"):
+            target.restore(source.checkpoint_ref)
+        assert target.controller._run_state.search_id == ""
+    finally:
+        _default_stage_b.__defaults__ = original
+    target = _direct(FileSystemCAS(tmp_path / "cas"))
+    target.controller._stage_b = _default_stage_b
+    target.controller._config.objective = CompositeObjective([BudgetDeficitObjective(weight=2)])
+    with pytest.raises(ValueError, match="configuration_mismatch"):
+        target.restore(source.checkpoint_ref)
+    assert target.controller._generator.get_state()["index"] == 0
+
+
+def test_checkpoint_requires_exact_public_snapshot_profile_on_resume(tmp_path):
+    source = _direct(FileSystemCAS(tmp_path / "cas"))
+    source.ask(None, None, {})
+    assert source.checkpoint_ref.manifest_profile_sha256 is not None
+    target = _direct(FileSystemCAS(tmp_path / "cas"))
+    with pytest.raises(ValueError, match="exact_manifest_profile_required"):
+        target.restore(source.checkpoint_ref.model_copy(update={"manifest_profile_sha256": None}))
+    assert target.controller._run_state.search_id == ""
+
+
+def test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_split_reads(tmp_path):
+    class SingleSnapshotCAS(FileSystemCAS):
+        snapshot_reads = 0
+
+        def get_verified_snapshot(self, ref):
+            self.snapshot_reads += 1
+            return super().get_verified_snapshot(ref)
+
+        def get_manifest(self, *args, **kwargs):
+            raise AssertionError("forbidden separately observed manifest")
+
+        def get_bytes(self, *args, **kwargs):
+            raise AssertionError("forbidden separately observed bytes")
+
+        def verify(self, *args, **kwargs):
+            raise AssertionError("forbidden separately observed verification")
+
+    store = SingleSnapshotCAS(tmp_path / "cas")
+    source = _direct(store)
+    proposal = source.ask(None, None, {})[0]
+    assert store.snapshot_reads == 1
+    target_store = SingleSnapshotCAS(tmp_path / "cas")
+    target = _direct(target_store)
+    target.restore(source.checkpoint_ref)
+    assert target_store.snapshot_reads == 1
+    assert target._pending_candidates == {proposal.candidate_id: proposal.payload}
+    print("public_snapshot_checkpoint", source.checkpoint_ref.model_dump(mode="json"))
+
+
+@pytest.mark.parametrize("maximum", [True, 10**400, float("nan"), float("inf"), -1, 0])
+def test_cost_budget_constructor_refuses_invalid_present_scalar(maximum):
+    with pytest.raises(ValueError, match="finite positive"):
+        CostBudgetStopping(maximum)
+
+
+@pytest.mark.parametrize("cost", [True, 10**400, float("nan"), float("inf"), -1, None])
+def test_cost_observation_and_actual_controller_context_are_unavailable_without_crash(
+    tmp_path, cost
+):
+    stopping = CostBudgetStopping(5)
+    check = stopping.check([], {"cumulative_cost_usd": cost})
+    assert check.should_stop
+    assert check.details["budget_available"] is False
+    service = _direct(FileSystemCAS(tmp_path / "cas"), stopping=stopping)
+    result = service.run_search(initial_context={"cumulative_cost_usd": cost})
+    assert result.history == []
+    assert result.stage_b_evaluations == 0
+    assert result.telemetry["budget_available"] is False
+    assert result.telemetry["budget_spent"] is None
+    assert (
+        result.telemetry["budget_evidence"]["unavailable_reason"]
+        == "context_cost_missing_or_invalid"
+    )
+
+
+def test_recorded_cost_public_owner_port_reopens_without_receipt_or_provider_origin_authority(
+    tmp_path,
+):
+    from decimal import Decimal
+
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    ledger_path = tmp_path / "budget.json"
+    owner = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    owner.record_spend_safe("run", Decimal(2), provider="test-provider")
+    source = _direct(FileSystemCAS(tmp_path / "cas"), stopping=CostBudgetStopping(5))
+    source.controller._config.budget_middleware = owner
+    source.controller._refresh_budget_snapshot({"cumulative_cost_usd": 0})
+    state = source.controller._stopping_state()
+    assert state["cumulative_cost_usd"] == 2
+    evidence = state["budget_evidence"]
+    assert evidence["source"] == "configured_owner_recorded_state"
+    assert evidence["recorded_by_provider"] == {"test-provider": 2}
+    assert evidence["provider_cost_origin_available"] is False
+    assert evidence["receipt_revision_available"] is False
+    assert source.controller._run_state.budget_ledger_revision is None
+    fresh_writer = FileBudgetLedger(ledger_path)
+    fresh_writer.record_spend("run", Decimal(3), provider="test-provider")
+    result = source.run_search(initial_context={"cumulative_cost_usd": 0})
+    assert result.history == []
+    assert result.telemetry["budget_spent"] == 5
+    assert result.telemetry["budget_evidence"]["recorded_by_provider"] == {"test-provider": 5}
+    target = _direct(FileSystemCAS(tmp_path / "cas"), stopping=CostBudgetStopping(5))
+    target.controller._config.budget_middleware = BudgetMiddleware(
+        BudgetState(), ledger=FileBudgetLedger(ledger_path)
+    )
+    target.restore(source.checkpoint_ref)
+    reopened = target.resume_search()
+    assert reopened.telemetry["budget_evidence"] == result.telemetry["budget_evidence"]
+    assert reopened.telemetry["budget_ledger_id"] == result.telemetry["budget_ledger_id"]
+    assert reopened.telemetry["budget_ledger_revision"] is None
+    print("recorded_cost_reopen", result.telemetry["budget_evidence"])
+
+
+def test_recorded_memory_zero_is_available_without_durable_identity_or_measured_zero(tmp_path):
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    source = _direct(FileSystemCAS(tmp_path / "cas"), stopping=CostBudgetStopping(5))
+    source.controller._config.budget_middleware = BudgetMiddleware(BudgetState())
+    source.controller._refresh_budget_snapshot({})
+    check = source.controller._config.stopping.check([], source.controller._stopping_state())
+    assert check.should_stop is False
+    assert check.details["cost"] == 0
+    assert check.details["budget_available"] is True
+    assert check.details["budget_evidence"]["recorded_spend_key_present"] is False
+    assert check.details["budget_evidence"]["provider_cost_origin_available"] is False
+    assert source.controller._run_state.budget_ledger_id is None
+
+
+def test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect(tmp_path):
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
+
+    store = FileSystemCAS(tmp_path / "cas")
+    source = _direct(store)
+    source.ask(None, None, {})
+    payload = from_canonical_bytes(store.get_verified_snapshot(source.checkpoint_ref).data)
+    payload["schema_version"] = "search-service.v1"
+    payload["run_state"].pop("budget_evidence")
+    old = store.put_json(
+        payload,
+        ArtifactWriteOptions(
+            kind="scientist.search.service_checkpoint",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.search.SearchServiceCheckpoint", version="1.0"
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+    )
+    old = old.model_copy(
+        update={
+            "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                store.get_verified_snapshot(old).manifest
+            )
+        }
+    )
+    target = _direct(FileSystemCAS(tmp_path / "cas"))
+    with pytest.raises(ValueError, match="checkpoint_manifest_mismatch"):
+        target.restore(old)
+    assert target.controller._run_state.search_id == ""
+    assert target.controller._generator.get_state()["index"] == 0

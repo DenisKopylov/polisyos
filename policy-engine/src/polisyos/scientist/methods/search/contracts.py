@@ -59,7 +59,7 @@ class SearchServiceCheckpoint(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["search-service.v1"] = "search-service.v1"
+    schema_version: Literal["search-service.v2"] = "search-service.v2"
     configuration: dict[str, Any]
     run_state: dict[str, Any]
     generator_state: dict[str, Any] | None

@@ -9,12 +9,17 @@ framework: the controller remains the owner of evaluation semantics and
 
 from __future__ import annotations
 
+import hashlib
+import inspect
 from copy import deepcopy
 from datetime import UTC, datetime
+from pathlib import Path
+from types import CodeType
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
 from polisyos.scientist.methods.search.contracts import (
@@ -82,15 +87,18 @@ class NativeSearchService:
                 "children": [without_clock(child) for child in value["children"]],
             }
 
+        profile = self._replay_profile()
         return checkpoint_json(
             {
                 "basis": self._basis,
+                "replay_profile": profile,
                 "hard_limit": config.max_iterations_hard_limit,
                 "max_empty_generation_attempts": config.max_empty_generation_attempts,
                 "stage_a_enabled": config.enable_stage_a,
                 "batch_size": config.batch_size,
                 "budget_key": config.budget_key,
                 "budget_cost_key": config.budget_cost_key,
+                "budget_owner_identity": self.controller._budget_owner_identity(),
                 "stopping": without_clock(stopping),
                 "generator": f"{type(self.controller._generator).__module__}.{type(self.controller._generator).__qualname__}",
                 "objectives": [
@@ -98,8 +106,7 @@ class NativeSearchService:
                         "type": f"{type(obj).__module__}.{type(obj).__qualname__}",
                         "name": obj.name,
                         "direction": getattr(obj, "direction", None),
-                        "weight": getattr(obj, "_weight", None),
-                        "threshold": getattr(obj, "_threshold", None),
+                        "parameters": vars(obj) if profile is not None else None,
                     }
                     for obj in config.objective.objectives
                 ],
@@ -107,6 +114,95 @@ class NativeSearchService:
                 "diversity_enabled": self.controller._diversity_enabled,
             }
         )
+
+    def _replay_profile(self) -> dict[str, Any] | None:
+        """Recognize the actual factory or built-in objectives/stateless ports.
+
+        Arbitrary objects and closures are not reconstructible from a build
+        digest. Such generic profiles remain persistable and refuse resume.
+        """
+        from polisyos.scientist.methods.autotune.models import SearchLoopSpec
+        from polisyos.scientist.methods.autotune.runtime import (
+            PydanticMutationCodec,
+            SearchLoopRunner,
+            _AutotuneObjective,
+        )
+        from polisyos.scientist.methods.search.objective import (
+            BudgetDeficitObjective,
+            EmploymentObjective,
+            GDPGrowthObjective,
+            InequalityObjective,
+        )
+
+        objectives = self.controller._config.objective.objectives
+        stage_b = self.controller._stage_b
+        closure = inspect.getclosurevars(stage_b).nonlocals if inspect.isfunction(stage_b) else {}
+        runner, spec, suite = closure.get("self"), closure.get("spec"), closure.get("suite_ref")
+        if (
+            type(runner) is SearchLoopRunner
+            and isinstance(spec, SearchLoopSpec)
+            and isinstance(suite, ArtifactRef)
+            and runner._store is self._store
+            and type(spec.mutation_codec) is PydanticMutationCodec
+            and len(objectives) == 1
+            and type(objectives[0]) is _AutotuneObjective
+            and objectives[0]._policy == spec.promotion_policy
+            and any(
+                stage_b.__code__ is code
+                for code in SearchLoopRunner.create_service.__code__.co_consts
+                if isinstance(code, CodeType) and code.co_freevars == ("self", "spec", "suite_ref")
+            )
+        ):
+            return {
+                "version": "native-autotune-replay.v1",
+                "suite_ref": suite.model_dump(mode="json"),
+                "policy": spec.promotion_policy.model_dump(mode="json"),
+                "mutation_schema": spec.mutation_codec._model_cls.model_json_schema(),
+                "factory_build": hashlib.sha256(
+                    Path(inspect.getsourcefile(SearchLoopRunner)).read_bytes()
+                ).hexdigest(),
+            }
+        supported = (
+            BudgetDeficitObjective,
+            EmploymentObjective,
+            GDPGrowthObjective,
+            InequalityObjective,
+        )
+        if any(type(obj) not in supported for obj in objectives):
+            return None
+
+        def callable_profile(function: Any) -> dict[str, Any] | None:
+            if not inspect.isfunction(function) or function.__closure__ or vars(function):
+                return None
+            variables = inspect.getclosurevars(function)
+            try:
+                globals_snapshot = checkpoint_json(variables.globals)
+                defaults = checkpoint_json(function.__defaults__)
+                keyword_defaults = checkpoint_json(function.__kwdefaults__)
+                source = inspect.getsource(function)
+            except (TypeError, ValueError, OSError):
+                return None
+            return {
+                "qualname": function.__qualname__,
+                "module": function.__module__,
+                "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+                "globals": globals_snapshot,
+                "defaults": defaults,
+                "keyword_defaults": keyword_defaults,
+            }
+
+        ports = {"stage_b": callable_profile(stage_b)}
+        if self.controller._config.enable_stage_a:
+            ports["stage_a"] = callable_profile(self.controller._stage_a)
+        if any(port is None for port in ports.values()):
+            return None
+        return {
+            "version": "builtin-objective-stateless-ports.v1",
+            "objective_build": hashlib.sha256(
+                Path(inspect.getsourcefile(BudgetDeficitObjective)).read_bytes()
+            ).hexdigest(),
+            "ports": ports,
+        }
 
     def checkpoint(self) -> ArtifactRef:
         """Persist an exact immutable replay view in the configured store."""
@@ -131,18 +227,41 @@ class NativeSearchService:
             stopping_reason=self._stopped_reason,
             failure=self._failure,
         )
-        self.checkpoint_ref = self._store.put_json(
+        ref = self._store.put_json(
             payload,
             ArtifactWriteOptions(
                 kind="scientist.search.service_checkpoint",
                 media_type="application/json",
                 schema=SchemaInfo(
-                    name="polisyos.scientist.search.SearchServiceCheckpoint", version="1.0"
+                    name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0"
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         )
+        snapshot = self._verified_snapshot(ref)
+        if SearchServiceCheckpoint.model_validate(from_canonical_bytes(snapshot.data)) != payload:
+            raise ValueError("search_checkpoint_readback_mismatch")
+        self.checkpoint_ref = ref.model_copy(
+            update={
+                "manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest),
+            }
+        )
         return self.checkpoint_ref
+
+    def _verified_snapshot(self, ref: ArtifactRef) -> Any:
+        read = getattr(self._store, "get_verified_snapshot", None)
+        if not callable(read):
+            raise ValueError("search_checkpoint_verified_snapshot_port_required")
+        snapshot = read(ref)
+        manifest = snapshot.manifest
+        if (
+            manifest.kind != "scientist.search.service_checkpoint"
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema
+            != SchemaInfo(name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0")
+        ):
+            raise ValueError("search_resume_checkpoint_manifest_mismatch")
+        return snapshot
 
     def _persist(self) -> None:
         if self._store is not None:
@@ -158,19 +277,12 @@ class NativeSearchService:
             or self._completed_candidate_ids
         ):
             raise ValueError("search_resume_requires_fresh_service")
-        manifest = self._store.get_manifest(ref)
-        if (
-            manifest.kind != "scientist.search.service_checkpoint"
-            or manifest.media_type != "application/json"
-            or manifest.artifact_schema
-            != SchemaInfo(name="polisyos.scientist.search.SearchServiceCheckpoint", version="1.0")
-        ):
-            raise ValueError("search_resume_checkpoint_manifest_mismatch")
-        if not self._store.verify(ref).ok:
-            raise ValueError("search_resume_checkpoint_integrity_failed")
-        saved = SearchServiceCheckpoint.model_validate(
-            from_canonical_bytes(self._store.get_bytes(ref))
-        )
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("search_resume_exact_manifest_profile_required")
+        snapshot = self._verified_snapshot(ref)
+        saved = SearchServiceCheckpoint.model_validate(from_canonical_bytes(snapshot.data))
+        if saved.configuration.get("replay_profile") is None:
+            raise ValueError("search_resume_unsupported_objective_or_evaluator_profile")
         if saved.configuration != self._configuration():
             raise ValueError("search_resume_configuration_mismatch")
         if saved.configuration["diversity_enabled"]:
@@ -300,6 +412,9 @@ class NativeSearchService:
         candidate = deepcopy(self._pending_candidates[candidate_id])
         stage_b_result = self._stage_b_result(evaluation)
         before = self.controller._run_state.snapshot()
+        pending_before = deepcopy(self._pending_candidates)
+        completed_before = set(self._completed_candidate_ids)
+        initial_before = set(self._initial_candidate_ids)
         try:
             self.controller._accept_tell(
                 candidate=candidate,
@@ -310,14 +425,16 @@ class NativeSearchService:
                 stage_b_result=stage_b_result,
                 duration_seconds=float(evaluation.duration_seconds),
             )
+            del self._pending_candidates[candidate_id]
+            self._completed_candidate_ids.add(candidate_id)
+            self._initial_candidate_ids.discard(candidate_id)
+            self._persist()
         except Exception:
             self.controller._run_state = before
+            self._pending_candidates = pending_before
+            self._completed_candidate_ids = completed_before
+            self._initial_candidate_ids = initial_before
             raise
-
-        del self._pending_candidates[candidate_id]
-        self._completed_candidate_ids.add(candidate_id)
-        self._initial_candidate_ids.discard(candidate_id)
-        self._persist()
         return TellResult(**self.controller._service_tell_snapshot())
 
     @staticmethod

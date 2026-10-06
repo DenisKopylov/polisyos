@@ -59,6 +59,7 @@ class SearchRunState:
     budget_available: bool = False
     budget_snapshot: dict[str, float] = field(default_factory=dict)
     budget_snapshot_source: str = "unavailable"
+    budget_evidence: dict[str, Any] = field(default_factory=dict)
     budget_ledger_id: str | None = None
     budget_ledger_revision: int | None = None
     policy_evaluation_errors: int = 0
@@ -248,10 +249,57 @@ class SearchRunState:
             raw["pareto_projection"] = ParetoViewProjection.model_validate(raw["pareto_projection"])
         result = cls(**raw)
         _validate_dataclass(result)
-        if not math.isfinite(result.budget_spent) or result.budget_spent < 0:
+        from polisyos.scientist.methods.search.stopping import _nonnegative_cost
+
+        if _nonnegative_cost(result.budget_spent) is None:
             raise ValueError("invalid recorded budget spend")
-        if any(not math.isfinite(value) or value < 0 for value in result.budget_snapshot.values()):
+        if any(_nonnegative_cost(value) is None for value in result.budget_snapshot.values()):
             raise ValueError("invalid recorded budget snapshot")
+        evidence = result.budget_evidence
+        if evidence:
+            required = {
+                "source",
+                "receipt_revision_available",
+                "provider_cost_origin_available",
+                "recorded_by_provider",
+                "unavailable_reason",
+            }
+            optional = {"canonical_contract", "coordination_mode", "recorded_spend_key_present"}
+            if not required <= evidence.keys() or evidence.keys() - required - optional:
+                raise ValueError("invalid recorded budget evidence fields")
+            if evidence["source"] not in (
+                "unavailable",
+                "legacy_context",
+                "configured_owner_recorded_state",
+            ) or any(
+                evidence[key] is not False
+                for key in (
+                    "receipt_revision_available",
+                    "provider_cost_origin_available",
+                )
+            ):
+                raise ValueError("unsupported recorded budget evidence authority")
+            for key in ("canonical_contract", "coordination_mode", "unavailable_reason"):
+                if (
+                    key in evidence
+                    and evidence[key] is not None
+                    and not isinstance(evidence[key], str)
+                ):
+                    raise ValueError("invalid recorded budget evidence string")
+            if (
+                "recorded_spend_key_present" in evidence
+                and type(evidence["recorded_spend_key_present"]) is not bool
+            ):
+                raise ValueError("invalid recorded budget key-presence flag")
+            providers = evidence["recorded_by_provider"]
+            if providers is not None and (
+                not isinstance(providers, dict)
+                or any(
+                    not isinstance(key, str) or _nonnegative_cost(value) is None
+                    for key, value in providers.items()
+                )
+            ):
+                raise ValueError("invalid recorded provider aggregate")
         if result.budget_ledger_revision is not None and result.budget_ledger_revision < 0:
             raise ValueError("invalid recorded budget revision")
         return result

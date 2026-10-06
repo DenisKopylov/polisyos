@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.packaging_reference_correction.v1",
+  "scope": "Packaging only: replace exactly two full script bodies already tracked as immutable Git inputs. No product, test, scientific input, runtime result, authority, or closure change.",
+  "original_transport": {
+    "source_sha": "334f3b0e8a1e7313dbe05fec46331f1c52a9c5ad",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+    "git_blob": "087caab0be5e55d1e3f6cdc0328ff3e8c22d2d36",
+    "bytes": 209293,
+    "sha256": "87d7375a40bbbfeacb58d94be706ee0b0a047f4db63a6b9a172eab7b94369d3c",
+    "raw_bytes": 979363,
+    "raw_sha256": "d26fdd61420a78d7a4979aa3acb875804e6f74ef97181fc2997d7dc796e53cc0",
+    "immutable_original_preserved": true
+  },
+  "current_transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+    "bytes": 208188,
+    "sha256": "6b3c990bf15cbae25378ccdd07401527f92657992914c2f06748e7b73ac9872d",
+    "raw_bytes": 975657,
+    "raw_sha256": "7ebb2b61ea141cc79a76aa92b581df54400bdaa736aaca6b978f3a5fc78bb42d",
+    "members": 60,
+    "base64_body_members": 58,
+    "tracked_git_input_ref_members": 2,
+    "carrier_schema_unchanged": "e02-lossless-independent-review-output.v1"
+  },
+  "replacements": [
+    {
+      "member_index": 54,
+      "json_pointer": "/members/54/content",
+      "member_name": "owner_fb9/champion-profile-final-verify.py.txt",
+      "replacement": {
+        "kind": "tracked_git_input_ref",
+        "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-verify.py.txt",
+        "git_blob": "931afecb68048a22a5af8329a7332953d2ea1a35",
+        "sha256": "027e678329e3b46ec84e992488f67021aaa16d0986b9b95579a3a1f2b2e77ab8",
+        "bytes": 2218,
+        "encoding": "utf-8",
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-verify.py.txt@104bd75695daf89ed76d146b10042227a600bc68"
+      },
+      "original_base64_token_bytes": 2962,
+      "replacement_token_bytes": 606
+    },
+    {
+      "member_index": 57,
+      "json_pointer": "/members/57/content",
+      "member_name": "owner_fb9/champion-profile-final-removal.py.txt",
+      "replacement": {
+        "kind": "tracked_git_input_ref",
+        "source_sha": "104bd75695daf89ed76d146b10042227a600bc68",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-removal.py.txt",
+        "git_blob": "a6097c24d45f13bfa310afcf3c2b5eb41a0f1163",
+        "sha256": "ef05a3a28783e7c6001168ddcb91438abf83dbe4d16268b476aba7c8e20d77be",
+        "bytes": 1467,
+        "encoding": "utf-8",
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-removal.py.txt@104bd75695daf89ed76d146b10042227a600bc68"
+      },
+      "original_base64_token_bytes": 1958,
+      "replacement_token_bytes": 608
+    }
+  ],
+  "verification": {
+    "two_sources_equal_original_decoded_bodies": true,
+    "other58_members_unchanged": true,
+    "member_order_and_all_other_entry_fields_unchanged": true,
+    "restoring_only_two_original_content_tokens_recovers_exact_original_raw_payload": true,
+    "changed_JSON_tokens": 2,
+    "original_carrier_absent_in_own_4c": "This metadata-only commit adopts the exact existing owner carrier into the admitted topic with only the two packaging token replacements; no product dependency overlay."
+  },
+  "decoder_contract": "When /members/<index>/content is a tracked_git_input_ref object, resolve exactly source_sha:path, verify git_blob, sha256 and bytes, then base64-encode those raw bytes to recover the historical content string. The unchanged sibling encoding=base64 describes the recovered historical body. This is an explicit packaging transport extension, not an invented universal application schema.",
+  "retained_scope_inputs": "Every other member remains exactly unchanged, including the original independent review/runtime-reconciliation inputs, positive/negative full outputs, owner scopes and actual CAS fixtures. c879 scope clarification and DOE provisioning artifacts elsewhere remain untouched.",
+  "closure_ids": [],
+  "runtime_reruns": 0,
+  "source_or_test_edits": 0,
+  "cleanup_or_moves": 0,
+  "independent_review": "Exact duplicate locations/source hashes confirmed by GP cached audit before this edit; successor all-member review requested separately."
+}

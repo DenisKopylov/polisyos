@@ -1,0 +1,83 @@
+{
+  "source_target": {
+    "sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "tree": "28b25703040e158ad87211b1399dfd4f86b562c5"
+  },
+  "final_runtime_source_ref": null,
+  "final_runtime_outcome_ref": null,
+  "denominator": {
+    "findings": 45,
+    "original_criterion_occurrences": 46,
+    "canonical_bundles": 17,
+    "historical_D_routes": 456,
+    "historical_D_cells": 115
+  },
+  "proposals": {
+    "closed_bounded_engineering_conditional_final_checks": 39,
+    "limited_upstream_current_FAIL": 1,
+    "held_original_positive_input": 5
+  },
+  "formal_closed": 0,
+  "D_accepted_in_G": false,
+  "held_original_positive_ids": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "current_upstream_limited_ids": [
+    "B120"
+  ],
+  "packets": 16,
+  "original_criterion_text_modified": false,
+  "new_actual_received": {
+    "B110_B111": "source4393 own13/independent13 +ordinarye73 CAS/A projection2",
+    "B136": "source409d40 +independent full local delta b6d1...; duplicate guard expectedFAIL retained",
+    "B119": "exact5050 canonical12 PASS/all836 origins Git MATCH; rawpublication refs pending",
+    "native_factory": "exact6fe15 +latest9de actual1 andmissingprofileSKIP separate",
+    "B120": "current04bc B1.1 actual24:21FAIL3PASS"
+  },
+  "still_unreceived": {
+    "B119_author_handoff_Git_ref": null,
+    "B119_separate_cleanup2_deciding_payload_ref": null,
+    "B119_baseline_full_payload_refs": null,
+    "B136_independent_delta_Git_ref": null,
+    "final_composed_runtime_and_quality_ref": null
+  },
+  "additional_tasks_preserved": [
+    "B109 default A-W04/A-W01 frontier provider/export/coordinator workflowOPEN",
+    "served hierarchical caller/evaluation context appointment not_established",
+    "B108 owner-declared fiscal measurement/unit source-law input separate",
+    "five required original positive owner inputs",
+    "B current lossless raw decoder and actual default two-key durable profile/snapshot/API/history companions",
+    "E direct mutable-plan cardinality guard proposed discriminant UNRUN"
+  ],
+  "artifacts": {
+    "ledger": {
+      "path": "/tmp/e02-D-final-accounting-jks4a3d1/ledger.json",
+      "bytes": 242325,
+      "sha256": "d11542a4c64b19d490802635d1b4cf2d1033c2ce4cc42f01d0dd044beaea37f9",
+      "Git_publication_ref": null,
+      "scope": "local deciding output; not a domain input or asserted Git member"
+    },
+    "owner_inputs": {
+      "path": "/tmp/e02-D-final-accounting-jks4a3d1/owner-inputs.json",
+      "bytes": 193537,
+      "sha256": "953452e33f7e19c00792681382570020c80a12a941d1c850b4065b6f9e7a9f48",
+      "Git_publication_ref": null,
+      "scope": "local deciding output; not a domain input or asserted Git member"
+    },
+    "binding": {
+      "path": "/tmp/e02-D-final-accounting-jks4a3d1/binding.json",
+      "bytes": 52200,
+      "sha256": "dff0b86e89156e21dc86c13aabf682090583d03772c3b2dbb872d189c45465ad",
+      "Git_publication_ref": null,
+      "scope": "local deciding output; not a domain input or asserted Git member"
+    }
+  },
+  "runtime_executions_here": 0,
+  "Git_writes_here": 0,
+  "source_copies_here": 0,
+  "errors": []
+}

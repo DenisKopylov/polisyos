@@ -1,0 +1,80 @@
+{
+  "schema": "policyos.e02.original_accounting_draft_transport.v1",
+  "scope": "Byte-exact publication of four original5050 conditional drafts with additive current8c interruption disposition; no draft mutation or final acceptance",
+  "payload_git_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+  "payload_git_tree": "e88f3f4cce7dbcfa6bfeb24b981c469b5f9f6eae",
+  "original_source_target": {
+    "sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "tree": "28b25703040e158ad87211b1399dfd4f86b562c5"
+  },
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/ledger.json",
+      "original_path": "/tmp/e02-D-final-accounting-jks4a3d1/ledger.json",
+      "bytes": 242325,
+      "sha256": "d11542a4c64b19d490802635d1b4cf2d1033c2ce4cc42f01d0dd044beaea37f9",
+      "byte_equality_to_original": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/owner-inputs.json",
+      "original_path": "/tmp/e02-D-final-accounting-jks4a3d1/owner-inputs.json",
+      "bytes": 193537,
+      "sha256": "953452e33f7e19c00792681382570020c80a12a941d1c850b4065b6f9e7a9f48",
+      "byte_equality_to_original": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/binding.json",
+      "original_path": "/tmp/e02-D-final-accounting-jks4a3d1/binding.json",
+      "bytes": 52200,
+      "sha256": "dff0b86e89156e21dc86c13aabf682090583d03772c3b2dbb872d189c45465ad",
+      "byte_equality_to_original": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-5050-original-drafts/summary.json",
+      "original_path": "/tmp/e02-D-final-accounting-jks4a3d1/summary.json",
+      "bytes": 3124,
+      "sha256": "7a97fd02bc64f58c47737108926aa9f6e93f72b1fbd4f18c9842da9c4755ac53",
+      "byte_equality_to_original": true
+    }
+  ],
+  "originals_preserved": true,
+  "original_draft_status_preserved": true,
+  "original_criterion_text_modified": false,
+  "current_source_target": {
+    "sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+    "cwd": "/workspace/e02-D-published-root/policy-engine",
+    "status_porcelain_v2": ""
+  },
+  "current_disposition": {
+    "39_engineering_proposals": "OPEN_VERIFICATION_PENDING; original conditional recommendations are not closed findings",
+    "five_original_positive_edges": {
+      "status": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "ids": [
+        "B131",
+        "B137",
+        "B157",
+        "B161",
+        "B164"
+      ]
+    },
+    "B120": "LIMITED_UPSTREAM_CURRENT_FAIL; actual canonicalB1.1 raw decoder24 result21FAIL/3PASS remains bounded native intake evidence",
+    "final_wave": "INTERRUPTED_UNRUN_NO_COMPLETED_COLLECTION_OR_TEST_VERDICT",
+    "interruption_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption.json",
+    "formal_closed": 0,
+    "closure_ids": [],
+    "D_accepted_in_G": false
+  },
+  "denominator": {
+    "findings": 45,
+    "original_criterion_occurrences": 46,
+    "canonical_bundles": 17,
+    "historical_D_routes": 456,
+    "historical_D_cells": 115
+  },
+  "verification": "All4 original files hash to baseline-owner supplied identities and were copied byte-for-byte. BindingPASS in the original draft concerns artifact/criterion checks; it establishes no current final runtime result.",
+  "independent_review": "Requested from baseline_census after immutable publication; not yet established in this receipt",
+  "product_or_test_mutations": 0,
+  "runtime_invocations": 0,
+  "cleanup_or_moves": 0
+}

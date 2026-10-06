@@ -67,9 +67,20 @@ statistical sufficiency or absence of failure-selection bias.
 
 Sobol plans now require `input_law="independent"` and an explicit seed before
 sampling. This declares a product parameter experiment; it does not establish
-independence of a population source. Analysis reconciles the entire ordered
-sample matrix with the canonical seeded SALib sampler, and rejects reordered,
-correlated, or differently transformed rows before estimating indices.
+independence of a population source. Analysis reconciles the complete Saltelli
+blocks with the canonical seeded SALib sampler, including block multiplicity and
+the A/AB/BA/B role order inside each block. Whole blocks with their paired outputs
+may be permuted; this preserves the point estimands while changing the actual
+ordered design/analysis content IDs. Missing/duplicated blocks, changed interior
+roles, correlated, or differently transformed rows are rejected before estimating
+indices. A prior receipt cannot bind the new order merely because its numerical
+indices agree.
+
+The native interaction oracle uses independent uniform inputs and
+`y=x+z+2*x*z`: first-order indices are `12/25` each, the interaction is `1/25`,
+and total-order indices are `13/25` each. Its numerical tolerance is declared
+separately from the analytic truth. It exercises sampler, analyzer and interaction
+ranking; list/tuple shape alone does not verify those quantities.
 
 The autotune `SensitivityBridge` uses this same producer for distribution,
 seed, and budget admission. Passing its configured `store` persists a

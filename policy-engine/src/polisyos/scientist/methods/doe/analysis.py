@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from collections import Counter
 from dataclasses import dataclass
 from importlib.metadata import version
 
@@ -188,8 +189,7 @@ def _analysis_identity(
         if plan.seed is None:
             raise ValueError("Sobol analysis requires a seed to reconcile its ordered design")
         expected = generate_sensitivity_samples(plan)
-        if not np.array_equal(samples, expected):
-            raise ValueError("Sobol samples do not match the canonical seeded ordered design")
+        _admit_sobol_sample_blocks(plan, samples, expected)
     sample_digest = _array_digest(samples)
     output_digest = _array_digest(outputs)
     design_payload = {
@@ -225,6 +225,38 @@ def _analysis_identity(
             else "geometry_validated_provenance_not_established"
         ),
     }
+
+
+def _admit_sobol_sample_blocks(
+    plan: SensitivityPlan, samples: np.ndarray, expected: np.ndarray
+) -> None:
+    """Reconcile the complete canonical Saltelli blocks, preserving each role's order.
+
+    Permuting complete A/AB/BA/B blocks preserves the Sobol estimands. Actual
+    row order still belongs to the content identity; no sorted representation
+    replaces the stored samples or paired outputs. Membership is checked with
+    exact float64 block bytes and multiplicity, never a geometry-only proxy.
+    """
+    if np.array_equal(samples, expected):
+        return
+    if samples.shape == expected.shape:
+        block_size = 2 * plan.num_parameters + 2
+        actual = np.asarray(samples, dtype="<f8", order="C")
+        canonical = np.asarray(expected, dtype="<f8", order="C")
+        actual_blocks = Counter(
+            block.tobytes(order="C")
+            for block in actual.reshape(-1, block_size, plan.num_parameters)
+        )
+        expected_blocks = Counter(
+            block.tobytes(order="C")
+            for block in canonical.reshape(-1, block_size, plan.num_parameters)
+        )
+        if actual_blocks == expected_blocks:
+            return
+    raise ValueError(
+        "Sobol samples do not match the canonical seeded ordered design "
+        "(only complete Saltelli block permutations are admitted)"
+    )
 
 
 @dataclass(frozen=True)

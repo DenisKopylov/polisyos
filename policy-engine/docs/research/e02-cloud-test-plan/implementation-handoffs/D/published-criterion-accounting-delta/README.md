@@ -1,0 +1,9 @@
+# Append-only final accounting audit
+
+The audit reads exact final freeze `243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3`, both complete owner TSVs and every original D source-block occurrence. It verifies that all canonical coverage/owner/task/original-document bytes equal published base198, checks all46 original fragment hashes and full card containment, and preserves45 distinct findings/17 bundles with SRV-03 owning LA-015's two-card occurrence.
+
+This task performs no backend rerun. It reads separately published unchanged receiver4 and fiscal/frontier40 replays and root Gateway red/green receipts. The receiver's six named execution modules match the freeze. Four of the oracle's six named modules match; controller/service differ at the joined native route. Exact425's40PASS remains bounded to that execution and is not relabeled a243 runtime. The receiver negative takes whole-corpus refusal with zero observed native model/fit calls, not a seven-row GP fit. Root Gateway replay is exact1ca98PASS after c81290FAIL8PASS; its five green named modules match the freeze. The committed compressed red output decodes to the originally received complete bytes and hash.
+
+The complete audit output retains all named module comparisons, including two mismatches. It proves source/criterion/receipt byte accounting, not all transitive input equality, successor runtime, scientific/source authority, finding closure or global gate acceptance. Root's frozen broad/quality wave remains pending when the supplement is prepared. No counts from that wave are inferred.
+
+The `.py.txt` file preserves the exact scratch script used for this audit. Its later Git publication does not imply membership in243. The command records an exit0; wall/RSS were not instrumented and are not invented. Historical8cd and its original reds remain intact. No production changes, children, reviewer quotas, backend mutations, deletion, Trash operation or history rewrite occurred in this task.

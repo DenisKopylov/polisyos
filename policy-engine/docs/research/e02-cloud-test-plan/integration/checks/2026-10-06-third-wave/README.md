@@ -8,3 +8,7 @@ These moderate stdout/stderr/JUnit files and compact contexts retain the actual 
 - Corrected B38 release scope: one internal fragment, zero contract errors, one expected warning for no structured public compatibility changes. Ruff check/format cover three changed Python paths.
 
 Full source freeze for E02, broad backend/CI replay and data-dependent closeout remain pending. These outputs do not close findings.
+
+Captured stdout/stderr/JUnit bytes retain original trailing whitespace when emitted by the tools. Their recorded hashes bind those bytes; they are not reformatted to satisfy an authored-text whitespace check. Verify authored Markdown/JSON separately from these byte-preserved deciding outputs.
+
+After checkpoint publication and full readback, the three completed local source archives (`new-b-runtime-e187`, `new-b38-4f71`, `checkpoint10-consumers-acdc`) were transferred to native Trash. Their exact source commits remain in fetched published histories; deciding outputs stay in this directory. No production inputs or unique receipts were moved, and Trash was not emptied. This is snapshot cleanup, not a claim of physically recovered disk space.

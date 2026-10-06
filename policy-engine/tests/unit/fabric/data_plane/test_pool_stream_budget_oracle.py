@@ -94,6 +94,17 @@ async def _pending_checkpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     )
     assert accumulator.buffered_rows() == 2
     assert checkpoint.dedupe_keys == ("_message_id:event-1", "_message_id:event-2")
+    pending_refs = {
+        ref
+        for entry in checkpoint.metadata["operator_state"]["accumulator"]["session_rows"]
+        for ref in entry["refs"]
+    }
+    assert len(pending_refs) == 1
+    for ref in pending_refs:
+        assert store.verify(ref).ok
+        chunk = from_canonical_bytes(store.get_bytes(ref))
+        assert [row["_message_id"] for row in chunk["data"]] == ["event-1", "event-2"]
+        assert store.get_manifest(ref).kind == "fabric.stream_chunk"
     return registry, store, checkpoint
 
 
@@ -187,6 +198,15 @@ async def test_admitted_recovery_emits_two_sessions_once_with_original_lineage(
         assert {str(item.artifact_id) for item in manifest.inputs} == set(
             window["lineage"]["contributor_chunk_refs"]
         )
+        source_rows = []
+        for contributor in window["lineage"]["contributor_chunk_refs"]:
+            assert reopened.verify(contributor).ok
+            chunk = from_canonical_bytes(reopened.get_bytes(contributor))
+            assert reopened.get_manifest(contributor).kind == "fabric.stream_chunk"
+            source_rows.extend(chunk["data"])
+        assert [row["_message_id"] for row in source_rows] == [
+            row["_message_id"] for row in window["data"]
+        ]
     repeated = await streaming.process_stream_dataset(
         connector_id="stream.jsonl",
         dataset_id="budget-oracle",
@@ -197,3 +217,5 @@ async def test_admitted_recovery_emits_two_sessions_once_with_original_lineage(
         registry=registry,
     )
     assert repeated.window_refs == []
+    assert repeated.rows_emitted == 0
+    assert repeated.chunk_refs == []

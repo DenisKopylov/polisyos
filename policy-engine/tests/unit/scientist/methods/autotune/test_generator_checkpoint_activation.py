@@ -34,7 +34,8 @@ def test_public_checkpoint_preserves_next_actual_sobol_action():
     assert actual["x"] == expected["x"]
     assert actual["_strategy_metadata"]["source"] == "sobol_init"
     assert (
-        actual["_strategy_metadata"]["sobol_index"] == expected["_strategy_metadata"]["sobol_index"]
+        resumed.get_state()["strategy_state"]["rng_state"]["sobol"]
+        == original.get_state()["strategy_state"]["rng_state"]["sobol"]
     )
 
 
@@ -74,7 +75,7 @@ def test_configure_transfer_requires_pre_activity_pair():
     generator = cold()
     generator.generate([], None, {})
     with pytest.raises(ValueError, match="before warm/history/generation"):
-        generator.configure_transfer(None, None)
+        generator.configure_transfer(object(), object())
 
 
 def test_owner_configured_bridge_reaches_real_gp_and_wrapper_resume_without_mll_fit(tmp_path):
@@ -137,3 +138,11 @@ def test_owner_configured_bridge_reaches_real_gp_and_wrapper_resume_without_mll_
         assert counts["mll"] == 1
     finally:
         sys.setprofile(previous)
+
+
+def test_missing_configured_pair_refuses_without_changing_native_receiver():
+    generator = cold()
+    before = generator.get_state()
+    with pytest.raises(ValueError, match="paired bridge"):
+        generator.configure_transfer(None, None)
+    assert generator.get_state() == before

@@ -238,6 +238,8 @@ class BayesianCandidateGenerator:
         Construct and admit a fresh receiver first. A failed basis or CAS
         admission leaves this generator's previous optimizer and RNG untouched.
         """
+        if bridge is None or fingerprint is None:
+            raise ValueError("Configured transfer requires a paired bridge and target fingerprint")
         if self._activity_started or self._warm_evals or self._history_digests:
             raise ValueError("Transfer must be configured before warm/history/generation")
         replacement = BayesianCandidateGenerator(

@@ -1,0 +1,34 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+__________________________ test_jit_trainer_compiles ___________________________
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py:106: in test_jit_trainer_compiles
+    trained, metrics = trainer(jax.random.PRNGKey(1))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    final_params, losses = _train_loop(rng_key)
+                           ^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    final_carry, losses = jax.lax.scan(
+E   TypeError: scan body function carry input and carry output must have equal types, but they differ:
+E   
+E   The input carry component carry.best_loss has type float32[] but the corresponding output carry component has type float64[], so the dtypes do not match.
+E   
+E   Revise the function so that all output types match the corresponding input types.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_es_runs
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_es_runs
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/nn/_normalisation.py:92: UserWarning: LayerNorm(elementwise_affine=...) is deprecated in favour of LayerNorm(use_weight=...) and LayerNorm(use_bias=...)
+    warnings.warn(
+
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles

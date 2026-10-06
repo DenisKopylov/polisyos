@@ -1,0 +1,34 @@
+.....F.F....                                                             [100%]
+=================================== FAILURES ===================================
+_ test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-fluid-float64] _
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py:70: in test_real_actor64_transition_matches_equation_and_input_field_dtype
+    np.testing.assert_allclose(
+E   AssertionError: 
+E   Not equal to tolerance rtol=8.88178e-16, atol=0
+E   
+E   Mismatched elements: 2 / 4 (50%)
+E   Max absolute difference among violations: 4.4408921e-16
+E   Max relative difference among violations: 2.03327214e-15
+E    ACTUAL: array([-0.218411, -0.575549, -0.4094  , -0.765763])
+E    DESIRED: array([-0.218411, -0.575549, -0.4094  , -0.765763])
+_ test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-hard-float64] _
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py:70: in test_real_actor64_transition_matches_equation_and_input_field_dtype
+    np.testing.assert_allclose(
+E   AssertionError: 
+E   Not equal to tolerance rtol=8.88178e-16, atol=0
+E   
+E   Mismatched elements: 2 / 4 (50%)
+E   Max absolute difference among violations: 4.4408921e-16
+E   Max relative difference among violations: 2.03327214e-15
+E    ACTUAL: array([-0.218411, -0.575549, -0.4094  , -0.765763])
+E    DESIRED: array([-0.218411, -0.575549, -0.4094  , -0.765763])
+=============================== warnings summary ===============================
+tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py: 21 warnings
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py: 5 warnings
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/nn/_normalisation.py:92: UserWarning: LayerNorm(elementwise_affine=...) is deprecated in favour of LayerNorm(use_weight=...) and LayerNorm(use_bias=...)
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py::test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-fluid-float64]
+FAILED tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py::test_real_actor64_transition_matches_equation_and_input_field_dtype[jit-hard-float64]

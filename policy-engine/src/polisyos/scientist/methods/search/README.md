@@ -16,7 +16,15 @@ logic used by policy-design and promotion workflows.
 - Promotion funnel and rollout logic: [`funnel/`](funnel/), [`readiness.py`](readiness.py), and [`promotion_evidence.py`](promotion_evidence.py)
 - Strategy implementations: [`strategies/`](strategies/)
 
-## Public Entrypoints
+## Internal Entrypoints
+
+This child package and `polisyos.scientist.methods.autotune` are internal under
+the [public-surface manifest](../../../../../architecture/public_surface/contract.toml).
+Their `__all__` exports support internal callers and do not make the child
+packages public. The public `polisyos.scientist` facade exposes three specific
+search aliases: `NativeSearchService`, `SearchServiceCheckpoint`, and
+`SearchLoopRunner`. Those aliases do not change the classification of the
+remaining child entrypoints below.
 
 - Root contract surface in [`contracts.py`](contracts.py): `SearchService`, `CandidateProposal`, `EvaluationBundle`, and `TellResult`
 - Legacy controller in [`controller.py`](controller.py): `SearchController`, `SearchConfig`, `SearchResult`, and `SearchIteration`

@@ -1,0 +1,77 @@
+[
+  {
+    "path": "backtest-native-frozen.stdout.txt",
+    "sha256": "34144cb068faf995947beae487f4c234aa1dd86b6c8e7223c88e05ed999116e0",
+    "bytes": 669
+  },
+  {
+    "path": "backtest-native-frozen.xml",
+    "sha256": "72468c8daec270e4ad668a74b9e67ed2531721060f3310ffb0a4b08e1f1a3e09",
+    "bytes": 2598
+  },
+  {
+    "path": "backtest-regression-frozen.stdout.txt",
+    "sha256": "c276ca9297b7aabd1fa16bd3d3fe0462eae3fcaf77dbd5680ed48b1b5bc97528",
+    "bytes": 1232
+  },
+  {
+    "path": "backtest-regression-frozen.xml",
+    "sha256": "2a026436782a8505b16482759f57cfbdbe0a3a08d733e445100fd27bc8093ab6",
+    "bytes": 17388
+  },
+  {
+    "path": "backtest-curated-native.stdout.txt",
+    "sha256": "36857787f9fdd66c9befedac72feb4079058fe434105c6e621b80f094cb94ea9",
+    "bytes": 1008
+  },
+  {
+    "path": "backtest-curated-native.xml",
+    "sha256": "ac55135ad29dfea7084d0fd4e5c0edbe51cc5c21a827411c088a3c5ad7c9df73",
+    "bytes": 2414
+  },
+  {
+    "path": "backtest-native-deciding-evidence.json",
+    "sha256": "521c823387785b4f2498ce700a917758a8713643d8bcf01c170c492b9be628c2",
+    "bytes": 109272
+  },
+  {
+    "path": "backtest-environment-corrected.json",
+    "sha256": "7e1e5f3086f6a96b7571104a576f90dc76eb318a7d7a4d362813339c08c56a6e",
+    "bytes": 1231
+  },
+  {
+    "path": "backtest-curated-identity.json",
+    "sha256": "a62fc041d4af65e039fd1111f525d059ffe20707c777fa1b9a9e8df9c6a8a453",
+    "bytes": 509
+  },
+  {
+    "path": "backtest-old58-complete.stdout.txt",
+    "sha256": "ac5f392dc38df5c55848a77aa80293fd1560eb7f6944943decf7f76bae44fe42",
+    "bytes": 130568
+  },
+  {
+    "path": "backtest-old58-falsifier.py",
+    "sha256": "3f5f0f4648e0940f377bbf56d35fabeb725fb3071d66c1fa11a55e275689a949",
+    "bytes": 1273
+  },
+  {
+    "path": "measure-command.py",
+    "sha256": "5aa8aa868fd39cacbd9b71a9f305f3b1b1cdac682ae655e485437083dbc94f7e",
+    "bytes": 572
+  },
+  {
+    "path": "backtest-results-import-check.stdout.txt",
+    "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+    "bytes": 112
+  },
+  {
+    "path": "backtest-pr51-curated-readback.json",
+    "sha256": "8947c7436cad4619ed7fd56916ac567fa59bc4c5badd375d1402986313687144",
+    "bytes": 197
+  },
+  {
+    "path": "backtest-old58-trace.jsonl",
+    "sha256": "b73d97949f90c2e48e9f4abd3b10e4eeb4b8e8b31cdd5cacbf985bcc06dda214",
+    "bytes": 14652
+  }
+]

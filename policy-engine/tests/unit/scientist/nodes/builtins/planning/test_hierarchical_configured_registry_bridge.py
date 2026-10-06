@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from polisyos.core.security import get_current_tenant_id_or_none, tenant_scope
+from polisyos.ir.kernel.values import MoneyValue
 from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
 from polisyos.scientist.methods.search.transfer_context import anonymize_tenant_id
 from polisyos.scientist.nodes.builtins.planning import run_hierarchical_policy_search as module
@@ -43,10 +44,22 @@ def _config() -> HierarchicalSearchConfig:
 
 def _evaluate(payload, context, *, empty=False):
     # The fixture uses a declared finite measurement, not a default scalar proxy.
+    if "semantic" in payload:
+        assert payload["semantic"] == {"interventions": []}
+    if "_strategy_metadata" in payload:
+        assert isinstance(payload["_strategy_metadata"], dict)
     item = PolicyCandidateSchema.model_validate(
-        {k: v for k, v in payload.items() if k != "candidate_hash"}
+        {
+            k: v
+            for k, v in payload.items()
+            if k not in {"candidate_hash", "semantic", "_strategy_metadata"}
+        }
     )
-    amount = float(item.trinity_bundle.policy_spec.interventions[0].params["amount"].amount)
+    amount = float(
+        MoneyValue.model_validate(
+            item.trinity_bundle.policy_spec.interventions[0].params["amount"]
+        ).amount
+    )
     vector = PolicyEvaluationVector(
         candidate_id=item.candidate_id,
         primary={}

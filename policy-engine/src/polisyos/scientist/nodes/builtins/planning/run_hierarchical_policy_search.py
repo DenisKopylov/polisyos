@@ -566,6 +566,16 @@ class HierarchicalPolicySearchAdapter:
                     },
                 }
                 stage_b_result = stage_b_evaluator(candidate_payload, context)
+                if not isinstance(stage_b_result, Mapping):
+                    raise ValueError("Parameterless stage-B result must be a mapping")
+                evaluation = None
+                if "policy_evaluation" in stage_b_result:
+                    try:
+                        evaluation = _normalize_policy_evaluation_vector(
+                            stage_b_result["policy_evaluation"], allow_mapping=True
+                        )
+                    except (TypeError, ValueError) as exc:
+                        raise ValueError("Parameterless policy evaluation is invalid") from exc
                 state.parameter_search_results[structure.structure_id] = SearchResult(
                     search_id=f"{loop_id}:{structure.structure_id}",
                     status=SearchStatus.CONVERGED,
@@ -582,7 +592,7 @@ class HierarchicalPolicySearchAdapter:
                             stage_a_passed=True,
                             stage_b_result=stage_b_result,
                             duration_seconds=0.0,
-                            policy_evaluation=stage_b_result.get("policy_evaluation"),
+                            policy_evaluation=evaluation,
                         )
                     ],
                     stopping_reason="parameter_search_not_required",

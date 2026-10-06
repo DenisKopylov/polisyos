@@ -1,0 +1,22 @@
+{
+  "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+  "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected_origin.py",
+    "hash"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp",
+    "inherited_environment": true,
+    "artificial_cloud_quota": false
+  },
+  "exit_code": 1,
+  "wall_seconds": 2.4097290200006682,
+  "output": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stdout.txt",
+  "stderr": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stderr.txt",
+  "source_clean_before_after": true
+}

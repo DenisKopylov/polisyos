@@ -1,0 +1,45 @@
+{"effective_function_sha256": "c258657fa0b02c0f6cbec1b4e0aa3be4f8e946c82dc9222cb923c6168f35ddab", "effective_function_source": "def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:\n    evidence = report.scenario_evidence\n    metadata = dict(report.metadata)\n    metadata['schema_compatibility'] = {'source_schema_version': report.schema_version, 'supported_schema_versions': ['1.0', '1.1'], 'mode': 'legacy_unassessed' if report.schema_version == '1.0' else 'typed_scenario_evidence', 'population_probability': 'not_established'}\n    for name in ('attempted', 'finite_evaluated', 'violated_scenarios', 'unknown_or_nonfinite', 'planned_scenarios', 'completeness', 'score_scope', 'score_formula', 'score_status'):\n        metadata.pop(name, None)\n    metadata.update(evidence.accounting_metadata() if evidence is not None else {'completeness': False, 'score_scope': 'not_established', 'score_status': 'unavailable', 'population_probability': 'not_established'})\n    recomputed = report.model_copy(update={'critical_count': evidence.critical_occurrences if evidence is not None else sum((1 for item in report.vulnerabilities if item.severity == 'critical')), 'high_count': evidence.high_occurrences if evidence is not None else sum((1 for item in report.vulnerabilities if item.severity == 'high')), 'medium_count': evidence.medium_occurrences if evidence is not None else sum((1 for item in report.vulnerabilities if item.severity == 'medium')), 'robustness_score': (report.total_scenarios_evaluated - len(report.vulnerabilities)) / report.total_scenarios_evaluated if evidence is not None else None, 'set_adequacy_status': 'complete' if evidence is not None and evidence.complete else 'partial', 'metadata': metadata})\n    return StressTestReport.model_validate(recomputed.model_dump(mode='json'))", "file": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "mode": "example_fraction", "original_file_sha256": "d6d06d3204bba4784ace4a8e625c92bfcf792b8bb75a018b540d3c91c05d6208", "original_function_sha256": "b23fab796eb150b9b86c939985b9cf5433f6bca7e66eced287069a2370b55fc4", "retained_report_markers": ["scenario_evidence", "schema_version", "score_scope", "score_status"], "scope": "Actual defining function mutation before test import; no production file writes; independent acceptance not claimed.", "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e"}
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+____ test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1] _____
+
+cap = 1
+tmp_path = PosixPath('/dev/shm/e02-D-removal-example_fraction-b579b9f2c2374b81b79a04962085b0fe/test_ten_same_issue_case_occur0')
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
+        cap: int, tmp_path: Path
+    ) -> None:
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _recompute_stress_test_report,
+        )
+    
+        report = _suite(
+            FileSystemCAS(tmp_path / "cas"), [_case(i, i < 22) for i in range(32)]
+        ).stress_test_report
+        assert report is not None and report.scenario_evidence is not None
+        assert report.scenario_evidence.violated_scenarios == 10
+        presentation = report.model_copy(update={"vulnerabilities": report.vulnerabilities[:cap]})
+>       observed = _recompute_stress_test_report(presentation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = StressTestReport(schema_version='1.1', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...tablished', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True})
+
+>   ???
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for StressTestReport
+E     Value error, report score and adequacy disagree with observed scenario evidence [type=value_error, input_value={'schema_version': '1.1',...re_status': 'observed'}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py::actual-property-removal:53: ValidationError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1]
+{"mode": "example_fraction", "actual_pytest_exit": 1, "mutation_detected": true, "production_bytes_preserved": true}

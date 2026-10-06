@@ -1,0 +1,286 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[None] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-projection-red-eb02c61431cf4bb2880b16fc73f6c8b6/test_declared_resource_observa0')
+spend = None
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -> None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+>       assert projection["evaluation_status"] == "partial"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'evaluation_status'
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:83: KeyError
+_ test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend1] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-projection-red-eb02c61431cf4bb2880b16fc73f6c8b6/test_declared_resource_observa1')
+spend = Decimal('0')
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -> None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+>       assert projection["evaluation_status"] == "partial"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'evaluation_status'
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:83: KeyError
+_ test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend2] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-projection-red-eb02c61431cf4bb2880b16fc73f6c8b6/test_declared_resource_observa2')
+spend = Decimal('0.10000000000000000001')
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -> None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+>       assert projection["evaluation_status"] == "partial"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'evaluation_status'
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:83: KeyError
+___ test_actual_phase_d4_report_manifest_matches_typed_body_on_fresh_reader ____
+
+tmp_path = PosixPath('/dev/shm/e02-D-projection-red-eb02c61431cf4bb2880b16fc73f6c8b6/test_actual_phase_d4_report_ma0')
+
+    def test_actual_phase_d4_report_manifest_matches_typed_body_on_fresh_reader(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        candidate = store.put_json(
+            {"candidate": "declared-strategic-summary"},
+            PutOptions(kind="scientist.policy_candidate", media_type="application/json"),
+        )
+        registry = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store=store, registry_bundle=registry, run_id="phase-d4-schema")
+        context = ExecutionContext(store=store, run=run, logger=logging.getLogger("phase-d4-schema"))
+        state = ExperimentState(
+            run_id="phase-d4-schema",
+            params={
+                "strategic_response_summary": {
+                    "fallback_mode": "exact_equilibrium",
+                    "equilibrium_selection_dependence": "follower_best_response_tie_breaking",
+                    "closure_summary": {"mode": "exact_equilibrium", "equilibrium_count": 2},
+                }
+            },
+        )
+        selection = BenchmarkEvaluation(loop_id="loop", suite_id="selection", candidate_ref=candidate)
+        benchmark_refs, stress_refs, warnings = _run_and_register_phase_d4_challenge_suites(
+            context,
+            state,
+            benchmark_registry=BenchmarkRegistry(tmp_path / "benchmarks"),
+            candidate_ref=candidate,
+            selection_evaluation=selection,
+            benchmark_scope={
+                "artifact_family": "policy_candidate",
+                "claim_mode": "point_identification",
+                "query_type": None,
+                "estimator_name": None,
+                "readiness_target": None,
+            },
+            artifacts_index={},
+        )
+        assert benchmark_refs and stress_refs and warnings
+        reopened = FileSystemCAS(tmp_path / "cas")
+        for reference in stress_refs:
+            restored = StressTestReport.model_validate(
+                from_canonical_bytes(reopened.get_bytes(reference.artifact_id))
+            )
+            schema = reopened.get_manifest(reference.artifact_id).artifact_schema
+            assert schema is not None
+>           assert schema.version == restored.schema_version == "1.1"
+E           AssertionError: assert '1.0' == '1.1'
+E             
+E             - 1.1
+E             + 1.0
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:146: AssertionError
+_______ test_empty_component_stays_incomplete_beside_a_complete_case_set _______
+
+tmp_path = PosixPath('/dev/shm/e02-D-projection-red-eb02c61431cf4bb2880b16fc73f6c8b6/test_empty_component_stays_inc0')
+
+    def test_empty_component_stays_incomplete_beside_a_complete_case_set(tmp_path: Path) -> None:
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _merge_stress_test_reports,
+            _recompute_stress_test_report,
+        )
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        complete = _suite(store, [_case(index, True) for index in range(4)]).stress_test_report
+        empty = _suite(store, []).stress_test_report
+        empty.metadata["challenge_suite_id"] = "declared-empty-suite"
+        observed = _recompute_stress_test_report(_merge_stress_test_reports(complete, [empty]))
+        assert observed.total_scenarios_evaluated == 4
+        assert observed.robustness_score == 1.0  # Observed nonempty subset only.
+>       assert observed.set_adequacy_status == "partial"
+E       AssertionError: assert 'complete' == 'partial'
+E         
+E         - partial
+E         + complete
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:218: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_blueprint_resource_projection.py::test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[None]
+FAILED tests/unit/scientist/search/test_blueprint_resource_projection.py::test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend1]
+FAILED tests/unit/scientist/search/test_blueprint_resource_projection.py::test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend2]
+FAILED tests/unit/scientist/search/test_blueprint_resource_projection.py::test_actual_phase_d4_report_manifest_matches_typed_body_on_fresh_reader
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_component_stays_incomplete_beside_a_complete_case_set
+RUNTIME_ENVIRONMENT={"executable": "/workspace/e02-D-locked-env/bin/python", "exit_code": 1, "modules": [{"module": "polisyos.scientist.methods.backtesting.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py", "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d"}, {"module": "polisyos.scientist.methods.doe.designs", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py", "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e"}, {"module": "polisyos.scientist.methods.doe.stress_report", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py", "sha256": "60ee7b938cc0f189d839d7dc3b3651d6e55fea51bcdff4e66e7f126da3c5516e"}, {"module": "polisyos.scientist.methods.doe.sampling", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py", "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"}, {"module": "polisyos.scientist.methods.search.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py", "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"}, {"module": "polisyos.scientist.policy_design.adversary", "path": null, "sha256": null}, {"module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "d6d06d3204bba4784ace4a8e625c92bfcf792b8bb75a018b540d3c91c05d6208"}, {"module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py", "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4"}, {"module": "polisyos.scientist.methods.search.funnel.orchestrator", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"}], "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"}

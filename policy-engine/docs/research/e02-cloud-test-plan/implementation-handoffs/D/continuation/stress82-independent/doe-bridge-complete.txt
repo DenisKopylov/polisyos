@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/dev/shm/e02-D-E-composed-np9pjw79/bridge_probe.py", line 32, in <module>
+    from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+        _recompute_stress_test_report,
+    )
+  File "/dev/shm/e02-D-E-composed-np9pjw79/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", line 16, in <module>
+    from polisyos.foundry.methods.catalog.causal.strategic import (
+    ...<3 lines>...
+    )
+  File "/dev/shm/e02-D-E-composed-np9pjw79/policy-engine/src/polisyos/foundry/methods/catalog/__init__.py", line 133, in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+    ...<2 lines>...
+    )
+  File "/dev/shm/e02-D-E-composed-np9pjw79/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 7157, in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+        module_file=Path(__file__),
+        protocol_concrete_pairs=_OWNER_PROTOCOL_CONCRETE_PAIRS,
+    )
+  File "/dev/shm/e02-D-E-composed-np9pjw79/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 6119, in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+  File "/dev/shm/e02-D-E-composed-np9pjw79/policy-engine/src/polisyos/foundry/methods/catalog/dependency_evidence.py", line 2253, in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ~~~~~~~~~~~~~~~^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/e02-D-E-composed-np9pjw79/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'

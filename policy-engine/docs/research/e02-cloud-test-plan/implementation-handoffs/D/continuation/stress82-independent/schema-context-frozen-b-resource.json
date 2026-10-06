@@ -1,0 +1,20 @@
+{
+  "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+    "--basetemp",
+    "/dev/shm/e02-D-stress-frozen-b-4d771bb55df7459ba63cb8cfaec30d18",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/schema-context-frozen-b-junit.xml"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 23.231736792004085,
+  "peak_rss_kib": 892612,
+  "source_sha_after": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+  "git_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n",
+  "shared_memory_events_before": "low 0\nhigh 0\nmax 10393826\noom 109\noom_kill 17\noom_group_kill 0\n",
+  "shared_memory_events_after": "low 0\nhigh 0\nmax 10427306\noom 109\noom_kill 17\noom_group_kill 0\n"
+}

@@ -52,3 +52,5 @@
 Receipts сохранены в `7a4c1c55387035bb78a3f9bb9240cd3cd956899d` / tree `f46cddc783e089952d72c9b3c01df8ed046eb844`; полная 463-path branch readback дала ноль несовпадений.
 
 Cleanup: [cleanup.json](cleanup.json). После readback двух native Trash moves перемещены завершённая compiler `.venv` и три дублирующих 905820 лог-файла. Source absence и Trash destination подтверждены тем же dev/inode. Корзина не очищена, physical reclamation не заявлена. Root runtime/node_modules остаются активными для publication/remaining consumer checks; production originals, shared Python, source/docs, уникальные CAS/checkpoints/wheels и полные deciding outputs сохранены.
+
+Desktop delivery: `codex/e02-A-delivery-attached` в `/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos` создан native managed tool из опубликованного `93d62af`, прикреплён к текущей задаче, create/resume той же exact pair дали admitted. [delivery-attachment.json](delivery-attachment.json) содержит полные JSON admission и branch-content readback 463/463. `codex/e02-A-full-queue` сохраняется как исходный опубликованный topic handoff; functional source и deciding candidates не менялись.

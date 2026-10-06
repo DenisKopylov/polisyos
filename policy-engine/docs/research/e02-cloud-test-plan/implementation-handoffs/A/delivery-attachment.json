@@ -1,0 +1,152 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "desktop-managed-delivery-attachment",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+  "implementation_commits": [],
+  "candidate_tree_sha": "c735de423d65de6067b3836131b9a8206f359242",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/delivery-attachment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/delivery-attachment/resume.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/delivery-attachment/create.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/delivery-attachment/create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/delivery-attachment/resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-report.md"
+  ],
+  "baseline_cells": {
+    "source_topic": "codex/e02-A-full-queue",
+    "source_sha": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+    "source_tree": "c735de423d65de6067b3836131b9a8206f359242",
+    "source_branch_remote_readback_verified": true
+  },
+  "checks": [
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "workspace",
+        "doctor",
+        "--worktree-admission",
+        "create",
+        "--branch",
+        "codex/e02-A-delivery-attached",
+        "--path",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos"
+      ],
+      "target_sha": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+        "lane": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+        "mode": "read-only admission"
+      },
+      "input_closure": {
+        "branch": "codex/e02-A-delivery-attached",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos"
+      },
+      "outcome": "PASS",
+      "output": {
+        "create.json": {
+          "path": "delivery-attachment/create.json",
+          "bytes": 167280,
+          "sha256": "1e24c692b2885a3d49e72886c69af6173f318deb96f0359ec6fc3b8d6d14f10e"
+        },
+        "create.stderr.txt": {
+          "path": "delivery-attachment/create.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "workspace",
+        "doctor",
+        "--worktree-admission",
+        "resume",
+        "--branch",
+        "codex/e02-A-delivery-attached",
+        "--path",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos"
+      ],
+      "target_sha": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+        "lane": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+        "mode": "read-only admission"
+      },
+      "input_closure": {
+        "branch": "codex/e02-A-delivery-attached",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos"
+      },
+      "outcome": "PASS",
+      "output": {
+        "resume.json": {
+          "path": "delivery-attachment/resume.json",
+          "bytes": 174064,
+          "sha256": "df7cd75722aa5f989aeef716ca9e005be2facf99f616f81182c4118904feda4f"
+        },
+        "resume.stderr.txt": {
+          "path": "delivery-attachment/resume.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "property": {
+    "selected_exact_pair": {
+      "branch": "codex/e02-A-delivery-attached",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos"
+    },
+    "native_creation": {
+      "tool": "mcp__codex_app__create_worktree",
+      "name": "e02-a-delivery-attached",
+      "ref": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+      "operation_id": "aabe1cb2-c2e8-49ea-a4c2-32088eb39c65",
+      "result": "completed",
+      "registrationError": null
+    },
+    "native_artifact_readback": {
+      "attachmentType": "worktree",
+      "identityKey": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+      "artifact_id": "01a112a9-940e-7f61-ae69-c9d00c9f8a6a"
+    },
+    "source_readback": {
+      "complete_footprint_paths": 463,
+      "mismatches": 0,
+      "method": "Read all source-topic Git blobs at immutable SHA and compare bytes in newly attached checkout."
+    },
+    "negative_case": {
+      "tool": "mcp__codex_app__attach_worktree",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+      "result": "The checkout exists but is not a managed worktree.",
+      "outcome": "ERROR",
+      "resolution": "New separately preflighted exact pair created via native managed tool; no existing checkout or Git history rewritten."
+    },
+    "branch_attachment": "Native tool created detached HEAD at expected source commit; created chosen branch at that same commit before resume/commit. No off-history switch."
+  },
+  "predicate_basis": {
+    "filesystem_and_git_admission": "recomputed",
+    "desktop_attachment": "independently_reconciled",
+    "source_topic_content_equality": "recomputed"
+  },
+  "capability_state_or_finding_state": "infrastructure attachment complete; no product capability or finding closure change",
+  "limitations_and_next_owner": {
+    "production_data": "Remains read-only at original local root; no copied data or synthetic admitted profile was created.",
+    "remaining_verification": "All runtime criteria/limitations remain those in full-queue-adjudication.json and full-queue-progress.json; this is a documentation/attachment delta only.",
+    "environments": "No TypeScript scanner or tests run in this fresh checkout. Publication uses the already-provisioned source-topic checkout for its existing Git hook environment.",
+    "history": "Append-only topic branches; main and G integration unchanged."
+  }
+}

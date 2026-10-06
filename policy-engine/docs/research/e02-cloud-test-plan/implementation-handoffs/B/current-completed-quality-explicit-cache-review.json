@@ -139,7 +139,12 @@
       "be836specificarchitecturearg guard",
       "samecanonicalretainedworkspace+offlineUVmeasurement all4families (UNRUN)"
     ],
-    "proxy_divergence": "Rootacceptedcachepath/diridentity isnot cachedpackage/offlineavailability/immutableexclusiveownership; all8unchangedcommandbranches AST proof isnot new8runtimePASS. Old73productqueryrelative-pathfailure retainedseparately, not an inheritedwaiver."
+    "proxy_divergence": "Rootacceptedcachepath/diridentity isnot cachedpackage/offlineavailability/immutableexclusiveownership; all8unchangedcommandbranches AST proof isnot new8runtimePASS. Old73productqueryrelative-pathfailure retainedseparately, not an inheritedwaiver.",
+    "negative_controls": [
+      "NOT EXECUTED by reviewer: source CLI refuses architecture invocation without its required cache input and refuses an architecture cache argument supplied to another gate.",
+      "NOT EXECUTED by reviewer: source helper refuses relative/absent/non-directory caches and resolved caches inside the frozen repository or actual production_data; the prior existing/symlink retained workspace refusal remains.",
+      "NOT EXECUTED by reviewer: actual caller argument, directory and marker identity cannot certify cached distribution contents, offline availability, task-exclusive ownership or cache immutability. No query, fallback, skipped predicate or future freshness PASS is inferred."
+    ]
   },
   "predicate_basis": "independently_reconciled",
   "predicate_qualifications": {
@@ -185,5 +190,12 @@
       "sha256": "ae6754630aec58d034da348f7e2fe84cce0ee674360b63bd946b731dd2bec7c4"
     }
   ],
-  "publication_status": "Localimmutableevidence; normaal topicpush/freshreadback follows separately withoutfutureSHA"
+  "publication_status": "Localimmutableevidence; normaal topicpush/freshreadback follows separately withoutfutureSHA",
+  "handoff_protocol_forward_qualification": {
+    "previous_alias_sha256": "012bdacbe93b8607eded2433c63d7b798098a0b1760b8c8ee40d716ac463f882",
+    "previous_alias_commit": "e0884a5d4ac0a7f0a58f3db5336ef30275995fc5",
+    "field_added": "property.negative_controls",
+    "grade": "Source-reviewed refusal branches and evidence limits; NOT EXECUTED by reviewer",
+    "preserved": "Original implementation commits/tree/three-path footprint, check commands/outcomes, source and full deciding bytes remain unchanged."
+  }
 }

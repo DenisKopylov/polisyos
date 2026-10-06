@@ -527,5 +527,12 @@
     ],
     "purpose": "FRC owner-requested companion: configured ForecastOwner v2 target unit/source-native scale/DataSchema admission and separate native BKT producer; legacy v1 replay preserved",
     "source_tests_unchanged_after_candidate": true
+  },
+  "append_only_review_correction": {
+    "previous_source_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+    "code_disposition": "HOLD before class fix; earlier numerical PASS did not verify temporal/model substitution resistance",
+    "superseding_reader_receipt": "backtest-native-chain-admission-r2.json",
+    "final_reader_source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "basis": "Independent reviewer found four genuine-artifact escapes; corrected with actual clock/materializer/previous-state/compiled-model joins. Earlier evidence and SHA attribution retained."
   }
 }

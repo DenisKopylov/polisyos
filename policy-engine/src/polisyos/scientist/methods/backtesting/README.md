@@ -101,6 +101,9 @@ previous native state, advances the declared clock and resolves the registered
 target state slot. The persisted typed trajectory preserves all execution
 bindings, SimulationResults, state snapshots and configuration refs; the
 backtest consumer reopens CAS and independently recomputes the target values.
+It also resolves the executed program/LoweredIR to the declared Trinity/model,
+anchors the initial materialized binding, and checks the native clock and exact
+previous/post-state lineage for every future coordinate.
 Counters, scalar effects and pooled uncertainty outputs cannot substitute for
 these observations. Failed native execution produces an unavailable result with
 no naive forecast fallback. This path emits no inferred prediction interval.

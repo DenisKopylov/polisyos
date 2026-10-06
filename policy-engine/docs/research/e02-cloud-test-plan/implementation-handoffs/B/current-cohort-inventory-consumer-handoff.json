@@ -83,12 +83,24 @@
     "Root owns final single native wave, selection manifest, stdout/JUnit/inventory/wait4 receipts. This leaf will independently review complete actual outputs when supplied.",
     "session_exitstatus is the observed regular sessionfinish hook argument, not guaranteed final process status; hook-time module origins are not finalization/child/resource read-set.",
     "Duplicate identities/repeated phases, unmapped XML, collector errors/skips, incomplete cases and unsupported execution profiles remain explicit; no summary converts them to PASS.",
-    "Runtime/collection/parser UNRUN. Existing source-only CMP qualification accepted; immutable review reference may be supplied separately."
+    "Runtime/collection/parser UNRUN. Complete independent CMP source-review packet at 8d01c7b07976ae1b500c8c07e73a120fdebb82dd:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-source-review.json read and hash-bound above; hook-time/source-only qualifications retained."
   ],
   "actual_execution": {
     "observer_import": "UNRUN",
     "collection": "UNRUN",
     "tests": "UNRUN",
     "runtime_parser": "UNRUN awaiting final root wave"
+  },
+  "independent_source_review": {
+    "source_sha": "8d01c7b07976ae1b500c8c07e73a120fdebb82dd",
+    "source_tree_sha": "1c4c383dfada0ad1e74abb367ed331bcb13719af",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-source-review.json",
+    "bytes": 20574,
+    "sha256": "a6d09fbba039c52502d7b9e59abd40a1fbb4bfd02028d66cbe1630c846663d3c",
+    "reviewed_source_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+    "verdict": "NO_SOURCE_BLOCKER_WITH_EXPLICIT_HOOK_TIME_CONSUMER_QUALIFICATION",
+    "runtime_verdict": "UNRUN_BY_THIS_REVIEWER",
+    "predicate_basis": "independently_reconciled",
+    "predicate_scope": "Complete frozen observer and actual pytest9 source-only review; no runtime or consumer parser acceptance"
   }
 }

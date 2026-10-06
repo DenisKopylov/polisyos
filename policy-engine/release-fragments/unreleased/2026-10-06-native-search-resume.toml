@@ -10,10 +10,23 @@ compatibility = "Existing ask/tell adapters remain supported. Current persisted 
 migration = "Read the exact checkpoint_ref from the result telemetry or exposed service after an evaluator interruption. Reopen the configured artifact store and call SearchLoopRunner.resume with the same active suite and supported generator replay contract. Old in-memory service instances have no persisted checkpoint to migrate."
 api = "polisyos.scientist lazily exports NativeSearchService, SearchServiceCheckpoint and SearchLoopRunner. SearchLoopRunner.create_service constructs its actual native evaluator/registry consumer; resume restores an exact artifact reference."
 limitations = "The served hierarchical caller remains unappointed here. Checkpoint identity does not appoint evaluator or promotion authority. Native replay binds actual evaluator settings via known built-in constructors or explicit checkpoint_configuration, suite/data snapshots, codec build/schema and supported context values/callbacks; opaque profiles refuse. External owner handles remain caller inputs. External promotion/frontier effects and service-checkpoint publication are separate atomic boundaries. Generic custom objectives, unsupported generator/stopping profiles and enabled diversity tracking refuse resume. Budget state supplies recorded accounting only; receipt/revision and provider cost-origin authority remain unavailable through the current middleware port."
-evidence = ["tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py"]
+evidence = ["tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py", "tests/unit/scientist/methods/autotune/test_native_doe_factory.py"]
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = ["README.md"]
+
+[[compatibility_change]]
+id = "native-factory-exploratory-order-and-subject"
+change_class = "runtime-state-format"
+impact = "migration_required"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate_validation_refusal"
+release_note = "SearchLoopSpec metadata optionally binds a full selected analysis_ref, exploratory_coordinate_order.v1 and exploratory purpose before canonical native generation. Default typed mutation evaluation preserves selected sensitivity_analysis lineage. The service binds canonical native history IDs to persisted run/public candidate IDs and validates pending/history/best/frontier identity before restore. Checkpoint configuration now requires native_service_run_candidate.v1 for this generator; preserve earlier checkpoints for their original compatible reader or start a new configured run. Unknown or partial analysis profiles and altered subject carriers refuse without live admission. This is exploratory coordinate ordering, not population or promotion authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md", "docs/how-to/search-exploratory-coordinate-order.md"]
+runbook_docs = []
 
 [[compatibility_change]]
 id = "native-search-checkpoint-reader-window"

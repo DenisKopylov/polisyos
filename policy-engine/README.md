@@ -94,6 +94,25 @@ Unknown schema/configuration is refused rather than migrated. These APIs
 are exported lazily from `polisyos.scientist`; they do not appoint or cut over the
 separate served hierarchical caller.
 
+For a canonical `BayesianCandidateGenerator`, `SearchLoopSpec.metadata` can
+select an existing verified DOE analysis with `analysis_ref`,
+`analysis_order_profile="exploratory_coordinate_order.v1"`, and
+`analysis_purpose="exploratory"`. Supply all three fields together. The factory
+recomputes the persisted analysis and binds its exact parameter bounds, units,
+distribution and ranking before generation. The default typed mutation codec
+projects the supported native technical envelope while retaining meaningful
+mutation fields; candidate and evaluation manifests retain the selected
+`sensitivity_analysis` input. The order affects the assignment of native Sobol
+coordinates and establishes an exploratory experiment only.
+
+The native service assigns its canonical generator's history subject from the
+persisted run ID and public candidate ID before proposal publication. Fresh
+resume preserves the full next proposal and validates pending, history and
+derived best/frontier subjects before live admission. The checkpoint configuration
+binds `native_service_run_candidate.v1`; earlier checkpoints without this binding
+refuse configuration compatibility. Preserve them for their original reader or
+start a new run with the current factory.
+
 `CostBudgetStopping` accepts finite nonnegative recorded cost and refuses invalid
 budget limits. Configured budget owners supply their public recorded state;
 provider aggregates remain `recorded_by_provider`, with provider-reported origin,

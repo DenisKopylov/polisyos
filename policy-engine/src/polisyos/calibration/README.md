@@ -29,7 +29,7 @@ separate `scientist/calibration` package root.
 ## Predictive evidence entrypoints
 
 Scientist imports the typed profile, context, candidate references and
-producer/readback functions from `polisyos.calibration`. These lazy exports
+producer/readback functions from `polisyos.calibration`. These typed exports
 resolve to the canonical `forecast_bridge` objects; they introduce no second
 implementation or authority. Generic diagnostics retain their existing API.
 

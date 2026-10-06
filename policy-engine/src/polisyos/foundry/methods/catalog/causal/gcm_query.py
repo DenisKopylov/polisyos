@@ -1169,7 +1169,7 @@ def validate_persisted_estimator_interval(
     store: Any,
 ) -> None:
     """Reconcile the persisted interval with actual source custody and refit outputs."""
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core import artifacts
     from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
         validate_persisted_worker_response,
     )
@@ -1195,7 +1195,7 @@ def validate_persisted_estimator_interval(
         response=response,
         state=state,
         store=store,
-        source_ref=ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
+        source_ref=artifacts.ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
     )
     if response["parent_observed"]["request_binding"]["seed"] != interval.seed:
         raise ValueError("persisted refit interval seed differs from its actual worker request")

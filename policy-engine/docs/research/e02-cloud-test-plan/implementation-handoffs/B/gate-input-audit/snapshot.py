@@ -87,7 +87,13 @@ def main() -> int:
     )
     coverage_raw = git(root, "show", head + ":" + coverage_path)
     coverage = json.loads(coverage_raw)
-    selectors = {path for bundle in coverage["bundles"] for path in bundle["test_paths"]}
+    manifest_path = (
+        "policy-engine/docs/plans/active/agent-packages/"
+        "PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+    )
+    manifest_raw = git(root, "show", head + ":" + manifest_path)
+    manifest = json.loads(manifest_raw)
+    selectors = {path for bundle in manifest["bundles"] for path in bundle["test_paths"]}
     source_bindings = []
     for path in CONFIG_PATHS:
         raw = git(root, "show", CONFIG + ":" + path)
@@ -141,13 +147,23 @@ def main() -> int:
             ),
         },
         "historical_declared_selector_census": {
-            "input": coverage_path + "@" + head,
-            "input_sha256": sha256(coverage_raw),
+            "input": manifest_path + "@" + head,
+            "input_sha256": sha256(manifest_raw),
             "declared_unique_paths": len(selectors),
             "tracked_present": len(selectors & tracked),
             "missing_paths": sorted(selectors - tracked),
             "qualification": (
                 "historical global map, not current B-only collection or criterion closure"
+            ),
+        },
+        "illustrative_closeout_command_schema": {
+            "input": coverage_path + "@" + head,
+            "input_sha256": sha256(coverage_raw),
+            "bundles": len(coverage["bundles"]),
+            "bundles_with_test_paths": sum("test_paths" in row for row in coverage["bundles"]),
+            "qualification": (
+                "the documented coverage.json bundle/test_paths command has no "
+                "matching schema; not run as a test gate"
             ),
         },
         "native_trash_availability": {

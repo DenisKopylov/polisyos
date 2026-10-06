@@ -51,9 +51,16 @@ Only identical output files, mutable fixtures/DBs, ports or environment writers
 require serialization; a shared parent directory alone does not.
 
 `snapshot.py --root /workspace/e02-B-current-coordination` walks the complete
-tracked Git tree and historical declared selector set, and observes named local
+tracked Git tree and canonical manifest's declared selector set, and observes named local
 locators and native Trash availability. It neither collects pytest nor discovers
 the complete dynamic gate read set. P41 inherited-red attribution still requires
 the exact literal slice-base replay and zero intersection with the actual full
 gate input closure. Changed source/tests/docs cannot be declared disjoint on the
 basis of a baseline summary or historical selector map.
+
+The illustrative final named-suite command in verification-and-closeout reads
+`coverage.json` bundle `test_paths`, but the current coverage schema carries
+criterion-card references instead. That exact illustrative command cannot
+collect tests. The census reads the canonical `bundle_manifest.json` selectors
+and records the schema mismatch; repairing or admitting a new final command is
+the shared document/verification owner's decision, not a B source edit.

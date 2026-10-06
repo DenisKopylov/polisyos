@@ -1,0 +1,66 @@
+{
+  "source_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+  "old_sha": "2c275dc69a5b544704256ee0ccd37649ae7e8ea4",
+  "source_before_after_equal": true,
+  "removed_crossroot_private_edge": "polisyos.calibration->polisyos.foundry.calibration.report",
+  "new_edges_introduced": 0,
+  "exports": {
+    "calibration": 29,
+    "uncertainty": 20
+  },
+  "canonical_identity": true,
+  "malformed_reader_controls": [
+    {
+      "reader": "Calibration",
+      "kind": "funnel.calibration_report",
+      "schema": "polisyos.foundry.CalibrationReport",
+      "version": "2.0",
+      "outcome": "REFUSED",
+      "reason": "calibration report manifest kind/schema mismatch"
+    },
+    {
+      "reader": "Foundry uncertainty",
+      "kind": "funnel.calibration_report",
+      "schema": "polisyos.foundry.CalibrationReport",
+      "version": "2.0",
+      "outcome": "REFUSED",
+      "reason": "calibration report manifest kind/schema mismatch"
+    },
+    {
+      "reader": "Calibration",
+      "kind": "foundry.calibration_report",
+      "schema": "polisyos.foundry.FunnelCalibrationReport",
+      "version": "2.0",
+      "outcome": "REFUSED",
+      "reason": "calibration report manifest kind/schema mismatch"
+    },
+    {
+      "reader": "Foundry uncertainty",
+      "kind": "foundry.calibration_report",
+      "schema": "polisyos.foundry.FunnelCalibrationReport",
+      "version": "2.0",
+      "outcome": "REFUSED",
+      "reason": "calibration report manifest kind/schema mismatch"
+    },
+    {
+      "reader": "Calibration",
+      "kind": "foundry.calibration_report",
+      "schema": "polisyos.foundry.CalibrationReport",
+      "version": "1.0",
+      "outcome": "REFUSED",
+      "reason": "calibration report payload/schema version mismatch"
+    },
+    {
+      "reader": "Foundry uncertainty",
+      "kind": "foundry.calibration_report",
+      "schema": "polisyos.foundry.CalibrationReport",
+      "version": "1.0",
+      "outcome": "REFUSED",
+      "reason": "calibration report payload/schema version mismatch"
+    }
+  ],
+  "actual_imported_modules": 793,
+  "code_verdict": "GO-bounded-canonical-routing-fix",
+  "scope": "This selected edge proof is not full global architecture PASS. Unchanged strict reader/actual tiedproducer\u2192Node\u2192persisted output/101callback removal proof reused from immutable r4; numeric common inlet properties reused from immutable r3."
+}

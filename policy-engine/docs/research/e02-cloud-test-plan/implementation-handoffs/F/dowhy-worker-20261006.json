@@ -1305,7 +1305,59 @@
   "per_finding": [
     {
       "bundle_id": "CAU-04",
+      "check_refs": [
+        "real worker/scientific profile",
+        "numerical MethodJob/CAS/fresh3.14 reader",
+        "complete parent suite at canonical-builder freeze"
+      ],
+      "criterion_refs": [
+        {
+          "card": "CAU-04",
+          "criterion_id": "B212",
+          "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            5194,
+            5205
+          ],
+          "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+          "source_is_original_card": true
+        }
+      ],
       "finding_id": "B212",
+      "mechanism": "Exact ordered finite numericCI shapes95level; no flatten/swap/string/bool/overflow coercion; actual producer point-only persistence noneligible; generic fresh-reader malformedbinding typedrefusal",
+      "next_owner": "G for scientific source/admission judgment; F root latest delta review",
+      "residuals": [
+        "Known correct IID homoscedastic Gaussian200replicate property is not real-data95coverage claim",
+        "Legacy explicit in-process profile remains optional and unselected in app3.14",
+        "Production-positive scientific source/authority and nonselected profiles remain UNRUN; bounded independent code GO is not finding closure"
+      ],
+      "state": "limited",
+      "test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_actual_estimator_malformed_ci_refused_in_parent"
+      ]
+    },
+    {
+      "bundle_id": "CAU-04",
+      "check_refs": [
+        "real worker/scientific profile",
+        "numerical MethodJob/CAS/fresh3.14 reader",
+        "complete parent suite at canonical-builder freeze"
+      ],
+      "criterion_refs": [
+        {
+          "card": "CAU-04",
+          "criterion_id": "B213",
+          "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            5206,
+            5217
+          ],
+          "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+          "source_is_original_card": true
+        }
+      ],
+      "finding_id": "B213",
       "mechanism": "Default selected actual identifiedATE adjustment+method+contrast+target binding; independent OLS and knownDGP coverage validated",
       "next_owner": "G for exact candidate with admitted local inputs; F root numerical consumer; F API packaging",
       "residuals": [
@@ -1314,19 +1366,11 @@
         "Root source/CAS full report projection is separate accepted bounded dependency, not production-positive authority",
         "Raw output-slot ERROR monitoring persists; F-M5 zero-warning criterion not met"
       ],
-      "state": "limited"
-    },
-    {
-      "bundle_id": "CAU-04",
-      "finding_id": "B213",
-      "mechanism": "Exact ordered finite numericCI shapes95level; no flatten/swap/string/bool/overflow coercion; actual producer point-only persistence noneligible; generic fresh-reader malformedbinding typedrefusal",
-      "next_owner": "G for scientific source/admission judgment; F root latest delta review",
-      "residuals": [
-        "Known correct IID homoscedastic Gaussian200replicate property is not real-data95coverage claim",
-        "Legacy explicit in-process profile remains optional and unselected in app3.14",
-        "Production-positive scientific source/authority and nonselected profiles remain UNRUN; bounded independent code GO is not finding closure"
-      ],
-      "state": "limited"
+      "state": "limited",
+      "test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_selected_profile_does_not_relabel_unsupported_requests"
+      ]
     }
   ],
   "predicate_basis": "recomputed",
@@ -1359,9 +1403,17 @@
       "Existing MethodBackend parent-only CAS result+lineage+method execution reproducibility receipt",
       "Fresh actual Python3.14reader reopens source and validates persisted worker response; installed composition and production-node authority remain independently classified"
     ],
-    "statement": "Selected default causal method uses actual locked Python3.12/DoWhy0.14 for one bound binary0/1 ATE linear profile; parent validates reopened actual source/content and complete finite numeric reply; ordered95CI exactshape2/1,2 without primitive/shape repair; legitimate point-only preserved noneligible; persisted numerical candidate revalidated in freshPython3.14reader. Existing exported class now owns one pure full worker-response\u2192typed-report builder shared by producer and actual root numerical consumer, with actual signature defaults and stable class/function pickle ABI."
+    "statement": "Selected default causal method uses actual locked Python3.12/DoWhy0.14 for one bound binary0/1 ATE linear profile; parent validates reopened actual source/content and complete finite numeric reply; ordered95CI exactshape2/1,2 without primitive/shape repair; legitimate point-only preserved noneligible; persisted numerical candidate revalidated in freshPython3.14reader. Existing exported class now owns one pure full worker-response→typed-report builder shared by producer and actual root numerical consumer, with actual signature defaults and stable class/function pickle ABI."
   },
   "pull_request": null,
+  "receipt_corrections": [
+    {
+      "class": "metadata_only_original_criterion_binding",
+      "correction": "Per-ID property/check/limitation mapping now follows original B212 point-only/no manufactured CI and B213 actual estimand/contrast/target binding. Previous two mechanism labels were reversed. F-M7 shared profile is unchanged.",
+      "prior_head": "369b9d8d9105de2ae7198ba9ab08ac4065c20fb2",
+      "unchanged": "Both limited; closure_ids empty; source423 and all implementation/evidence/check bytes and outcomes retained. No test rerun or new backend/scientific/authority witness."
+    }
+  ],
   "related_finding_ids": [
     "B221",
     "B222"

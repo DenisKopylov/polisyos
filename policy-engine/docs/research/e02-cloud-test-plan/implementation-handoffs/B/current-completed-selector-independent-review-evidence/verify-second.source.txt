@@ -1,0 +1,180 @@
+"""Read the delivered selector/lineage and exact Git source; never derive or collect."""
+import ast
+import csv
+import hashlib
+import io
+import json
+import platform
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-B-current-coordination")
+SHA = "1862c021df74a5c5815bc5cd21a20e61b30132b6"
+TREE = "f765043b27b96a1fbb0795aa600db9bd94df0e36"
+BASE = "198076863e143dea9f89f02734b13d50dae3eed5"
+RAW = ROOT / ".polisyos/e02-B-current/raw/review"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/"
+cache = {}
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(ROOT), *args])
+
+def read(path):
+    if path not in cache:
+        cache[path] = git("show", SHA + ":" + path)
+    return cache[path]
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def identity_check(row):
+    data = read(row["path"])
+    assert len(data) == row["bytes"], row["path"]
+    assert digest(data) == row["sha256"], row["path"]
+    assert git("rev-parse", SHA + ":" + row["path"]).decode().strip() == row["git_blob"]
+
+def rows(relative):
+    return list(csv.DictReader(io.StringIO(read(PREFIX + relative).decode()), delimiter="\t"))
+
+assert git("rev-parse", "HEAD").decode().strip() == SHA
+assert git("rev-parse", SHA + "^{tree}").decode().strip() == TREE
+assert not git("status", "--porcelain")
+compact_path = RAW / "completed-final-selector.json"
+compact_bytes = compact_path.read_bytes()
+assert digest(compact_bytes) == "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3"
+s = json.loads(compact_bytes)
+pin = s["ignored_full_lineage"]
+full_bytes = Path(pin["path"]).read_bytes()
+assert len(full_bytes) == pin["bytes"] == 63775375
+assert digest(full_bytes) == pin["sha256"] == "eb53f9d22ffc54b0a4d9de694011eb9fa5a9dbe62ad3bcb03a66b8a3102e3347"
+l = json.loads(full_bytes)
+for obj in (s, l):
+    assert obj["root_snapshot_sha"] == SHA and obj["root_snapshot_tree"] == TREE
+    assert obj["candidate_whole_file_count"] == len(obj["test_paths"]) == 250
+assert s["test_paths"] == l["test_paths"]
+assert len(set(s["test_paths"])) == 250
+assert all("::" not in p and p.startswith("tests/") and p.endswith(".py") for p in s["test_paths"])
+selected = {"policy-engine/" + p for p in s["test_paths"]}
+tracked = set(git("ls-tree", "-r", "--name-only", SHA).decode().splitlines())
+assert selected <= tracked
+
+bundles = {r["bundle_id"] for r in rows("execution-organization/bundle-owners.tsv") if r["unit"] == "B"}
+findings = {r["finding_id"] for r in rows("execution-organization/finding-owners.tsv") if r["unit"] == "B"}
+routes = [r for r in rows("results/routes.tsv") if r["unit"] == "B" and r["finding_id"] in findings]
+cells = {r["id"]: r for r in rows("results/cells.tsv")}
+den = s["canonical_denominator"]
+assert len(bundles) == den["bundles"] == 25 and set(den["bundle_ids"]) == bundles
+assert len(findings) == den["findings"] == 60 and set(den["finding_ids"]) == findings
+assert len(routes) == den["route_rows"] == len(l["route_records"]) == 561
+assert len({r["cell_id"] for r in routes}) == den["deduplicated_route_cells"] == 189
+assert {r["finding_id"] for r in routes} == findings
+assert {x["id"] for x in s["finding_criterion_refs"]} == findings
+assert {x["bundle_id"] for x in s["canonical_cards"]} == bundles
+assert {x["id"] for x in l["finding_criteria"]} == findings
+expected_routes = sorted((r["finding_id"], r["cell_id"], cells[r["cell_id"]]["source_sha"],
+                          cells[r["cell_id"]]["path"]) for r in routes)
+actual_routes = sorted((r["finding_id"], r["cell_id"], r["source_sha"], r["path"])
+                        for r in l["route_records"])
+assert expected_routes == actual_routes
+
+identity_rows = (s["input_identities"] + [x["identity"] for x in s["canonical_cards"]]
+                 + s["candidate_whole_file_identities"] + s["changed_test_and_helper_inputs"]
+                 + s["changed_defining_source_inputs"]
+                 + [x["identity"] for x in s["owner_receipt_identities"]]
+                 + s["command_descriptor_input_identities"]
+                 + [x["identity"] for x in s["script_native_child_descriptors"]])
+unique_identities = {x["path"]: x for x in identity_rows}
+for row in identity_rows:
+    assert all(row[k] == unique_identities[row["path"]][k]
+               for k in ("path", "git_blob", "sha256", "bytes")), row["path"]
+for row in unique_identities.values():
+    identity_check(row)
+
+diff = set(git("diff", "--name-only", "--no-renames", BASE, SHA).decode().splitlines())
+changed = sorted(p for p in diff & tracked if p.startswith("policy-engine/tests/") and p.endswith(".py"))
+named_changed = sorted(x["path"] for x in s["changed_test_and_helper_inputs"])
+assert changed == named_changed
+tests = [p for p in changed if re.fullmatch(r"(?:test_.*|.*_test)\.py", Path(p).name)]
+helpers = sorted(set(changed) - set(tests))
+assert len(tests) == 74 and len(helpers) == 5
+assert set(tests) <= selected
+for p in helpers:
+    ast.parse(read(p), filename=p)
+
+phase0 = sorted(p for p in tracked if p.startswith("policy-engine/tests/unit/core/phase0/")
+                and re.fullmatch(r"(?:test_.*|.*_test)\.py", Path(p).name))
+assert len(phase0) == 25 and set(phase0) <= selected
+http = sorted(p for p in tracked if p.startswith("policy-engine/tests/unit/runtime/http/")
+              and re.fullmatch(r"(?:test_.*|.*_test)\.py", Path(p).name))
+assert set(http) <= selected
+
+mapping_path = s["derivation"]["equivalence_map_git_path"]
+mapping_bytes = read(mapping_path)
+assert digest(mapping_bytes) == s["derivation"]["equivalence_map_sha256"]
+absent = s["absent_named_selectors"]
+assert len(absent) == 21
+assert all(x["state"].startswith("UNRUN") for x in absent)
+assert all("policy-engine/" + x["named_selector"] not in tracked for x in absent)
+assert sum(x["required_by_canonical_plan"] for x in absent) == 14
+assert sum(not x["required_by_canonical_plan"] for x in absent) == 7
+for x in absent:
+    for equivalent in x["equivalent_candidate_selectors"]:
+        assert "policy-engine/" + equivalent["selector"].split("::", 1)[0] in selected
+        identity_check(equivalent["module_identity"])
+        body = read(equivalent["module_identity"]["path"]).splitlines(keepends=True)
+        definition = equivalent["definition"]
+        excerpt = b"".join(body[definition["line"] - 1:definition["end_line"]])
+        assert digest(excerpt) == definition["source_sha256"]
+    if x["required_by_canonical_plan"]:
+        assert x["has_reviewed_equivalence_map"] and x["equivalent_candidate_selectors"]
+    else:
+        assert not x["has_reviewed_equivalence_map"] and not x["equivalent_candidate_selectors"]
+
+worker_path = "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py"
+assert worker_path in selected
+worker_ast = ast.parse(read(worker_path))
+worker_fn = next(n for n in worker_ast.body if isinstance(n, ast.FunctionDef)
+                 and n.name == "test_actual_worker_preserves_accounting_unknown_before_fresh_worker")
+axes = {}
+for dec in worker_fn.decorator_list:
+    if isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute) and dec.func.attr == "parametrize":
+        axes[ast.literal_eval(dec.args[0])] = ast.literal_eval(dec.args[1])
+assert len(axes["worker_kind"]) == 2 and len(axes["profile"]) == 7
+
+focus = [p for p in sorted(selected) if any(term in p for term in (
+    "test_async_cache_cost_oracle", "test_checkpoint_deadline_budget_oracle",
+    "test_checkpoint_short_budget_oracle", "test_checkpoint_publication_budget",
+    "test_required_audit_settlement_e02", "test_unknown_cost_settlement_e02",
+    "test_shared_flight_completion_independent_e02", "test_budget_wire_consumer_oracle",
+    "test_completion_admission_consumer_oracle", "test_control_worker_postgres_fencing_oracle",
+    "test_worker_accounting", "test_native_list_journal", "test_native_state_cache_semantics",
+    "test_pool_stream_budget_oracle", "test_compiled_preparation_consumer_oracle"))]
+counts = s["descriptor_counts_only"]
+assert counts["top_receipts"] == len(s["owner_receipt_identities"]) == 141
+assert counts["native_argv_lineage_rows"] == len(l["actual_command_descriptors"]) == 5038
+assert counts["static_script_rows"] == len(s["script_native_child_descriptors"]) == 556
+assert counts["unresolved_native_option_grammar_rows"] == len(s["unresolved_native_option_grammar"]) == 50
+assert len(s["native_command_descriptor_refs"]) == 393
+assert all(row["reasons"] == ["argument-file expansion unresolved; no guessed positional selectors"]
+           for row in s["unresolved_native_option_grammar"])
+assert git("rev-parse", "HEAD").decode().strip() == SHA and not git("status", "--porcelain")
+
+print(json.dumps({
+    "source_sha": SHA, "source_tree": TREE, "root_head_clean_before_after": True,
+    "mode": "Complete delivered JSON read plus immutable Git/stdlib AST and TSV reconciliation; no selector main/derive/pytest/collection/native/gates",
+    "environment": {"python": sys.executable, "version": sys.version, "platform": platform.platform(),
+                    "git": git("--version").decode().strip()},
+    "raw_input_pins": [{"path": str(compact_path), "bytes": len(compact_bytes), "sha256": digest(compact_bytes)}, pin],
+    "canonical_denominator": den, "unique_Git_identity_objects_reconciled": len(unique_identities),
+    "whole_files": len(selected), "selected_filename_list_sha256": digest(json.dumps(s["test_paths"]).encode()),
+    "changed_test_modules": tests, "changed_helpers": helpers,
+    "phase0_whole_files": phase0, "HTTP_whole_file_count": len(http),
+    "focus_current_producer_consumer_whole_files": focus,
+    "worker_literal_matrix": {"axes": axes, "cartesian_inputs": 14, "grade": "Static named input matrix only; no collected case count or PASS"},
+    "all_21_absent_UNRUN": [{k: x[k] for k in ("named_selector", "state", "required_by_canonical_plan", "has_reviewed_equivalence_map", "equivalent_candidate_selectors")} for x in absent],
+    "descriptor_counts_only": counts, "unresolved50_grade": "All argfile references explicit unresolved; no inferred selectors/cases/absence claim",
+    "mapping": {"path": mapping_path, "bytes": len(mapping_bytes), "sha256": digest(mapping_bytes)},
+    "reviewer_runtime": "UNRUN",
+}, indent=2))

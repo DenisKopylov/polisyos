@@ -6,10 +6,12 @@ import argparse
 import hashlib
 import json
 import math
+import sys
 from pathlib import Path
+from typing import Any
 
-from polisyos.scientist.methods.search import objective as objective_module
 from polisyos.scientist.methods.search import controller as controller_module
+from polisyos.scientist.methods.search import objective as objective_module
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
@@ -18,17 +20,26 @@ from polisyos.scientist.methods.search.controller import (
 from polisyos.scientist.methods.search.objective import BudgetDeficitObjective, CompositeObjective
 from polisyos.scientist.methods.search.stopping import MaxIterations
 
+
+def _emit(value: str) -> None:
+    sys.stdout.write(value + "\n")
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--source-root", type=Path, required=True)
 parser.add_argument("--source-sha", required=True)
 args = parser.parse_args()
 ROOT = args.source_root.resolve()
 SOURCE = args.source_sha
-assert len(SOURCE) == 40 and all(char in "0123456789abcdef" for char in SOURCE)
+if len(SOURCE) != 40:
+    raise ValueError("Source SHA must have 40 hexadecimal characters")
+if any(char not in "0123456789abcdef" for char in SOURCE):
+    raise ValueError("Source SHA must have 40 hexadecimal characters")
 for module in (objective_module, controller_module):
     path = Path(module.__file__).resolve()
-    assert path.is_relative_to(ROOT / "src")
-    print(
+    if not path.is_relative_to(ROOT / "src"):
+        raise ValueError("Probe imported source outside the declared immutable snapshot")
+    _emit(
         json.dumps(
             {
                 "source": SOURCE,
@@ -40,7 +51,7 @@ for module in (objective_module, controller_module):
     )
 
 
-def clean(value):
+def clean(value: object) -> object:
     if isinstance(value, dict):
         return {key: clean(item) for key, item in value.items()}
     if isinstance(value, float) and not math.isfinite(value):
@@ -103,7 +114,7 @@ for name, metrics, expected in CASES:
         passed = False
         output = {"exception_type": type(exc).__name__, "exception": str(exc)}
     failed += not passed
-    print(
+    _emit(
         json.dumps(
             {
                 "cell": name,
@@ -123,7 +134,7 @@ for metrics in (
     {"gov_balance": -5.0, "budget_deficit": 99.0},
 ):
     value = BudgetDeficitObjective().evaluate(metrics)
-    print(
+    _emit(
         json.dumps(
             {
                 "cell": "raw-representation-boundary",
@@ -138,7 +149,9 @@ for metrics in (
 
 
 class Generator:
-    def generate(self, history, current_best, context):
+    def generate(
+        self, history: list[Any], current_best: dict[str, Any] | None, context: dict[str, Any]
+    ) -> dict[str, Any]:
         del history, current_best, context
         return {"candidate_id": "challenger"}
 
@@ -150,7 +163,13 @@ for name, challenger in [
 ]:
     calls = []
 
-    def stage_b(candidate, context):
+    def stage_b(
+        candidate: dict[str, Any],
+        context: dict[str, Any],
+        *,
+        calls: list[str] = calls,
+        challenger: dict[str, Any] = challenger,
+    ) -> dict[str, Any]:
         del context
         calls.append(candidate["candidate_id"])
         return {
@@ -202,12 +221,14 @@ for name, challenger in [
             "stage_b_calls": calls,
         }
     failed += not passed
-    print(
+    _emit(
         json.dumps(
             {
                 "cell": "native-service-controller-" + name,
                 "input": clean(challenger),
-                "expected": "unusable challenger cannot replace seed or escape raw metric normalization",
+                "expected": (
+                    "unusable challenger cannot replace seed or escape raw metric normalization"
+                ),
                 "observed": observed,
                 "result": "PASS" if passed else "FAIL",
             },
@@ -215,7 +236,7 @@ for name, challenger in [
         )
     )
 
-print(
+_emit(
     json.dumps(
         {
             "deciding_cases": len(CASES) + 3,

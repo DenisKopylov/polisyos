@@ -1,0 +1,6 @@
+{"cwd": "/workspace/e02-D-published-oracle/policy-engine", "argv": ["/workspace/e02-D-locked-env/bin/python", "-m", "ruff", "check", "docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp_4c337_finite_domain_probe.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py"]}
+All checks passed!
+exit_code=0
+{"cwd": "/workspace/e02-D-published-oracle/policy-engine", "argv": ["/workspace/e02-D-locked-env/bin/python", "-m", "ruff", "format", "--check", "docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp_4c337_finite_domain_probe.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py"]}
+3 files already formatted
+exit_code=0

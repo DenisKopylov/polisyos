@@ -1,0 +1,746 @@
+{
+  "reviewer_execution": "Read-only standard-library inspection, Git objects, existing logs/XML; no backend import/run",
+  "scripts": {
+    "run_wave.py": {
+      "path": "/dev/shm/e02-D-root-closeout/run_wave.py",
+      "bytes": 6673,
+      "sha256": "665dcaedae5386f8617cb5a983c2fa03c9a5337b50e348d58d4732a7d2175173",
+      "explicit_cap_calls": [],
+      "source_review": "Full source read; no thread/process/worker limit setters, subprocess timeout, ulimit/taskset or pytest worker/case limit added by either script",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/run_wave.py.txt",
+      "committed_source": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "committed_byte_match": true
+    },
+    "run_gateway_probe.py": {
+      "path": "/dev/shm/e02-D-root-closeout/run_gateway_probe.py",
+      "bytes": 4036,
+      "sha256": "8c997da8bb940df7489ad8974f66ba14648c2fdb602ddc237c8ddfca23d38159",
+      "explicit_cap_calls": [],
+      "source_review": "Full source read; no thread/process/worker limit setters, subprocess timeout, ulimit/taskset or pytest worker/case limit added by either script",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/run_gateway_probe.py.txt",
+      "committed_source": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "committed_byte_match": true
+    }
+  },
+  "gateway": {
+    "red": {
+      "source": "c812510541c898d7118004661ce07335823d2209",
+      "tree": "40fbf8a3a53949eacc1c0bed58f90f0aac141382",
+      "receipt_path": "/dev/shm/e02-D-root-closeout/gateway-red-receipt.json",
+      "receipt_sha256": "d39f556e9fcd941b515734707b7303b5f60bc67a4a48563fcb1879e96a96b599",
+      "receipt_bytes": 4124,
+      "module_checks": [
+        {
+          "module": "polisyos.core.llm.response",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/core/llm/response.py",
+          "git_path": "policy-engine/src/polisyos/core/llm/response.py",
+          "pinned_git_sha256": "0def9331959e5b56467d156e757692b3e759817266b473f23052185a008f8695",
+          "recorded_sha256": "0def9331959e5b56467d156e757692b3e759817266b473f23052185a008f8695",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.llm.gateway_client",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "pinned_git_sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+          "recorded_sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "pinned_git_sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+          "recorded_sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "pinned_git_sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7",
+          "recorded_sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "pinned_git_sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+          "recorded_sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        }
+      ],
+      "scratch_test_unchanged": true,
+      "test_sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6",
+      "actual_XML_cases": {
+        "collected": 98,
+        "failed": 90,
+        "error": 0,
+        "skipped": 0,
+        "passed": 8
+      },
+      "exit_code": 1,
+      "output_sha256": "e5354cda1d73d2e807f71f4be23a9f32ea968846788a0fc88058f5f65f6288d9",
+      "output_bytes": 128843,
+      "source_after_equal_and_clean": true,
+      "recorded_environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null
+      },
+      "all_checks_pass": true,
+      "committed_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-red-receipt.json",
+      "committed_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-red.txt.gz",
+      "committed_output_sha256": "5f8f13ff357d0e5ee5a4833d49f407bffba73ab2cde073519436883c1bdadbaa",
+      "committed_payload_match": true
+    },
+    "green": {
+      "source": "1ca25193d10787cbc545490c4a954b15b8a6b227",
+      "tree": "0317a2fa0f944990b38995c5fce793ff26c154c3",
+      "receipt_path": "/dev/shm/e02-D-root-closeout/gateway-green-receipt.json",
+      "receipt_sha256": "cf281b4ceef7c858987e18338a2db4e1369707d8a872398a6fc48c967a7885a2",
+      "receipt_bytes": 4134,
+      "module_checks": [
+        {
+          "module": "polisyos.core.llm.response",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/core/llm/response.py",
+          "git_path": "policy-engine/src/polisyos/core/llm/response.py",
+          "pinned_git_sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc",
+          "recorded_sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.llm.gateway_client",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "pinned_git_sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+          "recorded_sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "pinned_git_sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+          "recorded_sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "pinned_git_sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7",
+          "recorded_sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        },
+        {
+          "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+          "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "pinned_git_sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+          "recorded_sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+          "byte_count_matches": true,
+          "git_blob_matches": true,
+          "sha256_matches": true
+        }
+      ],
+      "scratch_test_unchanged": true,
+      "test_sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6",
+      "actual_XML_cases": {
+        "collected": 98,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "passed": 98
+      },
+      "exit_code": 0,
+      "output_sha256": "21820877b801ddfaa580e90ce16c69a628773f5efd65d4209a601d4ec9418c36",
+      "output_bytes": 10446,
+      "source_after_equal_and_clean": true,
+      "recorded_environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "POLISYOS_PYTEST_WORKERS": null
+      },
+      "all_checks_pass": true,
+      "committed_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-green-receipt.json",
+      "committed_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/gateway-green.txt",
+      "committed_output_sha256": "21820877b801ddfaa580e90ce16c69a628773f5efd65d4209a601d4ec9418c36",
+      "committed_payload_match": true
+    }
+  },
+  "receiver": {
+    "transfer-receiver-successor-c812.json": {
+      "publisher": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+      "bytes": 11385,
+      "sha256": "33cfeab4bf1610b827c9b43a7bcd833d7f35661f1aa9800805430a66d7adaabb",
+      "reported_checks": [
+        {
+          "result": "4 passed, 1 warning in 1.40s",
+          "exit_code": 0,
+          "output": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-complete.txt",
+            "rawfile_sha256": "c6e7edcabac87e4396a9fabd24945b60308d8958518f039b27c12d6173a404d0",
+            "byte_size": 11485
+          }
+        }
+      ]
+    },
+    "transfer-receiver-review-fac5.json": {
+      "publisher": "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+      "bytes": 17907,
+      "sha256": "5c81bcafe1a8bc478cae556396cee79dd1d24cc91152d2cf7d60bb84e7f9ec2d",
+      "reported_checks": [
+        {
+          "result": "4 failed, 2 warnings in 2.36s",
+          "exit_code": 1,
+          "output": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-complete.txt",
+            "rawfile_sha256": "25bec2f7e99c33c9397d9d2ab4b89fd97298177d3b9e57da40d14d241fc6da45",
+            "byte_size": 15057
+          }
+        },
+        {
+          "result": "3 failed, 1 deselected, 1 warning in 0.61s",
+          "exit_code": 1,
+          "output": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-complete.txt",
+            "rawfile_sha256": "aa06f49e77c4f67aeba314fa3a19c39dee5e3644be72cd705de2151b989b8e9d",
+            "byte_size": 22489
+          }
+        }
+      ]
+    },
+    "unchanged_test": {
+      "source": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+      "bytes": 8341,
+      "blob": "720e2fb78a4f67cdd125c19f587680ca9bab7d8d",
+      "root_test_matches": true,
+      "successor_publisher_test_matches": true,
+      "source_review": "Full test source read:3 actual coldregistry bool/count/guard mutations with baselinepositive and same full consumed basis;1actual configuredCAS bridge/generator malformed-stage mutation, modelNone safe refusal or realSingleTaskGP7-row alternative, no model/fit/reader substitution."
+    },
+    "git_binding_review": {
+      "checked_hash_byte_cells": 33,
+      "all_match": true,
+      "checked_cells": [
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/unchanged_oracle",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+          "matching_sources": [
+            "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+            "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+          ],
+          "sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/baseline_failure_receipt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+          "matching_sources": [
+            "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+            "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+          ],
+          "sha256": "5c81bcafe1a8bc478cae556396cee79dd1d24cc91152d2cf7d60bb84e7f9ec2d"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/source_identities/0",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "matching_sources": ["c812510541c898d7118004661ce07335823d2209"],
+          "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/source_identities/1",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "matching_sources": ["c812510541c898d7118004661ce07335823d2209"],
+          "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/source_identities/2",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "matching_sources": ["c812510541c898d7118004661ce07335823d2209"],
+          "sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/source_identities/3",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "matching_sources": ["c812510541c898d7118004661ce07335823d2209"],
+          "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/source_identities/4",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+          "matching_sources": [
+            "c812510541c898d7118004661ce07335823d2209",
+            "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+          ],
+          "sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/source_identities/5",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+          "matching_sources": [
+            "c812510541c898d7118004661ce07335823d2209",
+            "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+          ],
+          "sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/tracked_execution_inputs",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-tracked-inputs.json",
+          "matching_sources": ["9b48e6878d7384b6144c7d1430f52e6cffcf4800"],
+          "sha256": "e537882c6110ecfbb4fb6597c28fc7d25180338b90872f0706daec1ccbfd95d7"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/actual_module_origins_and_environment",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-origins.json",
+          "matching_sources": ["9b48e6878d7384b6144c7d1430f52e6cffcf4800"],
+          "sha256": "473eaad40d258db4305e7c66553b2afd1fb805478739d1026b01b861196f67b6"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/checks/0/output",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-complete.txt",
+          "matching_sources": ["9b48e6878d7384b6144c7d1430f52e6cffcf4800"],
+          "sha256": "c6e7edcabac87e4396a9fabd24945b60308d8958518f039b27c12d6173a404d0"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/observation_method/script",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-observer.txt",
+          "matching_sources": ["9b48e6878d7384b6144c7d1430f52e6cffcf4800"],
+          "sha256": "5ca99f9fc9cf865913fb9e701f0330e1ff8cc48824a0de6675af80a216b35af2"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/observation_method/complete_measurement",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-native-observation.json",
+          "matching_sources": ["9b48e6878d7384b6144c7d1430f52e6cffcf4800"],
+          "sha256": "a5865faeb086cef8465991830c29b2f878d70626401c91312bc533e7fd0e3f0f"
+        },
+        {
+          "receipt": "transfer-receiver-successor-c812.json",
+          "pointer": "/complete_actual_input_capture",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-actual-inputs.json",
+          "matching_sources": ["9b48e6878d7384b6144c7d1430f52e6cffcf4800"],
+          "sha256": "c093bc732c9c1a85ad2cb7d6f1878b8bc4beff462dd337864059934dd177ae7e"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/criteria/0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+          "matching_sources": [
+            "fac5c77a31aa1b392a33f93730e76703478870f0",
+            "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"
+          ],
+          "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/criteria/1",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/delivery-evidence.md",
+          "matching_sources": [
+            "fac5c77a31aa1b392a33f93730e76703478870f0",
+            "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"
+          ],
+          "sha256": "376e150c2e983357c055a2a153f071feec3147646f29db4db881c41720b5e644"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/0",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "a2a8df9800a7bd173c5930deeaa22fc0b5a453bf2d842fef162d36886218f48f"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/1",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/2",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/3",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "826f26622532517d13b9742b65cfb8e7f8cac6a6531843cfd4e67893e461b655"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/4",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/5",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/6",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/7",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "matching_sources": ["fac5c77a31aa1b392a33f93730e76703478870f0"],
+          "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/source_identities/8",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "matching_sources": [
+            "fac5c77a31aa1b392a33f93730e76703478870f0",
+            "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"
+          ],
+          "sha256": "3b07ed40a82ea2f0e302e3406944c68b6b0497b49e054d5399b27c36473dc903"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/tracked_execution_inputs",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-tracked-inputs.json",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "f910edcaf97e451817e9cc7a8672f742db16206cae513dfc68f7844bc207c368"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/test_overlays/0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-overlay.json",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "02e218a6ac9d2a228bd083f0baabe10e5c41af2662313051ea035a16c0ded9e3"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/test_overlays/1",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-overlay.json",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "38766766d4e8f1bf9b03b99a2a4330f28fe345a75613f0ebcdb60044a10739c1"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/checks/0/output",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-complete.txt",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "25bec2f7e99c33c9397d9d2ab4b89fd97298177d3b9e57da40d14d241fc6da45"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/checks/0/observer_script",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-initial-observer.txt",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "1ceac2f208080700bc24198f692cf070b1d602e48a67ce105fda9430204bbd6f"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/checks/1/output",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-complete.txt",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "aa06f49e77c4f67aeba314fa3a19c39dee5e3644be72cd705de2151b989b8e9d"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/checks/1/observer_script",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-observer.txt",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "1affe86b8f3d0cfdf8d58afdcf9b4c0034be5ff7a6c00012658c6669c08dcef1"
+        },
+        {
+          "receipt": "transfer-receiver-review-fac5.json",
+          "pointer": "/complete_actual_input_capture",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-actual-inputs.json",
+          "matching_sources": ["e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a"],
+          "sha256": "7cbbef70454bf4969420b8487901c3e742c98c6a9cd139f5c42002ff30321e4e"
+        }
+      ],
+      "retained_source_checks": [
+        {
+          "module": "models",
+          "recorded_origin": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "pinned_git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "actual_retained_file_exists": true,
+          "actual_retained_bytes_match": true
+        },
+        {
+          "module": "registry",
+          "recorded_origin": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "pinned_git_path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "actual_retained_file_exists": true,
+          "actual_retained_bytes_match": true
+        },
+        {
+          "module": "generator",
+          "recorded_origin": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "pinned_git_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "actual_retained_file_exists": true,
+          "actual_retained_bytes_match": true
+        },
+        {
+          "module": "bayesian",
+          "recorded_origin": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "pinned_git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "actual_retained_file_exists": true,
+          "actual_retained_bytes_match": true
+        },
+        {
+          "module": "transfer",
+          "recorded_origin": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+          "pinned_git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+          "actual_retained_file_exists": true,
+          "actual_retained_bytes_match": true
+        },
+        {
+          "module": "warm_start",
+          "recorded_origin": "/dev/shm/e02-D2-receiver-review-c812/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+          "pinned_git_path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+          "actual_retained_file_exists": true,
+          "actual_retained_bytes_match": true
+        }
+      ],
+      "observed_negative_case_count": 4,
+      "observed_native_calls": {},
+      "actual_baseline_promoted_controls": 3,
+      "source_inference_boundary": "No native GP constructors or fits in successful Q1 refusal; do not call this a fresh seven-row or healthy positive model fit. Original initial3fixture-errors separated from corrected3actualregistry FAILs."
+    }
+  },
+  "wave_current_basis": {
+    "observed_root_head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "observed_root_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "defining_command_count": 17,
+    "defining_plan_git_sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+    "runtime": "Root wide started on exact243; this receipt verifies inputs only and executes no wide/backend run.",
+    "affected_declared_count": 14,
+    "affected_current_missing": [],
+    "affected_filter_limitation": "Silently drops absent explicitly affected paths in future candidates; current candidate all present"
+  },
+  "wave_start_input_verification": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "wide_inputs_external_path": "/dev/shm/e02-D-root-closeout/wide-inputs.json",
+    "wide_inputs_sha256": "3ec3b31019e350e024495018b7863d3a9904f35d72a8594907bd261211a4bde2",
+    "wide_inputs_bytes": 103591,
+    "native_module_checks": [
+      {
+        "name": "polisyos.scientist.methods.search.strategies.bayesian",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "actual_origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+        "matches": true
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.transfer",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "actual_origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3",
+        "matches": true
+      },
+      {
+        "name": "polisyos.scientist.methods.search.funnel.orchestrator",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "actual_origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff",
+        "matches": true
+      },
+      {
+        "name": "polisyos.scientist.methods.search.adversarial",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "actual_origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "sha256": "6766a3bdf3575885e7d304d3b0064a56bc37de2268af747b743f9cfbbdc98b4b",
+        "matches": true
+      },
+      {
+        "name": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "actual_origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+        "matches": true
+      },
+      {
+        "name": "polisyos.scientist.methods.autotune.registry",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "actual_origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+        "matches": true
+      }
+    ],
+    "backend_origin_prefix": "/workspace/e02-D-locked-env",
+    "all_backend_origins_match": true,
+    "all_test_input_files_match_pinned_git": true,
+    "test_file_count": 80,
+    "test_paths": [
+      "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "tests/integration/scientist/methods/search/test_controller.py",
+      "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/core/llm/test_response.py",
+      "tests/unit/remediation/test_fun_02.py",
+      "tests/unit/remediation/test_fun_03.py",
+      "tests/unit/remediation/test_srv_03.py",
+      "tests/unit/remediation/test_trn_02.py",
+      "tests/unit/scientist/agent/test_vector_memory.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py",
+      "tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+      "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+      "tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+      "tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py",
+      "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+      "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py",
+      "tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+      "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "tests/unit/scientist/methods/search/test_controller.py",
+      "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+      "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+      "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+      "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "tests/unit/scientist/mirror_contracts/test_calibration.py",
+      "tests/unit/scientist/mirror_contracts/test_cheap_stage.py",
+      "tests/unit/scientist/mirror_contracts/test_claim_adjudication.py",
+      "tests/unit/scientist/mirror_contracts/test_execution_plan.py",
+      "tests/unit/scientist/mirror_contracts/test_reflexion.py",
+      "tests/unit/scientist/orchestration/engine/test_budget.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "tests/unit/scientist/search/funnel/test_level3_medium.py",
+      "tests/unit/scientist/search/funnel/test_level4_full.py",
+      "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tests/unit/scientist/search/funnel/test_types.py",
+      "tests/unit/scientist/search/strategies/test_bayesian.py",
+      "tests/unit/scientist/search/strategies/test_multi_objective.py",
+      "tests/unit/scientist/search/strategies/test_neural.py",
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/test_adversarial_streaming.py",
+      "tests/unit/scientist/search/test_cheap_stage_autotune.py",
+      "tests/unit/scientist/search/test_contracts.py",
+      "tests/unit/scientist/search/test_controller_api.py",
+      "tests/unit/scientist/search/test_cost_stopping.py",
+      "tests/unit/scientist/search/test_frontier.py",
+      "tests/unit/scientist/search/test_lesson_transfer.py",
+      "tests/unit/scientist/search/test_lessons.py",
+      "tests/unit/scientist/search/test_search_loop.py"
+    ],
+    "defining_command_count": 17,
+    "required_selector_count": 53,
+    "all_required_selector_files_present": true,
+    "changed_test_count": 57,
+    "all_changed_existing_test_files_present": true,
+    "defining_plan_match": true,
+    "recorded_environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null,
+      "PYTEST_ADDOPTS": null,
+      "CUDA_VISIBLE_DEVICES": null
+    },
+    "command_prefix": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "--basetemp",
+      "/dev/shm/e02-D-root-wide-fixtures-2efe117dc58f4072aa60b18a77e4befe",
+      "--junitxml",
+      "/dev/shm/e02-D-root-closeout/wide.xml",
+      "-q",
+      "-rA",
+      "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "tests/integration/core/llm/test_native_gateway_cost_range.py"
+    ],
+    "actual_working_directory": "/workspace/e02-D-published-root/policy-engine",
+    "reported_initial_torch_threads": [5, 5],
+    "scope": "Start/input-prefix verification only; wide runtime result pending, no positive runtime verdict here"
+  }
+}

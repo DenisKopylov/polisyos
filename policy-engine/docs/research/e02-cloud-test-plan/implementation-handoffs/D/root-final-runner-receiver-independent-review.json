@@ -1,0 +1,138 @@
+{
+  "schema_version": "e02.D.final-independent-runner-receiver-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "reviewer_production_writes": false,
+  "reviewer_backend_execution": false,
+  "reviewer_new_archives": false,
+  "proof_commit": "b7932e1497a051faee109b0150707ffe510d1342",
+  "proof_tree": "bcb3dd1fe8200aa3e748791df69a3513e4666548",
+  "complete_observations": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-final-runner-receiver-independent-review-observations.json",
+    "bytes": 41342,
+    "sha256": "59874ff6ab3bcf9f5578e607844fe9c457ab212091c847694ff2d7cec393e039"
+  },
+  "reviewed_freeze": {
+    "source": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2"
+  },
+  "runner_review": {
+    "committed_helpers": {
+      "run_wave.py": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/run_wave.py.txt",
+        "bytes": 6673,
+        "sha256": "665dcaedae5386f8617cb5a983c2fa03c9a5337b50e348d58d4732a7d2175173",
+        "matches_active_script": true
+      },
+      "run_gateway_probe.py": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout/run_gateway_probe.py.txt",
+        "bytes": 4036,
+        "sha256": "8c997da8bb940df7489ad8974f66ba14648c2fdb602ddc237c8ddfca23d38159",
+        "matches_active_script": true
+      }
+    },
+    "CPU_process_test_worker_caps": "No added caps found in either full helper source. Wide captured OpenMP/OpenBLAS/MKL/Numexpr/VECLIB/BLIS/workers/PYTEST_ADDOPTS/CUDA controls all null. Native program Torch defaults remain outside a no-added-test-cap claim.",
+    "fresh_basetemp": "Both scripts use unique fresh basetemp and check nonexistence; no cleanup or deletion added.",
+    "capture_limitations": [
+      "Wide helper captures origins/source-after/status instead of enforcing their final matches. Independently verified actual start origins/test bytes and actual postwave source identity/status here; future positive runtime gate still needs its complete result.",
+      "Wide helper silently filters absent explicitly affected files. All14 declared affected files actually exist in this freeze, so no present-scope omission found."
+    ],
+    "current_input_checks": {
+      "native_origins": 6,
+      "native_origin_prefix": "/workspace/e02-D-published-root/policy-engine/src",
+      "native_origin_bytes_match_Git": true,
+      "backend_origins_under_locked_env": true,
+      "test_files": 80,
+      "test_input_bytes_match_Git": true,
+      "defining_commands": 17,
+      "required_selectors": 53,
+      "all_selector_files_present": true,
+      "changed_existing_tests": 57,
+      "all_changed_existing_tests_present": true,
+      "affected_files": 14,
+      "all_affected_present": true
+    },
+    "postwave_module_files": [
+      {
+        "module": "polisyos.scientist.methods.search.strategies.bayesian",
+        "postwave_actual_file_matches_start_and_freeze": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.strategies.transfer",
+        "postwave_actual_file_matches_start_and_freeze": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+        "postwave_actual_file_matches_start_and_freeze": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.adversarial",
+        "postwave_actual_file_matches_start_and_freeze": true
+      },
+      {
+        "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "postwave_actual_file_matches_start_and_freeze": true
+      },
+      {
+        "module": "polisyos.scientist.methods.autotune.registry",
+        "postwave_actual_file_matches_start_and_freeze": true
+      }
+    ]
+  },
+  "gateway_receipt_review": {
+    "unchanged_test_commit": "678a8bdb06103009d0547e55e00022061dfca4c3",
+    "unchanged_test_sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6",
+    "root_red": {
+      "source": "c812510541c898d7118004661ce07335823d2209",
+      "actual_XML_counts": {
+        "collected": 98,
+        "failed": 90,
+        "error": 0,
+        "skipped": 0,
+        "passed": 8
+      },
+      "source_after_equal_clean": true
+    },
+    "root_green": {
+      "source": "1ca25193d10787cbc545490c4a954b15b8a6b227",
+      "actual_XML_counts": {
+        "collected": 98,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "passed": 98
+      },
+      "source_after_equal_clean": true
+    },
+    "verification": "Each5module origin/byte/hash/blob matches exact pinned source. Both retained scratchtest files match unchanged Git678. Actual XML counts match receipts and full logs; committed red gzip, green plain output and receipts decode/hash match exact243 Git payloads.",
+    "boundary": "Root runtime independently audited from retained artifacts; this reviewer did not rerun backend. Provider reported mechanism does not establish external billing authority."
+  },
+  "receiver_review": {
+    "test_commit": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+    "test_sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+    "red_receipt_publisher": "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+    "green_receipt_publisher": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+    "source_review": "All4 native cases reviewed, original3fixture setup errors distinguished from corrected3actual malformed cold-registry failures. Positive registry baseline really promotes before each same-basis raw bool/count/guard mutation. ActualCAS bridge accepts8valid rows before malformed-present stage flag control. No mocked reader/model/fit.",
+    "verified_Git_hash_byte_cells": 33,
+    "retained_actual_source_files_match": 6,
+    "unchanged4case_test_matches_root": true,
+    "bounded_green": "4PASS;3positive baselinepromotions and malformed counterparts refusal; Q1 observed no SingleTaskGP/MLL/fit calls and no model.",
+    "limit": "Controlled whole-corpus refusal is allowed by this unchanged negative. It does not establish a fresh healthy7-row GP fit or statistical/history equivalence; no institutional/source-rights authority inferred."
+  },
+  "wide_gate": {
+    "result": "ERROR_INCOMPLETE",
+    "exit_code": -9,
+    "wall_seconds": 149.44053696499032,
+    "post_run_head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "post_run_status": "",
+    "external_complete_output": {
+      "path": "/dev/shm/e02-D-root-closeout/wide.txt",
+      "bytes": 610,
+      "sha256": "c1b63212098315f0247616f2f03a5f738daf1f555006b205bb52fd3cdda357f9"
+    },
+    "observed_unnamed_F_progress_markers": 7,
+    "scope": "Signal9 termination before complete pytest verdict/JUnit. Seven prior F progress markers remain unresolved; no claim that all substantive failures are caused by resource termination, no aggregate PASS."
+  },
+  "new_actionable_source_escape": null,
+  "closure_ids": [],
+  "verdict": "PASS for bounded source/origin/receipt integrity review; actual wide acceptance ERROR/incomplete. Currentcandidate GP23+CASworkflow3 backend replay remains separately pending until shared cache writer release."
+}

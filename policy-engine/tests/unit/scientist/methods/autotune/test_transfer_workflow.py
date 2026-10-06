@@ -112,9 +112,7 @@ def test_actual_public_workflow_fits_only_admitted_original_cas_observations(tmp
     assert len(optimizer._warm_evals) == len(expected)
     suite = persist_benchmark_suite(
         store,
-        BenchmarkSuite(
-            suite_id="analytic-receiving", kind="analytic", data_basis="candidate_only"
-        ),
+        BenchmarkSuite(suite_id="analytic-receiving", kind="analytic", data_basis="candidate_only"),
     )
     registry = ChampionRegistry(tmp_path / "champions", store=store)
     spec = SearchLoopSpec(

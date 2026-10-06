@@ -1,0 +1,57 @@
+{
+  "target_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+  "target_tree": "9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=../.polisyos/e02-B-current-durability/tmp/B66-frozen-2c52",
+    "--junitxml=../.polisyos/e02-B-current-durability/raw/B66-frozen-2c52.xml",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2",
+    "no_artificial_process_or_numeric_thread_quota": true
+  },
+  "start_utc": "2026-10-06T10:08:08.095723+00:00",
+  "end_utc": "2026-10-06T10:08:44.613220+00:00",
+  "exit_code": 0,
+  "wall_s": 36.5178550210112,
+  "max_child_rss_kib": 92172,
+  "status_before": "",
+  "status_after": "",
+  "inputs": [
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py"
+  ],
+  "counts": {
+    "tests": 95,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "input_closure": "Actual checked checkout and complete native files; isolated unique pytest basetemp and real POSIX file/process controls or temporary SQLite typed collaborators; no production dataset/external services.",
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/B66-frozen-2c52.txt",
+      "sha256": "e96cbb43edf5144d3bbd20d06cf0df8893099281d0c00886e7ef6a62d7a71043",
+      "bytes": 180
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/B66-frozen-2c52.xml",
+      "sha256": "62eace254f06e156a05dd402960322ec570fdfc0c97fdd0330c6b92adcf1cd1d",
+      "bytes": 17726
+    }
+  ]
+}

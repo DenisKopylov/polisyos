@@ -1,0 +1,1534 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py", line 74, in main
+    exec(compile(source, str(source_copy), "exec"), namespace)  # noqa: S102 - hash-bound actual static driver, no product execution
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/selector-c1-trace/attempt1/selector-pinned.py", line 823, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/selector-c1-trace/attempt1/selector-pinned.py", line 515, in main
+    raise ValueError("Every absent selector needs a reviewed map or explicit UNRUN")
+ValueError: Every absent selector needs a reviewed map or explicit UNRUN
+{
+  "schema": "policyos.e02.independent_static_derivation_trace.v1",
+  "target_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+  "target_tree": "d09913b83338767e0e063739f97f583a19390e12",
+  "driver_command": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+    "--repo",
+    "/workspace/e02-B-current-coordination",
+    "--target",
+    "c1d031ed48134a2c084b937f0275884aeb40971c",
+    "--out",
+    "/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/selector-c1-trace/attempt1"
+  ],
+  "selector_argv": [
+    "/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/selector-c1-trace/attempt1/selector-pinned.py",
+    "--repo",
+    "/workspace/e02-B-current-coordination",
+    "--sha",
+    "c1d031ed48134a2c084b937f0275884aeb40971c",
+    "--equivalents",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "--output",
+    "/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/selector-c1-trace/attempt1/selector-output.json"
+  ],
+  "selector_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "sha256": "1c44f58dc8812df3897a0570e12bf30130e66b94bd99c97e54fff47714327d2c",
+    "bytes": 34682
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "cwd": "/workspace/e02-B-current-execution-state",
+    "started_utc": "2026-10-06T16:18:41.206991+00:00",
+    "ended_utc": "2026-10-06T16:19:20.369140+00:00",
+    "six_numeric_cap_values": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "XLA_FLAGS": null
+    }
+  },
+  "outcome": "FAIL",
+  "exception": {
+    "type": "ValueError",
+    "message": "Every absent selector needs a reviewed map or explicit UNRUN"
+  },
+  "selector_output_exists": false,
+  "root_before": {
+    "head": "c1d031ed48134a2c084b937f0275884aeb40971c",
+    "tree": "d09913b83338767e0e063739f97f583a19390e12",
+    "status": ""
+  },
+  "root_after": {
+    "head": "c1d031ed48134a2c084b937f0275884aeb40971c",
+    "tree": "d09913b83338767e0e063739f97f583a19390e12",
+    "status": ""
+  },
+  "root_unchanged": true,
+  "counts": {
+    "existing": 229,
+    "all_missing": 18,
+    "canonical_planned_missing": 14,
+    "noncanonical_missing": 4,
+    "unmapped_missing": 4,
+    "commands": 1401,
+    "all_commands": 11476,
+    "scripts": 114,
+    "top_receipts": 64
+  },
+  "all_missing": [
+    {
+      "named_selector": "tests/controlled/nested/test_second.py",
+      "bundle_ids": [],
+      "source_refs": [
+        {
+          "kind": "script_native_child_static",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+          "selector": "policy-engine/tests/controlled/nested/test_second.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py"
+          ]
+        },
+        {
+          "kind": "script_native_child_static",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+          "selector": "tests/controlled/nested/test_second.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": false,
+      "map_present": false
+    },
+    {
+      "named_selector": "tests/controlled/secondary_test.py",
+      "bundle_ids": [],
+      "source_refs": [
+        {
+          "kind": "script_native_child_static",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+          "selector": "policy-engine/tests/controlled/secondary_test.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py"
+          ]
+        },
+        {
+          "kind": "script_native_child_static",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+          "selector": "tests/controlled/secondary_test.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": false,
+      "map_present": false
+    },
+    {
+      "named_selector": "tests/controlled/test_first.py",
+      "bundle_ids": [],
+      "source_refs": [
+        {
+          "kind": "script_native_child_static",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+          "selector": "policy-engine/tests/controlled/test_first.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py"
+          ]
+        },
+        {
+          "kind": "script_native_child_static",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+          "selector": "tests/controlled/test_first.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": false,
+      "map_present": false
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_async_cache_recovery.py",
+      "bundle_ids": [
+        "EXE-01"
+      ],
+      "source_refs": [
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-01",
+          "selector": "tests/integration/scientist/test_async_cache_recovery.py",
+          "bundle": "EXE-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-01.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "bundle_ids": [
+        "EXE-01",
+        "EXE-02",
+        "RES-02",
+        "STA-01"
+      ],
+      "source_refs": [
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-01",
+          "selector": "tests/integration/scientist/test_execution_state_replay.py",
+          "bundle": "EXE-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-01.py"
+          ]
+        },
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-02",
+          "selector": "tests/integration/scientist/test_execution_state_replay.py",
+          "bundle": "EXE-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-02.py"
+          ]
+        },
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#RES-02",
+          "selector": "tests/integration/scientist/test_execution_state_replay.py",
+          "bundle": "RES-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#RES-02.py"
+          ]
+        },
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#STA-01",
+          "selector": "tests/integration/scientist/test_execution_state_replay.py",
+          "bundle": "STA-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#STA-01.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/outside/test_outside.py",
+      "bundle_ids": [],
+      "source_refs": [
+        {
+          "kind": "script_native_child_static",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+          "selector": "policy-engine/tests/outside/test_outside.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": false,
+      "map_present": false
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "bundle_ids": [
+        "CAS-01",
+        "CAS-02"
+      ],
+      "source_refs": [
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-01",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CAS-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-01.py"
+          ]
+        },
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-02",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CAS-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-02.py"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CAS-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CAS-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CAS-03",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CMP-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CMP-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "CMP-03",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "DUR-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "DUR-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "EXE-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "EXE-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "JIT-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "LLM-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "LLM-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "NET-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "NET-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "RES-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "RES-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "RES-03",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "RES-04",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "RUN-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "RUN-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "RUN-03",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "STA-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "STA-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": "WIRE-01",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        },
+        {
+          "kind": "owner_recorded_command",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+          "selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "bundle": null,
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "bundle_ids": [
+        "CAS-02"
+      ],
+      "source_refs": [
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-02",
+          "selector": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+          "bundle": "CAS-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-02.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "bundle_ids": [
+        "CAS-02"
+      ],
+      "source_refs": [
+        {
+          "kind": "closure_decision_plan",
+          "locator": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-02",
+          "selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+          "bundle": "CAS-02",
+          "reference_route": [
+            "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-02.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_dur_01.py",
+      "bundle_ids": [
+        "DUR-01"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#DUR-01",
+          "selector": "policy-engine/tests/unit/remediation/test_dur_01.py",
+          "bundle": "DUR-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+          "selector": "policy-engine/tests/unit/remediation/test_dur_01.py",
+          "bundle": "DUR-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_exe_01.py",
+      "bundle_ids": [
+        "EXE-01"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#EXE-01",
+          "selector": "policy-engine/tests/unit/remediation/test_exe_01.py",
+          "bundle": "EXE-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md",
+          "selector": "policy-engine/tests/unit/remediation/test_exe_01.py",
+          "bundle": "EXE-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_llm_02.py",
+      "bundle_ids": [
+        "LLM-02"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#LLM-02",
+          "selector": "policy-engine/tests/unit/remediation/test_llm_02.py",
+          "bundle": "LLM-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md",
+          "selector": "policy-engine/tests/unit/remediation/test_llm_02.py",
+          "bundle": "LLM-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_01.py",
+      "bundle_ids": [
+        "NET-01"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#NET-01",
+          "selector": "policy-engine/tests/unit/remediation/test_net_01.py",
+          "bundle": "NET-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md",
+          "selector": "policy-engine/tests/unit/remediation/test_net_01.py",
+          "bundle": "NET-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_02.py",
+      "bundle_ids": [
+        "NET-02"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#NET-02",
+          "selector": "policy-engine/tests/unit/remediation/test_net_02.py",
+          "bundle": "NET-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md",
+          "selector": "policy-engine/tests/unit/remediation/test_net_02.py",
+          "bundle": "NET-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_01.py",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#RUN-01",
+          "selector": "policy-engine/tests/unit/remediation/test_run_01.py",
+          "bundle": "RUN-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+          "selector": "policy-engine/tests/unit/remediation/test_run_01.py",
+          "bundle": "RUN-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_02.py",
+      "bundle_ids": [
+        "RUN-02"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#RUN-02",
+          "selector": "policy-engine/tests/unit/remediation/test_run_02.py",
+          "bundle": "RUN-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md",
+          "selector": "policy-engine/tests/unit/remediation/test_run_02.py",
+          "bundle": "RUN-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_01.py",
+      "bundle_ids": [
+        "STA-01"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#STA-01",
+          "selector": "policy-engine/tests/unit/remediation/test_sta_01.py",
+          "bundle": "STA-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md",
+          "selector": "policy-engine/tests/unit/remediation/test_sta_01.py",
+          "bundle": "STA-01",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_02.py",
+      "bundle_ids": [
+        "STA-02"
+      ],
+      "source_refs": [
+        {
+          "kind": "canonical_manifest_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#STA-02",
+          "selector": "policy-engine/tests/unit/remediation/test_sta_02.py",
+          "bundle": "STA-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json"
+          ]
+        },
+        {
+          "kind": "canonical_card_plan",
+          "locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md",
+          "selector": "policy-engine/tests/unit/remediation/test_sta_02.py",
+          "bundle": "STA-02",
+          "reference_route": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md.py"
+          ]
+        }
+      ],
+      "state": "UNRUN_named_selector_absent",
+      "equivalent_candidate_selectors": [],
+      "canonical_planned": true,
+      "map_present": true
+    }
+  ],
+  "commands_contributing_missing": [
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "CAS-02",
+        "CAS-01"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "CAS-01"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "CAS-03"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "CAS-01",
+        "CAS-02",
+        "CAS-03",
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "DUR-01",
+        "DUR-02",
+        "EXE-01",
+        "EXE-02",
+        "JIT-01",
+        "LLM-01",
+        "LLM-02",
+        "NET-01",
+        "NET-02",
+        "RES-01",
+        "RES-02",
+        "RES-03",
+        "RES-04",
+        "RUN-01",
+        "RUN-02",
+        "RUN-03",
+        "STA-01",
+        "STA-02",
+        "WIRE-01"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "CAS-03"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "RES-01",
+        "RES-04",
+        "CMP-01",
+        "CAS-01",
+        "CAS-02"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "RUN-02",
+        "CMP-01",
+        "RES-03",
+        "RES-04",
+        "DUR-01",
+        "CAS-01",
+        "CAS-02",
+        "NET-01",
+        "WIRE-01"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "RUN-01",
+        "RUN-02",
+        "RUN-03",
+        "EXE-01",
+        "EXE-02",
+        "CAS-02"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [
+        "CAS-01",
+        "CAS-02",
+        "CAS-03",
+        "RES-01",
+        "RES-02"
+      ],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    },
+    {
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command",
+      "role": "owner_recorded_command",
+      "argv": [
+        "PYTHONPATH=src",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "--basetemp=_build/e02-B-current-cas-generation/put-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-current-cas-generation/put-cache",
+        "--junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "selectors": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py"
+      ],
+      "bundle_ids": [],
+      "native_directory_inputs": [],
+      "positional_selector_tokens": [
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        ">",
+        "_build/e02-B-current-cas-generation/raw/put-native.txt",
+        "2>&1"
+      ],
+      "unresolved_option_grammar": [],
+      "missing_paths": [
+        "tests/unit/core/artifacts/test_import_tenant_context.py"
+      ]
+    }
+  ],
+  "missing_origin_reference_identities": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+      "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+      "bytes": 602186
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json",
+      "sha256": "91c0454b6e2109407fb0eb458e0bd89a41017fff01a2cfdf20a907761d074509",
+      "bytes": 17461
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-native-pytest-input-admission.json",
+      "sha256": "7485655f9171860eaf88ac69a660b9d4797c5b4b85b65e6141c5b1834a9ea2ea",
+      "bytes": 7752
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
+      "sha256": "ddb7d61f4cef87e6eef14069b78848e485be1aba17b0d4ea43be6840e39e9fbc",
+      "bytes": 17160
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+      "sha256": "5f0b852ffd3654697e0c8cb6b2b440884331a92e55393417c21e6a615ac15b42",
+      "bytes": 14262
+    }
+  ],
+  "qualification": "Complete actual immutable static main under observational sys.settrace. No pytest import, collection, cases, gates, product modules, or root mutations. Missing paths already have explicit UNRUN state before failing the global map guard. Reference reachability and command shape establish lineage, not execution eligibility."
+}
+

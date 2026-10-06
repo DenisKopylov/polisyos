@@ -1,0 +1,815 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "polynomial-helper-cas-20261006",
+  "role": "primary_property_delta",
+  "closure_ids": [
+    "B222"
+  ],
+  "related_finding_ids": [
+    "B222"
+  ],
+  "bundle_ids": [
+    "SCM-01"
+  ],
+  "slice_base_sha": "c225e0d125ab9978ccf7b54022564811dfd0e293",
+  "implementation_commits": [
+    "6f95f55ca7d9c5cd9489256a354a27da058b46b9"
+  ],
+  "candidate_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5",
+  "branch": "codex/e02-F-graph-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+  ],
+  "source_bindings": [
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 11972,
+      "sha256": "2cb74ac448680872e0c67d45b5aaee685b7c332d2e617c8426c7dfc7120fd5ff",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 13073,
+      "sha256": "540cea3d50bae0d1fed9126800e6142c73cc312f05357c591d8e9876173fb7ce",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 32094,
+      "sha256": "cb6dfd9197b0f93fde517e96b6dcaf6eda1a2bcba82b83c3be7f43a6d3773568",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 74551,
+      "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 26474,
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 14630,
+      "sha256": "a235e72714e9c6709c63ff12cce64251293f63d44be171d55672d693db5502d0",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 29803,
+      "sha256": "704676490c54d5ce21f03d93f8273940b8145c9595cd8ab8b3fa651f53aa7f59",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 11571,
+      "sha256": "3dda67abbeca3e6180e8215fe1e55e0699ba3084ee0521ea37ed63a447ab6189",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 29575,
+      "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 2662,
+      "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 405390,
+      "sha256": "d63c6183839d00d026a6376ddf2133059cf762b1f023c3f415e58ac9182ad6a1",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "role": "bounded actual provider/consumer/card input; not full transitive dependency census"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+      ],
+      "target_sha": "c225e0d125ab9978ccf7b54022564811dfd0e293",
+      "environment": {
+        "python": "3.14; exact patch not captured by author execution wrapper; independent/current probe binds3.14.7",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "backend": "actual registered NumPy structural method consumer; no selected DoWhy backend claim"
+      },
+      "input_closure": "known synthetic101-row x² source persisted in realCAS and read by existing fit helper; complete selector bound by argv and committed test; no admitted realdata",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_s": 9.610758625000017,
+      "rss_kib": 589820,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development.json",
+      "expected_negative": false,
+      "role": "historical_harness_failure_non_deciding",
+      "classification": "Harness rejects before selected scientific assertions; original raw pytest FAIL unchanged."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+      ],
+      "target_sha": "c225e0d125ab9978ccf7b54022564811dfd0e293",
+      "environment": {
+        "python": "3.14; exact patch not captured by author execution wrapper; independent/current probe binds3.14.7",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "backend": "actual registered NumPy structural method consumer; no selected DoWhy backend claim"
+      },
+      "input_closure": "known synthetic101-row x² source persisted in realCAS and read by existing fit helper; complete selector bound by argv and committed test; no admitted realdata",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_s": 24.292871471014223,
+      "rss_kib": 591956,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development-2.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development-2.json",
+      "expected_negative": false,
+      "role": "historical_harness_failure_non_deciding",
+      "classification": "Harness rejects before selected scientific assertions; original raw pytest FAIL unchanged."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader"
+      ],
+      "target_sha": "c225e0d125ab9978ccf7b54022564811dfd0e293",
+      "environment": {
+        "python": "3.14; exact patch not captured by author execution wrapper; independent/current probe binds3.14.7",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "backend": "actual registered NumPy structural method consumer; no selected DoWhy backend claim"
+      },
+      "input_closure": "known synthetic101-row x² source persisted in realCAS and read by existing fit helper; complete selector bound by argv and committed test; no admitted realdata",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_s": 9.02212473200052,
+      "rss_kib": 590324,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-twin-development.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-twin-development.json",
+      "expected_negative": false,
+      "role": "historical_harness_failure_non_deciding",
+      "classification": "Harness rejects before selected scientific assertions; original raw pytest FAIL unchanged."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+        "tests/unit/remediation/test_scm_01.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14; exact patch not captured by author execution wrapper; independent/current probe binds3.14.7",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "backend": "actual registered NumPy structural method consumer; no selected DoWhy backend claim"
+      },
+      "input_closure": "known synthetic101-row x² source persisted in realCAS and read by existing fit helper; complete selector bound by argv and committed test; no admitted realdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 32.02633691400115,
+      "rss_kib": 591012,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-native.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-native.json",
+      "expected_negative": false,
+      "role": "current_deciding_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/remove-polynomial-property.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14; exact patch not captured by author execution wrapper; independent/current probe binds3.14.7",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "backend": "actual registered NumPy structural method consumer; no selected DoWhy backend claim"
+      },
+      "input_closure": "known synthetic101-row x² source persisted in realCAS and read by existing fit helper; complete selector bound by argv and committed test; no admitted realdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 17.296633509991807,
+      "rss_kib": 593880,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-removal.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-removal.json",
+      "expected_negative": true,
+      "role": "current_property_removal"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14; exact patch not captured by author execution wrapper; independent/current probe binds3.14.7",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "backend": "actual registered NumPy structural method consumer; no selected DoWhy backend claim"
+      },
+      "input_closure": "known synthetic101-row x² source persisted in realCAS and read by existing fit helper; complete selector bound by argv and committed test; no admitted realdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.03016920700611081,
+      "rss_kib": 22928,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-ruff.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-ruff.json",
+      "expected_negative": false,
+      "role": "current_deciding_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/probe-readonly-runtime.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14; exact patch not captured by author execution wrapper; independent/current probe binds3.14.7",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "backend": "Read-only interpreter/package identity; imported DoWhy is not a fit witness."
+      },
+      "input_closure": "known synthetic101-row x² source persisted in realCAS and read by existing fit helper; complete selector bound by argv and committed test; no admitted realdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 2.714462308998918,
+      "rss_kib": 256748,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/current-runtime-identity.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/current-runtime-identity.json",
+      "expected_negative": false,
+      "role": "current_deciding_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+        "tests/unit/remediation/test_scm_01.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "input_closure": "Original polynomial-helper criterion pipeline and nearest SCM-01 siblings, with actual MethodJobs/CAS/fresh subprocess readers",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 30.10813879100897,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-native6f.stdout",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-native6f.stderr",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-native6f.execution.json",
+      "expected_negative": false,
+      "role": "independent_deciding_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/remove-polynomial-property.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "input_closure": "Only actual canonical polynomial evaluator returns None; fitted fields/signatures/source bytes unchanged. GCM and Twin genuine positive tests fail; LINEAR same-field control succeeds.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 15.645308702005423,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-removal6f.stdout",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-removal6f.stderr",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-removal6f.execution.json",
+      "expected_negative": true,
+      "role": "independent_deciding_check"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "input_closure": "Initial cubic fixture omitted required root source/alignment fields; native constructor rightly refuses before scientific consumer assertions",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_s": 6.908904388998053,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f.stdout",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f.stderr",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f.execution.json",
+      "expected_negative": false,
+      "role": "independent_historical_fixture_ERROR_non_deciding"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle-v2.py"
+      ],
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "input_closure": "Independent cubic-law fit from actual CAS rows, typedmanual1.0 persisted SCM, actual query/Twin jobs, partial-nonlinear profile falsifier and actual default native_hybrid family",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 6.884740519002662,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f-corrected.stdout",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f-corrected.stderr",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f-corrected.execution.json",
+      "expected_negative": false,
+      "role": "independent_deciding_check"
+    }
+  ],
+  "property": {
+    "statement": "Existing fitted additive polynomial parameters execute their declared polynomial law through typedSCM, realCAS, actualmethoddispatcher query/twin results and fresh readers; LINEAR declaration retains its own linear semantics even with polynomialfields.",
+    "oracle": "source x=linspace(-2,2,101),y=x²; actual helper degree2 fittedX²≈1; doX2=>4 notOLS1.36. Explicit LINEAR1+3X=>7. Complete factualX1,Y1.25 residual.25 sharedworld do1=>1.25,do2=>4.25,ITE3 on32units.",
+    "runtime_path": [
+      "actualsourceCAS rows",
+      "existing _fit_additive_noise_poly",
+      "NodeMechanism.ADDITIVE_NOISE and StructuralCausalModelSpec schema1.0 manual",
+      "persistSCM→freshCAS reader",
+      "RunJob→registered GCMQuery/TwinNetworkQuery→immutablemethod CAS",
+      "typed CausalQueryResult1.2/TwinNetworkResult1.1→persist→fresh subprocess reader and re-execution"
+    ],
+    "negative_controls": [
+      "LINEAR declaration with all polynomialfields kept mustuse1+3X=7",
+      "missing polynomialcoefficients refuses actualquery",
+      "memoryearlyNone in original _polynomial_predict retains originalbody/fitfields/methodsignatures: polynomialquery andshared-residualtwin FAIL,LINEARPASS"
+    ],
+    "native_counts": {
+      "PASS": 8,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "warnings": 14
+    },
+    "removal_counts": {
+      "FAIL_expected": 2,
+      "PASS_outside_polynomial": 1,
+      "warnings": 7
+    },
+    "profile": "explicit manual/schema1.0 fitted helper compatibility; fixed synthetic law, no selectedDoWhy/nonlinearHybriddefault claim",
+    "independent_cubic_oracle": "Actual41row helperfit f(x)=2+3x-.5x²+.25x³ =>query8; fullfactY5atX1 residual.25⇒counter8.25/ITE3.25. Current observed native_hybrid family remainsLINEAR. Partialnonlinear evidenceYonly is typedlimited/non-gating."
+  },
+  "per_id": {
+    "B222": {
+      "check": "PASS",
+      "outcome": "closed",
+      "criterion": "OriginalSCM01 executable fitted nonlinear payload4 not1.36 and LINEAR7; full helper→persist→query/twin producer-chain residual",
+      "checks": [
+        "b222-frozen-native",
+        "b222-frozen-removal"
+      ],
+      "limits": [
+        "Finite additive univariate degree2 author and degree3 independent profiles; arbitrary polynomial interactions not claimed.",
+        "complete factual residual inputs only; partial nonlinear posterior not claimed",
+        "explicit manual legacySCM1.0/non-gating distribution; no backend or realdata causal authority"
+      ]
+    }
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "closed_for_original_fitted_polynomial_compatibility_property",
+  "authority_purpose": "known syntheticDGP method property only; fixed-model distributions remain nongating; estimatorinterval absent",
+  "compatibility": {
+    "runtime_schema_or_public_exports_changed": false,
+    "test_only": true,
+    "selected_default_backend_changed": false
+  },
+  "evidence_transfer": {
+    "complete_companions": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development.json",
+        "bytes": 1111,
+        "sha256": "04e406930b810f8b3bfa9a9d82e4e98d8ed4c0cdf02330f5916658a76711834e",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-development.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development.stdout.txt",
+        "bytes": 4938,
+        "sha256": "355fb0d86ecc87504aeda213f126e00573a169159b44fc6e65f1a4a11e8d744c",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-development.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-development.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development-2.json",
+        "bytes": 1116,
+        "sha256": "76de66a46832b5ce705bc6b1adc116f5b90d44e7e7e016c868b905d42c82d487",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-development-2.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development-2.stdout.txt",
+        "bytes": 7044,
+        "sha256": "fda3e84285bd5e871680bddf5ed90e24e8f6c79792e608b4aef62d4ba1d9b540",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-development-2.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-development-2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-development-2.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-twin-development.json",
+        "bytes": 1199,
+        "sha256": "2cf0dc0241a1ae6a802912971128b1a60f897c6ddaecb6185bb68b679d9e6849",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-twin-development.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-twin-development.stdout.txt",
+        "bytes": 3003,
+        "sha256": "28a3c46aadd7b093247d9c6fe80b19f74be7519c186997db2d6b97833d188880",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-twin-development.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-twin-development.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-twin-development.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-native.json",
+        "bytes": 1160,
+        "sha256": "0a571e9c104ef1270edeeb0b153fa00cbc90391ca057643dd7860542a0a99570",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-native.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-native.stdout.txt",
+        "bytes": 6245,
+        "sha256": "5d8ac39ccbc43ee1d1f940bc4afb97af14f7a9ffd88d1a84aab1792e25b0d1bb",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-native.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-native.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-native.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-removal.json",
+        "bytes": 983,
+        "sha256": "59183acf7b7913eca2925a0323759f783977daf3fb75efe46d0f9a4a5d2bf920",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-removal.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-removal.stdout.txt",
+        "bytes": 8602,
+        "sha256": "00e12b97aff17b06488f76b4f42154492419a8a77678981777bca671fb39e7d3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-removal.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-removal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-removal.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-ruff.json",
+        "bytes": 999,
+        "sha256": "2ab6aa4b0d8d3594ed0414e2fb41cae60bd4b0dd5c1f513db0e84d5411fecc64",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-ruff.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-ruff.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-ruff.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-frozen-ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/b222-frozen-ruff.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/current-runtime-identity.json",
+        "bytes": 988,
+        "sha256": "1a2c5b5855f0ac6e06a2cfae2c0d427c0fe5fdc7a79d5b86bce3a0475f2cd746",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/current-runtime-identity.stdout.txt",
+        "bytes": 1480,
+        "sha256": "57b00ed382d1f3277d64ccd6da4b1cc074932acb02cafd086b35054b76bd0b94",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/current-runtime-identity.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/execute_check.py",
+        "bytes": 1296,
+        "sha256": "4fee1b8fc0957b2571b21b9ac4e275a73526e3d0096d9218c7fb64cfd90597d3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/execute_check.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/remove-polynomial-property.py",
+        "bytes": 1637,
+        "sha256": "340da05443b94697cac1192517ca92353d71db98c872f0b242bf75f732d03f70",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/remove-polynomial-property.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/probe-readonly-runtime.py",
+        "bytes": 1119,
+        "sha256": "0b60f2dc17a3f8d0e648f43cff6ca6608141000be10862a9ade11c233add8a29",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/probe-readonly-runtime.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-native6f.stdout",
+        "bytes": 6245,
+        "sha256": "3e2c043571160c0e04b2c588032ece3bcd0389472fd130ea3fe329ca31924a92",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.stdout",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-native6f.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.stderr",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-native6f.execution.json",
+        "bytes": 1193,
+        "sha256": "6692d12563c60dca735885797f5e65328b9f8bd0f1dc90894955b1968dd911a4",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.execution.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-removal6f.stdout",
+        "bytes": 8601,
+        "sha256": "c21fa12fe9e9bd1e4bbe4416d61ef0a66c6ed9b65a1cd2ff4b1520bf91cb1e89",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.stdout",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-removal6f.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.stderr",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-removal6f.execution.json",
+        "bytes": 1016,
+        "sha256": "cbb80a9c148aeb4fc739b989c062bcbc2752ecf2e5465cef19e48c7baa10cf46",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.execution.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.stdout",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f.stderr",
+        "bytes": 1199,
+        "sha256": "1038a7935dbdf34c3d35e90b5de59eb492520fadfcc3f453d9faab79f6913ff0",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.stderr",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f.execution.json",
+        "bytes": 1008,
+        "sha256": "8dcdf561222908d148f8e381e61c044699365425c31629ac811b757ea9db6f29",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.execution.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f-corrected.stdout",
+        "bytes": 3535,
+        "sha256": "a519a7532af4c709ada65022924c56763ffdafd61cc6b448da32707389994f35",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stdout",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f-corrected.stderr",
+        "bytes": 1077,
+        "sha256": "2eec546a935f1e7da14874a7d43290b52bff56652d352640747c4699a85a9e8e",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stderr",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle6f-corrected.execution.json",
+        "bytes": 1034,
+        "sha256": "cf4e5cf709646fa90c7206d203f96673cbc8b1f11ce678748af61a5a9e2eca6d",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.execution.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle.py",
+        "bytes": 5782,
+        "sha256": "2b0d4e90da03901c4bcaa0b6da1d9f0c54bf9e2020abe13a817c4192772d7131",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-oracle-v2.py",
+        "bytes": 5884,
+        "sha256": "494e1ae8f4a547ff61696eb12cc98411c84ae66ac36361f49fc9e450a49de7f5",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle-v2.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-removal-probe.py",
+        "bytes": 1637,
+        "sha256": "340da05443b94697cac1192517ca92353d71db98c872f0b242bf75f732d03f70",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal-probe.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/capture.py",
+        "bytes": 1108,
+        "sha256": "faba4e389019eea9fd1a67ad657a5563376c5c1f3c9107b99ef05bd3c2ec7c81",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/capture.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-source-begin.json",
+        "bytes": 2903,
+        "sha256": "577800dcc01736d8ad7947d604db45f6a24eb8a0149e4b0b4ed4590d9d715773",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-source-begin.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-source-end.json",
+        "bytes": 2824,
+        "sha256": "5894ad66152ac86abb02ed6a2d1ad6b174029fbd78beb27b9181e350729e3f71",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-source-end.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-review.json",
+        "bytes": 12706,
+        "sha256": "17e2e37c91949668678ebedab5a1da44227374099b9d891e2a0720d2c7db41e0",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-review.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-transfer-selection.json",
+        "bytes": 4480,
+        "sha256": "a4c8769d4ef11de24c38debf8b250617d73388f3f961588073e37b57c1979526",
+        "original_path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-transfer-selection.json",
+        "encoding": "raw"
+      }
+    ],
+    "companion_count": 44,
+    "all_moderate_deciding_bytes_committed": true,
+    "source_bindings_scope": "13 exact defining/consumer/authority sourcefiles; not full transitive absence census",
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-review.json"
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "F/root",
+      "state": "limited",
+      "detail": "Schema1.1producer/catalog1.0 mismatch is next distinct ownerpacket; this slice intentionally persists explicitlegacy/manual1.0."
+    },
+    {
+      "owner": "G",
+      "state": "limited",
+      "detail": "Full production datasets remainlocal; no finiteknownDGP witness grants admittedrealdata causal authority."
+    }
+  ],
+  "original_criterion": {
+    "id": "B222",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      5417,
+      5430
+    ],
+    "bytes": 3359,
+    "sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+    "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9"
+  },
+  "independent_review_decision": {
+    "check": "PASS",
+    "recommendation": "closed for original bounded fitted payload compatibility; ledger adoption separate",
+    "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/b222-independent-review.json"
+  }
+}

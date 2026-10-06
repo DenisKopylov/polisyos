@@ -1,0 +1,45 @@
+{
+  "source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+  "OpenAPI_input_before": {
+    "provenance": "Git@8142b14162f6417045ccbc560588da4341ac93ce",
+    "bytes": 2812414,
+    "sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693"
+  },
+  "OpenAPI_produced_output_and_client_input": {
+    "provenance": "actual exporter retained output overlay; NOT Git@8142 input",
+    "path": "/dev/shm/e02-B-completed-generated-8142b14162f6/after.json",
+    "bytes": 2812414,
+    "sha256": "5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3",
+    "same_as_tracked_snapshot_during_client_steps": true
+  },
+  "client_output_objects": [
+    {
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "bytes": 951543,
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "same_as_git_source": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "bytes": 108061,
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "same_as_git_source": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "bytes": 31276,
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "same_as_git_source": true
+    }
+  ],
+  "full_schema_contract_comparison": "All OpenAPI JSON after recursive removal of example/examples keys byte-semantically equal; complete9 scalar deltas confined to existing risk-spend example fingerprints. Cause is not inferred.",
+  "limitations": [
+    "Generator default194 environment/global registry differs from architecture private locked/hashseed0 check; no private freshness PASS claim.",
+    "Cause of changed dependency/receipt fingerprints not inferred; source facts and actual outputs are separate."
+  ],
+  "full_nonexample_OpenAPI_identity_recomputed": true,
+  "schema_count": 573,
+  "path_count": 111,
+  "operation_count": 113
+}

@@ -1,0 +1,54 @@
+{
+  "source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "comparison": "complete recursive JSON, not selected examples",
+  "scalar_deltas": [
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.projection_hash",
+      "old": "sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c",
+      "new": "sha256:d5a9c30ec00b3913e28b6da86cc33b6717d48ea7cb785d46bd2ce55d79cacc1d"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.replay_address",
+      "old": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595",
+      "new": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ad5a9c30ec00b3913e28b6da86cc33b6717d48ea7cb785d46bd2ce55d79cacc1d&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.replay_pins.projection_hash",
+      "old": "sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c",
+      "new": "sha256:d5a9c30ec00b3913e28b6da86cc33b6717d48ea7cb785d46bd2ce55d79cacc1d"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.replay_pins.source_dependency_hash",
+      "old": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595",
+      "new": "sha256:8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.source.validation.bound_dependency_aggregate_identity",
+      "old": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595",
+      "new": "sha256:8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.source.validation.worker_validation_receipt_hash",
+      "old": "sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea",
+      "new": "sha256:b82d6e9033dd0ead29a88a2688750920a3640ca2414e93392c30c46bcb7c7222"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.source_dependency_hash",
+      "old": "sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595",
+      "new": "sha256:8f81067a192ae48be90c92609a86ebcd97d3ff19e9919b1daea8c2cf9fb79dc5"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.worker_validation_receipt_hash",
+      "old": "sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea",
+      "new": "sha256:b82d6e9033dd0ead29a88a2688750920a3640ca2414e93392c30c46bcb7c7222"
+    },
+    {
+      "path": "$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.worker_validation_receipt_ref",
+      "old": "owner-validation:sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea",
+      "new": "owner-validation:sha256:b82d6e9033dd0ead29a88a2688750920a3640ca2414e93392c30c46bcb7c7222"
+    }
+  ],
+  "same_component_schemas": true,
+  "same_paths": false,
+  "qualification": "Literal generator output overlay; changed value cause not inferred from source delta."
+}

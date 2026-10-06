@@ -58,6 +58,9 @@ establish a plateau. `StoppingPresets.default` accepts the unit and direction;
 without a unit its iteration and wall-time limits still operate. Convert the
 absolute tolerance when converting objective units. This profile is an
 engineering tolerance, not statistical significance.
+Version `1.0` identifies the formula; custom coefficients are recorded in
+the stopping details and do not assert equivalence to the default coefficient
+pair. `patience` must be an integer of at least one; booleans are rejected.
 
 `run_stress_test` reports `(finite_evaluated - violated_scenarios) /
 finite_evaluated` over observed finite scenarios. A repeated issue still

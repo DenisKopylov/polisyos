@@ -1,5 +1,7 @@
 """Plateau admission limits do not prevent independent resource stops."""
 
+import pytest
+
 from polisyos.scientist.methods.search.stopping import ImprovementPlateau, StoppingPresets
 
 
@@ -21,3 +23,9 @@ def test_standard_preset_still_honors_budget_without_objective_unit() -> None:
     result = stopping.check([{"objective_value": 1.0}] * 3, {"evaluation_iterations": 3})
     assert result.should_stop
     assert "Maximum iterations" in result.reason
+
+
+@pytest.mark.parametrize("patience", [True, False, 1.5, "2"])
+def test_malformed_patience_is_rejected(patience: object) -> None:
+    with pytest.raises(ValueError, match="patience"):
+        ImprovementPlateau(patience=patience, objective_unit="points")

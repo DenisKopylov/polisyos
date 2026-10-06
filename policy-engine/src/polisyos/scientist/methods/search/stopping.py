@@ -122,6 +122,8 @@ class ImprovementPlateau(StoppingCriterion):
     Profile 1.0 defaults to 0.01 absolute objective units and 0.01 relative
     tolerance. This engineering tolerance is not statistical significance.
     Missing units/profile or incomplete numbers cannot establish convergence.
+    The version identifies the formula; configured coefficients are recorded
+    explicitly and do not claim equivalence to the default coefficient pair.
     """
 
     def __init__(
@@ -135,8 +137,8 @@ class ImprovementPlateau(StoppingCriterion):
         absolute_tolerance: float = 0.01,
         profile_version: str | None = "1.0",
     ):
-        if patience < 1:
-            raise ValueError("patience must be >= 1")
+        if isinstance(patience, bool) or not isinstance(patience, int) or patience < 1:
+            raise ValueError("patience must be an integer >= 1")
         for name, value in (
             ("min_improvement", min_improvement),
             ("absolute_tolerance", absolute_tolerance),

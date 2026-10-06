@@ -71,6 +71,21 @@ def test_unit_conversion_also_scales_absolute_tolerance() -> None:
     assert verdicts == [True, True]
 
 
+def test_custom_coefficients_use_their_declared_tolerance() -> None:
+    # Version 1.0 specifies the formula, not equivalence of custom coefficients.
+    criterion = ImprovementPlateau(
+        patience=2, objective_unit="points", min_improvement=0.03, absolute_tolerance=0.02
+    )
+    result = criterion.check(
+        [{"objective_value": value} for value in [100.0, 98.0, 98.0]], {}
+    )
+    assert result.should_stop  # Physical gain 2 points is within 3 points.
+    assert result.details["gain"] == 2.0
+    assert result.details["tolerance"] == 3.0
+    assert result.details["relative_tolerance"] == 0.03
+    assert result.details["absolute_tolerance"] == 0.02
+
+
 @pytest.mark.parametrize("bad", [None, "1.0", True, float("nan"), float("inf")])
 def test_present_invalid_observation_cannot_establish_plateau(bad: object) -> None:
     result = ImprovementPlateau(patience=2, objective_unit="points").check(

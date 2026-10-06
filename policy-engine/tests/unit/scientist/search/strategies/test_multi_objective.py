@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
-from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer, MOConfig
+from polisyos.scientist.methods.search.strategies.multi_objective import (
+    MOBayesianOptimizer,
+    MOConfig,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import Evaluation
 
@@ -77,6 +81,6 @@ def test_mo_batch_shape_when_deps_available(simple_space: SearchSpace) -> None:
         directions=[OptimizationDirection.MINIMIZE, OptimizationDirection.MINIMIZE],
         config=MOConfig(n_initial=1, seed=4),
     )
-    evals = [_make_eval(i, float(i), float(5 - i), simple_space) for i in range(8)]
+    evals = [_make_eval(i, float(i - 4), float(5 - i), simple_space) for i in range(8)]
     batch = strategy.suggest_batch(evals, batch_size=2)
     assert len(batch) == 2

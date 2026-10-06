@@ -139,7 +139,18 @@ class SearchSpace:
             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
                 log_lower = math.log(bound.lower)
                 log_upper = math.log(bound.upper)
-                value = math.exp(log_lower + normalized * (log_upper - log_lower))
+                value = (
+                    bound.lower
+                    if normalized == 0.0
+                    else bound.upper
+                    if normalized == 1.0
+                    else min(
+                        bound.upper,
+                        max(
+                            bound.lower, math.exp(log_lower + normalized * (log_upper - log_lower))
+                        ),
+                    )
+                )
             else:
                 value = bound.lower + normalized * (bound.upper - bound.lower)
             if bound.dtype == ParameterType.INTEGER:
@@ -192,6 +203,13 @@ class SearchSpace:
         return hashlib.sha256(
             repr(("attainable_projection.v1", signature)).encode("utf-8")
         ).hexdigest()
+
+    def same_execution(self, left: dict[str, Any], right: dict[str, Any]) -> bool:
+        """Compare executed actions in their canonical typed coordinate domain."""
+        try:
+            return self.normalize(left) == self.normalize(right)
+        except (TypeError, ValueError):
+            return False
 
     @property
     def last_sobol_sampler_identity(self) -> str | None:

@@ -160,6 +160,8 @@ class BayesianCandidateGenerator:
         compare_split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
         n_initial: int = 6,
         seed: int = 42,
+        warm_start_bridge: Any = None,
+        warm_start_fingerprint: Any = None,
     ) -> None:
         self._primary_metric = primary_metric
         self._direction = direction
@@ -170,18 +172,44 @@ class BayesianCandidateGenerator:
         self._optimizer: Any = None
         self._botorch_available = False
         self._warm_evals: list[Any] = []
+        if (warm_start_bridge is None) != (warm_start_fingerprint is None):
+            raise ValueError("Warm-start bridge and configured target fingerprint must be paired")
+        numerical_basis = None
+        admission = None
+        if warm_start_bridge is not None:
+            numerical_basis = warm_start_bridge.target_basis(warm_start_fingerprint)
+            admission = warm_start_bridge.admit_warm_start
+            if (
+                numerical_basis.metric != primary_metric
+                or numerical_basis.direction.value != direction.value
+                or numerical_basis.split != compare_split.value
+            ):
+                raise ValueError(
+                    "Configured generator metric/direction/split differs from numerical target"
+                )
 
         deps = _try_import_bayesian()
         if deps is not None and search_space is not None:
             BayesianConfig, BayesianOptimizer, _, _, _, _, _ = deps
             try:
                 cfg = BayesianConfig(n_initial=n_initial, seed=seed)
-                self._optimizer = BayesianOptimizer(search_space, config=cfg)
-                self._botorch_available = True
-                if self._warm_evals:
-                    self._optimizer.warm_start(self._warm_evals)
+                self._optimizer = BayesianOptimizer(
+                    search_space,
+                    config=cfg,
+                    numerical_basis=numerical_basis,
+                    warm_start_admission=admission,
+                )
+                self._botorch_available = self._optimizer.backend_available
             except Exception as exc:
+                if numerical_basis is not None:
+                    raise ValueError(
+                        "Configured numerical warm-start receiver refused its basis"
+                    ) from exc
                 logger.warning("BayesianCandidateGenerator: optimizer init failed: %s", exc)
+        if warm_start_bridge is not None:
+            if self._optimizer is None:
+                raise ValueError("Configured warm-start requires a native optimizer receiver")
+            self.warm_start(warm_start_bridge.load_warm_start(warm_start_fingerprint))
 
     @property
     def botorch_available(self) -> bool:

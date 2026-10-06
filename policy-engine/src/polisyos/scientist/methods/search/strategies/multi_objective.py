@@ -27,7 +27,11 @@ from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
 from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
 from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
 from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
-from polisyos.scientist.methods.search.strategies.types import Evaluation, PolicyCandidate, StrategyState
+from polisyos.scientist.methods.search.strategies.types import (
+    Evaluation,
+    PolicyCandidate,
+    StrategyState,
+)
 
 logger = get_logger(__name__)
 
@@ -353,11 +357,16 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         acquisition_value: float | None = None,
     ) -> PolicyCandidate:
         vector = tuple(float(value) for value in tensor.detach().cpu().tolist())
-        return PolicyCandidate(
-            params=self._space.denormalize(vector),
-            params_normalized=vector,
+        return self._space.candidate_from_vector(
+            vector,
             acquisition_value=acquisition_value,
             source_strategy=source,
+            metadata={
+                "prediction_basis": "not_established_no_scalar_predictor",
+                "acquisition_value_basis": "relaxed_proposal"
+                if acquisition_value is not None
+                else "not_established",
+            },
         )
 
 

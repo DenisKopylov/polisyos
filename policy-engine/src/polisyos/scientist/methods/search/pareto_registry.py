@@ -7,13 +7,17 @@ from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, PromotionPolicy
-from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
+from polisyos.scientist.methods.autotune.pareto import (
+    HypervolumeAssessment,
+    ParetoPromoter,
+    validate_hypervolume,
+)
 from polisyos.scientist.methods.autotune.registry import default_search_registry_root
 from polisyos.scientist.methods.search.contracts import (
     ParetoBasisScope,
@@ -84,16 +88,27 @@ class ParetoRegistrySnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field(default="2.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "2.0"] = "2.0"
     loop_id: str = Field(min_length=1)
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     entries: dict[str, ParetoRegistryEntry] = Field(default_factory=dict)
     frontiers: dict[str, list[str]] = Field(default_factory=dict)
-    hypervolume_by_view: dict[str, float] = Field(default_factory=dict)
+    hypervolume_by_view: dict[str, float | None] = Field(default_factory=dict)
+    hypervolume_assessments: dict[str, HypervolumeAssessment] = Field(default_factory=dict)
     view_assessments: dict[str, ParetoViewAssessment] = Field(default_factory=dict)
     objective_basis_by_view: dict[str, ParetoBasisScope] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_indicator_profiles(self) -> Self:
+        if self.schema_version == "1.0" and self.hypervolume_assessments:
+            raise ValueError("Historical snapshot cannot carry typed indicator assessments")
+        if not set(self.hypervolume_assessments) <= set(self.hypervolume_by_view):
+            raise ValueError("Hypervolume assessment lacks its view indicator")
+        for view, value in self.hypervolume_by_view.items():
+            validate_hypervolume(value, self.hypervolume_assessments.get(view))
+        return self
 
     def project_view(
         self,
@@ -109,18 +124,14 @@ class ParetoRegistrySnapshot(BaseModel):
         """
         view_key = _view_key(view, policy_family=policy_family)
         identity_mismatch = any(
-            candidate_hash != entry.candidate_hash
-            for candidate_hash, entry in self.entries.items()
+            candidate_hash != entry.candidate_hash for candidate_hash, entry in self.entries.items()
         )
         eligible_hashes = sorted(
             candidate_hash
             for candidate_hash, entry in self.entries.items()
             if entry.evaluation.feasible
             and not entry.seed_only
-            and (
-                view is not ParetoView.POLICY_FAMILY
-                or entry.policy_family == policy_family
-            )
+            and (view is not ParetoView.POLICY_FAMILY or entry.policy_family == policy_family)
         )
         eligible_set = set(eligible_hashes)
         stored_frontier_hashes = self.frontiers.get(view_key, [])
@@ -129,9 +140,7 @@ class ParetoRegistrySnapshot(BaseModel):
             or not set(stored_frontier_hashes) <= eligible_set
         )
         candidate_frontier_hashes = (
-            ()
-            if malformed_frontier or identity_mismatch
-            else tuple(stored_frontier_hashes)
+            () if malformed_frontier or identity_mismatch else tuple(stored_frontier_hashes)
         )
         stored_assessment = self.view_assessments.get(view_key)
         if stored_assessment is None:
@@ -192,6 +201,7 @@ class ParetoRegistrySnapshot(BaseModel):
         payload = self.model_dump(mode="json", exclude_none=True)
         payload.pop("view_assessments", None)
         payload.pop("objective_basis_by_view", None)
+        payload.pop("hypervolume_assessments", None)
         return payload
 
 
@@ -363,9 +373,14 @@ class ParetoRegistry:
             entries=catalog_entries,
             frontiers={ParetoView.GLOBAL_FEASIBLE.value: list(catalog_entries)},
             hypervolume_by_view={
-                ParetoView.GLOBAL_FEASIBLE.value: float(
-                    local_snapshot.hypervolume_by_view.get(ParetoView.GLOBAL_FEASIBLE.value, 0.0)
-                )
+                ParetoView.GLOBAL_FEASIBLE.value: None,
+            },
+            hypervolume_assessments={
+                ParetoView.GLOBAL_FEASIBLE.value: HypervolumeAssessment(
+                    status="unavailable",
+                    basis="not_established",
+                    reason="catalog_union_not_recomputed",
+                ),
             },
         )
         self._write_catalog_snapshot(active_context, catalog)
@@ -554,63 +569,41 @@ class ParetoRegistry:
     def _recompute(self, snapshot: ParetoRegistrySnapshot) -> ParetoRegistrySnapshot:
         entries = snapshot.entries
         frontiers: dict[str, list[str]] = {}
-        hypervolume: dict[str, float] = {}
+        hypervolume: dict[str, float | None] = {}
+        hv_assessments: dict[str, HypervolumeAssessment] = {}
         view_assessments: dict[str, ParetoViewAssessment] = {}
 
         feasible_entries = [
             entry for entry in entries.values() if entry.evaluation.feasible and not entry.seed_only
         ]
-        (
-            frontiers[ParetoView.GLOBAL_FEASIBLE.value],
-            hypervolume[ParetoView.GLOBAL_FEASIBLE.value],
-            view_assessments[ParetoView.GLOBAL_FEASIBLE.value],
-        ) = self._frontier_hashes(
-            feasible_entries,
-            ParetoView.GLOBAL_FEASIBLE.value,
-            snapshot.objective_basis_by_view.get(ParetoView.GLOBAL_FEASIBLE.value),
-        )
-        (
-            frontiers[ParetoView.EQUITY_AWARE.value],
-            hypervolume[ParetoView.EQUITY_AWARE.value],
-            view_assessments[ParetoView.EQUITY_AWARE.value],
-        ) = self._frontier_hashes(
-            feasible_entries,
-            ParetoView.EQUITY_AWARE.value,
-            snapshot.objective_basis_by_view.get(ParetoView.EQUITY_AWARE.value),
-        )
-        (
-            frontiers[ParetoView.LOW_RISK.value],
-            hypervolume[ParetoView.LOW_RISK.value],
-            view_assessments[ParetoView.LOW_RISK.value],
-        ) = self._frontier_hashes(
-            feasible_entries,
-            ParetoView.LOW_RISK.value,
-            snapshot.objective_basis_by_view.get(ParetoView.LOW_RISK.value),
-        )
-        (
-            frontiers[ParetoView.IMPLEMENTATION_SIMPLE.value],
-            hypervolume[ParetoView.IMPLEMENTATION_SIMPLE.value],
-            view_assessments[ParetoView.IMPLEMENTATION_SIMPLE.value],
-        ) = self._frontier_hashes(
-            feasible_entries,
-            ParetoView.IMPLEMENTATION_SIMPLE.value,
-            snapshot.objective_basis_by_view.get(ParetoView.IMPLEMENTATION_SIMPLE.value),
-        )
-
+        view_inputs = [
+            (view.value, view.value, feasible_entries)
+            for view in (
+                ParetoView.GLOBAL_FEASIBLE,
+                ParetoView.EQUITY_AWARE,
+                ParetoView.LOW_RISK,
+                ParetoView.IMPLEMENTATION_SIMPLE,
+            )
+        ]
         families = sorted(
             {entry.policy_family for entry in feasible_entries if entry.policy_family}
         )
-        for family in families:
-            family_entries = [entry for entry in feasible_entries if entry.policy_family == family]
-            view_key = _view_key(ParetoView.POLICY_FAMILY, policy_family=family)
+        view_inputs.extend(
+            (
+                _view_key(ParetoView.POLICY_FAMILY, policy_family=family),
+                ParetoView.GLOBAL_FEASIBLE.value,
+                [entry for entry in feasible_entries if entry.policy_family == family],
+            )
+            for family in families
+        )
+        for view_key, objective_view, subset in view_inputs:
             (
                 frontiers[view_key],
                 hypervolume[view_key],
                 view_assessments[view_key],
+                hv_assessments[view_key],
             ) = self._frontier_hashes(
-                family_entries,
-                ParetoView.GLOBAL_FEASIBLE.value,
-                snapshot.objective_basis_by_view.get(view_key),
+                subset, objective_view, snapshot.objective_basis_by_view.get(view_key)
             )
 
         updated_entries: dict[str, ParetoRegistryEntry] = {}
@@ -621,8 +614,7 @@ class ParetoRegistry:
                 else sorted(
                     view_name
                     for view_name, hashes in frontiers.items()
-                    if candidate_hash in hashes
-                    and view_assessments[view_name].status == "complete"
+                    if candidate_hash in hashes and view_assessments[view_name].status == "complete"
                 )
             )
             updated_entries[candidate_hash] = entry.model_copy(
@@ -647,6 +639,7 @@ class ParetoRegistry:
             entries=updated_entries,
             frontiers=frontiers,
             hypervolume_by_view=hypervolume,
+            hypervolume_assessments=hv_assessments,
             view_assessments=view_assessments,
             objective_basis_by_view=snapshot.objective_basis_by_view,
         )
@@ -656,7 +649,7 @@ class ParetoRegistry:
         entries: list[ParetoRegistryEntry],
         view_name: str,
         declared_basis: ParetoBasisScope | None = None,
-    ) -> tuple[list[str], float, ParetoViewAssessment]:
+    ) -> tuple[list[str], float | None, ParetoViewAssessment, HypervolumeAssessment]:
         ordered_entries = sorted(entries, key=lambda entry: entry.candidate_hash)
         if not entries:
             return (
@@ -673,6 +666,7 @@ class ParetoRegistry:
                     input_count=0,
                     assessed_count=0,
                 ),
+                HypervolumeAssessment(status="available", basis="recomputed"),
             )
         observed_objective_maps = {
             entry.candidate_hash: entry.evaluation.frontier_objectives(view_name)
@@ -682,11 +676,7 @@ class ParetoRegistry:
             list(declared_basis.coordinate_ids)
             if declared_basis is not None and declared_basis.scope == "declared"
             else sorted(
-                {
-                    axis
-                    for objectives in observed_objective_maps.values()
-                    for axis in objectives
-                }
+                {axis for objectives in observed_objective_maps.values() for axis in objectives}
             )
         )
         basis_scope = declared_basis or (
@@ -695,11 +685,7 @@ class ParetoRegistry:
             else ParetoBasisScope(scope="not_established")
         )
         objective_maps = {
-            candidate_hash: {
-                axis: objectives[axis]
-                for axis in axis_names
-                if axis in objectives
-            }
+            candidate_hash: {axis: objectives[axis] for axis in axis_names if axis in objectives}
             for candidate_hash, objectives in observed_objective_maps.items()
         }
         if not axis_names:
@@ -716,6 +702,7 @@ class ParetoRegistry:
                     unassessed_candidate_hashes=hashes,
                     unresolved_axis_contract_candidate_hashes=hashes,
                 ),
+                HypervolumeAssessment(status="available", basis="recomputed"),
             )
 
         evaluations_by_identity: dict[int, str] = {}
@@ -754,9 +741,7 @@ class ParetoRegistry:
                 non_finite_by_hash[candidate_hash] = item.non_finite_coordinate_ids
         coverage = ParetoViewAssessment(
             status=(
-                front_assessment.status
-                if basis_scope.scope == "declared"
-                else "basis_limited"
+                front_assessment.status if basis_scope.scope == "declared" else "basis_limited"
             ),
             coverage_status=front_assessment.status,
             basis_scope=basis_scope,
@@ -766,7 +751,15 @@ class ParetoRegistry:
             missing_coordinate_ids_by_candidate_hash=missing_by_hash,
             non_finite_coordinate_ids_by_candidate_hash=non_finite_by_hash,
         )
-        return hashes, float(front.hypervolume), coverage
+        return (
+            hashes,
+            front.hypervolume,
+            coverage,
+            (
+                front.hypervolume_assessment
+                or HypervolumeAssessment(status="available", basis="recomputed")
+            ),
+        )
 
     def _snapshot_path(self, loop_id: str) -> Path:
         return self._root / "loops" / loop_id / "pareto_registry.json"

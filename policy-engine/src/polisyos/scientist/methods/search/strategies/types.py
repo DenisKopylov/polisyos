@@ -96,6 +96,8 @@ class ParameterBounds:
             raise ValueError(f"Finite numeric bounds required for '{self.name}'")
         if self.lower >= self.upper:
             raise ValueError(f"Invalid bounds for '{self.name}': lower >= upper")
+        if not math.isfinite(self.upper - self.lower):
+            raise ValueError(f"Unsupported representable span for '{self.name}'")
         if (self.log_scale or self.dtype == ParameterType.LOG_CONTINUOUS) and self.lower <= 0:
             raise ValueError(f"Log-scale parameter '{self.name}' requires lower > 0")
         if self.dtype == ParameterType.INTEGER and math.ceil(self.lower) > math.floor(self.upper):
@@ -122,7 +124,13 @@ class Evaluation:
     @property
     def is_valid(self) -> bool:
         """True when evaluation is usable for surrogate training."""
-        return self.status == EvaluationStatus.SUCCESS and self.stage_a_passed
+        return (
+            self.status == EvaluationStatus.SUCCESS
+            and self.stage_a_passed is True
+            and isinstance(self.scalar_score, (int, float))
+            and not isinstance(self.scalar_score, bool)
+            and math.isfinite(self.scalar_score)
+        )
 
 
 @dataclass(slots=True)

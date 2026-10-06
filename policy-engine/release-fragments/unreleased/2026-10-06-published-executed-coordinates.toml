@@ -1,0 +1,3 @@
+type = "changed"
+scope = "policy-engine"
+message = "Search spaces refuse finite bounds whose affine span is not representable, and logarithmic endpoints execute exactly within declared bounds. Multi-objective and neural candidates now carry normalized coordinates of the actual typed action. Neural prediction and acquisition values are evaluated at that executed action; the multi-objective converter explicitly marks its scalar prediction unavailable and its existing acquisition value as belonging to the relaxed proposal. The existing training and acquisition algorithms are preserved."

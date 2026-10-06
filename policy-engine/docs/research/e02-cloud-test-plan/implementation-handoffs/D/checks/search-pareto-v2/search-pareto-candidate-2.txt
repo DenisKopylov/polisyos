@@ -1,0 +1,44 @@
+F....................................................                    [100%]
+=================================== FAILURES ===================================
+_ test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator _
+
+    def test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator():
+        promoter = ParetoPromoter(
+            [
+                PromotionPolicy(
+                    loop_id="fixture", primary_metric=key, direction=MetricDirection.MAXIMIZE
+                )
+                for key in ("policy_value", "employment")
+            ]
+        )
+        evaluations = [
+            BenchmarkEvaluation(
+                loop_id="fixture",
+                suite_id="fixture",
+                candidate_ref=ArtifactRef(
+                    artifact_id=f"sha256:{i:064x}", kind="fixture", media_type="application/json"
+                ),
+                holdout_metrics={"a": v, "b": v},
+            )
+            for i, v in enumerate((-1e308, 1e308), start=1)
+        ]
+        front = promoter.compute_front(evaluations)
+>       assert [m.candidate_ref_id for m in front.members] == [
+            str(evaluations[1].candidate_ref.artifact_id)
+        ]
+E       AssertionError: assert [] == ['sha256:0000...000000000002']
+E         
+E         Right contains one more item: 'sha256:0000000000000000000000000000000000000000000000000000000000000002'
+E         Use -v to get more diff
+
+tests/unit/remediation/test_opt_01_hypervolume_consumers.py:62: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_opt_01_hypervolume_consumers.py::test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator
+1 failed, 52 passed, 2 warnings in 7.58s

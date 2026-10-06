@@ -4,7 +4,7 @@
   "closure_ids": [],
   "slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
   "D_checkpoint_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
-  "G_checkpoint_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "G_checkpoint_sha": "53b309019913b938909d6dc0fc13f8edb409f368",
   "delivery": "Committed Git checkpoint on D topic branch; no other-chat dispatch",
   "requests": [
     {
@@ -71,13 +71,13 @@
   "companion_requests": [
     {
       "gate": "B04",
-      "input": "Complete deciding output: 9 undeclared state reads in run_causal_evaluation.py; existing immutable backend-parity receipt",
+      "input": "Complete repository output: 9 undeclared state reads in run_causal_evaluation.py. Actual D blueprint_node one-file owner check PASS issues=[]; no complete-input inherited waiver is established.",
       "canonical_owner": "State-read declaration owner and run_causal_evaluation.py owner; numerical_oracle resolves exact tracked declarations",
       "request": "Accept proper declarations/fix actual reads or issue evidence-based disposition; no inherited waiver without exact slice-base zero-overlap"
     },
     {
       "gate": "B19",
-      "input": "Complete deciding output: 77 missing module budgets and 6 report-only rows",
+      "input": "Complete deciding output: 77 errors (53 missing module budgets, 9 extraction-date errors, 15 target_fail_closed_not_before errors), plus 6 report-only rows; canonical-companions-independent-read-review.json retains the full output.",
       "canonical_owner": "Existing module-budget registry owner; numerical_oracle resolves tracked governance source",
       "request": "Appoint or reconcile module budgets; preserve full denominator, no exception based on a sampled row"
     },

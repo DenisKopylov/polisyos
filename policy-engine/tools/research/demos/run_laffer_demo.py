@@ -9,25 +9,20 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-import os
 import time
 
-# На некоторых macOS окружениях (JAX+Metal) возможны ошибки runtime.
-# Для воспроизводимости демо предпочитаем CPU, если пользователь явно не выбрал платформу.
-os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
+from polisyos.common.jax_env import apply_jax_env_defaults
 
+apply_jax_env_defaults()
+
+# JAX environment policy must execute before the next import group.
+# isort: split
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
-from polisyos.foundry.agent_sim.agents import AgentPolicy
 
-try:
-    import jax_bootstrap  # noqa: F401
-except ModuleNotFoundError:
-    # `jax_bootstrap` используется в некоторых окружениях (например, macOS+Metal)
-    # для дополнительной инициализации JAX. Для самого демо он не обязателен.
-    pass
+from polisyos.foundry.agent_sim.agents import AgentPolicy
 
 # --- КОНФИГУРАЦИЯ ---
 N_AGENTS = 10_000  # Масштаб: 10k агентов

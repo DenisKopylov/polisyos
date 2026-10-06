@@ -1,0 +1,2 @@
+[run] uv sync
+[bootstrap] contributor machine is ready.

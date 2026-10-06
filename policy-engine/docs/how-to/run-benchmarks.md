@@ -36,8 +36,8 @@ uv run polisyos-tools benchmarks run-parallel --help
 uv run polisyos-tools benchmarks run-local-sota-profile --help
 ```
 
-Compatibility module paths still exist, but the `polisyos-tools benchmarks ...`
-surface is the command boundary to document.
+The registry and implementation live under `benchmarks/`; use the
+`polisyos-tools benchmarks ...` command surface for supported checkout runs.
 
 ## Smoke Runs
 

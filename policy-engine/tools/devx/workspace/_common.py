@@ -17,7 +17,7 @@ from tools.lib.imports import repo_root_from
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-PRODUCT_ROOT = repo_root_from(__file__)
+PRODUCT_ROOT = repo_root_from(__file__, allow_cwd_fallback=True)
 
 
 def git_root_from(start: Path) -> Path:

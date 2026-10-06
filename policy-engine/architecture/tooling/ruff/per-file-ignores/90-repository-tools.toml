@@ -5,7 +5,6 @@
 "src/polisyos/schemas/abi_models.py" = ["TC003"]
 "examples/**" = ["RUF012"]
 "ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]
-"jax_bootstrap.py" = ["E402"]
 "migrate.py" = ["E402"]
 "tools/quality/testing/check_fabric_exception_baseline.py" = ["S603", "T201"]
 "tools/quality/testing/repeat_pytest.py" = ["S603", "T201"]

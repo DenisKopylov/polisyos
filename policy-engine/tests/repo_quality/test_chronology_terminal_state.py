@@ -403,7 +403,7 @@ def _classify(candidate: str) -> str:
         return "example_only"
     if first in {"src", "tools", "apps", "ops", "architecture"}:
         return "production_capable"
-    if candidate in {"jax_bootstrap.py", "migrate.py"}:
+    if candidate == "migrate.py":
         return "production_capable"
     raise AssertionError(f"unclassified Python/stub path: {candidate}")
 

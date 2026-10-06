@@ -15,10 +15,16 @@ sys.path.insert(0, str(repo_root_from(__file__)))
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
+from polisyos.common.jax_env import apply_jax_env_defaults
+
+apply_jax_env_defaults()
+
+# JAX environment policy must execute before the next import group.
+# isort: split
 import jax
 import jax.numpy as jnp
-import jax_bootstrap  # noqa: F401
 import numpy as np
+
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.mechanisms import TaxationMechanism
 from polisyos.foundry.agent_sim.state import GlobalState

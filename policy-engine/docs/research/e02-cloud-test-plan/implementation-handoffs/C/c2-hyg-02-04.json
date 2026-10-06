@@ -1,0 +1,554 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "c2-hyg-02-04",
+  "closure_ids": [
+    "LA-008",
+    "LA-009",
+    "LA-011",
+    "LA-012",
+    "LA-013",
+    "LA-018"
+  ],
+  "bundle_ids": [
+    "HYG-02",
+    "HYG-04"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "317c96342f2c681f121d5b8f067339a25d399b2f",
+    "cf8cb9d74973a63b98cc202425686894a8d1e92e"
+  ],
+  "implementation_commit_trees": [
+    {
+      "sha": "317c96342f2c681f121d5b8f067339a25d399b2f",
+      "tree": "76e0ed4fab9224e6ab46cf7a41b3050ed187a5ff",
+      "purpose": "HYG-02/04 implementation"
+    },
+    {
+      "sha": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "tree": "fe4ed5b6e2369a73376f9e66c99f0b99d5013ce9",
+      "purpose": "blocking packaging-test harness correction only"
+    }
+  ],
+  "candidate_tree_sha": "fe4ed5b6e2369a73376f9e66c99f0b99d5013ce9",
+  "branch": "codex/e02-C-hygiene-20261006",
+  "pull_request": null,
+  "candidate_source_frozen": true,
+  "changed_paths": [
+    "policy-engine/architecture/imports/dynamic.toml",
+    "policy-engine/architecture/packages/layout.toml",
+    "policy-engine/architecture/policies/directory_health.toml",
+    "policy-engine/architecture/shims.toml",
+    "policy-engine/architecture/tooling/mypy/generated.ini",
+    "policy-engine/architecture/tooling/mypy/overrides/30-lex-scholar-data-forge-legal.ini",
+    "policy-engine/architecture/tooling/ruff/generated.toml",
+    "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml",
+    "policy-engine/architecture/topology.toml",
+    "policy-engine/docs/how-to/run-benchmarks.md",
+    "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "policy-engine/install.sh",
+    "policy-engine/jax_bootstrap.py",
+    "policy-engine/ops/ci/templates/workflows/causal-phases.yml",
+    "policy-engine/src/polisyos/lex/factlog.py",
+    "policy-engine/src/polisyos/scientist/evidence/_shim.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/README.md",
+    "policy-engine/src/polisyos/scientist/governance/passes/__init__.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/base.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/legal_pass.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/safety_pass.py",
+    "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+    "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+    "policy-engine/tests/repo_quality/tools/test_phase4_consolidation.py",
+    "policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py",
+    "policy-engine/tests/unit/remediation/test_hyg_04.py",
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+    "policy-engine/tests/unit/scientist/governance/test_shared_shims.py",
+    "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+    "policy-engine/tools/research/benchmarks/README.md",
+    "policy-engine/tools/research/benchmarks/harness.py",
+    "policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+    "policy-engine/tools/research/benchmarks/jax/bench_simulation.py",
+    "policy-engine/tools/research/benchmarks/metrics.py",
+    "policy-engine/tools/research/benchmarks/suite_registry.py",
+    "policy-engine/tools/research/demos/run_laffer_demo.py"
+  ],
+  "diff_summary": {
+    "files": 36,
+    "insertions": 501,
+    "deletions": 715
+  },
+  "source_refs": [
+    {
+      "path": "AGENTS.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "94173d77ab34173f12883ee6575db4a461f6df98"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "7f4cc9ab9541a44c26e4648a2c08326e53743492"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-02.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "49eda6637ce236501d3dc1d5648a25ac236be1bb"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "93c0ca6a3baebc0df20545be0a3e3ede08d145bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_sha": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a"
+    },
+    {
+      "path": "policy-engine/docs/explanation/architecture.md",
+      "revision": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "blob_sha": "d3ef7e07758a6a481eea6fe9e0864a88e8a51aa0",
+      "finding": "live architecture tree diagram remains stale at lines 292 and 302; deliberately recorded as residual, source tree kept frozen"
+    }
+  ],
+  "baseline_cells": [],
+  "original_closure_state": {
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md@eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+    "all_six_rows": "partial; closure C did not adjudicate them",
+    "coverage_source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+    "coverage_closure_now": "not_adjudicated for all six; LA-013 appendix C carries a separate closed_bounded field, retained as a distinct historical field",
+    "mutated": false,
+    "candidate_verdicts_are_not_canonical_ledger_closure": true
+  },
+  "retirements_and_preserved_owners": [
+    {
+      "retired": [
+        "src/polisyos/scientist/evidence/_shim.py"
+      ],
+      "preserved": "canonical Scientist evidence owner",
+      "proof": "complete tracked-byte token census plus runtime negative import test in tests/unit/remediation/test_hyg_04.py"
+    },
+    {
+      "retired": [
+        "src/polisyos/scientist/governance/passes/base.py",
+        "src/polisyos/scientist/governance/passes/legal_pass.py",
+        "src/polisyos/scientist/governance/passes/safety_pass.py"
+      ],
+      "preserved": "lazy scientist.governance.passes facade resolving canonical Core PassContext/LegalPass/SafetyPass class objects",
+      "proof": "tests/unit/scientist/governance/test_shared_shims.py loads the workflow-configured registry, checks class identity, runs legal/safety passes, and asserts NORM_NOT_IMPLEMENTED / UNKNOWN_MECHANISM output"
+    },
+    {
+      "retired": [
+        "policy-engine/install.sh",
+        "policy-engine/jax_bootstrap.py"
+      ],
+      "preserved": "canonical workspace bootstrap and JAX env policy in workspace tooling",
+      "proof": "checkout CLI help, dispatch argv/runtime-env probe, lightweight env-before-import controls; no JAX compilation"
+    },
+    {
+      "retired": [
+        "policy-engine/tools/research/benchmarks/harness.py",
+        "policy-engine/tools/research/benchmarks/metrics.py",
+        "policy-engine/tools/research/benchmarks/suite_registry.py",
+        "policy-engine/src/polisyos/lex/factlog.py"
+      ],
+      "preserved": "real benchmark workload and registry under benchmarks/ with polisyos-tools CLI; Fabric-owned facts consumed by Lex",
+      "proof": "actual deterministic CLI smoke workload and direct temporary-CAS Fabric→Lex consumer output"
+    },
+    {
+      "retired": [
+        "policy-engine/frontend/README.md redirect surface (path absent on candidate)"
+      ],
+      "preserved": [
+        "policy-engine/apps/runtime-dashboard",
+        "policy-engine/apps/runtime-reference-shell",
+        "policy-engine/packages/runtime-api-client",
+        "policy-engine/tools/research/benchmarks"
+      ],
+      "proof": "tests/unit/remediation/test_hyg_04.py; full package path census and actual archive membership"
+    }
+  ],
+  "census": {
+    "tracked_byte_scan": {
+      "candidate_commit": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "candidate_tree": "fe4ed5b6e2369a73376f9e66c99f0b99d5013ce9",
+      "input_manifest": "git ls-files -z at candidate tree",
+      "method": "read every tracked path as bytes and scan exact ASCII tokens; file types classified by tracked path suffix; no untracked scratch included",
+      "tracked_path_denominator": 13688,
+      "tracked_bytes_read": 448658436,
+      "file_type_denominator": {
+        ".blob": 11,
+        ".cfg": 1,
+        ".cjs": 9,
+        ".css": 17,
+        ".csv": 15,
+        ".cypher": 2,
+        ".docx": 1,
+        ".duckdb": 4,
+        ".example": 3,
+        ".fixture": 2,
+        ".html": 3,
+        ".ini": 11,
+        ".js": 4,
+        ".json": 2954,
+        ".jsonc": 1,
+        ".jsonl": 14,
+        ".lock": 1,
+        ".log": 20,
+        ".md": 2146,
+        ".mdc": 1,
+        ".mjs": 40,
+        ".patch": 2,
+        ".pkl": 2,
+        ".png": 42,
+        ".py": 6430,
+        ".pyi": 5,
+        ".rego": 23,
+        ".reproducible": 1,
+        ".retired": 1,
+        ".sh": 45,
+        ".sha256": 1,
+        ".sql": 6,
+        ".sqlite": 2,
+        ".sqlite-wal": 2,
+        ".svg": 18,
+        ".tf": 1,
+        ".tmpl": 7,
+        ".toml": 264,
+        ".tpl": 1,
+        ".ts": 519,
+        ".tsv": 6,
+        ".tsx": 720,
+        ".txt": 108,
+        ".typed": 2,
+        ".webm": 6,
+        ".whl": 1,
+        ".xml": 20,
+        ".yaml": 85,
+        ".yml": 71,
+        ".zip": 8,
+        "[no-extension]": 29
+      },
+      "unique_files_with_any_query_token": {
+        "shim helper APIs install_module_shim/shim_getattr/shim_dir": 5,
+        "retired import path tokens": 17,
+        "setup addresses install.sh/jax_bootstrap.py": 19,
+        "frontend/README.md": 23
+      },
+      "interpretation": [
+        "No retired-import path token was found under policy-engine/src/ or policy-engine/tools/. Positive retired-import hits occur in tests, HYG requirement/closure material, archived plans, prior architecture baselines, or historical evidence.",
+        "Current textual install.sh hits in build/startup paths resolve to third-party installer URLs (Astral uv, Syft, Grype), not policy-engine/install.sh.",
+        "The live current architecture guide is a counterexample to zero-stale-address claims: policy-engine/docs/explanation/architecture.md:292 calls frontend/ a placeholder and :302 lists install.sh and jax_bootstrap.py as root files, while candidate checkout has no frontend/, install.sh, or jax_bootstrap.py. Held for documentation-owner cleanup; source was frozen on request."
+      ],
+      "query_groups": {
+        "shim_helper_apis": [
+          "install_module_shim",
+          "shim_getattr",
+          "shim_dir"
+        ],
+        "retired_imports": [
+          "polisyos.scientist.evidence._shim",
+          "polisyos.scientist.governance.passes.base",
+          "polisyos.scientist.governance.passes.legal_pass",
+          "polisyos.scientist.governance.passes.safety_pass",
+          "polisyos.lex.factlog",
+          "tools.research.benchmarks.harness",
+          "tools.research.benchmarks.metrics",
+          "tools.research.benchmarks.suite_registry"
+        ],
+        "setup_addresses": [
+          "install.sh",
+          "jax_bootstrap.py"
+        ],
+        "redirect_address": [
+          "frontend/README.md"
+        ]
+      }
+    },
+    "architecture_registries": {
+      "dynamic_imports": {
+        "path": "policy-engine/architecture/imports/dynamic.toml",
+        "candidate_blob_sha": "41b50d99a7a2944377b822d22b756e58e4a778b1",
+        "pattern_row_denominator": 204,
+        "missing_source_files": 0,
+        "target_resolution": "not_established: declared targets include import names/expressions and were not validated by path existence",
+        "header": {
+          "review_owner": "team-architecture",
+          "reviewed_at": "2026-05-06",
+          "review_expires": "2026-08-04"
+        },
+        "state": "held; generic team owner is not a current named typed-held supplier/reviewer; expiry elapsed",
+        "p41": "changed paths include this manifest, so this red intersects the candidate's input and cannot be labeled inherited"
+      },
+      "package_layout": {
+        "path": "policy-engine/architecture/packages/layout.toml",
+        "candidate_blob_sha": "40c4203810498b8b2dbcbc3155d10c2977d1007b",
+        "root_file_exception_denominator": 36,
+        "missing_declared_paths": 0
+      },
+      "shim_registry": {
+        "path": "policy-engine/architecture/shims.toml",
+        "candidate_blob_sha": "c289e70388c0a2c6f629f2411b41bf45c91a9f4d",
+        "remaining_shim_records": 16,
+        "retired_records_absent": true
+      }
+    },
+    "apps_packages_archive_denominator": {
+      "tracked_paths": 1454,
+      "readme_paths": 24,
+      "non_readme_paths": 1430,
+      "scope": "complete tracked policy-engine/apps and policy-engine/packages paths in the packaging harness at candidate tree",
+      "wheel_members_except_RECORD": 3445,
+      "sdist_members": 8042,
+      "wheel_apps_packages_members": 0,
+      "sdist_apps_packages_members": 24,
+      "sdist_workspace_content": "exactly the 24 README.md paths; all 1430 non-README paths excluded",
+      "source_set": "native Hatchling build input discovered from repository file list plus actual hatch.toml includes/force-include; README-only exception tested through archive members"
+    }
+  },
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/repo_quality/tools/test_hatch_packaging.py::test_native_backend_preserves_complete_wheel_and_sdist_contract tests/repo_quality/tools/test_hatch_packaging.py::test_missing_or_wrong_native_config_is_detected_by_real_build[workspace_sdist] -q",
+      "target_sha": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "environment": "macOS arm64, Python 3.14; Hatchling 1.32.4 and trove-classifiers imported from existing local dependency cache; no install/network",
+      "input_closure": "actual Hatchling wheel/sdist builds in isolated scratch; complete tracked workspace path denominator; mutation adds apps/packages to sdist and must expose non-README payloads",
+      "outcome": "PASS",
+      "output": "2 tests passed. Native wheel 3,445 members except RECORD; sdist 8,042 members; exact 24 workspace README files included, 1,430 non-README paths excluded, zero apps/packages wheel members. Native wheel delta is forced TOML resource with source-byte hash; sdist delta is the resource, hatch.toml, pyproject.toml. Full stdout is committed at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging.log (sha256 29c7f85561824c61db78fce1ca2b400afe928f108eba9393ac110c5435e57e36)."
+    },
+    {
+      "command": "PYTHONPATH=\"$PWD:$PWD/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli benchmarks run-all --circuit reproducibility_deterministic --mode smoke --profile air-m2 --json-dir .tmp/e02-C2/raw/hyg/benchmark-output --run-id hyg04-deterministic",
+      "target_sha": "317c96342f2c681f121d5b8f067339a25d399b2f",
+      "environment": "macOS-27.0.1 arm64; Python 3.14.0; checkout source via PYTHONPATH",
+      "input_closure": "single deterministic replay suite, smoke mode, no production inputs/comparators, no JAX compilation",
+      "outcome": "PASS",
+      "output": "Canonical public CLI resolved suite reproducibility_deterministic; 5/5 cases passed, pass_rate 1.0, 0 errors/failures/skips/over-budget; output log committed at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/benchmark.log (sha256 64cf1882c105bef4273359eba0ba1410c483f4bca8f33c8dace7ebe6144af5c2). This is a checkout workload receipt, not an installed-wheel promise. Exact original bytes are gzip encoded; uncompressed sha256=64cf1882c105bef4273359eba0ba1410c483f4bca8f33c8dace7ebe6144af5c2 (4233 bytes)."
+    },
+    {
+      "command": "Direct call of checked-out canonical workspace-bootstrap CLI main with private fake uv; exact outer caller argv was not retained",
+      "target_sha": "317c96342f2c681f121d5b8f067339a25d399b2f",
+      "environment": "macOS worktree; private fake uv at ignored .tmp path returns pinned version and intercepts sync; hooks/frontend/doctor are not run",
+      "input_closure": "public workspace bootstrap dispatch and contributor profile selection; fake uv records cwd and inner sync argv",
+      "outcome": "PASS",
+      "output": "Fake uv received cwd=policy-engine and argv sync --frozen --extra lint --extra test; the canonical bootstrap returned its ready message. The exact inner argv and output are committed at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.argv and policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.log. This proves dispatch only; no real sync/install/runtime environment was established."
+    },
+    {
+      "command": "Direct non-pytest Fabric producer to Lex consumer invocation over a temporary CAS; exact shell wrapper not retained",
+      "target_sha": "317c96342f2c681f121d5b8f067339a25d399b2f",
+      "environment": "macOS worktree; local temporary CAS; synthetic typed fixture",
+      "input_closure": "Fabric emits/writes document metadata facts and typed legal/provenance records; actual Lex selector reads them",
+      "outcome": "PASS",
+      "output": "Consumer polisyos.lex.normpack.select_sources.select_doc_sources selected doc.source.hyg18, preserved source_id/license/raw_hash/ingestion_run_id and legal access_tier/basis, and did not import polisyos.lex.factlog; committed output policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/lex-consumer.log. This establishes field preservation for the typed fixture, not legal authorization or source authority."
+    },
+    {
+      "command": "PYTHONPATH=\"$PWD/src:$PWD\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --repo-root . --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt .tmp/e02-C2/raw/hyg/production-invocation.json",
+      "target_sha": "317c96342f2c681f121d5b8f067339a25d399b2f",
+      "environment": "macOS worktree, original project venv; static direct-call analysis",
+      "input_closure": "production-invocation receipt at candidate input; static direct-call reachability only",
+      "outcome": "PASS",
+      "output": "status=passed; coverage=partial; unresolved_by_construction=9,191; unresolved_receiver_calls=139,722; runtime_invocation_established=false. Router/DI/event/callback/deferred/reflection/runtime receipt/gate substance remain unmeasured. Compact stdout is committed at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/production-invocation.stdout (sha256 51a0e89c434d30e6a2ceb4223f9ac8e22f7120cb827766bfa6f7c4935241f154); full ignored raw is 170,869,234 bytes, sha256 1a62e98b2cbacf9870ec7597356218308817cea1b5402da955da8a417a0fc790, local-only and not independently retrievable. The compact result does not substitute for the raw receipt."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check tests/repo_quality/tools/test_hatch_packaging.py",
+      "target_sha": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "environment": "original project Ruff module",
+      "input_closure": "the only file changed by harness-correction commit",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "environment": "worktree source tree",
+      "input_closure": "candidate diff through packaging harness correction",
+      "outcome": "PASS",
+      "output": "exit 0; no output"
+    },
+    {
+      "command": "Full architecture guardrails/PNPM workspace build/HYG installed-wheel runtime",
+      "target_sha": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "environment": "local Mac; PNPM slot owned by client lane; no HYG wheel install slot consumed",
+      "input_closure": "the gates required to claim full architecture, frontend command, or installed-HYG behavior",
+      "outcome": "UNRUN",
+      "output": "No receipt. Earlier architecture attempt was interrupted/resource/tooling limited and is not transferred. CAN installed audit belongs to another tree and is not HYG evidence. Root requested a fresh installed-HYG runtime audit in the next admitted slot."
+    }
+  ],
+  "unreceipted_prior_runs": [
+    {
+      "command": "PYTHONPATH=\"$PWD/src:$PWD\" original-venv-python -m pytest -c pytest.ini tests/unit/remediation/test_hyg_04.py tests/unit/scientist/governance/test_shared_shims.py tests/unit/lex/mirror_contracts/test_factlog.py tests/unit/scientist/evidence/test_evidence_sources_direct.py tests/unit/scientist/evidence/test_source_quality.py tests/repo_quality/tools/test_phase4_consolidation.py -q",
+      "reported_result": "36 passed",
+      "receipt_status": "NOT_ADMITTED; prior terminal output bytes are unavailable and were not reconstructed; rerun if independent review needs a deciding test log"
+    },
+    {
+      "command": "canonical workspace tool-configs --check, deliberate corrupt-output negative control, canonical generator restore/check",
+      "reported_result": "generator check passed; corrupt-output control failed as expected; canonical regeneration restored green",
+      "receipt_status": "NOT_ADMITTED; raw terminal outputs are unavailable and were not reconstructed"
+    },
+    {
+      "command": "ruff format --check for changed Python files",
+      "reported_result": "reported formatting request on two unchanged legacy comprehensions in the packaging test file",
+      "receipt_status": "NOT_ADMITTED; exact raw output unavailable; no unrelated formatting change was made"
+    }
+  ],
+  "property": {
+    "statement": "Retire duplicate compatibility and redirect surfaces only after canonical owners retain actual identity/workload/consumer behavior; preserve current apps/packages content and verify package artifacts from the real native build configuration.",
+    "runtime_path": [
+      "configured governance workflow → lazy Scientist facade → Core Legal/Safety pass class identity → real validation issue outputs",
+      "canonical public benchmark CLI → registered deterministic suite → retained test workload → JSON report",
+      "Fabric world fact producer → persisted temporary-CAS segment → actual Lex source selector → preserved provenance/legal fields",
+      "native Hatchling configuration → actual wheel/sdist build → complete archive member comparison"
+    ],
+    "authority_purpose": "Repository hygiene and package boundary verification only; no new policy authority or legal authorization claim.",
+    "provenance": "Pass outputs and test fixtures are local bounded fixtures. Fabric facts carry typed fixture provenance/legal fields; selection treats those fields as data and does not make an authorization decision.",
+    "rule_schema_time": "No policy rule/schema/time semantics changed. Benchmark run ID hyg04-deterministic and typed fact fixture ingestion_run_id hyg18-production identify local probe runs only.",
+    "proxy_divergence": "A marker/string inventory or successful build exit alone could pass while a stale source was omitted from the archive. The actual builder inspects every wheel/sdist member and source-byte hash, rebuilds the wheel from extracted sdist, and runs a mutation that adds apps/packages to sdist to prove non-README workspace payloads are detected.",
+    "negative_controls": [
+      "exact eight retired Python module paths fail import under a subprocess while canonical owners remain importable",
+      "configured workflow loads Core pass class objects and actual validator calls emit NORM_NOT_IMPLEMENTED / UNKNOWN_MECHANISM",
+      "packaging workspace_sdist mutation adds app/package payload witnesses and the archive property test rejects its presence",
+      "benchmark CLI output must resolve the exact suite id and all 5 numeric/symbolic smoke cases pass",
+      "Fabric→Lex consumer must return selected document source with stored typed provenance/legal fields; legacy factlog module must not load"
+    ],
+    "scope_limits": [
+      "bootstrap fake-uv run proves checkout dispatch and actual inner argv, not a real uv sync, package installation, or installed runtime",
+      "the deterministic CLI workload is checkout-only evidence; wheel CLI behavior awaits the fresh HYG install/runtime audit",
+      "archive membership does not establish real frontend workspace builds; PNPM work remains held",
+      "synthetic FactProvenance/FactLegal preservation does not establish that the source has legal authority or that license/access is an authorization decision"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Candidate-only HYG-02/04 hygiene result. It proves bounded internal canonical owner/workload paths and actual native archive membership. It does not create a new product capability and does not mutate canonical closure C status.",
+  "candidate_verdicts": [
+    {
+      "id": "LA-008",
+      "label": "closed",
+      "scope": "bounded to the complete candidate tracked-tree import/token census and runtime import-negative witnesses for the retired shim helper surface",
+      "basis": "The helper file is deleted; no retired import token remains in src/ or tools/; the exact retired import fails in a subprocess. Historical plans/baselines/tests still mention the address by design.",
+      "residual": "External dynamic consumers are unknown; no compatibility claim beyond the tracked checkout."
+    },
+    {
+      "id": "LA-009",
+      "label": "closed",
+      "scope": "bounded to configured in-repo lazy facade → canonical Core Legal/Safety passes",
+      "basis": "The registry loads concrete Core class objects through the lazy Scientist facade; actual legal/safety validation issues are asserted.",
+      "residual": "External unpublished configuration/plugin imports are unknown."
+    },
+    {
+      "id": "LA-011",
+      "label": "held",
+      "scope": "checkout CLI dispatch is witnessed; installed distribution/real setup workflow is not adjudicated",
+      "basis": "The real bootstrap main was called and private fake uv captured contributor sync argv, but actual sync/install and HYG installed runtime were not run.",
+      "capability_label": "verification_missing",
+      "next_owner": "root to request the next admitted HYG installed-runtime audit slot",
+      "residual": "Current architecture documentation still lists removed setup entrypoints at policy-engine/docs/explanation/architecture.md:302."
+    },
+    {
+      "id": "LA-012",
+      "label": "limited",
+      "scope": "canonical checkout CLI workload and tracked in-repo caller migration only",
+      "basis": "Actual public CLI resolved reproducibility_deterministic and ran 5/5 cases; call sites point to canonical benchmark package and real workload remains under benchmarks/.",
+      "capability_label": "surface_out_of_scope",
+      "residual": "External consumers and installed-wheel CLI runtime remain unknown."
+    },
+    {
+      "id": "LA-013",
+      "label": "held",
+      "scope": "actual native wheel/sdist membership only",
+      "basis": "The full apps/packages archive denominator and README-only exception pass on actual builders, with a payload negative control.",
+      "capability_label": "verification_missing",
+      "next_owner": "client lane for PNPM workspace build slot; documentation owner may correct the stale architecture diagram separately",
+      "residual": "No real frontend workspace command/build was run; the current architecture guide still lists frontend/ as a placeholder at line 292."
+    },
+    {
+      "id": "LA-018",
+      "label": "limited",
+      "scope": "one actual in-repo Fabric→temporary-CAS→Lex consumer path",
+      "basis": "The Lex selector reads persisted Fabric-produced facts and retains typed provenance and legal fields; legacy FactLog import does not load.",
+      "capability_label": "surface_out_of_scope",
+      "residual": "Fixture fields are not authority verification; external consumer/API compatibility is unknown."
+    }
+  ],
+  "separate_held_owner_gap": {
+    "owner": "team-architecture",
+    "path": "policy-engine/architecture/imports/dynamic.toml",
+    "candidate_blob_sha": "41b50d99a7a2944377b822d22b756e58e4a778b1",
+    "predicate": "expiry/current sufficiency of the complete dynamic-import registry review",
+    "basis": "P41 changed input intersects the exact gate artifact, so it cannot be carried as inherited.",
+    "state": "held",
+    "reason": "204 source rows resolve to existing source files, but target resolution was not established; the generic review owner is team-architecture, review expiry 2026-08-04 is elapsed, and the current named typed-held supplier/reviewer is missing.",
+    "repair_owner_needed": "Team-architecture must appoint a current named reviewer/typed-held supplier and perform complete row review; do not renew the expiry by header edit alone."
+  },
+  "limitations_and_next_owner": [
+    "Do not interpret candidate labels as amendments to closure-decisions/C.md or coverage.json; all six canonical historical rows remain partial/not_adjudicated.",
+    "No broad architecture guardrails, PNPM workspace build, or HYG installed-wheel runtime receipt is admitted. A sibling CAN installed audit on another worktree is not transferable.",
+    "Full production-invocation JSON is ignored local data; only path/size/SHA and its direct compact stdout are referenced. The 170 MB raw is not embedded or copied.",
+    "Missing prior 36-test and tool-config terminal bytes remain explicitly unreceipted; no reconstructed stdout is included.",
+    "A fresh independent HYG installed-runtime audit is the next admitted owner slot; no HYG install was attempted by this author.",
+    "Current documentation residual: architecture.md still describes the frontend/ placeholder and deleted install.sh/jax_bootstrap.py in its root-tree illustration. Scoped impact is diagram freshness; this receipt does not claim it blocks the proven in-repo consumer/package properties."
+  ],
+  "evidence_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging.txt",
+      "sha256": "29c7f85561824c61db78fce1ca2b400afe928f108eba9393ac110c5435e57e36",
+      "bytes": 1489,
+      "role": "deciding current native Hatchling wheel/sdist output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging-precorrection.txt.gz",
+      "sha256": "5befa95b2a08cdd36f9f6c3b5ab91692694b7d1382797b5227de3ddd593164ba",
+      "bytes": 1512,
+      "role": "pre-correction harness failure; not a product failure or candidate acceptance receipt",
+      "encoding": "gzip",
+      "uncompressed_bytes": 4881,
+      "uncompressed_sha256": "7861c06360bb63e97424ec71af805931d4c4fe65c1ffd613a24ed98cd09e6798"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/benchmark.txt.gz",
+      "sha256": "55e70ad24a452d53ad70e0fa829f9717de516c1e13436af995a04008d75d5efd",
+      "bytes": 1363,
+      "role": "canonical checkout CLI deterministic benchmark output",
+      "encoding": "gzip",
+      "uncompressed_bytes": 4233,
+      "uncompressed_sha256": "64cf1882c105bef4273359eba0ba1410c483f4bca8f33c8dace7ebe6144af5c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.txt",
+      "sha256": "e0776cc147d22f84f8db63db40558e15ed4833e9ab943de447859f220da17e49",
+      "bytes": 56,
+      "role": "checkout bootstrap with private fake uv; dispatch only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.argv",
+      "sha256": "1054fab394ccb7335b87a4e71cf3b0363277b22ee84911cc7688bb6c80c8e382",
+      "bytes": 127,
+      "role": "argv/cwd actually observed by fake uv"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/lex-consumer.txt",
+      "sha256": "fe7cd75d8a8dcf396dd0810f76055839cab0fe22cca61b0726ffc92f75fb558e",
+      "bytes": 491,
+      "role": "direct temporary-CAS Fabric producer to Lex consumer output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/production-invocation.stdout",
+      "sha256": "51a0e89c434d30e6a2ceb4223f9ac8e22f7120cb827766bfa6f7c4935241f154",
+      "bytes": 1331,
+      "role": "compact output of static diagnostic"
+    }
+  ],
+  "handoff_created_on": "2026-10-06"
+}

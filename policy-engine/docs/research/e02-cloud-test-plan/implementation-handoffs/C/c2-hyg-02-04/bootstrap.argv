@@ -1,0 +1,7 @@
+cwd=/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine
+sync
+--frozen
+--extra
+lint
+--extra
+test

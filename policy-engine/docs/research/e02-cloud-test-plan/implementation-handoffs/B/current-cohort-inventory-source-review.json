@@ -1,0 +1,277 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-cohort-inventory-source-review",
+  "reviewer": "cmp_res_probe",
+  "author": "adapters_probe",
+  "branch": "codex/e02-B-current-composition",
+  "related_finding_ids": [],
+  "bundle_ids": [],
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "reviewer_workspace_base_sha": "9df976bf7151914333b05a8a9a7513265da4fa68",
+  "reviewer_workspace_base_tree": "3eb1a6156b8f013d36616c94fe78cb0cb35a1e80",
+  "reviewed_source_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+  "reviewed_tree_sha": "886c0df7e6d0ee867021b122ab9c680bb140a3c4",
+  "implementation_commits": [
+    "a27bf39edd7248baf000f1be35d9bcbf5be92f2f",
+    "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1"
+  ],
+  "reviewed_source_binding": {
+    "source_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+    "git_blob": "1359fec9c8f652a76ad9129636b5fb90aef45417",
+    "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+    "bytes": 20488
+  },
+  "author_handoff_binding": {
+    "source_sha": "4a128c419f16e9d8aca39b1e811353bbef60262e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.json",
+    "git_blob": "4a256f43fdaca1e14f68eecfd9c0e8c87baa472e",
+    "sha256": "03dd3430b719c3c69eb4ab7ca8898a1f8dc6b20cf9b3ed9eb5faabd78c0bfb4e",
+    "bytes": 28565
+  },
+  "author_handoff_qualification": "Relevant declared observer/loading/input limits read; four author static checks are not independent runtime acceptance and are not adopted as such.",
+  "author_remote_custody": {
+    "branch": "codex/e02-B-current-adapters",
+    "observed_ls_remote_head": "4a128c419f16e9d8aca39b1e811353bbef60262e",
+    "fresh_FETCH_HEAD": "4a128c419f16e9d8aca39b1e811353bbef60262e",
+    "source_is_ancestor_of_fetched_head": true,
+    "readback": "Exact source/tree/blob/SHA256 independently resolved from fetched Git objects; fresh fetch/readback completed."
+  },
+  "scope": "Complete20488-byte observer source read at immutable e692. Actual installed pytest9.0.2 source semantics read without importing observer/pytest or running collection, tests, lint/type gates or runtime probes. Independent source-only review; no helpers/worktrees/canonical source edits.",
+  "verdict": "NO_SOURCE_BLOCKER_WITH_EXPLICIT_HOOK_TIME_CONSUMER_QUALIFICATION",
+  "runtime_verdict": "UNRUN_BY_THIS_REVIEWER",
+  "capability_state": "implemented_observer_runtime_unrun",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Exact source identities and native pytest source contracts only; no current cohort property/output/source-consumption claim.",
+  "pytest_source_bindings": [
+    {
+      "relative_path": "_pytest/main.py",
+      "read_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py",
+      "root_environment_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/main.py",
+      "bytes": 42435,
+      "sha256": "7ca2b20cc41fbfc2761bcb231eecb26967d553651035c40000f44d70e174b693",
+      "root_bytes": 42435,
+      "root_sha256": "7ca2b20cc41fbfc2761bcb231eecb26967d553651035c40000f44d70e174b693",
+      "bytes_equal": true,
+      "read_scope": "relevant native hook/report implementation; METADATA name/version header"
+    },
+    {
+      "relative_path": "_pytest/runner.py",
+      "read_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py",
+      "root_environment_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/runner.py",
+      "bytes": 19785,
+      "sha256": "8d784b2b3e23b05f4c4edd3f5263eb11964e86b6e16d2c814c5fcb2125dc4ea4",
+      "root_bytes": 19785,
+      "root_sha256": "8d784b2b3e23b05f4c4edd3f5263eb11964e86b6e16d2c814c5fcb2125dc4ea4",
+      "bytes_equal": true,
+      "read_scope": "relevant native hook/report implementation; METADATA name/version header"
+    },
+    {
+      "relative_path": "_pytest/reports.py",
+      "read_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/reports.py",
+      "root_environment_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/reports.py",
+      "bytes": 23230,
+      "sha256": "2e9272a67cde38b925eba24a288b2ef77f741c0daa22da6fbce53ee6e58fa41d",
+      "root_bytes": 23230,
+      "root_sha256": "2e9272a67cde38b925eba24a288b2ef77f741c0daa22da6fbce53ee6e58fa41d",
+      "bytes_equal": true,
+      "read_scope": "relevant native hook/report implementation; METADATA name/version header"
+    },
+    {
+      "relative_path": "_pytest/skipping.py",
+      "read_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/skipping.py",
+      "root_environment_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/skipping.py",
+      "bytes": 10810,
+      "sha256": "5824731d5a311780f418eac9a094e7cf1fd63a82d3b0cd5e9e5498cc6ecd127c",
+      "root_bytes": 10810,
+      "root_sha256": "5824731d5a311780f418eac9a094e7cf1fd63a82d3b0cd5e9e5498cc6ecd127c",
+      "bytes_equal": true,
+      "read_scope": "relevant native hook/report implementation; METADATA name/version header"
+    },
+    {
+      "relative_path": "_pytest/terminal.py",
+      "read_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/terminal.py",
+      "root_environment_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/terminal.py",
+      "bytes": 64444,
+      "sha256": "e2fe406f930e795d09026746e8209a9a7142ac704fc0a0200af9e4f74d2104d0",
+      "root_bytes": 64444,
+      "root_sha256": "e2fe406f930e795d09026746e8209a9a7142ac704fc0a0200af9e4f74d2104d0",
+      "bytes_equal": true,
+      "read_scope": "relevant native hook/report implementation; METADATA name/version header"
+    },
+    {
+      "relative_path": "_pytest/junitxml.py",
+      "read_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/junitxml.py",
+      "root_environment_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/junitxml.py",
+      "bytes": 25522,
+      "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+      "root_bytes": 25522,
+      "root_sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+      "bytes_equal": true,
+      "read_scope": "relevant native hook/report implementation; METADATA name/version header"
+    },
+    {
+      "relative_path": "pytest-9.0.2.dist-info/METADATA",
+      "read_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest-9.0.2.dist-info/METADATA",
+      "root_environment_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest-9.0.2.dist-info/METADATA",
+      "bytes": 7558,
+      "sha256": "14131718cc1f40cfecb5eac338037029a519b6392876100afec1e949f023d1ed",
+      "root_bytes": 7558,
+      "root_sha256": "14131718cc1f40cfecb5eac338037029a519b6392876100afec1e949f023d1ed",
+      "bytes_equal": true,
+      "read_scope": "relevant native hook/report implementation; METADATA name/version header"
+    }
+  ],
+  "pytest_source_denominator": {
+    "relative_paths": 7,
+    "file_types": {
+      "python": 6,
+      "distribution_metadata": 1
+    },
+    "qualification": "Complete explicitly reviewed implementation/context set, identical bytes in shared and root isolated environments. Not all installed plugins or complete runtime import denominator."
+  },
+  "review_matrix": [
+    {
+      "property": "Actual collection item denominator and report cells",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:370",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:385",
+        "_pytest/main.py:777",
+        "_pytest/reports.py:458"
+      ],
+      "conclusion": "Native Session.perform_collect runs collection_modifyitems before collection_finish; trylast collection_finish snapshots actual post-selection session.items before execution. Every actual CollectReport retains its outcome/results; native CollectReport normalizes None result to an empty list. Collector cells are separate from selected Item leaves, and import/setup errors cannot become collected PASS.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Deselection and selector observation",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:378",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:171"
+      ],
+      "conclusion": "Observer appends records in actual pytest_deselected hook and reads config args/addopts without changing session.items, selectors, markers or hooks. Event counts are raw recorded events, not unique testcase/finding counts. Parameter values/mark arguments are intentionally omitted; nodeid retains native parameter identification.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Setup/call/teardown result binding",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:426",
+        "_pytest/runner.py:125",
+        "_pytest/runner.py:237",
+        "_pytest/main.py:686"
+      ],
+      "conclusion": "Observer keeps every delivered TestReport outcome/when/timing. Native runner calls the body only after successful setup, always emits teardown, and can fail call plus teardown for one item. Session.testsfailed increments per failed report (including failed collectors), so it is not the unique failed Item count. Setup pass and teardown pass do not establish successful call; absent runtime reports stay unresolved.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "xfail versus strictXPASS",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:394",
+        "_pytest/skipping.py:270"
+      ],
+      "conclusion": "Outer tryfirst wrapper observes report after pytest9 evaluated-xfail transformation and returns the same report unchanged. Explicit wasxfail gives skipped xfail or nonstrict passing xpass. StrictXPASS is a failed call with no exception, evaluated strict xfail and no --runxfail; native pytest9 omits wasxfail and sets strict longrepr. Exception/raises mismatch remains ordinary failure. This is actual diagnostic producer state, not marker-name inference.",
+      "runtime": "UNRUN; private xfailed_key diagnostic API bound to inspected pytest9.0.2"
+    },
+    {
+      "property": "Native JSON serializability and longrepr metadata",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:124",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:137",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:150",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:171",
+        "_pytest/reports.py:312",
+        "_pytest/reports.py:109"
+      ],
+      "conclusion": "For inspected native pytest9 item/report type contracts, selected fields reduce to strings, integers, booleans, null, lists and dicts. Native report location tuple is converted to list; CollectReport location intentionally records null. Raw arbitrary longrepr/user_properties/keywords/parameter objects are not serialized: type plus rendered longreprtext UTF8 size/SHA256 is recorded. Nonfinite timing floats become strings and json.dumps uses allow_nan=False. ExitCode becomes plain int.",
+      "qualification": "Arbitrary custom plugin properties or invalid UTF8/surrogate-bearing metadata are not type-sanitized by this instrument; writable JSON output/normal native metadata remains an execution premise. Rendering longrepr invokes pytest presentation, not scientific verification. Hash is the native report rendering identity, not a guaranteed byte-identical substring of escaped JUnit or colored stdout.",
+      "runtime": "UNRUN; no synthetic helper execution presented as proof"
+    },
+    {
+      "property": "Logical cases versus JUnit rows",
+      "source_refs": [
+        "_pytest/junitxml.py:531",
+        "_pytest/junitxml.py:623",
+        "_pytest/junitxml.py:193"
+      ],
+      "conclusion": "Pytest9 JUnit opens two testcase elements for one item whose call and teardown both fail; collector errors/skips are separate XML cells. Therefore raw XML row count, raw phase count, session.testsfailed and selected-item count have different meanings. Final consumer must reconcile actual item/phase/collector records with native stdout/JUnit instead of deriving all-green or unique cases from any one count.",
+      "runtime": "UNRUN; source guide premise only"
+    },
+    {
+      "property": "Observed sessionfinish argument versus actual child exit",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:451",
+        "_pytest/main.py:353",
+        "_pytest/terminal.py:956"
+      ],
+      "conclusion": "Observer serializes int(exitstatus), the value supplied to the pytest_sessionfinish hook. This is not a universal final process returncode: later hook wrappers/pytest.exit(returncode) can alter session.exitstatus, and wrap_session returns it after all hooks/unconfigure. Module census is likewise this hook-time snapshot before later terminal-summary/finalization imports.",
+      "required_consumer_qualification": "Root explicitly accepted these limits. Root wait4 wrapper captures actual child returncode independently and final parse joins that wrapper with inventory/phase/JUnit inputs. Instrument e692 stays unchanged; field is interpreted as observed sessionfinish argument, never substituted for process exit.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Ignored output custody and incomplete observation",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:337",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:171",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:468"
+      ],
+      "conclusion": "Configuration validates fresh absolute output inside actual Git ignored storage, uses O_EXCL/0600, and persists/fsyncs a collection checkpoint then sessionfinish snapshot. Unconfigure records explicit incomplete_no_sessionfinish when needed. Abrupt death or write failure may leave partial JSON; no output-shape-only completion claim. This is observation with a writable-output premise, not a transparent no-failure/timing sandbox.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "File origins and Git byte matching",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:89",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:221"
+      ],
+      "conclusion": "Finish hook copies current process sys.modules once and walks complete observed entries; each distinct declared backing file is stream-hashed with stable descriptor metadata and matched to exact started Git tree blob when available. Unreadable/changing/fileless/non-module/untracked origins are explicit. Loaded ignored instrument bytes are separately compared with its tracked source path. This binds backing bytes observed at this point, not actual loader reads, in-memory implementation, every transient or future finalization module.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Child modules/network/resources/xdist limits",
+      "source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:171",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:221",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py:443"
+      ],
+      "conclusion": "No universal import/resource readset is advertised. Child/transient/removed modules and fixture/data/resource/backend/network-service inputs stay unmeasured, never an empty set. Caller-chosen xdist workers receive independent suffixed exclusive artifacts; controller records worker-reported nodeids but its own annotations/module set cannot stand in for worker classifications/input closure. No process/thread/numerical quota is imposed.",
+      "runtime": "UNRUN; no xdist actual worker observation claimed"
+    }
+  ],
+  "source_noninterference": "No item/report/outcome/marker mutation in observer hooks; makereport wrapper returns original report. Instrument I/O/Git/hash/longrepr-rendering overhead and observer failures can affect process resources or exit. Actual child wrapper and native diagnostics remain separate facts, and full timing/noninterference is not established by this source review.",
+  "consumer_notes": [
+    "Use actual selected Item instances/nodeids as collection denominator; keep failed/skipped collector cells and deselected events separate.",
+    "For each native item, setup error/skip may mean no call; failed teardown is not a passing call. Both failed phases may create two JUnit rows.",
+    "Use evaluated native xfail state and delivered reports; strictXPASS is failed native outcome, not a passed test inferred from no call exception.",
+    "When nodeids repeat under keepduplicates/reruns/xdist, preserve report order and worker/invocation identity rather than collapsing arbitrary last rows. Current controller instrumentation does not supply worker-side classification by itself.",
+    "Preserve actual wait4 child exit; interpret inventory session_exitstatus only as observed pytest_sessionfinish hook argument and modules only as hook-time census.",
+    "Missing/partial inventory, interrupted items, collection errors or unreadable origins stay explicit; inventory presence cannot close a finding or establish source/input semantic adequacy."
+  ],
+  "checks": [
+    {
+      "kind": "independent_manual_source_review",
+      "target_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+      "outcome": "PASS",
+      "qualification": "SOURCE REVIEW ONLY with explicit hook-time limits; no actual observer/cohort runtime PASS."
+    },
+    {
+      "kind": "plugin_import_collection_runtime_gates",
+      "target_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+      "outcome": "UNRUN",
+      "reason": "Explicit parent read-only task; no actual collection, observer import, runtime, gates or new tests executed."
+    }
+  ],
+  "pattern_pass": {
+    "P29": "Source review and author static checks do not establish observer runtime operation.",
+    "P35": "Complete read source and declared seven-path pytest source denominator; eventual real session items/phase/collector sets remain runtime unrun.",
+    "P37": "Evaluated pytest producer semantics diagnostic only, no candidate/finding authority.",
+    "P38": "Hook argument and backing-file origins are labeled for what they actually observe, not substituted for final exit or universal input closure.",
+    "P40": "No source repair requested; agreed bounded consumer interpretation rather than instance marker patch.",
+    "P41": "No inherited-red attribution or gate waiver."
+  },
+  "limitations_and_next_owner": [
+    "B root merges source and uses exact frozen full native invocation once; no extra collection/runtime wave requested here.",
+    "ADAPTER/root consumer guide records phase/JUnit case semantics and hook-time versus actual child exit. Source e692 remains immutable.",
+    "Root/G verify actual stdout, JUnit, wrapper, complete case reconciliation and source/environment/resource inputs; no finding closure from this instrument/source review."
+  ]
+}

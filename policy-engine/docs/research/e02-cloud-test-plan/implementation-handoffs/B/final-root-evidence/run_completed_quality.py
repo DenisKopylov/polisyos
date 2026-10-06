@@ -141,8 +141,60 @@ def changed_python(sha: str) -> dict[str, object]:
     }
 
 
+def retained_architecture_inputs(sha: str, uv: Path, env: dict[str, str]) -> dict[str, object]:
+    """Bind the actual existing UV cache and an unused retained generator workspace."""
+    # This prescribed retained root is never reused or deleted; the canonical
+    # generator owner performs exclusive workspace creation, not this launcher.
+    workspace = Path("/dev/shm/e02-B-completed-architecture-" + sha[:12])  # noqa: S108
+    if workspace.exists() or workspace.is_symlink():
+        raise FileExistsError("Refuse existing generated-freshness workspace: " + str(workspace))
+    query = [str(uv), "cache", "dir"]
+    raw = subprocess.check_output(query, cwd=PRODUCT, env=env)  # noqa: S603 - read-only cache query
+    text = raw.decode().strip()
+    if not text or "\n" in text:
+        raise RuntimeError("UV cache query did not return one actual directory")
+    cache = Path(text)
+    if not cache.is_absolute() or not cache.is_dir():
+        raise RuntimeError("Actual UV cache input is unavailable; do not guess a fallback")
+    stat = cache.stat()
+    marker = cache / "CACHEDIR.TAG"
+    return {
+        "retained_workspace_root": str(workspace),
+        "uv_cache_dir": str(cache),
+        "cache_query_argv": query,
+        "cache_query_cwd": str(PRODUCT),
+        "cache_query_stdout": raw.decode(),
+        "cache_query_output_bytes": len(raw),
+        "cache_query_output_sha256": hashlib.sha256(raw).hexdigest(),
+        "cache_directory_identity": {
+            "resolved_path": str(cache.resolve(strict=True)),
+            "device": stat.st_dev,
+            "inode": stat.st_ino,
+            "mode": oct(stat.st_mode & 0o777),
+        },
+        "cache_marker_read": tool_read(marker) if marker.is_file() else None,
+        "canonical_cli_source_read": tracked_read(
+            sha, PRODUCT / "tools/devx/architecture/guardrails.py"
+        ),
+        "qualification": (
+            "Actual existing cache is a shared read-only input, not task-exclusive ownership "
+            "or offline package sufficiency proof; canonical admission decides missing inputs. "
+            "The new retained workspace preserves generator sources/environments/maps/outputs."
+        ),
+        "unresolved_by_construction": (
+            "Directory/marker identity does not enumerate cached distributions or prove "
+            "offline completeness; no cache sync, purge or fallback is performed"
+        ),
+    }
+
+
 def make_command(
-    gate: str, sha: str, scratch: Path, python: Path, uv: Path
+    gate: str,
+    sha: str,
+    scratch: Path,
+    python: Path,
+    uv: Path,
+    architecture_inputs: dict[str, object] | None = None,
 ) -> tuple[list[str], dict[str, object]]:
     """Construct the full selected gate argv and its explicit input denominator."""
     if gate in {"ruff", "format"}:
@@ -186,6 +238,8 @@ def make_command(
             *paths,
         ], inputs
     if gate == "architecture":
+        if architecture_inputs is None:
+            raise RuntimeError("Architecture requires the actual retained workspace/cache binding")
         return [
             str(uv),
             "run",
@@ -194,7 +248,11 @@ def make_command(
             "architecture",
             "guardrails",
             "check",
-        ], {"profile": "Unchanged stock architecture command; gate owns its full read receipt"}
+            "--generated-freshness-workspace-root",
+            str(architecture_inputs["retained_workspace_root"]),
+            "--generated-freshness-uv-cache-dir",
+            str(architecture_inputs["uv_cache_dir"]),
+        ], architecture_inputs
     if gate == "runtime-api":
         return [
             str(uv),
@@ -320,7 +378,10 @@ def main() -> None:
         if args.gate in {"verify-uncapped", "parity-uncapped"}
         else None
     )
-    argv, inputs = make_command(args.gate, args.sha, args.scratch, python, uv)
+    architecture_inputs = (
+        retained_architecture_inputs(args.sha, uv, env) if args.gate == "architecture" else None
+    )
+    argv, inputs = make_command(args.gate, args.sha, args.scratch, python, uv, architecture_inputs)
     raw = HARNESS / "raw/review"
     raw.mkdir(parents=True, exist_ok=True)
     tag = "completed-final-" + args.gate + "-" + args.sha[:12]
@@ -359,6 +420,7 @@ def main() -> None:
                 "LANG",
                 "UV_PROJECT_ENVIRONMENT",
                 "UV_NO_SYNC",
+                "UV_CACHE_DIR",
                 "POLISYOS_METRICS_PORT",
                 "TIKTOKEN_CACHE_DIR",
                 "E02_ORACLE_PRODUCT_ROOT",

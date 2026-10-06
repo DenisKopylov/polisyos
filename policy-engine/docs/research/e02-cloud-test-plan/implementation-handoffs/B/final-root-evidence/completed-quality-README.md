@@ -34,7 +34,17 @@ executor. It uses the repository configuration, actual stubs/plugins,
 inventory is byte-bound; this inventory does not claim an observed import graph.
 No skipped-import or Any waiver is added.
 
-Architecture, runtime API and production-invocation keep stock gate argv.
+Runtime API and production-invocation keep stock gate argv. Architecture adds
+the canonical pair `--generated-freshness-workspace-root` and
+`--generated-freshness-uv-cache-dir`. Its fresh retained generator workspace is
+`/dev/shm/e02-B-completed-architecture-SHA12`; an existing path is refused and
+never removed. The actual pinned `uv cache dir` result is obtained with the
+same child environment and bound by query output and directory/marker identity.
+This existing shared read-only cache is not task-exclusive ownership or proof
+that offline packages are complete. Canonical offline admission may honestly
+return missing-input/UNRUN. No cache sync, purge, fallback or skip option is added.
+Generator source, private environments, family maps and deciding output remain
+under the retained workspace instead of a temporary auto-cleaned directory.
 Production-invocation uses the published base and an unused full JSON receipt
 in scratch; its grade is static diagnosis. Uncapped verify/parity reuse the
 existing complete canonical-constituent projection and stock seven-field

@@ -1,0 +1,298 @@
+{
+  "matching_cells": 3,
+  "cells": [
+    {
+      "id": "F02-P052",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.97",
+      "rss_kib": "94200",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "180",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P055",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.010115385055542",
+      "rss_kib": "100028",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "178",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F13-P060",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.98",
+      "rss_kib": "114376",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "187",
+      "extra_json": "{}"
+    }
+  ],
+  "finding_routes": [
+    {
+      "finding_id": "B152",
+      "unit": "B",
+      "cell_id": "F02-P052",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B152"
+    },
+    {
+      "finding_id": "B152",
+      "unit": "B",
+      "cell_id": "F08-P055",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B152"
+    },
+    {
+      "finding_id": "B152",
+      "unit": "B",
+      "cell_id": "F13-P060",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B152"
+    }
+  ],
+  "finding_basis": [
+    {
+      "finding_id": "B152",
+      "bundle_ids": [
+        "CAS-03"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#cas-03; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B152",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B152",
+      "assigned_routes": [
+        {
+          "job": "F02",
+          "ref": "research_main",
+          "cell_ids": [
+            "F02-P052"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P055"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P060"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_contexts": [
+    {
+      "job": "F02",
+      "source_text": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+        "sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+        "bytes": 61014
+      },
+      "metadata": {
+        "job": "F02",
+        "run": "20261005T074246Z",
+        "role": "research_main",
+        "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "manifest_sha256": "1487b06837c99c3f00b02acb38ddf301917ee5f2d34aa32c05e80529860ef52b",
+        "environment": {
+          "os": "Linux Debian 13",
+          "arch": "x86_64",
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpu_quota_cores": 4,
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "installed_distributions": 241,
+          "distribution_profile_unchanged_after_series": true,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "free_disk_before_every_install_build_ge_20_GiB": true,
+          "profile": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "causal-discovery-scale",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "frozen_base_sync": {
+            "exit": 0,
+            "wall_s": 37.203
+          },
+          "frozen_union_sync": {
+            "exit": 0,
+            "wall_s": 49.124
+          },
+          "frozen_pnpm_install": {
+            "exit": 0,
+            "wall_s": 2.062
+          },
+          "property_controls_absent_in_all_140_primary_children": true,
+          "effective_hypothesis_database": "/workspace/polisyos/policy-engine/_cache/hypothesis",
+          "hypothesis_boundary": "Native conftest overrides nominal per-attempt storage; shared effective database preserved and recorded."
+        }
+      },
+      "grade": "source-reported compact text, raw archive not transferred; navigation only, not deciding new fix proof"
+    },
+    {
+      "job": "F08",
+      "source_text": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+        "sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+        "bytes": 95586
+      },
+      "metadata": {
+        "job": "F08",
+        "run": "20261005T0746Z",
+        "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+        "manifest_sha256": "9f127589aca86d743c482b2e68a3d330e148248109b5f84e69d4497b8aafbc9f",
+        "environment": {
+          "os": "Debian 13",
+          "architecture": "x86_64",
+          "cpu_max": "400000 100000",
+          "effective_cpu_quota": 4,
+          "memory_max_bytes": 17179869184,
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "distribution_count": 253,
+          "distribution_metadata_drift": [],
+          "numerical_threads": 1,
+          "jax_platforms": "cpu"
+        }
+      },
+      "grade": "source-reported compact text, raw archive not transferred; navigation only, not deciding new fix proof"
+    },
+    {
+      "job": "F13",
+      "source_text": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+        "sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+        "bytes": 87536
+      },
+      "metadata": {
+        "job": "F13",
+        "run": "20261005T074808Z",
+        "source_role": "integration_head",
+        "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "manifest_sha256": "2747a065030762fc81609e59e81db0029ac11cc6064f29e3d81a5cf3e289fe31",
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.22.0",
+          "pnpm": "10.33.2",
+          "installed_distributions": 241,
+          "installed_version_changes": 0,
+          "numeric_threads": 1,
+          "JAX_PLATFORMS": "cpu"
+        },
+        "selected_profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "lock_hashes": {
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+        },
+        "environment_segments": [
+          "Initial pnpm install omitted explicit CI=true; a retained CI=true frozen readback completed before tests.",
+          "Bare uv PATH corrected during F13-P002; prior generic uv child selection is not established.",
+          "Generic Python entrypoints corrected during F13-P009; corrected wrappers verified the assigned venv prefix. Prior generic child selections are not established.",
+          "Every primary pytest invocation used the absolute assigned .venv Python.",
+          "After frozen union disk free was below 20 GiB; no further manual dependency or extension installations were performed."
+        ]
+      },
+      "grade": "source-reported compact text, raw archive not transferred; navigation only, not deciding new fix proof"
+    }
+  ],
+  "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding B152 --details --job-context --limit 30"
+}

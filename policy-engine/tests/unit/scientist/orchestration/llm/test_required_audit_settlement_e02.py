@@ -343,6 +343,29 @@ def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
         assert error.event["required_audit_status"] == "pending"
         assert obligation.action == action
         assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+        original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
+        original_digest = obligation.payload_digest
+        detached_metadata = dict(obligation.metadata)
+        if "budget_keys" in detached_metadata:
+            detached_metadata["budget_keys"].append("different-caller-key")
+        else:
+            detached_metadata["payload_digest"] = "sha256:" + "0" * 64
+        print(
+            "B65_DETACHED_METADATA "
+            + json.dumps(
+                {
+                    "route": route,
+                    "action": action,
+                    "original_metadata": json.loads(original_metadata),
+                    "mutated_caller_view": detached_metadata,
+                    "retained_metadata": dict(obligation.metadata),
+                    "original_digest": original_digest,
+                    "retained_digest": obligation.payload_digest,
+                }
+            )
+        )
+        assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
+        assert obligation.payload_digest == original_digest
         initial_calls = len(provider.responses)
         assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
         if initial_calls:

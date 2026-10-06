@@ -8,7 +8,10 @@ import pytest
 
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
 from polisyos.scientist.methods.search.objective import OptimizationDirection
-from tests.unit.scientist.methods.search.strategies.test_transfer import measured_history
+from tests.unit.scientist.methods.search.strategies.test_transfer import (
+    changed_history,
+    measured_history,
+)
 
 
 def test_loads_native_discovery_and_uses_same_canonical_reader_for_replay(tmp_path):
@@ -73,3 +76,22 @@ def test_reverse_replay_requires_the_configured_metric(tmp_path):
             loop_id="receiver",
             primary_metric="invented",
         )
+
+
+def test_malformed_source_refusal_remains_visible_after_receiving_admission(tmp_path):
+    store, index, manager, source, target, _, basis = measured_history(tmp_path, count=2)
+    source = changed_history(
+        store, source, lambda payload: payload["evaluations"][0].update(stage_a_passed="false")
+    )
+    metadata = source.model_dump(mode="json", exclude={"history_ref", "embedding"})
+    metadata["history_ref"] = source.history_ref.model_dump(mode="json")
+    index.add(source.run_id, source.embedding, metadata)
+    bridge = WarmStartBridge(manager)
+    rows = bridge.load_warm_start(target)
+    assert len(rows) == 1
+    assert bridge.admit_warm_start(rows, basis) == rows
+    assert bridge.last_admission_report["loaded"] == 1
+    assert bridge.last_admission_report["rejected"] == 0
+    assert bridge.last_load_report["loaded"] == 2
+    assert bridge.last_load_report["accepted"] == 1
+    assert bridge.last_load_report["rejected"] == 1

@@ -399,3 +399,41 @@ def test_unknown_history_codec_refuses_before_caching_or_training(tmp_path):
     assert manager.get_warm_start_evaluations([altered], target_fingerprint=target) == []
     assert manager.last_admission_report["unavailable"] == 1
     assert manager.cache_info["entries"] == 0
+
+
+def test_original_benchmark_physical_input_cannot_coerce_boolean_to_number(tmp_path):
+    store, _, manager, source, target, _, _ = measured_history(tmp_path, count=2)
+    candidate = store.put_json(
+        {"x": 1.0},
+        artifacts.PutOptions(kind="search.candidate", media_type="application/json"),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+
+    def mutate(payload):
+        row = payload["evaluations"][0]
+        row.update(
+            candidate_id=str(candidate.artifact_id), params={"x": 1.0}, params_normalized=[1.0]
+        )
+        original_ref = artifacts.ArtifactRef.model_validate(row["metadata"]["evaluation_ref"])
+        original = BenchmarkEvaluation.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(original_ref))
+        )
+        ref = persist_benchmark_evaluation(
+            store,
+            original.model_copy(
+                update={
+                    "candidate_ref": candidate,
+                    "metadata": {**original.metadata, "params": {"x": True}},
+                }
+            ),
+        )
+        row["metadata"].update(
+            candidate_ref=candidate.model_dump(mode="json"),
+            evaluation_ref=ref.model_dump(mode="json"),
+            params={"x": 1.0},
+        )
+        row["provenance_ref"] = str(ref.artifact_id)
+
+    altered = changed_history(store, source, mutate)
+    assert len(manager.get_warm_start_evaluations([altered], target_fingerprint=target)) == 1
+    assert manager.last_admission_report["rejected"] == 1

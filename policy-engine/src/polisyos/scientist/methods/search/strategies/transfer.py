@@ -439,9 +439,7 @@ class TransferLearningManager:
         actual_params = {
             spec["name"]: source_params[spec["name"]] for spec in basis.bounds["parameters"]
         }
-        if actual_params != evaluation.params or any(
-            type(actual_params[k]) is not type(evaluation.params[k]) for k in actual_params
-        ):
+        if not self._physical_input_matches(actual_params, evaluation.params, basis):
             raise ValueError("Original candidate physical parameters disagree")
         normalized = self._physical(evaluation.params, basis)
         if len(normalized) != len(evaluation.params_normalized) or any(
@@ -499,7 +497,7 @@ class TransferLearningManager:
         for name in NumericTransferBasis.model_fields:
             if name.endswith("_ref"):
                 self._resolved(getattr(basis, name))
-        if bench.metadata.get("params") != evaluation.params:
+        if not self._physical_input_matches(bench.metadata.get("params"), evaluation.params, basis):
             raise ValueError("Original measurement physical input disagrees")
         raw = self._number(payload["selection_metrics"][basis.metric], "original metric")
         if len(evaluation.objectives) != 1:
@@ -517,6 +515,18 @@ class TransferLearningManager:
         ):
             raise ValueError("Original metric, direction or scalarization disagrees")
         return bench
+
+    @classmethod
+    def _physical_input_matches(
+        cls, actual: Any, declared: dict[str, Any], basis: NumericTransferBasis
+    ) -> bool:
+        """Bind both original persisted inputs with typed physical domain semantics."""
+        if not isinstance(actual, dict):
+            raise ValueError("Original physical input must be an object")
+        cls._physical(actual, basis)
+        return actual == declared and all(
+            type(actual[key]) is type(declared[key]) for key in actual
+        )
 
     def target_basis(self, fingerprint: RunFingerprint) -> NumericTransferBasis:
         """Snapshot an explicit configured target; a source row cannot establish it."""

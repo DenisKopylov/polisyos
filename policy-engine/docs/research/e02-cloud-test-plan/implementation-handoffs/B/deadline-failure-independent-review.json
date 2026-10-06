@@ -1,0 +1,533 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "deadline-failure-independent-review",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "01129503d3cbfd6d77ef5dab85ac08e5c2e4a644",
+  "implementation_commits": [
+    "267ddcbf723c1659ac256992b8e34453743d265f",
+    "8c4b3ac36ae9d2ec2027c74d7f3621bbcb8c935f"
+  ],
+  "candidate_tree_sha": "842c0a6d302b2406db650b962cab92699b2b6b0c",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/audit-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/instrument-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/peer-native-review.json"
+  ],
+  "baseline_cells": [],
+  "reviewed_root_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "reviewed_root_source_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "reviewer": "/root/cas_probe; independent from EXE deadline source/test author",
+  "checks": [
+    {
+      "command": {
+        "complete_original_argv_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+          "bytes": 2338,
+          "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+        },
+        "whole_native_args_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.args",
+          "bytes": 6260,
+          "sha256": "7d647d55bce7b11638790942a70ada6f7a5a970b72bc20337fae9bf09ec8467d"
+        },
+        "profile_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+          "bytes": 10440,
+          "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+        },
+        "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]"
+      },
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "target_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "environment": {
+        "original_root_isolated_python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "identity_source": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+          "bytes": 10440,
+          "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+        },
+        "repo_pytest_profile": "actual frozen root native command; original default importlib profile, no leaf replay"
+      },
+      "input_closure": {
+        "original_whole_file_input_count": 110,
+        "explicit_whole_test_module": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "source_refs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b",
+            "bytes": 17286,
+            "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+            "bytes": 102653,
+            "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+            "bytes": 7518,
+            "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/common/async_tools.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+            "bytes": 11846,
+            "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/run/context.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "f391bf676c8f1feb6bf31ede8be7491e5be3b989",
+            "bytes": 16275,
+            "sha256": "c91029ec1e99435dbdbd234e47e796e90fcbe1f8897e7ac07f4abf9c75f4bc2c",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "0b5a7ff298a836f32dbe499ed9da5b2b148976b7",
+            "bytes": 189110,
+            "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9",
+            "current_worktree_bytes_equal_frozen_git": true
+          }
+        ],
+        "fixture_root": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1",
+        "complete_38_file_identity_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/audit-stdout.json",
+          "source_sha": "267ddcbf723c1659ac256992b8e34453743d265f",
+          "bytes": 75681,
+          "sha256": "54c85e79ee4181460340b5613a951799b51ffd22300aeff0f9fa51d22c9cfffb"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "whole_stdout": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+          "bytes": 1431050,
+          "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+        },
+        "whole_junit": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+          "bytes": 1333443,
+          "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+        },
+        "inventory": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+          "bytes": 15412075,
+          "sha256": "48b98aad10a0ea46954f6aa0f9f166114f699672b6d332aaf78df8b7e3fe04c8"
+        },
+        "literal_failure_and_task_traceback_and_fixture_events": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/audit-stdout.json",
+          "source_sha": "267ddcbf723c1659ac256992b8e34453743d265f",
+          "bytes": 75681,
+          "sha256": "54c85e79ee4181460340b5613a951799b51ffd22300aeff0f9fa51d22c9cfffb"
+        },
+        "deciding_summary": "entered.wait(5) false; finally finished.wait(5) false before gather. Actual unhandled task expires during preceding workflow_spec. Target-specific late entered-I/O premise not established; original FAIL retained."
+      }
+    },
+    {
+      "command": [
+        "python3",
+        ".polisyos/e02-B-current/raw/deadline-failure-audit/audit.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "target_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "environment": {
+        "auditor_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "auditor_python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "role": "read-only metadata/source/log/fixture parser; no product execution"
+      },
+      "input_closure": {
+        "instrument_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/instrument-custody.json",
+          "source_sha": "267ddcbf723c1659ac256992b8e34453743d265f",
+          "bytes": 13091,
+          "sha256": "c47af6487d644ea45982545498eb8251a156f6447a6cc544bff6733501f6b21f"
+        },
+        "original_profile_refs": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+            "bytes": 1431050,
+            "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+            "bytes": 1333443,
+            "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+            "bytes": 2338,
+            "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+            "bytes": 10440,
+            "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+            "bytes": 15412075,
+            "sha256": "48b98aad10a0ea46954f6aa0f9f166114f699672b6d332aaf78df8b7e3fe04c8"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.args",
+            "bytes": 6260,
+            "sha256": "7d647d55bce7b11638790942a70ada6f7a5a970b72bc20337fae9bf09ec8467d"
+          }
+        ],
+        "all_fixture_hashes_and_mtime_inode_identity": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/audit-stdout.json",
+          "source_sha": "267ddcbf723c1659ac256992b8e34453743d265f",
+          "bytes": 75681,
+          "sha256": "54c85e79ee4181460340b5613a951799b51ffd22300aeff0f9fa51d22c9cfffb"
+        },
+        "source_refs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b",
+            "bytes": 17286,
+            "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+            "bytes": 102653,
+            "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+            "bytes": 7518,
+            "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/common/async_tools.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+            "bytes": 11846,
+            "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/run/context.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "f391bf676c8f1feb6bf31ede8be7491e5be3b989",
+            "bytes": 16275,
+            "sha256": "c91029ec1e99435dbdbd234e47e796e90fcbe1f8897e7ac07f4abf9c75f4bc2c",
+            "current_worktree_bytes_equal_frozen_git": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+            "git_blob": "0b5a7ff298a836f32dbe499ed9da5b2b148976b7",
+            "bytes": 189110,
+            "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9",
+            "current_worktree_bytes_equal_frozen_git": true
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/audit-stdout.json",
+        "source_sha": "267ddcbf723c1659ac256992b8e34453743d265f",
+        "bytes": 75681,
+        "sha256": "54c85e79ee4181460340b5613a951799b51ffd22300aeff0f9fa51d22c9cfffb"
+      },
+      "meaning": "Complete bounded custody and predicate reconciliation only; original case remains FAIL and direct task/fixture object identity remains qualified."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+        "--basetemp",
+        "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest-cache",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "actual_source_checkout_head": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+      "test_lane_sha": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+      "environment": {
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "published_peer_head": "2cb45353f9e5c1b46d0af15d2b5110036629084b",
+        "published_peer_tree": "7e38e042e78afe8b4167587a8f2b866391b6d211",
+        "peer_handoff": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation.json",
+          "bytes": 88707,
+          "sha256": "2268474875d4f0f00b03e988a9358e3ac3536b0dbcc34db031a85341e9ab7224"
+        },
+        "all_peer_evidence_refs_git_bytes_sha256_reconciled": 69,
+        "source_and_selected_test_unchanged": true,
+        "source_identity_qualification": "Actual root production imports at metadata checkout bbb93; bytes match frozen4e, not whole checkout/tree equal4e. Selected native test/config copies in admitted EXE lane unchanged.",
+        "independent_review_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/peer-native-review.json",
+          "source_sha": "8c4b3ac36ae9d2ec2027c74d7f3621bbcb8c935f",
+          "bytes": 19636,
+          "sha256": "6fe3dbbf387990ff67b48a8253cd8e589cdf946926939046c0f3ba5ebf5252f6"
+        }
+      },
+      "outcome": "PASS",
+      "native_case_count": 1,
+      "output": {
+        "stdout": {
+          "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/stdout.txt",
+          "sha256": "a68cdc653c7c4ba3b2d9f064e9b93c305be1b95efade8882ccea5ee1e3da17be",
+          "bytes": 1525
+        },
+        "junit": {
+          "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml",
+          "sha256": "af7c7869753f686e38b71e7b88fe49b08f55759e832cb42cfadb12db6174e4f9",
+          "bytes": 464
+        },
+        "whole_independent_audit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/peer-native-review.json",
+          "source_sha": "8c4b3ac36ae9d2ec2027c74d7f3621bbcb8c935f",
+          "bytes": 19636,
+          "sha256": "6fe3dbbf387990ff67b48a8253cd8e589cdf946926939046c0f3ba5ebf5252f6"
+        }
+      },
+      "qualification": "Actual author native1PASS independently audited readonly; no duplicate reviewer runtime. Does not erase original whole-cohort FAIL or reproduce its previous scheduler/load history."
+    },
+    {
+      "command": [
+        "python3",
+        ".polisyos/e02-B-current/raw/deadline-failure-audit/review-peer.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "2cb45353f9e5c1b46d0af15d2b5110036629084b",
+      "target_tree": "7e38e042e78afe8b4167587a8f2b866391b6d211",
+      "environment": "read-only Git/source/complete native stdout/JUnit/readback reconciliation; no runtime/gate replay",
+      "input_closure": {
+        "all_peer69evidence_refs": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation.json",
+          "bytes": 88707,
+          "sha256": "2268474875d4f0f00b03e988a9358e3ac3536b0dbcc34db031a85341e9ab7224"
+        },
+        "exact_auditor_code_stdout_and_hashes": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/peer-native-review.json",
+          "source_sha": "8c4b3ac36ae9d2ec2027c74d7f3621bbcb8c935f",
+          "bytes": 19636,
+          "sha256": "6fe3dbbf387990ff67b48a8253cd8e589cdf946926939046c0f3ba5ebf5252f6"
+        }
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/peer-native-review.json",
+        "source_sha": "8c4b3ac36ae9d2ec2027c74d7f3621bbcb8c935f",
+        "bytes": 19636,
+        "sha256": "6fe3dbbf387990ff67b48a8253cd8e589cdf946926939046c0f3ba5ebf5252f6"
+      },
+      "meaning": "Metadata/source/log/fixture custody PASS; real peer readback9original/10narrow selected refs accounted. Original case remainsFAIL/P37not_established."
+    }
+  ],
+  "property": {
+    "statement": "Determine whether the actual root failure exercised target-specific late CAS admission/publication or failed before target entry; preserve actual native FAIL and complete bounded evidence.",
+    "runtime_path": [
+      "frozen native test owner deadline fixture",
+      "async executor original absolute deadline and workflow_spec persist",
+      "actual async store worker/canonical FileSystemCAS.put_json→put_bytes",
+      "retained CAS artifacts and RunContext event trace",
+      "independent complete source/log/fixture custody audit"
+    ],
+    "proxy_divergence": "A missing entered/finished barrier is not a late-I/O publication violation. The complete fixture has a physically surviving preceding workflow_spec but no accepted input event or target experiment_state; immutable completed I/O and owner admission are distinct.",
+    "negative_controls": [
+      "Original actual native barrier failed before its defining target I/O; it is preserved as FAIL, not treated as passing cancellation/deadline control.",
+      "No new fault probes, product runtime, baseline or synthetic tests executed by this reviewer."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "original_native_FAIL; P37_target_entry_NOT_ESTABLISHED; prior_phase_deadline_expiry_corroborated_bounded; no_observed_late_target_admission; no_closure_claim",
+  "finite_verdict": {
+    "target_gate_entry_premise": "NOT_ESTABLISHED; native entered.wait returned False",
+    "late_experiment_state_admission_or_publication": "NOT_OBSERVED in complete retained fixture/trace; no defining target I/O was exercised",
+    "preceding_workflow_spec_expiry": "Actual captured native WorkflowTimeoutError during preceding workflow_spec is source-bound; combined failed-case/cleanup/fixture evidence corroborates this explanation.",
+    "direct_task_object_to_fixture_identity": "NOT_ESTABLISHED; the anonymous unhandled task traceback carries no tmp_path/run_id/task-to-test marker and was interleaved into an unrelated HTTP failure report. Do not use Task-2200 name alone as identity.",
+    "p37_criterion_result": "Original FAIL retained; target-specific late entered-I/O defining property not established by this failed case.",
+    "p41_inherited_or_flake_label": "NOT_ESTABLISHED; no base replay or flake adjudication made.",
+    "new_product_bug": "NOT_ESTABLISHED by this failure; no late target artifact/ref accepted in retained scope."
+  },
+  "fixture_census": {
+    "regular_files": 38,
+    "directories_excluding_fixture_root": 37,
+    "file_types": {
+      "lock": 10,
+      "blob": 9,
+      "manifest": 18,
+      "trace": 1
+    },
+    "artifacts": 9,
+    "artifact_kinds": {
+      "core.registry_bundle": 1,
+      "ir.constraint_registry": 1,
+      "ir.mechanism_registry": 1,
+      "ir.merge_rule_registry": 1,
+      "ir.metric_registry": 1,
+      "ir.selector_field_registry": 1,
+      "ir.slot_registry": 1,
+      "ir.units_registry": 1,
+      "scientist.workflow_spec": 1
+    },
+    "trace_events": 1,
+    "literal_trace_utf8": "{\"ts\":\"2026-10-06T14:38:47Z\",\"run_id\":\"R_deadline\",\"phase\":\"core\",\"event\":\"RUN_STARTED\",\"run_terminality\":\"non_terminal\",\"refs\":{\"inputs\":[],\"outputs\":[]},\"metrics\":{},\"warnings\":[],\"errors\":[]}\n",
+    "all_original_bytes_untouched": true,
+    "before_after_census_identical": true
+  },
+  "actual_module_native_context": {
+    "cases": 17,
+    "PASS": 16,
+    "FAIL": 1,
+    "source": "all actual native JUnit module testcase rows, not static source count; exact rows in companion"
+  },
+  "task_correlation": {
+    "actual_task_exception": "WorkflowTimeoutError during scientist.workflow_spec; captured outer original-deadline wait_for→guard stack",
+    "source_locations": [
+      "async_executor.py:200 original deadline",
+      "async_executor.py:214 preceding workflow_spec await",
+      "async_executor.py:215 add_input happens only after accepted ref",
+      "async_executor.py:2316 outer remaining-budget wait_for",
+      "async_executor.py:2319 timeout owner guard",
+      "async_executor.py:2285 owner expiry error",
+      "context.py:407 add_input emits RUN_INPUT_ADDED",
+      "test_workflow_deadline_custody.py:224 failing finally before gather"
+    ],
+    "corroboration": "Unique unhandled task block in complete stdout, source failure cleanup leaves Task unconsumed, native module has only this one failed case, and exact retained fixture has setup+spec with no added-ref/producer event.",
+    "direct_identity_limit": "No tmp_path/run_id/task-to-test identifier in anonymous Task-2200 traceback; block interleaved into unrelated HTTP failure reporting. Its name alone does not bind the fixture."
+  },
+  "root_at_review": {
+    "head_before": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+    "tree_before": "93b77f5da8b01f9f743438d92ca9cb48ad97dc90",
+    "status_before": "",
+    "head_after": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+    "tree_after": "93b77f5da8b01f9f743438d92ca9cb48ad97dc90",
+    "status_after": "",
+    "root_mutations_by_auditor": false,
+    "review_target_is_frozen_git4e7_not_current_metadata_head": true
+  },
+  "companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/audit-stdout.json",
+      "source_sha": "267ddcbf723c1659ac256992b8e34453743d265f",
+      "bytes": 75681,
+      "sha256": "54c85e79ee4181460340b5613a951799b51ffd22300aeff0f9fa51d22c9cfffb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/instrument-custody.json",
+      "source_sha": "267ddcbf723c1659ac256992b8e34453743d265f",
+      "bytes": 13091,
+      "sha256": "c47af6487d644ea45982545498eb8251a156f6447a6cc544bff6733501f6b21f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/peer-native-review.json",
+      "source_sha": "8c4b3ac36ae9d2ec2027c74d7f3621bbcb8c935f",
+      "bytes": 19636,
+      "sha256": "6fe3dbbf387990ff67b48a8253cd8e589cdf946926939046c0f3ba5ebf5252f6"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Original root FAIL is retained; no flake, inherited/disjoint, or product regression label is inferred from one result.",
+    "The no-late-target observation is limited to the complete retained fixture and event trace; target entry premise failed, so the defining late entered-I/O criterion was not exercised in this case.",
+    "Combined source/fixture/native unhandled task evidence corroborates preceding-phase correct refusal, with direct anonymous task→fixture identity not established.",
+    "RunContext.add_input emits RUN_INPUT_ADDED; complete trace contains RUN_STARTED only. In-memory task/executor objects were not separately snapshotted by the failed test.",
+    "No filesystem cleanup/mutation, source/test/style edits, runtime or gate replay, or helper/new worktree by reviewer. Root current metadata HEAD is recorded separately; actual reviewed source bytes are pinned4e7 and live equality checked.",
+    "The fixture file denominator is38regular files,37directories excluding fixture root. Any39-file peer count requires the explicit extra path; no unseen file or ledger is invented.",
+    "Root/EXE owns a deterministic target-entry native oracle and exact author replay/source input handoff; independent reviewer evaluated actual peer supplied1PASS and all69published evidence refs without a duplicate cohort.",
+    "Root/G owns final gate and finding adjudication. This metadata review closes no finding and changes no canonical source.",
+    "Complete huge cohort stdout/JUnit/inventory and original fixture blobs remain ignored raw path@SHA. Moderate committed companions preserve full failure/timeout text, literal event trace, all file identities/manifests. Remote acceptance of absent raw bytes remains not_established until transfer or exact admitted replay.",
+    "EXE published peer packet2cb45353 transfers actual original/narrow CAS blobs/manifests/traces via Git; independent reviewer verified all69refs and unchanged original38-file hash census. Targeted1PASS still does not repair the original root oracle missing-entry failure."
+  ],
+  "peer_readback_context": [
+    {
+      "label": "original-whole-cohort-failure",
+      "regular_files": 38,
+      "verified_selected_refs": 9,
+      "artifact_kind_counts": {
+        "ir.mechanism_registry": 1,
+        "ir.slot_registry": 1,
+        "ir.merge_rule_registry": 1,
+        "ir.selector_field_registry": 1,
+        "ir.metric_registry": 1,
+        "core.registry_bundle": 1,
+        "ir.units_registry": 1,
+        "scientist.workflow_spec": 1,
+        "ir.constraint_registry": 1
+      },
+      "events": [
+        "RUN_STARTED"
+      ],
+      "original_bytes_unchanged": true
+    },
+    {
+      "label": "unchanged-narrow-native-replay",
+      "regular_files": 42,
+      "verified_selected_refs": 10,
+      "artifact_kind_counts": {
+        "ir.mechanism_registry": 1,
+        "ir.slot_registry": 1,
+        "ir.merge_rule_registry": 1,
+        "ir.selector_field_registry": 1,
+        "ir.metric_registry": 1,
+        "core.registry_bundle": 1,
+        "ir.units_registry": 1,
+        "scientist.workflow_spec": 1,
+        "scientist.experiment_state": 1,
+        "ir.constraint_registry": 1
+      },
+      "events": [
+        "RUN_STARTED",
+        "RUN_INPUT_ADDED"
+      ],
+      "original_bytes_unchanged": true
+    }
+  ],
+  "peer_native_outcome": "separate_actual_unmodified_1PASS_bounded"
+}

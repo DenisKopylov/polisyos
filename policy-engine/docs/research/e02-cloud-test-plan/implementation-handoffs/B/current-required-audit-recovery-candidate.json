@@ -1835,5 +1835,87 @@
     "Original initialtokenizer4FAIL is P37 not_established, qualifiedDD2PASS2FAIL remains historical; olda39113FAIL+13FAIL and new68215/2 literal grades retained without rewriting.",
     "DD original whole/native gates do not cover newa2 source/test. Candidate17 only is accepted here; parent owns newmerged fullcohort and gates.",
     "All canonical baseline cells/sourcecards/env/inputclosures are historical navigation, not evidence of new source repair. Candidate conclusions depend actual native17 full outputs/physical effects and exact a2 source."
-  ]
+  ],
+  "predicate_basis_qualification": {
+    "qualification_of_receipt_commit": "79662b3c77c6f55df75ba61275c0c6c0632f71e4",
+    "prior_receipt_sha256": "4e5d570d7dffc052778dfca1d9a49512d6734cab99f48a194e25db624da4031e",
+    "top_level_basis_preserved": "consumer_asserted",
+    "measured_local_facts": {
+      "basis": "recomputed",
+      "facts": [
+        "Exact frozen source/test Gitbytes, origins, native per-case grades and denominator.",
+        "Physical provider request JSONL/fsync and actual provider call counts.",
+        "Fresh local FileBudgetLedger exact known receipt/spend quantities, current BudgetState reservations before/after and persisted pending record discovery.",
+        "Real originaltarget directory refusal, observed original ChainedLogEntry bytes/hash, samepath backend write/fsync and full fresh ChainVerifier continuity.",
+        "Wrong-binding no-effect filesystem/ledger comparisons, caller metadata detached digest/body and same/newowner blocked admissions."
+      ],
+      "evidence_scope": "The actual full native logs/JSONL/ledger and source closure already committed at226ee. Local quantities are not external invoicing or audit-provider institutional authority."
+    },
+    "exact_local_entry_reconciliation": {
+      "basis": "independently_reconciled",
+      "scope": "Observed retained original hash-bound entry agrees with original local owner/run/actor/action/payload and known ledger receipt; actual samepath write and fresh whole chain verify. Finite definite-noappend profile only.",
+      "authority_limit": "Hash-bound unsigned entry and observed SHA string prove these local bytes/continuity, not a signer or external institutional grant."
+    },
+    "constructor_trusted_owner_status": {
+      "basis": "consumer_asserted",
+      "premise": "This finite configured composition trusts only the constructor-bound resolver callback as exact local protected-owner completion. Canonical source accepts its typed status/digest; no separate institutional authority evidence is supplied.",
+      "authority_closure_basis": "not_established",
+      "closure_claim": false
+    },
+    "broader_criterion_or_external_authority": {
+      "basis": "not_established",
+      "remaining": [
+        "Ambiguous postappend fsync/powerloss recovery.",
+        "Process crash/restart and arbitrary auditprovider/institutional authority.",
+        "Full production dataset/invoice/billing equivalence."
+      ],
+      "closure_claim": false
+    },
+    "schema_v1_minimum_audit": {
+      "schema_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "required_top_keys": [
+        "schema",
+        "unit",
+        "slice",
+        "closure_ids",
+        "bundle_ids",
+        "slice_base_sha",
+        "implementation_commits",
+        "candidate_tree_sha",
+        "branch",
+        "pull_request",
+        "changed_paths",
+        "baseline_cells",
+        "checks",
+        "property",
+        "predicate_basis",
+        "capability_state_or_finding_state",
+        "limitations_and_next_owner"
+      ],
+      "required_check_keys": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome",
+        "output"
+      ],
+      "required_property_keys": [
+        "statement",
+        "runtime_path",
+        "proxy_divergence",
+        "negative_controls"
+      ],
+      "missing": {
+        "top": [],
+        "checks": [
+          [],
+          []
+        ],
+        "property": []
+      },
+      "outcome": "PASS",
+      "qualification": "Data/source schema audit only; no native rerun, no semantic promotion."
+    }
+  }
 }

@@ -168,5 +168,110 @@ def test_removed_import_resolution_keeps_facade_markers_but_original_oracle_fail
 
 
 def test_conditional_all_is_unresolved_instead_of_absent() -> None:
-    with pytest.raises(ValueError, match="conditional export"):
+    with pytest.raises(ValueError, match="conditional"):
         guardrails._extract_exports(ast.parse('if runtime():\n    __all__ = ["A"]\n'))
+
+
+@pytest.mark.parametrize(
+    "binding",
+    [
+        "sorted = lambda values: []",
+        "from external_plugin import choose as sorted",
+        "if backend_ready():\n    from external_plugin import choose as sorted",
+        "if backend_ready():\n    def sorted(values):\n        return []",
+        "for sorted in [choose]:\n    pass",
+        "import external_plugin as sorted",
+        "from external_plugin import *",
+        "(sorted := choose)",
+        "def unrelated(value=(sorted := choose)):\n    pass",
+        "unrelated = lambda value=(sorted := choose): value",
+        "class Unrelated((sorted := choose)):\n    pass",
+        "type sorted = tuple[str, ...]",
+        "del sorted",
+        "with owner() as sorted:\n    pass",
+        "try:\n    run()\nexcept RuntimeError as sorted:\n    pass",
+        "match configured:\n    case {'handler': sorted}:\n        pass",
+    ],
+)
+def test_shadowed_builtin_keeps_all_marker_but_is_unresolved(binding: str) -> None:
+    source = binding + '\nMAP = {"Actual": None}\n__all__ = sorted(MAP)\n'
+    tree = ast.parse(source)
+    assert any(isinstance(node, ast.Assign) for node in tree.body)
+    with pytest.raises(ValueError, match="Unresolved"):
+        guardrails._extract_exports(tree)
+
+
+@pytest.mark.parametrize("binding", ["if runtime():\n    from owner import MAP", "def MAP():\n    pass"])
+def test_unsupported_symbol_bindings_cannot_be_hidden_by_literal_declaration(binding: str) -> None:
+    tree = ast.parse('MAP = {"Actual": None}\n' + binding + '\n__all__ = sorted(MAP)\n')
+    with pytest.raises(ValueError, match="conditional/mutated exports"):
+        guardrails._extract_exports(tree)
+
+
+def test_direct_named_all_import_uses_same_finite_owner_reader(tmp_path: Path, monkeypatch) -> None:
+    facade, mapping = _fixture(tmp_path, monkeypatch)
+    facade.write_text("from .exports import __all__\n")
+    mapping.write_text('__all__ = ["B", "A"]\n')
+    assert guardrails._entrypoint_inventory("polisyos.fixture").exports == ("B", "A")
+
+
+def test_conditional_extension_exposes_prefix_and_fails_complete_contract(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    facade.write_text('__all__ = ["Prefix"]\nif backend():\n    __all__.extend(runtime_names())\n')
+    policy = guardrails.PackagePolicy(
+        module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
+        owner="test-owner", readme=facade, reference_doc=facade,
+        supported_entrypoints=("polisyos.fixture",), major_subsystem=False, notes="fixture",
+    )
+    inventory = guardrails.build_public_surface_inventory([policy])
+    row = json.loads(guardrails.render_public_surface_json(inventory))["packages"][0]
+    assert row["export_count"] is None
+    assert row["known_export_count"] == 1
+    assert row["exports"] == ["Prefix"]
+    resolution = row["entrypoints"][0]["export_resolution"]
+    assert resolution["complete"] is False
+    assert resolution["complete_verdict"] is False
+    assert any(item["operation"] == "read_bytes" for item in resolution["inputs"])
+    markdown = guardrails.render_public_surface_markdown(inventory)
+    assert "unknown (1 known prefix)" in markdown
+    assert "Known literal prefix (1; total unknown)" in markdown
+    violations = guardrails._check_public_surface_contracts(inventory)
+    assert [(item.subject, item.detail) for item in violations] == [
+        ("polisyos.fixture", "incomplete_exports"),
+    ]
+
+
+@pytest.mark.parametrize("mutation", [
+    '__all__ = ["Replacement"]', '__all__.clear()', 'alias = __all__',
+    '__all__[0] = "Replacement"', 'if runtime():\n    __all__ = ["Replacement"]',
+    'from owner import __all__', '__all__.extend(*runtime_names())',
+])
+def test_unproved_prefix_rebind_or_mutation_still_refuses(mutation: str) -> None:
+    source = '__all__ = ["Prefix"]\n' + mutation + '\n__all__.extend(runtime_names())\n'
+    with pytest.raises(ValueError) as caught:
+        guardrails._extract_exports(ast.parse(source))
+    assert not isinstance(caught.value, guardrails._IncompleteExportDeclarationError)
+
+
+def test_current_world_optional_profile_has_unknown_static_total() -> None:
+    from polisyos.fabric import world
+
+    row = guardrails._entrypoint_inventory("polisyos.fabric.world")
+    literal = next(
+        node.value for node in ast.parse((guardrails.REPO_ROOT / row.source_file).read_bytes()).body
+        if isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
+        )
+    )
+    assert row.export_count is None
+    assert row.known_export_count == len(ast.literal_eval(literal)) == 41
+    assert tuple(world.__all__[:row.known_export_count]) == row.exports
+    assert row.export_resolution["complete"] is False
+    # Optional runtime exports are outside the static prefix and remain unknown.
+    # This is an actual installed-profile discriminator, not a manifest marker.
+    if world._MATERIALIZE_AVAILABLE:
+        assert len(world.__all__) == 59 > row.known_export_count
+    else:
+        assert len(world.__all__) == row.known_export_count

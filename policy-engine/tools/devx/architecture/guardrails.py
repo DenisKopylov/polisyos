@@ -138,7 +138,8 @@ class SupportedEntrypointInventory:
 
     module: str
     facade_mode_observed: str
-    export_count: int
+    export_count: int | None
+    known_export_count: int
     exports: tuple[str, ...]
     has___getattr__: bool
     has___dir__: bool
@@ -158,7 +159,8 @@ class PackageInventory:
     reference_doc: str
     supported_entrypoints: tuple[str, ...]
     major_subsystem: bool
-    export_count: int
+    export_count: int | None
+    known_export_count: int
     exports: tuple[str, ...]
     has___getattr__: bool
     has___dir__: bool
@@ -536,14 +538,53 @@ def _module_level_nodes(tree: ast.AST) -> Iterator[ast.AST]:
     """Traverse module statements without entering function or class scopes."""
     for node in ast.iter_child_nodes(tree):
         yield node
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            outer_expressions = [*node.args.defaults, *node.args.kw_defaults]
+            if not isinstance(node, ast.Lambda):
+                outer_expressions += node.decorator_list
+            for expression in outer_expressions:
+                if expression is not None:
+                    yield expression
+                    yield from _module_level_nodes(expression)
+        elif isinstance(node, ast.ClassDef):
+            for expression in [*node.bases, *node.decorator_list, *(item.value for item in node.keywords)]:
+                yield expression
+                yield from _module_level_nodes(expression)
+        else:
             yield from _module_level_nodes(node)
 
 
-def _stores_export_symbol(node: ast.AST, symbol: str) -> bool:
-    return isinstance(node, ast.Name) and node.id == symbol and isinstance(
-        node.ctx, (ast.Store, ast.Del)
-    )
+def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
+    """Name every module-level binding or mutation that can affect a selector."""
+    for node in _module_level_nodes(tree):
+        targets: list[ast.AST] = []
+        if isinstance(node, (ast.Assign, ast.Delete)):
+            targets = node.targets
+        elif isinstance(node, (ast.AnnAssign, ast.AugAssign, ast.NamedExpr, ast.TypeAlias)):
+            targets = [node.target if hasattr(node, "target") else node.name]
+        elif isinstance(node, (ast.For, ast.AsyncFor)):
+            targets = [node.target]
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            targets = [item.optional_vars for item in node.items if item.optional_vars is not None]
+        if any(
+            isinstance(child, ast.Name) and child.id == symbol
+            for target in targets for child in ast.walk(target)
+        ):
+            yield node
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.name == symbol:
+                yield node
+        elif isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar)) and node.name == symbol:
+            yield node
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            if any(
+                alias.name == "*" or (alias.asname or alias.name.split(".")[0]) == symbol
+                for alias in node.names
+            ):
+                yield node
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Name) and node.func.value.id == symbol:
+                yield node
 
 
 class _StaticExportResolver:
@@ -571,23 +612,19 @@ class _StaticExportResolver:
         try:
             tree = self._tree(source)
             direct_nodes = {id(node) for node in tree.body}
-            for node in _module_level_nodes(tree):
-                if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign, ast.Delete)):
-                    targets = getattr(node, "targets", [getattr(node, "target", None)])
-                    binds = any(
-                        _stores_export_symbol(child, symbol)
-                        for target in targets if target is not None
-                        for child in ast.walk(target)
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
                     )
-                    subscript = any(
-                        isinstance(child, ast.Subscript)
-                        and isinstance(child.value, ast.Name)
-                        and child.value.id == symbol
-                        for target in targets if target is not None
-                        for child in ast.walk(target)
-                    )
-                    if (binds and id(node) not in direct_nodes) or subscript:
-                        raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+                    raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
             declarations: list[ast.AST] = []
             imported: list[tuple[ast.ImportFrom, str]] = []
             for node in tree.body:
@@ -669,6 +706,8 @@ class _StaticExportResolver:
             and len(node.args) == 1
             and not node.keywords
         ):
+            if any(_symbol_binding_nodes(self._tree(source), node.func.id)):
+                raise ValueError(f"Unresolved shadowed export builtin: {source}:{node.func.id}")
             value = self._value(source, node.args[0])
             if isinstance(value, (dict, list, tuple)) and all(
                 isinstance(item, str) for item in value
@@ -680,26 +719,66 @@ class _StaticExportResolver:
         raise ValueError(f"Unresolved export expression: {source}:{ast.unparse(node)}")
 
 
+class _IncompleteExportDeclarationError(ValueError):
+    """A literal prefix is readable, but its extension has no static total."""
+
+    def __init__(self, prefix: tuple[str, ...]) -> None:
+        super().__init__("Unresolved __all__.extend; literal prefix only, total unknown")
+        self.prefix = prefix
+
+
+def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | None:
+    """Retain only a direct literal prefix followed solely by standalone extends."""
+    bindings = list(_symbol_binding_nodes(tree, "__all__"))
+    declarations = [node for node in bindings if isinstance(node, (ast.Assign, ast.AnnAssign))]
+    if len(declarations) != 1 or len(bindings) < 2:
+        return None
+    declaration = declarations[0]
+    targets = declaration.targets if isinstance(declaration, ast.Assign) else [declaration.target]
+    if declaration not in tree.body or len(targets) != 1:
+        return None
+    if not isinstance(targets[0], ast.Name) or targets[0].id != "__all__":
+        return None
+    prefix = _string_list_value(declaration.value)
+    if prefix is None:
+        return None
+    standalone_calls = {
+        id(node.value) for node in _module_level_nodes(tree)
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call)
+    }
+    allowed_names = {id(targets[0])}
+    for node in bindings:
+        if node is declaration:
+            continue
+        if not (
+            isinstance(node, ast.Call)
+            and id(node) in standalone_calls
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "__all__"
+            and node.func.attr == "extend"
+            and len(node.args) == 1
+            and not isinstance(node.args[0], ast.Starred)
+            and not node.keywords
+            and node.lineno > declaration.end_lineno
+        ):
+            return None
+        allowed_names.add(id(node.func.value))
+    # An alias or other use may mutate the prefix indirectly; do not claim it.
+    if any(
+        isinstance(node, ast.Name) and node.id == "__all__" and id(node) not in allowed_names
+        for node in _module_level_nodes(tree)
+    ):
+        return None
+    return prefix
+
+
 def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple[str, ...]:
-    declarations = [
-        node
-        for node in tree.body
-        if (
-            isinstance(node, ast.Assign)
-            and any(
-                isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
-            )
-        )
-        or (
-            isinstance(node, ast.AnnAssign)
-            and isinstance(node.target, ast.Name)
-            and node.target.id == "__all__"
-        )
-    ]
-    if not declarations:
-        if any(_stores_export_symbol(node, "__all__") for node in _module_level_nodes(tree)):
-            raise ValueError("Unresolved conditional export declaration: __all__")
+    if not any(_symbol_binding_nodes(tree, "__all__")):
         return ()
+    prefix = _literal_prefix_before_extensions(tree)
+    if prefix is not None:
+        raise _IncompleteExportDeclarationError(prefix)
     source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
     exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
     if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
@@ -732,15 +811,24 @@ def _facade_source_for(module: str) -> Path:
 
 
 def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
+    incomplete_reason = None
     with measure_file_reads(REPO_ROOT) as reads:
         try:
             source_file = _facade_source_for(module)
             tree = ast.parse(admitted_read_bytes(source_file, REPO_ROOT))
-            exports = _extract_exports(tree, source_file)
+            try:
+                exports = _extract_exports(tree, source_file)
+            except _IncompleteExportDeclarationError as exc:
+                exports = exc.prefix
+                incomplete_reason = str(exc)
         except (OSError, ValueError, SyntaxError, TypeError) as exc:
             exc.add_note(json.dumps(reads.snapshot(complete_verdict=False), sort_keys=True))
             raise
-        export_resolution = reads.snapshot()
+        export_resolution = reads.snapshot(complete_verdict=incomplete_reason is None)
+    export_resolution["complete"] = incomplete_reason is None
+    if incomplete_reason is not None:
+        export_resolution["reason"] = incomplete_reason
+        export_resolution["exports_scope"] = "direct unconditional literal prefix; extensions unresolved"
     export_resolution["selector"] = (
         "Declared __all__; literal sequences/mapping keys, named/imported declarations, "
         "concatenation and sorted/list/tuple. No module execution or runtime dispatch."
@@ -753,7 +841,8 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
             exports=exports,
             has_getattr="__getattr__" in function_names,
         ),
-        export_count=len(exports),
+        export_count=len(exports) if incomplete_reason is None else None,
+        known_export_count=len(exports),
         exports=exports,
         has___getattr__="__getattr__" in function_names,
         has___dir__="__dir__" in function_names,
@@ -789,6 +878,7 @@ def build_public_surface_inventory(policies: list[PackagePolicy]) -> list[Packag
                 supported_entrypoints=policy.supported_entrypoints,
                 major_subsystem=policy.major_subsystem,
                 export_count=root_entrypoint.export_count,
+                known_export_count=root_entrypoint.known_export_count,
                 exports=root_entrypoint.exports,
                 has___getattr__=root_entrypoint.has___getattr__,
                 has___dir__=root_entrypoint.has___dir__,
@@ -921,6 +1011,7 @@ def render_public_surface_json(
                 "supported_entrypoints": list(item.supported_entrypoints),
                 "major_subsystem": item.major_subsystem,
                 "export_count": item.export_count,
+                "known_export_count": item.known_export_count,
                 "exports": list(item.exports),
                 "has___getattr__": item.has___getattr__,
                 "has___dir__": item.has___dir__,
@@ -932,6 +1023,7 @@ def render_public_surface_json(
                         "module": entrypoint.module,
                         "facade_mode_observed": entrypoint.facade_mode_observed,
                         "export_count": entrypoint.export_count,
+                        "known_export_count": entrypoint.known_export_count,
                         "exports": list(entrypoint.exports),
                         "has___getattr__": entrypoint.has___getattr__,
                         "has___dir__": entrypoint.has___dir__,
@@ -946,6 +1038,10 @@ def render_public_surface_json(
         ],
     }
     return json.dumps(payload, indent=2, ensure_ascii=True) + "\n"
+
+
+def _export_count_display(count: int | None, known_count: int) -> str:
+    return str(count) if count is not None else f"unknown ({known_count} known prefix)"
 
 
 def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
@@ -1042,7 +1138,7 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
     for item in inventory:
         readme_rel = item.readme
         lines.append(
-            f"| `{item.module}` | `{item.classification}` | `{item.facade_mode_observed}` | {item.export_count} | `{item.owner}` | `{readme_rel}` |"
+            f"| `{item.module}` | `{item.classification}` | `{item.facade_mode_observed}` | {_export_count_display(item.export_count, item.known_export_count)} | `{item.owner}` | `{readme_rel}` |"
         )
 
     for item in inventory:
@@ -1071,7 +1167,7 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
                 "| --- | --- | --- | ---: |",
                 *(
                     f"| `{entrypoint.module}` | `{entrypoint.source_file}` | "
-                    f"`{entrypoint.facade_mode_observed}` | {entrypoint.export_count} |"
+                    f"`{entrypoint.facade_mode_observed}` | {_export_count_display(entrypoint.export_count, entrypoint.known_export_count)} |"
                     for entrypoint in item.entrypoints
                 ),
             ]
@@ -1088,11 +1184,17 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
             )
             if entrypoint.summary:
                 lines.append(f"- Summary: {entrypoint.summary}")
-            if entrypoint.export_count:
+            if entrypoint.export_count is None:
+                lines.append(f"- Export resolution incomplete: {entrypoint.export_resolution['reason']}.")
+            if entrypoint.known_export_count:
+                label = (
+                    f"Known literal prefix ({entrypoint.known_export_count}; total unknown)"
+                    if entrypoint.export_count is None else f"Entrypoint exports ({entrypoint.export_count})"
+                )
                 lines.extend(
                     [
                         "",
-                        f"<details><summary>Entrypoint exports ({entrypoint.export_count})</summary>",
+                        f"<details><summary>{label}</summary>",
                         "",
                         "```text",
                         *entrypoint.exports,
@@ -1101,11 +1203,15 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
                         "</details>",
                     ]
                 )
-        if item.export_count:
+        if item.known_export_count:
+            label = (
+                f"Known literal prefix ({item.known_export_count}; total unknown)"
+                if item.export_count is None else f"Supported exports ({item.export_count})"
+            )
             lines.extend(
                 [
                     "",
-                    f"<details><summary>Supported exports ({item.export_count})</summary>",
+                    f"<details><summary>{label}</summary>",
                     "",
                     "```text",
                     *item.exports,
@@ -1114,6 +1220,8 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
                     "</details>",
                 ]
             )
+        elif item.export_count is None:
+            lines.append("Export total is unknown; the static reader cannot resolve the extension.")
         else:
             lines.extend(
                 [
@@ -1314,6 +1422,19 @@ def _check_readmes(inventory: list[PackageInventory]) -> list[GuardrailViolation
 def _check_public_surface_contracts(inventory: list[PackageInventory]) -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
     for item in inventory:
+        for entrypoint in item.entrypoints:
+            if entrypoint.export_count is None:
+                violations.append(
+                    GuardrailViolation(
+                        check="public_surface",
+                        subject=entrypoint.module,
+                        detail="incomplete_exports",
+                        message=(
+                            f"{entrypoint.module} export total is unresolved: "
+                            f"{entrypoint.export_resolution['reason']}."
+                        ),
+                    )
+                )
         if item.facade_mode_expected != item.facade_mode_observed:
             violations.append(
                 GuardrailViolation(

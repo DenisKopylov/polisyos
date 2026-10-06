@@ -1,0 +1,11 @@
+Using CPython 3.14.2 interpreter at: /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+Resolved 2 packages in 707ms
+Downloading psycopg-binary (4.9MiB)
+ Downloaded psycopg-binary
+Prepared 2 packages in 14.48s
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 2 packages in 8ms
+ + psycopg==3.3.2
+ + psycopg-binary==3.3.2

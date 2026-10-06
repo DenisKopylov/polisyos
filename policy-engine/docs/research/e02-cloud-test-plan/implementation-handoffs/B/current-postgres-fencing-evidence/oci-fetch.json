@@ -1,0 +1,63 @@
+{
+  "root_digest": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+  "platform_manifest_digest": "sha256:aa90e97ee862e558111d34cfb8b2c4bec768c2b039fb791341686928560263b3",
+  "config_digest": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+  "config_path": "/tmp/e02-B38-pg-evidence/oci/79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537.blob",
+  "layers": [
+    {
+      "digest": "sha256:e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5",
+      "bytes": 3849738,
+      "path": "/tmp/e02-B38-pg-evidence/oci/e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5.blob"
+    },
+    {
+      "digest": "sha256:4ece9a32c307dbfc879fbd2c64ff04d734f92c3cfe543fbbfcf51f559be3952f",
+      "bytes": 968,
+      "path": "/tmp/e02-B38-pg-evidence/oci/4ece9a32c307dbfc879fbd2c64ff04d734f92c3cfe543fbbfcf51f559be3952f.blob"
+    },
+    {
+      "digest": "sha256:43f9814c9a3b143548b1ebbd9d05484da68959f1b2dc5cf2228343fc7134b6fb",
+      "bytes": 901408,
+      "path": "/tmp/e02-B38-pg-evidence/oci/43f9814c9a3b143548b1ebbd9d05484da68959f1b2dc5cf2228343fc7134b6fb.blob"
+    },
+    {
+      "digest": "sha256:3333950675b238bd8da3dadabf5d301377545c089e7f436d18d16c97a1b7c1c8",
+      "bytes": 116,
+      "path": "/tmp/e02-B38-pg-evidence/oci/3333950675b238bd8da3dadabf5d301377545c089e7f436d18d16c97a1b7c1c8.blob"
+    },
+    {
+      "digest": "sha256:f3b07e8a357c707bed4f36d7e89173727f890be5fbc8e1c1eb7feb6c1d9deb38",
+      "bytes": 112421988,
+      "path": "/tmp/e02-B38-pg-evidence/oci/f3b07e8a357c707bed4f36d7e89173727f890be5fbc8e1c1eb7feb6c1d9deb38.blob"
+    },
+    {
+      "digest": "sha256:eb805f20f0602d17dfb400aecc1cddcf941e356b9764969284c7e15d8a0710a6",
+      "bytes": 9999,
+      "path": "/tmp/e02-B38-pg-evidence/oci/eb805f20f0602d17dfb400aecc1cddcf941e356b9764969284c7e15d8a0710a6.blob"
+    },
+    {
+      "digest": "sha256:7ccdb0dcae74d20ea15876b699902cff26696bbdf9e1109c97e9f7d9505444f2",
+      "bytes": 128,
+      "path": "/tmp/e02-B38-pg-evidence/oci/7ccdb0dcae74d20ea15876b699902cff26696bbdf9e1109c97e9f7d9505444f2.blob"
+    },
+    {
+      "digest": "sha256:93a3470d5852d77008a03e87eb60177e36b5522afb5d283d96ce6e2b0a3d481d",
+      "bytes": 169,
+      "path": "/tmp/e02-B38-pg-evidence/oci/93a3470d5852d77008a03e87eb60177e36b5522afb5d283d96ce6e2b0a3d481d.blob"
+    },
+    {
+      "digest": "sha256:b0a0d9d2abf27214e4640bd5d31419c3788d19626acf51afcf85345d321935b7",
+      "bytes": 6111,
+      "path": "/tmp/e02-B38-pg-evidence/oci/b0a0d9d2abf27214e4640bd5d31419c3788d19626acf51afcf85345d321935b7.blob"
+    },
+    {
+      "digest": "sha256:a8a481ae6efc854716b4eb46d5f3da24edfb72ba8bfca5146c92bbef4390ed35",
+      "bytes": 183,
+      "path": "/tmp/e02-B38-pg-evidence/oci/a8a481ae6efc854716b4eb46d5f3da24edfb72ba8bfca5146c92bbef4390ed35.blob"
+    }
+  ],
+  "wall_seconds": 59.09503914300876,
+  "network": "inherited proxy, verified TLS; token memory only",
+  "rootfs": "/tmp/e02-B38-pg-evidence/oci/rootfs",
+  "final_members": 3891,
+  "extraction": "final layered inventory, whiteouts resolved in memory, absolute symlinks rewritten within owned rootfs, no devices or host extraction"
+}

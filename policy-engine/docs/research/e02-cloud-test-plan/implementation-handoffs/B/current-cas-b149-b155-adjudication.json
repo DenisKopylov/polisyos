@@ -1,0 +1,129 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-cas-b149-b155-adjudication",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "bundle_ids": [
+    "CAS-02",
+    "CAS-03"
+  ],
+  "owned_finding_ids": [
+    "B149",
+    "B155"
+  ],
+  "slice_base_sha": "54cd278df222b2e9f68e3d24d268678e3306da39",
+  "slice_base_tree_sha": "30a714c14e17b673711daf004aea8f78dc54e915",
+  "implementation_commits": [
+    "2e7f645c6057e148993322742b658d5c38295240"
+  ],
+  "candidate_tree_sha": "19712f8e0812cdc5cde62d30f18e23d9695cdaa9",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/review.json"
+  ],
+  "mandatory_companions": "Separate metadata receipt, actual complete metadata stdout and literal validation instrument. No product/runtime implementation in this slice.",
+  "baseline_cells": [
+    "F01-P051",
+    "F09-P055",
+    "F14-P061",
+    "F02-P052",
+    "F08-P055",
+    "F13-P060"
+  ],
+  "baseline_context": {
+    "ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@198076863e143dea9f89f02734b13d50dae3eed5#B149,B155",
+    "cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "source_env_input_closure_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-environment-command-input-closure",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-environment-command-input-closure",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-environment-command-input-closure",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-environment-command-input-closure",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-environment-command-input-closure",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-environment-command-input-closure"
+    ],
+    "grade": "Historical compact navigation/source-reported input custody only; raw archive transfer missing. Not candidate runtime proof."
+  },
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-b149-b155-adjudication/validate.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "2e7f645c6057e148993322742b658d5c38295240",
+      "target_tree": "19712f8e0812cdc5cde62d30f18e23d9695cdaa9",
+      "outcome": "PASS_METADATA_ONLY",
+      "environment": {
+        "role": "Git/JSON metadata only; no installed project or runtime imported",
+        "shared_environment_mutation": false,
+        "numeric_or_process_quota": null
+      },
+      "input_closure": {
+        "review_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/review.json@2e7f645c6057e148993322742b658d5c38295240",
+        "full_declared_input_refs": "review.json source_points/receipt_points/historical_controls;20 immutable byte identities validated",
+        "literal_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/instrument.json",
+          "bytes": 2229,
+          "sha256": "57d267663c5f1a6773f35ee1292266c883abd8a83d8136c021aafb394351a975"
+        }
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/metadata-stdout.txt",
+        "bytes": 571,
+        "sha256": "def83bc007ca5d982792f00b74d542d530b1627534f91c11dfbbcfaf98345bdf"
+      },
+      "result": "Exact review/source/receipt/XML byte identities reconcile; no product verdict or final-candidate case count."
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B149",
+      "status": "conditional_native_linux_criterion_closure_proposal_pending_final_source_cases_root_G_acceptance",
+      "remaining": "Darwin is a separate target-profile UNRUN. Power loss/allOS/multihost/hostile mutation are not canonical B149 acceptance conditions. Final exact candidate must preserve requested new package and separately reopen retained old generation; no new execution here."
+    },
+    {
+      "finding_id": "B155",
+      "status": "conditional_cooperative_intake_pending_deadline_closure_proposal_with_declared_default_census_boundary_pending_final_source_cases",
+      "remaining": "Default name/member/visible-ID preparation and complete reports retain O(N) memory; os.walk can enumerate one directory before external checkpoint and some whole-map passes are synchronous. Strict memory-bounded or physically preemptible census remains an expanded LIMITED profile, not a proved current failure. Existing code has explicit deadline/cancel checks and stops new artifact admission."
+    }
+  ],
+  "property": {
+    "statement": "Interpret exact original B149/B155 criteria and tracked B.md against prior limited rationale and actual source/control custody; do not add unstated universal crash/preemption conditions or promote old output into successor evidence.",
+    "runtime_path": "Source-real call graph and defining quantity/case checklist recorded in review.json. No runtime executed.",
+    "negative_controls": "Pinned prior transfer staging/atomicity removals and batch stop/window/duplicate predecessor outputs remain historical evidence at their own source targets, not new controls run here."
+  },
+  "predicate_basis": "Canonical text/source-reported historical runtime, recomputed immutable metadata identity validation; manual scope adjudication. This source author does not independently accept own production code.",
+  "capability_state_or_finding_state": "Conditional criterion interpretation only; closure_ids=[]; root/G final source-qualified deciding acceptance remains pending.",
+  "independent_review_context": "Existing root/DUR/CMP/RUN immutable code/runtime reviews remain separate; this metadata slice does not replace them.",
+  "limitations_and_next_owner": [
+    "B148 public cross-tenant law stays HELD and B154 real A all-confirmations signature publisher stays consumer_missing.",
+    "Old109/102/all209/root456 observed cases retain exact source qualification; none proves a future candidate. No target counts specified.",
+    "Final source needs actual defining call-phase results and byte/intake/pending/deadline quantities. SetupERROR, collection, marker names and aggregatePASS cannot decide.",
+    "README phrase one syscall does not prove a bound on all os.walk or whole-map preparation; precision qualification is explicit in review. Expanded streaming census profile stays limited unless separately implemented/verified.",
+    "G full rootraw availability remains not_established unless transferred or exact admitted rerun.",
+    "No source/test edits, new worktrees, runtime/gates, raw copies, fixture cleanup/deletion, quota or P41 inheritance waiver. Root production checkout untouched."
+  ],
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/review.json",
+      "bytes": 26256,
+      "sha256": "022b9b92c84975dc85a9206d7f627c5928c5064c6377297afb12c6933a389056"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/instrument.json",
+      "bytes": 2229,
+      "sha256": "57d267663c5f1a6773f35ee1292266c883abd8a83d8136c021aafb394351a975"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/metadata-stdout.txt",
+      "bytes": 571,
+      "sha256": "def83bc007ca5d982792f00b74d542d530b1627534f91c11dfbbcfaf98345bdf"
+    }
+  ],
+  "artifact_denominator": {
+    "files": 3,
+    "bytes": 29056
+  }
+}

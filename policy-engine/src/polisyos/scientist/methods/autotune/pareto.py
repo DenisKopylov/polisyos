@@ -140,9 +140,7 @@ class ParetoInputAssessment(BaseModel):
             raise ValueError("omission input_index must be unique within an assessment")
         if any(index >= self.input_count for index in omission_indices):
             raise ValueError("omission input_index is outside the declared input_count")
-        if self.status == "complete" and (
-            self.input_count == 0 or self.unassessed_evaluations
-        ):
+        if self.status == "complete" and (self.input_count == 0 or self.unassessed_evaluations):
             raise ValueError("complete input assessment requires nonempty fully assessed inputs")
         if self.status == "partial" and (
             self.assessed_count == 0 or not self.unassessed_evaluations
@@ -153,6 +151,34 @@ class ParetoInputAssessment(BaseModel):
         return self
 
 
+class HypervolumeAssessment(BaseModel):
+    """Representability of the existing indicator, separate from front membership."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    version: Literal["hypervolume-assessment.v1"] = "hypervolume-assessment.v1"
+    status: Literal["available", "unavailable"]
+    basis: Literal["recomputed", "not_established"]
+    reason: Literal["non_finite_derived_hypervolume", "catalog_union_not_recomputed"] | None = None
+
+    @model_validator(mode="after")
+    def _validate_status(self) -> Self:
+        if self.status == "available" and (self.basis != "recomputed" or self.reason is not None):
+            raise ValueError("Available hypervolume requires a recomputed indicator")
+        if self.status == "unavailable" and (
+            self.basis != "not_established" or self.reason is None
+        ):
+            raise ValueError("Unavailable hypervolume requires its declared limitation")
+        return self
+
+
+def validate_hypervolume(value: float | None, assessment: HypervolumeAssessment | None) -> None:
+    if assessment is not None and assessment.status == "unavailable":
+        if value is not None:
+            raise ValueError("Unavailable hypervolume must be null")
+    elif value is None or not math.isfinite(value):
+        raise ValueError("Hypervolume must be finite or explicitly unavailable")
+
+
 class ParetoFront(BaseModel):
     """Result of Pareto front computation."""
 
@@ -160,7 +186,10 @@ class ParetoFront(BaseModel):
 
     schema_version: Literal["1.0", "2.0"] = "1.0"
     members: list[ParetoMember] = Field(default_factory=list)
-    hypervolume: float = 0.0
+    hypervolume: float | None = 0.0
+    hypervolume_assessment: HypervolumeAssessment | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     reference_point: dict[str, float] = Field(default_factory=dict)
     coordinate_schema: ParetoCoordinateSchema | None = Field(
         default_factory=lambda: ParetoCoordinateSchema(status="legacy_limited")
@@ -175,6 +204,9 @@ class ParetoFront(BaseModel):
             raise ValueError("v2 Pareto front requires input assessment")
         if self.schema_version == "1.0" and self.input_assessment is not None:
             raise ValueError("v1 Pareto front cannot carry v2 input assessment")
+        if self.schema_version == "1.0" and self.hypervolume_assessment is not None:
+            raise ValueError("v1 Pareto front cannot carry the typed indicator assessment")
+        validate_hypervolume(self.hypervolume, self.hypervolume_assessment)
         _validate_coordinate_artifact(self)
         return self
 
@@ -209,7 +241,6 @@ def _validate_coordinate_artifact(front: ParetoFront) -> None:
             front.members
             or front.reference_point
             or front.coordinate_reference_point
-            or not math.isfinite(front.hypervolume)
             or front.hypervolume != 0.0
         ):
             raise ValueError("incomplete coordinate schema cannot carry v1 values")
@@ -222,8 +253,6 @@ def _validate_coordinate_artifact(front: ParetoFront) -> None:
         raise ValueError("coordinate reference keys do not match the coordinate schema")
     if any(not math.isfinite(value) for value in front.coordinate_reference_point.values()):
         raise ValueError("coordinate reference point contains a non-finite value")
-    if not math.isfinite(front.hypervolume):
-        raise ValueError("complete coordinate artifact has a non-finite hypervolume")
 
     display_keys: set[str] | None = None
     for member in front.members:
@@ -373,10 +402,19 @@ class ParetoPromoter:
             [objective_vectors[i] for i in non_dominated_indices],
             coordinate_ref_point,
         )
+        hv_assessment = None
+        if not math.isfinite(hv):
+            hv = None
+            hv_assessment = HypervolumeAssessment(
+                status="unavailable",
+                basis="not_established",
+                reason="non_finite_derived_hypervolume",
+            )
 
         return ParetoFront(
             members=members,
             hypervolume=hv,
+            hypervolume_assessment=hv_assessment,
             reference_point=ref_point,
             coordinate_schema=self._coordinate_schema,
             coordinate_reference_point=coordinate_ref_point,
@@ -393,9 +431,7 @@ class ParetoPromoter:
         vector, missing, non_finite = self._assess_objective_vector(candidate)
         if vector is None:
             reason = "missing" if missing else "non-finite"
-            raise ValueError(
-                f"candidate is unassessed: {reason} required Pareto coordinate"
-            )
+            raise ValueError(f"candidate is unassessed: {reason} required Pareto coordinate")
         if not front.members:
             return False
         schema = front.coordinate_schema
@@ -652,11 +688,7 @@ class ParetoPromoter:
         """Worst value per objective as reference point."""
         if not objectives:
             return {}
-        if any(
-            not math.isfinite(value)
-            for vector in objectives
-            for value in vector
-        ):
+        if any(not math.isfinite(value) for vector in objectives for value in vector):
             return {}
         return {
             metric_name: min(vector[index] for vector in objectives)
@@ -690,8 +722,7 @@ class ParetoPromoter:
         if any(not math.isfinite(value) for value in ref_point.values()):
             return 0.0
         if any(
-            len(objective) != len(keys)
-            or any(not math.isfinite(value) for value in objective)
+            len(objective) != len(keys) or any(not math.isfinite(value) for value in objective)
             for objective in front_objectives
         ):
             return 0.0

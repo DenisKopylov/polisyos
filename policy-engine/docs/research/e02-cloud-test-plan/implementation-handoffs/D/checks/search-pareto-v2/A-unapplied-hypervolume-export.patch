@@ -1,0 +1,17 @@
+--- a/policy-engine/src/polisyos/scientist/policy_design/output.py
++++ b/policy-engine/src/polisyos/scientist/policy_design/output.py
+@@ -1026,7 +1026,13 @@
+                 for key, view_projection in all_projections.items()
+             },
+             view_projections=all_projections,
+-            metadata={"hypervolume_by_view": dict(snapshot.hypervolume_by_view)},
++            metadata={
++                "hypervolume_by_view": dict(snapshot.hypervolume_by_view),
++                "hypervolume_assessments": {
++                    view: assessment.model_dump(mode="json")
++                    for view, assessment in snapshot.hypervolume_assessments.items()
++                },
++            },
+         )
+ 
+     def _build_constraint_report(

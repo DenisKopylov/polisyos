@@ -86,9 +86,13 @@ class _WorkerResultChannel:
 
     def __init__(self, context: Any) -> None:
         self._reader, self._writer = context.Pipe(duplex=False)
-        os.set_blocking(self._reader.fileno(), False)
-        self._buffer = bytearray()
-        self._size: int | None = None
+        try:
+            os.set_blocking(self._reader.fileno(), False)
+            self._buffer = bytearray()
+            self._size: int | None = None
+        except BaseException:
+            self.close()
+            raise
 
     def put(self, value: Any) -> None:
         status, data = value
@@ -1420,29 +1424,32 @@ def _execute_with_timeout_process(
 ) -> NodeOutcome:
     authority = authority or _AttemptAuthority()
     mp_ctx = mp.get_context("fork")
-    result_queue = _WorkerResultChannel(mp_ctx)
-    group_ready = mp_ctx.Event()
-    completion_time = mp_ctx.Value("d", 0.0)
-    lifecycle = _WorkerLifecycle(
-        compute_deadline=time.monotonic() + timeout_s,
-        completion_time=completion_time,
-        cleanup_complete=mp_ctx.Value("b", False),
-    )
-    process = mp_ctx.Process(
-        target=_node_execute_supervisor,
-        args=(
-            node,
-            ctx,
-            state,
-            result_queue,
-            group_ready,
-            completion_time,
-            lifecycle.compute_deadline,
-            lifecycle.cleanup_complete,
-        ),
-        daemon=True,
-    )
+    result_queue: _WorkerResultChannel | None = None
+    process: Any = None
+    lifecycle: _WorkerLifecycle | None = None
     try:
+        result_queue = _WorkerResultChannel(mp_ctx)
+        group_ready = mp_ctx.Event()
+        completion_time = mp_ctx.Value("d", 0.0)
+        lifecycle = _WorkerLifecycle(
+            compute_deadline=time.monotonic() + timeout_s,
+            completion_time=completion_time,
+            cleanup_complete=mp_ctx.Value("b", False),
+        )
+        process = mp_ctx.Process(
+            target=_node_execute_supervisor,
+            args=(
+                node,
+                ctx,
+                state,
+                result_queue,
+                group_ready,
+                completion_time,
+                lifecycle.compute_deadline,
+                lifecycle.cleanup_complete,
+            ),
+            daemon=True,
+        )
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -1484,12 +1491,15 @@ def _execute_with_timeout_process(
         ) from exc
     finally:
         authority.revoke()
-        if process.is_alive():
-            _terminate_owned_process(
-                process, lifecycle.process_group_id, lifecycle.cleanup_complete
-            )
-        _close_worker_process(process)
-        _close_result_queue(result_queue)
+        if process is not None:
+            if process.is_alive():
+                assert lifecycle is not None
+                _terminate_owned_process(
+                    process, lifecycle.process_group_id, lifecycle.cleanup_complete
+                )
+            _close_worker_process(process)
+        if result_queue is not None:
+            _close_result_queue(result_queue)
 
     if status == "ok":
         from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
@@ -1519,29 +1529,32 @@ async def _execute_with_timeout_process_async(
         ctx = _build_attempt_context(ctx, authority)
         state = state.model_copy(deep=True)
     mp_ctx = mp.get_context("fork")
-    result_queue = _WorkerResultChannel(mp_ctx)
-    group_ready = mp_ctx.Event()
-    completion_time = mp_ctx.Value("d", 0.0)
-    lifecycle = _WorkerLifecycle(
-        compute_deadline=time.monotonic() + timeout_s,
-        completion_time=completion_time,
-        cleanup_complete=mp_ctx.Value("b", False),
-    )
-    process = mp_ctx.Process(
-        target=_node_execute_supervisor,
-        args=(
-            node,
-            ctx,
-            state,
-            result_queue,
-            group_ready,
-            completion_time,
-            lifecycle.compute_deadline,
-            lifecycle.cleanup_complete,
-        ),
-        daemon=True,
-    )
+    result_queue: _WorkerResultChannel | None = None
+    process: Any = None
+    lifecycle: _WorkerLifecycle | None = None
     try:
+        result_queue = _WorkerResultChannel(mp_ctx)
+        group_ready = mp_ctx.Event()
+        completion_time = mp_ctx.Value("d", 0.0)
+        lifecycle = _WorkerLifecycle(
+            compute_deadline=time.monotonic() + timeout_s,
+            completion_time=completion_time,
+            cleanup_complete=mp_ctx.Value("b", False),
+        )
+        process = mp_ctx.Process(
+            target=_node_execute_supervisor,
+            args=(
+                node,
+                ctx,
+                state,
+                result_queue,
+                group_ready,
+                completion_time,
+                lifecycle.compute_deadline,
+                lifecycle.cleanup_complete,
+            ),
+            daemon=True,
+        )
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -1585,12 +1598,15 @@ async def _execute_with_timeout_process_async(
         ) from exc
     finally:
         authority.revoke()
-        if process.is_alive():
-            _terminate_owned_process(
-                process, lifecycle.process_group_id, lifecycle.cleanup_complete
-            )
-        _close_worker_process(process)
-        _close_result_queue(result_queue)
+        if process is not None:
+            if process.is_alive():
+                assert lifecycle is not None
+                _terminate_owned_process(
+                    process, lifecycle.process_group_id, lifecycle.cleanup_complete
+                )
+            _close_worker_process(process)
+        if result_queue is not None:
+            _close_result_queue(result_queue)
 
     if status == "ok":
         from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome

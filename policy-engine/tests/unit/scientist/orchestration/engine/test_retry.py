@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import json
 import multiprocessing as mp
 import os
 import signal
@@ -11,6 +12,7 @@ import subprocess
 import sys
 import threading
 import time as _time
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -1462,3 +1464,33 @@ def test_supervisor_setup_failure_is_transported_without_starting_node(
         retry_module._execute_with_timeout_process(Node(), ctx, state, timeout_s=0.5)
     assert not entered.exists()
     assert _caller_subreaper_flag() == before
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="actual Linux RLIMIT descriptor oracle")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("preparation", ["cold", "synchronize", "shared"])
+def test_worker_setup_fault_closes_real_pipe_descriptors(tmp_path, mode, preparation):
+    """Every preparation failure releases owned Pipe ends, with traceback retained."""
+    effects = tmp_path / "node.effects"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(Path(__file__).with_name("_retry_setup_probe.py")),
+            mode,
+            preparation,
+            str(effects),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    observed = json.loads(completed.stdout)
+    assert observed["failure"]["type"] == "OSError", observed
+    assert observed["failure"]["errno"] == 24, observed
+    assert observed["retained_exception"] is True, observed
+    assert observed["new_descriptors"] == [], observed
+    assert observed["after"] == observed["before"], observed
+    assert observed["body_effect"] is False, observed
+    assert not effects.exists()

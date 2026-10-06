@@ -12,8 +12,9 @@ import json
 import time
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager, nullcontext
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import UTC, datetime
+from enum import Enum
 from hashlib import sha256
 from numbers import Integral
 from typing import Any, Literal
@@ -119,6 +120,48 @@ class CalibrationBatchInputs:
                 or [np.shape(value) for value in jax.tree_util.tree_leaves(state)] != first_shapes
             ):
                 raise ValueError("calibration batch state PyTrees and leaf shapes must agree")
+
+
+def _bind_objective_operand(identity_hash: Any, value: Any) -> bool:
+    """Hash typed, framed objective content; unknown runtime objects are unbound."""
+
+    def write(payload: bytes) -> None:
+        identity_hash.update(len(payload).to_bytes(8, "big"))
+        identity_hash.update(payload)
+
+    write(f"{type(value).__module__}.{type(value).__qualname__}".encode())
+    if value is None or isinstance(value, (str, bool, int, float)):
+        write(repr(value).encode())
+        return True
+    if isinstance(value, Enum):
+        return _bind_objective_operand(identity_hash, value.value)
+    if isinstance(value, (np.ndarray, jax.Array, np.generic)):
+        array = np.asarray(value)
+        write(str((array.shape, array.dtype)).encode())
+        if array.dtype.hasobject:
+            return _bind_objective_operand(identity_hash, array.tolist())
+        write(array.tobytes())
+        return True
+    if hasattr(value, "model_dump"):
+        return _bind_objective_operand(identity_hash, value.model_dump(mode="json"))
+    if is_dataclass(value) and not isinstance(value, type):
+        return _bind_objective_operand(
+            identity_hash, {item.name: getattr(value, item.name) for item in fields(value)}
+        )
+    if isinstance(value, Mapping):
+        write(str(len(value)).encode())
+        complete = True
+        for key in sorted(value, key=lambda item: (type(item).__qualname__, repr(item))):
+            complete = _bind_objective_operand(identity_hash, key) and complete
+            complete = _bind_objective_operand(identity_hash, value[key]) and complete
+        return complete
+    if isinstance(value, (tuple, list)):
+        write(str(len(value)).encode())
+        complete = True
+        for item in value:
+            complete = _bind_objective_operand(identity_hash, item) and complete
+        return complete
+    return False
 
 
 @dataclass
@@ -991,6 +1034,7 @@ class Calibrator:
             }
 
         measurement_support: dict[str, bool] = {}
+        frozen_sample_quality: dict[str, jax.Array] = {}
         if measurement_bundle is not None:
             for target in targets:
                 target_id = target.target_id
@@ -1017,6 +1061,7 @@ class Calibrator:
                 measurement_support[target_id] = bool(
                     np.any(np.isfinite(quality_arr) & (quality_arr > 0.0))
                 )
+                frozen_sample_quality[target_id] = jnp.asarray(quality)
                 if not measurement_support[target_id]:
                     diagnostics.append(f"no_effective_support:{target_id}")
             if not any(measurement_support.values()):
@@ -1155,47 +1200,63 @@ class Calibrator:
             return total
 
         measurement_enabled = measurement_bundle is not None
-        identity_hash = sha256(cfg.model_dump_json().encode())
-        identity_hash.update(self.inputs.program_graph.model_dump_json().encode())
-        identity_hash.update(self.inputs.exec_plan.model_dump_json().encode())
-        identity_hash.update(str(sorted((gaussian_std or {}).items())).encode())
-        for node in bundle.nodes:
-            identity_hash.update(
-                str(
-                    (
-                        node.node_id,
-                        node.mechanism_type,
-                        node.rank,
-                        node.start,
-                        node.end,
-                        node.priority,
-                        node.outputs,
-                        node.selector.model_dump_json() if node.selector is not None else None,
-                    )
-                ).encode()
+        identity_hash = sha256()
+        objective_identity_complete = _bind_objective_operand(
+            identity_hash,
+            {
+                "config": cfg,
+                "graph": self.inputs.program_graph,
+                "plan": self.inputs.exec_plan,
+                "gaussian_std": gaussian_std,
+                "nodes": [
+                    {
+                        "node_id": node.node_id,
+                        "mechanism_type": node.mechanism_type,
+                        "rank": node.rank,
+                        "start": node.start,
+                        "end": node.end,
+                        "priority": node.priority,
+                        "outputs": node.outputs,
+                        "selector": node.selector,
+                        "mechanism_structure": str(jax.tree_util.tree_structure(node.mechanism)),
+                        "mechanism_leaves": jax.tree_util.tree_leaves(node.mechanism),
+                    }
+                    for node in bundle.nodes
+                ],
+                "aligned_targets": aligned_targets,
+                "metric_paths": metric_paths,
+                "path_by_target": path_by_target,
+                "path_by_constraint": path_by_constraint,
+                "time_axes": time_axes,
+                "scales": scales,
+                "measurement_bundle": measurement_bundle,
+                "measurement_config": measurement_config,
+                "sample_quality": frozen_sample_quality,
+                "measurement_support": measurement_support,
+                "scale_support": scale_support,
+                "constraints": constraint_handles,
+                "groups": groups,
+                "aux_components": aux_loss_components,
+                "registries": {
+                    "mechanism": self.inputs.mechanism_registry,
+                    "slot": self.inputs.slot_registry,
+                    "merge": self.inputs.merge_registry,
+                    "selector": self.inputs.selector_field_registry,
+                },
+                "base_state": jax.tree_util.tree_leaves(self.inputs.base_state),
+                "controls_seq": self.inputs.controls_seq,
+                "batch_context": batch_context,
+                "batch_state": jax.tree_util.tree_leaves(stacked_state),
+            },
+        )
+        if (
+            measurement_bundle is not None
+            and type(measurement_adapter) is not DefaultMeasurementAwareLossAdapter
+        ) or aux_loss_components:
+            objective_identity_complete = False
+            diagnostics.append(
+                "Hessian reuse disabled: custom objective callback binding not established"
             )
-            identity_hash.update(str(jax.tree_util.tree_structure(node.mechanism)).encode())
-            for leaf in jax.tree_util.tree_leaves(node.mechanism):
-                array = np.asarray(leaf)
-                identity_hash.update(str((array.shape, array.dtype)).encode())
-                identity_hash.update(array.tobytes())
-        for target_id, values in sorted(aligned_targets.items()):
-            identity_hash.update(target_id.encode())
-            array = np.asarray(values)
-            identity_hash.update(str((array.shape, array.dtype)).encode())
-            identity_hash.update(array.tobytes())
-        for leaf in jax.tree_util.tree_leaves(self.inputs.base_state):
-            array = np.asarray(leaf)
-            identity_hash.update(str((array.shape, array.dtype)).encode())
-            identity_hash.update(array.tobytes())
-        if self.inputs.controls_seq is not None:
-            identity_hash.update(np.asarray(self.inputs.controls_seq).tobytes())
-        if batch is not None:
-            identity_hash.update(str(batch_context).encode())
-            for leaf in jax.tree_util.tree_leaves(stacked_state):
-                array = np.asarray(leaf)
-                identity_hash.update(str((array.shape, array.dtype)).encode())
-                identity_hash.update(array.tobytes())
         objective_identity = identity_hash.hexdigest()
 
         def _target_loss_vec(
@@ -1238,24 +1299,7 @@ class Calibrator:
                     cfg_loss,
                     scale,
                 )
-                adapted = measurement_adapter.adapt(
-                    targets=(measurement_targets[target.target_id],),
-                    # Sample-quality is normalized within the target.  The
-                    # inter-target priority is applied by ``loss_fn`` after
-                    # this reduction so it cannot cancel in the denominator.
-                    base_weights=1.0,
-                    trust_weight=measurement_bundle.trust_weight[target.target_id],
-                    coverage_estimate=measurement_bundle.coverage_estimate[target.target_id],
-                    censoring_mask=measurement_bundle.censoring_mask.get(target.target_id),
-                    lag_days_estimate=measurement_bundle.lag_days_estimate.get(target.target_id),
-                    schema_regime_id=measurement_bundle.schema_regime_id.get(target.target_id),
-                    shock_mask=measurement_bundle.shock_mask.get(target.target_id),
-                    identification_mode=measurement_bundle.identification_mode.get(
-                        target.target_id
-                    ),
-                    config=measurement_config,
-                )
-                sample_quality = adapted.get("sample_quality_weight", adapted["effective_weight"])
+                sample_quality = frozen_sample_quality[target.target_id]
                 losses.append(
                     reduce_weighted_loss(
                         pointwise,
@@ -1809,9 +1853,10 @@ class Calibrator:
                 )
                 cached_hessian = selected_run.get("hessian_result")
                 cached_hessian_key = selected_run.get("hessian_reuse_key")
-                reused_hessian = cached_hessian is not None and _hessian_reuse_key_matches(
-                    cached_hessian_key,
-                    final_hessian_key,
+                reused_hessian = (
+                    objective_identity_complete
+                    and cached_hessian is not None
+                    and _hessian_reuse_key_matches(cached_hessian_key, final_hessian_key)
                 )
                 if reused_hessian:
                     hessian_result = cached_hessian
@@ -2004,6 +2049,9 @@ class Calibrator:
                 },
                 "objective_kind": objective_kind,
                 "objective_identity": objective_identity,
+                "objective_identity_status": "content_bound"
+                if objective_identity_complete
+                else "not_established",
                 "objective_profile": objective_profile,
                 "batch_rows": batch_context,
                 "covariance_authority_basis": "not_established",

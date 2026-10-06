@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from contextlib import suppress
 from dataclasses import replace
-from types import SimpleNamespace
 
 import jax
 import jax.numpy as jnp
@@ -26,6 +25,11 @@ from polisyos.foundry.calibration.pure_executor import PreparedNode, TrainableHa
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.mechanisms.fiscal import IncomeTax
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
+from polisyos.ir.kernel import (
+    DEFAULT_MECHANISM_REGISTRY,
+    DEFAULT_MERGE_RULE_REGISTRY,
+    DEFAULT_SLOT_REGISTRY,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -129,9 +133,9 @@ def _make_fake_calibrator(
         program_graph=graph,
         exec_plan=ExecPlan(program_ref=ProgramGraphRef(artifact_id=dummy_id), order=[]),
         base_state=GlobalState.empty(n_agents=1, n_firms=1),
-        mechanism_registry=SimpleNamespace(),
-        slot_registry=SimpleNamespace(slots={}),
-        merge_registry=SimpleNamespace(),
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
         selector_field_registry=None,
         parameter_loader=lambda _value: {},
         raw_targets={"objective": jnp.asarray([target_value], dtype=jnp.float32)},
@@ -463,4 +467,29 @@ def test_multi_start_recomputes_hessian_after_identity_mismatch(
     assert hessian_calls == 3
     assert report.uncertainties is None
     assert report.execution_context["curvature_diagnostic"]["raw_rank"] == 1
+    assert "Hessian reused from selected start" not in report.diagnostics
+
+
+def test_custom_auxiliary_callback_does_not_reuse_a_matching_hessian(monkeypatch):
+    calls = []
+    real_compute = calibrator_module.compute_hessian
+
+    def recording_compute(*args, **kwargs):
+        calls.append("hessian")
+        return real_compute(*args, **kwargs)
+
+    class CustomPenalty:
+        component_name = "opaque_custom_penalty"
+
+        def compute(self, *, traces):
+            return jnp.sum(traces["objective"] * 0.0), {}
+
+    monkeypatch.setattr(calibrator_module, "compute_hessian", recording_compute)
+    calibrator, _ = _make_fake_calibrator(
+        monkeypatch, _calibrator_config(hessian=True, multi_start=2), _quadratic_scan
+    )
+    calibrator.inputs.aux_loss_components = (CustomPenalty(),)
+    report = calibrator.run()
+    assert len(calls) == 3  # two starts plus uncached final diagnostic
+    assert report.execution_context["objective_identity_status"] == "not_established"
     assert "Hessian reused from selected start" not in report.diagnostics

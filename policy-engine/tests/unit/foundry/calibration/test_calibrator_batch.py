@@ -1,6 +1,7 @@
 """Exercise configured cross-sectional calibration through report CAS readback."""
 
 from dataclasses import replace
+from datetime import date
 
 import jax
 import jax.numpy as jnp
@@ -17,6 +18,10 @@ from polisyos.foundry.calibration.calibrator import (
     Calibrator,
     CalibratorInputs,
 )
+from polisyos.foundry.calibration.measurement import (
+    CalibrationTargetBundleCompiler,
+    MeasurementAwareLossConfig,
+)
 from polisyos.foundry.calibration.report import (
     load_calibration_report,
     put_calibration_config,
@@ -28,6 +33,14 @@ from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
     DEFAULT_SLOT_REGISTRY,
+)
+from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir.observation.contracts import (
+    EntityScope,
+    IdentificationMode,
+    ObservationFamily,
+    ObservationPanel,
+    ObservationRecord,
 )
 
 
@@ -216,3 +229,106 @@ def test_objective_identity_binds_loader_resolved_schedule():
         first.execution_context["objective_identity"]
         != second.execution_context["objective_identity"]
     )
+
+
+def _measurement_inputs():
+    inputs = _inputs()
+    panel = ObservationPanel(
+        panel_id="synthetic_objective_binding_fixture",
+        family=ObservationFamily.LABOR_MARKET,
+        time_grain=TimeFrequency.MONTH,
+        records=[
+            ObservationRecord(
+                observation_id=f"synthetic_row_{index}",
+                family=ObservationFamily.LABOR_MARKET,
+                time_grain=TimeFrequency.MONTH,
+                period_start=date(2024, index + 1, 1),
+                period_end=date(2024, index + 1, [31, 29][index]),
+                entity_scope=EntityScope.CELL,
+                cell_id="fixture_cell",
+                metric_id="balance",
+                observed_value=value,
+                unit="currency",
+                coverage_estimate=1.0,
+                trust_weight=trust,
+                source_id="synthetic_fixture",
+                source_version="fixture.v1",
+                regime_id="fixture_regime",
+                schema_regime_id="fixture_schema.v1",
+                identification_mode=IdentificationMode.PROXY_IDENTIFIED,
+                proxy_source_id="synthetic_fixture",
+            )
+            for index, (value, trust) in enumerate(((0.0, 1.0), (50.0, 0.1)))
+        ],
+    )
+    bundle = CalibrationTargetBundleCompiler().compile(panel)
+    target_id = bundle.targets[0].target_id
+    # Admit exact mathematical weights for this synthetic oracle; this override
+    # is not evidence for the source's trust tier or producer provenance.
+    bundle = replace(bundle, trust_weight={target_id: jnp.array([1.0, 0.1])})
+    inputs.batch_inputs = None
+    inputs.raw_targets = None
+    inputs.measurement_bundle = bundle
+    inputs.config = inputs.config.model_copy(
+        update={"targets": [inputs.config.targets[0].model_copy(update={"target_id": target_id})]}
+    )
+    inputs.parameter_loader = lambda _: {
+        "params": {"rate": 0.25},
+        "schedule": {"start_step": 0, "end_step": 10},
+    }
+    return inputs, target_id
+
+
+def test_native_measurement_quality_changes_identity_and_matches_weighted_hessian():
+    inputs, target_id = _measurement_inputs()
+    first = Calibrator(inputs).run()
+    inputs.measurement_bundle = replace(
+        inputs.measurement_bundle, trust_weight={target_id: jnp.array([0.1, 1.0])}
+    )
+    second = Calibrator(inputs).run()
+    for report, weights in ((first, [1.0, 0.1]), (second, [0.1, 1.0])):
+        expected_loss = weights[0] * 625.0 / sum(weights)
+        expected_hessian = 2 * (weights[0] * 100**2 + weights[1] * 200**2) / sum(weights)
+        assert report.total_loss == pytest.approx(expected_loss, rel=1e-6)
+        assert report.execution_context["curvature_diagnostic"]["raw_eigenvalues"] == pytest.approx(
+            [expected_hessian], rel=1e-6
+        )
+        assert report.execution_context["objective_identity_status"] == "content_bound"
+    assert (
+        first.execution_context["objective_identity"]
+        != second.execution_context["objective_identity"]
+    )
+    # The old config/observed/model proxy is unchanged across this true objective delta.
+    assert first.calibrated_params == pytest.approx(second.calibrated_params)
+    assert first.series_comparison == second.series_comparison
+
+
+def test_native_measurement_policy_is_part_of_effective_objective_identity():
+    inputs, target_id = _measurement_inputs()
+    inputs.measurement_bundle = replace(
+        inputs.measurement_bundle, censoring_mask={target_id: jnp.array([True, False])}
+    )
+    first = Calibrator(inputs).run()
+    inputs.measurement_loss_config = MeasurementAwareLossConfig(censoring_discount=0.1)
+    second = Calibrator(inputs).run()
+    assert first.total_loss != pytest.approx(second.total_loss)
+    assert (
+        first.execution_context["objective_identity"]
+        != second.execution_context["objective_identity"]
+    )
+
+
+def test_custom_measurement_adapter_freezes_outputs_and_does_not_claim_functional_identity():
+    inputs, _ = _measurement_inputs()
+    calls = []
+
+    class CustomAdapter:
+        def adapt(self, **_):
+            calls.append("adapted")
+            return {"effective_weight": jnp.array([1.0, 0.1])}
+
+    inputs.measurement_loss_adapter = CustomAdapter()
+    report = Calibrator(inputs).run()
+    assert calls == ["adapted"]
+    assert report.execution_context["objective_identity_status"] == "not_established"
+    assert "Hessian reused from selected start" not in report.diagnostics

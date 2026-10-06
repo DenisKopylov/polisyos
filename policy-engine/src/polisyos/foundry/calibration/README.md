@@ -40,6 +40,13 @@ The objective itself must return a finite real scalar. A nonfinite constant can
 leave exact gradients and Hessians finite; it still prevents covariance while
 the raw curvature and objective dtype remain available for diagnosis.
 
+Objective identity binds resolved mechanism values and schedules, metric axes,
+normalization scales, complete measurement operands and policy, adapted sample
+weights, constraints, priors, runtime rows, and registries. Measurement weights
+are evaluated once before optimization and remain fixed for all objective and
+Hessian calls. Custom measurement adapters and auxiliary callbacks remain
+`not_established` for functional identity and disable Hessian reuse.
+
 `CalibratorInputs.batch_inputs` accepts a runtime-only `CalibrationBatchInputs`
 with ordered states, schedule times, and unique row IDs. Each cross-sectional row
 executes one scalar step through `run_pure_batch`; the optimizer, final projection,

@@ -103,8 +103,19 @@ def test_measured_provider_charge_drives_stopping_and_detached_report(tmp_path):
     result = search.run({"cumulative_cost_usd": -999})
     assert result.iterations_completed == 1
     assert result.telemetry["budget_snapshot"] == {"cumulative_cost_usd": 1.0}
-    assert result.telemetry["budget_snapshot_source"] == "persisted_owner"
-    assert result.telemetry["budget_ledger_revision"] == FileBudgetLedger(path).snapshot().revision
+    assert result.telemetry["budget_snapshot_source"] == "configured_owner_recorded_state"
+    assert result.telemetry["budget_ledger_revision"] is None
+    evidence = result.telemetry["budget_evidence"]
+    assert evidence["source"] == "configured_owner_recorded_state"
+    assert evidence["receipt_revision_available"] is False
+    assert evidence["provider_cost_origin_available"] is False
+    assert evidence["recorded_by_provider"] == {"provider-a": 1.0}
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent == {"run": Decimal("1")}
+    assert len(snapshot.spend_receipts) == 1
+    receipt = next(iter(snapshot.spend_receipts.values()))
+    assert receipt.amount == Decimal("1")
+    assert receipt.provider == "provider-a"
     assert FileBudgetLedger(path).load().remaining("run") == Decimal("4")
     frozen = deepcopy(result)
     owner.record_spend_safe("run", Decimal("1"))

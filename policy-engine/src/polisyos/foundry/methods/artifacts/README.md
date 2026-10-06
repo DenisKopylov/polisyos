@@ -38,6 +38,10 @@ markers and must not be presented as complete source identity.
 
 ## Authoring Rules
 
+- Git provenance probes use fixed private Git subcommands with argument vectors
+  and no shell. Source-derived root paths are `-C` operands; the `ls-tree` path
+  follows `--`. The configured local Git executable and repository remain
+  environment premises; this lookup grants no evidence authority or permission.
 - Keep artifact payloads deterministic and content-addressable.
 - Add schema-version changes beside compatibility tests.
 - Do not add backend execution logic here; backend receipts are passed in from

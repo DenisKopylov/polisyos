@@ -19,6 +19,12 @@ def test_loads_native_discovery_and_uses_same_canonical_reader_for_replay(tmp_pa
     assert len(rows) == 3
     assert bridge.admit_warm_start(rows, bridge.target_basis(target)) == rows
     assert bridge.last_admission_report["accepted"] == 3
+    assert bridge.last_load_report["loaded"] == 8
+    assert bridge.last_load_report["accepted"] == 8
+    assert bridge.last_load_report["selected"] == 3
+    response = bridge.last_load_report
+    response["loaded"] = 999
+    assert bridge.last_load_report["loaded"] == 8
 
 
 @pytest.mark.parametrize("direction", list(OptimizationDirection))

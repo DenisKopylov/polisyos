@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from copy import deepcopy
+from typing import TYPE_CHECKING, Any
 
 from .models import BenchmarkEvaluation, BenchmarkSplit
 
@@ -35,6 +36,7 @@ class WarmStartBridge:
         self._manager = transfer_manager
         self._max_evals = max_evals
         self._top_k_runs = top_k_runs
+        self._last_load_report: dict[str, Any] = {}
 
     def load_warm_start(
         self,
@@ -43,6 +45,7 @@ class WarmStartBridge:
         """Find similar runs and retrieve their evaluations for warm-start."""
         similar = self._manager.find_similar_runs(fingerprint, top_k=self._top_k_runs)
         if not similar:
+            self._last_load_report = self._manager._report()
             logger.info("WarmStartBridge: no similar runs found for %s", fingerprint.run_id)
             return []
 
@@ -51,12 +54,18 @@ class WarmStartBridge:
             max_evals=self._max_evals,
             target_fingerprint=fingerprint,
         )
+        self._last_load_report = deepcopy(self._manager.last_admission_report)
         logger.info(
             "WarmStartBridge: loaded %d warm-start evaluations from %d similar runs",
             len(evals),
             len(similar),
         )
         return evals
+
+    @property
+    def last_load_report(self) -> dict[str, Any]:
+        """Keep source-load refusals visible after receiving callbacks run."""
+        return deepcopy(self._last_load_report)
 
     @property
     def last_admission_report(self) -> dict:

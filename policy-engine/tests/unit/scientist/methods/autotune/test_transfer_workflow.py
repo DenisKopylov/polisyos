@@ -107,6 +107,8 @@ def test_actual_public_workflow_fits_only_admitted_original_cas_observations(tmp
     optimizer = generator._optimizer
     expected = bridge.load_warm_start(target)
     assert len(expected) == (7 if malformed else 8)
+    assert bridge.last_load_report["loaded"] == 8
+    assert bridge.last_load_report["rejected"] == (1 if malformed else 0)
     assert len(optimizer._warm_evals) == len(expected)
     suite = persist_benchmark_suite(
         store, BenchmarkSuite(suite_id="analytic-receiving", kind="analytic")

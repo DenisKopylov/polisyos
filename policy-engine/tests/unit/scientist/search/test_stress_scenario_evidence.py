@@ -213,3 +213,96 @@ def test_actual_blueprint_existing_report_path_requires_scenario_basis(
     assert restored.robustness_score == (None if legacy else 31 / 32)
     assert restored.set_adequacy_status == ("partial" if legacy else "complete")
     assert store.get_bytes(ref.artifact_id) == original
+
+
+@pytest.mark.parametrize("schema", ["2.0", "1.1-dev", "1.0"])
+def test_typed_basis_requires_exact_supported_schema(schema: str) -> None:
+    payload = _run([1.0, 3.0]).model_dump(mode="json")
+    payload["schema_version"] = schema
+    with pytest.raises(ValidationError):
+        StressTestReport.model_validate(payload)
+
+
+def test_new_schema_cannot_claim_score_without_typed_basis() -> None:
+    with pytest.raises(ValidationError):
+        StressTestReport(schema_version="1.1", report_id="unbound", robustness_score=1.0)
+
+
+def test_anonymous_report_retry_is_counted_once_at_actual_cas_path(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="retry-counts")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retry-counts"))
+    base = _run([1.0, 3.0])
+    child = _run([1.0, 1.0])
+    ref = store.put_json(
+        base.model_dump(mode="json"),
+        PutOptions(kind="scientist.stress_test_report"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    state = ExperimentState(
+        run_id="retry-counts", artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: ref}
+    )
+    first = _ensure_stress_test_report(
+        ctx,
+        state,
+        evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+        supplemental_reports=[child],
+    )
+    retried_state = state.model_copy(
+        update={"artifacts_index": {ARTIFACT_STRESS_TEST_REPORT_REF: first}}
+    )
+    second = _ensure_stress_test_report(
+        ctx,
+        retried_state,
+        evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+        supplemental_reports=[child],
+    )
+
+    def read(reference):
+        return StressTestReport.model_validate(
+            from_canonical_bytes(store.get_bytes(reference.artifact_id))
+        )
+
+    assert read(first).scenario_evidence.attempted == 4
+    assert read(second).scenario_evidence.attempted == 4
+    assert read(second).robustness_score == 3 / 4
+    assert second.artifact_id == first.artifact_id
+    # Same report label with changed real content must refuse, rather than merge twice.
+    changed = child.model_copy(deep=True)
+    changed.metadata["changed_payload"] = True
+    with pytest.raises(ValueError, match="content"):
+        _ensure_stress_test_report(
+            ctx,
+            retried_state,
+            evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+            supplemental_reports=[changed],
+        )
+
+
+def test_same_anonymous_report_as_base_is_not_an_extra_attempt() -> None:
+    base = _run([1.0, 3.0])
+    merged = _recompute_stress_test_report(_merge_stress_test_reports(base, [base]))
+    assert merged.scenario_evidence.attempted == 2
+    assert merged.robustness_score == 1 / 2
+
+
+def test_budget_port_uses_ordinary_typed_context_not_json_state(tmp_path: Path) -> None:
+    from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware, BudgetState
+
+    context_type = getattr(runtime, "PolicyBudgetExecutionContext", None)
+    assert context_type is not None, "ordinary blueprint context port is missing"
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="typed-budget")
+    owner = BudgetMiddleware(BudgetState())
+    arguments = {"store": store, "run": run, "logger": logging.getLogger("typed-budget")}
+    context = context_type(**arguments, budget_middleware=owner)
+    assert context.budget_middleware is owner
+    assert isinstance(context, ExecutionContext)
+    assert context_type(**arguments).budget_middleware is None
+    with pytest.raises(TypeError):
+        context_type(**arguments, budget_middleware=object())
+    with pytest.raises(ValidationError):
+        ExperimentState(run_id="typed-budget", params={"_resource_budget_middleware": owner})

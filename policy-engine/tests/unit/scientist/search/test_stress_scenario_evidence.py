@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,8 @@ from pydantic import ValidationError
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.scientist.methods.doe.designs import (
     AdversarialPlan,
     AdversarialStrategy,
@@ -19,10 +22,15 @@ from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.objective import BudgetDeficitObjective, CompositeObjective
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+    _ensure_stress_test_report,
     _merge_stress_test_reports,
     _recompute_stress_test_report,
 )
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_STRESS_TEST_REPORT_REF
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.adversary import ScenarioAttackSurface
+from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 
 
 def _run(values: list[float | None], *, threshold: float | None = 2.0, top_k: int = 1):
@@ -166,3 +174,42 @@ def test_fresh_reader_refuses_score_independent_of_retained_basis() -> None:
     payload["robustness_score"] = 1.0
     with pytest.raises(ValidationError):
         StressTestReport.model_validate(payload)
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_actual_blueprint_existing_report_path_requires_scenario_basis(
+    tmp_path: Path, legacy: bool
+) -> None:
+    report = (
+        StressTestReport(report_id="historical", total_scenarios_evaluated=32, robustness_score=1.0)
+        if legacy
+        else _run([1.0] * 31 + [3.0])
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="blueprint-counts")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("blueprint-counts"))
+    ref = store.put_json(
+        report.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.stress_test_report",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.StressTestReport", version=report.schema_version
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    original = store.get_bytes(ref.artifact_id)
+    state = ExperimentState(
+        run_id="blueprint-counts", artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: ref}
+    )
+    published_ref = _ensure_stress_test_report(
+        ctx, state, evaluation_vector=PolicyEvaluationVector(candidate_id="c")
+    )
+    restored = StressTestReport.model_validate(
+        from_canonical_bytes(FileSystemCAS(tmp_path / "cas").get_bytes(published_ref.artifact_id))
+    )
+    assert restored.robustness_score == (None if legacy else 31 / 32)
+    assert restored.set_adequacy_status == ("partial" if legacy else "complete")
+    assert store.get_bytes(ref.artifact_id) == original

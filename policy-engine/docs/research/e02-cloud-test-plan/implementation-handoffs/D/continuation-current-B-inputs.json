@@ -1,0 +1,295 @@
+{
+  "schema": "policyos.e02.pinned_input_manifest.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "root_target": {
+    "sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "tree": "28b25703040e158ad87211b1399dfd4f86b562c5"
+  },
+  "initial_root_source": {
+    "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+    "tree": "af25d6fef7ed0398ff2c1d221166984f3e458766"
+  },
+  "fresh_remote_observation": {
+    "started_utc": "2026-10-06T19:14:34.735015+00:00",
+    "ended_utc": "2026-10-06T19:14:36.063858+00:00",
+    "command": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-B-current-composition",
+      "refs/heads/codex/e02-B-current-adapters",
+      "refs/heads/codex/e02-B-current-durability",
+      "refs/heads/codex/e02-B-current-runtime"
+    ],
+    "exit_code": 0,
+    "stdout_bytes": 328,
+    "stdout_sha256": "8800761167c0709961db411101617640404ddd0372195d921f9a2bbe1592b520",
+    "heads": {
+      "refs/heads/codex/e02-B-current-adapters": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+      "refs/heads/codex/e02-B-current-composition": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+      "refs/heads/codex/e02-B-current-durability": "bcd29edac682b9541d84948929d5944775e16f15",
+      "refs/heads/codex/e02-B-current-runtime": "f8aa24a356e4143d975c8cb8bc40850e2df8725e"
+    }
+  },
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "root_blob_sha1": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+      "root_sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "bytes": 26353,
+      "matches_e73": true,
+      "matches_B_adapters": true,
+      "published_B_refs": [
+        {
+          "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+          "blob_sha1": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+          "bytes": 26353
+        },
+        {
+          "source_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+          "blob_sha1": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+          "bytes": 15990
+        },
+        {
+          "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+          "blob_sha1": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+          "bytes": 26353
+        },
+        {
+          "source_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+          "blob_sha1": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+          "bytes": 15990
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "root_blob_sha1": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+      "root_sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "bytes": 6067,
+      "matches_e73": true,
+      "matches_B_adapters": true,
+      "published_B_refs": [
+        {
+          "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+          "blob_sha1": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+          "bytes": 6067
+        },
+        {
+          "source_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+          "blob_sha1": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+          "bytes": 4060
+        },
+        {
+          "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+          "blob_sha1": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+          "bytes": 6067
+        },
+        {
+          "source_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+          "blob_sha1": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+          "bytes": 4060
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "root_blob_sha1": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+      "root_sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+      "bytes": 28432,
+      "matches_e73": true,
+      "matches_B_adapters": true,
+      "published_B_refs": [
+        {
+          "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+          "blob_sha1": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+          "bytes": 28432
+        },
+        {
+          "source_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+          "blob_sha1": "a9495ddede391755196189929ee02c10f75364cd",
+          "bytes": 16299
+        },
+        {
+          "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+          "blob_sha1": "a9495ddede391755196189929ee02c10f75364cd",
+          "bytes": 16299
+        },
+        {
+          "source_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+          "blob_sha1": "a9495ddede391755196189929ee02c10f75364cd",
+          "bytes": 16299
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "root_blob_sha1": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+      "root_sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "bytes": 9508,
+      "matches_e73": true,
+      "matches_B_adapters": true,
+      "published_B_refs": [
+        {
+          "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+          "blob_sha1": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+          "bytes": 9508
+        },
+        {
+          "source_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+          "blob_sha1": "1e2be71d382f95f660b0b40a82006709308c7c65",
+          "bytes": 9249
+        },
+        {
+          "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+          "blob_sha1": "1e2be71d382f95f660b0b40a82006709308c7c65",
+          "bytes": 9249
+        },
+        {
+          "source_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+          "blob_sha1": "1e2be71d382f95f660b0b40a82006709308c7c65",
+          "bytes": 9249
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "root_blob_sha1": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "root_sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "bytes": 28121,
+      "matches_e73": true,
+      "matches_B_adapters": true,
+      "published_B_refs": [
+        {
+          "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+          "blob_sha1": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+          "bytes": 28121
+        },
+        {
+          "source_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+          "blob_sha1": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+          "bytes": 28121
+        },
+        {
+          "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+          "blob_sha1": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+          "bytes": 28121
+        },
+        {
+          "source_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+          "blob_sha1": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+          "bytes": 28121
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "root_blob_sha1": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+      "root_sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+      "bytes": 13099,
+      "matches_e73": true,
+      "matches_B_adapters": false,
+      "published_B_refs": [
+        {
+          "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+          "blob_sha1": "947105fccabb40710f563e3e57d71ed06e7f0bb3",
+          "bytes": 7635
+        },
+        {
+          "source_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+          "blob_sha1": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+          "bytes": 7266
+        },
+        {
+          "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+          "blob_sha1": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+          "bytes": 7266
+        },
+        {
+          "source_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+          "blob_sha1": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+          "bytes": 7266
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "root_blob_sha1": "c2c631442a3ecf7587425445565d723598eaba81",
+      "root_sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+      "bytes": 8687,
+      "matches_e73": true,
+      "matches_B_adapters": true,
+      "published_B_refs": [
+        {
+          "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+          "blob_sha1": "c2c631442a3ecf7587425445565d723598eaba81",
+          "bytes": 8687
+        }
+      ]
+    }
+  ],
+  "current_owner_handoffs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "source_sha": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+      "blob_sha1": "4b941e402b794be604707a95560d682ba32f5e3f",
+      "sha256": "3b84f19ffd5c52d1dc5567420d0ba0c2de07f45f81b8b557872a6a6f5e929234",
+      "bytes": 249667
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+      "source_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+      "blob_sha1": "905f1bd32d14ca61d64f57c45a3521649361ad2c",
+      "sha256": "85093d04bd4c027093ef476c2d107cc152eac8af9bcf7408c305947eef44b7e0",
+      "bytes": 101878
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json",
+      "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+      "blob_sha1": "84193b699b74713e0099ffe2d3a4423f44668256",
+      "sha256": "b6f548bfa5bb80475eb516650bc036335cc6d81f8a8cf7b3abb393b0049ece3f",
+      "bytes": 37858
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability.json",
+      "source_sha": "bcd29edac682b9541d84948929d5944775e16f15",
+      "blob_sha1": "84e224fdfc72ee8b964ce3731dbabc05b91d0706",
+      "sha256": "551d2229eee0b9ef61e44ccc1cc588412c761e319680a25044bb15412cfdd896",
+      "bytes": 91141
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry.json",
+      "source_sha": "f8aa24a356e4143d975c8cb8bc40850e2df8725e",
+      "blob_sha1": "7b93b4d6c77332764e0976ca98ffd564774a02f1",
+      "sha256": "ea7e481b64f0d4ec32e7c9e084651d6a50909a9dbabdc6e32107f133db17f784",
+      "bytes": 107722
+    }
+  ],
+  "API_custody": {
+    "initial_complete_API_records": 41,
+    "fresh_complete_directory_API_records": 16,
+    "total_verified_records": 57,
+    "validation": "Every complete raw API response size/SHA256 verified; decoded source and handoff bytes matched Git blob SHA1, byte size and SHA256. Fresh directory entries refer to identical already validated blobs. Full source payloads remain outside Git; exact published commit/path/blob identifies tracked input.",
+    "original_full_review": {
+      "path": "/tmp/e02-D-latest-B-availability-8snldw5o/availability-review.json",
+      "bytes": 21534,
+      "sha256": "3f17462320c9d04e4688dd03601fdb3ef4622904a0399447a75ec03f32e6e5c6"
+    },
+    "original_manifest": {
+      "path": "/tmp/e02-D-latest-B-availability-8snldw5o/manifest.json",
+      "sha256": "61e8394c71251321753abb5c17b78bb295374aabcb38e0e1ba94e915c9df5e2b"
+    },
+    "fresh_directory_manifest": {
+      "path": "/tmp/e02-D-latest-B-availability-8snldw5o/packet-current-directory-metadata.json",
+      "sha256": "ac84612e18e079f233a221938cd77426f9c2091d6c9e41e0780a500331c217df"
+    },
+    "retention": "All raw API responses, decoded tracked-source inputs, first/fresh observations and complete local review retained in original /tmp directory. No source bytes, directory payload copies, derived declaration census or duplicate owner handoffs are committed."
+  },
+  "runtime_evidence_refs": {
+    "raw_text_24": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current.json@782a9270d5ac77ce3a4a6ba7ce413de4a19e5424",
+    "raw_text_owner_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-owner-input.json@782a9270d5ac77ce3a4a6ba7ce413de4a19e5424",
+    "native_paid_cost_stopping_5": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping.json@1159cad1c970c783b30c943cf2eb38b61265f48d",
+    "supplier_snapshot_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/budget-snapshot-owner-input.json@5050a940d990198f17de2b5dd9a3be691e153c05"
+  }
+}

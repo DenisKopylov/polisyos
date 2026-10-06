@@ -1,0 +1,110 @@
+{
+  "schema": "policyos.e02.minimum_supplier_requirements.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "root_target_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+  "input_manifest_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+  "availability_report_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+  "request_purpose": "Request only additive minimum owner-supplied input/port/transition needed by existing D consumers; preserve canonical B1.1 and current supported paid path. Owner selects representation and public API.",
+  "requirements": [
+    {
+      "request_id": "B-raw-cost-token",
+      "finding_ids": [
+        "B120"
+      ],
+      "requested_canonical_owner": "B current adapters / GatewayLLMClient response-text decoder owner, routed by G",
+      "owner_appointment": "Existing B canonical decoder writer; no new external billing authority appointment established or required for local invalid-present intake.",
+      "producer": "Actual HTTP response.text() body at GatewayLLMClient._post_json.",
+      "artifact": "Lossless original USD numeric values/sign/presence for every declared total/alternate/component, retained with the actual response payload before normalization. Representation is selected by B; no schema is proposed.",
+      "bridge": "Gateway response-text decoder -> normalized GatewayLLMResponse.raw/usage -> existing strict core response intake.",
+      "consumer": "Actual TracedLLMClient/LLMBudgetEnforcer -> BudgetMiddleware.settle_spend_safe -> FileBudgetLedger.spend_receipts -> fresh reopen and D funnel cost/readback.",
+      "typed_requirements": [
+        "Original nonzero 1e-1000 or -1e-1000 must never become a admitted zero/absent measurement before strict intake; literal finite zero remains valid.",
+        "Invalid present bool/malformed/negative/nonfinite/overflow and conflicting declared USD values refuse before any false settled-zero/free-cache result; absence remains distinct legacy mode.",
+        "Preserve actual content/model/provider/request and cost custody; fixing decoder must preserve D strict numeric/alternate/cache receipt guards."
+      ],
+      "requested_test_recipe": {
+        "cwd": "policy-engine",
+        "environment": {
+          "python": "/workspace/e02-D-locked-env/bin/python",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "selector": "tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "execution": "/workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q --basetemp=<fresh-nonexisting-path> --junitxml=<fresh-output.xml> tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "inputs": "Native inherited _post_json with only transport/session controlled; response-text20 signed roots/fields, real ledger underflow negative, genuine0/0.0/1 controls. Use unchanged source test; retain full stdout/XML/module-origin hashes and small actual ledger bytes.",
+        "deciding_oracle": "Lossless raw value/presence before core intake; invalid-underflow refuses without successful zero receipt; known-zero/paid actual receipt and fresh snapshot retain exact local spend. Existing21 product FAIL and3 positive controls remain preserved at782.",
+        "follow_on_actual_consumer": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py; provider cost/trace without settlement must still fail cutoff proof."
+      },
+      "status": "owner_input_requested; current_product_FAIL; exact_corrected_B_successor_UNRUN"
+    },
+    {
+      "request_id": "B-middleware-snapshot",
+      "finding_ids": [
+        "B120"
+      ],
+      "requested_canonical_owner": "B DUR canonical BudgetMiddleware/FileBudgetLedger supplier owner, routed by G",
+      "owner_appointment": "Canonical local accounting owner exists; additive public port selection pending. No billing/source authority appointed by the packet.",
+      "producer": "Already configured public FileBudgetLedger.snapshot()->BudgetLedgerSnapshot.",
+      "artifact": "One typed existing supplier snapshot with schema/ledger identity/revision/state/spend_receipts; no synthesized immutable snapshot or copied ledger parameter.",
+      "bridge": "Owner-chosen public BudgetMiddleware snapshot delegate under existing lock to its configured ledger; explicit unavailable/None for memory mode.",
+      "consumer": "SearchController._refresh_budget_snapshot -> run_state budget evidence/telemetry -> CostBudgetStopping; consume supplier quantities without private _ledger access.",
+      "typed_requirements": [
+        "Preserve exact supplier revision/receipt/event/digest/key/amount/provider; return one coherent configured-owner view or typed unavailable/refusal.",
+        "Memory accounting must never manufacture durable revision/receipt/owner identity. Unsupported/corrupt supplier input continues to refuse.",
+        "Recorded totals and provider aggregate are distinct; receipt does not establish reported cost origin or run attribution absent actual producer evidence."
+      ],
+      "requested_test_recipe": {
+        "supplier_selectors": [
+          "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+        ],
+        "actual_consumer_selector": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+        "inputs": "Actual FileBudgetLedger initialized by configured middleware; real producer settlement; fresh reopened configured middleware; another actual writer changes revision/spend. Memory positive remains explicitly unavailable.",
+        "deciding_oracle": "Public typed snapshot equals fresh canonical supplier revision and immutable exact receipt; corrupt schema refuses. Selected primary key cost cutoff stays distinct from multi-key provider aggregate. Removal of receipt/readback preserves trace cost but fails admission/cutoff oracle.",
+        "execution_profile": "Locked Python, PYTHONPATH=src:., fresh never-existing basetemp, full outputs and actual source origins. New supplier port controls UNRUN until owner publishes exact implementation."
+      },
+      "status": "bridge_missing; recorded-state consumer available"
+    },
+    {
+      "request_id": "B-owned-two-key-transition",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "requested_canonical_owner": "B canonical ledger/middleware plus B LLM producer settlement owner, routed by G",
+      "owner_appointment": "Existing local owners identified; cross-owner additive transition contract selection/acceptance pending. External billing/run-scope authority appointment not established.",
+      "actual_scope": "Only actual translator default [policy_translator,policy_briefing] profile requires two keys; ordinary adversary [policy_adversary] can continue on existing single-key contract.",
+      "producer": "Existing LLMProducerEvent/LLMBudgetEnforcer measured-or-estimated physical completion and actual reservation before dispatch.",
+      "artifact": "Owner-selected immutable existing event/digest plus actual unique key scope and owned reservation relation in the canonical persisted store. No new ledger/schema/store designed by D.",
+      "bridge": "One existing-store durable transition binds full actual per-key spend/receipts and release of only that owned reservation; exact event reconcile/resolve after missing ACK and reopen.",
+      "consumer": "Default translator/adversary actual paid workflow -> D stage/outcome incremental event accounting -> existing budget continuation guard/controller cost cutoff -> fresh canonical ledger.",
+      "typed_requirements": [
+        "Exact event identity binds supported content/request/cost origin/amount/provider and actual declared key scope; duplicate keys or reused ID with changed quantity/scope refuse.",
+        "Charge each declared key once while physical provider attribution remains once; scoped totals and aggregate must not be conflated.",
+        "Full known cost is settled even if above estimate; only owned reservation can release. Unknown before/after publication retains original event/digest and pending ownership, never measured zero or scientific success.",
+        "Reopen/retry same observed event must resolve or complete once with no new provider request/event; bare markers and BudgetState aggregate reservation are not owned durability proof."
+      ],
+      "requested_test_recipe": {
+        "existing_actual_profile": "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py::test_actual_default_worker_budget_scopes_preserve_one_physical_event_each",
+        "ordinary_consumer": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+        "requested_extension_controls": [
+          "Actual native factory/provider two-key completion -> exact canonical atomic receipts/reservation transition -> fresh reopen; single-key positive remains supported.",
+          "Write-before-ACK and no-publication ACK failures: fresh resolution distinguishes committed from absent; both remain scientifically unknown until exact owner ACK.",
+          "Per-event conflicting amount/digest/key scope refuses unchanged supplier bytes; exact replay contributes zero incremental physical/stage/outcome cost.",
+          "Preserve paid trace1 and remove actual settlement/readback: reopened-spend and next-stage/cutoff oracle must fail."
+        ],
+        "status": "Extension-specific runtime UNRUN/bridge_missing; existing real two-key sequential consumer evidence remains bounded, not atomic proof."
+      },
+      "status": "conditional_bridge_missing; canonical_B1.1_single_key_adopted"
+    }
+  ],
+  "unappointed_other_edges": {
+    "default_CPU_blueprint_physical_cost_producer": "not_established; no synthetic numerical rate or simulated paid node. Existing typed PolicyBudgetExecutionContext forwards configured owner and native paid worker is separate.",
+    "native_draw_refinement_B157_B161": "Held owner-supplied typed raw samples/artifact/allowed relation; outside minimum current-B cost packet.",
+    "typed_promotion_B164": "Actual issuer/current verifier/revoke-serialized write owner not appointed here; valid positive UNRUN/bridge_missing. Bool/callback cannot supply authority."
+  },
+  "preserved_supported_contract": "Existing B1.1 spend_receipts, settle_spend_safe and resolve_spend_safe remain sole canonical accounting. No D1.0 overlay, private ledger access, second store, fabricated authority or duplicated tracked source.",
+  "runtime_status": "No execution in this packet; recipes request exact future owner-source consumer checks."
+}

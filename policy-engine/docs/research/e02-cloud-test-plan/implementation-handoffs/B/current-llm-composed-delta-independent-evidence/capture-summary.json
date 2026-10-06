@@ -1,0 +1,656 @@
+{
+  "schema": "policyos.e02.independent_source_and_output_capture.v1",
+  "captured_at": "2026-10-06T20:49:37.742591+00:00",
+  "argv": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-composed-delta-independent-evidence/review.source.txt",
+    "--repo",
+    "/workspace/e02-B-current-execution-state",
+    "--peer-output",
+    "/tmp/e02-B65-recovery-a391-native",
+    "--peer-output",
+    "/tmp/e02-B65-recovery-a391-corrected-native",
+    "--out",
+    "/tmp/e02-B-llm-composed-delta-exe/inputs-and-outputs.json"
+  ],
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "reviewer_head_before": "787be3666a582673d0f74654be382ff0a4421c0d",
+  "reviewer_head_after": "787be3666a582673d0f74654be382ff0a4421c0d",
+  "base_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+  "target_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+  "target_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+  "full_delta_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-dependencies.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/build-venv.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/cohort-input-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-dependencies.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/consumer-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/execute.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-child.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/installed-venv.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-input-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/launcher.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-METADATA.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-build.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-evidence/wheel-install.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-independent.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/core/llm/response.py",
+    "policy-engine/src/polisyos/core/llm/traced_client.py",
+    "policy-engine/src/polisyos/scientist/agent/README.md",
+    "policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+  ],
+  "complete_delta_identity": {
+    "bytes": 243299,
+    "sha256": "d18b027637516fa61b2e6f26bb39cfa28fe794212a1307d8332864979c5cd858"
+  },
+  "lower_byte_equal_to": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "lower_byte_equality": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": true,
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": true
+  },
+  "test_input_correction_diff": "diff --git a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py\nindex 8a19b1fe7..22b3f59a4 100644\n--- a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py\n+++ b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py\n@@ -253,7 +253,7 @@ class _RequiredAuditResolver:\n         if (\n             entry.compute_hash() != entry.entry_hash\n             or entry.chain_id != \"B65:retained-owner\"\n-            or entry.actor.id != obligation.actor\n+            or entry.actor.identity != obligation.actor\n             or entry.resource.id != obligation.run_id\n             or entry.correlation.run_id != obligation.run_id\n             or json.dumps(actual_payload, sort_keys=True)\n",
+  "reviewer_product_imports": "UNRUN",
+  "reviewer_native": "UNRUN",
+  "reviewer_gates": "UNRUN",
+  "predicate_basis": "recomputed",
+  "predicate_scope": "immutable source/input identities and complete existing output metadata only; source verdict and causal qualification separate",
+  "full_raw_capture": {
+    "path": "/tmp/e02-B-llm-composed-delta-exe/inputs-and-outputs.json",
+    "bytes": 225779,
+    "sha256": "f31d75e29ab64248e11b6744054a7b8338b34f2f73cc440c819b405409ace3fe",
+    "qualification": "Ignored, retained complete parser observation; repetitive source identities/failure lines/native data are derivable from exact Git source and peer originals. Not the sole transfer evidence."
+  },
+  "source_input_resolution": "All47 objects successfully read by literal instrument; fullpath footprint above at targetSHA, no source copies in Git.",
+  "peer_outputs": [
+    {
+      "directory": "/tmp/e02-B65-recovery-a391-native",
+      "raw_files": {
+        "child.source.txt": {
+          "bytes": 2502,
+          "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b"
+        },
+        "native.txt": {
+          "bytes": 119883,
+          "sha256": "5c88346c86498ec389eeac19bc7c1ce5e48440594aa8475efc09ec4d17ab613d"
+        },
+        "native.xml": {
+          "bytes": 67704,
+          "sha256": "a3b3a2810001de9d85dcf3b2e4a0d06449d3f9f76ada1a5cf2b4a6a25a65809e"
+        },
+        "source-context.json": {
+          "bytes": 51770,
+          "sha256": "8a0f25d80ac274cb5fefaf68f9ef5eb42e7eb5fc70bc39e49b8b87c8bd37bcf7"
+        },
+        "wrapper.json": {
+          "bytes": 4893,
+          "sha256": "74663230362086b3ddfacfac8b02627f03c46674f6cbb746046c43a62d9895c3"
+        }
+      },
+      "wrapper": {
+        "runtime_source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+        "runtime_source_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+        "own_test_implementation_sha": "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+        "own_test_tree": "1fe7c3909d2af9bf43f5eaed33c4bfcb8dcf7686",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "command": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "-c",
+          "\nfrom pathlib import Path\nimport hashlib, importlib, importlib.metadata, json, subprocess, sys\nROOT=Path(sys.argv[1]); OUT=Path(sys.argv[2]); TEST=Path(sys.argv[3]); SOURCE=sys.argv[4]\nmodules=['polisyos.core.llm.response','polisyos.core.llm.traced_client','polisyos.core.llm.settlement','polisyos.core.security.audit_log_adapter','polisyos.core.security.audit_protocol','polisyos.core.security.audit_sink','polisyos.core.security.audit_models','polisyos.core.security.audit_verifier','polisyos.scientist.orchestration.engine.budget','polisyos.scientist.orchestration.engine.budget_ledger','polisyos.scientist.orchestration.engine.budget_middleware','polisyos.scientist.orchestration.llm.budget_enforcer','polisyos.scientist.orchestration.llm.gateway_client']\ndef ref(path):\n raw=path.read_bytes(); rel=path.relative_to(ROOT).as_posix(); expected=subprocess.check_output(['git','show',f'{SOURCE}:{rel}'],cwd=ROOT)\n assert raw==expected, rel\n return {'path':rel,'actual_origin':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',f'{SOURCE}:{rel}'],cwd=ROOT,text=True).strip(),'source_sha':SOURCE}\norigins=[]\nfor name in modules:\n m=importlib.import_module(name); row=ref(Path(m.__file__).resolve());row['module']=name;origins.append(row)\nprint('B65_EXACT_SOURCE_ORIGINS '+json.dumps(origins), flush=True)\nimport pytest\nargs=[str(TEST),'-c',str(ROOT/'policy-engine/pyproject.toml'),'--noconftest','-p','no:cacheprovider','-s','-ra',f'--basetemp={OUT}/pytest-tmp',f'--junitxml={OUT}/native.xml']\nprint('B65_NATIVE_ARGUMENTS '+json.dumps(args),flush=True)\nresult=pytest.main(args)\nall_origins=[]\nfor name,m in sorted(sys.modules.items()):\n if name=='polisyos' or name.startswith('polisyos.'):\n  f=getattr(m,'__file__',None)\n  if f:\n   path=Path(f).resolve()\n   if path.is_relative_to(ROOT/'policy-engine/src'):\n    row=ref(path);row['module']=name;all_origins.append(row)\n   else:raise AssertionError(f'foreign source module {name}: {f}')\nversions={n:importlib.metadata.version(n) for n in ['pytest','pydantic','aiohttp','ruff','numpy']}\n(OUT/'source-context.json').write_text(json.dumps({'source_sha':SOURCE,'explicit_source_origins':origins,'complete_loaded_polisyos_module_denominator':len(all_origins),'all_loaded_polisyos_origins':all_origins,'python_executable':sys.executable,'python_version':sys.version,'observed_versions':versions,'pytest_args':args,'pytest_result':int(result)},indent=2)+'\\n')\nraise SystemExit(int(result))\n",
+          "/workspace/e02-B-current-adapters",
+          "/tmp/e02-B65-recovery-a391-native",
+          "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d"
+        ],
+        "explicit_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine"
+        },
+        "profile_qualification": "One complete authorized B65 oracle file. Native pytest builtin tmp_path; literal target pyproject; --noconftest excludes source-path mutation by another worktree. Every loaded polisyos concrete module must resolve beneath the immutable target and match exact Git bytes. No local product fallback, native gate, collection-only run, test filter or source edits.",
+        "pre": {
+          "source": {
+            "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+            "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+            "status": ""
+          },
+          "own": {
+            "head": "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+            "tree": "1fe7c3909d2af9bf43f5eaed33c4bfcb8dcf7686",
+            "status": ""
+          },
+          "test_sha256": "d65655f0f1fea395d02342646a067f2cda71cd2b2a811f7ca60ddfb7327bfc21"
+        },
+        "post": {
+          "source": {
+            "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+            "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+            "status": ""
+          },
+          "own": {
+            "head": "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+            "tree": "1fe7c3909d2af9bf43f5eaed33c4bfcb8dcf7686",
+            "status": ""
+          },
+          "test_sha256": "d65655f0f1fea395d02342646a067f2cda71cd2b2a811f7ca60ddfb7327bfc21"
+        },
+        "source_and_test_unchanged": true,
+        "exit": 1,
+        "wall_seconds": 2.8580502640106715,
+        "maxrss_kib": 104248,
+        "stdout_sha256": "5c88346c86498ec389eeac19bc7c1ce5e48440594aa8475efc09ec4d17ab613d",
+        "stdout_bytes": 119883
+      },
+      "context": {
+        "explicit_origins": 13,
+        "all_loaded_origins": 91,
+        "all_git_byte_identities_verified": true,
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "observed_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "aiohttp": "3.13.3",
+          "ruff": "0.14.10",
+          "numpy": "2.3.5"
+        },
+        "pytest_args": [
+          "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "-c",
+          "/workspace/e02-B-current-adapters/policy-engine/pyproject.toml",
+          "--noconftest",
+          "-p",
+          "no:cacheprovider",
+          "-s",
+          "-ra",
+          "--basetemp=/tmp/e02-B65-recovery-a391-native/pytest-tmp",
+          "--junitxml=/tmp/e02-B65-recovery-a391-native/native.xml"
+        ],
+        "pytest_result": 1
+      },
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "13",
+          "skipped": "0",
+          "tests": "13",
+          "time": "0.776",
+          "timestamp": "2026-10-06T20:39:17.596300+00:00",
+          "hostname": "b878f4efbdfc"
+        }
+      ],
+      "case_counts": {
+        "PASS": 0,
+        "FAIL": 13,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+          "time": "0.045",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+          "time": "0.026",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+          "time": "0.026",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+          "time": "0.009",
+          "result": "FAIL",
+          "failure_message": "polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 'AuditActor' object has no attribute 'id'"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+          "time": "0.010",
+          "result": "FAIL",
+          "failure_message": "polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 'AuditActor' object has no attribute 'id'"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+          "time": "0.024",
+          "result": "FAIL",
+          "failure_message": "assert None is not None"
+        },
+        {
+          "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+          "time": "0.024",
+          "result": "FAIL",
+          "failure_message": "assert None is not None"
+        },
+        {
+          "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "assert None is not None"
+        }
+      ],
+      "failure_text_identities": [
+        {
+          "bytes": 2791,
+          "sha256": "680bdf89e150a23dc26eea7ac805ea9b44ee3ac38c3075c250c66936de75fc36"
+        },
+        {
+          "bytes": 2794,
+          "sha256": "96a0c4bce64eb56b267ec481c3a5ed1aed37f9456e06a65e5d321928bbecb182"
+        },
+        {
+          "bytes": 2790,
+          "sha256": "8012f535cf7b3625d15d3ef1a13ed004f5c19628378562cc1c53a406fdaab00d"
+        },
+        {
+          "bytes": 2793,
+          "sha256": "ce8c97239612995a82235e3c4aecb6b3a11392685fdfd8db735baf21166dcc24"
+        },
+        {
+          "bytes": 12179,
+          "sha256": "bdb9e78819562bfa6d54bac067248edb6b91508088c8a57d4775869578647b1e"
+        },
+        {
+          "bytes": 12182,
+          "sha256": "9e83f60d6010fb3fad287e474e59ec8bd5eb8692673d0540ae5dd9f0094b927f"
+        },
+        {
+          "bytes": 6270,
+          "sha256": "1e81428055082492ad2fc3bba9a0d385aa04535166c3ea1060f1cfa63ba48d53"
+        },
+        {
+          "bytes": 6273,
+          "sha256": "63a476ed73421f31e12fa382898c962390baa0bcfbb4234babb2329111ef5d0e"
+        },
+        {
+          "bytes": 6271,
+          "sha256": "40643ef0c355ec8663df16820cac4d052ec12f01750121bbe72ccab8334ceb12"
+        },
+        {
+          "bytes": 6274,
+          "sha256": "ce9ff1be329d61f8b5cf0c956f2f6cfd6481a2d9f890c2b15829043f161c0837"
+        },
+        {
+          "bytes": 920,
+          "sha256": "2fae265e519af9994884909404878cb3a6ddc56da020b17d75f0b70351aef849"
+        },
+        {
+          "bytes": 919,
+          "sha256": "70c516735e80317f36c20c3e5dee3540e4cbbd2f1b8687351a3a56675e9fb78f"
+        },
+        {
+          "bytes": 921,
+          "sha256": "ce65b1da2a6b8ab7b3603e38e82b8f555f108f4c281e0f3c92b42c5bf44bf3a6"
+        }
+      ],
+      "observation_count": 10,
+      "observation_payload_identity": {
+        "bytes": 46733,
+        "sha256": "d6225dd3b14420e4c96f9d644c40e69ebeaea6064eb156ab788b734ccf93e997"
+      },
+      "native_summary": [
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+        "FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+        "FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+        "FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+        "============================== 13 failed in 0.86s =============================="
+      ]
+    },
+    {
+      "directory": "/tmp/e02-B65-recovery-a391-corrected-native",
+      "raw_files": {
+        "child.source.txt": {
+          "bytes": 2502,
+          "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b"
+        },
+        "native.txt": {
+          "bytes": 146325,
+          "sha256": "ed91a9e2d2e57be7b17d9baa317fa8e22dcdf8427460e95fa8ea6eda680f2907"
+        },
+        "native.xml": {
+          "bytes": 82091,
+          "sha256": "22ae006772412cf93a863d31ea1f9cf40213b2adb02290522faba7ad4506d368"
+        },
+        "observations.json": {
+          "bytes": 95849,
+          "sha256": "18049e675a40633f475322435bb6550aded2f5f37091627b11bd238c480a58cf"
+        },
+        "source-context.json": {
+          "bytes": 51790,
+          "sha256": "48631c480744081989363f795af02254aa49f513297ff422960200ddbb2f882c"
+        },
+        "wrapper.json": {
+          "bytes": 4903,
+          "sha256": "8ceb933f2b2f30ade6b9a2d7e182151282cd32be2567355f6afe0c282d2fa324"
+        }
+      },
+      "wrapper": {
+        "runtime_source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+        "runtime_source_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+        "own_test_implementation_sha": "31003278961d27b84603d28c26dc38bd44f0a84d",
+        "own_test_tree": "f87c5797b786a6faa614f95fea31abf4bbb8da73",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "command": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "-c",
+          "\nfrom pathlib import Path\nimport hashlib, importlib, importlib.metadata, json, subprocess, sys\nROOT=Path(sys.argv[1]); OUT=Path(sys.argv[2]); TEST=Path(sys.argv[3]); SOURCE=sys.argv[4]\nmodules=['polisyos.core.llm.response','polisyos.core.llm.traced_client','polisyos.core.llm.settlement','polisyos.core.security.audit_log_adapter','polisyos.core.security.audit_protocol','polisyos.core.security.audit_sink','polisyos.core.security.audit_models','polisyos.core.security.audit_verifier','polisyos.scientist.orchestration.engine.budget','polisyos.scientist.orchestration.engine.budget_ledger','polisyos.scientist.orchestration.engine.budget_middleware','polisyos.scientist.orchestration.llm.budget_enforcer','polisyos.scientist.orchestration.llm.gateway_client']\ndef ref(path):\n raw=path.read_bytes(); rel=path.relative_to(ROOT).as_posix(); expected=subprocess.check_output(['git','show',f'{SOURCE}:{rel}'],cwd=ROOT)\n assert raw==expected, rel\n return {'path':rel,'actual_origin':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',f'{SOURCE}:{rel}'],cwd=ROOT,text=True).strip(),'source_sha':SOURCE}\norigins=[]\nfor name in modules:\n m=importlib.import_module(name); row=ref(Path(m.__file__).resolve());row['module']=name;origins.append(row)\nprint('B65_EXACT_SOURCE_ORIGINS '+json.dumps(origins), flush=True)\nimport pytest\nargs=[str(TEST),'-c',str(ROOT/'policy-engine/pyproject.toml'),'--noconftest','-p','no:cacheprovider','-s','-ra',f'--basetemp={OUT}/pytest-tmp',f'--junitxml={OUT}/native.xml']\nprint('B65_NATIVE_ARGUMENTS '+json.dumps(args),flush=True)\nresult=pytest.main(args)\nall_origins=[]\nfor name,m in sorted(sys.modules.items()):\n if name=='polisyos' or name.startswith('polisyos.'):\n  f=getattr(m,'__file__',None)\n  if f:\n   path=Path(f).resolve()\n   if path.is_relative_to(ROOT/'policy-engine/src'):\n    row=ref(path);row['module']=name;all_origins.append(row)\n   else:raise AssertionError(f'foreign source module {name}: {f}')\nversions={n:importlib.metadata.version(n) for n in ['pytest','pydantic','aiohttp','ruff','numpy']}\n(OUT/'source-context.json').write_text(json.dumps({'source_sha':SOURCE,'explicit_source_origins':origins,'complete_loaded_polisyos_module_denominator':len(all_origins),'all_loaded_polisyos_origins':all_origins,'python_executable':sys.executable,'python_version':sys.version,'observed_versions':versions,'pytest_args':args,'pytest_result':int(result)},indent=2)+'\\n')\nraise SystemExit(int(result))\n",
+          "/workspace/e02-B-current-adapters",
+          "/tmp/e02-B65-recovery-a391-corrected-native",
+          "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d"
+        ],
+        "explicit_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine"
+        },
+        "profile_qualification": "One complete authorized B65 oracle file. Native pytest builtin tmp_path; literal target pyproject; --noconftest excludes source-path mutation by another worktree. Every loaded polisyos concrete module must resolve beneath the immutable target and match exact Git bytes. No local product fallback, native gate, collection-only run, test filter or source edits.",
+        "pre": {
+          "source": {
+            "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+            "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+            "status": ""
+          },
+          "own": {
+            "head": "31003278961d27b84603d28c26dc38bd44f0a84d",
+            "tree": "f87c5797b786a6faa614f95fea31abf4bbb8da73",
+            "status": ""
+          },
+          "test_sha256": "59db554912cdc450b91fa14edc7450f3de75d7e3650d3792f00bd1c413f5e273"
+        },
+        "post": {
+          "source": {
+            "head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+            "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+            "status": ""
+          },
+          "own": {
+            "head": "31003278961d27b84603d28c26dc38bd44f0a84d",
+            "tree": "f87c5797b786a6faa614f95fea31abf4bbb8da73",
+            "status": ""
+          },
+          "test_sha256": "59db554912cdc450b91fa14edc7450f3de75d7e3650d3792f00bd1c413f5e273"
+        },
+        "source_and_test_unchanged": true,
+        "exit": 1,
+        "wall_seconds": 2.9429669130040566,
+        "maxrss_kib": 106124,
+        "stdout_sha256": "ed91a9e2d2e57be7b17d9baa317fa8e22dcdf8427460e95fa8ea6eda680f2907",
+        "stdout_bytes": 146325
+      },
+      "context": {
+        "explicit_origins": 13,
+        "all_loaded_origins": 91,
+        "all_git_byte_identities_verified": true,
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "observed_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "aiohttp": "3.13.3",
+          "ruff": "0.14.10",
+          "numpy": "2.3.5"
+        },
+        "pytest_args": [
+          "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+          "-c",
+          "/workspace/e02-B-current-adapters/policy-engine/pyproject.toml",
+          "--noconftest",
+          "-p",
+          "no:cacheprovider",
+          "-s",
+          "-ra",
+          "--basetemp=/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp",
+          "--junitxml=/tmp/e02-B65-recovery-a391-corrected-native/native.xml"
+        ],
+        "pytest_result": 1
+      },
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "13",
+          "skipped": "0",
+          "tests": "13",
+          "time": "1.005",
+          "timestamp": "2026-10-06T20:41:50.422473+00:00",
+          "hostname": "b878f4efbdfc"
+        }
+      ],
+      "case_counts": {
+        "PASS": 0,
+        "FAIL": 13,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+          "time": "0.056",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+          "time": "0.031",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+          "time": "0.028",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+          "time": "0.028",
+          "result": "FAIL",
+          "failure_message": "AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']\n  \n  Right contains one more item: 'BUDGET_RELEASED'\n  Use -v to get more diff"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+          "time": "0.044",
+          "result": "FAIL",
+          "failure_message": "polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 1 validation error for BudgetLedgerCompletionObligation\n  Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+          "time": "0.047",
+          "result": "FAIL",
+          "failure_message": "polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 1 validation error for BudgetLedgerCompletionObligation\n  Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+          "time": "0.024",
+          "result": "FAIL",
+          "failure_message": "polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal"
+        },
+        {
+          "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+          "time": "0.023",
+          "result": "FAIL",
+          "failure_message": "assert None is not None"
+        },
+        {
+          "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+          "time": "0.024",
+          "result": "FAIL",
+          "failure_message": "assert None is not None"
+        },
+        {
+          "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+          "time": "0.025",
+          "result": "FAIL",
+          "failure_message": "assert None is not None"
+        }
+      ],
+      "failure_text_identities": [
+        {
+          "bytes": 2801,
+          "sha256": "0f79d13c65b67f4a187f0b1e62f1430db4ce2f22a6efc2ea7d4e63d73d230f99"
+        },
+        {
+          "bytes": 2804,
+          "sha256": "1ed59d51c7208dd9345965dc596a1af7ef28a1b1feccd6ffaa45c0962d57bc59"
+        },
+        {
+          "bytes": 2800,
+          "sha256": "d12fd605750dc06ba3cb3b8a781bd7f01abef0e81ef811f9518e4601bd83bfb4"
+        },
+        {
+          "bytes": 2803,
+          "sha256": "6285b49654a7c1a0c26d97c0a5597ae005fef323dd1e8e4accc71b5604938eda"
+        },
+        {
+          "bytes": 18391,
+          "sha256": "b51e0735641391ddcfb7967717c92fccc6d76861f8280982230b5b2349fe13f1"
+        },
+        {
+          "bytes": 19663,
+          "sha256": "28320cbf138a213d249dd2169f9c7d786a4f7544da9c7fc68cf1432c3b9cc2b6"
+        },
+        {
+          "bytes": 6280,
+          "sha256": "729b211832e3250d445018727b85ceeeb24295b115812ddfac430fc77957fda6"
+        },
+        {
+          "bytes": 6283,
+          "sha256": "8260ccd600db97b356ebb0096ba235fc931733b4b1d1c99cadad69733c90c898"
+        },
+        {
+          "bytes": 6281,
+          "sha256": "76c10b4d306e55f6817a57b2fd0c34e49f33b87d0e8cff0f5bb9220410f3c6a3"
+        },
+        {
+          "bytes": 6284,
+          "sha256": "f88eaa9f065c0db7f8a28051a0d9b33d2117313cf2b1d7bf098bb209c019c7df"
+        },
+        {
+          "bytes": 930,
+          "sha256": "15da908da42ac06089d3dadf591fd91bb7191e76a17fd43a639f9fbea34af793"
+        },
+        {
+          "bytes": 929,
+          "sha256": "e47a46a10a7e111bc704fcf51477835a8d0fa67bbf35a6b2147209adb3c8cfaa"
+        },
+        {
+          "bytes": 931,
+          "sha256": "1e7b984c64e54b7f3d451b2a533c760317eaccf22dd1b7857593f176989b84e7"
+        }
+      ],
+      "observation_count": 12,
+      "observation_payload_identity": {
+        "bytes": 59388,
+        "sha256": "cc4bbcb1e7cbf19c6ac2ede738a30434dee0264d9c8f3afd735893dae7d15d5d"
+      },
+      "native_summary": [
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+        "FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+        "FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+        "FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+        "FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+        "FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+        "============================== 13 failed in 1.09s =============================="
+      ]
+    }
+  ]
+}

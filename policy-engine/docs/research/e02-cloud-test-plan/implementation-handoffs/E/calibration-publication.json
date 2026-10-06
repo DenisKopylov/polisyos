@@ -1,0 +1,19 @@
+{
+  "schema": "policyos.e02.topic_publication.v1",
+  "unit": "E",
+  "branch": "codex/e02-E-cal-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/58",
+  "is_draft": true,
+  "base_branch": "main",
+  "published_receipt_head_sha": "e9218090ee43cf978f32b3db901e965a8d70d650",
+  "published_receipt_head_tree_sha": "ada6f8f56836b0105e06e20f72628bb51c88c534",
+  "implementation_candidate_sha": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+  "implementation_candidate_tree_sha": "2e3a5460ffbee38b86b4a771ff8090b426f0dc07",
+  "remote_readback": "git ls-remote origin refs/heads/codex/e02-E-cal-20261006 returned e9218090ee43cf978f32b3db901e965a8d70d650 before PR creation",
+  "independent_review_state": "bounded code GO; no finding closure",
+  "artifact_attachment": "E root attached PR58; leaf RPC stalled and was terminated before any queued command mutation",
+  "root_frozen_aggregate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "root_frozen_aggregate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "main_or_integration_write": false,
+  "cleanup": "No permanent deletion; exact repeatable candidates retained in companion handoff because native cloud Trash not established."
+}

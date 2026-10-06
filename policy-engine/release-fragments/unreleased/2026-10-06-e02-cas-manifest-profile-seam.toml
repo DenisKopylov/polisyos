@@ -1,0 +1,12 @@
+id = "2026-10-06-e02-cas-manifest-profile-seam"
+title = "Expose canonical manifest profile helpers on the artifacts facade"
+type = "added"
+component = "artifacts"
+owner = "team-runtime"
+summary = "Foundry and other exact-view consumers can use the existing versioned CAS profile projection and domain-separated SHA256 through typed facade functions."
+compatibility = "Additive wrappers only; the existing lifecycle algorithm and selected-view digest bytes are unchanged."
+change_class = "python-public-api"
+surface_classification = "internal: polisyos.core.artifacts under the current public-surface registry"
+migration = "Import artifact_manifest_profile_projection and artifact_manifest_profile_sha256 from polisyos.core.artifacts instead of its private lifecycle module."
+public_surface_inventory_reviewed = true
+limitations = "This additive integration seam does not change the registry's internal-default classification or ratify a new stable entrypoint. Shared inventory regeneration belongs to integration."

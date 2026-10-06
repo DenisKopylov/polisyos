@@ -148,7 +148,7 @@
       "result": "48 passed4 failed1 warning in4.05s; source baseline observation, not closure or a global inherited-red waiver"
     },
     {
-      "command": "First direct suite selector included tests/unit/core/artifacts/test_import_tenant_context.py",
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --tb=short tests/unit/core/artifacts/test_put_integrity_retry.py tests/unit/core/artifacts/test_cas_integrity_report.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/core/artifacts/test_artifact_id_serialization_contract.py --basetemp=_build/e02-B-current-cas-generation/put-tmp -o cache_dir=_build/e02-B-current-cas-generation/put-cache --junitxml=_build/e02-B-current-cas-generation/raw/put-native.xml > _build/e02-B-current-cas-generation/raw/put-native.txt 2>&1",
       "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
       "environment": {
         "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
@@ -189,7 +189,13 @@
           "resume": "/workspace/e02-B-current-admission/cas-generation-resume.json"
         }
       },
-      "input_closure": "Working new-test overlay before correction of expected message byte_size spelling; source unchanged",
+      "input_closure": {
+        "production_and_tracked_consumers": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "new_test_overlay_basis": "b16cf7f6ccb1311e74a6fc8af3dc6e16526e4db4:policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "overlay_transform": "Replace the sole literal Manifest byte_size mismatch with Manifest byte size mismatch; no other bytes change.",
+        "overlay_sha256": "6e541bc50056ba6beb11014df83158c59a2f8b535793ee7d8f0f39bea14baf1a",
+        "note": "Immutable exact reconstruction of failed expected-message oracle; production bytes unchanged."
+      },
       "outcome": "FAIL",
       "output": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put-evidence/put-native-v2.txt",

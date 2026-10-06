@@ -1,0 +1,507 @@
+{
+  "audit_kind": "source_identity_and_contract_only_no_runtime_execution",
+  "root_sha": "d3a3df91804fa4205681703c3346041eda743836",
+  "root_tree": "3641bb432d7a973398a5f0851926b0dbce235e78",
+  "own_source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+  "own_published_sha": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+  "scoped_denominator": {
+    "selectors": [
+      "policy-engine/src/polisyos/core/artifacts",
+      "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+      "policy-engine/tests/unit/core/artifacts",
+      "policy-engine/tests/unit/core/phase0",
+      "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-bound-import.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-failed-snapshot-report.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-transfer-generations.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-batch-completion.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-manifest-profile-seam.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-verification-snapshot.toml"
+    ],
+    "own": {
+      "tracked_paths": 96,
+      "file_modes": {
+        "100644": 96
+      },
+      "object_types": {
+        "blob": 96
+      },
+      "suffixes": {
+        ".toml": 6,
+        ".md": 2,
+        ".py": 88
+      }
+    },
+    "root": {
+      "tracked_paths": 97,
+      "file_modes": {
+        "100644": 97
+      },
+      "object_types": {
+        "blob": 97
+      },
+      "suffixes": {
+        ".toml": 6,
+        ".md": 2,
+        ".py": 89
+      }
+    },
+    "union_paths": 97,
+    "identical_entries": 94,
+    "deltas": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+        "old": [
+          "100644",
+          "blob",
+          "c6a275a159db2e7d922dc6c7e2b120a3017764c6"
+        ],
+        "new": [
+          "100644",
+          "blob",
+          "f7305c5a512dec66d9da2c4be66947d6a4c1b6a0"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "old": [
+          "100644",
+          "blob",
+          "a664d69d1d0ba58841c530a901783977072523b2"
+        ],
+        "new": [
+          "100644",
+          "blob",
+          "1111ad75ed6632d87280e5699845811ec355bfbb"
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "old": null,
+        "new": [
+          "100644",
+          "blob",
+          "97190f48a671eec12e02cfe09c3ad153a462bb5f"
+        ]
+      }
+    ]
+  },
+  "own_authored_scoped_paths": {
+    "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "head_sha": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+    "count": 30,
+    "suffixes": {
+      ".toml": 6,
+      ".md": 1,
+      ".py": 23
+    },
+    "root_identical_count": 29,
+    "nonidentical": [
+      "policy-engine/src/polisyos/core/artifacts/README.md"
+    ],
+    "readme_delta": "Only additive root EXE unbounded adapter contract; own failure-snapshot companion unchanged."
+  },
+  "canonical_ownership": {
+    "bundle-owners.tsv": {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "all_row_count": 127,
+      "selected_rows": [
+        {
+          "bundle_id": "CAS-01",
+          "unit": "B",
+          "initial_writer_family": "B-W01",
+          "title": "First-writer, честная ref и bounded lock ownership"
+        },
+        {
+          "bundle_id": "CAS-02",
+          "unit": "B",
+          "initial_writer_family": "B-W02",
+          "title": "Сначала проверенный transfer, затем публикация inventory"
+        },
+        {
+          "bundle_id": "CAS-03",
+          "unit": "B",
+          "initial_writer_family": "B-W03",
+          "title": "Одна проверка bytes и bounded batch verification"
+        }
+      ]
+    },
+    "finding-owners.tsv": {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "all_row_count": 282,
+      "selected_rows": [
+        {
+          "finding_id": "B148",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-02",
+          "source_bundle_ids": "CAS-02",
+          "source_status": "partial"
+        },
+        {
+          "finding_id": "B149",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-02",
+          "source_bundle_ids": "CAS-02",
+          "source_status": "partial"
+        },
+        {
+          "finding_id": "B150",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-01",
+          "source_bundle_ids": "CAS-01",
+          "source_status": "closed"
+        },
+        {
+          "finding_id": "B151",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-01",
+          "source_bundle_ids": "CAS-01",
+          "source_status": "partial"
+        },
+        {
+          "finding_id": "B152",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-03",
+          "source_bundle_ids": "CAS-03",
+          "source_status": "partial"
+        },
+        {
+          "finding_id": "B153",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-01",
+          "source_bundle_ids": "CAS-01",
+          "source_status": "closed"
+        },
+        {
+          "finding_id": "B154",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-03",
+          "source_bundle_ids": "CAS-03",
+          "source_status": "partial"
+        },
+        {
+          "finding_id": "B155",
+          "unit": "B",
+          "docx_analytical_package": "P10",
+          "source_closure_owner": "CAS-03",
+          "source_bundle_ids": "CAS-03",
+          "source_status": "partial"
+        }
+      ]
+    }
+  },
+  "source_points": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "FileSystemCAS._require_bound_context_for_owner",
+      "first_line": 2792,
+      "last_line": 2815,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "622e478f5d6142ed92cfb5e75c8deb259453f11307399fb844266fc3515ae4bf",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "FileSystemCAS._admit_import_members",
+      "first_line": 2895,
+      "last_line": 3054,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "9778c9f6a14c2e4d69b07abce42fdd2c39ef03c5f4ea2502592faa6f54f8ab81",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "FileSystemCAS._put_blob_and_manifest_once",
+      "first_line": 2189,
+      "last_line": 2429,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "ddf2290e7599077dbfe51d2866b7260d5c6b8b8ffcf3605816a7b14beca9dcde",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "FileSystemCAS.verify",
+      "first_line": 2531,
+      "last_line": 2558,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "e86a2bfc90f37df914c62079bafd90da55ad82ca2cc31c48a4669eb227e01c71",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "FileSystemCAS._load_verified_snapshot",
+      "first_line": 4263,
+      "last_line": 4269,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "bf33c86770e2bda0c8ae85a713ffe028698a3f4b73e0093eca811c67c04757c2",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "FileSystemCAS._load_snapshot_read_result",
+      "first_line": 4271,
+      "last_line": 4294,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "39118ddd5b945f9ec229a3c0c0c7e39509fab51f330f3d573aa5ac9743b74f3b",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "FileSystemCAS._snapshot_read_result_from_paths",
+      "first_line": 4296,
+      "last_line": 4358,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "c176050596c39bf6565e98cda3327170289da82e92790f8ed7a7c5a086c2e50f",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "qualified_name": "_iter_batch_input_items",
+      "first_line": 208,
+      "last_line": 225,
+      "file_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187",
+      "segment_sha256": "1b9069f4dd03d4d8d840011310b410176ce76d6b3e3e0c2631aa74255df002e0",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "qualified_name": "TransferVerificationBatch.require_complete_valid",
+      "first_line": 68,
+      "last_line": 94,
+      "file_sha256": "87932ccfe7d3842ce79427ff4bfcba1c0b76c14d4c7c0a2f2eba729de5d8bc7f",
+      "segment_sha256": "8d2a0f1291fc0e4f115024219f30e99e38ac997197456ab347103ad603eb5b53",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "qualified_name": "import_subgraph",
+      "first_line": 858,
+      "last_line": 1095,
+      "file_sha256": "87932ccfe7d3842ce79427ff4bfcba1c0b76c14d4c7c0a2f2eba729de5d8bc7f",
+      "segment_sha256": "9774349ec0282e5b4decd88646f04be2cffc63eedeccc63774b20dc130d7a8bb",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "qualified_name": "_publish_archive_generation",
+      "first_line": 199,
+      "last_line": 225,
+      "file_sha256": "87932ccfe7d3842ce79427ff4bfcba1c0b76c14d4c7c0a2f2eba729de5d8bc7f",
+      "segment_sha256": "09df4dbad1f6dce53dde77e2eb01c195a676146289d73551573c37cfdca15292",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "qualified_name": "_publish_directory_generation",
+      "first_line": 479,
+      "last_line": 495,
+      "file_sha256": "87932ccfe7d3842ce79427ff4bfcba1c0b76c14d4c7c0a2f2eba729de5d8bc7f",
+      "segment_sha256": "43fd27441d49cfb4fe23d43b272e02eab91c8da045d1dab0936525d59c742ebd",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+      "qualified_name": "CachingArtifactStore._cache_remote_view",
+      "first_line": 118,
+      "last_line": 256,
+      "file_sha256": "4a4ab7c0a896ae9ab10970ee660b12a144697cfa4dcdeb819be285a1a67a0eba",
+      "segment_sha256": "01fca31e5dc5e74bc5538a702c7e5adeaca5d863631b8d8f9f13d0cefee913a9",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "qualified_name": "BulkVerificationReport.require_complete_valid",
+      "first_line": 171,
+      "last_line": 216,
+      "file_sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+      "segment_sha256": "b998fcf400e592838df9db44208417061b87c3a821894b1513e22e8db5310026",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+      "qualified_name": "_cmd_verify",
+      "first_line": 218,
+      "last_line": 291,
+      "file_sha256": "e8b24432f7efee3eb3fafa1c4951efa4e40c77cea051747ed1bb82593c6c8651",
+      "segment_sha256": "8a6e94bb657dffbda349f871366750863bf5df1b9e42da8ec123b57a00c70184",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/chronology.py",
+      "qualified_name": "ChronologyPredicatePolicyArtifacts._verified_bytes",
+      "first_line": 843,
+      "last_line": 864,
+      "file_sha256": "3a187e3722e28f26d6128c11e447416263beeb6d88003ef418b294335e4572ca",
+      "segment_sha256": "9f74eb56e71760dc7b77731848e3012ebd419f0ff856548ae16d34d2dfe01d42",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+      "qualified_name": "ChronologyProofArtifactReader.load_and_verify",
+      "first_line": 226,
+      "last_line": 299,
+      "file_sha256": "55f119bb81f2a67bdee0e8e8db960b3539e5d34cac35ba236e1677d2963afb8a",
+      "segment_sha256": "caaa5375c2bf762b11af3e57eacca2d5f8b4707b8c8aaa348c6452f3ff8607b9",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+      "qualified_name": "_ChronologyPersistenceOwner._write_and_reload",
+      "first_line": 695,
+      "last_line": 819,
+      "file_sha256": "55f119bb81f2a67bdee0e8e8db960b3539e5d34cac35ba236e1677d2963afb8a",
+      "segment_sha256": "450dad8c25a5e342faf08517e2206fe52f8a55cfab1a633d6a8dace2a4c659d8",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "qualified_name": "_exposure_authority_write_inputs",
+      "first_line": 603,
+      "last_line": 712,
+      "file_sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5",
+      "segment_sha256": "d3d966a4f58b944538ae5d1fecdb8db25de9e201dd898de7f7dbd5ac47409ee1",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "qualified_name": "prepare_human_decision_exposure_event",
+      "first_line": 743,
+      "last_line": 773,
+      "file_sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5",
+      "segment_sha256": "e4af9b142be09ccc20094c0e1c8f57469f289c742873c0a18b1a71c933cf3ecd",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "qualified_name": "prepare_human_decision_exposure_event_through_sink",
+      "first_line": 776,
+      "last_line": 799,
+      "file_sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5",
+      "segment_sha256": "c629054c914931fb278e50ba9cd391faef10f62b620d5e4be2c7e2eb79907dd2",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "qualified_name": "_persist_cas_writer_attestation",
+      "first_line": 424,
+      "last_line": 446,
+      "file_sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb",
+      "segment_sha256": "c7b6971b1cf10c5e08fea1037ae722a19d42895fe9a97744ae8f1384a900ccf3",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "qualified_name": "_cas_writer_attestation_write_options",
+      "first_line": 488,
+      "last_line": 503,
+      "file_sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb",
+      "segment_sha256": "0890be99414fbe8fb3c04b355b1d4d5640a3936750fd875d265c7b31e07e9b92",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "qualified_name": "_tenant_context",
+      "first_line": 893,
+      "last_line": 894,
+      "file_sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb",
+      "segment_sha256": "36898b6d1937001ae0429abf5aaf7074380d2a07bf42e0179e9e6e6639f320fc",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "qualified_name": "test_human_decision_exposure_is_a_top_level_completed_event",
+      "first_line": 844,
+      "last_line": 979,
+      "file_sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42",
+      "segment_sha256": "f8b4e27f2b1cc5ba28941758e279c237299ae7e25a60c9a68c25ec883aa03f4d",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "qualified_name": "test_exposure_signature_failure_leaves_no_completed_row",
+      "first_line": 982,
+      "last_line": 1039,
+      "file_sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42",
+      "segment_sha256": "5c13ae842c78ab31dc879de74293015abba150dd62212d9a5ca392b4d6334386",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+      "qualified_name": "test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer",
+      "first_line": 33,
+      "last_line": 105,
+      "file_sha256": "4c3ad9d5c7c2662b8e192570f54b13defd26beef7bda71bd378f2505b6157576",
+      "segment_sha256": "2a17bab18bca6f3db2267d66bf8a19b1bb7fc1f92ee90a779b8076f4f5ea997c",
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836"
+    }
+  ],
+  "external_named_consumer_file_comparison": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/chronology.py",
+      "own_sha256": "3a187e3722e28f26d6128c11e447416263beeb6d88003ef418b294335e4572ca",
+      "root_sha256": "3a187e3722e28f26d6128c11e447416263beeb6d88003ef418b294335e4572ca",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "own_sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5",
+      "root_sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "own_sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb",
+      "root_sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+      "own_sha256": "55f119bb81f2a67bdee0e8e8db960b3539e5d34cac35ba236e1677d2963afb8a",
+      "root_sha256": "55f119bb81f2a67bdee0e8e8db960b3539e5d34cac35ba236e1677d2963afb8a",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "own_sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42",
+      "root_sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42",
+      "identical": true
+    }
+  ],
+  "existing_failure_evidence": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+    "bytes": 1431050,
+    "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7",
+    "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "locators": [
+      {
+        "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_human_decision_exposure_is_a_top_level_completed_event",
+        "first_line": 14711,
+        "last_line": 14839,
+        "sha256_normalized_lf_segment": "8b4fff34e05b378318b867fa2036d7cc27662fcd21d29ab3fdf49f9c57a7a61d",
+        "outcome": "FAIL",
+        "first_deciding_boundary": "prepare -> writer attestation put_json -> explicit bound cell mismatch before intended reserve/signature/completed-row assertion"
+      },
+      {
+        "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_signature_failure_leaves_no_completed_row",
+        "first_line": 14840,
+        "last_line": 14940,
+        "sha256_normalized_lf_segment": "7e7c490f3e6fed5371bba825b8355502db563e16e874d675ff0c549e065421b4",
+        "outcome": "FAIL",
+        "first_deciding_boundary": "prepare -> writer attestation put_json -> explicit bound cell mismatch before intended reserve/signature/completed-row assertion"
+      }
+    ],
+    "qualification": "Retained original deciding FAIL, not a d3 execution and not an inherited/disjoint attribution."
+  },
+  "verdict": "PASS scoped Git custody; typed context consumer mismatch remains A-owned review/input-contract residual; no CAS runtime or closure verdict"
+}

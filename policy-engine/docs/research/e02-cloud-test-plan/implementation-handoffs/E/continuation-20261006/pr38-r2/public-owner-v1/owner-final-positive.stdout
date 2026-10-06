@@ -1,0 +1,141 @@
+{
+  "phase": "after-owner-patch",
+  "outcome": "PASS-library-preview-only",
+  "owner_admission": "not_ratified",
+  "properties": [
+    {
+      "name": "existing-Core-artifact-canonical-identities",
+      "property": "curated facade exports canonical store/ref/options/schema, no copied implementation",
+      "outcome": "PASS"
+    },
+    {
+      "name": "existing-Core-canon-registry-identities",
+      "property": "canonical codec and configured registry loader identities",
+      "outcome": "PASS"
+    },
+    {
+      "name": "existing-admitted-Core-contracts-IR-Trinity",
+      "property": "all ten BKT contract types declared; root Trinity identity is canonical",
+      "outcome": "PASS"
+    },
+    {
+      "name": "configured-Core-CAS-fresh-read",
+      "property": "fresh store independently reopens exact artifact bytes preserving order/weights; not a new wire contract",
+      "outcome": "PASS"
+    },
+    {
+      "name": "owner-preview-Core-nine-root-identities",
+      "property": "nine narrow root exports retain canonical artifacts/canon/registry objects and lazy existing root behavior",
+      "outcome": "PASS"
+    },
+    {
+      "name": "owner-preview-canonical-exports",
+      "property": "three IR analytics and three Foundry execute exports resolve same canonical objects, existing modes retained",
+      "outcome": "PASS"
+    },
+    {
+      "name": "existing-carrier-roundtrip-and-refusals",
+      "property": "existing v1 carrier values/order/axis/weights survive own reader; no authority or joint v2 ratification inferred",
+      "outcome": "PASS"
+    },
+    {
+      "name": "native-snapshot-fresh-consumer",
+      "property": "public writer typed2.2 ref\u2192fresh configured CAS\u2192canonical GlobalState reader exact step, tax, individual income; invalid path/non-snapshot refusals",
+      "outcome": "PASS"
+    },
+    {
+      "name": "existing-forecast-bundle-fresh-consumer",
+      "property": "public canonical functions preserve v1 fixed fixture interval/ref through fresh store; gatefalse retained, no v2 semantics chosen",
+      "outcome": "PASS"
+    }
+  ],
+  "module_inputs": {
+    "polisyos.core.artifacts": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f"
+    },
+    "polisyos.core.artifacts.store": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    "polisyos.core.artifacts.manifest": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "polisyos.core.canon": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/canon/__init__.py",
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    },
+    "polisyos.core.canon.canon_json": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/canon/canon_json.py",
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    "polisyos.core.registry": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/registry/__init__.py",
+      "sha256": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d"
+    },
+    "polisyos.core.registry.loader": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/registry/loader.py",
+      "sha256": "6fc76d8270c3a763e687ec7974abaf56c168b32e2a4d0dcede40c3a1163a7fab"
+    },
+    "polisyos.core.contracts": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e"
+    },
+    "polisyos.ir": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/ir/__init__.py",
+      "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c"
+    },
+    "polisyos.ir.trinity": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/ir/trinity/__init__.py",
+      "sha256": "0936e2ab37a4ce1e47b97b78413354606bffe056ab843a9481a0ae89fde33c1c"
+    },
+    "polisyos.ir.analytics": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174"
+    },
+    "polisyos.ir.analytics.uncertainty": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+    },
+    "polisyos.ir.analytics.forecasting_uncertainty": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py",
+      "sha256": "c7051425f7471d9afe9f037d5dd2a75ae6067533ab1cd4b536c7d1089f4da9a3"
+    },
+    "polisyos.foundry.execute": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "sha256": "87b41ffcab9bb12b79631e47804b25710960a85bffa37433171e00fe00b411a3"
+    },
+    "polisyos.core": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/core/__init__.py",
+      "sha256": "c0b17e1a9e4f90f3beff5b9815e06b75eb8adbc2249fa8c06a64799e18999327"
+    },
+    "polisyos.foundry.execute.executor": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine/src/polisyos/foundry/execute/executor.py",
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db"
+    }
+  },
+  "full_module_origins": {
+    "module_count": 779,
+    "index_sha256": "17f3649055bb82dc47dc8a07da94b34e4d52b8fbb33428ab5dfcbf53b7d908a7",
+    "full_index_file": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/after-owner-patch-positive-module-origins.json"
+  },
+  "refs": {
+    "generic": {
+      "artifact_id": "sha256:3590c190d88c0b443a5fd1bd463bba1a992190438cec6b856321a2bf9afcb80b",
+      "kind": "e02.facade-oracle",
+      "media_type": "application/json"
+    },
+    "snapshot": {
+      "artifact_id": "sha256:492f3927977099b85e43fb338427712a20b52e29ded029cb9bdeac0aff522c85",
+      "kind": "foundry.state_snapshot",
+      "media_type": "application/json"
+    },
+    "forecast": {
+      "artifact_id": "sha256:86e2219c63d5028a942791094e36d1e5fb3a1662564bb72222c286eeeaa8c8ce",
+      "kind": "ir.forecasting_uncertainty_bundle",
+      "media_type": "application/json"
+    }
+  },
+  "P41": "not_established"
+}

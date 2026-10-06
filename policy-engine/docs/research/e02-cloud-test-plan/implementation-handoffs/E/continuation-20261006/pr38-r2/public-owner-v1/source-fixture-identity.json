@@ -1,0 +1,23 @@
+{
+  "candidate_sha": "c0f146702219cd3280c3b7d06e9d2bc4c7b95dd6",
+  "candidate_tree": "b44e33a60b40f95f8993855aed65254aa25e72b3",
+  "tracked_source_subtree": "e90363863b4112080af3081679f3e5fdce98e87e",
+  "full_input_paths": [
+    "policy-engine/src",
+    "policy-engine/tools/devx/architecture",
+    "policy-engine/tools/lib",
+    "policy-engine/architecture/public_surface/contract.toml",
+    "policy-engine/architecture/generated_artifacts.toml",
+    "policy-engine/pyproject.toml",
+    "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+    "policy-engine/ruff.toml",
+    "policy-engine/architecture/tooling/ruff/generated.toml"
+  ],
+  "all_selected_git_blobs_match": true,
+  "selected_file_count": 2944,
+  "python_file_count": 2716,
+  "extra_or_missing_python_paths": [],
+  "source_identity_index_sha256": "d3969e19ece2e069e394b1a832f1a367248150c73e4f2f69b03207669d413664",
+  "full_index_scratch_file": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/source-fixture-full-index.json",
+  "fixture_is_git_checkout": false
+}

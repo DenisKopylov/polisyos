@@ -1,0 +1,2693 @@
+{
+  "schema": "e02.D.minimal-canonical-owner-packets.c17-draft.v1",
+  "state": "FINAL_MINIMUM_OWNER_PACKETS_WITH_PROVIDED_CONSUMERS_AND_REQUESTED_SCOPE",
+  "predicate_basis": "not_established",
+  "predicate_scope": "Requested canonical-owner positives/contracts and already provided bounded consumer evidence. Source/output bindings separately reconciled. No owner appointment, final1249 predicate execution or acceptance.",
+  "current_attempt_source": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "final_candidate_source": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+    "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+    "predicate_basis": "not_established"
+  },
+  "G_checkpoint": {
+    "fetched_ref": {
+      "sha": "ff277db7798fc312654704fa51c52e00f53f10f4",
+      "tree": "618e17b5da96a623d5e57f30d265e245a2b277eb"
+    },
+    "checkpoint_ref": {
+      "reference_key": "fresh_G_checkpoint12"
+    },
+    "integration_source": {
+      "sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+      "tree": "759daf4ccbd6e72230de8bda36e1522ffa8fe3e4"
+    },
+    "checkpoint_number": 12,
+    "accepted_slices": [],
+    "finding_closures": [],
+    "D_accepted": false,
+    "predicate_basis": "independently_reconciled"
+  },
+  "original_criterion_ledger_ref": {
+    "source_sha": "e2e0f1677ebdc9c270d85cf148a6094086c2f9b4",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json",
+    "bytes": 393760,
+    "sha256": "901a232c90e2dd433d9adf241fb8da8f49816aa6e2fd4d3b1995191019b29e96",
+    "scope": "Earlier fully source-bound45/46 accounting. Original literal paragraphs/ownership preserved below; earlier limited label retained only historically."
+  },
+  "denominator": {
+    "findings": 45,
+    "criterion_occurrences": 46,
+    "canonical_bundles": 17,
+    "queues": 5,
+    "owner_packets": 16
+  },
+  "disposition_counts": {
+    "OPEN_VERIFICATION_PENDING": 39,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+    "OPEN_CURRENT_UPSTREAM_FAIL": 1
+  },
+  "conditional_engineering_proposals": 39,
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "references": {
+    "transfer_criteria": {
+      "source_sha": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria.json",
+      "git_blob": "d7ba62559dd3e642df00ca085ef28ee65d988c8c",
+      "bytes": 47859,
+      "sha256": "f266455a686de71a5e59f900a8913a9b33a0739f980b49afb17f165850236b6d"
+    },
+    "funnel_node": {
+      "source_sha": "d877127c6fae40de0bd1b33ac8f126dee7b93f26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-node.json",
+      "git_blob": "f46044a463cb451e3800fe23b154db50102ae2a1",
+      "bytes": 17021,
+      "sha256": "db5218da598210bdf37435dfa059fd542001f3ae523aadaec259f512c073ec81"
+    },
+    "funnel_cost_stopping": {
+      "source_sha": "1159cad1c970c783b30c943cf2eb38b61265f48d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping.json",
+      "git_blob": "541ed3732584a54cdfb98ac08cbaf7799dbf0972",
+      "bytes": 9096,
+      "sha256": "37ff90ee4be290e932eaba25cb3018162947ea214bb460a7c11cce371041a269"
+    },
+    "G_owner_actions": {
+      "source_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-delta-owner-actions-2026-10-06.md",
+      "git_blob": "dd547ad2f9596bb6e00083cbc5b7d5748a9e499f",
+      "bytes": 12694,
+      "sha256": "a502ec7666873b7629d6f0e5469690b8adc09cfb496d66be1f05d32c022ce25a"
+    },
+    "original_accounting": {
+      "source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "git_blob": "04658d357e384d770c488d841cac7b17a64efebd",
+      "bytes": 176452,
+      "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
+    },
+    "current_criterion_ledger": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/criterion-ledger.json",
+      "git_blob": "fcd7e6f9abfe36b3fcdafee6751fb0e8bf7475cf",
+      "bytes": 129749,
+      "sha256": "dcfeaad1fb6289a3baf52f7a597dd62c3c09d5e229d99fb1c3c74d8a0552b854"
+    },
+    "quantity_independent13": {
+      "source_sha": "0a20b5012f9c9d46b6a45a1d7723d142ccebe556",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate-review.json",
+      "git_blob": "74a07e5052602731e47221dfdb26dfbed28201d5",
+      "bytes": 13073,
+      "sha256": "3613fda2c25b6b4acb53ee69d5a04acaf53b771c30c37879209bf595e7a3784a"
+    },
+    "native_factory_current": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+      "git_blob": "0c3b85ad03ef7742b1801b4b1ff3a6707046542e",
+      "bytes": 143526,
+      "sha256": "f103ac31caa046763fda31b3d62af79ccf1b4d04b4a03617ddfa537f0eb44d44"
+    },
+    "gateway_b11_current": {
+      "source_sha": "782a9270d5ac77ce3a4a6ba7ce413de4a19e5424",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current.json",
+      "git_blob": "242dc20949a07797cf0b8410dc610fa94e8b865e",
+      "bytes": 10768,
+      "sha256": "59a59156a209ad728c1863a423e320292088f027dc3e75b4892d48304a2102c5"
+    },
+    "current_B_availability": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+      "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+      "bytes": 5015,
+      "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+    },
+    "current_B_inputs": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+      "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+      "bytes": 12470,
+      "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+    },
+    "current_B_requirements": {
+      "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+      "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+      "bytes": 10908,
+      "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+    },
+    "current_B_supplier_availability": {
+      "source_sha": "3e59b7117978598453d1041c62943d8baf6143f8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-supplier-availability-20261006.json",
+      "git_blob": "97ee01f0eb56420ad457333f0903a799d1962c8e",
+      "bytes": 45878,
+      "sha256": "f69877c497f74e0bcd58be8d9881fbd512277a67a2d9ce41426a599c07696ef7"
+    },
+    "hierarchical_author35": {
+      "source_sha": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-consumer.json",
+      "git_blob": "a259955f24c12f7046f10b6cf4cad0eedf71604d",
+      "bytes": 182845,
+      "sha256": "6a630796c9dbd5076fd1c37d20782c01466bc000f02b729f02a1f082a949ccb1"
+    },
+    "final_cache13": {
+      "source_sha": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+      "git_blob": "9c54487e8e1897a4e46b0bb7931143828ad6eccf",
+      "bytes": 19059,
+      "sha256": "7fce7141f096d38fa637c8acdb8e7645b48cfd0fdfd55d4a392e16fd4c7daf33"
+    },
+    "final_cache_independent": {
+      "source_sha": "861feab4f83bd31c9386e771838753e112df49d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/paid-cache-consumer-06c-readonly-review.json",
+      "sha256": "97a56cc6abc00ee88bfa730ee70cefbb7cb0eaa894e7b6c3cc36497aa80f258c",
+      "bytes": 74329,
+      "git_blob": "29dc7fd9a6b971b452cafba3d7432c916a41f54c"
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "git_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+      "bytes": 4897,
+      "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/search/lessons.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "git_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+      "bytes": 44643,
+      "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "git_blob": "c692a9aa352fe145d26fc9cc34975c97e8d28aef",
+      "bytes": 11095,
+      "sha256": "5d59459e50babcfb74b5b6349cd2244a511231ebaef325be70a2d88aa4c9e923",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+      "git_blob": "af004d8dd6d2a46acc4b1a47bcd5dfc9695267f4",
+      "bytes": 6857,
+      "sha256": "f31c387906a0ce24ab8581349a22deb033b5c77201ec9a5bafb58b07e445807e",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "git_blob": "7c5d975487b4bc5283235f400535ab3e3cd10626",
+      "bytes": 27207,
+      "sha256": "e1e23f5cbd3922e3bc22a69544b94f3ae182d0d1875d4a67f006400900d72c81",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+      "bytes": 13409,
+      "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/core/llm/response.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "git_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+      "bytes": 13099,
+      "sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+      "bytes": 26353,
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "git_blob": "cae57ad7bbe3f667862a185f8bcba909f3283024",
+      "bytes": 63816,
+      "sha256": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+      "git_blob": "74105f79bbbd67aa30b949113d9a0b9161aa64b9",
+      "bytes": 63306,
+      "sha256": "13a119c2e0b325daccaa15a6064884a9303a31ba7af08edbe25d955e7ab8cfcc",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "git_blob": "24838eb49af51bad590282dbc4f7110164db2c72",
+      "bytes": 102623,
+      "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/search/service.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "git_blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+      "bytes": 45864,
+      "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/doe/designs.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "git_blob": "1cdf2241318f08092d18936bca3fa130fd998b87",
+      "bytes": 14599,
+      "sha256": "dbd911c4f805b1b1ee7f90c71c8f1bd4008620be403c907340f322e3296891d6",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/doe/sampling.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "git_blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "bytes": 3949,
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/doe/adaptive.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "git_blob": "e33274d4b96519b35159b02a42c593cf09d6364e",
+      "bytes": 7588,
+      "sha256": "935d9741b7d5aa221aff65a065134eb101369baa305e4ca985158454e61d7632",
+      "exists": true
+    },
+    "current:policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+      "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+      "bytes": 10078,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "exists": true
+    },
+    "final258_complete_output": {
+      "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+      "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+      "bytes": 783012,
+      "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+    },
+    "final258_root_receipt": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final.json",
+      "bytes": 18121,
+      "sha256": "347ee5b42191a13b183534bd266b20bd2baaf332a478006144bde174191a3f5a",
+      "git_blob": "1005ac27633215d816e8c334531b2561068baf9b"
+    },
+    "final258_complete_changed_paths": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+      "bytes": 345835,
+      "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+      "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+    }
+  },
+  "packets": [
+    {
+      "key": "tenant_split_transfer",
+      "finding_ids": [
+        "B131"
+      ],
+      "relation_to_original_criterion": "required_original_positive",
+      "state": "held",
+      "provision_state": "REQUESTED_CANONICAL_OWNER_INPUT_OR_ENGINEERING_OUTPUT",
+      "minimum_input_ref": null,
+      "producer": "Existing data/evaluation/tenant owner authorizes specific source-to-target numerical reuse.",
+      "artifact_or_output": "Existing owner decision plus source/target qualified CAS refs; no new synthetic authority registry.",
+      "bridge": "Content-bound numeric_transfer_basis.v1/WarmStartBridge retains actual physical parameters, unit/direction and complete data/model/evaluator/split/scalarizer refs.",
+      "actual_consumer": "Real saved evaluation -> native warm-transfer target.",
+      "minimum_owner_supplied_content": [
+        "Actual source and target tenant/split/subject refs",
+        "Specific allowed reuse/adapter decision from the real owner",
+        "Source/target data/model/evaluator/metric/unit/direction basis",
+        "Exact source physical parameter and evaluation refs",
+        "Permitted adapter/ref and bounded applicability, or explicit refusal"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "transfer_criteria"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read real owner source/target qualified refs through existing B verified snapshot reader, then reconcile numeric_transfer_basis.v1 tenant/split/parameter/data/model/evaluator/scalarizer scope. Existing fixture labels are not the missing owner reuse decision.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Change tenant/split, target basis or allowed adapter while retaining owner text/source markers; actual numeric row must refuse unchanged target state. same owner-supplied decision must admit the bounded positive; incompatible content remains an idea.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+      "requested_next_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+          "file_sha256": "5f760489d73b675d014ed01a8f82a5e609b02d9a94f5c974b9387c79877ec9bd",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "authorized_revalidation",
+      "finding_ids": [
+        "B137"
+      ],
+      "relation_to_original_criterion": "required_original_positive",
+      "state": "held",
+      "provision_state": "REQUESTED_CANONICAL_OWNER_INPUT_OR_ENGINEERING_OUTPUT",
+      "minimum_input_ref": null,
+      "producer": "Actual authorized revalidation occurrence with new grounds, not retention access.",
+      "artifact_or_output": "Existing lesson/evidence new-version artifact plus actual occurrence/grounds/authorization refs.",
+      "bridge": "Existing lesson evidence anchor/version/as-of reader; retention sidecar remains separate.",
+      "actual_consumer": "Cold/warm/restart and transfer reads of the same lesson.",
+      "minimum_owner_supplied_content": [
+        "Prior and newly produced exact evidence refs/version",
+        "Actual new grounds and occurrence time from producer",
+        "Owner authorization for this revalidation purpose",
+        "Subject/input/rule scope tying old and new version",
+        "Declared content/confidence/freshness basis"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/lessons.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "transfer_criteria"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py::test_retention_reads_and_restart_never_refresh_evidence",
+            "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py::test_newer_persisted_version_is_not_reinterpreted_as_older_evidence"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read existing lesson/evidence anchor and actual owner new-version/grounds/ref using qualified CAS; compare cold/warm/restart/as-of content. A newer created_at or retention sidecar alone does not authorize revalidation.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Repeated ordinary reads/retention-only updates never refresh evidence trust. Remove new grounds or real authorization while retaining new-version/time labels; revalidation positive must refuse. Fresh restart reader must reproduce the actual admitted evidence degree.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+      "requested_next_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/search/lessons.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py::test_retention_reads_and_restart_never_refresh_evidence",
+          "file_sha256": "c4f5d1d24341e958ddcffc3c799b6c77323ed3810660c130012b418c9eac341b",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        },
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py::test_newer_persisted_version_is_not_reinterpreted_as_older_evidence",
+          "file_sha256": "c4f5d1d24341e958ddcffc3c799b6c77323ed3810660c130012b418c9eac341b",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "native_draw_producer",
+      "finding_ids": [
+        "B157"
+      ],
+      "relation_to_original_criterion": "required_original_positive",
+      "state": "producer_missing",
+      "provision_state": "REQUESTED_CANONICAL_OWNER_INPUT_OR_ENGINEERING_OUTPUT",
+      "minimum_input_ref": null,
+      "producer": "Actual L3/L4 stage producer exposes executed draws/work for the same candidate/config boundary.",
+      "artifact_or_output": "Existing typed producer result/raw draw or sample artifact and actual execution lineage; labels alone insufficient.",
+      "bridge": "Existing effective-config L3 reduction/L4 restoration plus native stage adapter.",
+      "actual_consumer": "Actual direct L4 vs L3->L4 FunnelOrchestrator on the same boundary.",
+      "minimum_owner_supplied_content": [
+        "Exact candidate/input/seed/config/basis refs",
+        "Actual executed sample/draw/work count and source result ref",
+        "L3 reduced effective request, actual cheaper work/cost evidence",
+        "L4 full effective request on both paths",
+        "Unmutated caller context and exact run/evaluation/attempt scope"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "funnel_owner"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py::test_reduced_config_injected",
+            "policy-engine/tests/unit/scientist/search/funnel/test_level4_full.py::test_level4_full_emits_full_fidelity_stage_result"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the actual native producer sample/draw artifact and same-request full/reduced effective configuration through its existing resolver. Its executed physical draws/work, not stage labels, supply the missing positive. Current configured Foundry20/80 remains separate.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Keep labels/sample_count metadata but remove actual reduction/restoration at the real producer: physical work/config parity oracle must fail. Changed full config must not reuse prior score. Existing Foundry20/80 positive stays its own profile.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+      "requested_next_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "funnel_owner"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py::test_reduced_config_injected",
+          "file_sha256": "620366e28bdf5988509121a55af5ec48a41751067cad023eb56f1c9be5701281",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        },
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/search/funnel/test_level4_full.py::test_level4_full_emits_full_fidelity_stage_result",
+          "file_sha256": "5a6159b3b1af62f5b31d61e6d20dfffea679142b9086882d27e402b455e637ce",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "same_scope_refinement",
+      "finding_ids": [
+        "B161"
+      ],
+      "relation_to_original_criterion": "required_original_positive",
+      "state": "held",
+      "provision_state": "REQUESTED_CANONICAL_OWNER_INPUT_OR_ENGINEERING_OUTPUT",
+      "minimum_input_ref": null,
+      "producer": "Real subsequent estimator output is authorized to refine the same value/subject/input/rule/time scope.",
+      "artifact_or_output": "Existing typed estimate/component and owner refinement rule/grounds refs.",
+      "bridge": "Existing L5 tracker update and reentrant funnel consume authorized same-scope relation; preserve independent components.",
+      "actual_consumer": "Legitimate later estimate changes current result without erasing independent0.8 or unknown risks.",
+      "minimum_owner_supplied_content": [
+        "Actual prior and later estimate refs",
+        "Same subject/value/input/rule/time comparison basis",
+        "Owner supplied permitted refinement relation/conditions",
+        "Producer evidence for later value/interval",
+        "Independent risk components that remain unaffected"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "funnel_owner",
+            "funnel_node"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read owner actual refinement output/rule and typed component refs; reconcile same subject/value/input/rule/time/population against the existing tracker. Prepared/unknown risk fixtures do not supply legitimate refining authority.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Move later estimate to another population/time/input/rule or remove the authorized refinement grounds while retaining lower value: no min/last-wins replacement. True same-scope later output must change the intended component while independent risk remains.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+      "requested_next_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "funnel_owner",
+        "funnel_node"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+          "file_sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "typed_write_permit",
+      "finding_ids": [
+        "B164"
+      ],
+      "relation_to_original_criterion": "required_original_positive",
+      "state": "bridge_missing",
+      "provision_state": "REQUESTED_CANONICAL_OWNER_INPUT_OR_ENGINEERING_OUTPUT",
+      "minimum_input_ref": null,
+      "producer": "Existing authorized owner produces a current typed permit for the specific write purpose and committed subject.",
+      "artifact_or_output": "Real owner-issued typed permit/current verification ref and prepared payload refs; no bool or fixture marker.",
+      "bridge": "Existing purpose-bound issuer/verifier/revoke-vs-commit writer bridge supplied by authoritative owner.",
+      "actual_consumer": "Actual Level6/native commit effect; prepared payload read remains separately allowed.",
+      "minimum_owner_supplied_content": [
+        "Actual issued permit ref and purpose/subject/input binding",
+        "Existing current verifier/owner API and source",
+        "Serialized revoke-before-commit writer protocol",
+        "Real prepared payload/ref and permitted write target",
+        "Positive current permit plus revoked/lost-permission control"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "funnel_owner",
+            "funnel_node",
+            "G_owner_actions"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback",
+            "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py::test_revoke_after_true_preflight_barrier_has_zero_effects"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Use the actual owner issuer/verifier/read policy and prepared payload qualified ref only once supplied; purpose/subject/current revocation must be checked by that existing writer before effect. There is currently no admitted typed positive to invoke; marker barrier is a negative, not a serialized revocation proof.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Owner-issued valid positive must reach the real permitted effect. Same permit revoked before commit must produce0 effects, with writer observing current revocation; retain all request/marker bytes while removing current verifier to discriminate. Existing marker barrier is only a zero-effects negative.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+      "requested_next_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "funnel_owner",
+        "funnel_node",
+        "G_owner_actions"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback",
+          "file_sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        },
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py::test_revoke_after_true_preflight_barrier_has_zero_effects",
+          "file_sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "lossless_gateway_cost",
+      "finding_ids": [
+        "B120"
+      ],
+      "relation_to_original_criterion": "required_original_numeric_boundary",
+      "state": "OPEN_CURRENT_CANONICAL_B_ENGINEERING_DEFECT",
+      "provision_state": "EXISTING_CANONICAL_PYTHON_DECODER_SEAM_OPEN_ENGINEERING_WORK",
+      "minimum_input_ref": null,
+      "producer": "Actual GatewayLLMClient._post_json consumes native response.text before any binary-float loss.",
+      "artifact_or_output": "Corrected owner source/contract plus real24-case response-text output and fresh canonical B1.1 spend_receipts ledger.",
+      "bridge": "Preserve original declared USD numeric value/sign through raw/typed envelope; strict core intake must refuse nonzero-underflow/invalid-present before settlement.",
+      "actual_consumer": "Actual HTTP text -> Gateway -> core response -> enforcer -> B middleware -> fresh FileBudgetLedger.",
+      "minimum_owner_supplied_content": [
+        "Owner-selected lossless declared-cost numeric representation or explicit refusal",
+        "Exact corrected decoder/consumer source/tree",
+        "Current response-text fixture unchanged at qualified test ref",
+        "Fresh schema1.1 ledger and per-event receipt readback",
+        "Genuine0/0.0/1 and both-sign/all-five-field tiny numeric controls"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/core/llm/response.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "gateway_current24",
+            "G_owner_actions",
+            "gateway_b11_current",
+            "gateway_b11_owner_input"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the current raw HTTP24 complete payload through gateway_b11_current/output bundle; reconcile original signed numeric lexeme before strict intake and actual schema1.1 spend_receipts ledger. A future corrected B ref must preserve value/sign; true0 must stay legal.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Current exact04bc24 is21FAIL3PASS: raw numeric1e-1000/-1e-1000 can settle0.0 then release reservation in actual B1.1. After correction remove lossless decoder while retaining all typed cost/event/digest markers; fresh-ledger refusal/expense oracle must fail.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "B LLM-01/LLM-02 B-W09 Gateway text decoder owner; D CTL-03 composed consumer",
+      "requested_next_owner": "B LLM-01/LLM-02 B-W09 Gateway text decoder owner; D CTL-03 composed consumer",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "gateway_current24",
+        "G_owner_actions",
+        "gateway_b11_current",
+        "gateway_b11_owner_input"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/core/llm/response.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+          "file_sha256": "ebc3b9dcc195f865d1c7c76735ce4b4b3dc1aff3c537afcc214b872e8cbcdcc3",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [
+        {
+          "reference_key": "current_B_inputs",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+          "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+          "bytes": 12470,
+          "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+        },
+        {
+          "reference_key": "current_B_requirements",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+          "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+          "bytes": 10908,
+          "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+        },
+        {
+          "reference_key": "current_B_availability",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+          "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+          "bytes": 5015,
+          "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+        }
+      ],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": {
+        "FAIL": 21,
+        "packet_pointer": "c17-partial-failure-packet.json"
+      },
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": "Existing canonical Gateway response-text JSON decoder; use owner reviewed lossless numeric-token intake before float underflow. Available standard Python seam; no missing scientific capability.",
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave",
+      "actual_current_output_ref": {
+        "reference_key": "gateway_b11_current"
+      },
+      "final258_consumer_test_state": "UNRUN",
+      "available_backend_contract": "Native B1.1 paid settlement/fresh readback and parser source seam already exist; actual raw cost lexeme controls21FAIL3PASS remain."
+    },
+    {
+      "key": "owned_multikey_durability",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "relation_to_original_criterion": "actual_default_translator_two_key_durability_profile_dependency",
+      "state": "EXISTING_B_COMPLETION_AND_FLIGHT_APIS_AVAILABLE_CONSUMED_TWO_KEY_OWNER_CONTRACT_REQUESTED",
+      "provision_state": "PROVIDED_B11_PRIMARY_KEY_CONSUMER_AND_B_COMPLETION_APIS_REQUESTED_TWO_KEY_OWNERSHIP_CONTRACT",
+      "minimum_input_ref": null,
+      "producer": "Actual native default translator attributes its physical provider event to its two declared accounting keys under the existing owner reservation; B owns that consumed durable scope.",
+      "artifact_or_output": "Owner appointed event/scope contract and durable receipt/reservation transaction in the existing B1.1 store.",
+      "bridge": "Reconcile the actual default translator two-key reservation/settlement with the existing B1.1 owner transaction. Do not treat this consumed profile as an arbitrary optional schema project or replace primary-key evidence.",
+      "actual_consumer": "Actual native translator/adversary full/split scope and fresh-process ledger reopen.",
+      "minimum_owner_supplied_content": [
+        "Actual caller multi-key/owned reservation profile and purpose",
+        "Physical event ID/digest/amount/provider and exact distinct accounting scopes",
+        "Owner chosen atomic settlement/release/reconciliation contract",
+        "Unknown ACK replay using same event/digest/reservation",
+        "Exact crash/reopen fault boundary and compatible schema/reader"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "resource_owner_requests",
+            "funnel_cost_stopping",
+            "G_owner_actions"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+            "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the actual default translator two-key call/reservation contract in resource_owner_requests and B ledger owner source; reopen the same qualified existing ledger snapshot/receipts under the owner public reader. Do not create another store or infer cross-key atomic recovery from primary-key cases.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Actual supplied multi-key profile crashes between key settlements or before release: fresh reopen must reconcile same owned event once, never count physical provider spend twice or strand ownership. Remove durable transaction while preserving receipt labels to fail actual recovery.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "B DUR-01 B-W05 ledger/middleware owner, B-W09 enforcer; D native caller attribution",
+      "requested_next_owner": "B DUR-01 B-W05 ledger/middleware owner, B-W09 enforcer; D native caller attribution",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "resource_owner_requests",
+        "funnel_cost_stopping",
+        "G_owner_actions"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+          "file_sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        },
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "file_sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        },
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+          "file_sha256": "f9e107f3b496abcfcf841f1b61942f2af7a79385bbeb72c3de9212656b9081dd",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [
+        {
+          "reference_key": "current_B_inputs",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+          "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+          "bytes": 12470,
+          "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+        },
+        {
+          "reference_key": "current_B_requirements",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+          "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+          "bytes": 10908,
+          "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+        },
+        {
+          "reference_key": "current_B_availability",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+          "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+          "bytes": 5015,
+          "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+        }
+      ],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": "Canonical B source exposes completion obligations/resolver/owner epoch/provider intent and cache participation; none authorizes a wholesale B1.2 overlay or proves actual D-owned multikey durability without appointed contract and composed outputs.",
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "public_typed_budget_snapshot",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121"
+      ],
+      "relation_to_original_criterion": "additional_read_contract_only",
+      "state": "EXISTING_PUBLIC_LEDGER_SNAPSHOT_PROVIDED_MIDDLEWARE_DELEGATE_REQUESTED",
+      "provision_state": "PROVIDED_EXISTING_FILE_LEDGER_SNAPSHOT_REQUESTED_ADDITIONAL_MIDDLEWARE_DELEGATE",
+      "minimum_input_ref": null,
+      "producer": "Configured existing middleware supplies one public typed view from its own ledger under its lock.",
+      "artifact_or_output": "Existing BudgetLedgerSnapshot schema/ledger/contract/revision/spend_receipts; memory profile explicit None/unavailable.",
+      "bridge": "Owner-chosen public delegate to existing snapshot, with no second ledger or private _ledger access.",
+      "actual_consumer": "Same-owner CostBudgetStopping/native service result projection/fresh read.",
+      "minimum_owner_supplied_content": [
+        "Owner-approved public method/signature and source",
+        "One canonical immutable view/revision/receipt ref",
+        "Supported durable and explicitly memory-only profiles",
+        "Exact restore/schema compatibility/refusal contract"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "budget_snapshot_request",
+            "funnel_cost_stopping"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read budget_snapshot_request for the exact missing public middleware delegate to existing BudgetLedgerSnapshot. Once supplied, call the same owner public read under its lock; verify schema/ledger/contract/revision/spend_receipts. In-memory None stays unavailable; never use private _ledger as the bridge.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Another actual writer changes spend/revision: new public view must reflect same canonical ledger. Remove delegate or supply corrupt/unsupported snapshot; consumer cannot invent receipt/revision/provider-origin. Memory0 remains recorded accounting, never synthetic durable evidence.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "B DUR-01 configured middleware owner pending G confirmation; D CTL-03/SRV consumers",
+      "requested_next_owner": "B DUR-01 configured middleware owner pending G confirmation; D CTL-03/SRV consumers",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "budget_snapshot_request",
+        "funnel_cost_stopping"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "file_sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [
+        {
+          "reference_key": "current_B_inputs",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+          "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+          "bytes": 12470,
+          "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+        },
+        {
+          "reference_key": "current_B_requirements",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+          "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+          "bytes": 10908,
+          "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+        },
+        {
+          "reference_key": "current_B_availability",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+          "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+          "bytes": 5015,
+          "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+        }
+      ],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": {
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "producer": "FileBudgetLedger.snapshot",
+        "wire_version": "1.1",
+        "new_supplier_wire": "1.2",
+        "scope": "Same method AST; B1.2 adds completion_obligations. No BudgetMiddleware.snapshot/resource_snapshot public delegate exists. Use an explicitly configured existing ledger owner without private middleware._ledger."
+      },
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "A_frontier_default_workflow",
+      "finding_ids": [
+        "B109"
+      ],
+      "relation_to_original_criterion": "separate_G_ordinary_workflow_task",
+      "state": "CONFIGURED_D_BRIDGE_PROVIDED_DEFAULT_A_PROVIDER_BASIS_APPOINTMENT_REQUESTED",
+      "provision_state": "PROVIDED_CONFIGURED_D_RECEIVER_REQUESTED_DEFAULT_A_PRODUCER_BASIS",
+      "minimum_input_ref": null,
+      "producer": "Actual current admitted frontier assessments originate from the appointed evaluator/source owner.",
+      "artifact_or_output": "Existing typed assessments/export and complete eligible/feasible/unknown denominator plus actual caller/input refs.",
+      "bridge": "Wire the existing ParetoRegistry into actual default HierarchicalPolicySearchAdapter coordinator, or cite a real appointed served caller; manual injected fixture is insufficient for this task.",
+      "actual_consumer": "Default evaluation -> registry update -> persisted fresh reader -> ranked frontier report.",
+      "minimum_owner_supplied_content": [
+        "Actual caller source/owner appointment and ordinary request terminus",
+        "Metric/split/direction/unit/definition-version assessed result refs",
+        "Eligible/feasible/unknown complete requested denominator",
+        "Producer source/input/evaluator admission basis",
+        "Existing registry/report CAS refs and normal bridge source"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read HierarchicalPolicySearchAdapter.instantiate_coordinator and fresh G owner-actions. Current ordinary constructor supplies config without ParetoRegistry. Read actual A-W04 assessed export plus eligible/feasible/unknown denominator and A-W01 caller mapping when supplied; then inspect ordinary persisted frontier/ref with the existing reader. No manual registry injection substitutes for that task.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Remove actual provider/export or default registry wire while retaining report labels: ordinary default output must be basis_limited/unavailable; no green projection. Same admitted complete input must update actual registry and fresh ranked report.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+      "requested_next_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "G_owner_actions"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+        }
+      ],
+      "actual_existing_selector_references": [],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": [
+        "hierarchical_author35",
+        "hierarchical_independent7",
+        "root_composed44"
+      ],
+      "minimum_D_configured_receiver_ref": {
+        "source_sha": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-consumer.json",
+        "git_blob": "a259955f24c12f7046f10b6cf4cad0eedf71604d",
+        "bytes": 182845,
+        "sha256": "6a630796c9dbd5076fd1c37d20782c01466bc000f02b729f02a1f082a949ccb1"
+      },
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "served_hierarchical_context",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B109"
+      ],
+      "relation_to_original_criterion": "separate_G_served_factory_scope",
+      "state": "FOREIGN_A_EXISTING_INITIAL_CONTEXT_BRIDGE_OPEN",
+      "provision_state": "PROVIDED_NATIVE_PUBLIC_FACTORY_REQUESTED_FOREIGN_A_CONTEXT_BRIDGE",
+      "minimum_input_ref": null,
+      "producer": "Actual existing hierarchical workflow supplies its ordinary candidate/request and admitted evaluation context.",
+      "artifact_or_output": "Existing PolicyCandidate/ParameterSearchSpec/PolicyEvaluationBundle, evaluator/model/data/split/metric refs and real evaluation-safety context/verifier/admission receipt.",
+      "bridge": "Use existing actual node/coordinator request seam and available public NativeSearchService checkpoint route only under owner-approved mapping.",
+      "actual_consumer": "Real served hierarchical node with fresh public resume/readback and evaluated-subject/cost/history parity.",
+      "minimum_owner_supplied_content": [
+        "Actual supported caller source and owner-approved mapping",
+        "Admitted concrete candidate/request and source refs",
+        "Existing eval-safety execution context/current verifier and world-model/provenance basis",
+        "Configured exact checkpoint owner/ref exposure",
+        "Known new/resumed/stopped/empty/evaluator-failure and rollback subjects"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "served_factory_request",
+            "G_owner_actions",
+            "native_factory_current",
+            "native_factory_independent"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read existing PolicyCandidate/ParameterSearchSpec/PolicyEvaluationBundle and actual evaluation-safety context/verifier/world-model ref ports; future owner mapping must point to a concrete ordinary caller/request. Native6fe15/caller scan is already available; do not repeat it as a missing served appointment.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Missing/wrong context/model/subject/admission refuses actual evaluation; wrong checkpoint/ref refuses before state effects. Removal of the ordinary native wire must fail actual evaluated-subject/history/frontier parity, not only a constructor capture.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "A-W01/CYC-01 actual workflow owner and evaluator owner; G to confirm the actual served caller; D native API/bridge consumers",
+      "requested_next_owner": "A-W01/CYC-01 actual workflow owner and evaluator owner; G to confirm the actual served caller; D native API/bridge consumers",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "served_factory_request",
+        "G_owner_actions",
+        "native_factory_current",
+        "native_factory_independent"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "selector": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+          "file_sha256": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a",
+          "declared_nodes_found": true,
+          "outcome": "Read-only navigation/bytes only; final exact8c execution not established.",
+          "git_blob": "654c155d77751c37b95c1d9ceb37baa406751b7e"
+        }
+      ],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": {
+        "source_sha": "fb1d84547b8d8fb71b8cc70ca84a975bdef07ff6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/A-structure-context.patch",
+        "sha256": "b937a542f3361801ca3e64738f6aa9405f54e6c3c5b3af51b6156dcc60265cb9"
+      },
+      "native_context_actual_ref": {
+        "reference_key": "hierarchical_author35",
+        "json_pointer": "/checks/17",
+        "counts": {
+          "PASS": 2,
+          "FAIL": 1
+        }
+      },
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "ordinary_blueprint_configured_owner",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B160",
+        "B165"
+      ],
+      "relation_to_original_criterion": "additional_actual_factory_profile",
+      "state": "caller_input_missing",
+      "provision_state": "PROVIDED_TYPED_INPROCESS_D_CONSTRUCTOR_AND_OUTCOME_PROJECTION_REQUESTED_ORDINARY_ADMITTED_CALLER_INPUT",
+      "minimum_input_ref": null,
+      "producer": "Ordinary configured caller constructs the available typed PolicyBudgetExecutionContext with the same existing BudgetMiddleware and admitted evaluation context.",
+      "artifact_or_output": "Existing candidate/source/eval-safety refs and configured in-process owner instance; no serialized object in ExperimentState.params.",
+      "bridge": "Available keyword-only frozen D context forwards same instance/run/candidate/evaluation scope into FunnelOrchestrator; actual stage producer must be separately provided if paid work is claimed.",
+      "actual_consumer": "Actual RunPolicyBlueprintRuntimeNode -> existing backend/L5 and true producer -> node outcome JSON/CAS.",
+      "minimum_owner_supplied_content": [
+        "Actual caller source/appointment and runnable request",
+        "Same configured B middleware owner instance and existing key scope",
+        "Existing admitted evaluation context/verifier/world-model refs",
+        "Actual stage producer output for the cost/work being claimed",
+        "Exact fresh output/report refs and pending ACK attribution if used"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "resource_owner_requests",
+            "funnel_node",
+            "funnel_cost_stopping"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read actual frozen keyword-only PolicyBudgetExecutionContext and node consumer; read caller admitted evaluation context and the same configured BudgetMiddleware owner ref. Inspect real native outcome params.funnel_outcome and fresh CAS with existing JSON reader. The ordinary CPU backend is not a provider-spend producer merely because the constructor forwards a port.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Wrong present context owner type refuses; plain base context stays honestly unmanaged. Remove same-owner forwarding or actual paid producer while retaining stage/cost labels: ledger-backed producer oracle must fail. No default CPU numerical backend is labeled provider-paid from constructor wiring alone.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "A actual node/evaluator caller owner; B existing resource owner; D blueprint node owner",
+      "requested_next_owner": "A actual node/evaluator caller owner; B existing resource owner; D blueprint node owner",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "resource_owner_requests",
+        "funnel_node",
+        "funnel_cost_stopping"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+        }
+      ],
+      "actual_existing_selector_references": [],
+      "current_B_supplier_packet_refs": [
+        {
+          "reference_key": "current_B_inputs",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+          "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+          "bytes": 12470,
+          "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+        },
+        {
+          "reference_key": "current_B_requirements",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+          "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+          "bytes": 10908,
+          "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+        },
+        {
+          "reference_key": "current_B_availability",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+          "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+          "bytes": 5015,
+          "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+        }
+      ],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "B_canonical_history_compatibility",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B120"
+      ],
+      "relation_to_original_criterion": "additional_actual_persisted_owner_profile",
+      "state": "EXISTING_B_SNAPSHOT12_AVAILABLE_ADOPTION_COMPATIBILITY_CONTRACT_REQUESTED",
+      "provision_state": "PROVIDED_EXISTING_B12_SOURCE_API_REQUESTED_ADOPTION_COMPATIBILITY_CONTRACT",
+      "minimum_input_ref": null,
+      "producer": "B owns canonical schema1.1 spend_receipts/history/ref semantics and any required actual legacy reader decision.",
+      "artifact_or_output": "Existing B owner schema/release/operator recipe and qualified persisted refs; known native SearchService checkpoint formats remain owner declared.",
+      "bridge": "Preserve owner original commits and compatible read/refusal; never reconstruct old D1.0 resource_events/resource_reservations beside B1.1.",
+      "actual_consumer": "Actual fresh configured ledger/checkpoint/history reader for supported owner profile.",
+      "minimum_owner_supplied_content": [
+        "Exact appointed canonical persisted profile/reader source",
+        "Any actually supported prior history/artifact refs needing compatibility",
+        "Owner migration/refusal decision and existing release companion",
+        "Actual qualified CAS source/manifest lineage",
+        "Normal reader round-trip/explicit refusal evidence"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/service.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "B_owner_dependency",
+            "G_owner_actions",
+            "native_factory_manifest"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read exact owner schema1.1 spend_receipts and supported native checkpoint compatibility declarations; resolve only existing owner-selected historical qualified refs with those canonical readers. No invented raw history converter or restoration of retired D1.0 parallel ledger schema.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Old incompatible ledger/history cannot silently become a zero current state or reinterpret different subject/receipt. Remove manifest/reader version reconciliation while retaining ref labels: fresh read must refuse. A supported existing history must preserve exact meaning.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "B DUR-01 canonical ledger owner and CAS-01 qualified ref owner; D consumes compatible profile",
+      "requested_next_owner": "B DUR-01 canonical ledger owner and CAS-01 qualified ref owner; D consumes compatible profile",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "B_owner_dependency",
+        "G_owner_actions",
+        "native_factory_manifest"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/search/service.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "selector": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+          "file_sha256": "27ca58db276560aa8dec8f19684aebcb0cf638f6111bd258340fefbbd757d7e3",
+          "declared_nodes_found": true,
+          "outcome": "Read-only navigation/bytes only; final exact8c execution not established.",
+          "git_blob": "51ab4ce016ecf132bcbd61c6b9292d3bbc7429a4"
+        }
+      ],
+      "current_B_supplier_packet_refs": [
+        {
+          "reference_key": "current_B_inputs",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+          "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+          "bytes": 12470,
+          "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+        },
+        {
+          "reference_key": "current_B_requirements",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+          "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+          "bytes": 10908,
+          "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+        },
+        {
+          "reference_key": "current_B_availability",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+          "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+          "bytes": 5015,
+          "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+        }
+      ],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "B_public_API_surface",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121",
+        "LA-014",
+        "LA-015"
+      ],
+      "relation_to_original_criterion": "separate_quality_API_gate",
+      "state": "EXISTING_PAID_PRODUCER_READBACK_PROVIDED_ADDITIONAL_API_OWNER_CONTRACT_REQUESTED",
+      "provision_state": "PROVIDED_NATIVE_B11_CACHE_PRODUCER_AND_D_RESOLVER_CONSUMER",
+      "minimum_input_ref": null,
+      "producer": "Actual intended public APIs and callback signatures are declared by canonical source owner.",
+      "artifact_or_output": "Canonical contract/inventory/generated public surface and structured release classification companions.",
+      "bridge": "Either reconcile intended public FileBudgetLedger/LLMBudgetEnforcer/create_traced_gateway_client interfaces or classify internal consistently.",
+      "actual_consumer": "Actual exported public facade/import/caller; D releases preserve owner classifications.",
+      "minimum_owner_supplied_content": [
+        "Owner intended classification for exact APIs/callback types",
+        "Actual canonical contract/inventory update refs",
+        "Matching generated inventory/docs/release refs",
+        "Supported signature/compatibility/operator recipe"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions",
+            "B_owner_dependency"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read B owner intended export classification/signatures and the exact canonical architecture/contract/public-inventory companions named in B_owner_dependency/G_owner_actions. Reconcile generated bytes to the owner refs once supplied; a reviewed flag or private helper does not settle public API authority.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Remove actual contract/inventory update while retaining author reviewed=true flag: canonical surface check must remain unresolved. Flag equality or local stale inventory is not acceptance.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "B DUR-01/LLM-01/LLM-02 API owners plus G public inventory/contract owner",
+      "requested_next_owner": "B DUR-01/LLM-01/LLM-02 API owners plus G public inventory/contract owner",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "G_owner_actions",
+        "B_owner_dependency",
+        "final_cache13",
+        "final_cache_independent"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+        }
+      ],
+      "actual_existing_selector_references": [],
+      "current_B_supplier_packet_refs": [
+        {
+          "reference_key": "current_B_inputs",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-inputs.json",
+          "git_blob": "04c2fd6502541afcbd2bf5e706eabd05fc8eb479",
+          "bytes": 12470,
+          "sha256": "7bb4585d3abf6ddc6af3e745b38493e6eba6e0248eb3bd2a7aeaa7b2cee0129d"
+        },
+        {
+          "reference_key": "current_B_requirements",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-requirements.json",
+          "git_blob": "027be14577718bf6aaf6747ae68329a251b3c733",
+          "bytes": 10908,
+          "sha256": "469500709ca88b8606372135af269f7667db36ff0852119ea538330bc3ace228"
+        },
+        {
+          "reference_key": "current_B_availability",
+          "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-current-B-availability.json",
+          "git_blob": "15def9366f4c2d4ebd010f4d26253f36014459d8",
+          "bytes": 5015,
+          "sha256": "aea6212d7ddc14054761ae4c0337a6b77ce72ea75680a46f4322f499706a0e76"
+        }
+      ],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": {
+        "historical_status": "Two actual c17 FAIL retained",
+        "reason": "D fixtures omitted available native paid receipt/readback composition; not missing B capability.",
+        "corrected_source": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+        "actual13PASS_ref": {
+          "reference_key": "final_cache13"
+        },
+        "independent_ref": {
+          "reference_key": "final_cache_independent"
+        }
+      },
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": "Existing canonical native B1.1 paid issuer and fresh receipt reader plus D resolver execute in13PASS. Additional desired middleware public snapshot/API contract remains separately requested; no whole B1.2 adoption or raw Gateway decoder correction inferred.",
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave",
+      "minimum_provided_native_cache_ref": {
+        "reference_key": "final_cache13"
+      }
+    },
+    {
+      "key": "E_mutable_cardinality_cap",
+      "finding_ids": [
+        "B106",
+        "B107",
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "relation_to_original_criterion": "E_DOE01_dependency_profile",
+      "state": "owner_guard_review_needed",
+      "provision_state": "PROVIDED_PRIOR_ACTUAL_D_TO_DOE_BRIDGE_REQUESTED_MUTABLE_E_CARDINALITY_PROFILE",
+      "minimum_input_ref": null,
+      "producer": "Existing public mutable SensitivityPlan/current sampling plan is admitted at the point materialization consumes it.",
+      "artifact_or_output": "E owner-selected immutable/revalidated plan and current estimated cardinality/explicit override contract, preserving existing rounds and declared direction/input law.",
+      "bridge": "Existing generate_sensitivity_samples direct API must not rely solely on constructor validation if publicly mutated plan is consumed; existing AdaptiveSampler round reconstruction/preflight already remains.",
+      "actual_consumer": "Public direct sampling and actual D SensitivityBridge/AdaptiveSampler -> truthful report fraction.",
+      "minimum_owner_supplied_content": [
+        "Actual mutable/immutable public-plan contract and source",
+        "Current method/parameter/n_trajectories/cap/allow_large_run values at consumed boundary",
+        "Oversize refusal before backend array/materialization",
+        "Declared round count and original physical direction/threshold",
+        "Exact affected E producer tests and ordinary D consumer profile refs"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/doe/adaptive.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "stress_E_actual",
+            "G_owner_actions"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the current public mutable SensitivityPlan and actual generate_sensitivity_samples boundary; compare consumed estimated runs/current cap before SALib materialization. Proposed mutated Morris2parameter/n1/max9 -> n4/estimated12 discriminant remains UNRUN, not a measured E failure. Existing AdaptiveSampler reconstructed round preflight and D6+12/oversize positive remain separate actual evidence.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Unexecuted source-bound discriminant: construct valid Morris2-parameter/n1/max9, then mutate n_trajectories=4 (12>9) and call actual public generate_sensitivity_samples. Require refusal before SALib materialization. Guard removal keeping plan labels must reach the sampler and fail that oracle; genuine admitted6 and explicit override retain declared behavior.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "E DOE-01 E-W06 canonical SensitivityPlan/sampling owner; D actual E->stress consumer",
+      "requested_next_owner": "E DOE-01 E-W06 canonical SensitivityPlan/sampling owner; D actual E->stress consumer",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "stress_E_actual",
+        "G_owner_actions"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/doe/designs.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/doe/sampling.py"
+        },
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/doe/adaptive.py"
+        }
+      ],
+      "actual_existing_selector_references": [
+        {
+          "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+          "selector": "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+          "file_sha256": "406d609242f1fe5215aa3c8f6642910e1a3ec3296589621969c36c99c04c1db0",
+          "declared_nodes_found": true,
+          "outcome": "Original source-qualified navigation only; no new runtime.",
+          "current8c_navigation": "not_established"
+        }
+      ],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "owner_declared_fiscal_profile",
+      "finding_ids": [
+        "B108"
+      ],
+      "relation_to_original_criterion": "separate_scientific_issuer_claim",
+      "state": "not_established",
+      "provision_state": "REQUESTED_CANONICAL_OWNER_INPUT_OR_ENGINEERING_OUTPUT",
+      "minimum_input_ref": null,
+      "producer": "Actual fiscal measurement producer declares its unit/sign/alias applicability and source measurement basis.",
+      "artifact_or_output": "Existing owner declaration and actual fiscal result refs, if a scientific issuer claim is requested.",
+      "bridge": "Existing strict fiscal extractor uses declared unit/profile and presence/null/conflict semantics.",
+      "actual_consumer": "Actual user/evaluator fiscal input; finite alias/unit boundary controls remain separately verified.",
+      "minimum_owner_supplied_content": [
+        "Actual producer/result and source refs",
+        "Owner-declared sign/unit/alias equivalence/profile",
+        "Measurement and applicable time/context basis",
+        "Real conflict/missing policy for that producer"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/objective.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the actual existing strict fiscal scalar extractor/declaration profile and source result ref when supplied; unit/sign/alias/presence/conflict must be bound to that result. Finite original B108 alias/unit/zero controls do not require a new cryptographic signature, unit registry or blanket production dataset.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Swap incompatible unit/sign/profile while retaining alias labels: actual extractor refuses or reports unavailable. Equivalent declared measurement and true0 remain unchanged.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "Actual fiscal unit/sign/source-law declaring owner to be confirmed by A/G",
+      "requested_next_owner": "Actual fiscal unit/sign/source-law declaring owner to be confirmed by A/G",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "G_owner_actions"
+      ],
+      "actual_contract_references": [
+        {
+          "reference_key": "current:policy-engine/src/polisyos/scientist/methods/search/objective.py"
+        }
+      ],
+      "actual_existing_selector_references": [],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    },
+    {
+      "key": "D_coordinate_volume_corrective",
+      "finding_ids": [
+        "B110",
+        "B111"
+      ],
+      "relation_to_original_criterion": "required_original_same_class_control",
+      "state": "provided_bounded_source_and_consumer_evidence_final_checks_pending",
+      "provision_state": "PROVIDED_BOUNDED_SOURCE_AND_ACTUAL_CONSUMER_EVIDENCE",
+      "minimum_input_ref": {
+        "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+        "blob": "0d1eb21e4da3b533bb09a848167999a3471fb544",
+        "bytes": 24250,
+        "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f"
+      },
+      "producer": "Existing coordinate identity and assessed volume adapter/optimizer consumer enforce paired identity and numeric representability.",
+      "artifact_or_output": "Frozen corrected source plus exact paired-axis/rational-positive-underflow/genuine-zero/derived-overflow oracle output, no new measurement authority.",
+      "bridge": "Use current identity/basis refusal and typed unavailable outcome; retain real CAS and existing upstream guards.",
+      "actual_consumer": "Actual promoter/persisted registry/is_dominated/physical quantity and optimizer reference consumer.",
+      "minimum_owner_supplied_content": [
+        "Exact source/test/tree and ordinary consumer source",
+        "All axes/policies/values/reference transformed together plus stale/unpaired refusal",
+        "Independent rational positive tiny-volume vs genuine empty-zero expected",
+        "Finite-input derived reference arithmetic refusal",
+        "Complete immutable positive and source-removal/old-source outputs"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions",
+            "quantity_corrective",
+            "quantity_independent13",
+            "quantity_ordinary_independent2"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": {
+            "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+            "blob": "0d1eb21e4da3b533bb09a848167999a3471fb544",
+            "bytes": 24250,
+            "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f"
+          },
+          "recipe": "Read quantity_corrective, quantity_independent13 and quantity_ordinary_independent2 exact Git payloads. Reconcile paired axes/name/policy/value/reference and omission IDs; positive underflow unavailable vs genuine zero, finite derived-reference refusal, actual registry/A projection and fresh CAS are received. No additional producer law input is required for these original finite criteria.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Positive box(1e-200,1e-200) cannot become available exact0. Reindex axes/policies/values/reference together preserves candidate physical quantity; stale omission/axis IDs refuse. Finite derived ref overflow cannot be hidden by fallback.",
+      "falsifier_executed_here": false,
+      "requested_canonical_owner": "D-W01 search_owner producer/consumer plus numerical_oracle independent controls",
+      "requested_next_owner": "D-W01 search_owner producer/consumer plus numerical_oracle independent controls",
+      "appointment_not_established": true,
+      "requested_owner_decision_ref": null,
+      "requested_canonical_owner_appointment_ref": null,
+      "evidence_reference_keys": [
+        "G_owner_actions",
+        "quantity_corrective",
+        "quantity_independent13",
+        "quantity_ordinary_independent2"
+      ],
+      "actual_contract_references": [],
+      "actual_existing_selector_references": [],
+      "current_B_supplier_packet_refs": [],
+      "provided_configured_consumer_refs": null,
+      "minimum_D_configured_receiver_ref": null,
+      "minimum_unapplied_supplier_patch": null,
+      "native_context_actual_ref": null,
+      "current_c17_actual_calls": null,
+      "received_c17_cache_receipt_failures": null,
+      "available_existing_snapshot": null,
+      "provided_supplier_api_scope": null,
+      "supplier_seam": null,
+      "final_verification_state": "FINAL258_ERROR_ZERO_TEST_PHASES_UNRUN_WITH_SOURCE_QUALIFIED_SCOPED_CHECKS",
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_wave_pointer": "ledger.json#/final_acceptance_wave"
+    }
+  ],
+  "findings": [
+    {
+      "id": "B41",
+      "canonical_closure_owner": "STP-01",
+      "criterion_occurrences": [
+        "B41@STP-01"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/0",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B106",
+      "canonical_closure_owner": "STR-01",
+      "criterion_occurrences": [
+        "B106@STR-01"
+      ],
+      "packet_keys": [
+        "E_mutable_cardinality_cap"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/1",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B107",
+      "canonical_closure_owner": "STR-01",
+      "criterion_occurrences": [
+        "B107@STR-01"
+      ],
+      "packet_keys": [
+        "E_mutable_cardinality_cap"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/2",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B108",
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B108@OPT-01"
+      ],
+      "packet_keys": [
+        "owner_declared_fiscal_profile"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/3",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B109",
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B109@OPT-01"
+      ],
+      "packet_keys": [
+        "A_frontier_default_workflow",
+        "served_hierarchical_context"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/4",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B110",
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B110@OPT-01"
+      ],
+      "packet_keys": [
+        "D_coordinate_volume_corrective"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/5",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B111",
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B111@OPT-01"
+      ],
+      "packet_keys": [
+        "D_coordinate_volume_corrective"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/6",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B112",
+      "canonical_closure_owner": "OPT-02",
+      "criterion_occurrences": [
+        "B112@OPT-02"
+      ],
+      "packet_keys": [
+        "E_mutable_cardinality_cap"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/7",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B113",
+      "canonical_closure_owner": "OPT-02",
+      "criterion_occurrences": [
+        "B113@OPT-02"
+      ],
+      "packet_keys": [
+        "E_mutable_cardinality_cap"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/8",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B114",
+      "canonical_closure_owner": "OPT-03",
+      "criterion_occurrences": [
+        "B114@OPT-03"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/9",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B115",
+      "canonical_closure_owner": "OPT-03",
+      "criterion_occurrences": [
+        "B115@OPT-03"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/10",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B116",
+      "canonical_closure_owner": "OPT-04",
+      "criterion_occurrences": [
+        "B116@OPT-04"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/11",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B117",
+      "canonical_closure_owner": "OPT-04",
+      "criterion_occurrences": [
+        "B117@OPT-04"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/12",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B118",
+      "canonical_closure_owner": "CTL-01",
+      "criterion_occurrences": [
+        "B118@CTL-01"
+      ],
+      "packet_keys": [
+        "public_typed_budget_snapshot",
+        "B_public_API_surface"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/13",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B119",
+      "canonical_closure_owner": "CTL-01",
+      "criterion_occurrences": [
+        "B119@CTL-01"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/14",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B120",
+      "canonical_closure_owner": "CTL-03",
+      "criterion_occurrences": [
+        "B120@CTL-03"
+      ],
+      "packet_keys": [
+        "lossless_gateway_cost",
+        "owned_multikey_durability",
+        "public_typed_budget_snapshot",
+        "ordinary_blueprint_configured_owner",
+        "B_canonical_history_compatibility",
+        "B_public_API_surface"
+      ],
+      "disposition": "OPEN_CURRENT_UPSTREAM_FAIL",
+      "ledger_json_pointer": "/findings/15",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B121",
+      "canonical_closure_owner": "CTL-03",
+      "criterion_occurrences": [
+        "B121@CTL-03"
+      ],
+      "packet_keys": [
+        "public_typed_budget_snapshot",
+        "B_public_API_surface"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/16",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B122",
+      "canonical_closure_owner": "STP-01",
+      "criterion_occurrences": [
+        "B122@STP-01"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/17",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B123",
+      "canonical_closure_owner": "CTL-03",
+      "criterion_occurrences": [
+        "B123@CTL-03"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/18",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B124",
+      "canonical_closure_owner": "CTL-02",
+      "criterion_occurrences": [
+        "B124@CTL-02"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/19",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B125",
+      "canonical_closure_owner": "CTL-02",
+      "criterion_occurrences": [
+        "B125@CTL-02"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/20",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B126",
+      "canonical_closure_owner": "CTL-02",
+      "criterion_occurrences": [
+        "B126@CTL-02"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/21",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B127",
+      "canonical_closure_owner": "OPT-02",
+      "criterion_occurrences": [
+        "B127@OPT-02"
+      ],
+      "packet_keys": [
+        "E_mutable_cardinality_cap"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/22",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B128",
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B128@TRN-01"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/23",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B129",
+      "canonical_closure_owner": "TRN-02",
+      "criterion_occurrences": [
+        "B129@TRN-02"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/24",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B130",
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B130@TRN-01"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/25",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B131",
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B131@TRN-01"
+      ],
+      "packet_keys": [
+        "tenant_split_transfer"
+      ],
+      "disposition": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "ledger_json_pointer": "/findings/26",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B132",
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B132@TRN-01"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/27",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B133",
+      "canonical_closure_owner": "TRN-02",
+      "criterion_occurrences": [
+        "B133@TRN-02"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/28",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B134",
+      "canonical_closure_owner": "TRN-02",
+      "criterion_occurrences": [
+        "B134@TRN-02"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/29",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B135",
+      "canonical_closure_owner": "TRN-03",
+      "criterion_occurrences": [
+        "B135@TRN-03"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/30",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B136",
+      "canonical_closure_owner": "TRN-03",
+      "criterion_occurrences": [
+        "B136@TRN-03"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/31",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B137",
+      "canonical_closure_owner": "TRN-03",
+      "criterion_occurrences": [
+        "B137@TRN-03"
+      ],
+      "packet_keys": [
+        "authorized_revalidation"
+      ],
+      "disposition": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "ledger_json_pointer": "/findings/32",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B156",
+      "canonical_closure_owner": "FUN-01",
+      "criterion_occurrences": [
+        "B156@FUN-01"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/33",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B157",
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B157@FUN-02"
+      ],
+      "packet_keys": [
+        "native_draw_producer"
+      ],
+      "disposition": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "ledger_json_pointer": "/findings/34",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B158",
+      "canonical_closure_owner": "FUN-01",
+      "criterion_occurrences": [
+        "B158@FUN-01"
+      ],
+      "packet_keys": [
+        "owned_multikey_durability",
+        "ordinary_blueprint_configured_owner"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/35",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B159",
+      "canonical_closure_owner": "FUN-01",
+      "criterion_occurrences": [
+        "B159@FUN-01"
+      ],
+      "packet_keys": [
+        "owned_multikey_durability"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/36",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B160",
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B160@FUN-02"
+      ],
+      "packet_keys": [
+        "ordinary_blueprint_configured_owner"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/37",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B161",
+      "canonical_closure_owner": "FUN-03",
+      "criterion_occurrences": [
+        "B161@FUN-03"
+      ],
+      "packet_keys": [
+        "same_scope_refinement"
+      ],
+      "disposition": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "ledger_json_pointer": "/findings/38",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B162",
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B162@FUN-02"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/39",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B163",
+      "canonical_closure_owner": "FUN-03",
+      "criterion_occurrences": [
+        "B163@FUN-03"
+      ],
+      "packet_keys": [],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/40",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B164",
+      "canonical_closure_owner": "FUN-03",
+      "criterion_occurrences": [
+        "B164@FUN-03"
+      ],
+      "packet_keys": [
+        "typed_write_permit"
+      ],
+      "disposition": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "ledger_json_pointer": "/findings/41",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "B165",
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B165@FUN-02"
+      ],
+      "packet_keys": [
+        "ordinary_blueprint_configured_owner"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/42",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "LA-014",
+      "canonical_closure_owner": "SRV-01",
+      "criterion_occurrences": [
+        "LA-014@SRV-01"
+      ],
+      "packet_keys": [
+        "served_hierarchical_context",
+        "B_canonical_history_compatibility",
+        "B_public_API_surface"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/43",
+      "minimum_original_positive_ref": null
+    },
+    {
+      "id": "LA-015",
+      "canonical_closure_owner": "SRV-03",
+      "criterion_occurrences": [
+        "LA-015@CTL-01",
+        "LA-015@SRV-03"
+      ],
+      "packet_keys": [
+        "served_hierarchical_context",
+        "B_canonical_history_compatibility",
+        "B_public_API_surface"
+      ],
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "ledger_json_pointer": "/findings/44",
+      "minimum_original_positive_ref": null
+    }
+  ],
+  "provided_vs_requested": {
+    "quantity_packet": "PROVIDED_BOUNDED_SOURCE_AND_CONSUMER",
+    "configured_D_bridge": "PROVIDED_CONFIGURED_RECEIVER; default A provider/basis and foreign context separately requested",
+    "native_B11_cache": "PROVIDED_REAL_PAID_PRODUCER_FRESH_READBACK_AND_D_CONSUMER13PASS",
+    "primary_B11_ledger_and_FUN": "PROVIDED_NATIVE9PASS_AND_ROOT44_PARTITION",
+    "native_B12_source_apis": "AVAILABLE_SOURCE; adoption contract not established",
+    "five_original_positive_inputs": "REQUESTED_NOT_ESTABLISHED",
+    "raw_Gateway_decoder": "OPEN_AVAILABLE_CANONICAL_B_ENGINEERING_DEFECT",
+    "additional_contracts": "REQUESTED_SCOPED; not mandatory replacements for original finite cards",
+    "owner_appointments": "not_established"
+  },
+  "actions": {
+    "backend_runs": 0,
+    "source_test_root_writes": 0,
+    "children": 0,
+    "Git_ref_writes": 0
+  },
+  "full_original_criterion_occurrences": {
+    "ledger_artifact_relative_path": "ledger.json",
+    "occurrences": 46,
+    "exact_texts_unchanged": true,
+    "canonical_owner_occurrence": "LA-015@SRV-03",
+    "supplier_companion_only_occurrence": "LA-015@CTL-01",
+    "ledger_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+    "ledger_sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4",
+    "ledger_source_sha": null,
+    "membership": "Exact same implementation commit; separate handoff pins its actual Git SHA."
+  }
+}

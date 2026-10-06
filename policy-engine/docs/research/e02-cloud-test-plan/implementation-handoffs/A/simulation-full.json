@@ -1,0 +1,513 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "simulation-full",
+  "closure_ids": [
+    "B06",
+    "B07",
+    "B18",
+    "B19",
+    "B20",
+    "B21",
+    "B22",
+    "B23",
+    "B25",
+    "B26"
+  ],
+  "bundle_ids": [
+    "SIM-01",
+    "SIM-02",
+    "SIM-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "dd6fde7d0d1635ca659c0c57e5db77c40559d0e2",
+    "a6183e54008fd5b36302937ae3b803ef3d8c2be0",
+    "c2200989612bcdc21b26c96eafb22526a54059ed"
+  ],
+  "candidate_tree_sha": "7a2729b235c3ae5050c44ea335db507beb830b11",
+  "branch": "codex/e02-A-simulation-full",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+    "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "policy-engine/tests/unit/remediation/test_sim_01.py",
+    "policy-engine/tests/unit/remediation/test_sim_02.py",
+    "policy-engine/tests/unit/remediation/test_sim_03.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P032",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F02-P032",
+      "related_A_routes": [
+        "B19",
+        "B21",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F03-P110",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F03-P110",
+      "related_A_routes": [
+        "B06",
+        "B07"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F04-P023",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F04-P023",
+      "related_A_routes": [
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F04-P110",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F04-P110",
+      "related_A_routes": [
+        "B18",
+        "B20",
+        "B22"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F05-P041",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F05-P041",
+      "related_A_routes": [
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F07-P031",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F07-P031",
+      "related_A_routes": [
+        "B19",
+        "B21",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F08-P031",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "reported_state": "FAILED",
+      "source_locator": "results/cells.tsv:F08-P031",
+      "related_A_routes": [
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F08-P112",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F08-P112",
+      "related_A_routes": [
+        "B06",
+        "B07"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F09-P112",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F09-P112",
+      "related_A_routes": [
+        "B18",
+        "B20",
+        "B22"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F12-P030",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F12-P030",
+      "related_A_routes": [
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F13-P038",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F13-P038",
+      "related_A_routes": [
+        "B19",
+        "B21",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F13-P128",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F13-P128",
+      "related_A_routes": [
+        "B06",
+        "B07"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F14-P027",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F14-P027",
+      "related_A_routes": [
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    },
+    {
+      "id": "F14-P129",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "reported_state": "PASS",
+      "source_locator": "results/cells.tsv:F14-P129",
+      "related_A_routes": [
+        "B18",
+        "B20",
+        "B22"
+      ],
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred"
+    }
+  ],
+  "checks": [
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/src:. JAX_PLATFORMS=cpu OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -vv --junitxml=_build/e02-A-full-queue/simulation-full/junit.xml tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py tests/unit/runtime/quality/test_joint_simulation_horizon.py tests/unit/remediation/test_sim_01.py tests/unit/remediation/test_sim_02.py tests/unit/remediation/test_sim_03.py",
+      "target_sha": "dd6fde7d0d1635ca659c0c57e5db77c40559d0e2",
+      "target_tree_sha": "a04248c3d57d57b1a8cc392a7292499b5fff9373",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "numpy": "2.3.5",
+        "jax": "0.8.2 CPU",
+        "platform": "macOS arm64 CPU; JUnit hostname MacBook-Air-Denis.local",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "numerical_threads": "OMP/OPENBLAS/MKL/NUMEXPR/VECLIB each set to 1",
+        "environment_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/full-at-dd/environment.txt",
+        "production_data": "not required; deterministic fixtures and temporary FileSystemCAS only"
+      },
+      "input_closure": "The six listed implementation/test paths at target SHA; five pytest modules; temporary test FileSystemCAS; no production data/DB/port. Module origins and HEAD/tree/status are captured in the environment record.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 66.76,
+      "output": "JUnit 90 tests / 63.248 s: 85 passed, 5 failed. Failures were the ProgramGraph snapshot helper imported from a noncanonical facade and four coupling fixtures that requested multi-grid execution from a static NCM plan. The four fixture expectations were narrowed to the one-step coupling predicate in the next test-only commit; the helper import/type was repaired. Full deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/full-at-dd/{stdout.log,stderr.log,junit.xml,environment.txt}.",
+      "failed_nodes": [
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource]",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback]",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine]",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation"
+      ]
+    },
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/src:. JAX_PLATFORMS=cpu OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -vv --junitxml=_build/e02-A-full-queue/simulation-full/focused-repair/junit.xml tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation",
+      "target_sha": "a6183e54008fd5b36302937ae3b803ef3d8c2be0",
+      "target_tree_sha": "3b69617588ea8af4286d0c1af718ed4a0086a891",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "numpy": "not separately printed",
+        "jax": "0.8.2 CPU",
+        "platform": "macOS arm64 CPU; JUnit hostname MacBook-Air-Denis.local",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "numerical_threads": "environment record does not enumerate thread variables",
+        "environment_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/focused-at-a618/environment.txt",
+        "production_data": "not required; deterministic fixtures and temporary FileSystemCAS only"
+      },
+      "input_closure": "Five originally failed nodes; runtime source unchanged from dd6fde7; coupling fixtures/importer test path at a6183e5.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 16.16,
+      "output": "4 passed, 1 failed in 16.16 s. All three unsupported coupling variants and the coupling-removal probe passed after moving them to the one-step horizon they test. The remaining ProgramGraph witness used ArtifactRef where StateSnapshotRef is required; fixed by typed-ref cast in c220098. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/focused-at-a618/{stdout.log,stderr.log,junit.xml,environment.txt}.",
+      "failed_nodes": [
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs"
+      ]
+    },
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/src:. JAX_PLATFORMS=cpu /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -vv --junitxml=_build/e02-A-full-queue/simulation-full/final-programgraph/junit.xml tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs",
+      "target_sha": "c2200989612bcdc21b26c96eafb22526a54059ed",
+      "target_tree_sha": "7a2729b235c3ae5050c44ea335db507beb830b11",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "numpy": "2.3.5",
+        "jax": "0.8.2 CPU",
+        "platform": "macOS arm64 CPU; JUnit hostname MacBook-Air-Denis.local",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "numerical_threads": "environment record does not enumerate thread variables",
+        "environment_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/programgraph-at-c220/environment.txt",
+        "production_data": "not required; deterministic fixtures and temporary FileSystemCAS only"
+      },
+      "input_closure": "Final ProgramGraph cache/state witness at candidate commit; temporary real FileSystemCAS; same graph/exec/base CAS refs and two semantic GlobalState bodies.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 18.14,
+      "pytest_wall_s": 14.05,
+      "output": "1 passed in 14.05 s; shell wall 18.14 s. The real FileSystemCAS-backed ProgramGraph test preserves store/registry handles, snapshots semantic state, and executes again with a changed result when state content changes under unchanged CAS refs. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/programgraph-at-c220/{stdout.log,stderr.log,junit.xml,environment.txt}."
+    }
+  ],
+  "property": {
+    "statement": "The canonical N5 controller refuses incompatible simultaneous writes before any singleton call, selects engines against the actual requested ordered grid and coupling support, requires finite producer outputs, binds/cache-reuses only equal semantic runs within one invocation, and computes a higher-order joint residual when the complete individual/pairwise/joint basis exists. It persists the result fields in the typed content-bound N5 payload. This slice does not wire B26 evidence into N8 readiness.",
+    "runtime_path": [
+      "N5 JointSimulationRequest at polisyos.runtime.quality.generation_cycle candidate producer",
+      "polisyos.runtime.quality.joint_simulation_horizon.JointSimulationHorizonController.run",
+      "existing registered Foundry NCM / System Dynamics methods or Foundry ProgramGraph executor",
+      "JointSimulationResult trajectories + higher_order_residuals + FeedbackClassification + SimulationProofReceipt",
+      "generation_cycle._conditional_simulation_value_observation via _DefaultSimulationBoundFoundryValuePort (consumer loads and limits K_sim; B26 residual is not yet consumed there)"
+    ],
+    "proxy_divergence": "Plan eligibility strings can claim multi_period while the actual inclusive HorizonSpec.steps() has four points, or omit the hint when it still does; horizon length alone also fails when the step skips to one requested point. Likewise tuple order is not a declared atom sequence, a final scalar is not a per-step series, a selected flag is not proof the selected engine produced the trajectory, and equal run/candidate IDs or unchanged CAS refs do not imply equal semantic state.",
+    "negative_controls": [
+      "Static NCM with a 4-point unhinted request refuses before runner; same static plan with one requested point remains eligible.",
+      "B06 fallback selects real registered StockFlow after static rejection and matches independent recurrence values for all requested points: stock0 [10,11,11.9,12.71], stock1 [0,4,8.1,12.29].",
+      "Same-slot incompatible atom writes refuse in both atom orders before pure_step; equal compatible assignments produce the same physical semantic key under permutation.",
+      "Required missing/null/malformed/NaN/Inf output refuses; explicit numeric zero remains a value; final mass_balance is terminal-only and generic unbound scalar does not become a series.",
+      "Requested-grid gaps, reorder, short/suffix-only and overlong point lists do not count as complete interaction coverage.",
+      "Same invocation cache key executes the real registered engine once; changed seed/plan/evidence/baseline/comparator cause actual additional calls. Mutating nested request input after key computation leaves callback snapshots unchanged.",
+      "Real FileSystemCAS ProgramGraph uses same refs with changed state bytes and causes a cache miss/new execution/output; preserve handles by identity.",
+      "Registered NCM nonlinear DGP y=x1*x2*x3+u at x1=x2=x3=1 yields zero individual/pairwise values and joint value 1; controller residual is 1 and checked orders are (1,2,3).",
+      "B22 falsifier: horizon (0,0,1), dt=1, initial stocks [10,0] simultaneously labels initial stock0=10 and terminal final_stocks.0=9 at point step 0; output records producer_time_grid_binding=not_established and simulation-only authority blocker.",
+      "The three registered SMM B25 test function bodies are byte/source-body identical to slice base; their exact hashes are in simulation-full/caller-census.txt."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": {
+    "request_grid": "recomputed from the actual immutable HorizonSpec.steps() tuple at admission; no eligibility hint is used for grid length.",
+    "atom_conflict": "recomputed from canonical WorldModelRecord slot bindings and direct assignment values before runners.",
+    "physical_execution_identity": "recomputed by hashing request/plan/decision/atom semantics and ProgramGraph base-state leaves; runtime handles are retained by identity, not hashed or deep-copied.",
+    "producer_time_grid_binding": "not_established; caller labels alone cannot reconcile requested step with producer dt/physical valid-time coordinates.",
+    "N8 higher-order admission": "not_established; current conditional consumer does not inspect the residual/order/horizon evidence.",
+    "causal law truth and authoring": "not_established by synthetic numerical fixtures."
+  },
+  "capability_state_or_finding_state": "Bounded N5 controller mechanism repaired and candidate-tested; finding closure remains not_adjudicated. B19 remains bridge_missing; B21 producer_missing; B26 surface_missing/consumer_missing. No end-to-end B26 N5→persisted CAS→N8 semantic readiness claim.",
+  "finding_outcomes": {
+    "B06": {
+      "historical_status": "partial",
+      "capability_label": "verification_missing",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "actual-grid static rejection followed by registered StockFlow fallback and independent four-point recurrence oracle; cross-process N8 selection/readback remains outside this slice"
+    },
+    "B07": {
+      "historical_status": "partial",
+      "capability_label": "verification_missing",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "actual grid is composed before coupling admission; one-step coupling gate controls preserved; a general owner-backed temporal/coupling registry and served proof remain unestablished"
+    },
+    "B18": {
+      "historical_status": "partial",
+      "capability_label": "absent/unallocated",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "required scalar projections reject missing/null/malformed/nonfinite and preserve explicit zero; per-engine units/optionality contract is still not fully owned"
+    },
+    "B19": {
+      "historical_status": "partial",
+      "capability_label": "bridge_missing",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "explicit evidence mapping and baseline-compat source mode are kept distinct in run identity; EvidenceStateRef binding to source/owner/population/time remains absent, so no empirical evidence/no-op claim"
+    },
+    "B20": {
+      "historical_status": "partial",
+      "capability_label": "verification_missing",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "canonical conflicting direct writes refuse before any singleton in either order; compatible unordered atom permutations share physical identity; no per-atom dependency field exists, so tuple order does not claim sequential semantics"
+    },
+    "B21": {
+      "historical_status": "partial",
+      "capability_label": "producer_missing",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "replication seeds and averaging are preserved, but no estimator/design-aware uncertainty producer exists; any trajectory currently yields receipt.authoritative_for=(simulation_numerical_uncertainty,), including one replicate, so this marker is not variance proof"
+    },
+    "B22": {
+      "historical_status": "partial",
+      "capability_label": "absent/unallocated",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "exact ordered step coverage is required and no final-value fill is used; registered StockFlow final scalar is terminal-only. Producer dt/time-coordinate binding is not_established; one-point mixed initial/terminal falsifier retained as bounded residual, no dt/unit rule invented"
+    },
+    "B23": {
+      "historical_status": "partial",
+      "capability_label": "verification_missing",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "same-call-cache semantic hits/misses cause observed execution differences; mutable inputs are snapshotted; ProgramGraph body state is fingerprinted even with same CAS refs; cache remains invocation-local"
+    },
+    "B25": {
+      "historical_status": "closed",
+      "capability_label": "surface_out_of_scope",
+      "closure_now": "historical bounded closure unchanged",
+      "candidate_result": "all three required SMM test bodies hash identically to base, fixed required moments retained; no optional metrics, other method, or served API closure expansion"
+    },
+    "B26": {
+      "historical_status": "partial",
+      "capability_label": "surface_missing",
+      "closure_now": "not_adjudicated",
+      "candidate_result": "real registered NCM cubic controller test demonstrates residual 1 with zero individual/pairwise terms and orders 1,2,3. N8 consumer currently drops this distinction from its value observation and does not require horizon/steps/residual/order; remains limited pending canonical consumer bridge."
+    }
+  },
+  "caller_census": {
+    "script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/caller_census.py",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/caller-census.txt",
+    "operation": "git ls-files -z, complete tracked Python file walk under policy-engine/src and policy-engine/tests, byte-match named tokens, and exact results/cells.tsv × A routes.tsv join for every changed existing test path; new semantics test has no source baseline cell.",
+    "file_type_denominator": "5,460 tracked Python files total: 2,698 policy-engine/src/*.py and 2,762 policy-engine/tests/*.py.",
+    "complete_named_token_sets": {
+      "JointSimulationHorizonController": 12,
+      "higher_order_residuals": 3,
+      "_conditional_simulation_value_observation": 1,
+      "_DefaultSimulationBoundFoundryValuePort": 6
+    },
+    "baseline_path_denominator": "Four changed pre-existing Python test paths; 14 source cells intersect, enumerated in baseline_cells and caller-census.txt. The added test path has zero source-era cells (no denominator member).",
+    "unresolved_by_construction": [
+      "external/untracked callers",
+      "runtime-built names and opaque dynamic aliases",
+      "true production served traffic"
+    ]
+  },
+  "program_graph_state_fingerprint": {
+    "canonical_foundry_serializer": "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py@blob:d6a470a7b2bc1e59624050e6cec23fe2b19afe64",
+    "rule": "Reuse Foundry _flatten_state leaf paths; per leaf bind numpy dtype.str, shape, and exact C-contiguous bytes (order=C) via gy_recorded_content_hash. Unsupported leaf type refuses as program_graph_state_fingerprint_unavailable.",
+    "scope": "Private in-repository coupling to existing snapshot serializer; no public Foundry ABI claim and no new Foundry owner semantics.",
+    "witness": "test_program_graph_cache_binds_mutated_state_with_same_cas_refs using real FileSystemCAS; exact output in checks/programgraph-at-c220/."
+  },
+  "historical_inputs": {
+    "failure_register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@candidate tree; pattern pass P02/P08/P10/P14/P27/P29/P31/P32/P33/P37/P38/P40.",
+    "A_composition_tasks": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md#task-a2,#task-a5,#task-a7,#task-a8",
+    "criterion_registry": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@candidate tree; all 10 finding criteria source hashes pinned there; ledger status remains separate from candidate test observations.",
+    "method_runtime_semantics": [
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md: selected-method oracle independence rules; no invented upstream scientific semantics.",
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md: method/runtime boundary; registered NCM and stock-flow execution only for tested profiles.",
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md: no new sequential atom semantics ratified by this slice."
+    ]
+  },
+  "limitations_and_next_owner": [
+    "Root / n5_intake: canonical N8 consumer must preserve selected engine/trajectory identity, WMR ref/hash, expected atom IDs and outcomes, plus the sibling receipt payload digest; B26 additionally needs content-bound higher_order_residuals, checked_interaction_orders, request horizon and exact observed steps carried into the N8 decision. Recompute/validate from loaded receipt-bound artifact; result equality or field presence cannot grant readiness. Current generation_cycle conditional value observation ignores higher-order residual fields.",
+    "B19: no EvidenceStateRef source/owner/population/time producer. Keep empirical no-op/effect unavailable; do not infer evidence from baseline state.",
+    "B21: no E-owned method/estimand-aware IID/QMC sampling design or uncertainty producer. Current authoritative_for marker is too broad for variance proof; retain candidate-only uncertainty limitation and preserve historical receipt read/replay.",
+    "B22 P40 same class one level deeper: StockFlow dt/time coordinate ↔ request time role is not producer-bound. The concrete mismatch/mixed-row probes are in test_joint_simulation_e02_semantics.py; smallest closing capability is an owner-typed producer point/time binding, which is absent. Do not invent dt units or a dt==step law.",
+    "B20 sequential composition remains absent because JointSimulationRequest contains no typed per-atom dependency declaration; no tuple-order semantics are claimed. F owns atom meaning and any future order/dependency contract; A consumes it.",
+    "B26 synthetic cubic proves selected registered NCM controller arithmetic for this finite fixture only, not causal truth or served N8 admissibility. N8 residual consumer/surface acceptance remains missing.",
+    "B06/B07 remain partial/not adjudicated pending an independently read-back N5 CAS result through the served consumer and complete applicable method registry basis.",
+    "B25 remains exactly the prior registered SMM bounded closure; no expansion to optional metrics or other estimators.",
+    "Do not claim full A closure, calibration, deployment, public publishability, statistical sampling validity, or evidence/authority from receipt/result equality. Root/G must adjudicate finding status after integration and shared checks."
+  ],
+  "receipt_commit_note": "This handoff and companion checks are committed after the implementation commits and pin candidate_tree_sha above; this receipt does not point to its own commit.",
+  "n8_consumer_contract": {
+    "current_canonical_entry": "polisyos.runtime.quality.generation_cycle._conditional_simulation_value_observation, invoked by _DefaultSimulationBoundFoundryValuePort",
+    "existing_identity_inputs": [
+      "the canonical loader resolves the persisted JointSimulationResult through the runtime-owned CAS",
+      "exactly one selected EngineDecision must bind receipt.engine_kind and every trajectory engine_kind/method_fqn/objective_ref",
+      "expected WorldModelRecord reference/content hash",
+      "expected atom IDs: use candidate.intervention_atoms when field exists; fall back to candidate.atom only when intervention_atoms is absent; an explicit empty intervention_atoms rejects",
+      "expected selected outcomes",
+      "the sibling SimulationPortObservation.simulation_ref must equal the content-bound receipt.payload_hash"
+    ],
+    "additional_B26_inputs_not_yet_consumed": [
+      "higher_order_residuals from the receipt-verified payload",
+      "feedback_classification.checked_interaction_orders",
+      "the exact HorizonSpec and ordered HorizonSpec.steps()",
+      "each requested trajectory scope/atom subset and exact ordered point.step sequence",
+      "for the tested 3-atom property, require joint residual at each requested step and checked interaction order 3; do not generalize exact decomposition beyond the implementation-supported order"
+    ],
+    "authority_rule": "Resolve + content-bind + recompute receipt and identity bindings. Whole-result equality, field presence, receipt authority marker, or sibling digest alone is not scientific authority; keep this K_sim result limited and require a dropped-residual negative to deny readiness.",
+    "current_gap": "The existing conditional value observation loads/validates WMR/atoms/outcome and carries K_sim blockers but does not consume or preserve the higher-order residual/order/horizon/steps in an N8 typed decision."
+  }
+}

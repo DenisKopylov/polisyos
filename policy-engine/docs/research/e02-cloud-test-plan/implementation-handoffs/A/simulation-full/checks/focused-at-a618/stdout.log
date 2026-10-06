@@ -1,0 +1,531 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs FAILED [ 20%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource] PASSED [ 40%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback] PASSED [ 60%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine] PASSED [ 80%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation PASSED [100%]
+
+=================================== FAILURES ===================================
+_______ test_program_graph_cache_binds_mutated_state_with_same_cas_refs ________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-526/test_program_graph_cache_binds0')
+
+    def test_program_graph_cache_binds_mutated_state_with_same_cas_refs(
+        tmp_path: Any,
+    ) -> None:
+        import jax.numpy as jnp
+    
+        from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
+    
+        first_plan = _program_graph_plan(tmp_path)
+        snapshot_ref = put_state_snapshot(
+            first_plan.program_store,
+            state=first_plan.program_base_state,
+            step=0,
+        )
+        first_plan = first_plan.model_copy(update={"program_base_ref": snapshot_ref})
+        changed_state = first_plan.program_base_state.replace(
+            agents=first_plan.program_base_state.agents.replace(
+                income=jnp.asarray([2000.0, 4000.0], dtype=jnp.float32)
+            )
+        )
+        second_plan = first_plan.model_copy(
+            update={"program_base_state": changed_state}
+        )
+        request = _request().model_copy(
+            update={
+                "engine_plan": (first_plan,),
+                "horizon": HorizonSpec(start=0, end=0),
+                "selected_outcomes": ("mean_income",),
+                "baseline_state": {"mean_income": 0.0},
+            }
+        )
+        controller = JointSimulationHorizonController()
+        decision = controller._select_program_graph_engine(first_plan)
+        second_request = request.model_copy(update={"engine_plan": (second_plan,)})
+        cache: dict[str, SimulationTrajectory] = {}
+        observed_states: list[float] = []
+    
+        def run_once(
+            run_request: JointSimulationRequest,
+            run_plan: EnginePlan,
+            run_decision: Any,
+            run_level: str,
+            atoms: tuple[Any, ...],
+            seed: int,
+        ) -> SimulationTrajectory:
+            artifacts = joint_simulation_horizon_module.execute_program_graph(
+                run_plan.program_store,
+                program_ref=run_plan.program_graph_ref,
+                exec_plan_ref=run_plan.exec_plan_ref,
+                base_state=run_plan.program_base_state,
+                mechanism_registry=run_plan.mechanism_registry,
+                slot_registry=run_plan.slot_registry,
+                merge_registry=run_plan.merge_registry,
+                selector_field_registry=run_plan.selector_field_registry,
+                constraint_registry=run_plan.constraint_registry,
+                step=0,
+                seed=seed,
+                base_ref=run_plan.program_base_ref,
+                parameter_overrides=joint_simulation_horizon_module._program_parameter_overrides(
+                    atoms,
+                    run_plan,
+                ),
+            )
+            current_state = joint_simulation_horizon_module.apply_state_delta(
+                run_plan.program_store,
+                base_state=run_plan.program_base_state,
+                state_delta_ref=artifacts.state_delta_ref,
+                slot_registry=run_plan.slot_registry,
+                merge_registry=run_plan.merge_registry,
+            )
+            outcomes = joint_simulation_horizon_module._program_graph_outcomes(
+                current_state,
+                run_request.selected_outcomes,
+                run_plan,
+            )
+            observed_states.append(float(outcomes["mean_income"]))
+            return SimulationTrajectory(
+                run_level=run_level,  # type: ignore[arg-type]
+                atom_ids=tuple(atom.intervention_id for atom in atoms),
+                engine_kind=run_decision.engine_kind,
+                method_fqn=run_decision.method_fqn,
+                objective_ref=run_plan.objective_ref,
+                points=(
+                    TrajectoryPoint(
+                        step=run_request.horizon.steps()[0],
+                        outcomes=outcomes,
+                        effect=outcomes,
+                    ),
+                ),
+            )
+    
+        atom_subset = (request.intervention_atoms[0],)
+>       first_ref, first_result, reused = _run_or_reuse_physical_spec(
+            cache,
+            request,
+            first_plan,
+            decision,
+            "joint",
+            atom_subset,
+            run_once,
+        )
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:844: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/joint_simulation_horizon.py:797: in _run_or_reuse_physical_spec
+    replicated = tuple(
+                 ^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:799: in <genexpr>
+    run_once(
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:797: in run_once
+    artifacts = joint_simulation_horizon_module.execute_program_graph(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x10b5e41a0>
+
+    def execute_program_graph(
+        store: FileSystemCAS,
+        *,
+        program_ref: ArtifactRef | ArtifactID | str,
+        exec_plan_ref: ArtifactRef | ArtifactID | str,
+        base_state: Any,
+        mechanism_registry: MechanismTypeRegistry,
+        slot_registry: SlotRegistry,
+        merge_registry: MergeRuleRegistry,
+        selector_field_registry: SelectorFieldRegistry | None = None,
+        constraint_registry: ConstraintRegistry | None = None,
+        step: int = 0,
+        seed: int = 0,
+        base_ref: ArtifactRef | None = None,
+        project_root: str | None = None,
+        capture_env: bool = False,
+        parameter_overrides: dict[str, dict[str, Any]] | None = None,
+        parameter_override_bundle_ref: ArtifactRef | None = None,
+        observed_range_bundle_ref: ArtifactRef | None = None,
+        welfare_bound_mode: str = "ex_ante",
+        persist_welfare_bound_reports: bool = True,
+        strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
+    ) -> ExecuteArtifacts:
+        """Execute program graph."""
+        env_manifest_ref: EnvironmentManifestRef | None = None
+        env_fingerprint: str | None = None
+        if capture_env:
+            env_manifest = capture_environment(
+                project_root=project_root,
+                include_git=True,
+                include_dependencies=True,
+                custom_metadata={
+                    "seed": seed,
+                    "seed_source": "jax_prng",
+                    "exec_plan_id": str(artifact_id(exec_plan_ref)),
+                },
+            )
+            env_manifest_ref = _persist_environment_manifest(store, env_manifest, exec_plan_ref)
+            env_fingerprint = env_manifest.fingerprint
+            _log_environment_captured(env_manifest)
+    
+        start_time = time.perf_counter()
+        program_graph = load_model(store, program_ref, ProgramGraph)
+        exec_plan = load_model(store, exec_plan_ref, ExecPlan)
+        if program_graph.lowered_ir_ref is None:
+            raise ValueError("program_graph_missing_lowered_ir_ref")
+        lowered_ir = load_model(store, program_graph.lowered_ir_ref, LoweredIR)
+        observed_ranges = None
+        if persist_welfare_bound_reports and welfare_bound_mode != "off":
+            observed_ranges = (
+                load_observed_range_bundle(store, observed_range_bundle_ref)
+                if observed_range_bundle_ref is not None
+                else None
+            )
+    
+        order = exec_plan.order or [node.node_id for node in program_graph.nodes]
+        node_map = {node.node_id: node for node in program_graph.nodes}
+        incoming_dependencies = _incoming_dependencies(program_graph)
+        mask_barrier_targets = _mask_barrier_targets(program_graph)
+    
+        n_agents = getattr(base_state.agents, "size", None)
+        if n_agents is None:
+            n_agents = int(base_state.agents.income.shape[0])
+        n_firms = getattr(base_state.firms, "size", None)
+        if n_firms is None:
+            n_firms = int(base_state.firms.capital.shape[0])
+    
+        key = jax.random.PRNGKey(seed)
+        tax_rate_value = _resolve_income_tax_rate(
+            program_graph,
+            store,
+            step,
+            parameter_overrides=parameter_overrides,
+        )
+        visible_state = base_state
+        patch_records: dict[str, list[dict[str, Any]]] = {}
+        ops: list[PatchOp] = []
+        applied_nodes = 0
+        skipped_nodes = 0
+        failure_cards: list[FailureCard] = []
+        failure_cards_dropped = 0
+        provenance: dict[str, list[str]] = {}
+        derived_artifacts: list[tuple[str, ArtifactRef]] = []
+        touched_slots: set[str] = set()
+        executed_mutating_nodes: set[str] = set()
+        op_nodes = 0
+        checked_constraints = 0
+        masks: dict[str, tuple[jnp.ndarray, SlotScope]] = {}
+        constraint_report = ConstraintReport(
+            ok=True,
+            hard_fail=False,
+            constraint_mode=lowered_ir.constraint_mode,
+            total_constraints=0,
+            violations=[],
+            penalty_total=None,
+            notes=[],
+        )
+    
+        def _flush_pending_records() -> None:
+            nonlocal patch_records, visible_state
+            if not patch_records:
+                return
+            touched_slots.update(patch_records.keys())
+            base_values = {
+                slot_id: get_state_path(visible_state, slot_spec.state_path)
+                for slot_id in patch_records
+                for slot_spec in [slot_registry.slots.get(slot_id)]
+                if slot_spec is not None and slot_spec.state_path
+            }
+            merged_ops = merge_patch_records(
+                store,
+                patch_records,
+                base_values=base_values,
+                slot_registry=slot_registry,
+                merge_registry=merge_registry,
+            )
+            visible_state = apply_ops_to_state(
+                store,
+                base_state=visible_state,
+                ops=merged_ops,
+                slot_registry=slot_registry,
+                merge_registry=merge_registry,
+            )
+            patch_records = {}
+    
+        def _persist_welfare_report(node: Any, report: Any) -> None:
+            if report is None or not persist_welfare_bound_reports:
+                return
+            report_inputs = [
+                artifact_input_ref(exec_plan_ref, role="exec_plan"),
+            ]
+            if base_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(base_ref, role="base_state_snapshot")
+                )
+            if node.params_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(node.params_ref, role="mechanism_params")
+                )
+            if parameter_override_bundle_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(
+                        parameter_override_bundle_ref,
+                        role="parameter_override_bundle",
+                    )
+                )
+            if observed_range_bundle_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(observed_range_bundle_ref, role="observed_range_bundle")
+                )
+            report_ref = persist_welfare_bound_report(store, report, inputs=report_inputs)
+            derived_artifacts.append((f"welfare_bound_report:{node.node_id}", report_ref))
+    
+        for node_id in order:
+            node = node_map.get(node_id)
+            if node is None:
+                card = _build_failure_card(
+                    ProgramNodeValidationError(
+                        f"ExecPlan referenced unknown node '{node_id}'",
+                        node_id=node_id,
+                        code="unknown_exec_plan_node",
+                    ),
+                    node_id=node_id,
+                    slot_context=(),
+                )
+                failure_cards_dropped += _append_failure_card(failure_cards, card)
+                if _should_abort(card, strictness):
+                    raise MethodExecutionAbortError(card)
+                skipped_nodes += 1
+                continue
+            barrier_target = mask_barrier_targets.get(node_id, node_id)
+            if patch_records and _depends_on_executed_mutation(
+                barrier_target,
+                incoming_dependencies=incoming_dependencies,
+                executed_mutating_nodes=executed_mutating_nodes,
+            ):
+                _flush_pending_records()
+            try:
+                if node.node_kind == "op":
+                    op_nodes += 1
+                    if node.op is None:
+                        raise ProgramNodeValidationError(
+                            f"Program op node '{node_id}' is missing op payload",
+                            node_id=node_id,
+                            op_kind=None,
+                            code="missing_program_op",
+                        )
+                    if node.op.op_kind == "make_mask":
+                        selector_payload = node.op.params.get("selector") or {}
+                        target = _parse_selector_payload(selector_payload, node=node)
+                        mask, scope = evaluate_selector(
+                            target, visible_state, selector_field_registry=selector_field_registry
+                        )
+                        masks[node.node_id] = (mask, scope)
+                        continue
+                    if node.op.op_kind == "apply_mechanism":
+                        key, patch_map, payload, welfare_report = _execute_mechanism_like_node(
+                            store,
+                            node=node,
+                            visible_state=visible_state,
+                            selector_field_registry=selector_field_registry,
+                            masks=masks,
+                            step=step,
+                            key=key,
+                            n_agents=n_agents,
+                            n_firms=n_firms,
+                            mechanism_registry=mechanism_registry,
+                            parameter_overrides=parameter_overrides,
+                            observed_ranges=observed_ranges,
+                            slot_registry=slot_registry,
+                            merge_registry=merge_registry,
+                            tax_rate_value=tax_rate_value,
+                            welfare_bound_mode=welfare_bound_mode,
+                        )
+                        if patch_map is None:
+                            skipped_nodes += 1
+                            continue
+                        _append_patch_map_records(
+                            patch_records,
+                            node=node,
+                            payload=payload,
+                            patch_map=patch_map,
+                        )
+                        _persist_welfare_report(node, welfare_report)
+                        applied_nodes += 1
+                        executed_mutating_nodes.add(node_id)
+                        continue
+                    if node.op.op_kind == "merge_state":
+                        _flush_pending_records()
+                        continue
+                    if node.op.op_kind == "check_constraints":
+                        ids = node.op.params.get("constraint_ids") or []
+                        if constraint_registry is not None:
+                            from polisyos.foundry.validation.constraints_engine import (
+                                check_constraints as evaluate_lowered_constraints,
+                            )
+    
+                            constraint_ids = [item for item in ids if isinstance(item, str)]
+                            lowered_constraints = [
+                                item
+                                for item in lowered_ir.constraints
+                                if item.constraint_id in constraint_ids
+                            ]
+                            checked_constraints += len(lowered_constraints)
+                            constraint_report = evaluate_lowered_constraints(
+                                constraints=lowered_constraints,
+                                slot_registry=slot_registry,
+                                state=visible_state,
+                            )
+                        continue
+                    raise ProgramNodeValidationError(
+                        f"Unsupported program op '{node.op.op_kind}'",
+                        node_id=node_id,
+                        op_kind=node.op.op_kind,
+                        code="unsupported_program_op",
+                    )
+                if node.node_kind == "mechanism":
+                    key, patch_map, payload, welfare_report = _execute_mechanism_like_node(
+                        store,
+                        node=node,
+                        visible_state=visible_state,
+                        selector_field_registry=selector_field_registry,
+                        masks=masks,
+                        step=step,
+                        key=key,
+                        n_agents=n_agents,
+                        n_firms=n_firms,
+                        mechanism_registry=mechanism_registry,
+                        parameter_overrides=parameter_overrides,
+                        observed_ranges=observed_ranges,
+                        slot_registry=slot_registry,
+                        merge_registry=merge_registry,
+                        tax_rate_value=tax_rate_value,
+                        welfare_bound_mode=welfare_bound_mode,
+                    )
+                    if patch_map is None:
+                        skipped_nodes += 1
+                        continue
+                    _append_patch_map_records(
+                        patch_records,
+                        node=node,
+                        payload=payload,
+                        patch_map=patch_map,
+                    )
+                    _persist_welfare_report(node, welfare_report)
+                    applied_nodes += 1
+                    executed_mutating_nodes.add(node_id)
+                    continue
+                if node.node_kind == "method":
+                    method_fqn = node.method_fqn
+                    if not method_fqn:
+                        raise ProgramNodeValidationError(
+                            f"Method node '{node_id}' is missing method_fqn",
+                            node_id=node_id,
+                            code="missing_method_fqn",
+                        )
+                    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+                    from polisyos.foundry.methods.registry import MethodRegistry
+    
+                    registry = MethodRegistry.get_instance()
+                    method_class = registry.get(method_fqn, version=node.method_version)
+                    signature = method_class.signature
+                    dispatcher = MethodDispatcher.get_instance()
+                    key, step_key = jax.random.split(key)
+                    method_result = dispatcher.dispatch(
+                        method_class=method_class,
+                        signature=signature,
+                        state=visible_state,
+                        params=node.method_params,
+                        seed=_seed_from_key(step_key),
+                    )
+                    _append_method_patch_records(
+                        patch_records,
+                        provenance,
+                        node=node,
+                        output_payload=method_result.output,
+                    )
+                    applied_nodes += 1
+                    executed_mutating_nodes.add(node_id)
+                    continue
+                raise ProgramNodeValidationError(
+                    f"Unsupported node kind '{node.node_kind}'",
+                    node_id=node_id,
+                    code="unsupported_node_kind",
+                )
+            except _CLASSIFIED_EXECUTOR_FAILURES as exc:
+                card = _build_failure_card(
+                    exc,
+                    node=node,
+                    slot_context=tuple(node.inputs) + tuple(node.outputs),
+                )
+                failure_cards_dropped += _append_failure_card(failure_cards, card)
+                logger.warning(
+                    "Program node '%s' failed [%s/%s]: %s",
+                    node_id,
+                    card.severity.value,
+                    card.failure_kind.value,
+                    card.error_message,
+                )
+                if _should_abort(card, strictness):
+                    raise MethodExecutionAbortError(card) from exc
+                skipped_nodes += 1
+    
+        if patch_records:
+            _flush_pending_records()
+    
+        ops = _build_state_delta_ops(
+            store,
+            base_state=base_state,
+            final_state=visible_state,
+            touched_slots=touched_slots,
+            slot_registry=slot_registry,
+            merge_registry=merge_registry,
+        )
+    
+        latency_ms = int((time.perf_counter() - start_time) * 1000)
+    
+        inputs = [
+            artifact_input_ref(program_ref, role="program_graph"),
+            artifact_input_ref(exec_plan_ref, role="exec_plan"),
+        ]
+        if program_graph.lowered_ir_ref is not None:
+            inputs.append(
+                input_ref_from_artifact_ref(program_graph.lowered_ir_ref, role="lowered_ir")
+            )
+        if parameter_override_bundle_ref is not None:
+            inputs.append(
+                input_ref_from_artifact_ref(
+                    parameter_override_bundle_ref,
+                    role="parameter_override_bundle",
+                )
+            )
+        for op in ops:
+            if op.value_ref is not None:
+                inputs.append(input_ref_from_artifact_ref(op.value_ref, role="patch_value"))
+    
+>       state_delta = StateDelta(base_ref=base_ref, ops=ops)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for StateDelta
+E       base_ref
+E         Input should be a valid dictionary or instance of StateSnapshotRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E           For further information visit https://errors.pydantic.dev/2.12/v/model_type
+
+src/polisyos/foundry/execute/_internal/graph/__init__.py:495: ValidationError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 16:25:27 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 16:25:27 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 16:25:27 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 16:25:27 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 16:25:27 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/_build/e02-A-full-queue/simulation-full/focused-repair/junit.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs
+========================= 1 failed, 4 passed in 16.16s =========================

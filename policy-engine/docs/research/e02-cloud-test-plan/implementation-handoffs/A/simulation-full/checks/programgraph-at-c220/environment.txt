@@ -1,0 +1,8 @@
+python=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python 3.14.3
+pytest=9.0.2 numpy=2.3.5 jax=0.8.2 backend=cpu
+cwd=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine
+runtime_module=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py
+test_module=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py
+HEAD=c2200989612bcdc21b26c96eafb22526a54059ed
+TREE=7a2729b235c3ae5050c44ea335db507beb830b11
+STATUS=

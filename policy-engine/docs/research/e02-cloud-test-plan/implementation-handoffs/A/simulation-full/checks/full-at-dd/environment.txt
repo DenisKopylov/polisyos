@@ -1,0 +1,15 @@
+python=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python 3.14.3
+pytest=9.0.2
+numpy=2.3.5
+jax=0.8.2 backend=cpu
+cwd=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine
+PYTHONPATH=['', '/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/src', '/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine', '/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python314.zip', '/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14', '/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/lib-dynload', '/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/lib/python3.14/site-packages', '/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine', '/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src']
+runtime_module=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py
+test_module=tests.unit.runtime.quality.test_joint_simulation_e02_semantics source=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py
+test_module=tests.unit.runtime.quality.test_joint_simulation_horizon source=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py
+test_module=tests.unit.remediation.test_sim_01 source=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/tests/unit/remediation/test_sim_01.py
+test_module=tests.unit.remediation.test_sim_02 source=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/tests/unit/remediation/test_sim_02.py
+test_module=tests.unit.remediation.test_sim_03 source=/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/tests/unit/remediation/test_sim_03.py
+HEAD=dd6fde7d0d1635ca659c0c57e5db77c40559d0e2
+TREE=a04248c3d57d57b1a8cc392a7292499b5fff9373
+STATUS=

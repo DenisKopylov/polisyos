@@ -1,0 +1,46 @@
+tracked_product_python_files total=5460 src=2698 tests=2762
+token='JointSimulationHorizonController' files=12
+  policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+  policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py
+  policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py
+  policy-engine/tests/unit/remediation/test_acq_01.py
+  policy-engine/tests/unit/remediation/test_cyc_02.py
+  policy-engine/tests/unit/remediation/test_sim_01.py
+  policy-engine/tests/unit/remediation/test_sim_02.py
+  policy-engine/tests/unit/remediation/test_sim_03.py
+  policy-engine/tests/unit/runtime/http/test_control_service_di.py
+  policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
+  policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py
+  policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py
+token='higher_order_residuals' files=3
+  policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py
+  policy-engine/tests/unit/remediation/test_sim_03.py
+  policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py
+token='_conditional_simulation_value_observation' files=1
+  policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+token='_DefaultSimulationBoundFoundryValuePort' files=6
+  policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+  policy-engine/src/polisyos/runtime/quality/intervention_substrate.py
+  policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py
+  policy-engine/tests/unit/remediation/test_acq_01.py
+  policy-engine/tests/unit/remediation/test_cyc_02.py
+  policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
+baseline_existing_test_paths=4 source_cells=14
+  F02-P032	69780761ae091d8fcc6ab8778c7f5f7227eeef0b	PASS	policy-engine/tests/unit/remediation/test_sim_03.py	B19,B21,B23,B25,B26
+  F03-P110	69780761ae091d8fcc6ab8778c7f5f7227eeef0b	PASS	policy-engine/tests/unit/remediation/test_sim_01.py	B06,B07
+  F04-P023	69780761ae091d8fcc6ab8778c7f5f7227eeef0b	PASS	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	B04,B05,B06,B07,B08,B18,B19,B20,B21,B22,B23,B25,B26
+  F04-P110	69780761ae091d8fcc6ab8778c7f5f7227eeef0b	PASS	policy-engine/tests/unit/remediation/test_sim_02.py	B18,B20,B22
+  F05-P041	78187878ee188ff6d27442ba1498bd094da9785b	PASS	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	B04,B05,B06,B07,B08,B18,B19,B20,B21,B22,B23,B25,B26
+  F07-P031	00d946c2b7d052522be092f9c70eb9902f6521c2	PASS	policy-engine/tests/unit/remediation/test_sim_03.py	B19,B21,B23,B25,B26
+  F08-P031	00d946c2b7d052522be092f9c70eb9902f6521c2	FAILED	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	B04,B05,B06,B07,B08,B18,B19,B20,B21,B22,B23,B25,B26
+  F08-P112	00d946c2b7d052522be092f9c70eb9902f6521c2	PASS	policy-engine/tests/unit/remediation/test_sim_01.py	B06,B07
+  F09-P112	00d946c2b7d052522be092f9c70eb9902f6521c2	PASS	policy-engine/tests/unit/remediation/test_sim_02.py	B18,B20,B22
+  F12-P030	5fd3ebcc15637e98bbd4938de5d62ee5004504a8	PASS	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	B04,B05,B06,B07,B08,B18,B19,B20,B21,B22,B23,B25,B26
+  F13-P038	0213101b6d124e6f855b1aff7c442bb0912a61c2	PASS	policy-engine/tests/unit/remediation/test_sim_03.py	B19,B21,B23,B25,B26
+  F13-P128	0213101b6d124e6f855b1aff7c442bb0912a61c2	PASS	policy-engine/tests/unit/remediation/test_sim_01.py	B06,B07
+  F14-P027	0213101b6d124e6f855b1aff7c442bb0912a61c2	PASS	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	B04,B05,B06,B07,B08,B18,B19,B20,B21,B22,B23,B25,B26
+  F14-P129	0213101b6d124e6f855b1aff7c442bb0912a61c2	PASS	policy-engine/tests/unit/remediation/test_sim_02.py	B18,B20,B22
+B25_preserved_function_body_sha256:
+  test_summary_distance_requires_one_declared_metric_set 0bf71bc8e57235036a6a3626da39343f879a3759e01a129eb8cddfd52398aa0b 0bf71bc8e57235036a6a3626da39343f879a3759e01a129eb8cddfd52398aa0b same=True
+  test_smm_missing_required_moment_cannot_win_calibration cf40c85d3002c478ad6aec5d3f3021efde84ca3f877cda22e444a4195a69eb62 cf40c85d3002c478ad6aec5d3f3021efde84ca3f877cda22e444a4195a69eb62 same=True
+  test_smm_all_incomparable_candidates_are_explicitly_blocked 57b3f7fa5e975df7105719f4d8c329a8bcd654b5f1c03d13ac14a19da248092a 57b3f7fa5e975df7105719f4d8c329a8bcd654b5f1c03d13ac14a19da248092a same=True

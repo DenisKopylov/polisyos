@@ -1,0 +1,237 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 90 items
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_static_engine_eligibility_uses_the_requested_grid_not_hint_strings PASSED [  1%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[left-right] PASSED [  2%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[right-left] PASSED [  3%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_engine_variable_alias_conflict_rejects_candidate_before_runner PASSED [  4%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[short-trailing] PASSED [  5%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[missing-middle] PASSED [  6%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[suffix-only] PASSED [  7%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[reordered-full-set] PASSED [  8%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[overlong] PASSED [ 10%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_physical_run_identity_canonicalizes_atoms_and_binds_comparator_inputs PASSED [ 11%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_missing_queue_and_mass_balance_output_never_becomes_numeric_zero PASSED [ 12%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[null] PASSED [ 13%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[malformed] PASSED [ 14%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[nan] PASSED [ 15%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[infinity] PASSED [ 16%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_cache_executor_rejects_nonfinite_adapter_output PASSED [ 17%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_generic_scalar_result_is_unavailable_without_terminal_binding PASSED [ 18%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_mass_balance_is_terminal_only_not_broadcast PASSED [ 20%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_marks_unbound_time_grid_when_dt_disagrees PASSED [ 21%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_single_point_stock_flow_can_mix_initial_row_with_terminal_scalar PASSED [ 22%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine PASSED [ 23%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs FAILED [ 24%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_controller_preserves_store_handles_and_snapshots_state PASSED [ 25%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_stock_flow_runner_does_not_fill_a_short_trajectory_with_final_state PASSED [ 26%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_real_ncm_cubic_exposes_joint_residual_with_zero_lower_order_terms PASSED [ 27%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_static_ncm_multistep_request_is_typed_no_run_before_runner PASSED [ 28%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff PASSED [ 30%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_committed_v1_joint_result_keeps_original_receipt_projection PASSED [ 31%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource] FAILED [ 32%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback] FAILED [ 33%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine] FAILED [ 34%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt PASSED [ 35%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation FAILED [ 36%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_safe_public_policy_exposes_no_gate_bypass_knobs PASSED [ 37%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_declared_unbacked_equilibrium_semantics_is_gated PASSED [ 38%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_when_run_is_claimed_without_trajectories PASSED [ 40%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_loops_real_shared_state_executor PASSED [ 41%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_refuses_foreign_selected_manifest_profile PASSED [ 42%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_output_lineage_keeps_selected_manifest_profiles PASSED [ 43%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_system_dynamics_plan_runs_registered_stock_flow_engine PASSED [ 44%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch PASSED [ 45%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registry_des_queue_tag_does_not_back_time_series_semantics PASSED [ 46%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_fresh_scalar_method_contract_does_not_back_agent_based_semantics PASSED [ 47%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_newly_registered_dynamic_method_is_selectable_without_controller_code PASSED [ 48%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction PASSED [ 50%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_for_fabricated_stub_refs PASSED [ 51%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_non_matching_domain_is_not_routed_to_unemployment_coupled_kernel PASSED [ 52%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_cyclic_ncm_is_rejected_not_silently_grounded PASSED [ 53%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_pending_world_model_record_ref_fails_closed PASSED [ 54%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_builder_is_deterministic_and_strangles_abm_stub_fields PASSED [ 55%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_strangle_probe_censuses_every_production_stub_caller PASSED [ 56%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_rederive_audit_validates_live_payload_without_frozen_artifact PASSED [ 57%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_source_flip_runs_behavior_and_restores_bytes PASSED [ 58%]
+tests/unit/remediation/test_sim_01.py::test_unsupported_first_engine_falls_back_to_supported_second PASSED [ 60%]
+tests/unit/remediation/test_sim_01.py::test_all_engine_candidates_incompatible_return_typed_rejection PASSED [ 61%]
+tests/unit/remediation/test_sim_01.py::test_selected_plan_requires_its_executed_trajectory PASSED [ 62%]
+tests/unit/remediation/test_sim_01.py::test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow PASSED [ 63%]
+tests/unit/remediation/test_sim_01.py::test_foreign_trajectory_cannot_satisfy_selected_plan PASSED [ 64%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[empty-world-summaries] PASSED [ 65%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[missing-selected-outcome] PASSED [ 66%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[mixed-valid-and-missing-selected-outcome] PASSED [ 67%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[nan-selected-outcome] PASSED [ 68%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[infinite-selected-outcome] PASSED [ 70%]
+tests/unit/remediation/test_sim_02.py::test_ncm_explicit_zero_is_preserved_as_a_real_outcome PASSED [ 71%]
+tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[left-right] PASSED [ 72%]
+tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[right-left] PASSED [ 73%]
+tests/unit/remediation/test_sim_02.py::test_identical_atom_assignments_are_order_invariant PASSED [ 74%]
+tests/unit/remediation/test_sim_02.py::test_short_trajectory_is_not_silently_extended_by_final_value PASSED [ 75%]
+tests/unit/remediation/test_sim_03.py::test_summary_distance_requires_one_declared_metric_set PASSED [ 76%]
+tests/unit/remediation/test_sim_03.py::test_smm_missing_required_moment_cannot_win_calibration PASSED [ 77%]
+tests/unit/remediation/test_sim_03.py::test_smm_all_incomparable_candidates_are_explicitly_blocked PASSED [ 78%]
+tests/unit/remediation/test_sim_03.py::test_single_paired_draw_has_unestimated_standard_error PASSED [ 80%]
+tests/unit/remediation/test_sim_03.py::test_paired_replicates_require_distinct_seeds PASSED [ 81%]
+tests/unit/remediation/test_sim_03.py::test_joint_request_runs_each_requested_replication_with_distinct_seeds PASSED [ 82%]
+tests/unit/remediation/test_sim_03.py::test_ncm_evidence_none_and_explicit_empty_are_distinct PASSED [ 83%]
+tests/unit/remediation/test_sim_03.py::test_physical_run_ref_binds_effective_evidence_and_source_mode PASSED [ 84%]
+tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request PASSED [ 85%]
+tests/unit/remediation/test_sim_03.py::test_three_atom_controller_reports_real_higher_order_residual_and_order PASSED [ 86%]
+tests/unit/remediation/test_sim_03.py::test_complete_additive_three_atom_basis_remains_additive PASSED [ 87%]
+tests/unit/remediation/test_sim_03.py::test_missing_pair_basis_is_unsupported_not_false_additivity PASSED [ 88%]
+tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[selected_outcome] PASSED [ 90%]
+tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[static_horizon_step] PASSED [ 91%]
+tests/unit/remediation/test_sim_03.py::test_static_ncm_multi_step_horizon_is_rejected_before_execution PASSED [ 92%]
+tests/unit/remediation/test_sim_03.py::test_static_ncm_single_step_horizon_remains_additive PASSED [ 93%]
+tests/unit/remediation/test_sim_03.py::test_four_atom_cancellation_is_bounded_aggregate_not_additive PASSED [ 94%]
+tests/unit/remediation/test_sim_03.py::test_joint_simulation_requires_explicit_selected_outcome_baseline PASSED [ 95%]
+tests/unit/remediation/test_sim_03.py::test_explicit_comparator_makes_equal_scenarios_zero_effect PASSED [ 96%]
+tests/unit/remediation/test_sim_03.py::test_joint_simulation_reuses_physical_spec_across_roles PASSED [ 97%]
+tests/unit/remediation/test_sim_03.py::test_joint_residual_keeps_higher_order_interaction_visible PASSED [ 98%]
+tests/unit/remediation/test_sim_03.py::test_checked_interaction_orders_include_pairwise_two_atom_run PASSED [100%]
+
+=================================== FAILURES ===================================
+_______ test_program_graph_cache_binds_mutated_state_with_same_cas_refs ________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-525/test_program_graph_cache_binds0')
+
+    def test_program_graph_cache_binds_mutated_state_with_same_cas_refs(
+        tmp_path: Any,
+    ) -> None:
+        import jax.numpy as jnp
+    
+>       from polisyos.foundry.execute import put_state_snapshot
+E       ImportError: cannot import name 'put_state_snapshot' from 'polisyos.foundry.execute' (/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/src/polisyos/foundry/execute/__init__.py)
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:758: ImportError
+_ test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource] _
+
+graph_kind = 'shared_resource'
+expected_blocker = 'unsupported_coupling_class:shared_resource'
+
+    @pytest.mark.parametrize(
+        ("graph_kind", "expected_blocker"),
+        [
+            ("shared_resource", "unsupported_coupling_class:shared_resource"),
+            ("feedback", "unsupported_coupling_class:feedback"),
+            (
+                "general_equilibrium",
+                "general_equilibrium_coupling_not_grounded_by_available_engine",
+            ),
+        ],
+    )
+    def test_unsupported_coupling_is_gated_not_summed(
+        graph_kind: str,
+        expected_blocker: str,
+    ) -> None:
+        request = _request().model_copy(update={"coupling_graph": _coupling_graph(graph_kind)})
+    
+        result = JointSimulationHorizonController().run(request)
+    
+        assert result.engine_decisions[0].decision == "unsupported"
+>       assert result.engine_decisions[0].reason == "coupling_composition_gate_unsupported"
+E       AssertionError: assert 'static_engin...namic_horizon' == 'coupling_com...e_unsupported'
+E         
+E         - coupling_composition_gate_unsupported
+E         + static_engine_cannot_ground_dynamic_horizon
+
+tests/unit/runtime/quality/test_joint_simulation_horizon.py:720: AssertionError
+_ test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback] _
+
+graph_kind = 'feedback'
+expected_blocker = 'unsupported_coupling_class:feedback'
+
+    @pytest.mark.parametrize(
+        ("graph_kind", "expected_blocker"),
+        [
+            ("shared_resource", "unsupported_coupling_class:shared_resource"),
+            ("feedback", "unsupported_coupling_class:feedback"),
+            (
+                "general_equilibrium",
+                "general_equilibrium_coupling_not_grounded_by_available_engine",
+            ),
+        ],
+    )
+    def test_unsupported_coupling_is_gated_not_summed(
+        graph_kind: str,
+        expected_blocker: str,
+    ) -> None:
+        request = _request().model_copy(update={"coupling_graph": _coupling_graph(graph_kind)})
+    
+        result = JointSimulationHorizonController().run(request)
+    
+        assert result.engine_decisions[0].decision == "unsupported"
+>       assert result.engine_decisions[0].reason == "coupling_composition_gate_unsupported"
+E       AssertionError: assert 'static_engin...namic_horizon' == 'coupling_com...e_unsupported'
+E         
+E         - coupling_composition_gate_unsupported
+E         + static_engine_cannot_ground_dynamic_horizon
+
+tests/unit/runtime/quality/test_joint_simulation_horizon.py:720: AssertionError
+_ test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine] _
+
+graph_kind = 'general_equilibrium'
+expected_blocker = 'general_equilibrium_coupling_not_grounded_by_available_engine'
+
+    @pytest.mark.parametrize(
+        ("graph_kind", "expected_blocker"),
+        [
+            ("shared_resource", "unsupported_coupling_class:shared_resource"),
+            ("feedback", "unsupported_coupling_class:feedback"),
+            (
+                "general_equilibrium",
+                "general_equilibrium_coupling_not_grounded_by_available_engine",
+            ),
+        ],
+    )
+    def test_unsupported_coupling_is_gated_not_summed(
+        graph_kind: str,
+        expected_blocker: str,
+    ) -> None:
+        request = _request().model_copy(update={"coupling_graph": _coupling_graph(graph_kind)})
+    
+        result = JointSimulationHorizonController().run(request)
+    
+        assert result.engine_decisions[0].decision == "unsupported"
+>       assert result.engine_decisions[0].reason == "coupling_composition_gate_unsupported"
+E       AssertionError: assert 'static_engin...namic_horizon' == 'coupling_com...e_unsupported'
+E         
+E         - coupling_composition_gate_unsupported
+E         + static_engine_cannot_ground_dynamic_horizon
+
+tests/unit/runtime/quality/test_joint_simulation_horizon.py:720: AssertionError
+__ test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation ___
+
+    def test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation() -> None:
+        request = _request().model_copy(update={"coupling_graph": _coupling_graph("feedback")})
+    
+        result = JointSimulationHorizonController.for_contract_testing(
+            disable_coupling_gate=True
+        ).run(request)
+    
+>       assert result.engine_decisions[0].decision == "selected"
+E       AssertionError: assert 'unsupported' == 'selected'
+E         
+E         - selected
+E         + unsupported
+
+tests/unit/runtime/quality/test_joint_simulation_horizon.py:783: AssertionError
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos/policy-engine/_build/e02-A-full-queue/simulation-full/junit.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs
+FAILED tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource]
+FAILED tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback]
+FAILED tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine]
+FAILED tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation
+=================== 5 failed, 85 passed in 63.25s (0:01:03) ====================

@@ -1,0 +1,84 @@
+{
+  "schema": "policyos.e02.captured_payload_manifest.v1",
+  "runtime_candidate_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-complete.txt",
+      "sha256": "cf3bc2f9c245fd54c6e51444e5bf8d407b872f677881b73c578e0fb3e1ae8ae2",
+      "bytes": 6899
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-inputs.json",
+      "sha256": "e1cf845f3c3c5f7b66b5b8a4523580606b235bf9b84798485c69bf1113522c2c",
+      "bytes": 4072
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-resource.json",
+      "sha256": "c0a23e410de539026714cd394e10964baaffbc7fcac4f17693b199e846e7ad33",
+      "bytes": 518
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-complete.txt",
+      "sha256": "40844bb8fddbc2e45d53c90f1a15cd01decf367bfa8c7d8df85a9446497ac1c7",
+      "bytes": 6859
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-inputs.json",
+      "sha256": "fb74df437369cf759695564e47bd5ab243bce285f469106a62bf2d543f390850",
+      "bytes": 5597
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-resource.json",
+      "sha256": "8cc5190d16e6050cfc05ce6dbc4f1a845b4c052174941f1a54b46a4ff8ecbebe",
+      "bytes": 467
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-origin-check.json",
+      "sha256": "128c9b499252146d279aebb33e6fa18f7cf40f5293fe147b9b9bb5b85879a09c",
+      "bytes": 4913
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-resource.json",
+      "sha256": "6ca14108073d2013bf35831e6f8803140d287d8a0866fdac4a76c0541e89857f",
+      "bytes": 664
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-resource.json",
+      "sha256": "d726c03c9d673ac7c8915c4172ffab80b6f8d36771d5325254c9335f12671142",
+      "bytes": 635
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-provision.json",
+      "sha256": "4597f650e105af4db2113715b72f6cb8dfc0db0b6608892a9dce5d9fd1af627f",
+      "bytes": 2538,
+      "role": "Captured environment provisioning evidence, not scientific/domain input."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-requirements.txt",
+      "sha256": "ecc8c61909749407fd3cba2e8f4d1d2a5293937672315069d4b5bfe165942164",
+      "bytes": 284,
+      "role": "Captured environment provisioning evidence, not scientific/domain input."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-resource.json",
+      "sha256": "060e39d60988112307c3984c12c9aa943ad654e16a4ac664f5051bd221374c86",
+      "bytes": 776
+    }
+  ],
+  "scope": "Ordinary admitted Git DOE bridge actual PASS at eb826. Assembled snapshot separately diagnostic only. Three absent-report/full challenge consumer invocations ended SIGKILL with no verdict; ERROR/uncompleted UNRUN. No fallback runtime PASS is inferred."
+}

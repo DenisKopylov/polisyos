@@ -1,0 +1,14 @@
+{
+  "D_source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+  "E_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "command": [
+    "/workspace/e02-D-doe-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+  ],
+  "input_profile_sha256": "e1cf845f3c3c5f7b66b5b8a4523580606b235bf9b84798485c69bf1113522c2c",
+  "exit_code": 0,
+  "wall_seconds": 19.869575598990195,
+  "peak_rss_kib": 773492,
+  "backend": "/workspace/e02-D-doe-env/bin/python",
+  "output_bytes": 6899
+}

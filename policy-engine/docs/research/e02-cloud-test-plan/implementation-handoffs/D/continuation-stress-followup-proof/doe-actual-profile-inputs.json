@@ -1,0 +1,100 @@
+{
+  "schema": "e02.D.E.explicit-composed-inputs.v1",
+  "D_source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+  "E_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "export_dir": "/dev/shm/e02-D-E-doe-profile-3i1gxyjg/policy-engine",
+  "D_git_profile": [
+    {
+      "path": "policy-engine/src",
+      "git_object": "c6199ee8bcb953ffcfcc7230fd0f14b19b91314f",
+      "source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+      "type": "tree"
+    },
+    {
+      "path": "policy-engine/architecture",
+      "git_object": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+      "source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+      "type": "tree"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+      "type": "blob"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "git_object": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+      "type": "blob"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "git_object": "85f1fb2150a4da454fee02108565381d44f56730",
+      "source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+      "type": "blob"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+      "git_object": "ee59a04829c87e28681565d168052ad26dcf0ef3",
+      "source_sha": "f3eda210d41243aa0d1b25d05063b5730a92f5d4",
+      "type": "blob"
+    }
+  ],
+  "git_archive_sha256": "778bbeb522ac8b4be5f4e6176059cf721a4b9d23261c1a5d551cb6bda4c12a23",
+  "git_archive_bytes": 118978560,
+  "E_overlays": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8",
+      "bytes": 14391
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "bytes": 3949
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+      "bytes": 19279
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "5ceaaa52de62ed0723a522a3b500100c8571409a55d961bad3f3eb0756fba24e",
+      "bytes": 6384
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b",
+      "bytes": 3768
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631",
+      "bytes": 4628
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc",
+      "bytes": 3769
+    }
+  ],
+  "command": [
+    "/workspace/e02-D-doe-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+  ],
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "scope": "Fresh explicit immutable E/D Git projection with fulltrackedarchitecture andactual optionalSALib profile; rawthresholdintakeowneradoptionstillseparate. Real sampler/evaluator/CAS, no defaultdeployment/populationlaw claim."
+}

@@ -86,6 +86,25 @@ def admit_numeric_scratch(job: dict[str, object]) -> None:
     require_absent(temporary, purpose="numerical pytest basetemp")
 
 
+def create_numeric_scratch_parents(plan: dict[str, object]) -> None:
+    """Create fresh shared parents while leaving every pytest basetemp absent."""
+    output = Path(plan["output_root"]).resolve()
+    parents = set()
+    for job in plan["jobs"]:
+        admit_numeric_scratch(job)
+        if job["kind"] != "numerical":
+            continue
+        argv = job["argv"]
+        temporary = Path(argv[argv.index("--basetemp") + 1])
+        parent = temporary.parent
+        if not parent.resolve().is_relative_to(output):
+            raise RuntimeError("numerical basetemp parent escapes admitted wave output")
+        require_absent(parent, purpose="numerical pytest basetemp parent")
+        parents.add(parent)
+    for parent in sorted(parents, key=lambda path: (len(path.parts), str(path))):
+        parent.mkdir(parents=True, exist_ok=False)
+
+
 def family_for(path: str) -> str | None:
     prefix = "policy-engine/tests/unit/"
     if not path.startswith(prefix):
@@ -487,6 +506,7 @@ async def execute(plan: dict[str, object]) -> int:
     if (output / "wave-started.json").exists():
         raise RuntimeError("wave already started; preserve outputs and do not repeat")
     output.mkdir(parents=True, exist_ok=True)
+    create_numeric_scratch_parents(plan)
     (output / "wave-started.json").write_text(
         json.dumps(
             {

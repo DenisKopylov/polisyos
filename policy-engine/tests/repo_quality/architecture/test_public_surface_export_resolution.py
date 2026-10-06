@@ -32,11 +32,19 @@ def _fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Pat
 
 def test_actual_analytics_mapping_is_not_reported_as_empty() -> None:
     from polisyos.ir import analytics
+    from polisyos.ir.analytics.causal_queries import CausalEstimatorInterval, CausalResultKind
     from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
 
     result = guardrails._entrypoint_inventory("polisyos.ir.analytics")
     assert tuple(analytics.__all__) == tuple(sorted(ANALYTICS_FACADE_EXPORTS))
-    assert len(analytics.__all__) == 278
+    assert ANALYTICS_FACADE_EXPORTS["CausalEstimatorInterval"] == (
+        "polisyos.ir.analytics.causal_queries", "CausalEstimatorInterval",
+    )
+    assert ANALYTICS_FACADE_EXPORTS["CausalResultKind"] == (
+        "polisyos.ir.analytics.causal_queries", "CausalResultKind",
+    )
+    assert analytics.CausalEstimatorInterval is CausalEstimatorInterval
+    assert analytics.CausalResultKind is CausalResultKind
     # The native profile has these names, but the imported source also creates
     # classes outside the finite static grammar. Do not infer an empty namespace.
     assert result.export_count is None

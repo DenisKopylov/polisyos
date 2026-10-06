@@ -6,21 +6,222 @@
   "bundle_ids": [],
   "baseline_cells": [],
   "finding_dispositions": [],
-  "slice_base_sha": "a4640e6812123877ce40685a3ca9c7974c856fc7",
+  "slice_base_sha": "5ba2411581d164d1c5051907799a3b80337ba3ca",
   "implementation_commits": [
-    "5716decae319a1b51f8731f715b7197c17c64020"
+    "22e1ec70e09daf6039f938fee29c5162057fe864"
   ],
-  "candidate_sha": "5716decae319a1b51f8731f715b7197c17c64020",
-  "candidate_tree_sha": "98c9b44159a6564b4e925349293cbcb2d587794d",
+  "candidate_sha": "22e1ec70e09daf6039f938fee29c5162057fe864",
+  "candidate_tree_sha": "a2819c3875e64b7be8de5978b7cf05bf228b84cb",
   "branch": "codex/e02-B-current-execution-state",
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
   "changed_paths": [
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/exploratory-harness-error.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/d3.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/source-review.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/source-review-d3.json"
   ],
+  "prior_handoff": {
+    "commit": "5ba2411581d164d1c5051907799a3b80337ba3ca",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review.json",
+    "state": "Immutable b3365PASS1FAIL retained; only current measured-profile verdict superseded."
+  },
   "checks": [
+    {
+      "id": "generic-positional-grammar-independent-stdlib-discriminators",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+        "--repo",
+        "/workspace/polisyos",
+        "--target",
+        "d3a3df91804fa4205681703c3346041eda743836",
+        "--pytest-source",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/python.py",
+        "--out",
+        "_build/current-execution-state/final-selector-directory-independent-review/d3.json"
+      ],
+      "target_sha": "d3a3df91804fa4205681703c3346041eda743836",
+      "environment": {
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "source_identity": {
+          "bytes": 34682,
+          "sha256": "1c44f58dc8812df3897a0570e12bf30130e66b94bd99c97e54fff47714327d2c"
+        },
+        "tree_sha": "3641bb432d7a973398a5f0851926b0dbce235e78",
+        "compiled_helpers": [
+          "native_pytest_positionals",
+          "normalize",
+          "add",
+          "parse_native"
+        ],
+        "controlled_tracked_set": [
+          "policy-engine/tests/controlled/helper.py",
+          "policy-engine/tests/controlled/nested/test_second.py",
+          "policy-engine/tests/controlled/test_first.py",
+          "policy-engine/tests/outside/test_outside.py"
+        ],
+        "explicit_reads": [
+          {
+            "path": "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+            "bytes": 14262,
+            "sha256": "5f0b852ffd3654697e0c8cb6b2b440884331a92e55393417c21e6a615ac15b42"
+          },
+          {
+            "command": [
+              "/usr/bin/git",
+              "-C",
+              "/workspace/polisyos",
+              "show",
+              "d3a3df91804fa4205681703c3346041eda743836:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py"
+            ],
+            "bytes": 34682,
+            "sha256": "1c44f58dc8812df3897a0570e12bf30130e66b94bd99c97e54fff47714327d2c"
+          },
+          {
+            "command": [
+              "/usr/bin/git",
+              "-C",
+              "/workspace/polisyos",
+              "show",
+              "d3a3df91804fa4205681703c3346041eda743836:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json"
+            ],
+            "bytes": 29521,
+            "sha256": "39ebc5b60795ac764ec36dadb0fb997dbec9f4a809526044affba7a997a2bb7d"
+          },
+          {
+            "command": [
+              "/usr/bin/git",
+              "-C",
+              "/workspace/polisyos",
+              "show",
+              "d3a3df91804fa4205681703c3346041eda743836:policy-engine/pytest.ini"
+            ],
+            "bytes": 1021,
+            "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/python.py",
+            "bytes": 68754,
+            "sha256": "fd28318a23e7afb8cf81794ab3cb028ddb0148df80a14666cc8bc9320324561e"
+          },
+          {
+            "command": [
+              "/usr/bin/git",
+              "-C",
+              "/workspace/polisyos",
+              "ls-tree",
+              "-r",
+              "--name-only",
+              "d3a3df91804fa4205681703c3346041eda743836"
+            ],
+            "bytes": 1233198,
+            "sha256": "82fdb6c2cf0b8c195b546de6b9001b0da05cfe23b52827134aee001340fb12a6"
+          },
+          {
+            "command": [
+              "/usr/bin/git",
+              "-C",
+              "/workspace/polisyos",
+              "rev-parse",
+              "d3a3df91804fa4205681703c3346041eda743836^{tree}"
+            ],
+            "bytes": 41,
+            "sha256": "fc88d92f7cdc025224f671aa3523ab9d49b2d63b600f9f1fd6cfd3fd45f9c392"
+          }
+        ],
+        "filename_basis": {
+          "pytest_ini": {
+            "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+            "bytes": 1021,
+            "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+          },
+          "installed_pytest_source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/python.py",
+          "defaults_from_complete_source_ast": [
+            "test_*.py",
+            "*_test.py"
+          ],
+          "python_files_override": false,
+          "complete_tracked_python_test_paths": 2794,
+          "default_supported_non_test_prefix_paths": [],
+          "phase0_python_paths": 25,
+          "phase0_test_prefix_paths": [
+            "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+            "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+            "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+            "policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+            "policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+            "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+            "policy-engine/tests/unit/core/phase0/test_cli.py",
+            "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+            "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+            "policy-engine/tests/unit/core/phase0/test_decorators.py",
+            "policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+            "policy-engine/tests/unit/core/phase0/test_logs.py",
+            "policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+            "policy-engine/tests/unit/core/phase0/test_metrics.py",
+            "policy-engine/tests/unit/core/phase0/test_observability.py",
+            "policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+            "policy-engine/tests/unit/core/phase0/test_propagation.py",
+            "policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+            "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+            "policy-engine/tests/unit/core/phase0/test_run_context.py",
+            "policy-engine/tests/unit/core/phase0/test_signing.py",
+            "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+            "policy-engine/tests/unit/core/phase0/test_tracer.py",
+            "policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+            "policy-engine/tests/unit/core/phase0/test_worktree_admission.py"
+          ]
+        },
+        "pinned_option_profile": {
+          "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json",
+          "schema": "policyos.e02.pytest_cli_option_profile.v1",
+          "pytest_version": "9.0.2",
+          "actions": 146,
+          "option_names": 176,
+          "source_observations": 32,
+          "arity_distribution": {
+            "None": 76,
+            "0": 62,
+            "'?'": 7,
+            "'+'": 1
+          },
+          "limits": [
+            "Only named installed pytest9 contributor profile; custom repository pytest_addoption not loaded. Unknown option arity must remain unresolved, not a guessed selector.",
+            "Source options observed from actual runtime objects; does not attest product tests or case counts."
+          ]
+        },
+        "zero_helper_ast_delta": {
+          "from": "7c8684c917675d6d426c846ef58e2d1ac16269fa",
+          "to": "d3a3df91804fa4205681703c3346041eda743836",
+          "helpers": [
+            "native_pytest_positionals",
+            "normalize",
+            "add",
+            "parse_native"
+          ],
+          "basis": "Complete AST dumps, excluding source positions; profile bytes also exactequal."
+        }
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "qualification": "19 actual standard-library metadata discriminators PASS; no pytest, collection, main, gate, live registry or product code ran. Wholefile selection not case/runtime proof.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/d3.json",
+        "commit": "22e1ec70e09daf6039f938fee29c5162057fe864",
+        "bytes": 50413,
+        "sha256": "69641f2cd4a196930d043b35d6b7d7e85d39edd873b080cf778eed5cec47143e"
+      },
+      "stdout_alias": {
+        "actual_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-selector-directory-independent-review/d3.stdout.txt",
+        "committed_full_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/d3.json",
+        "bytes": 50413,
+        "sha256": "69641f2cd4a196930d043b35d6b7d7e85d39edd873b080cf778eed5cec47143e"
+      }
+    },
     {
       "command": [
         "/workspace/polisyos/policy-engine/.venv/bin/python",
@@ -179,67 +380,61 @@
   "property": {
     "statement": "Only native pytest positional directories expand into exact pinned tracked test descendants; options and nonpytest commands do not become native selector inputs.",
     "runtime_path": [
-      "pinned root selector nested metadata functions",
-      "controlled tracked membership and actual native descriptors",
-      "independent source/discriminator report",
-      "B root/G selector admission"
+      "pinned selector and measured option-profile",
+      "stdlib canonical option-arity parser",
+      "actual wholefile/descriptors+explicit unresolved results",
+      "root/G reviewed selector input admission"
     ],
-    "proxy_divergence": "A token not starting with minus is not necessarily a positional pytest selector. Separate --basetemp value tests/controlled is falsely expanded as2wholefiles.",
+    "proxy_divergence": "Oldb336 minus-prefix token check admits separate option values. New mechanism consumes146registered option arities, matchescomplete positional tokens and refuses unknown/missing/@argumentfile inference with reasons.",
     "negative_controls": [
-      "Nonpytest input=>no native selectors",
-      "Attached option --basetemp=tests/controlled=>no native selectors",
-      "Separate --basetemp tests/controlled=>expected0, actual2FAIL",
-      "Outside tracked test and same-directory helper excluded from positive directory2members"
+      "Separate andattached directory/filename optionvalues select0",
+      "Flags/shortgroups/attachedshortvalue/--/optional andvariable arities preservegenuine positions",
+      "Unknown option, argumentfile andmissingvalue select0 withactualunresolved reason",
+      "Outside/helper excluded; secondary*_test.py actualcontrolledsupport; exact25pinned phase0 members selected"
     ]
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "Directory expansion positive works; generic positional option exclusion has concrete same-class FAIL beforefinalwave. No product/runtime finding or closure.",
+  "capability_state_or_finding_state": "No blocker found in measured finite installed pytest9 grammar profile; source/metadata selector audit19PASS. Nativewholecohort execution andactualcasecount remainroot-owned/UNRUN byleaf.",
   "limitations_and_next_owner": [
     {
-      "owner": "B root selector author",
-      "issue": "Preserve/resolve separate option-value exclusion before generic positional-directory selector acceptance; leaf makes no root edits."
+      "owner": "B root/G",
+      "issue": "Perform singlefinalselector derivation andwholecohort on finalsourcefreeze. This leaf doesnotadopt parent229/14 or11unresolved preflight measurements."
     },
     {
       "owner": "B root/G",
-      "issue": "Full selector rederivation remains root-owned. This delta review does not adopt parent1765 oldlineage count or derive final fullcohort/casecounts."
+      "issue": "Custom repository pytest_addoption andargumentfiles are not resolved byinstalledprofile; d3compactcensus nowpreserves actualunresolved locator/hash/reason. No guessedabsence/collection/runtimeclaim."
     },
     {
       "owner": "B root/G",
-      "issue": "Current2792tracked Python tests have0secondary-only defaultnames; test_ criterion is sufficient forcurrentfilename basis only. Collection/conftest/runtime and fullinstalledclosure remainunmeasured."
+      "issue": "Installed pytestsource read only; fullinstalled/import/service closure isnot reconstructed. Onlypinnedmetadatawasconsumed, observerliveexecutionUNRUN byleaf."
     }
   ],
   "evidence": [
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/b336.json",
-      "commit": "5716decae319a1b51f8731f715b7197c17c64020",
-      "bytes": 17160,
-      "sha256": "ddb7d61f4cef87e6eef14069b78848e485be1aba17b0d4ea43be6840e39e9fbc"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/exploratory-harness-error.txt",
-      "commit": "5716decae319a1b51f8731f715b7197c17c64020",
-      "bytes": 294,
-      "sha256": "cda597eeee84198003d8c649d74a6770c922e0471a6c6775841ddee9cb0c93da"
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/d3.json",
+      "commit": "22e1ec70e09daf6039f938fee29c5162057fe864",
+      "bytes": 50413,
+      "sha256": "69641f2cd4a196930d043b35d6b7d7e85d39edd873b080cf778eed5cec47143e"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
-      "commit": "5716decae319a1b51f8731f715b7197c17c64020",
-      "bytes": 9033,
-      "sha256": "005326bd789fba7d5e421ddf83b0acab67f4bf4016e4d0a80eeaed2c860ee9b9"
+      "commit": "22e1ec70e09daf6039f938fee29c5162057fe864",
+      "bytes": 14262,
+      "sha256": "5f0b852ffd3654697e0c8cb6b2b440884331a92e55393417c21e6a615ac15b42"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/source-review.json",
-      "commit": "5716decae319a1b51f8731f715b7197c17c64020",
-      "bytes": 2710,
-      "sha256": "c2dd623cd626bc619b2386053d67886d493569b0f1059772c5fea863adb35443"
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/source-review-d3.json",
+      "commit": "22e1ec70e09daf6039f938fee29c5162057fe864",
+      "bytes": 5547,
+      "sha256": "954f62b8f219a96926555645376bfe2918e379f36612dc33866528f63d182904"
     }
   ],
-  "source_and_tests": "ZERO_DIFF fromslice base production/tests/tools/config; onlyownread-onlydocs/evidence added. No rootedits ornewworktrees/helpers.",
+  "source_and_tests": "Ownproduction/tests/tools/config ZERO_DIFF fromslice base; docs-onlydriver/evidence edits, norootedits/newtrees/helpers.",
   "bucket_rule": "P40 SAME input-selection/positional-token class, not a product/runtime finding.",
   "source_review": {
-    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/source-review.json",
-    "commit": "5716decae319a1b51f8731f715b7197c17c64020",
-    "bytes": 2710,
-    "sha256": "c2dd623cd626bc619b2386053d67886d493569b0f1059772c5fea863adb35443"
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/source-review-d3.json",
+    "commit": "22e1ec70e09daf6039f938fee29c5162057fe864",
+    "bytes": 5547,
+    "sha256": "954f62b8f219a96926555645376bfe2918e379f36612dc33866528f63d182904"
   }
 }
